@@ -487,7 +487,7 @@ footer a:hover{color:var(--ink)}
         <div class="fc tgc" id="hero-tg">
           <div class="th"><span class="tav">O</span>Otto<span class="tt">08:14</span></div>
           <div class="timg"><img src="/otto/assets/posts/cm-002.png" alt=""></div>
-          <div class="tcap" dir="rtl">בגיל 43, בלי רקע טיפולי, רונית פתחה קליניקה. הסיפור המלא ←</div>
+          <div class="tcap">At 43, with no clinical background, Ronit opened her own practice. Full story ↓</div>
           <div class="tmeta">FACEBOOK · SAT 18:00 · ALUMNI STORIES</div>
           <div class="ib"><span>❌ Skip</span><span>✏️ Edit</span><span class="ok">✅ Approve</span></div>
         </div>
@@ -504,7 +504,7 @@ footer a:hover{color:var(--ink)}
 
   <div class="wrap mq-head rv">
     <div class="eyebrow" style="margin:0">Real posts Otto produced this month</div>
-    <span class="hint">HOVER TO PAUSE · 2 BRANDS · EN · DE · HE</span>
+    <span class="hint">HOVER TO PAUSE · 2 LIVE BRANDS · FB + IG</span>
   </div>
   <div class="marquee" id="examples" aria-label="Examples of posts Otto produced">
     <div class="track" id="track"></div>
@@ -556,11 +556,11 @@ footer a:hover{color:var(--ink)}
               </ul>
               <div class="profile">
                 <div class="ph"><img src="/otto/assets/agents/orion.png" alt="">Brand profile<span class="ptag">AUTO-FILLED</span></div>
-                <div class="prow"><div class="pl">Industry</div><div class="pv">CBD wellness · EU e-commerce · EN + DE</div></div>
+                <div class="prow"><div class="pl">Industry</div><div class="pv">CBD wellness · EU e-commerce · DACH + UK</div></div>
                 <div class="prow"><div class="pl">Palette</div><div class="pv"><span class="sw" style="background:#FFBC00"></span><span class="sw" style="background:#111"></span><span class="sw" style="background:#F95C8F"></span><span class="sw" style="background:#F5F5F5"></span><span class="sw" style="background:#25D366"></span></div></div>
                 <div class="prow"><div class="pl">Voice</div><div class="pv"><i>Educational, trust-first. Lab tests over hype.</i></div></div>
                 <div class="prow"><div class="pl">Competitors</div><div class="pv">Nordic Oil · Naturecan · CBD Vital · Hempamed</div></div>
-                <div class="prow"><div class="pl">Audience</div><div class="pv">Petra, 52, DE — <i>“Ich schlafe seit Jahren schlecht.”</i></div></div>
+                <div class="prow"><div class="pl">Audience</div><div class="pv">Petra, 52, Germany — <i>“I haven’t slept well in years.”</i></div></div>
                 <div class="prow"><div class="pl">Plan</div><div class="chips"><span class="chip">Education</span><span class="chip">Trust &amp; proof</span><span class="chip">Use-case</span><span class="chip">Product</span><span class="chip">Engagement</span><span class="chip warn">Restricted on Meta → organic-first</span></div></div>
               </div>
             </div>
@@ -608,9 +608,9 @@ footer a:hover{color:var(--ink)}
             </div>
             <div class="deckside">
               <div class="mini-deck" id="mini-deck">
-                <div class="mcard u2"><div class="mh"><span class="av cm" style="width:22px;height:22px;font-size:9px">CM</span>CMTM College<span class="pf fb" style="width:20px;height:20px;font-size:8px">FB</span></div><div class="mm" dir="rtl">10,000 בוגרים. 25 שנה. משפחה אחת</div><div class="mf"><span>Community</span></div></div>
+                <div class="mcard u2"><div class="mh"><span class="av cm" style="width:22px;height:22px;font-size:9px">CM</span>CMTM College<span class="pf fb" style="width:20px;height:20px;font-size:8px">FB</span></div><div class="mm">10,000 graduates. 25 years. One family.</div><div class="mf"><span>Community</span></div></div>
                 <div class="mcard u1"><div class="mh"><span class="av hg" style="width:22px;height:22px;font-size:9px">HG</span>Happy Garden<span class="pf ig" style="width:20px;height:20px;font-size:8px">IG</span></div><div class="mm">Full vs Broad vs Isolate — 60-second guide</div><div class="mf"><span>Education</span><span>Sun 08:00</span></div></div>
-                <div class="mcard top" id="mcard-top"><div class="stamp">APPROVED</div><div class="mh"><span class="av cm" style="width:22px;height:22px;font-size:9px">CM</span>CMTM College<span class="pf fb" style="width:20px;height:20px;font-size:8px">FB</span></div><div class="mm" dir="rtl">בגיל 43, בלי רקע טיפולי, פתחה קליניקה</div><div class="mf"><span>Alumni stories</span><span>Sat 18:00</span></div></div>
+                <div class="mcard top" id="mcard-top"><div class="stamp">APPROVED</div><div class="mh"><span class="av cm" style="width:22px;height:22px;font-size:9px">CM</span>CMTM College<span class="pf fb" style="width:20px;height:20px;font-size:8px">FB</span></div><div class="mm">At 43, with no clinical background, she opened a practice</div><div class="mf"><span>Alumni stories</span><span>Sat 18:00</span></div></div>
               </div>
               <div class="mirror"><span class="tgi">✈</span><span><b>Same card, both places.</b>Decide in Telegram and the dashboard deck updates live — or the other way round.</span></div>
             </div>
@@ -824,17 +824,17 @@ $$('.rv').forEach(el=>io.observe(el));
 /* ---------- marquee ---------- */
 const POSTS = [
   {b:'hg',n:'Happy Garden',s:'happygardeneu.com · IG',p:'ig',img:'posts/hg-001.png',st:['pub','PUBLISHED · SUN 08:00'],cap:'<b>happygarden</b> Full Spectrum, Broad Spectrum, Isolate — same plant, three very different products. 🌿 60 seconds to know what\'s in your bottle →'},
-  {b:'cm',n:'CMTM College',s:'cmtm.co.il · FB',p:'fb',img:'posts/cm-002.png',st:['app','APPROVED · SAT 18:00'],rtl:1,cap:'בגיל 43, בלי רקע טיפולי, רונית נכנסה ללימודים ״רק בשביל עצמה״. שנתיים אחרי — קליניקה פעילה, יומן מלא.'},
-  {b:'hg',n:'Happy Garden',s:'happygardeneu.com · FB',p:'fb',txt:'Was deutsche Kunden wirklich sagen',bg:'linear-gradient(160deg,#1C2A4A,#0B1230)',st:['app','APPROVED · TUE 17:00'],cap:'<b>Happy Garden</b> „Die Qualität wirkt sauber und vertrauenswürdig“ — Melanie S. ⭐⭐⭐⭐⭐ Jede Charge unabhängig laborgeprüft.'},
-  {b:'cm',n:'CMTM College',s:'cmtm.co.il · IG',p:'ig',img:'posts/cm-001.png',st:['rev','IN REVIEW'],rtl:1,cap:'״לרפא מהשורש״ — לא סיסמה. שיטה. 5 שקפים שמסבירים איך זה עובד ← החליקו.'},
+  {b:'cm',n:'CMTM College',s:'cmtm.co.il · FB',p:'fb',img:'posts/cm-002.png',st:['app','APPROVED · SAT 18:00'],cap:'<b>CMTM College</b> At 43, with no clinical background, Ronit enrolled “just for herself”. Two years later: a full practice and a full calendar.'},
+  {b:'hg',n:'Happy Garden',s:'happygardeneu.com · FB',p:'fb',txt:'What our customers actually say',bg:'linear-gradient(160deg,#1C2A4A,#0B1230)',st:['app','APPROVED · TUE 17:00'],cap:'<b>Happy Garden</b> “The quality feels clean and trustworthy” — Melanie S. ⭐⭐⭐⭐⭐ Every batch independently lab tested.'},
+  {b:'cm',n:'CMTM College',s:'cmtm.co.il · IG',p:'ig',img:'posts/cm-001.png',st:['rev','IN REVIEW'],cap:'<b>cmtm.college</b> “Healing from the root” isn’t a slogan. It’s a method. Five slides on how it works → swipe.'},
   {b:'hg',n:'Happy Garden',s:'happygardeneu.com · IG',p:'ig',txt:'Myth: “CBD gets you high.” ✕',bg:'#FFBC00',dark:1,st:['sch','SCHEDULED · THU 18:00'],cap:'<b>happygarden</b> Fact: CBD is non-intoxicating. Our Broad Spectrum and Isolate lines contain zero THC. Wellness without the buzz.'},
-  {b:'cm',n:'CMTM College',s:'cmtm.co.il · IG',p:'ig',img:'posts/cm-007.png',st:['sch','SCHEDULED · MON 09:00'],rtl:1,cap:'מיתוס: ״צריך תואר בפסיכולוגיה כדי לטפל״. מציאות: יש מסלול מוסדר שמכשיר מטפלים כבר 25 שנה.'},
+  {b:'cm',n:'CMTM College',s:'cmtm.co.il · IG',p:'ig',img:'posts/cm-007.png',st:['sch','SCHEDULED · MON 09:00'],cap:'<b>cmtm.college</b> Myth: you need a psychology degree to help people. Reality: a structured path has trained practitioners for 25 years.'},
   {b:'hg',n:'Happy Garden',s:'happygardeneu.com · IG',p:'ig',txt:'Why CBN is called the “sleepy cannabinoid”',bg:'radial-gradient(120% 100% at 80% 0%,#33509F,#0B1230 60%)',st:['app','APPROVED · WED 20:00'],cap:'<b>happygarden</b> CBD gets the fame, but CBN is the quiet specialist. Our CBD+CBG+CBN blend is built for one job: the evening wind-down.'},
-  {b:'cm',n:'CMTM College',s:'cmtm.co.il · FB',p:'fb',txt:'10,000 בוגרים. 25 שנה. משפחה אחת',bg:'linear-gradient(160deg,#5A4A2E,#2B2118)',rtl:1,st:['pub','PUBLISHED · WED 09:00'],cap:'25 שנה של הכשרת מטפלים. 10,000 בוגרים. וקהילה שממשיכה ללוות אותם גם אחרי הדיפלומה.'},
+  {b:'cm',n:'CMTM College',s:'cmtm.co.il · FB',p:'fb',txt:'10,000 graduates. 25 years. One family.',bg:'linear-gradient(160deg,#5A4A2E,#2B2118)',st:['pub','PUBLISHED · WED 09:00'],cap:'<b>CMTM College</b> 25 years of training practitioners. 10,000 graduates. A community that stays with them long after the diploma.'},
   {b:'hg',n:'Happy Garden',s:'happygardeneu.com · IG story',p:'ig',txt:'What brings you to CBD? 😴 💪 🧘 🐾',bg:'linear-gradient(160deg,#F95C8F,#F5716A)',st:['sch','SCHEDULED · MON 19:00'],cap:'<b>happygarden</b> Poll: Sleep / Recovery / Calm / My pet — tap to vote. We\'ll write next week around the winner.'},
-  {b:'cm',n:'CMTM College',s:'cmtm.co.il · FB',p:'fb',txt:'קריירה שנייה עם משמעות — 3 שאלות לבדוק אם זה בשבילך',bg:'linear-gradient(160deg,#2B4A3E,#10251C)',rtl:1,st:['dr','DRAFT'],cap:'לא כל אחד צריך להיות מטפל. אבל אם ענית כן על שלוש השאלות האלה — כדאי לדבר.'},
+  {b:'cm',n:'CMTM College',s:'cmtm.co.il · FB',p:'fb',txt:'A second career with meaning: 3 questions to ask first',bg:'linear-gradient(160deg,#2B4A3E,#10251C)',st:['dr','DRAFT'],cap:'<b>CMTM College</b> Not everyone should become a therapist. But if you answered yes to all three, let’s talk.'},
   {b:'hg',n:'Happy Garden',s:'happygardeneu.com · FB',p:'fb',txt:'3 things to check before buying any CBD product',bg:'linear-gradient(160deg,#1C4A35,#0A2A1C)',st:['rev','IN REVIEW'],cap:'<b>Happy Garden</b> Lab report. Spectrum. Origin. We publish all three — here\'s how to read them in 15 seconds.'},
-  {b:'cm',n:'CMTM College',s:'cmtm.co.il · IG',p:'ig',txt:'חוזרים ממילואים וממשיכים כרגיל? הגוף זוכר',bg:'linear-gradient(160deg,#3A3A5C,#171733)',rtl:1,st:['dr','DRAFT'],cap:'יש דרך לעבד את מה שהגוף נושא. בלי דרמה, בלי הבטחות — עם כלים.'},
+  {b:'cm',n:'CMTM College',s:'cmtm.co.il · IG',p:'ig',txt:'Back from a hard month and “carrying on as usual”? The body remembers.',bg:'linear-gradient(160deg,#3A3A5C,#171733)',st:['dr','DRAFT'],cap:'<b>cmtm.college</b> There is a way to process what the body carries. No drama, no promises. Tools.'},
 ];
 const card = p => `<div class="pc">
   <div class="pc-head"><span class="av ${p.b}">${p.b.toUpperCase()}</span><div><div class="pc-name">${p.n}</div><div class="pc-sub">${p.s}</div></div><span class="pf ${p.p}">${p.p.toUpperCase()}</span></div>
@@ -908,9 +908,9 @@ register($('#w-approve'),
   ()=>{ feed.innerHTML=''; deck.innerHTML=deckHTML; },
   (tl,instant)=>{
     const top=()=>$('.mcard.top',deck);
-    if(instant){ const m=push(msgPost('posts/cm-002.png','בגיל 43, בלי רקע טיפולי, רונית נכנסה ללימודים ״רק בשביל עצמה״. שנתיים אחרי — קליניקה פעילה.','FACEBOOK · SAT 18:00 · ALUMNI STORIES',1)); m.classList.add('in'); return 0; }
+    if(instant){ const m=push(msgPost('posts/cm-002.png','At 43, with no clinical background, Ronit enrolled “just for herself”. Two years later: a full practice.','FACEBOOK · SAT 18:00 · ALUMNI STORIES',0)); m.classList.add('in'); return 0; }
     let m1,m3;
-    tl.at(200,()=>{ m1=push(msgPost('posts/cm-002.png','בגיל 43, בלי רקע טיפולי, רונית נכנסה ללימודים ״רק בשביל עצמה״. שנתיים אחרי — קליניקה פעילה, יומן מלא.','FACEBOOK · SAT 18:00 · ALUMNI STORIES',1)); });
+    tl.at(200,()=>{ m1=push(msgPost('posts/cm-002.png','At 43, with no clinical background, Ronit enrolled “just for herself”. Two years later: a full practice and a full calendar.','FACEBOOK · SAT 18:00 · ALUMNI STORIES',0)); });
     tl.at(1900,()=>{ approveMsg(m1,'Sat 18:00'); const t=top(); t&&t.classList.add('stamped'); });
     tl.at(2500,()=>{ const t=top(); if(!t) return; t.classList.add('gone'); t.classList.remove('top'); const u1=$('.mcard.u1',deck), u2=$('.mcard.u2',deck); if(u1){u1.classList.remove('u1'); u1.classList.add('top');} if(u2){u2.classList.remove('u2'); u2.classList.add('u1');} });
     tl.at(3100,()=>{ push(msgPost('posts/hg-001.png','Full Spectrum, Broad Spectrum, Isolate — same plant, three very different products. 🌿 60 seconds to know exactly what\'s in your bottle → swipe.','INSTAGRAM · SUN 08:00 · EDUCATION',0)); });
@@ -956,9 +956,9 @@ $('#hero-form').addEventListener('submit',e=>{
 /* ---------- team ---------- */
 const TEAM=[
   {id:'orion',n:'Orion',r:'Orchestrator',d:'Runs the room. Compiles your briefing, routes every decision to you, and keeps the fleet on schedule.',f:["Compiled today's briefing 06:00",'Routing 2 decisions to you','Watching the Sat 18:00 slot','Fleet sync: 5 agents reporting']},
-  {id:'quill',n:'Quill',r:'Content',d:'Writes every post in your voice — hooks, captions, stories — on proven direct-response frameworks, never filler.',f:['Drafted 11 posts across 2 brands','Rewriting hg-003 hook — v2','HE + DE variants ready','4 posts queued for your sign-off']},
+  {id:'quill',n:'Quill',r:'Content',d:'Writes every post in your voice — hooks, captions, stories — on proven direct-response frameworks, never filler.',f:['Drafted 11 posts across 2 brands','Rewriting hg-003 hook — v2','DE variants ready for review','4 posts queued for your sign-off']},
   {id:'sage',n:'Sage',r:'Organic growth',d:'Owns the calendar: best hours per channel, hashtag sets, and a queue that never runs dry.',f:['Best CMTM slot: Sun 09:00','IG hashtag sets refreshed','Slotting week 2 calendar','LinkedIn pillar mapped']},
-  {id:'nova',n:'Nova',r:'Ideas & trends',d:'Scans your competitors and the trend feed weekly, and turns gaps nobody runs into briefs.',f:['3 new recommendations queued','Trend scan: reserve-duty chatter ↑','Competitor sweep: 6 ads >30 days','Watching 6 content pillars']},
+  {id:'nova',n:'Nova',r:'Ideas & trends',d:'Scans your competitors and the trend feed weekly, and turns gaps nobody runs into briefs.',f:['3 new recommendations queued','Trend scan: sleep-season chatter ↑','Competitor sweep: 6 ads >30 days','Watching 6 content pillars']},
   {id:'atlas',n:'Atlas',r:'Paid ads',d:'Turns your organic winners into ad variants inside a daily ceiling you set. Never spends silently.',f:['CMTM audience drafts ready','CBD policy: organic-first for HG','Waiting on your ad account'],sb:1},
   {id:'echo',n:'Echo',r:'Analytics',d:'Sets your baselines, watches for drops every hour, and writes the one-sentence weekly conclusion.',f:['Baselines: reach · saves · leads','Activates with your first live week'],sb:1},
 ];
