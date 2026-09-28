@@ -28,3 +28,7 @@ platform/*.jpg
 
 # local tooling
 .claude/
+
+# generated ad statics / reels — rendered on the server, served from /otto/assets, not versioned
+platform/assets/ads/
+platform/assets/reels/
