@@ -799,6 +799,11 @@ if(!RM){
   setTimeout(step, 2200);
 }
 
+/* ---------- timeline helper ---------- */
+function TL(){ this.t=[]; }
+TL.prototype.at=function(ms,fn){ this.t.push(setTimeout(fn,ms)); return this; };
+TL.prototype.clear=function(){ this.t.forEach(clearTimeout); this.t=[]; };
+
 /* ---------- hero 3D stage: pointer tilt + auto-play ---------- */
 const stage=$('#stage'), tilt=$('#tilt');
 let tx=0, ty=0, raf=null;
@@ -809,11 +814,20 @@ if(!RM && matchMedia('(pointer:fine)').matches){
 }
 const heroTg=$('#hero-tg'), heroRec=$('#hero-rec');
 const heroIB = heroTg.querySelector('.ib').outerHTML, heroIB2 = heroRec.querySelector('.ib2').outerHTML;
+const heroTL = new TL();
+function heroReset(){
+  const r1=heroTg.querySelector('.res'), r2=heroRec.querySelector('.res');
+  if(r1) r1.outerHTML=heroIB; else if(!heroTg.querySelector('.ib')) heroTg.insertAdjacentHTML('beforeend',heroIB);
+  if(r2) r2.outerHTML=heroIB2; else if(!heroRec.querySelector('.ib2')) heroRec.insertAdjacentHTML('beforeend',heroIB2);
+  $$('.hit',heroTg).concat($$('.hit',heroRec)).forEach(el=>el.classList.remove('hit'));
+}
 function heroPlay(){
-  const ib=heroTg.querySelector('.ib'), ok=ib&&ib.querySelector('.ok');
-  if(ok){ ok.classList.add('hit'); setTimeout(()=>{ ib.outerHTML='<div class="res">✅ Approved · publishes Sat 18:00</div>'; },420); }
-  setTimeout(()=>{ const ib2=heroRec.querySelector('.ib2'), ok2=ib2&&ib2.querySelector('.ok'); if(ok2){ ok2.classList.add('hit'); setTimeout(()=>{ ib2.outerHTML='<div class="res">✅ Approved · Quill is drafting the LinkedIn plan</div>'; },420); } },2200);
-  setTimeout(()=>{ heroTg.querySelector('.res').outerHTML=heroIB; heroRec.querySelector('.res').outerHTML=heroIB2; },6200);
+  heroTL.clear(); heroReset();
+  heroTL.at(0,()=>{ const ok=heroTg.querySelector('.ib .ok'); ok&&ok.classList.add('hit'); });
+  heroTL.at(420,()=>{ const ib=heroTg.querySelector('.ib'); if(ib) ib.outerHTML='<div class="res">✅ Approved · publishes Sat 18:00</div>'; });
+  heroTL.at(2200,()=>{ const ok=heroRec.querySelector('.ib2 .ok'); ok&&ok.classList.add('hit'); });
+  heroTL.at(2620,()=>{ const ib2=heroRec.querySelector('.ib2'); if(ib2) ib2.outerHTML='<div class="res">✅ Approved · Quill is drafting the LinkedIn plan</div>'; });
+  heroTL.at(6200,heroReset);
 }
 if(!RM){ setTimeout(heroPlay,2600); setInterval(heroPlay,9200); }
 
@@ -845,9 +859,6 @@ const card = p => `<div class="pc">
 $('#track').innerHTML = POSTS.map(card).join('') + POSTS.map(card).join('');
 
 /* ---------- widget engine ---------- */
-function TL(){ this.t=[]; }
-TL.prototype.at=function(ms,fn){ this.t.push(setTimeout(fn,ms)); return this; };
-TL.prototype.clear=function(){ this.t.forEach(clearTimeout); this.t=[]; };
 const widgets = [];
 function register(el, reset, run){ const w={el,reset,run,tl:new TL(),live:false}; widgets.push(w); return w; }
 function loop(w){ w.tl.clear(); w.reset(); if(RM){ w.run(w.tl,true); return; } const d = w.run(w.tl,false); w.tl.at(d+2400, ()=>{ if(w.live) loop(w); }); }
