@@ -1,8 +1,9 @@
 # OTTO — דוח מערכת מלא (Handoff ל-Claude Code)
-Date: 2026-09-28 · Author: Maximus · Source server: openclaw @ AWS (`/home/ubuntu/.openclaw/workspace-maximus/`)
+Date: 2026-09-28 (עודכן אחרי דיפלוי ל-git) · Author: Maximus · Source server: openclaw @ AWS (`/home/ubuntu/.openclaw/workspace-maximus/`)
 
 > מסמך self-contained: כל הארכיטקטורה, הפרומפטים המלאים, מצב חי, ומה שחסר.
-> אפשר לזרוק אותו ל-Claude Code מקומי והוא מבין את המערכת בלי גישה לשרת.
+> **הריפו הרשמי: https://github.com/maxcmtm/otto (פרטי, branch `main`)** — הקוד + המסמך הזה ב-`docs/`.
+> Claude Code מקומי: `git clone https://github.com/maxcmtm/otto.git` ומתחילים מ-`docs/OTTO-SYSTEM-REPORT.md`.
 
 ---
 
@@ -134,7 +135,7 @@ MCP server (stdio, Python) לפרסום אורגני Meta. Multi-tenant: תהל�
 
 ## 8. סודות (מיקומים בלבד — הערכים בשרת)
 - `otto-secrets/` — אינוונטר מלא ב-README.md; whop.json (מפתחות Whop חיים).
-- Leonardo API key — בשימוש ב-genvisuals.py + funnels/*/fire_ads.py.
+- Leonardo API key — **הוצא מהקוד (28.09)**: `genvisuals.py` קורא env `LEONARDO_API_KEY` או `platform/.leonardo_key` (chmod 600, ב-.gitignore). עדיין hardcoded ב-funnels/*/fire_ads.py (מחוץ לריפו).
 - ⚠️ פתוח: rotate ל-Whop webhook secret (דלף ללוג, קוצץ ונשמר chmod 600).
 
 ## 9. מה חסר — הרשימה המדויקת
@@ -149,10 +150,20 @@ MCP server (stdio, Python) לפרסום אורגני Meta. Multi-tenant: תהל�
 
 **טכני הבא בתור:** callback טלגרם→state machine מלא לאישורים · queue.json→scheduler cron לפרסום בסלוט · לופ אנליטיקס שבועי (Insights→כיוונון באץ' הבא) · הפרדת autopilot-core לסוכן משלו.
 
-## 10. עבודה מול Claude Code מקומי
-- הקוד החי יושב **רק בשרת** (`/home/ubuntu/.openclaw/workspace-maximus/autopilot/` ועוד). כל דיפלוי = פרוד.
-- דרכים לעבוד: (א) SSH מהמחשב לשרת ו-Claude Code רץ שם/דרך remote; (ב) להעתיק את `autopilot/` + `openclaw-installer/` לרפו git ולעבוד מקומית עם deploy מסודר — **מומלץ** אם מתחילים פיתוח כבד מקומי; (ג) להשתמש במסמך הזה כקונטקסט ולתת למקסימוס (הסוכן בשרת) לבצע.
-- חוקי פרוד: לפני נגיעה ב-provisioner — `systemctl --user status pilot-provisioner` + בדיקת provisioner.db; תמיד `.bak.<date>`; dry-run; רק אז restart.
+## 10. Git + עבודה מול Claude Code מקומי (חי מ-28.09.2026)
+**הריפו:** https://github.com/maxcmtm/otto — פרטי, branch `main`. Root הריפו = `autopilot/` בשרת. הדחיפה מהשרת דרך deploy key בשם `otto-server` (המפתח: `~/.ssh/id_ed25519` בשרת, עם write access).
+
+**מה בריפו (50 קבצים):** `platform/` (Mission Control: ap.py, otto_api.py, otto_watch.py, genvisuals.py, deploy.sh, כל ה-HTML, assets) · `brands/` (טמפלייט + cmtm + happygarden) · `skills/` (otto-creative-engine, otto-competitor-research) · `mcp/otto-social-mcp/` · `docs/` (MASTER-PLAN, SYSTEM-REPORT, OWNER-CHARTER).
+
+**מה בכוונה לא בריפו (.gitignore):** `platform/.leonardo_key` וכל סוד · `platform/data.json` + לוגים + metrics (סטייט חי של השרת — לא דורסים אותו מ-git) · `.venv` · קבצי `.bak`.
+
+**זרימת העבודה:**
+1. Claude Code מקומי: clone → עובד → commit+push ל-`main`.
+2. אומרים למקסימוס (הסוכן בשרת) "תמשוך ותפרוס" → הוא עושה `git pull` ב-`autopilot/`, מריץ `platform/deploy.sh` (מעתיק ל-`/srv/pulse/otto/`), ומוודא שהשירותים חיים.
+3. שינויים שהשרת עושה (סקילים/מסמכים/פרופילי מותג) — מקסימוס דוחף חזרה לריפו. לפני pull מקומי: `git pull` תמיד.
+- `data.json` נערך **רק בשרת** (ap.py). Claude Code שמשנה סכימה — מתאם עם מקסימוס לפני.
+
+**חוקי פרוד (בתוקף גם דרך git):** לפני נגיעה ב-provisioner — `systemctl --user status pilot-provisioner` + בדיקת provisioner.db; תמיד `.bak.<date>`; dry-run; רק אז restart. הקוד המסחרי (`openclaw-installer/`, provisioner, לנדינג) עדיין מחוץ לריפו הזה — חי בשרת בלבד.
 
 ## קבצי אמת בשרת (למי שמתחבר)
 `OTTO-MASTER-PLAN.md` (רודמאפ) · `OTTO-OWNER-CHARTER.md` (צנרת מסחרית) · `autopilot/platform/ARCHITECTURE.md` · `autopilot/MVP-PLAN.md` · `autopilot/research/*.md` (החלטות MCP/סטאק) · `brands/*/brand-profile.md` · הסקילים: `autopilot/skills/otto-creative-engine/`, `autopilot/skills/otto-competitor-research/`, `openclaw-installer/skills-bundle/otto-copy-engine/`.
