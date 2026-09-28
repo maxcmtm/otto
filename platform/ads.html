@@ -1,0 +1,306 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Autopilot — Ads</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fraunces:ital,opsz,wght@1,9..144,400;1,9..144,500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/platform.css">
+<style>
+/* atlas brief (matches echo-brief on analytics) */
+.atlas-brief{display:flex;gap:14px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow-s);padding:18px 22px;margin-top:26px;max-width:860px}
+.atlas-brief img{width:44px;height:44px;border-radius:50%;background:#0B1230;flex:none}
+.atlas-brief .ab-name{font:600 11px/1 "JetBrains Mono",monospace;letter-spacing:.14em;color:var(--cobalt);margin-bottom:6px}
+.atlas-brief .ab-tx{font-size:14.5px;line-height:1.55;color:var(--ink)}
+.atlas-brief .ab-tx b{color:var(--green)}
+
+/* autopilot hero panel */
+.ap-panel{background:var(--surface);border:1px solid #C6D2FF;border-radius:var(--r);box-shadow:var(--shadow-m);padding:22px 26px;margin-top:24px;max-width:860px}
+.ap-top{display:flex;align-items:center;gap:16px}
+.switch{width:52px;height:29px;border-radius:999px;background:var(--green);position:relative;flex:none;box-shadow:inset 0 1px 2px rgba(0,0,0,.15);cursor:pointer}
+.switch::after{content:"";position:absolute;top:3px;right:3px;width:23px;height:23px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(16,24,43,.25)}
+.ap-state{font:600 15px/1.2 "Inter"}
+.ap-state small{display:block;font:500 11px/1 "JetBrains Mono",monospace;letter-spacing:.12em;color:var(--green);margin-top:4px}
+.ap-status{margin-left:auto;font-size:13px;color:var(--muted);max-width:340px;text-align:right}
+.ap-status b{color:var(--ink)}
+/* ceiling slider */
+.ceiling{margin-top:22px;padding-top:20px;border-top:1px solid var(--line-soft)}
+.ceiling-head{display:flex;align-items:baseline;gap:10px;margin-bottom:14px}
+.ceiling-head .cl{font-size:12px;font-weight:600;letter-spacing:.10em;text-transform:uppercase;color:var(--faint)}
+.ceiling-head .cv{font:500 22px/1 "JetBrains Mono",monospace;color:var(--cobalt);margin-left:auto}
+.ceiling-head .cv small{font-size:12px;color:var(--faint)}
+.track{position:relative;height:6px;border-radius:3px;background:var(--line)}
+.track .fill{position:absolute;left:0;top:0;height:100%;width:40%;border-radius:3px;background:linear-gradient(90deg,#3D5CFF,var(--cobalt))}
+.track .thumb{position:absolute;left:40%;top:50%;transform:translate(-50%,-50%);width:22px;height:22px;border-radius:50%;background:#fff;border:2px solid var(--cobalt);box-shadow:0 2px 6px rgba(36,71,240,.3);cursor:grab}
+.track-scale{display:flex;justify-content:space-between;margin-top:9px;font:500 10.5px/1 "JetBrains Mono",monospace;color:var(--faint)}
+.tg-note{display:flex;gap:10px;align-items:center;margin-top:18px;font-size:12px;color:var(--faint)}
+.tg-note .tgi{width:26px;height:26px;border-radius:50%;background:#29A9EB;color:#fff;display:grid;place-items:center;font-size:12px;flex:none}
+.tg-note b{color:var(--ink)}
+
+/* creative rack */
+.rack{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:4px}
+.cre{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow-s);overflow:hidden;display:flex;flex-direction:column}
+.cre.video{border-color:#B9C7FA;box-shadow:var(--shadow-m)}
+.cre-media{position:relative;aspect-ratio:4/3;background:linear-gradient(150deg,#16224E,#2447F0 130%);display:grid;place-items:center;overflow:hidden}
+.cre.video .cre-media{aspect-ratio:3/4;background:linear-gradient(165deg,#0B1230,#1631B8 140%)}
+.cre-media .art{font:italic 500 17px/1.35 "Fraunces",serif;color:#fff;text-align:center;padding:0 18px;opacity:.95}
+.cre-media .fmt{position:absolute;top:10px;left:10px;font:600 9.5px/1 "JetBrains Mono",monospace;letter-spacing:.10em;color:#fff;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.28);border-radius:999px;padding:5px 9px;backdrop-filter:blur(4px)}
+.cre-media .play{width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,.92);display:grid;place-items:center;color:var(--cobalt-deep);font-size:15px;box-shadow:0 4px 14px rgba(0,0,0,.3);margin-top:12px}
+.cre-body{padding:14px 16px 16px;display:flex;flex-direction:column;gap:8px;flex:1}
+.cre-var{font:600 10px/1 "JetBrains Mono",monospace;letter-spacing:.14em;color:var(--faint)}
+.cre-var .win{color:var(--green)}
+.cre-hl{font-size:13.5px;font-weight:600;line-height:1.35}
+.cre-pt{font-size:12px;color:var(--muted);line-height:1.5;flex:1}
+.cre-meta{display:flex;gap:6px;align-items:center;font:500 10.5px/1 "JetBrains Mono",monospace;color:var(--faint);padding-top:10px;border-top:1px solid var(--line-soft)}
+.edge-line{margin-top:14px;font-size:12.5px;color:var(--cobalt-deep)}
+.edge-line b{font-weight:600}
+.rack-note{font-size:12.5px;color:var(--faint);margin-top:14px}
+
+/* winners loop */
+.win-card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow-s);padding:18px 20px}
+.win-flow{display:flex;align-items:center;gap:10px;margin-top:6px;flex-wrap:wrap}
+.win-chip{background:var(--green-tint);border:1px solid #CBEBDB;color:var(--green);border-radius:10px;padding:10px 14px;font-size:12.5px;font-weight:600;max-width:250px}
+.win-chip small{display:block;font:500 10px/1.4 "JetBrains Mono",monospace;color:var(--green);opacity:.75;margin-top:4px;letter-spacing:.04em}
+.win-arrow{color:var(--faint);font-size:16px}
+.next-chip{background:var(--cobalt-tint);border:1px solid #C6D2FF;color:var(--cobalt-deep);border-radius:10px;padding:10px 14px;font-size:12.5px;font-weight:600;max-width:270px}
+.next-chip small{display:block;font:500 10px/1.4 "JetBrains Mono",monospace;opacity:.75;margin-top:4px;letter-spacing:.04em}
+
+/* campaign list */
+.camp{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow-s);overflow:hidden;margin-top:16px}
+.camp-head{display:flex;align-items:center;gap:12px;padding:15px 20px;background:var(--canvas);border-bottom:1px solid var(--line)}
+.camp-head .cn{font-weight:600;font-size:14px}
+.camp-head .cb{font:500 11px/1 "JetBrains Mono",monospace;color:var(--faint)}
+.crow{display:grid;grid-template-columns:26px 1fr 92px 92px 110px 64px;gap:10px;align-items:center;padding:11px 20px;border-bottom:1px solid var(--line-soft);font-size:13px}
+.crow:last-child{border-bottom:0}
+.crow.adset{background:rgba(36,71,240,.02)}
+.crow .lvl{font:600 9.5px/1 "JetBrains Mono",monospace;letter-spacing:.08em;color:var(--faint)}
+.crow .nm{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.crow .nm small{color:var(--faint);font-size:11.5px}
+.crow.ad .nm{padding-left:18px}
+.crow .num{font:500 12px/1 "JetBrains Mono",monospace;color:var(--muted);text-align:right}
+.crow .num.good{color:var(--green)}
+.crow .act{font-size:11.5px;color:var(--cobalt);cursor:pointer;text-align:right}
+.col-labels{display:grid;grid-template-columns:26px 1fr 92px 92px 110px 64px;gap:10px;padding:9px 20px;font:600 9.5px/1 "JetBrains Mono",monospace;letter-spacing:.10em;color:var(--faint);border-bottom:1px solid var(--line-soft)}
+.col-labels span:nth-child(n+3){text-align:right}
+.pill.learning{color:#5B21B6;background:#F1EBFF}
+.pill.paused{color:var(--muted);background:var(--line-soft)}
+.pill.organic{color:var(--amber);background:var(--amber-tint)}
+
+/* compliance guard */
+.guard{background:var(--surface);border:1px solid #F3D9A9;border-radius:var(--r);box-shadow:var(--shadow-s);padding:18px 20px}
+.guard-top{display:flex;gap:12px;align-items:center;margin-bottom:12px}
+.guard-top .gi{width:34px;height:34px;border-radius:10px;background:var(--amber-tint);display:grid;place-items:center;font-size:15px;flex:none}
+.guard-top .gt{font-weight:600;font-size:14px}
+.guard-top .gt small{display:block;font:500 10.5px/1 "JetBrains Mono",monospace;color:var(--amber);letter-spacing:.08em;margin-top:3px}
+.guard p{font-size:12.5px;color:var(--muted);line-height:1.6}
+.guard p b{color:var(--ink)}
+.guard .gx{margin-top:12px;padding-top:12px;border-top:1px solid var(--line-soft);font-size:12px;color:var(--cobalt-deep)}
+
+.cols2{display:grid;grid-template-columns:1fr 330px;gap:28px;align-items:start}
+@media (max-width:1100px){.rack{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:1000px){.cols2{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header class="appbar">
+  <div class="appbar-in">
+    <div class="mark"><div class="face"></div></div>
+    <div class="wordmark">AUTOPILOT<small>MISSION CONTROL</small></div>
+    <nav class="tabs">
+      <a class="tab" href="index.html">Overview</a>
+      <a class="tab" href="approve.html">Approve</a>
+      <span class="tab">Planner</span>
+      <span class="tab">Studio</span>
+      <span class="tab">Inbox</span>
+      <span class="tab on">Ads</span>
+      <a class="tab" href="analytics.html">Analytics</a>
+    </nav>
+    <div class="spacer"></div>
+    <div class="search">Search<span class="kbd">⌘K</span></div>
+    <span class="live"><i></i>LIVE DATA</span>
+    <div class="avatar">M</div>
+  </div>
+</header>
+<div class="wrap">
+
+  <section style="padding-top:28px">
+    <div class="eyebrow">Ads · Autopilot</div>
+    <h1 class="voice">Your best posts, <b>promoted for you.</b></h1>
+    <p class="page-sub">Winners become ads with fresh creative built for the feed — you set one number, everything else asks first.</p>
+
+    <div class="atlas-brief">
+      <img src="assets/agents/atlas.png" alt="Atlas">
+      <div>
+        <div class="ab-name">ATLAS · MEDIA BUYER</div>
+        <div class="ab-tx">Alumni-story angle is still the cheapest lead source — <b>₪31 CPA, 42% under target</b>. I built 4 fresh creatives on it, including a 15-second vertical video. All four are in your approval deck; nothing spends until you tap approve.</div>
+      </div>
+    </div>
+
+    <div class="ap-panel">
+      <div class="ap-top">
+        <div class="switch" role="switch" aria-checked="true" aria-label="Ads autopilot on"></div>
+        <div class="ap-state">Ads on autopilot<small>RUNNING · 2 CAMPAIGNS</small></div>
+        <div class="ap-status">Best organic posts become ads automatically, <b>within your ceiling</b>.</div>
+      </div>
+      <div class="ceiling">
+        <div class="ceiling-head">
+          <span class="cl">Daily spend ceiling</span>
+          <span class="cv">€40<small> / day</small></span>
+        </div>
+        <div class="track"><div class="fill"></div><div class="thumb"></div></div>
+        <div class="track-scale"><span>€0</span><span>€25</span><span>€50</span><span>€75</span><span>€100</span></div>
+        <div class="tg-note"><span class="tgi">✈</span><span>The one number you control. <b>Any raise above the ceiling arrives as an approval card in your Telegram</b> — never silent spend.</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head">
+      <h2>Creative rack · CMTM College</h2>
+      <span class="count">4 variants</span>
+      <span class="hint">Generated for the ad, not recycled from the feed — Meta rotates, winners survive</span>
+    </div>
+    <div class="rack">
+      <div class="cre">
+        <div class="cre-media"><span class="fmt">STATIC · 4:3</span><span class="art" dir="auto">בגיל 43. בלי רקע טיפולי.<br>קליניקה משלה.</span></div>
+        <div class="cre-body">
+          <div class="cre-var">VARIANT A · <span class="win">LEADING</span></div>
+          <div class="cre-hl" dir="auto">הסיפור של מיכל הוא לא יוצא דופן</div>
+          <div class="cre-pt" dir="auto">10,000 בוגרים כבר עשו את המעבר. המחזור הבא נפתח בנובמבר — שיחת ייעוץ בחינם.</div>
+          <div class="cre-meta">CTR 2.4% · CPA ₪31</div>
+        </div>
+      </div>
+      <div class="cre">
+        <div class="cre-media"><span class="fmt">STATIC · 4:3</span><span class="art" dir="auto">25 שנה.<br>10,000 בוגרים.<br>משפחה אחת.</span></div>
+        <div class="cre-body">
+          <div class="cre-var">VARIANT B</div>
+          <div class="cre-hl" dir="auto">המכללה הוותיקה בישראל לתרפיה</div>
+          <div class="cre-pt" dir="auto">רבע מאה של הכשרת מטפלים. הצטרפו לקהילה שמלווה אתכם גם אחרי התעודה.</div>
+          <div class="cre-meta">CTR 1.8% · CPA ₪44</div>
+        </div>
+      </div>
+      <div class="cre">
+        <div class="cre-media"><span class="fmt">STATIC · 4:3</span><span class="art" dir="auto">קריירה שנייה<br>מתחילה בשיחה אחת</span></div>
+        <div class="cre-body">
+          <div class="cre-var">VARIANT C</div>
+          <div class="cre-hl" dir="auto">חולמים על קריירה טיפולית?</div>
+          <div class="cre-pt" dir="auto">מסלול ערב לאנשים עובדים. לימודים פעמיים בשבוע, הכשרה מעשית מהשנה הראשונה.</div>
+          <div class="cre-meta">CTR 1.5% · CPA ₪52</div>
+        </div>
+      </div>
+      <div class="cre video">
+        <div class="cre-media">
+          <span class="fmt">▶ AI VIDEO · 15s · 9:16</span>
+          <span class="art" dir="auto">"פתחתי את הקליניקה<br>בגיל 43"</span>
+          <span class="play">▶</span>
+        </div>
+        <div class="cre-body">
+          <div class="cre-var">VARIANT D · <span style="color:var(--cobalt)">REELS / STORIES</span></div>
+          <div class="cre-hl" dir="auto">הסיפור של מיכל, בקולה שלה</div>
+          <div class="cre-pt" dir="auto">סטוריבורד מ-3 סצנות, קריינות בעברית, כתוביות מובנות. נבנה מהפוסט המנצח של שבוע שעבר.</div>
+          <div class="cre-meta" style="color:var(--cobalt-deep);font-weight:600">Native can't make this.</div>
+        </div>
+      </div>
+    </div>
+    <div class="edge-line"><b>This is the edge:</b> Native reuses your organic posts as ads. We generate dedicated ad creative — headlines, primary texts, and AI video — then let performance pick the winner.</div>
+    <div class="rack-note">All 4 variants entered the approval deck as one card · approve once, Meta rotates them under the €40 ceiling.</div>
+  </section>
+
+  <section>
+    <div class="sec-head">
+      <h2>Winners loop</h2>
+      <span class="hint">Every batch teaches the next one</span>
+    </div>
+    <div class="win-card">
+      <div class="win-flow">
+        <div class="win-chip" dir="auto">🏆 זווית מנצחת: סיפורי בוגרים<small>LAST WEEK · CPA ₪31 · 5 OF 7 LEADS</small></div>
+        <span class="win-arrow">→</span>
+        <div class="next-chip">Teaching batch #6<small>NEXT MONDAY · 2 STATICS + 1 VIDEO ON THIS ANGLE</small></div>
+        <span class="win-arrow">→</span>
+        <div class="next-chip" style="background:var(--surface);border-style:dashed;color:var(--muted)">Your approval deck<small>NOTHING RUNS WITHOUT A TAP</small></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="cols2">
+      <div>
+        <div class="sec-head">
+          <h2>Campaigns</h2>
+          <span class="count">2 active</span>
+          <span class="hint">Spend counts toward the €40/day ceiling across both</span>
+        </div>
+
+        <div class="camp" style="margin-top:0">
+          <div class="camp-head">
+            <span class="pf ig">IG</span><span class="pf fb">FB</span>
+            <span class="cn" dir="auto">CMTM · הרשמה נובמבר</span>
+            <span class="cb">€26/DAY · 65% OF CEILING</span>
+            <span class="spacer"></span>
+            <span class="pill published">Active</span>
+          </div>
+          <div class="col-labels"><span></span><span>NAME</span><span>SPEND (7D)</span><span>CPA</span><span>STATUS</span><span></span></div>
+          <div class="crow adset"><span class="lvl">SET</span><span class="nm">Warm · engaged 90d + site visitors<small> · audience budget</small></span><span class="num">€112</span><span class="num good">₪31</span><span><span class="pill published">Active</span></span><span class="act">Pause</span></div>
+          <div class="crow ad"><span class="lvl">AD</span><span class="nm" dir="auto">הסיפור של מיכל — variant A</span><span class="num">€78</span><span class="num good">₪29</span><span><span class="pill published">Active</span></span><span class="act">Pause</span></div>
+          <div class="crow ad"><span class="lvl">AD</span><span class="nm" dir="auto">▶ הסיפור של מיכל — video D</span><span class="num">€34</span><span class="num">₪38</span><span><span class="pill learning">Learning</span></span><span class="act">Pause</span></div>
+          <div class="crow adset"><span class="lvl">SET</span><span class="nm">Cold · interests: therapy studies, career change<small> · audience budget</small></span><span class="num">€70</span><span class="num">₪56</span><span><span class="pill published">Active</span></span><span class="act">Pause</span></div>
+          <div class="crow ad"><span class="lvl">AD</span><span class="nm" dir="auto">קריירה שנייה — variant C</span><span class="num">€70</span><span class="num">₪56</span><span><span class="pill published">Active</span></span><span class="act">Pause</span></div>
+        </div>
+
+        <div class="camp">
+          <div class="camp-head">
+            <span class="pf ig">IG</span>
+            <span class="cn" dir="auto">CMTM · וובינר חינם — טעימה מהעולם הטיפולי</span>
+            <span class="cb">€14/DAY · 35% OF CEILING</span>
+            <span class="spacer"></span>
+            <span class="pill published">Active</span>
+          </div>
+          <div class="col-labels"><span></span><span>NAME</span><span>SPEND (7D)</span><span>CPA</span><span>STATUS</span><span></span></div>
+          <div class="crow adset"><span class="lvl">SET</span><span class="nm">Lookalike 2% · past enrollees<small> · campaign budget</small></span><span class="num">€98</span><span class="num good">₪18</span><span><span class="pill published">Active</span></span><span class="act">Pause</span></div>
+          <div class="crow ad"><span class="lvl">AD</span><span class="nm" dir="auto">25 שנה, 10,000 בוגרים — variant B</span><span class="num">€61</span><span class="num good">₪16</span><span><span class="pill published">Active</span></span><span class="act">Pause</span></div>
+          <div class="crow ad"><span class="lvl">AD</span><span class="nm" dir="auto">פול: מה עוצר אתכם? — engagement</span><span class="num">€37</span><span class="num">₪23</span><span><span class="pill paused">Paused</span></span><span class="act">Resume</span></div>
+        </div>
+
+        <div class="tg-note" style="margin-top:16px"><span class="tgi">✈</span><span>Atlas suggests raising the webinar campaign to €20/day — <b>the approval card is in your Telegram</b>. Budget never moves without you.</span></div>
+      </div>
+
+      <div class="rail" style="display:grid;gap:20px">
+        <div class="guard">
+          <div class="guard-top">
+            <span class="gi">🛡</span>
+            <div class="gt">Compliance guard<small>HAPPY GARDEN CBD · RESTRICTED CATEGORY</small></div>
+          </div>
+          <p dir="auto"><b>Meta מסווגת CBD כקטגוריה מוגבלת</b> — קמפיין ממומן היה נחסם וסיכן את חשבון המודעות. לכן המותג הזה רץ במצב <b>organic-first</b>: פוסטים אורגניים, קידום דרך קהילות ורשימת התפוצה, בלי מדיה בתשלום.</p>
+          <div style="margin-top:12px"><span class="pill organic">Organic-first mode</span></div>
+          <div class="gx">We know the Israeli restricted-category map — Native doesn't. The guard reads <span style="font-family:'JetBrains Mono',monospace;font-size:11px">brands[].compliance</span> and blocks risky spend before Meta does.</div>
+        </div>
+
+        <div class="card">
+          <h4>This week vs ceiling</h4>
+          <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px">
+            <span style="font:500 20px/1 'JetBrains Mono',monospace">€187</span>
+            <span style="font-size:11.5px;color:var(--faint)">of €280 weekly max</span>
+          </div>
+          <div style="height:6px;border-radius:3px;background:var(--line)"><div style="width:67%;height:100%;border-radius:3px;background:var(--cobalt)"></div></div>
+          <div style="font-size:12px;color:var(--muted);margin-top:10px;line-height:1.5">Underspend rolls nothing over — the ceiling is a ceiling, not a target.</div>
+        </div>
+
+        <div class="card">
+          <h4>Results feed analytics</h4>
+          <div style="font-size:12.5px;color:var(--muted);line-height:1.55">Ad leads land in the same confirm loop — "became a customer / didn't" — so ad spend gets a revenue number, not a reach number.</div>
+          <div class="edit-link" style="font-size:11.5px;color:var(--cobalt);cursor:pointer;margin-top:10px;display:inline-block"><a href="analytics.html" style="color:inherit;text-decoration:none">Open Analytics →</a></div>
+        </div>
+
+        <span class="human" style="justify-self:start">💬 Talk to a human</span>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <span>Ads · mockup v1 · ceiling + creative rack + winners loop + compliance guard</span>
+  </footer>
+</div>
+</body>
+</html>

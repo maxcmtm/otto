@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Autopilot — Get started</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fraunces:ital,opsz,wght@1,9..144,400;1,9..144,500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/platform.css">
+<style>
+/* wizard shell — no app tabs during onboarding */
+.wiz-steps{display:flex;align-items:center;gap:0;margin:30px 0 8px;flex-wrap:wrap}
+.wstep{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted);background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:8px 14px;box-shadow:var(--shadow-s)}
+.wstep.done{color:var(--green)}
+.wstep.done .ck{font-weight:700}
+.wstep.on{color:var(--cobalt-deep);border-color:#C6D2FF;background:var(--cobalt-tint);font-weight:600}
+.warrow{color:var(--faint);padding:0 9px;font-size:12px}
+
+.wiz{display:grid;grid-template-columns:1fr 330px;gap:32px;align-items:start;margin-top:26px}
+
+/* connect cards */
+.connect{display:grid;gap:14px}
+.ccard{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow-s);padding:18px 20px;display:grid;grid-template-columns:44px 1fr auto;gap:16px;align-items:center}
+.ccard.hero{border-color:#B9C7FA;box-shadow:var(--shadow-m);position:relative}
+.ccard.hero::before{content:"WHERE YOU'LL APPROVE EVERYTHING";position:absolute;top:-9px;left:20px;font:600 9.5px/1 "JetBrains Mono",monospace;letter-spacing:.16em;color:#fff;background:var(--cobalt);padding:4px 9px;border-radius:5px;box-shadow:0 4px 10px rgba(36,71,240,.35)}
+.cic{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;font:600 13px/1 "Inter";color:#fff}
+.cic.meta{background:linear-gradient(135deg,#7A3BFF,#E1306C)}
+.cic.li{background:#0A66C2}
+.cic.tg{background:#29A9EB;font-size:19px}
+.ccard .cn{font-weight:600;font-size:14.5px}
+.ccard .cd{font-size:12.5px;color:var(--muted);margin-top:3px;max-width:420px}
+.ccard .cs{font:600 11px/1.2 "Inter";border-radius:999px;padding:5px 10px;white-space:nowrap}
+.cs.ok{color:var(--green);background:var(--green-tint)}
+.qr{display:flex;gap:16px;align-items:center;margin-top:14px;padding-top:14px;border-top:1px solid var(--line-soft);grid-column:1/-1}
+.qrbox{width:86px;height:86px;border-radius:10px;background:
+  conic-gradient(from 0deg,#10182B 25%,transparent 0 50%,#10182B 0 75%,transparent 0) 0 0/28px 28px,
+  #fff;border:1px solid var(--line);flex:none;position:relative;overflow:hidden}
+.qrbox::after{content:"";position:absolute;inset:30px;background:#fff;border:3px solid #10182B;border-radius:4px}
+.qr .qt{font-size:12.5px;color:var(--muted);line-height:1.55}
+.qr .qt b{color:var(--ink)}
+.qr .code{font:500 12px/1 "JetBrains Mono",monospace;color:var(--cobalt);background:var(--cobalt-tint);border-radius:6px;padding:6px 9px;display:inline-block;margin-top:7px}
+
+.wiz-nav{display:flex;align-items:center;gap:14px;margin-top:24px}
+.skip{font-size:12.5px;color:var(--faint);cursor:pointer}
+.skip:hover{color:var(--ink)}
+
+/* fingerprint rail */
+.fp .fp-head{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.fp .fp-head img{width:38px;height:38px;border-radius:50%;background:#0B1230}
+.fp .fp-head .ft{font-weight:600;font-size:13px}
+.fp .fp-head .fs{font-size:11.5px;color:var(--faint)}
+.frow{padding:10px 0;border-bottom:1px solid var(--line-soft)}
+.frow:last-child{border-bottom:0}
+.frow .fl{font:600 10px/1 "JetBrains Mono",monospace;letter-spacing:.14em;color:var(--faint);text-transform:uppercase}
+.frow .fv{font-size:13px;margin-top:5px;line-height:1.5}
+.frow .fv i{font-style:italic;font-family:"Fraunces",serif}
+.sw{display:inline-block;width:16px;height:16px;border-radius:5px;margin-right:6px;vertical-align:-3px;border:1px solid rgba(16,24,43,.08)}
+.pillset{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.pillset .chip{font:500 11px/1 "Inter";color:var(--cobalt-deep);background:var(--cobalt-tint);border-radius:999px;padding:5px 9px}
+.depth{margin-top:12px;font-size:11.5px;color:var(--green);background:var(--green-tint);border-radius:8px;padding:9px 12px;line-height:1.5}
+
+.concierge{display:flex;gap:14px;align-items:center}
+.concierge .cav{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#3D5CFF,#1631B8);color:#fff;display:grid;place-items:center;font:600 14px/1 "Inter";flex:none}
+.concierge .ct{font-size:12.5px;color:var(--muted);line-height:1.5}
+.concierge .ct b{color:var(--ink);display:block;font-size:13px}
+
+@media (max-width:1000px){.wiz{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header class="appbar">
+  <div class="appbar-in">
+    <div class="mark"><div class="face"></div></div>
+    <div class="wordmark">AUTOPILOT<small>GET STARTED</small></div>
+    <div class="spacer"></div>
+    <span class="human">☎ Prefer a human? 15-min call</span>
+  </div>
+</header>
+<div class="wrap">
+
+  <section style="padding-top:24px">
+    <div class="eyebrow">Setup · step 4 of 5</div>
+    <h1 class="voice">Connect your channels — <b>including the one in your pocket.</b></h1>
+    <p class="page-sub">Your brand is mapped and week one is drafted. Link where we publish, and pair Telegram — that's where every decision will find you.</p>
+
+    <div class="wiz-steps">
+      <span class="wstep done"><span class="ck">✓</span>Your site</span><span class="warrow">→</span>
+      <span class="wstep done"><span class="ck">✓</span>5 questions</span><span class="warrow">→</span>
+      <span class="wstep done"><span class="ck">✓</span>Brand fingerprint</span><span class="warrow">→</span>
+      <span class="wstep on">Connect channels</span><span class="warrow">→</span>
+      <span class="wstep">Your first week</span>
+    </div>
+  </section>
+
+  <section style="padding-top:26px">
+    <div class="wiz">
+      <div>
+        <div class="connect">
+          <div class="ccard hero">
+            <div class="cic tg">✈</div>
+            <div>
+              <div class="cn">Telegram</div>
+              <div class="cd">Approvals, daily briefings and lead confirmations arrive as one-tap cards. The dashboard stays optional.</div>
+            </div>
+            <span class="cs pill pending_approval">scan to pair</span>
+            <div class="qr">
+              <div class="qrbox" role="img" aria-label="Telegram pairing QR code"></div>
+              <div class="qt">
+                <b>Scan with your phone</b> — or open the link below.<br>
+                <span class="code">t.me/AutopilotHQBot?start=cmtm-4F7K</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="ccard">
+            <div class="cic meta">IG</div>
+            <div>
+              <div class="cn">Instagram + Facebook</div>
+              <div class="cd">Connected as CMTM College · Page + professional account linked. Publishing enabled.</div>
+            </div>
+            <span class="cs ok">connected</span>
+          </div>
+
+          <div class="ccard">
+            <div class="cic li">in</div>
+            <div>
+              <div class="cn">LinkedIn</div>
+              <div class="cd">Recommended for your career-change pillar — one extra channel, same content plan.</div>
+            </div>
+            <span class="btn ghost">Connect</span>
+          </div>
+        </div>
+
+        <div class="wiz-nav">
+          <span class="btn go">Continue → your first week</span>
+          <span class="skip">Skip for now — preview in snapshot mode</span>
+        </div>
+      </div>
+
+      <div style="display:grid;gap:20px">
+        <div class="card fp">
+          <div class="fp-head">
+            <img src="assets/agents/orion.png" alt="Orion">
+            <div>
+              <div class="ft">Brand fingerprint · CMTM College</div>
+              <div class="fs">Built from your site + 5 answers</div>
+            </div>
+          </div>
+          <div class="frow">
+            <div class="fl">Archetype</div>
+            <div class="fv">The Sage — <i>wisdom that changes lives</i></div>
+          </div>
+          <div class="frow">
+            <div class="fl">Voice</div>
+            <div class="fv">Warm, direct, proof-first. Never clinical, never salesy.</div>
+          </div>
+          <div class="frow">
+            <div class="fl">Palette</div>
+            <div class="fv">
+              <span class="sw" style="background:#2B2118"></span><span class="sw" style="background:#C9A227"></span><span class="sw" style="background:#F3EEE4"></span><span class="sw" style="background:#5B7C6F"></span>
+            </div>
+          </div>
+          <div class="frow">
+            <div class="fl">Pillars</div>
+            <div class="pillset">
+              <span class="chip">Alumni stories</span><span class="chip">Method education</span><span class="chip">Career change</span><span class="chip">Parenting</span><span class="chip">Community</span><span class="chip">+1</span>
+            </div>
+          </div>
+          <div class="frow">
+            <div class="fl">Compliance</div>
+            <div class="fv" style="color:var(--amber)">No healing claims · restricted targeting on Meta — handled automatically.</div>
+          </div>
+          <div class="depth">Your 5 answers added 14 details no website scrape can see — real student quotes, your "לרפא מהשורש" phrasing, and who this is <b>not</b> for.</div>
+        </div>
+
+        <div class="card concierge">
+          <div class="cav">L</div>
+          <div class="ct">
+            <b>Liat · your onboarding concierge</b>
+            A human reviews every new brand within 2 hours. Questions answered by a person, not a bot.
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <span>Onboarding · mockup v1 · step 4 of 5 (connect channels)</span>
+  </footer>
+</div>
+</body>
+</html>

@@ -1,0 +1,93 @@
+/* Autopilot platform — shared foundation, lifted from index.html (design language v2).
+   index.html keeps its own inline copy; new pages link this file. */
+:root{
+  --canvas:#F5F7FB; --surface:#FFFFFF; --ink:#10182B; --muted:#5B6478; --faint:#667085;
+  --cobalt:#2447F0; --cobalt-deep:#1631B8; --cobalt-tint:#EDF1FF;
+  --amber:#B45309; --amber-tint:#FFF4E2;
+  --green:#0B7A4B; --green-tint:#E5F6EE;
+  --red:#B4231F; --red-tint:#FDEBEA;
+  --line:#E4E8F1; --line-soft:#EDF0F6;
+  --shadow-s:0 1px 2px rgba(16,24,43,.05),0 2px 8px rgba(16,24,43,.04);
+  --shadow-m:0 2px 6px rgba(16,24,43,.06),0 12px 32px rgba(36,71,240,.08);
+  --shadow-deck:0 24px 48px -12px rgba(16,24,43,.18),0 4px 12px rgba(36,71,240,.10);
+  --r:14px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{background:var(--canvas)}
+body{
+  font:14px/1.5 "Inter",system-ui,sans-serif;color:var(--ink);
+  background:
+    radial-gradient(900px 480px at 82% -140px, rgba(36,71,240,.07), transparent 62%),
+    radial-gradient(700px 420px at -80px 30%, rgba(11,122,75,.04), transparent 60%),
+    var(--canvas);
+  min-height:100vh;
+}
+.wrap{max-width:1240px;margin:0 auto;padding:0 32px 72px}
+
+/* app bar */
+.appbar{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.82);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+.appbar-in{max-width:1240px;margin:0 auto;padding:0 32px;display:flex;align-items:center;gap:14px;height:60px}
+.tabs{display:flex;gap:2px;margin-left:26px;height:100%}
+.tab{display:flex;align-items:center;padding:0 14px;font-size:13.5px;font-weight:500;color:var(--muted);position:relative;cursor:pointer;white-space:nowrap;text-decoration:none}
+.tab:hover{color:var(--ink)}
+.tab.on{color:var(--ink);font-weight:600}
+.tab.on::after{content:"";position:absolute;left:12px;right:12px;bottom:-1px;height:2px;background:var(--cobalt);border-radius:2px 2px 0 0}
+.search{display:flex;align-items:center;gap:8px;background:var(--canvas);border:1px solid var(--line);border-radius:9px;padding:7px 12px;font-size:12.5px;color:var(--faint);min-width:180px;cursor:text}
+.search .kbd{margin-left:auto;font:500 10.5px/1 "JetBrains Mono",monospace;border:1px solid var(--line);border-radius:5px;padding:3px 5px;background:#fff;color:var(--faint)}
+.avatar{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,#3D5CFF,#1631B8);color:#fff;display:grid;place-items:center;font:600 12.5px/1 "Inter";box-shadow:inset 0 1px 0 rgba(255,255,255,.35);flex:none}
+.mark{width:34px;height:34px;position:relative;perspective:120px;flex:none}
+.mark .face{position:absolute;inset:0;border-radius:9px;background:linear-gradient(145deg,#3D5CFF,#1631B8);box-shadow:inset 0 1px 0 rgba(255,255,255,.35),0 6px 14px rgba(36,71,240,.35);transform:rotateX(14deg) rotateY(-14deg)}
+.mark .face::after{content:"";position:absolute;inset:7px;border-radius:5px;border:1.5px solid rgba(255,255,255,.85);border-bottom-color:rgba(255,255,255,.25);border-right-color:rgba(255,255,255,.25)}
+.wordmark{font-weight:700;font-size:15px;letter-spacing:.14em}
+.wordmark small{display:block;font-weight:500;font-size:10.5px;letter-spacing:.18em;color:var(--faint)}
+.spacer{flex:1}
+.live{display:inline-flex;align-items:center;gap:8px;font:500 11.5px/1 "JetBrains Mono",monospace;letter-spacing:.06em;color:var(--green);background:var(--green-tint);border:1px solid #CBEBDB;border-radius:999px;padding:7px 13px}
+.live i{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 0 3px rgba(11,122,75,.15);animation:pulse 2.4s infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 3px rgba(11,122,75,.15)}50%{box-shadow:0 0 0 6px rgba(11,122,75,.06)}}
+
+/* page head */
+.eyebrow{font:600 11px/1 "JetBrains Mono",monospace;letter-spacing:.22em;color:var(--cobalt);text-transform:uppercase;margin-bottom:16px}
+.voice{font:italic 500 clamp(26px,3vw,38px)/1.15 "Fraunces",serif;letter-spacing:-.01em;max-width:640px}
+.voice b{color:var(--cobalt);font-weight:500}
+.page-sub{margin-top:12px;max-width:560px;font:400 15px/1.6 "Inter",sans-serif;color:var(--muted)}
+
+/* sections + cards */
+section{padding-top:40px}
+.sec-head{display:flex;align-items:baseline;gap:14px;margin-bottom:18px}
+.sec-head h2{font-size:17px;font-weight:600;letter-spacing:-.01em}
+.sec-head .count{font:500 11.5px/1 "JetBrains Mono",monospace;color:var(--cobalt);background:var(--cobalt-tint);border-radius:999px;padding:5px 10px}
+.sec-head .hint{font-size:12.5px;color:var(--faint);margin-left:auto}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow-s);padding:18px 20px}
+.card h4{font-size:12px;font-weight:600;letter-spacing:.10em;text-transform:uppercase;color:var(--faint);margin-bottom:14px}
+.kpi{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px 18px;min-width:126px;box-shadow:var(--shadow-s)}
+.kpi .n{font:500 24px/1.1 "JetBrains Mono",monospace;letter-spacing:-.02em}
+.kpi .l{font-size:12px;color:var(--muted);margin-top:3px}
+.kpi.alert .n{color:var(--amber)}
+.kpi.go .n{color:var(--green)}
+.kpis{display:flex;gap:12px;flex-wrap:wrap}
+
+/* buttons + pills */
+.btn{font:600 12.5px/1 "Inter";border-radius:10px;padding:10px 16px;text-align:center;cursor:pointer;border:1px solid transparent;transition:filter .15s;display:inline-block}
+.btn.go{background:var(--cobalt);color:#fff}
+.btn.go:hover{filter:brightness(1.08)}
+.btn.ghost{background:var(--surface);color:var(--muted);border-color:var(--line)}
+.btn.ghost:hover{color:var(--ink)}
+.pill{font:600 12px/1.2 "Inter";letter-spacing:.02em;border-radius:999px;padding:5px 10px;white-space:nowrap}
+.pill.pending_approval{color:var(--amber);background:var(--amber-tint)}
+.pill.approved{color:var(--cobalt);background:var(--cobalt-tint)}
+.pill.scheduled{color:#5B21B6;background:#F1EBFF}
+.pill.published{color:var(--green);background:var(--green-tint)}
+.pill.draft{color:var(--muted);background:var(--line-soft)}
+.pf{width:26px;height:26px;border-radius:8px;display:grid;place-items:center;font:600 10px/1 "Inter";color:#fff}
+.pf.ig{background:linear-gradient(135deg,#7A3BFF,#E1306C)}
+.pf.fb{background:#1877F2}
+.pf.li{background:#0A66C2}
+
+/* concierge pill — global affordance */
+.human{display:inline-flex;align-items:center;gap:8px;font:600 12px/1 "Inter";color:var(--cobalt-deep);background:var(--cobalt-tint);border:1px solid #C6D2FF;border-radius:999px;padding:8px 14px;cursor:pointer}
+.human:hover{filter:brightness(1.03)}
+
+footer{margin-top:56px;padding-top:18px;border-top:1px solid var(--line);display:flex;gap:18px;align-items:center;font:500 11px/1.6 "JetBrains Mono",monospace;color:var(--faint)}
+
+@media (max-width:960px){.tabs,.search{display:none}}
+@media (prefers-reduced-motion:reduce){.live i{animation:none}}

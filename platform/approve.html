@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Autopilot — Approve</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fraunces:ital,opsz,wght@1,9..144,400;1,9..144,500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/platform.css">
+<style>
+.stage{display:grid;grid-template-columns:1fr 320px;gap:36px;align-items:start;margin-top:8px}
+
+/* ---- deck ---- */
+.deckzone{display:flex;flex-direction:column;align-items:center;gap:22px}
+.stack{position:relative;width:400px;height:560px}
+.dcard{position:absolute;inset:0;background:var(--surface);border:1px solid var(--line);border-radius:20px;box-shadow:var(--shadow-deck);overflow:hidden;display:flex;flex-direction:column}
+.dcard.u2{transform:translateY(-22px) scale(.93);filter:saturate(.6);opacity:.55;box-shadow:var(--shadow-s)}
+.dcard.u1{transform:translateY(-11px) scale(.965);opacity:.8;box-shadow:var(--shadow-m)}
+.dcard.top{transform:none}
+.post-head{display:flex;align-items:center;gap:10px;padding:12px 16px;border-bottom:1px solid var(--line-soft)}
+.b-av{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#7A3BFF,#E1306C);color:#fff;display:grid;place-items:center;font:600 12px/1 "Inter"}
+.post-head .bn{font-weight:600;font-size:13px}
+.post-head .bs{font-size:11.5px;color:var(--faint)}
+.post-head .pf{margin-left:auto}
+.creative{flex:1;position:relative;display:grid;place-items:center;padding:28px;
+  background:radial-gradient(120% 140% at 20% 10%,#1B2B5E 0%,#0A1130 60%,#070B1E 100%)}
+.creative .quote{font:italic 500 26px/1.35 "Fraunces",serif;color:#EDF1FF;text-align:center;max-width:300px}
+.creative .brandtag{position:absolute;left:0;right:0;bottom:14px;text-align:center;font:600 9.5px/1 "JetBrains Mono",monospace;letter-spacing:.24em;color:rgba(185,201,255,.65)}
+.creative .glow{position:absolute;width:220px;height:220px;border-radius:50%;background:radial-gradient(circle,rgba(36,71,240,.35),transparent 70%);top:-60px;right:-60px}
+.caption{padding:14px 16px;font-size:13.5px;line-height:1.55;border-top:1px solid var(--line-soft)}
+.caption small{display:block;margin-top:6px;color:var(--cobalt);font-size:12px}
+.meta-strip{display:flex;gap:8px;align-items:center;padding:11px 16px;border-top:1px solid var(--line-soft);background:#FAFBFE}
+.chip{font:500 11px/1 "JetBrains Mono",monospace;color:var(--muted);background:var(--line-soft);border-radius:6px;padding:5px 8px}
+.chip.slot{color:var(--cobalt);background:var(--cobalt-tint)}
+
+/* why + attribution */
+.why-line{width:400px;background:var(--cobalt-tint);border:1px solid #C6D2FF;border-radius:12px;padding:12px 16px;font-size:13px;color:var(--cobalt-deep);display:flex;gap:10px;align-items:flex-start}
+.why-line b{font-weight:600}
+.crew{display:flex;align-items:center;gap:6px;margin-left:auto;flex:none}
+.crew img{width:24px;height:24px;border-radius:50%;background:#0B1230;border:1px solid var(--line)}
+
+/* decision bar */
+.decide{display:flex;gap:14px;align-items:center}
+.dbtn{display:flex;flex-direction:column;align-items:center;gap:7px;cursor:pointer;user-select:none}
+.dbtn .circ{width:64px;height:64px;border-radius:50%;display:grid;place-items:center;font-size:22px;background:var(--surface);border:1px solid var(--line);box-shadow:var(--shadow-m);transition:transform .12s}
+.dbtn:hover .circ{transform:translateY(-2px)}
+.dbtn.skip .circ{color:var(--red)}
+.dbtn.edit .circ{width:52px;height:52px;font-size:17px;color:var(--muted)}
+.dbtn.ok .circ{background:var(--cobalt);border-color:var(--cobalt);color:#fff;box-shadow:0 10px 24px rgba(36,71,240,.4)}
+.dbtn .dl{font:600 11px/1 "Inter";color:var(--muted);letter-spacing:.04em}
+.keys{font:500 11px/1 "JetBrains Mono",monospace;color:var(--faint)}
+.keys b{border:1px solid var(--line);border-radius:5px;padding:2px 6px;background:#fff;font-weight:500}
+
+/* telegram mirror */
+.tg{width:400px;display:flex;gap:12px;align-items:center;background:var(--surface);border:1px dashed #B9C7FA;border-radius:12px;padding:12px 16px}
+.tg .tgi{width:34px;height:34px;border-radius:50%;background:#29A9EB;color:#fff;display:grid;place-items:center;font-size:15px;flex:none}
+.tg .tt{font-size:12.5px;color:var(--muted);line-height:1.45}
+.tg .tt b{color:var(--ink)}
+.tg .cs{margin-left:auto;font:600 11px/1.2 "Inter";color:var(--green);background:var(--green-tint);border-radius:999px;padding:5px 10px;white-space:nowrap}
+
+/* rail */
+.rail{display:grid;gap:20px}
+.meter{display:flex;align-items:baseline;gap:8px;margin-bottom:10px}
+.meter .big{font:500 26px/1 "JetBrains Mono",monospace}
+.meter .of{font-size:12.5px;color:var(--faint)}
+.bar{height:6px;border-radius:4px;background:var(--line-soft);overflow:hidden}
+.bar i{display:block;height:100%;width:44%;border-radius:4px;background:linear-gradient(90deg,var(--cobalt),#3D5CFF)}
+.nvr{font-size:11.5px;color:var(--faint);margin-top:9px}
+.taste{display:flex;flex-direction:column;gap:8px}
+.tr{display:flex;align-items:center;gap:9px;font-size:12.5px}
+.tr .sig{font:600 12px/1 "JetBrains Mono",monospace;width:16px;text-align:center;flex:none}
+.tr.up .sig{color:var(--green)} .tr.dn .sig{color:var(--red)}
+.tr .tl{color:var(--muted)}
+.hist{display:flex;flex-direction:column}
+.hr2{display:flex;align-items:center;gap:9px;padding:8px 0;border-bottom:1px solid var(--line-soft);font-size:12.5px}
+.hr2:last-child{border-bottom:0}
+.hr2 .hk{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;color:var(--muted)}
+.hr2 .via{margin-left:auto;font:500 10px/1 "JetBrains Mono",monospace;color:var(--faint);border:1px solid var(--line);border-radius:5px;padding:3px 6px;flex:none}
+.hr2 .st{font-size:13px;flex:none}
+
+@media (max-width:1000px){.stage{grid-template-columns:1fr}.rail{max-width:400px;margin:0 auto}}
+@media (max-width:560px){.stack,.why-line,.tg{width:100%}}
+</style>
+</head>
+<body>
+<header class="appbar">
+  <div class="appbar-in">
+    <div class="mark"><div class="face"></div></div>
+    <div class="wordmark">AUTOPILOT<small>MISSION CONTROL</small></div>
+    <nav class="tabs">
+      <a class="tab" href="index.html">Overview</a>
+      <span class="tab on">Approve</span>
+      <span class="tab">Planner</span>
+      <span class="tab">Studio</span>
+      <span class="tab">Inbox</span>
+      <span class="tab">Ads</span>
+      <span class="tab">Analytics</span>
+    </nav>
+    <div class="spacer"></div>
+    <div class="search">Search<span class="kbd">⌘K</span></div>
+    <span class="live"><i></i>LIVE DATA</span>
+    <div class="avatar">M</div>
+  </div>
+</header>
+<div class="wrap">
+
+  <section style="padding-top:28px">
+    <div class="eyebrow">Approval deck · CMTM College</div>
+    <h1 class="voice">Four posts, <b>one decision at a time.</b></h1>
+    <p class="page-sub">Swipe through the week. Every approve and skip teaches the agency your taste — and the same cards are already on your phone.</p>
+  </section>
+
+  <section>
+    <div class="stage">
+      <div class="deckzone">
+
+        <div class="why-line">
+          <span>💡</span>
+          <span><b>Why this post:</b> Alumni stories is your strongest pillar — proof beats promises for career-changers.</span>
+          <span class="crew" title="Quill drafted · Sage slotted">
+            <img src="assets/agents/quill.png" alt="Quill">
+            <img src="assets/agents/sage.png" alt="Sage">
+          </span>
+        </div>
+
+        <div class="stack">
+          <div class="dcard u2"></div>
+          <div class="dcard u1"></div>
+          <div class="dcard top">
+            <div class="post-head">
+              <div class="b-av">CM</div>
+              <div>
+                <div class="bn">CMTM College</div>
+                <div class="bs">cmtm.co.il · Facebook</div>
+              </div>
+              <span class="pf fb">FB</span>
+            </div>
+            <div class="creative">
+              <div class="glow"></div>
+              <div class="quote" dir="rtl">בגיל 43, בלי רקע טיפולי, פתחה קליניקה משלה.</div>
+              <div class="brandtag">CMTM · ALUMNI STORIES</div>
+            </div>
+            <div class="caption" dir="rtl">
+              הסיפור של מיכל הוא לא יוצא דופן — הוא הכלל. 10,000 בוגרים כבר עשו את המעבר.
+              <small dir="ltr">#קריירהשניה #תרפיה #מימדים</small>
+            </div>
+            <div class="meta-strip">
+              <span class="chip slot">Sat 27 Sep · 18:00</span>
+              <span class="chip">Alumni stories</span>
+              <span class="chip">cm-002</span>
+              <span class="pill pending_approval" style="margin-left:auto">pending approval</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="decide">
+          <div class="dbtn skip"><div class="circ">✕</div><div class="dl">SKIP</div></div>
+          <div class="dbtn edit"><div class="circ">✍️</div><div class="dl">EDIT</div></div>
+          <div class="dbtn ok"><div class="circ">✓</div><div class="dl">APPROVE</div></div>
+        </div>
+        <div class="keys"><b>←</b> skip · <b>E</b> edit · <b>→</b> approve</div>
+
+        <div class="tg">
+          <div class="tgi">✈</div>
+          <div class="tt"><b>This card is on your phone too.</b><br>Approve from Telegram — the deck updates live.</div>
+          <span class="cs">MIRRORED</span>
+        </div>
+      </div>
+
+      <div class="rail">
+        <div class="card">
+          <h4>Queue</h4>
+          <div class="meter"><span class="big">4</span><span class="of">of 9 this week</span></div>
+          <div class="bar"><i></i></div>
+          <div class="nvr">The queue never runs dry — the plan refills from your six pillars.</div>
+        </div>
+
+        <div class="card">
+          <h4>Your taste · what the agency learned</h4>
+          <div class="taste">
+            <div class="tr up"><span class="sig">▲</span><span class="tl">Personal alumni stories — approved 6 of 6</span></div>
+            <div class="tr up"><span class="sig">▲</span><span class="tl">Questions that invite comments</span></div>
+            <div class="tr dn"><span class="sig">▼</span><span class="tl">Price-led hooks — skipped twice</span></div>
+            <div class="tr dn"><span class="sig">▼</span><span class="tl">Stock-photo look</span></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h4>Recent decisions</h4>
+          <div class="hist">
+            <div class="hr2"><span class="st">✅</span><span class="hk" dir="auto">10,000 בוגרים. 25 שנה. משפחה אחת</span><span class="via">TELEGRAM</span></div>
+            <div class="hr2"><span class="st">✅</span><span class="hk" dir="auto">Was deutsche Kunden wirklich sagen</span><span class="via">DECK</span></div>
+            <div class="hr2"><span class="st">✍️</span><span class="hk" dir="auto">CBN + CBD for sleep — hook v2</span><span class="via">DECK</span></div>
+            <div class="hr2"><span class="st">❌</span><span class="hk" dir="auto">מבצע סוף שנה — 20% הנחה</span><span class="via">TELEGRAM</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <span>Approve · mockup v1 · every decision feeds the brand fingerprint</span>
+  </footer>
+</div>
+</body>
+</html>

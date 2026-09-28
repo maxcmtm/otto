@@ -1,0 +1,212 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Autopilot — Analytics</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fraunces:ital,opsz,wght@1,9..144,400;1,9..144,500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/platform.css">
+<style>
+.echo-brief{display:flex;gap:14px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow-s);padding:18px 22px;margin-top:26px;max-width:860px}
+.echo-brief img{width:44px;height:44px;border-radius:50%;background:#0B1230;flex:none}
+.echo-brief .eb-name{font:600 11px/1 "JetBrains Mono",monospace;letter-spacing:.14em;color:var(--cobalt);margin-bottom:6px}
+.echo-brief .eb-tx{font-size:14.5px;line-height:1.55;color:var(--ink)}
+.echo-brief .eb-tx b{color:var(--green)}
+
+.cols2{display:grid;grid-template-columns:1fr 330px;gap:28px;align-items:start}
+
+/* chart */
+.chart-card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow-s);padding:20px 22px}
+.chart-head{display:flex;align-items:baseline;gap:12px;margin-bottom:6px}
+.chart-head h3{font-size:15px;font-weight:600}
+.legend{margin-left:auto;display:flex;gap:16px;font-size:11.5px;color:var(--muted)}
+.legend i{display:inline-block;width:10px;height:3px;border-radius:2px;vertical-align:2px;margin-right:5px}
+.legend .l1 i{background:var(--cobalt)} .legend .l2 i{background:#9DB4FF}
+svg text{font:500 10.5px "JetBrains Mono",monospace;fill:var(--faint)}
+svg .marker-label{fill:var(--cobalt);font-weight:600;letter-spacing:.08em}
+
+/* lead confirm */
+.lead{display:grid;grid-template-columns:1fr auto;gap:14px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow-s);padding:16px 20px}
+.lead + .lead{margin-top:12px}
+.lead.hot{border-color:#B9C7FA}
+.lead .ln{font-weight:600;font-size:14px}
+.lead .ls{font-size:12.5px;color:var(--muted);margin-top:3px}
+.lead .ls .src{color:var(--cobalt)}
+.lead-actions{display:flex;gap:8px}
+.lead .btn.no{background:#fff;color:var(--muted);border-color:var(--line)}
+.tg-note{display:flex;gap:10px;align-items:center;margin-top:14px;font-size:12px;color:var(--faint)}
+.tg-note .tgi{width:26px;height:26px;border-radius:50%;background:#29A9EB;color:#fff;display:grid;place-items:center;font-size:12px;flex:none}
+
+/* performers */
+.perf{display:flex;flex-direction:column}
+.pr{display:flex;gap:11px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line-soft)}
+.pr:last-child{border-bottom:0}
+.pr .rank{font:600 12px/1 "JetBrains Mono",monospace;color:var(--faint);width:16px}
+.pr .ph{font-size:13px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pr .ph small{display:block;font-size:11.5px;color:var(--green)}
+.pr .pv{margin-left:auto;font:500 12px/1 "JetBrains Mono",monospace;color:var(--muted);flex:none}
+
+/* assumptions + brands */
+.mrow{display:flex;justify-content:space-between;align-items:baseline;padding:8px 0;border-bottom:1px solid var(--line-soft)}
+.mrow:last-child{border-bottom:0}
+.mrow .ml{font-size:12.5px;color:var(--muted)}
+.mrow .mv{font:500 13px/1 "JetBrains Mono",monospace}
+.mrow .mv.g{color:var(--green)}
+.edit-link{font-size:11.5px;color:var(--cobalt);cursor:pointer;margin-top:10px;display:inline-block}
+
+@media (max-width:1000px){.cols2{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header class="appbar">
+  <div class="appbar-in">
+    <div class="mark"><div class="face"></div></div>
+    <div class="wordmark">AUTOPILOT<small>MISSION CONTROL</small></div>
+    <nav class="tabs">
+      <a class="tab" href="index.html">Overview</a>
+      <span class="tab">Approve</span>
+      <span class="tab">Planner</span>
+      <span class="tab">Studio</span>
+      <span class="tab">Inbox</span>
+      <span class="tab">Ads</span>
+      <span class="tab on">Analytics</span>
+    </nav>
+    <div class="spacer"></div>
+    <div class="search">Search<span class="kbd">⌘K</span></div>
+    <span class="live"><i></i>LIVE DATA</span>
+    <div class="avatar">M</div>
+  </div>
+</header>
+<div class="wrap">
+
+  <section style="padding-top:28px">
+    <div class="eyebrow">Analytics · October week 2</div>
+    <h1 class="voice">Real growth, <b>in money.</b></h1>
+    <p class="page-sub">Not likes. New customers, estimated revenue, and the day it started changing — marked on the chart.</p>
+
+    <div class="echo-brief">
+      <img src="assets/agents/echo.png" alt="Echo">
+      <div>
+        <div class="eb-name">ECHO · WEEKLY READ</div>
+        <div class="eb-tx">Alumni stories drove <b>5 of 7 leads</b> this week. I've weighted week 3 toward that pillar and paused the two formats nobody engages with. Nothing needs your attention here — confirm the two leads below and I'll do the rest.</div>
+      </div>
+    </div>
+
+    <div class="kpis" style="margin-top:24px">
+      <div class="kpi go"><div class="n">4</div><div class="l">New customers</div></div>
+      <div class="kpi go"><div class="n">₪18,400</div><div class="l">Estimated revenue</div></div>
+      <div class="kpi alert"><div class="n">2</div><div class="l">Leads waiting confirmation</div></div>
+      <div class="kpi"><div class="n">12,940</div><div class="l">Reach this week</div></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="cols2">
+      <div>
+        <div class="chart-card">
+          <div class="chart-head">
+            <h3>Leads &amp; reach — before and after</h3>
+            <div class="legend"><span class="l1"><i></i>Leads / wk</span><span class="l2"><i></i>Reach ÷ 1k</span></div>
+          </div>
+          <svg viewBox="0 0 640 240" width="100%" height="240" role="img" aria-label="Leads and reach over 8 weeks with Autopilot start marker at week 4">
+            <line x1="40" y1="200" x2="620" y2="200" stroke="#E4E8F1"/>
+            <line x1="40" y1="140" x2="620" y2="140" stroke="#EDF0F6"/>
+            <line x1="40" y1="80" x2="620" y2="80" stroke="#EDF0F6"/>
+            <text x="14" y="204">0</text><text x="14" y="144">6</text><text x="10" y="84">12</text>
+            <!-- autopilot start marker -->
+            <rect x="300" y="24" width="320" height="176" fill="rgba(36,71,240,.045)"/>
+            <line x1="300" y1="24" x2="300" y2="200" stroke="#2447F0" stroke-width="1.5" stroke-dasharray="4 4"/>
+            <text x="310" y="38" class="marker-label">AUTOPILOT STARTS · SEP 27</text>
+            <!-- reach (soft) -->
+            <path d="M40,186 L120,182 L200,184 L280,178 L300,176 L380,150 L460,124 L540,104 L620,88"
+                  fill="none" stroke="#9DB4FF" stroke-width="2" stroke-linecap="round"/>
+            <!-- leads (cobalt) -->
+            <path d="M40,192 L120,194 L200,190 L280,192 L300,190 L380,168 L460,138 L540,116 L620,96"
+                  fill="none" stroke="#2447F0" stroke-width="2.5" stroke-linecap="round"/>
+            <circle cx="620" cy="96" r="4" fill="#2447F0"/>
+            <circle cx="620" cy="88" r="3.5" fill="#9DB4FF"/>
+            <text x="40" y="222">W34</text><text x="200" y="222">W36</text><text x="380" y="222">W38</text><text x="540" y="222">W40</text>
+          </svg>
+        </div>
+
+        <div class="sec-head" style="margin-top:34px">
+          <h2>Did they become customers?</h2>
+          <span class="count">2 waiting</span>
+          <span class="hint">One tap here or in Telegram — this is how revenue gets real</span>
+        </div>
+
+        <div class="lead hot">
+          <div>
+            <div class="ln" dir="auto">רונית א. — שאלה על מסלול הערב</div>
+            <div class="ls">From <span class="src">IG comment · <bdi>"בגיל 43 פתחה קליניקה"</bdi></span> · 2 days ago</div>
+          </div>
+          <div class="lead-actions">
+            <span class="btn go">Became a customer</span>
+            <span class="btn no">Didn't</span>
+          </div>
+        </div>
+        <div class="lead">
+          <div>
+            <div class="ln">Stefan M. — asked for the sleep bundle link</div>
+            <div class="ls">From <span class="src">FB DM · Happy Garden</span> · yesterday</div>
+          </div>
+          <div class="lead-actions">
+            <span class="btn go">Became a customer</span>
+            <span class="btn no">Didn't</span>
+          </div>
+        </div>
+        <div class="tg-note"><span class="tgi">✈</span>These two cards are waiting in your Telegram too. Confirmed customers × your average deal size = the revenue number above.</div>
+      </div>
+
+      <div class="rail" style="display:grid;gap:20px">
+        <div class="card">
+          <h4>Top performers · why they worked</h4>
+          <div class="perf">
+            <div class="pr"><span class="rank">1</span><span class="ph" dir="auto">10,000 בוגרים. 25 שנה. משפחה אחת<small>Community proof → 3 leads</small></span><span class="pv">4.1k</span></div>
+            <div class="pr"><span class="rank">2</span><span class="ph" dir="auto">בגיל 43, בלי רקע טיפולי, פתחה קליניקה<small>Alumni story → 2 leads</small></span><span class="pv">3.3k</span></div>
+            <div class="pr"><span class="rank">3</span><span class="ph">Poll: what's your #1 sleep struggle?<small>Engagement → 41 comments</small></span><span class="pv">2.2k</span></div>
+          </div>
+          <div class="edit-link">Winners teach the next ads batch →</div>
+        </div>
+
+        <div class="card">
+          <h4>By brand</h4>
+          <div class="mrow"><span class="ml">CMTM College</span><span class="mv g">₪14,200 · 3 customers</span></div>
+          <div class="mrow"><span class="ml">Happy Garden CBD</span><span class="mv g">₪4,200 · 1 customer</span></div>
+        </div>
+
+        <div class="card">
+          <h4>Revenue assumptions</h4>
+          <div class="mrow"><span class="ml">CMTM avg. enrollment</span><span class="mv">₪4,733</span></div>
+          <div class="mrow"><span class="ml">Happy Garden avg. order</span><span class="mv">€38 × LTV 2.9</span></div>
+          <span class="edit-link">Edit assumptions</span>
+        </div>
+
+        <div class="card">
+          <h4>Attention share · vs competitors</h4>
+          <div style="font-size:11px;color:var(--muted);margin:-4px 0 10px">Your slice of the conversation in each topic, checked daily</div>
+          <div class="mrow"><span class="ml" dir="auto">טיפול בחרדה</span><span class="mv"><b style="color:var(--ink)">61%</b> <span class="g" style="font-size:11px">▲3.1</span></span></div>
+          <div style="height:5px;border-radius:3px;background:var(--line);margin:4px 0 10px"><div style="width:61%;height:100%;border-radius:3px;background:var(--accent)"></div></div>
+          <div class="mrow"><span class="ml" dir="auto">לימודי תרפיה</span><span class="mv"><b style="color:var(--ink)">48%</b> <span class="g" style="font-size:11px">▲1.8</span></span></div>
+          <div style="height:5px;border-radius:3px;background:var(--line);margin:4px 0 10px"><div style="width:48%;height:100%;border-radius:3px;background:var(--accent)"></div></div>
+          <div class="mrow"><span class="ml" dir="auto">קריירה שנייה</span><span class="mv"><b style="color:var(--ink)">29%</b> <span style="color:#d4643f;font-size:11px">▼2.4</span></span></div>
+          <div style="height:5px;border-radius:3px;background:var(--line);margin:4px 0 6px"><div style="width:29%;height:100%;border-radius:3px;background:#d4643f"></div></div>
+          <div style="font-size:11.5px;color:var(--muted);line-height:1.5">Losing ground on "קריירה שנייה" — Quill queued 2 posts on that angle for next week.</div>
+        </div>
+
+        <div class="card" style="border-style:dashed">
+          <h4>Every post gets a ticket</h4>
+          <div style="font-size:12.5px;color:var(--muted);line-height:1.55">Scheduled posts open a countdown page that flips to results after publishing. Tap any pipeline row to see its ticket.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <span>Analytics · mockup v1 · revenue-first, before/after marker, lead confirm loop</span>
+  </footer>
+</div>
+</body>
+</html>

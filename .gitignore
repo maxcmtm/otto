@@ -1,0 +1,27 @@
+# secrets — never commit
+.leonardo_key
+*.env
+*secret*
+
+# python
+__pycache__/
+*.pyc
+mcp/otto-social-mcp/.venv/
+
+# runtime state & logs (live on server only)
+platform/data.json
+platform/data.json.bak*
+platform/actions.log
+platform/genvisuals.log
+platform/metrics_history.jsonl
+
+# local backups & scratch screenshots
+*.bak.*
+*.bak
+platform/*.png
+platform/*.jpg
+*.png
+*.jpg
+
+# allow brand/post assets
+!platform/assets/**

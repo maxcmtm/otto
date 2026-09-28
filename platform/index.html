@@ -1,0 +1,850 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#F5F7FB">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<title>Otto — Mission Control</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fraunces:ital,opsz,wght@1,9..144,400;1,9..144,500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --canvas:#F5F7FB; --surface:#FFFFFF; --ink:#10182B; --muted:#5B6478; --faint:#667085;
+  --cobalt:#2447F0; --cobalt-deep:#1631B8; --cobalt-tint:#EDF1FF;
+  --amber:#B45309; --amber-tint:#FFF4E2;
+  --green:#0B7A4B; --green-tint:#E5F6EE;
+  --red:#B4231F; --red-tint:#FDEBEA;
+  --line:#E4E8F1; --line-soft:#EDF0F6;
+  --shadow-s:0 1px 2px rgba(16,24,43,.05),0 2px 8px rgba(16,24,43,.04);
+  --shadow-m:0 2px 6px rgba(16,24,43,.06),0 12px 32px rgba(36,71,240,.08);
+  --r:14px;
+  --nav-h:calc(58px + env(safe-area-inset-bottom,0px));
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{background:var(--canvas);scroll-behavior:smooth}
+body{
+  font:14px/1.5 "Inter",system-ui,sans-serif;color:var(--ink);
+  background:
+    radial-gradient(900px 480px at 82% -140px, rgba(36,71,240,.07), transparent 62%),
+    var(--canvas);
+  min-height:100vh;
+  padding-bottom:var(--nav-h);
+  -webkit-tap-highlight-color:transparent;
+}
+.wrap{max-width:1080px;margin:0 auto;padding:0 16px 48px}
+section{padding-top:28px;scroll-margin-top:64px}
+
+/* ---------- app bar ---------- */
+.appbar{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.85);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+.appbar-in{max-width:1080px;margin:0 auto;padding:0 16px;display:flex;align-items:center;gap:11px;height:54px}
+.mark{width:28px;height:28px;border-radius:8px;background:linear-gradient(145deg,#3D5CFF,#1631B8);box-shadow:inset 0 1px 0 rgba(255,255,255,.35),0 4px 10px rgba(36,71,240,.30);position:relative;flex:none}
+.mark::after{content:"";position:absolute;inset:6px;border-radius:4px;border:1.5px solid rgba(255,255,255,.85);border-bottom-color:rgba(255,255,255,.25);border-right-color:rgba(255,255,255,.25)}
+.wordmark{font-weight:700;font-size:14px;letter-spacing:.12em}
+.wordmark small{display:block;font-weight:500;font-size:9.5px;letter-spacing:.18em;color:var(--faint)}
+.spacer{flex:1}
+.live{display:inline-flex;align-items:center;gap:7px;font:500 10.5px/1 "JetBrains Mono",monospace;letter-spacing:.06em;color:var(--green);background:var(--green-tint);border:1px solid #CBEBDB;border-radius:999px;padding:6px 11px;white-space:nowrap}
+.live.snap{color:var(--amber);background:var(--amber-tint);border-color:#F2DFC2}
+.live i{width:6px;height:6px;border-radius:50%;background:currentColor;animation:pulse 2.4s infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 3px rgba(11,122,75,.15)}50%{box-shadow:0 0 0 6px rgba(11,122,75,.05)}}
+
+/* ---------- briefing ---------- */
+.briefing{padding:22px 0 6px}
+.eyebrow{font:600 10.5px/1 "JetBrains Mono",monospace;letter-spacing:.2em;color:var(--cobalt);text-transform:uppercase;margin-bottom:12px}
+.voice{font:italic 500 clamp(24px,5.6vw,36px)/1.18 "Fraunces",serif;letter-spacing:-.01em;max-width:640px}
+.voice b{color:var(--cobalt);font-weight:500}
+.brief-summary{margin-top:10px;max-width:560px;font-size:14.5px;line-height:1.6;color:var(--muted)}
+.data-notice{display:none;margin-top:12px;padding:10px 14px;border-radius:8px;background:var(--amber-tint);color:var(--amber);font-size:13px;max-width:560px}
+.data-notice.show{display:block}
+.kpis{display:flex;gap:10px;margin:18px -16px 0;padding:2px 16px 8px;overflow-x:auto;scrollbar-width:none}
+.kpis::-webkit-scrollbar{display:none}
+.kpi{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:12px 16px;min-width:118px;flex:none;box-shadow:var(--shadow-s)}
+.kpi .n{font:500 22px/1.1 "JetBrains Mono",monospace;letter-spacing:-.02em}
+.kpi .l{font-size:11.5px;color:var(--muted);margin-top:3px;white-space:nowrap}
+.kpi.alert .n{color:var(--amber)}
+.kpi.go .n{color:var(--green)}
+
+/* ---------- section heads ---------- */
+.sec-head{display:flex;align-items:baseline;gap:11px;margin-bottom:14px;flex-wrap:wrap}
+.sec-head h2{font-size:16px;font-weight:600;letter-spacing:-.01em}
+.sec-head .count{font:500 11px/1 "JetBrains Mono",monospace;color:var(--cobalt);background:var(--cobalt-tint);border-radius:999px;padding:5px 9px}
+.sec-head .hint{font-size:12px;color:var(--faint);flex-basis:100%}
+@media(min-width:720px){.sec-head .hint{flex-basis:auto;margin-left:auto}}
+
+/* ---------- approval queue (posts needing sign-off) ---------- */
+.queue{display:grid;gap:12px}
+.qcard{background:var(--surface);border:1px solid #EAD9BC;border-radius:var(--r);box-shadow:var(--shadow-s);padding:16px;display:grid;gap:12px}
+.qtop{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+.pf{width:26px;height:26px;border-radius:8px;display:grid;place-items:center;font:600 10px/1 "Inter";color:#fff;flex:none}
+.pf.ig{background:linear-gradient(135deg,#7A3BFF,#E1306C)}
+.pf.fb{background:#1877F2}
+.pf.li{background:#0A66C2}
+.qbrand{font-weight:600;font-size:12.5px}
+.qslot{font:500 11.5px/1 "JetBrains Mono",monospace;color:var(--faint);margin-left:auto}
+.qhook{font-size:15px;line-height:1.5;font-weight:500}
+.qpillar{font-size:12px;color:var(--faint)}
+.qbtns{display:flex;gap:10px}
+.abtn{flex:1;font:600 14px/1 "Inter";border-radius:11px;padding:14px 12px;text-align:center;cursor:pointer;border:1px solid transparent;transition:filter .15s,opacity .15s;user-select:none}
+.abtn:active{filter:brightness(.94)}
+.abtn.approve{background:var(--cobalt);color:#fff;box-shadow:0 4px 12px rgba(36,71,240,.28)}
+.abtn.skip{background:var(--surface);color:var(--muted);border-color:var(--line)}
+.abtn.busy{opacity:.5;pointer-events:none}
+.queue-empty{background:var(--green-tint);border:1px solid #CBEBDB;border-radius:var(--r);padding:18px;color:var(--green);font-size:14px;font-weight:500}
+
+/* ---------- decisions ---------- */
+.deck{display:grid;gap:12px}
+.rec{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px;box-shadow:0 1px 2px rgba(16,24,43,.04);display:grid;gap:10px;position:relative}
+.rec.lead{border-color:#B9C7FA;box-shadow:0 4px 16px rgba(16,24,43,.06)}
+.rec.lead::before{content:"NEXT BEST ACTION";position:absolute;top:-9px;left:16px;font:600 9px/1 "JetBrains Mono",monospace;letter-spacing:.16em;color:#fff;background:var(--cobalt);padding:4px 8px;border-radius:5px}
+.rec-top{display:flex;align-items:center;gap:9px}
+.prio{font:600 10.5px/1 "JetBrains Mono",monospace;letter-spacing:.08em;border-radius:7px;padding:6px 8px;flex:none}
+.prio.P0{color:var(--red);background:var(--red-tint)}
+.prio.P1{color:var(--amber);background:var(--amber-tint)}
+.prio.P2{color:var(--muted);background:var(--line-soft)}
+.rec h3{font-size:15px;font-weight:600;letter-spacing:-.01em;line-height:1.35}
+.rec .why{font-size:13.5px;color:var(--muted);line-height:1.55}
+.rec .impact{font-size:12px;color:var(--green);display:flex;align-items:center;gap:6px}
+.rec .impact::before{content:"↗";font-weight:700}
+.rec .qbtns .abtn{padding:12px}
+.rec .state{font:500 10.5px/1 "JetBrains Mono",monospace;color:var(--faint);letter-spacing:.05em}
+.secondary-decisions{margin-top:14px}
+.secondary-decisions summary{padding:11px 0;font-size:14px;color:var(--muted);cursor:pointer;user-select:none}
+.secondary-decisions[open] summary{margin-bottom:8px}
+
+/* ---------- pipeline ---------- */
+.pipeline{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow-s);overflow:hidden}
+.brand-group + .brand-group{border-top:1px solid var(--line)}
+.brand-head{display:flex;align-items:center;gap:9px;padding:13px 16px;background:linear-gradient(to bottom,#FAFBFE,#F6F8FC);border-bottom:1px solid var(--line-soft)}
+.brand-dot{width:9px;height:9px;border-radius:3px;background:var(--cobalt);flex:none}
+.brand-head .bn{font-weight:600;font-size:13px}
+.brand-head .bu{font:500 11px/1 "JetBrains Mono",monospace;color:var(--faint);overflow:hidden;text-overflow:ellipsis}
+.post{display:grid;grid-template-columns:26px 1fr auto;gap:10px;align-items:center;padding:12px 16px;border-bottom:1px solid var(--line-soft)}
+.post:last-child{border-bottom:0}
+.hook{font-size:13.5px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hook small{display:block;font:500 11px/1.5 "JetBrains Mono",monospace;color:var(--faint)}
+.pill{font:600 11px/1.2 "Inter";letter-spacing:.02em;border-radius:999px;padding:5px 9px;white-space:nowrap}
+.pill.pending_approval{color:var(--amber);background:var(--amber-tint)}
+.pill.approved{color:var(--cobalt);background:var(--cobalt-tint)}
+.pill.scheduled{color:#5B21B6;background:#F1EBFF}
+.pill.published{color:var(--green);background:var(--green-tint)}
+.pill.draft{color:var(--muted);background:var(--line-soft)}
+.pill.skipped{color:var(--faint);background:var(--line-soft);text-decoration:line-through}
+
+/* ---------- rail cards ---------- */
+.cols{display:grid;gap:20px}
+@media(min-width:900px){.cols{grid-template-columns:1fr 320px;align-items:start}}
+.rail{display:grid;gap:16px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow-s);padding:16px}
+.card h4{font-size:11.5px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);margin-bottom:12px}
+.conn{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--line-soft)}
+.conn:last-child{border-bottom:0}
+.conn .cn{font-weight:600;font-size:13px}
+.conn .cb{font-size:12px;color:var(--faint)}
+.conn .cs{margin-left:auto;font:600 10.5px/1.2 "Inter";border-radius:999px;padding:5px 9px;white-space:nowrap}
+.conn .cs.not_connected{color:var(--amber);background:var(--amber-tint)}
+.conn .cs.connected{color:var(--green);background:var(--green-tint)}
+.conn .cs.planned{color:var(--muted);background:var(--line-soft)}
+.mrow{display:flex;justify-content:space-between;align-items:baseline;padding:7px 0;border-bottom:1px solid var(--line-soft)}
+.mrow:last-child{border-bottom:0}
+.mrow .ml{font-size:12.5px;color:var(--muted)}
+.mrow .mv{font:500 13px/1 "JetBrains Mono",monospace}
+.zero{font-size:12px;color:var(--faint);background:var(--line-soft);border-radius:10px;padding:12px 14px;margin-top:12px;line-height:1.55}
+
+/* ---------- fleet ---------- */
+.fleet{display:flex;gap:12px;margin:0 -16px;padding:2px 16px 10px;overflow-x:auto;scrollbar-width:none}
+.fleet::-webkit-scrollbar{display:none}
+@media(min-width:900px){.fleet{display:grid;grid-template-columns:repeat(auto-fit,minmax(165px,1fr));margin:0;padding:0;overflow:visible}}
+.bot{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px;box-shadow:var(--shadow-s);display:flex;flex-direction:column;gap:9px;min-width:200px;flex:none}
+.b-top{display:flex;align-items:center;gap:10px}
+.b-av{width:46px;height:46px;flex:none;position:relative;display:grid;place-items:center;font:600 13px/1 "JetBrains Mono",monospace;color:transparent;filter:drop-shadow(0 4px 8px rgba(16,24,43,.2))}
+.b-av.noimg{border-radius:13px;background:radial-gradient(120% 120% at 30% 20%,#33509F 0%,#0B1230 70%);border:1px solid rgba(36,71,240,.35);color:#B9C9FF;filter:none;overflow:hidden}
+.b-av img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain}
+.b-name{font-weight:600;font-size:13px}
+.b-role{font-size:11px;color:var(--faint);margin-top:1px}
+.b-state{margin-left:auto;width:8px;height:8px;border-radius:50%;flex:none;align-self:flex-start;margin-top:3px}
+.b-state.active{background:var(--green);animation:pulse 2.4s infinite}
+.b-state.standby{background:var(--amber)}
+.b-feed{min-height:32px;border-top:1px solid var(--line-soft);padding-top:8px}
+.b-line{font:500 11px/1.5 "JetBrains Mono",monospace;color:var(--muted);display:flex;gap:6px;align-items:baseline;transition:opacity .35s,transform .35s}
+.b-line.out{opacity:0;transform:translateY(-4px)}
+.b-line .tick{color:var(--cobalt);flex:none}
+.bot.standby .b-line .tick{color:var(--amber)}
+
+/* ---------- queue thumbnails + review CTA ---------- */
+.qcard{cursor:pointer}
+.qmedia{margin:-16px -16px 0;border-radius:var(--r) var(--r) 0 0;overflow:hidden;aspect-ratio:16/8;background:var(--line-soft);position:relative}
+.qmedia img{width:100%;height:100%;object-fit:cover;display:block}
+.qmedia .qtxt{position:absolute;inset:0;display:grid;place-items:center;padding:18px;text-align:center;font:italic 500 17px/1.35 "Fraunces",serif;color:#fff}
+.review-cta{display:flex;align-items:center;gap:12px;background:linear-gradient(135deg,#2447F0,#1631B8);border-radius:var(--r);padding:16px;color:#fff;box-shadow:0 8px 24px rgba(36,71,240,.35);cursor:pointer;user-select:none;margin-bottom:12px}
+.review-cta:active{filter:brightness(.95)}
+.review-cta .rc-stack{display:flex;flex:none}
+.review-cta .rc-stack img,.review-cta .rc-stack .rc-ph{width:44px;height:44px;border-radius:10px;object-fit:cover;border:2px solid rgba(255,255,255,.85);margin-left:-14px;background:linear-gradient(135deg,#6B7FD7,#3D5CFF)}
+.review-cta .rc-stack :first-child{margin-left:0}
+.review-cta .rc-t{flex:1;min-width:0}
+.review-cta .rc-t b{display:block;font-size:15px}
+.review-cta .rc-t span{font-size:12px;opacity:.85}
+.review-cta .rc-go{font:600 13px/1 "Inter";background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.3);border-radius:10px;padding:11px 14px;white-space:nowrap}
+
+/* ---------- reviewer (tinder-style full-screen) ---------- */
+.reviewer{position:fixed;inset:0;z-index:100;background:rgba(10,13,26,.62);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);display:none;flex-direction:column;overscroll-behavior:contain}
+.reviewer.open{display:flex}
+.rv-bar{display:flex;align-items:center;gap:10px;padding:calc(10px + env(safe-area-inset-top,0px)) 16px 10px;color:#fff}
+.rv-close{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);display:grid;place-items:center;font-size:16px;cursor:pointer;color:#fff;flex:none}
+.rv-prog{font:500 12px/1 "JetBrains Mono",monospace;letter-spacing:.08em;opacity:.85}
+.rv-dots{display:flex;gap:5px;margin-left:auto}
+.rv-dots i{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.28)}
+.rv-dots i.done{background:#4ADE80}.rv-dots i.skip{background:rgba(255,255,255,.55)}.rv-dots i.cur{background:#fff;transform:scale(1.25)}
+.rv-stage{flex:1;position:relative;margin:4px 14px;min-height:0}
+.rv-card{position:absolute;inset:0;max-width:430px;margin:0 auto;background:var(--surface);border-radius:22px;box-shadow:0 24px 64px rgba(5,8,20,.5);display:flex;flex-direction:column;overflow:hidden;touch-action:pan-y;will-change:transform}
+.rv-card.under{transform:scale(.94) translateY(12px);filter:brightness(.9);pointer-events:none}
+.rv-card.under2{transform:scale(.88) translateY(22px);filter:brightness(.8);pointer-events:none}
+.rv-card.fly{transition:transform .32s ease-out,opacity .32s}
+.rv-card.snap{transition:transform .22s ease-out}
+.rv-head{display:flex;align-items:center;gap:9px;padding:11px 14px;border-bottom:1px solid var(--line-soft);flex:none}
+.rv-av{width:34px;height:34px;border-radius:50%;flex:none;display:grid;place-items:center;font:600 13px/1 "Inter";color:#fff}
+.rv-bn{font-weight:600;font-size:13px}
+.rv-bs{font:500 10.5px/1.4 "JetBrains Mono",monospace;color:var(--faint)}
+.rv-plat{margin-left:auto}
+.rv-media{position:relative;flex:none;aspect-ratio:1/1;max-height:46vh;background:#0E1428;overflow:hidden}
+.rv-media img{width:100%;height:100%;object-fit:cover;display:block}
+.rv-media .rv-txtvis{position:absolute;inset:0;display:grid;place-items:center;padding:26px;text-align:center;font:italic 500 clamp(19px,5.5vw,26px)/1.35 "Fraunces",serif;color:#fff}
+.rv-media .genlabel{position:absolute;left:10px;bottom:10px;font:500 9.5px/1 "JetBrains Mono",monospace;letter-spacing:.1em;color:rgba(255,255,255,.75);background:rgba(10,13,26,.45);border-radius:6px;padding:5px 8px;backdrop-filter:blur(4px)}
+.rv-body{padding:12px 16px 8px;overflow-y:auto;flex:1;min-height:0}
+.rv-cap{font-size:13.5px;line-height:1.6;white-space:pre-wrap;word-break:break-word}
+.rv-meta{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px;padding-bottom:6px}
+.rv-chip{font:500 10.5px/1 "JetBrains Mono",monospace;color:var(--muted);background:var(--line-soft);border-radius:999px;padding:6px 10px}
+.rv-stamp{position:absolute;top:26px;font:800 26px/1 "Inter";letter-spacing:.12em;padding:8px 16px;border:3.5px solid;border-radius:12px;opacity:0;transform:rotate(-14deg);pointer-events:none;z-index:5}
+.rv-stamp.ok{left:18px;color:#22C55E;border-color:#22C55E;background:rgba(255,255,255,.85)}
+.rv-stamp.no{right:18px;color:#EF4444;border-color:#EF4444;background:rgba(255,255,255,.85);transform:rotate(14deg)}
+.rv-actions{display:flex;align-items:center;justify-content:center;gap:26px;padding:14px 0 calc(18px + env(safe-area-inset-bottom,0px));flex:none}
+.rv-btn{width:62px;height:62px;border-radius:50%;display:grid;place-items:center;font-size:24px;cursor:pointer;user-select:none;border:none;transition:transform .12s}
+.rv-btn:active{transform:scale(.9)}
+.rv-btn.skip{background:#fff;color:#EF4444;box-shadow:0 8px 22px rgba(5,8,20,.4)}
+.rv-btn.ok{background:linear-gradient(135deg,#22C55E,#0B7A4B);color:#fff;box-shadow:0 8px 22px rgba(34,197,94,.45);width:72px;height:72px;font-size:28px}
+.rv-btn.later{background:rgba(255,255,255,.14);color:#fff;border:1px solid rgba(255,255,255,.25);width:48px;height:48px;font-size:15px}
+.rv-empty{position:absolute;inset:0;display:grid;place-items:center;color:#fff;text-align:center;padding:30px}
+.rv-empty .big{font:italic 500 26px/1.3 "Fraunces",serif;margin-bottom:8px}
+.rv-empty .sub{font-size:13.5px;opacity:.8;max-width:280px;margin:0 auto}
+@media(min-width:900px){.rv-stage{margin:10px auto;width:430px}}
+
+/* ---------- plan (month gantt + reminders) ---------- */
+.gantt{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow-s);padding:14px 0 6px;overflow:hidden}
+.gantt-head{display:flex;align-items:center;gap:10px;padding:0 16px 12px}
+.gantt-head .gm{font-weight:600;font-size:14px}
+.gantt-head .gnav{margin-left:auto;display:flex;gap:6px}
+.gantt-head .gnav span{width:30px;height:30px;border-radius:9px;border:1px solid var(--line);display:grid;place-items:center;cursor:pointer;color:var(--muted);font-size:13px;user-select:none}
+.gantt-scroll{overflow-x:auto;scrollbar-width:none;padding:0 16px 8px}
+.gantt-scroll::-webkit-scrollbar{display:none}
+.gantt-grid{display:grid;grid-auto-flow:column;gap:0;min-width:max-content}
+.gcol{width:34px;display:flex;flex-direction:column;align-items:center;gap:5px;padding:4px 0;border-radius:9px}
+.gcol.today{background:var(--cobalt-tint)}
+.gcol .gd{font:500 10px/1 "JetBrains Mono",monospace;color:var(--faint)}
+.gcol.today .gd{color:var(--cobalt);font-weight:700}
+.gcol .gn{font:600 12px/1 "JetBrains Mono",monospace;color:var(--muted)}
+.gcol.today .gn{color:var(--cobalt)}
+.gcell{width:22px;display:flex;flex-direction:column;gap:3px;align-items:center;min-height:40px;padding-top:4px}
+.gdot{width:9px;height:9px;border-radius:3px;flex:none}
+.gdot.pending_approval{background:var(--amber)}
+.gdot.approved,.gdot.scheduled{background:var(--cobalt)}
+.gdot.published{background:var(--green)}
+.gdot.draft{background:#C7CEDD}
+.gdot.skipped{background:#E4E8F1}
+.glegend{display:flex;gap:14px;flex-wrap:wrap;padding:8px 16px 8px;border-top:1px solid var(--line-soft)}
+.glegend span{display:inline-flex;align-items:center;gap:6px;font-size:11px;color:var(--faint)}
+.gday-detail{padding:4px 16px 12px;display:grid;gap:8px}
+.gday-detail .gdp{display:flex;gap:9px;align-items:center;font-size:12.5px;background:var(--line-soft);border-radius:10px;padding:9px 11px}
+.gday-detail .gdp .pill{margin-left:auto}
+.reminders{display:grid;gap:10px;margin-top:16px}
+.rem{display:flex;gap:11px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-left:3px solid var(--cobalt);border-radius:11px;padding:12px 14px;box-shadow:var(--shadow-s)}
+.rem.urgent{border-left-color:var(--red)}
+.rem.warn{border-left-color:var(--amber)}
+.rem .ri{font-size:15px;flex:none;margin-top:1px}
+.rem .rt{font-size:13px;font-weight:600;line-height:1.4}
+.rem .rs{font-size:12px;color:var(--muted);margin-top:2px;line-height:1.5}
+
+footer{margin-top:44px;padding-top:16px;border-top:1px solid var(--line);font:500 10.5px/1.6 "JetBrains Mono",monospace;color:var(--faint)}
+
+/* ---------- bottom nav (mobile) ---------- */
+.bnav{position:fixed;left:0;right:0;bottom:0;z-index:60;display:flex;background:rgba(255,255,255,.92);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px)}
+.bnav a{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:9px 0 7px;font:500 10px/1 "Inter";color:var(--faint);text-decoration:none;position:relative}
+.bnav a .ico{font-size:17px;line-height:1}
+.bnav a.on{color:var(--cobalt);font-weight:600}
+.bnav a .badge{position:absolute;top:4px;left:calc(50% + 7px);min-width:16px;height:16px;border-radius:999px;background:var(--amber);color:#fff;font:600 9.5px/16px "Inter";text-align:center;padding:0 4px}
+@media(min-width:900px){.bnav{display:none}body{padding-bottom:0}}
+
+/* ---------- toast ---------- */
+.toast{position:fixed;left:50%;bottom:calc(var(--nav-h) + 14px);transform:translateX(-50%) translateY(16px);z-index:80;background:var(--ink);color:#fff;font:500 13px/1.3 "Inter";border-radius:11px;padding:12px 18px;box-shadow:0 12px 32px rgba(16,24,43,.3);opacity:0;pointer-events:none;transition:opacity .25s,transform .25s;max-width:88vw;text-align:center}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.toast.err{background:var(--red)}
+@media(min-width:900px){.toast{bottom:24px}}
+
+@media (prefers-reduced-motion:reduce){.live i,.b-state.active{animation:none}}
+</style>
+</head>
+<body>
+<header class="appbar">
+  <div class="appbar-in">
+    <div class="mark"></div>
+    <div class="wordmark">OTTO<small>MISSION CONTROL</small></div>
+    <div class="spacer"></div>
+    <span class="live snap" id="live-badge"><i></i>SNAPSHOT</span>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="briefing" id="top">
+    <div class="eyebrow" id="brief-date">Today's briefing</div>
+    <h1 class="voice" id="voice"></h1>
+    <p class="brief-summary" id="brief-summary"></p>
+    <p role="status" class="data-notice" id="data-notice">Read-only snapshot — actions are disabled. Open via the dashboard URL to manage live.</p>
+    <div class="kpis" id="kpis"></div>
+  </div>
+
+  <section id="queue-sec">
+    <div class="sec-head">
+      <h2>Waiting for your sign-off</h2>
+      <span class="count" id="queue-count"></span>
+      <span class="hint">One tap approves — publishing follows the slot</span>
+    </div>
+    <div class="queue" id="queue"></div>
+  </section>
+
+  <section id="decisions-sec">
+    <div class="sec-head">
+      <h2>Your agency recommends</h2>
+      <span class="count" id="rec-count"></span>
+    </div>
+    <div class="deck" id="deck"></div>
+    <details class="secondary-decisions" id="secondary">
+      <summary id="secondary-summary"></summary>
+      <div class="deck" id="deck-secondary"></div>
+    </details>
+  </section>
+
+  <section id="plan-sec">
+    <div class="sec-head">
+      <h2>Month plan</h2>
+      <span class="count" id="plan-count"></span>
+      <span class="hint">Tap a day to see what goes out</span>
+    </div>
+    <div class="gantt">
+      <div class="gantt-head">
+        <span class="gm" id="gantt-month"></span>
+        <div class="gnav"><span id="gantt-prev">‹</span><span id="gantt-next">›</span></div>
+      </div>
+      <div class="gantt-scroll"><div class="gantt-grid" id="gantt-grid"></div></div>
+      <div class="gday-detail" id="gday-detail" style="display:none"></div>
+      <div class="glegend">
+        <span><i class="gdot pending_approval"></i>needs approval</span>
+        <span><i class="gdot approved"></i>scheduled</span>
+        <span><i class="gdot published"></i>published</span>
+        <span><i class="gdot draft"></i>draft</span>
+      </div>
+    </div>
+    <div class="sec-head" style="margin-top:22px"><h2>Reminders</h2><span class="count" id="rem-count"></span></div>
+    <div class="reminders" id="reminders"></div>
+  </section>
+
+  <section id="pipeline-sec">
+    <div class="cols">
+      <div>
+        <div class="sec-head"><h2>Content pipeline</h2><span class="count" id="post-count"></span></div>
+        <div class="pipeline" id="pipeline"></div>
+      </div>
+      <div class="rail">
+        <div class="card"><h4>Connections</h4><div id="connections"></div></div>
+        <div class="card"><h4>Performance</h4><div id="metrics"></div>
+          <div class="zero">Metrics activate with the first published week. The agency reads them and adjusts the plan — you only see the conclusions.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="team-sec">
+    <div class="sec-head">
+      <h2>Your AI team</h2>
+      <span class="count" id="fleet-count"></span>
+    </div>
+    <div class="fleet" id="fleet"></div>
+  </section>
+
+  <footer><span id="gen"></span></footer>
+</div>
+
+<nav class="bnav" id="bnav">
+  <a href="#top" class="on" data-sec="top"><span class="ico">◉</span>Overview</a>
+  <a href="#queue-sec" data-sec="queue-sec"><span class="ico">✓</span>Review<span class="badge" id="nav-badge" style="display:none"></span></a>
+  <a href="#plan-sec" data-sec="plan-sec"><span class="ico">▦</span>Plan</a>
+  <a href="#pipeline-sec" data-sec="pipeline-sec"><span class="ico">≣</span>Pipeline</a>
+  <a href="#team-sec" data-sec="team-sec"><span class="ico">⬡</span>Team</a>
+</nav>
+
+<div class="reviewer" id="reviewer" role="dialog" aria-modal="true" aria-label="Post review">
+  <div class="rv-bar">
+    <div class="rv-close" id="rv-close">✕</div>
+    <div class="rv-prog" id="rv-prog"></div>
+    <div class="rv-dots" id="rv-dots"></div>
+  </div>
+  <div class="rv-stage" id="rv-stage"></div>
+  <div class="rv-actions">
+    <button class="rv-btn skip" id="rv-skip" aria-label="Skip">✕</button>
+    <button class="rv-btn later" id="rv-later" aria-label="Decide later">↷</button>
+    <button class="rv-btn ok" id="rv-ok" aria-label="Approve">✓</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script id="fallback-data" type="application/json">{"generated": "2026-09-27T20:35:38Z", "recommendations": [{"id": "rec-001", "priority": "P0", "title": "Approve 4 posts waiting for review", "why": "Week-1 content for both brands is drafted and slotted. Publishing starts Sep 27 — approving today keeps the schedule intact.", "impact": "Keeps the first publishing week on time", "cta": "Review queue", "status": "proposed"}, {"id": "rec-002", "priority": "P0", "title": "Connect Meta assets for the pilot brand", "why": "Live publishing (Phase 4) is blocked until a Facebook Page + Instagram account are linked. Everything upstream is ready.", "impact": "Unblocks automated publishing end-to-end", "cta": "Connect assets", "status": "proposed"}, {"id": "rec-003", "priority": "P1", "title": "Run the pilot on CMTM first", "why": "Hebrew organic content, an engaged alumni community, and no ad-category restrictions. Happy Garden is CBD — restricted on Meta, better as brand #2.", "impact": "Fastest path to a proven publishing loop", "cta": "Confirm choice", "status": "proposed"}, {"id": "rec-004", "priority": "P1", "title": "Move Otto from €197 one-time to monthly plans", "why": "Native charges $79–499/mo for the same job. Recurring pricing funds the agency loop and matches how the market already buys.", "impact": "Recurring revenue instead of one-off sales", "cta": "See pricing draft", "status": "proposed"}, {"id": "rec-005", "priority": "P2", "title": "Add LinkedIn for the career-change pillar", "why": "CMTM's core audience (women 28–55 changing careers) over-indexes on LinkedIn. One extra channel, same content plan.", "impact": "New audience at near-zero extra cost", "cta": "Draft channel plan", "status": "proposed"}, {"id": "rec-006", "priority": "P1", "title": "Ship AI short-form video — Native has none", "why": "Deep-dive confirms Native has zero video support, their most-cited gap. Our video_generate + Leonardo pipeline already exists — autopilot Reels/TikToks is pure differentiation.", "impact": "A format the competition cannot match", "cta": "See video plan", "status": "proposed"}, {"id": "rec-007", "priority": "P1", "title": "Adopt binding brand fingerprints in onboarding", "why": "Native's Taste Layer paper shows brand voice as binding generation params (not hints) is why their output isn't slop. Our interview-based onboarding can produce a richer fingerprint than their URL scrape.", "impact": "On-brand output at scale, fewer declines", "cta": "Approve spec", "status": "proposed"}, {"id": "rec-008", "priority": "P2", "title": "Expose Autopilot via MCP from any assistant", "why": "Native ships an MCP endpoint for Claude/ChatGPT control. We are OpenClaw-native — this is home turf and we can out-execute them.", "impact": "Agentic distribution wedge", "cta": "Draft scope", "status": "proposed"}], "brands": [{"id": "happygarden", "name": "Happy Garden CBD", "url": "happygardeneu.com", "lang": "EN/DE", "status": "active", "pillars": ["Education", "Trust & proof", "Use-case", "Product", "Engagement"], "compliance": "CBD is a restricted category on Meta — organic-first strategy"}, {"id": "cmtm", "name": "CMTM College", "native_name": "מכללת תרפיית מימדים", "url": "cmtm.co.il", "lang": "HE", "status": "active", "pillars": ["Alumni stories", "Method education", "Career change", "Parenting", "Current events", "Community"], "compliance": "No healing claims · mental-health targeting restricted on Meta"}], "posts": [{"id": "hg-001", "brand": "happygarden", "pillar": "Education", "platform": "ig", "hook": "Full vs Broad Spectrum vs Isolate — 60-second guide", "status": "pending_approval", "slot": "2026-09-27T08:00", "approved_via": "dashboard", "caption": "Full Spectrum, Broad Spectrum, Isolate — same plant, three very different products. 🌿\n\nFULL — every compound working together (the entourage effect).\nBROAD — the same team, minus THC.\nISOLATE — pure CBD, nothing else.\n\n60 seconds to know exactly what's in your bottle → swipe.\n\n#CBD #CBDeducation #sleepbetter #wellness", "image": "assets/posts/hg-001.png"}, {"id": "hg-002", "brand": "happygarden", "pillar": "Trust & proof", "platform": "fb", "hook": "Was deutsche Kunden wirklich sagen (echte Reviews)", "status": "approved", "slot": "2026-09-27T17:00"}, {"id": "hg-003", "brand": "happygarden", "pillar": "Use-case", "platform": "ig", "hook": "CBN + CBD for sleep: what the entourage effect means", "status": "draft", "slot": "2026-09-28T08:00"}, {"id": "hg-004", "brand": "happygarden", "pillar": "Engagement", "platform": "ig", "hook": "Poll: what's your #1 sleep struggle?", "status": "scheduled", "slot": "2026-09-28T19:00"}, {"id": "cm-001", "brand": "cmtm", "pillar": "Method education", "platform": "ig", "hook": "מה זה בכלל 'לרפא מהשורש'? 5 שקפים על תת-מודע", "status": "pending_approval", "slot": "2026-09-27T09:00", "caption": "״לרפא מהשורש״ — לא סיסמה. שיטה.\n\nרוב הכלים שאנחנו מכירים עובדים על הסימפטום: להרגיע, לווסת, לנהל.\nתרפיית מימדים עובדת על השורש — האמונות והדפוסים שנחרטו בתת-מודע הרבה לפני שידענו לבחור.\n\n5 שקפים שמסבירים איך זה עובד ← החליקו.\n\n(התוצאות משתנות מאדם לאדם — אין בפוסט הבטחה טיפולית)", "image": "assets/posts/cm-001.png"}, {"id": "cm-002", "brand": "cmtm", "pillar": "Alumni stories", "platform": "fb", "hook": "בגיל 43, בלי רקע טיפולי, פתחה קליניקה", "status": "pending_approval", "slot": "2026-09-27T18:00", "caption": "בגיל 43, בלי רקע טיפולי, רונית נכנסה ללימודים ״רק בשביל עצמה״.\n\nשנתיים אחרי — קליניקה פעילה, יומן מלא, ותחושה שהיא סוף־סוף במקום הנכון.\n\nהסיפור המלא של רונית — בתגובה הראשונה 👇\n\n25 שנה. 10,000 בוגרים. מכללת תרפיית מימדים.", "image": "assets/posts/cm-002.png"}, {"id": "cm-003", "brand": "cmtm", "pillar": "Career change", "platform": "fb", "hook": "קריירה שנייה עם משמעות — 3 שאלות לבדוק אם זה בשבילך", "status": "draft", "slot": "2026-09-28T09:00"}, {"id": "cm-004", "brand": "cmtm", "pillar": "Parenting", "platform": "ig", "hook": "הילד 'רגיש מדי'? מה שוויסות חושי מנסה להגיד לכם", "status": "draft", "slot": "2026-09-28T18:00"}, {"id": "cm-005", "brand": "cmtm", "pillar": "Current events", "platform": "fb", "hook": "חוזרים ממילואים וממשיכים כרגיל? הגוף זוכר", "status": "draft", "slot": "2026-10-01T09:00"}, {"id": "cm-006", "brand": "cmtm", "pillar": "Community", "platform": "ig", "hook": "10,000 בוגרים. 25 שנה. משפחה אחת", "status": "published", "slot": "2026-09-24T09:00"}, {"id": "cm-007", "brand": "cmtm", "pillar": "Myth-busting", "platform": "ig", "hook": "מיתוס: צריך תואר בפסיכולוגיה כדי לטפל", "status": "pending_approval", "slot": "2026-09-29T09:00", "caption": "מיתוס: ״צריך תואר בפסיכולוגיה כדי לטפל בבני אדם״.\n\nמציאות: העולם הטיפולי רחב בהרבה — ויש מסלול מוסדר, מעמיק ומעשי, שמכשיר מטפלים כבר 25 שנה.\n\nמה כן צריך? רצון לעומק, מסגרת רצינית, והכשרה נכונה.\n\nכל הפרטים על המסלול ← בלינק בביו.", "image": "assets/posts/cm-007.png"}], "agents": [{"id": "maximus", "role": "Owner / build", "scope": "Development, deploys, incidents", "status": "active"}, {"id": "autopilot-core", "role": "Orchestrator", "scope": "Onboarding · plans · approvals · scheduling", "status": "planned"}, {"id": "autopilot-client-*", "role": "Per-client", "scope": "Single brand, isolated workspace, separate tokens", "status": "planned"}], "metrics": {"happygarden": {"reach": 0, "saves": 0, "clicks": 0, "leads": 0}, "cmtm": {"reach": 0, "saves": 0, "clicks": 0, "leads": 0}}, "connections": [{"id": "meta-cmtm", "service": "Instagram + Facebook", "brand": "CMTM College", "status": "not_connected"}, {"id": "meta-hg", "service": "Instagram + Facebook", "brand": "Happy Garden CBD", "status": "not_connected"}, {"id": "linkedin", "service": "LinkedIn", "brand": "Shared", "status": "planned"}], "fleet": [{"id": "orion", "name": "Orion", "role": "Orchestrator", "status": "active", "feed": ["Compiled today's briefing 06:00", "Routing 2 blockers to Max", "Watching Sep 27 publish deadline", "Fleet sync: 4 agents reporting"]}, {"id": "quill", "name": "Quill", "role": "Content agent", "status": "active", "feed": ["Drafted 11 posts across 2 brands", "Rewriting hg-003 hook — v2", "HE + DE variants ready for review", "4 posts queued for your sign-off"]}, {"id": "sage", "name": "Sage", "role": "Organic growth", "status": "active", "feed": ["Best CMTM slot: Sun 09:00", "IG hashtag sets refreshed", "LinkedIn pillar mapped (P2)", "Slotting week 2 calendar"]}, {"id": "nova", "name": "Nova", "role": "Ideas & trends", "status": "active", "feed": ["3 new recommendations queued", "Trend scan: reserve-duty chatter ↑", "Native gap found: short-form video", "Watching 6 content pillars"]}, {"id": "atlas", "name": "Atlas", "role": "Paid ads", "status": "standby", "feed": ["Waiting on Meta connection", "CMTM audience drafts ready", "CBD policy: organic-first for HG"]}, {"id": "echo", "name": "Echo", "role": "Analytics", "status": "standby", "feed": ["Activates with first published week", "Baselines set: reach · saves · leads"]}]}</script>
+<script>
+const PLAT = {ig:"IG", fb:"FB", li:"IN"};
+const API = "/otto-api";
+let LIVE = false, DATA = null;
+
+const fmtSlot = s => {
+  const d = new Date(s);
+  return d.toLocaleDateString("en-GB",{day:"2-digit",month:"short"}) + " · " +
+         String(d.getHours()).padStart(2,"0") + ":" + String(d.getMinutes()).padStart(2,"0");
+};
+const esc = t => String(t??"").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+let toastT;
+function toast(msg, err){
+  const el = document.getElementById("toast");
+  el.textContent = msg;
+  el.classList.toggle("err", !!err);
+  el.classList.add("show");
+  clearTimeout(toastT);
+  toastT = setTimeout(()=>el.classList.remove("show"), 2600);
+}
+
+async function act(kind, id, status, btn){
+  if(!LIVE){ toast("Snapshot mode — open the live dashboard URL to act", true); return; }
+  const card = btn.closest(".qcard, .rec");
+  card.querySelectorAll(".abtn").forEach(b=>b.classList.add("busy"));
+  try{
+    const r = await fetch(API + "/action", {
+      method:"POST", headers:{"Content-Type":"application/json"},
+      body: JSON.stringify({kind, id, status})
+    });
+    const j = await r.json();
+    if(!r.ok) throw new Error(j.error || r.status);
+    DATA = j.data;
+    render(DATA);
+    const verb = {approved:"Approved", skipped:"Skipped", done:"Marked done", dismissed:"Dismissed"}[status] || status;
+    toast(`${verb} · ${id}`);
+  }catch(e){
+    card.querySelectorAll(".abtn").forEach(b=>b.classList.remove("busy"));
+    toast("Failed: " + e.message, true);
+  }
+}
+
+function render(d){
+  const posts = d.posts||[], brands = d.brands||[];
+  const recs = (d.recommendations||[]).filter(r=>r.status!=="dismissed"&&r.status!=="done");
+  const pendingPosts = posts.filter(p=>p.status==="pending_approval");
+  const pending = pendingPosts.length;
+  const scheduled = posts.filter(p=>p.status==="scheduled"||p.status==="approved").length;
+  const published = posts.filter(p=>p.status==="published").length;
+  const p0 = recs.filter(r=>r.priority==="P0").length;
+  const brandName = id => (brands.find(b=>b.id===id)||{}).name || id;
+
+  const now = new Date(d.generated||Date.now());
+  document.getElementById("brief-date").textContent =
+    "Today's briefing · " + new Date().toLocaleDateString("en-GB",{weekday:"long",day:"numeric",month:"long"});
+  document.getElementById("gen").textContent = "Last sync " + (d.generated||"—").replace("T"," ").replace("Z"," UTC");
+
+  const NUMS = ["No","One","Two","Three","Four","Five","Six","Seven","Eight","Nine"];
+  document.getElementById("voice").textContent = pending > 0
+    ? `${NUMS[pending]||pending} post${pending===1?"":"s"} need${pending===1?"s":""} your sign-off.`
+    : "Nothing needs your sign-off today.";
+  document.getElementById("brief-summary").textContent =
+    `Content is planned across ${(NUMS[brands.length]||brands.length).toLowerCase()} brands. ` +
+    (p0 > 0 ? `Clear ${p0===1?"one blocker":(NUMS[p0]||p0).toLowerCase()+" blockers"} below to enable live publishing.`
+            : "Publishing is unblocked.");
+
+  document.getElementById("kpis").innerHTML = [
+    ["alert", pending, "Awaiting approval"],
+    ["", scheduled, "Approved & scheduled"],
+    ["go", published, "Published"],
+    ["", brands.length, "Brands onboarded"],
+  ].map(([c,n,l])=>`<div class="kpi ${c}"><div class="n">${n}</div><div class="l">${l}</div></div>`).join("");
+
+  const badge = document.getElementById("nav-badge");
+  badge.style.display = pending ? "" : "none";
+  badge.textContent = pending;
+
+  // approval queue
+  document.getElementById("queue-count").textContent = pending + " pending";
+  document.getElementById("queue").innerHTML = pending ? (`
+    <div class="review-cta" onclick="openReviewer(0)">
+      <div class="rc-stack">${pendingPosts.slice(0,3).map(p=>p.image
+        ? `<img src="${esc(p.image)}" alt="" onerror="this.outerHTML='<span class=rc-ph></span>'">`
+        : `<span class="rc-ph" style="background:${brandGrad(p.brand)}"></span>`).join("")}</div>
+      <div class="rc-t"><b>Review ${pending} post${pending===1?"":"s"}</b><span>See each one exactly as it will look in the feed</span></div>
+      <div class="rc-go">Start →</div>
+    </div>` +
+    pendingPosts.map((p,i)=>`
+    <div class="qcard" onclick="openReviewer(${i})">
+      ${p.image
+        ? `<div class="qmedia"><img src="${esc(p.image)}" alt="" loading="lazy" onerror="this.parentNode.innerHTML='<div class=qtxt dir=auto style=background:${brandGrad(p.brand).replace(/ /g,"")}>${esc(p.hook).replace(/'/g,"&#39;")}</div>'"></div>`
+        : `<div class="qmedia"><div class="qtxt" dir="auto" style="background:${brandGrad(p.brand)}">${esc(p.hook)}</div></div>`}
+      <div class="qtop">
+        <span class="pf ${p.platform}">${PLAT[p.platform]||p.platform}</span>
+        <span class="qbrand">${esc(brandName(p.brand))}</span>
+        <span class="qslot">${fmtSlot(p.slot)}</span>
+      </div>
+      <div class="qhook" dir="auto">${esc(p.hook)}</div>
+      <div class="qpillar">${esc(p.pillar)} · ${p.id} · tap to preview</div>
+      <div class="qbtns" onclick="event.stopPropagation()">
+        <div class="abtn approve" onclick="act('post','${p.id}','approved',this)">Approve</div>
+        <div class="abtn skip" onclick="act('post','${p.id}','skipped',this)">Skip</div>
+      </div>
+    </div>`).join(""))
+    : `<div class="queue-empty">✓ Queue is clear — everything approved or scheduled.</div>`;
+
+  renderPlan(d);
+
+  // decisions
+  document.getElementById("rec-count").textContent = recs.length + " open";
+  const recCard = (r, lead) => `
+    <div class="rec ${lead?"lead":""}">
+      <div class="rec-top">
+        <span class="prio ${r.priority}">${r.priority}</span>
+        <span class="state">${r.id} · ${esc(r.status)}</span>
+      </div>
+      <h3>${esc(r.title)}</h3>
+      <div class="why">${esc(r.why)}</div>
+      <div class="impact">${esc(r.impact)}</div>
+      <div class="qbtns">
+        <div class="abtn approve" onclick="act('rec','${r.id}','done',this)">${esc(r.cta||"Approve")}</div>
+        <div class="abtn skip" onclick="act('rec','${r.id}','dismissed',this)">Not now</div>
+      </div>
+    </div>`;
+  const blockers = recs.filter(r=>r.priority==="P0");
+  const strategic = recs.filter(r=>r.priority!=="P0");
+  document.getElementById("deck").innerHTML = blockers.map((r,i)=>recCard(r,i===0)).join("")
+    || strategic.slice(0,1).map(r=>recCard(r,true)).join("");
+  const rest = blockers.length ? strategic : strategic.slice(1);
+  const sec = document.getElementById("secondary");
+  if(rest.length){
+    sec.style.display = "";
+    document.getElementById("secondary-summary").textContent =
+      `${rest.length} strategic suggestion${rest.length===1?"":"s"}`;
+    document.getElementById("deck-secondary").innerHTML = rest.map(r=>recCard(r,false)).join("");
+  } else { sec.style.display = "none"; }
+
+  // pipeline
+  document.getElementById("post-count").textContent = posts.length + " posts";
+  document.getElementById("pipeline").innerHTML = brands.map(b=>{
+    const bp = posts.filter(p=>p.brand===b.id);
+    if(!bp.length) return "";
+    return `<div class="brand-group">
+      <div class="brand-head">
+        <span class="brand-dot"></span>
+        <span class="bn">${esc(b.name)}</span>
+        <span class="bu">${esc(b.url)}</span>
+      </div>
+      ${bp.map(p=>`<div class="post">
+        <span class="pf ${p.platform}">${PLAT[p.platform]||p.platform}</span>
+        <span class="hook" dir="auto" title="${esc(p.hook)}">${esc(p.hook)}<small>${fmtSlot(p.slot)} · ${esc(p.pillar)}</small></span>
+        <span class="pill ${p.status}">${p.status.replace("_"," ")}</span>
+      </div>`).join("")}
+    </div>`;
+  }).join("");
+
+  document.getElementById("connections").innerHTML = (d.connections||[]).map(c=>`
+    <div class="conn">
+      <div>
+        <div class="cn">${esc(c.service)}</div>
+        <div class="cb">${esc(c.brand)}</div>
+      </div>
+      <span class="cs ${c.status}">${c.status.replace("_"," ")}</span>
+    </div>`).join("") || '<div class="zero">No channels connected yet.</div>';
+
+  const m = d.metrics||{};
+  document.getElementById("metrics").innerHTML = Object.entries(m).map(([k,v])=>{
+    const measured = (v.reach||0)+(v.saves||0)+(v.clicks||0)+(v.leads||0) > 0;
+    const val = measured ? `${v.reach} reach · ${v.leads} leads` : "—";
+    return `<div class="mrow"><span class="ml">${esc(brandName(k))}</span><span class="mv">${val}</span></div>`;
+  }).join("");
+
+  renderFleet(d.fleet||[]);
+}
+
+let tickerTimers = [];
+function renderFleet(fleet){
+  const host = document.getElementById("fleet");
+  tickerTimers.forEach(clearInterval); tickerTimers = [];
+  document.getElementById("fleet-count").textContent =
+    fleet.filter(a=>a.status==="active").length + " active";
+  host.innerHTML = fleet.map(a=>`
+    <div class="bot ${a.status}">
+      <div class="b-top">
+        <div class="b-av">${esc((a.name||"?")[0])}<img src="assets/agents/${esc(a.id)}.png" alt="" loading="lazy" onerror="this.parentNode.classList.add('noimg');this.remove()"></div>
+        <div>
+          <div class="b-name">${esc(a.name)}</div>
+          <div class="b-role">${esc(a.role)}</div>
+        </div>
+        <span class="b-state ${a.status}"></span>
+      </div>
+      <div class="b-feed"><div class="b-line" id="feed-${esc(a.id)}"><span class="tick">▸</span><span class="tx"></span></div></div>
+    </div>`).join("");
+  const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  fleet.forEach((a,i)=>{
+    const line = document.getElementById("feed-"+a.id);
+    if(!line) return;
+    const tx = line.querySelector(".tx");
+    const feed = (a.feed&&a.feed.length) ? a.feed : ["—"];
+    let idx = 0;
+    tx.textContent = feed[0];
+    if(reduced || feed.length < 2) return;
+    tickerTimers.push(setInterval(()=>{
+      if(document.hidden) return;
+      line.classList.add("out");
+      setTimeout(()=>{
+        idx = (idx+1) % feed.length;
+        tx.textContent = feed[idx];
+        line.classList.remove("out");
+      }, 360);
+    }, 4200 + i*650));
+  });
+}
+
+/* ================= brand visuals ================= */
+const GRADS = ["linear-gradient(135deg,#2E7D5B,#0E3B2A)","linear-gradient(135deg,#6D3BF5,#2A1670)","linear-gradient(135deg,#B45309,#6B2E08)","linear-gradient(135deg,#2447F0,#101B54)"];
+function brandGrad(id){ let h=0; for(const c of String(id)) h=(h*31+c.charCodeAt(0))>>>0; return GRADS[h%GRADS.length]; }
+const PLAT_FULL = {ig:"Instagram", fb:"Facebook", li:"LinkedIn"};
+
+/* ================= tinder-style reviewer ================= */
+let RV = {deck:[], idx:0, open:false, results:{}};
+
+function rvCardHTML(p, layer){
+  const b = (DATA.brands||[]).find(x=>x.id===p.brand)||{};
+  const media = p.image
+    ? `<img src="${esc(p.image)}" alt="" draggable="false" onerror="this.outerHTML='<div class=rv-txtvis dir=auto style=\\'background:${brandGrad(p.brand)}\\'>${esc(p.hook).replace(/'/g,"&#39;")}</div>'">`
+    : `<div class="rv-txtvis" dir="auto" style="background:${brandGrad(p.brand)}">${esc(p.hook)}</div>`;
+  return `<div class="rv-card ${layer}" data-id="${p.id}">
+    <div class="rv-stamp ok">APPROVE</div>
+    <div class="rv-stamp no">SKIP</div>
+    <div class="rv-head">
+      <div class="rv-av" style="background:${brandGrad(p.brand)}">${esc((b.name||p.brand)[0])}</div>
+      <div><div class="rv-bn">${esc(b.name||p.brand)}</div><div class="rv-bs">${PLAT_FULL[p.platform]||p.platform} · ${fmtSlot(p.slot)}</div></div>
+      <span class="pf ${p.platform} rv-plat">${PLAT[p.platform]||p.platform}</span>
+    </div>
+    <div class="rv-media">${media}${p.image?'<span class="genlabel">AI VISUAL · OTTO</span>':""}</div>
+    <div class="rv-body">
+      <div class="rv-cap" dir="auto">${esc(p.caption||p.hook)}</div>
+      <div class="rv-meta"><span class="rv-chip">${esc(p.pillar)}</span><span class="rv-chip">${p.id}</span><span class="rv-chip">slot ${fmtSlot(p.slot)}</span></div>
+    </div>
+  </div>`;
+}
+
+function rvRender(){
+  const stage = document.getElementById("rv-stage");
+  const rest = RV.deck.slice(RV.idx);
+  if(!rest.length){
+    stage.innerHTML = `<div class="rv-empty"><div>
+      <div class="big">All reviewed ✓</div>
+      <div class="sub">${Object.values(RV.results).filter(v=>v==="approved").length} approved · ${Object.values(RV.results).filter(v=>v==="skipped").length} skipped. Otto takes it from here.</div>
+    </div></div>`;
+    document.getElementById("rv-prog").textContent = "done";
+    setTimeout(closeReviewer, 1600);
+  } else {
+    stage.innerHTML = rest.slice(0,3).reverse().map((p,i,arr)=>{
+      const layer = i===arr.length-1 ? "" : (i===arr.length-2 ? "under" : "under2");
+      return rvCardHTML(p, layer);
+    }).join("");
+    document.getElementById("rv-prog").textContent = `${RV.idx+1} / ${RV.deck.length}`;
+    attachDrag(stage.querySelector(".rv-card:not(.under):not(.under2)"));
+  }
+  document.getElementById("rv-dots").innerHTML = RV.deck.map((p,i)=>{
+    const r = RV.results[p.id];
+    return `<i class="${i===RV.idx?"cur":r==="approved"?"done":r==="skipped"?"skip":""}"></i>`;
+  }).join("");
+}
+
+function openReviewer(startIdx){
+  RV.deck = (DATA.posts||[]).filter(p=>p.status==="pending_approval");
+  if(!RV.deck.length) return;
+  if(startIdx) RV.deck = RV.deck.slice(startIdx).concat(RV.deck.slice(0,startIdx));
+  RV.idx = 0; RV.results = {}; RV.open = true;
+  document.getElementById("reviewer").classList.add("open");
+  document.body.style.overflow = "hidden";
+  rvRender();
+}
+function closeReviewer(){
+  RV.open = false;
+  document.getElementById("reviewer").classList.remove("open");
+  document.body.style.overflow = "";
+  if(DATA) render(DATA);
+}
+
+async function rvDecide(status){
+  const p = RV.deck[RV.idx];
+  if(!p) return;
+  const card = document.querySelector("#rv-stage .rv-card:not(.under):not(.under2)");
+  if(card){
+    card.classList.add("fly");
+    const dir = status==="approved" ? 1 : -1;
+    card.style.transform = `translateX(${dir*(innerWidth*0.9)}px) rotate(${dir*22}deg)`;
+    card.style.opacity = "0";
+  }
+  if(status!=="later"){
+    if(!LIVE){ toast("Snapshot mode — open the live dashboard URL to act", true); }
+    else try{
+      const r = await fetch(API + "/action", {method:"POST", headers:{"Content-Type":"application/json"},
+        body: JSON.stringify({kind:"post", id:p.id, status})});
+      const j = await r.json();
+      if(!r.ok) throw new Error(j.error || r.status);
+      DATA = j.data;
+      RV.results[p.id] = status;
+      toast((status==="approved"?"✓ Approved":"Skipped") + " · " + p.id);
+    }catch(e){ toast("Failed: "+e.message, true); }
+  }
+  setTimeout(()=>{ RV.idx++; rvRender(); if(!RV.open) return; render(DATA); }, 300);
+}
+
+function attachDrag(card){
+  if(!card) return;
+  let sx=0, sy=0, dx=0, dragging=false;
+  const okStamp = card.querySelector(".rv-stamp.ok"), noStamp = card.querySelector(".rv-stamp.no");
+  card.addEventListener("pointerdown", e=>{
+    if(e.target.closest(".rv-body")) return;   // let caption scroll
+    dragging=true; sx=e.clientX; sy=e.clientY; dx=0;
+    card.classList.remove("snap","fly");
+    card.setPointerCapture(e.pointerId);
+  });
+  card.addEventListener("pointermove", e=>{
+    if(!dragging) return;
+    dx = e.clientX - sx;
+    const dy = (e.clientY - sy) * 0.25;
+    card.style.transform = `translate(${dx}px,${dy}px) rotate(${dx/22}deg)`;
+    okStamp.style.opacity = Math.min(1, Math.max(0, dx/80));
+    noStamp.style.opacity = Math.min(1, Math.max(0, -dx/80));
+  });
+  const end = ()=>{
+    if(!dragging) return; dragging=false;
+    if(dx > 92) rvDecide("approved");
+    else if(dx < -92) rvDecide("skipped");
+    else{ card.classList.add("snap"); card.style.transform=""; okStamp.style.opacity=0; noStamp.style.opacity=0; }
+  };
+  card.addEventListener("pointerup", end);
+  card.addEventListener("pointercancel", end);
+}
+
+document.getElementById("rv-close").onclick = closeReviewer;
+document.getElementById("rv-ok").onclick = ()=>rvDecide("approved");
+document.getElementById("rv-skip").onclick = ()=>rvDecide("skipped");
+document.getElementById("rv-later").onclick = ()=>rvDecide("later");
+addEventListener("keydown", e=>{
+  if(!RV.open) return;
+  if(e.key==="Escape") closeReviewer();
+  if(e.key==="ArrowRight") rvDecide("approved");
+  if(e.key==="ArrowLeft") rvDecide("skipped");
+  if(e.key==="ArrowDown") rvDecide("later");
+});
+
+/* ================= month plan (gantt) + reminders ================= */
+let planMonth = null; // Date at month start
+function renderPlan(d){
+  const posts = d.posts||[], brands = d.brands||[];
+  if(!planMonth){ const n=new Date(); planMonth = new Date(n.getFullYear(), n.getMonth(), 1); }
+  const y = planMonth.getFullYear(), m = planMonth.getMonth();
+  const days = new Date(y, m+1, 0).getDate();
+  const today = new Date();
+  const monthPosts = posts.filter(p=>{ const s=new Date(p.slot); return s.getFullYear()===y && s.getMonth()===m; });
+  document.getElementById("gantt-month").textContent =
+    planMonth.toLocaleDateString("en-GB",{month:"long",year:"numeric"});
+  document.getElementById("plan-count").textContent = monthPosts.length + " posts";
+  let grid = "";
+  for(let day=1; day<=days; day++){
+    const dt = new Date(y,m,day);
+    const isToday = dt.toDateString()===today.toDateString();
+    const dayPosts = monthPosts.filter(p=>new Date(p.slot).getDate()===day);
+    grid += `<div class="gcol ${isToday?"today":""}" data-day="${day}" onclick="showDay(${day})">
+      <span class="gd">${dt.toLocaleDateString("en-GB",{weekday:"narrow"})}</span>
+      <span class="gn">${day}</span>
+      <span class="gcell">${dayPosts.map(p=>`<span class="gdot ${p.status}" title="${esc(p.hook)}"></span>`).join("")}</span>
+    </div>`;
+  }
+  document.getElementById("gantt-grid").innerHTML = grid;
+  document.getElementById("gday-detail").style.display = "none";
+  // auto-scroll to today
+  requestAnimationFrame(()=>{
+    const t = document.querySelector(".gcol.today");
+    if(t) t.scrollIntoView({block:"nearest", inline:"center"});
+  });
+  renderReminders(d);
+}
+function showDay(day){
+  const y = planMonth.getFullYear(), m = planMonth.getMonth();
+  const dayPosts = (DATA.posts||[]).filter(p=>{ const s=new Date(p.slot); return s.getFullYear()===y&&s.getMonth()===m&&s.getDate()===day; });
+  const el = document.getElementById("gday-detail");
+  const bn = id => ((DATA.brands||[]).find(b=>b.id===id)||{}).name||id;
+  if(!dayPosts.length){ el.style.display="none"; return; }
+  el.style.display = "";
+  el.innerHTML = `<div style="font:600 11px/1 'JetBrains Mono',monospace;color:var(--faint);letter-spacing:.1em">${new Date(y,m,day).toLocaleDateString("en-GB",{weekday:"long",day:"numeric",month:"short"}).toUpperCase()}</div>` +
+    dayPosts.map(p=>`<div class="gdp"><span class="pf ${p.platform}">${PLAT[p.platform]||p.platform}</span><span dir="auto" style="min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(p.hook)}</span><span class="pill ${p.status}">${p.status.replace("_"," ")}</span></div>`).join("");
+}
+document.getElementById("gantt-prev").onclick = ()=>{ planMonth = new Date(planMonth.getFullYear(), planMonth.getMonth()-1, 1); renderPlan(DATA); };
+document.getElementById("gantt-next").onclick = ()=>{ planMonth = new Date(planMonth.getFullYear(), planMonth.getMonth()+1, 1); renderPlan(DATA); };
+
+function renderReminders(d){
+  const now = new Date(), rems = [];
+  const H = 36e5;
+  (d.posts||[]).filter(p=>p.status==="pending_approval").forEach(p=>{
+    const slot = new Date(p.slot), hrs = (slot-now)/H;
+    if(hrs < 0) rems.push({cls:"urgent", ico:"⏰", t:`Slot passed — "${p.hook}"`, s:`Was due ${fmtSlot(p.slot)}. Approve now and Otto reslots it, or skip.`});
+    else if(hrs < 48) rems.push({cls:"warn", ico:"✍️", t:`Approve before ${fmtSlot(p.slot)}`, s:`"${p.hook}" publishes in ${Math.round(hrs)}h once approved.`});
+  });
+  (d.connections||[]).filter(c=>c.status==="not_connected").forEach(c=>
+    rems.push({cls:"urgent", ico:"🔌", t:`Connect ${c.service} — ${c.brand}`, s:"Publishing stays manual until this is linked. ~5 minutes with the OAuth link Otto sent."}));
+  (d.recommendations||[]).filter(r=>r.status==="proposed"&&r.priority==="P0").forEach(r=>
+    rems.push({cls:"warn", ico:"🎯", t:r.title, s:r.impact}));
+  const upcoming = (d.posts||[]).filter(p=>["approved","scheduled"].includes(p.status) && (new Date(p.slot)-now)/H>0 && (new Date(p.slot)-now)/H<72);
+  if(upcoming.length) rems.push({cls:"", ico:"🗓", t:`${upcoming.length} post${upcoming.length===1?" is":"s are"} scheduled for the next 3 days`, s:"Nothing needed from you — Otto publishes on slot and reports back."});
+  document.getElementById("rem-count").textContent = rems.length ? rems.length + " open" : "clear";
+  document.getElementById("reminders").innerHTML = rems.length
+    ? rems.map(r=>`<div class="rem ${r.cls}"><span class="ri">${r.ico}</span><div><div class="rt" dir="auto">${esc(r.t)}</div><div class="rs" dir="auto">${esc(r.s)}</div></div></div>`).join("")
+    : `<div class="queue-empty">✓ No reminders — the month is running itself.</div>`;
+}
+
+// bottom-nav active state
+const secIds = ["top","queue-sec","plan-sec","pipeline-sec","team-sec"];
+const navLinks = [...document.querySelectorAll(".bnav a")];
+addEventListener("scroll", ()=>{
+  let cur = "top";
+  for(const id of secIds){
+    const el = document.getElementById(id);
+    if(el && el.getBoundingClientRect().top < innerHeight*0.4) cur = id;
+  }
+  navLinks.forEach(a=>a.classList.toggle("on", a.dataset.sec===cur));
+}, {passive:true});
+
+// data boot: live API -> local snapshot -> embedded fallback
+function setBadge(live){
+  const b = document.getElementById("live-badge");
+  LIVE = live;
+  if(live){ b.classList.remove("snap"); b.innerHTML = "<i></i>LIVE"; }
+  else{
+    b.classList.add("snap"); b.innerHTML = "<i></i>SNAPSHOT";
+    document.getElementById("data-notice").classList.add("show");
+  }
+}
+fetch(API + "/data").then(r=>{ if(!r.ok) throw 0; return r.json(); })
+  .then(d=>{ DATA=d; render(d); setBadge(true); })
+  .catch(()=> fetch("data.json").then(r=>r.json())
+    .then(d=>{ DATA=d; render(d); setBadge(false); })
+    .catch(()=>{
+      try{ DATA=JSON.parse(document.getElementById("fallback-data").textContent); render(DATA); setBadge(false); }
+      catch(e){ document.body.insertAdjacentHTML("beforeend","<p style='padding:40px'>No data available.</p>"); }
+    }));
+// gentle auto-refresh when live (phone left open)
+setInterval(()=>{ if(LIVE && !document.hidden)
+  fetch(API+"/data").then(r=>r.json()).then(d=>{ DATA=d; render(d); }).catch(()=>{}); }, 60000);
+</script>
+</body>
+</html>
