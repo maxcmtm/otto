@@ -1146,7 +1146,8 @@ renderSolution(0);
 
 /* ---------- sticky mobile CTA (after the hero) ---------- */
 const sticky=$('#sticky-cta'), heroEl=$('#top');
-new IntersectionObserver(es=>es.forEach(e=>sticky.classList.toggle('show', !e.isIntersecting && innerWidth<=720)),{threshold:0}).observe(heroEl);
+const stickyCheck=()=>sticky.classList.toggle('show', innerWidth<=720 && scrollY > heroEl.offsetHeight*0.9 && scrollY < document.body.scrollHeight-innerHeight-320);
+addEventListener('scroll', stickyCheck, {passive:true}); addEventListener('resize', stickyCheck); stickyCheck();
 
 /* ---------- team ---------- */
 const TEAM=[
