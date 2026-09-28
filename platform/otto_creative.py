@@ -40,20 +40,51 @@ def hex_ok(h):
     return bool(re.fullmatch(r"#[0-9A-Fa-f]{6}", h or ""))
 
 
+RTL = re.compile(r"[\u0590-\u05FF\u0600-\u06FF]")
+
+
+def clean_text(t):
+    """Strip markdown and stray markers before anything is rendered or sent to an ad."""
+    t = re.sub(r"\*\*|__|`|^[#>\-\*\s]+", "", t or "").strip()
+    return re.sub(r"\s+", " ", t)
+
+
+def bidi_line(line):
+    """ffmpeg's drawtext has no bidi shaping: for RTL lines, reverse token order and RTL runs so the
+    rendered glyphs read correctly (digits and Latin tokens stay as they are)."""
+    if not RTL.search(line):
+        return line
+    toks = line.split(" ")[::-1]
+    return " ".join(t[::-1] if RTL.search(t) else t for t in toks)
+
+
+def prep_lines(text, width=22, max_lines=4):
+    return [bidi_line(l) for l in textwrap.wrap(clean_text(text), width)[:max_lines]]
+
+
+def text_color_for(band_hex):
+    """White on dark bands, near-black on light ones (WCAG-ish luminance split)."""
+    h = band_hex.lstrip("#")
+    r, g, b = int(h[0:2], 16), int(h[2:4], 16), int(h[4:6], 16)
+    lum = (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255
+    return "0x1D1D1F" if lum > 0.62 else "white"
+
+
 def overlay_text(src, dst, text, color="#2447F0", pos="bottom", size=None):
-    """Brand band + white headline on an image. Returns dst path; raises if ffmpeg/font missing."""
+    """Brand band + headline on an image. Returns dst path; raises if ffmpeg/font missing."""
     fp, ff = font_path(), ffmpeg()
     if not ff or not fp:
         raise RuntimeError("ffmpeg or a TTF font is missing (set OTTO_FONT)")
-    lines = textwrap.wrap(text.strip(), 22)[:4]
+    lines = prep_lines(text, 22)
     with tempfile.NamedTemporaryFile("w", suffix=".txt", delete=False, encoding="utf-8") as tf:
         tf.write("\n".join(lines)); tfile = tf.name
     size = size or (64 if len(lines) <= 2 else 56)
     band_h = size * len(lines) + 120
     color = color if hex_ok(color) else "#2447F0"
+    fc = text_color_for(color)
     y = f"h-{band_h}+60" if pos == "bottom" else "(h-text_h)/2"
     band = f"drawbox=x=0:y=ih-{band_h}:w=iw:h={band_h}:color={color}@0.92:t=fill," if pos == "bottom" else f"drawbox=x=0:y=0:w=iw:h=ih:color={color}@0.55:t=fill,"
-    vf = (band + f"drawtext=fontfile='{fp}':textfile='{tfile}':fontcolor=white:fontsize={size}:line_spacing=10:x=60:y={y}")
+    vf = (band + f"drawtext=fontfile='{fp}':textfile='{tfile}':fontcolor={fc}:fontsize={size}:line_spacing=10:x=60:y={y}")
     r = subprocess.run([ff, "-y", "-loglevel", "error", "-i", str(src), "-vf", vf, str(dst)], capture_output=True, text=True)
     os.unlink(tfile)
     if r.returncode != 0:
@@ -72,7 +103,7 @@ def profile_angles(bid):
     out = []
     if m:
         for ln in m.group(1).splitlines():
-            ln = ln.strip().lstrip("-*0123456789. ").strip()
+            ln = clean_text(ln.strip().lstrip("-*0123456789. "))
             if 8 < len(ln) < 160 and "(?)" not in ln and "agent" not in ln.lower():
                 out.append({"angle": ln, "source": "profile"})
     return out[:5]
@@ -97,7 +128,7 @@ def angle_bank(d, bid, n=3):
 
 
 def trim(t, n):
-    t = re.sub(r"\s+", " ", (t or "").strip())
+    t = clean_text(t)
     return t if len(t) <= n else t[:n - 1].rsplit(" ", 1)[0] + "…"
 
 
