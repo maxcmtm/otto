@@ -56,9 +56,24 @@ If a slot is < 6 h away and still pending, `otto_watch` pings once; if it passes
 2. Copy for week 1 of next month filled and visualised before the 1st.
 3. Profile refresh: rerun `otto_scan.py` — new products/prices/promos on the owner's site update the profile appendix.
 
+## 3b. Paid (Meta + Google) — same rails, `otto_ads.py`
+| when | what | how |
+|---|---|---|
+| 07:35 daily | Paid report: spend, results, CPL, CTR yesterday + 7d per network, best/worst campaign, one suggested action (as a card) | `otto_ads.py report` (cron) → `ads[brand].daily` + Telegram |
+| 06:00 daily | Launch approved flights whose start date is today (Meta: campaign → ad set → creative from the post → ad; Google: Search campaign via one mutate) | `otto_ads.py launch` (cron) |
+| 06:05 daily | Guard: ended flights paused; CPL 3 days above target → "Pause X?" card (auto-pause only if `ads[brand].auto_pause`) | `otto_ads.py guard` (cron) |
+| 25th monthly | Paid Gantt for next month: evergreen leads/traffic all month, two 5-day boosts of the best organic posts, Google Search on brand + category (skipped for restricted categories; Meta flights on compliance hold) | `otto_ads.py plan <brand> <month>` → drafts + ONE recommendation "Approve the paid plan ≈€X" |
+| on approval | `otto_ads.py approve <brand> <month>` — nothing spends before this | agent after the owner's ✅ |
+Credentials: `meta-<brand>.json` gains `ad_account_id`, `pixel_id`, `lead_form_id`; `google-<brand>.json` = OAuth client + refresh token + customer id.
+
+## 3c. Growth ledger — `otto_growth.py`
+Daily 05:10 `otto_growth.py rollup` recomputes `growth[brand]` (this month vs last: reach, engagement, posts, followers, spend,
+results, CPL, decisions, best pillar, 90-day daily series). Mission Control shows it as the Growth section. On the 1st,
+`rollup --send` sends "📈 <Month> in review" to the owner. The 25th plan reads it: more of the best pillar, boosts on the winners.
+
 ## 4. What Otto decides alone vs asks
 **Alone:** slots and times, pillar rotation, formats, hashtags, visual generation, rescheduling around a missed slot, competitor monitoring, analytics, plan refills.
-**Asks (one tap):** every post before it publishes (until the owner enables auto-publish per pillar), any recommendation (P0 blockers, channel additions, plan tweaks), any ad budget (Atlas, when live).
+**Asks (one tap):** every post before it publishes (until the owner enables auto-publish per pillar), any recommendation (P0 blockers, channel additions, plan tweaks), the monthly paid plan and any pause/budget move (Atlas).
 **Never:** invent claims, publish restricted-category content as paid, spend money silently, message the owner more than the briefing + cards + real alerts.
 
 ## 5. Telegram card protocol
@@ -79,7 +94,7 @@ The same card is visible in Mission Control; whichever surface decides first win
 ## 6. Crons (server, UTC — see platform/crons.md)
 `otto_watch.py report` 04:30 · `otto_telegram.py send-cards` 05:00 · `otto_telegram.py poll` (service) · `otto_watch.py watch` hourly :15 ·
 `otto_publish.py` */15 · `genvisuals.py --brand <b>` 15:00 · `otto_telegram.py send-recs` 15:30 · `otto_competitors.py sweep <brand>` Mon 03:00 ·
-`otto_insights.py` Fri 03:00 · monthly plan 25th 03:00.
+`otto_insights.py` Fri 03:00 · `otto_ads.py report` 04:35 · `otto_ads.py launch` 03:00 · `otto_ads.py guard` 03:05 · `otto_growth.py rollup` 02:10 (1st: `--send`) · monthly plans (organic + paid) 25th 03:00.
 
 ## 7. Files Otto maintains per brand
 `brand-profile.md` (locked source of truth) · `scan.json` · `competitors.json` + `competitors/*.json` snapshots ·

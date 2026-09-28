@@ -5,8 +5,8 @@
 
 Picks posts with status approved|scheduled whose slot time has arrived (brand-local time,
 OTTO_TZ, default Asia/Jerusalem) and publishes them through the Meta Graph API:
-  fb  → Page photo (image + caption) or feed post (text + link)
-  ig  → image container → publish   (carousel / reel / story: not yet — left in queue, logged)
+  fb  → photo post · feed post · photo story (format story) · multi-photo (carousel, post.images) · video (post.video)
+  ig  → image · story (STORIES) · carousel (children → CAROUSEL, post.images) · reel (REELS, post.video mp4 url)
 Credentials per brand: $OTTO_SECRETS/meta-<brand>.json  {"access_token","page_id","ig_user_id"}
 (default $OTTO_SECRETS = ../../otto-secrets, i.e. the workspace's otto-secrets/ dir).
 
@@ -77,6 +77,17 @@ def image_url(p, base):
 
 def publish_fb(p, c, base):
     img, cap = image_url(p, base), caption_of(p)
+    if p.get("format") == "story":
+        if not img:
+            raise GraphError("Facebook story needs an image")
+        pid = graph("POST", f"{c['page_id']}/photos", c["access_token"], url=img, published="false")["id"]
+        return graph("POST", f"{c['page_id']}/photo_stories", c["access_token"], photo_id=pid).get("post_id") or pid
+    if p.get("format") == "carousel" and len(media_urls(p, base)) >= 2:
+        ids = [graph("POST", f"{c['page_id']}/photos", c["access_token"], url=u, published="false")["id"] for u in media_urls(p, base)[:10]]
+        return graph("POST", f"{c['page_id']}/feed", c["access_token"], message=cap,
+                     attached_media=json.dumps([{"media_fbid": i} for i in ids]))["id"]
+    if p.get("video"):
+        return graph("POST", f"{c['page_id']}/videos", c["access_token"], file_url=p["video"], description=cap)["id"]
     if img:
         r = graph("POST", f"{c['page_id']}/photos", c["access_token"], url=img, message=cap)
         return r.get("post_id") or r.get("id")
@@ -86,24 +97,55 @@ def publish_fb(p, c, base):
     return graph("POST", f"{c['page_id']}/feed", c["access_token"], **params)["id"]
 
 
-def publish_ig(p, c, base):
-    if not c.get("ig_user_id"):
-        raise GraphError("no ig_user_id for this brand")
-    fmt = p.get("format", "post")
-    if fmt not in ("post", "image"):
-        raise GraphError(f"format {fmt} not supported by the publisher yet (needs media pipeline)")
-    img = image_url(p, base)
-    if not img:
-        raise GraphError("Instagram needs an image — post has none")
-    cid = graph("POST", f"{c['ig_user_id']}/media", c["access_token"], image_url=img, caption=caption_of(p))["id"]
-    for _ in range(20):
-        st = graph("GET", cid, c["access_token"], fields="status_code")["status_code"]
+def _wait_container(cid, tok, tries=40):
+    for _ in range(tries):
+        st = graph("GET", cid, tok, fields="status_code")["status_code"]
         if st == "FINISHED":
-            break
+            return
         if st == "ERROR":
             raise GraphError("IG container processing failed")
         time.sleep(3)
-    return graph("POST", f"{c['ig_user_id']}/media_publish", c["access_token"], creation_id=cid)["id"]
+    raise GraphError("IG container still processing after timeout")
+
+
+def media_urls(p, base):
+    """Carousel slides: post.images (list) → public URLs."""
+    return [u if u.startswith("http") else base.rstrip("/") + "/" + u.lstrip("/") for u in (p.get("images") or [])]
+
+
+def publish_ig(p, c, base):
+    """post → image · story → STORIES · carousel → children + CAROUSEL · reel → REELS (post.video url)."""
+    if not c.get("ig_user_id"):
+        raise GraphError("no ig_user_id for this brand")
+    ig, tok, fmt, cap = c["ig_user_id"], c["access_token"], p.get("format", "post"), caption_of(p)
+    img = image_url(p, base)
+    if fmt == "story":
+        if p.get("video"):
+            cid = graph("POST", f"{ig}/media", tok, media_type="STORIES", video_url=p["video"])["id"]
+        elif img:
+            cid = graph("POST", f"{ig}/media", tok, media_type="STORIES", image_url=img)["id"]
+        else:
+            raise GraphError("story needs an image or a video")
+    elif fmt == "carousel":
+        slides = media_urls(p, base) or ([img] if img else [])
+        if len(slides) < 2:
+            raise GraphError("carousel needs at least 2 images (post.images)")
+        kids = []
+        for u in slides[:10]:
+            kids.append(graph("POST", f"{ig}/media", tok, image_url=u, is_carousel_item="true")["id"])
+        for k in kids:
+            _wait_container(k, tok)
+        cid = graph("POST", f"{ig}/media", tok, media_type="CAROUSEL", children=",".join(kids), caption=cap)["id"]
+    elif fmt in ("reel", "video"):
+        if not p.get("video"):
+            raise GraphError("reel needs post.video (public mp4 url)")
+        cid = graph("POST", f"{ig}/media", tok, media_type="REELS", video_url=p["video"], caption=cap, share_to_feed="true")["id"]
+    else:
+        if not img:
+            raise GraphError("Instagram needs an image — post has none")
+        cid = graph("POST", f"{ig}/media", tok, image_url=img, caption=cap)["id"]
+    _wait_container(cid, tok)
+    return graph("POST", f"{ig}/media_publish", tok, creation_id=cid)["id"]
 
 
 def due_posts(d, bid, grace_min):

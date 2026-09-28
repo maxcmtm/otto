@@ -607,7 +607,7 @@ footer a:hover{color:var(--ink)}
   <div class="wrap">
     <div class="center rv">
       <div class="eyebrow center">How it works</div>
-      <h2>Four steps. <b>You only do one of them.</b></h2>
+      <h2>Five steps. <b>You only do one of them.</b></h2>
       <p class="sub">Every widget below is the real loop, not a slideshow. Sample brand: Happy Garden, a CBD store in the EU.</p>
     </div>
 
@@ -708,6 +708,20 @@ footer a:hover{color:var(--ink)}
         <div class="widget" id="w-watch">
           <span class="wtag">PROACTIVE ENGINE</span>
           <div class="watch" id="watch-feed"></div>
+        </div>
+      </div>
+
+      <!-- 05 -->
+      <div class="chapter rv">
+        <div class="ch-text">
+          <div class="num">05 · Paid, and the numbers</div>
+          <h2>Every number you'd ask an agency for. <b>Every morning.</b></h2>
+          <p class="sub">Connect your ad accounts and Otto sends a daily Facebook + Google report, plans campaigns on the same calendar as your posts, guards your cost per lead, and shows you month-over-month growth — reach, engagement, followers, spend, results — in one place.</p>
+          <div class="ch-cta"><a class="btn ghost" href="#pricing">See the Growth plan</a><span class="hint">07:35 PAID REPORT · MONTH IN REVIEW</span></div>
+        </div>
+        <div class="widget" id="w-paid">
+          <span class="wtag">WITH YOUR AD ACCOUNTS CONNECTED</span>
+          <div class="watch" id="paid-feed"></div>
         </div>
       </div>
 
@@ -1036,6 +1050,22 @@ register($('#w-watch'),
     return 7600;
   });
 
+/* --- 05 paid + growth --- */
+const pf=$('#paid-feed');
+const ppush=(html)=>{ pf.insertAdjacentHTML('beforeend',html); const m=pf.lastElementChild; requestAnimationFrame(()=>m.classList.add('in')); while(pf.children.length>3) pf.firstElementChild.remove(); return m; };
+const PAID=`<div class="msg"><div class="hd">💸 Paid · Tue 07:35<span class="tm">yesterday</span></div><ul><li><b>Meta:</b> €42 spent (7d €310) · 9 leads · CPL <b>€4.7</b> (7d €5.1) · CTR 1.8%</li><li>▲ best: “Sleep — CBN” CPL €3.2</li><li>▼ watch: “Isolate — anxiety” CPL €9.8, 3 days above target</li><li><b>Google:</b> €18 · 41 clicks · 2 conv · CPA €9 · top term “cbd oil sleep”</li></ul><span class="kpi dn">Suggested: pause “Isolate — anxiety”, move €10/day to “Sleep — CBN”</span><div class="ib2"><span class="ok">✅ Apply</span><span>Not now</span></div></div>`;
+const GROWTH=`<div class="msg rec"><div class="hd">📈 September so far<span class="tm">vs August</span></div><ul><li>Posts published <b>22</b> (▲ +5) · reach <b>48,200</b> (▲ +38%) · engagement <b>1,240</b> (▲ +21%)</li><li>Followers <b>3,410</b> (▲ +120)</li><li>Paid €640 → 131 results · CPL <b>€4.9</b> (▲ 12% better)</li><li>Best pillar: Education · you made 41 decisions</li></ul><span class="kpi">↗ next month: 50 posts + 4 campaigns already planned</span></div>`;
+register($('#w-paid'),
+  ()=>{ pf.innerHTML=''; },
+  (tl,instant)=>{
+    if(instant){ [PAID,GROWTH].forEach(h=>ppush(h).classList.add('in')); return 0; }
+    let a;
+    tl.at(200,()=>{ a=ppush(PAID); });
+    tl.at(2600,()=>{ const ok=$('.ok',a); ok.classList.add('hit'); setTimeout(()=>{ $('.ib2',a).outerHTML=`<div class="res">✅ Applied · “Isolate — anxiety” paused 07:36 · budget shifted</div>`; },420); });
+    tl.at(4200,()=>{ ppush(GROWTH); });
+    return 6400;
+  });
+
 widgets.forEach(w=>wio.observe(w.el));
 
 /* ---------- hero form → REAL scan through the Otto API (sample fallback) ---------- */
@@ -1090,10 +1120,10 @@ const PRICING = {
   tiers: [
     {id:'starter', name:'Starter', tfor:'FOR ONE BRAND', monthly:69, brands:'1 brand', extra:'+€39 / extra brand',
      desc:'A whole month of content, approved from your phone.',
-     features:['50 posts a month, written and designed for you','Facebook + Instagram (LinkedIn on request)','Approve in Telegram or the dashboard','Morning briefing + drop alerts within the hour','Monthly competitor sweep','On-brand visuals for every post']},
+     features:['50 posts + 12 stories a month, written and designed for you','Facebook + Instagram (LinkedIn on request)','Approve in Telegram or the dashboard','Morning briefing + drop alerts within the hour','Monthly competitor sweep','On-brand visuals for every post']},
     {id:'growth', name:'Growth', tfor:'BEST FOR GROWTH', monthly:149, brands:'3 brands', extra:'+€39 / extra brand', featured:true,
      desc:'Everything in Starter, plus the loop that learns.',
-     features:['3 brands included','Weekly competitor sweep + ad-library winners','Analytics loop: winners shape next week','LinkedIn included','Ads on autopilot inside a ceiling you set *','A human on the phone within 2 hours']},
+     features:['3 brands included','Daily Facebook + Google Ads report, CPL guard *','Campaigns planned on the same calendar as posts *','Month-over-month growth: reach, followers, results','Weekly competitor sweep + ad-library winners','A human on the phone within 2 hours']},
     {id:'agency', name:'Agency', tfor:'FOR AGENCIES', monthly:399, brands:'10 workspaces', extra:'+€49 / extra workspace',
      desc:'A workspace per client, each with its own Telegram.',
      features:['10 client workspaces, one brand each','Growth features in every workspace','Each client approves in their own Telegram','White-label weekly reports','Named account manager','Ads on each client’s own ad account *']},

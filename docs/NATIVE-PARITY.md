@@ -13,7 +13,10 @@ Legend: ✅ have · 🟡 partial · ❌ missing · ⭐ our edge (they don't have
 | Auto-publish on schedule (FB, IG, LinkedIn, X + 10 more) | 🟡 code, ❌ live | `otto_publish.py` (FB photo/feed, IG image) — waiting on Meta app + page tokens (M2). Carousel/reel/story publish + LinkedIn: not yet |
 | Native Autopilot (plans 2 weeks, publishes with an email before) | ✅ design | otto-autopilot skill + crons: full-auto per pillar is a flag the owner turns on |
 | Analytics on what's working | 🟡 code | `otto_insights.py` (reach/saves/clicks per post, winners, "double down" recs) — needs tokens to run live |
-| Meta Ads autopilot (organic winners → ads, own ad account) | ❌ | Atlas on standby; M2 Meta Ads MCP decided, not wired |
+| Meta Ads autopilot (organic winners → ads, own ad account) | ✅ code | `otto_ads.py`: monthly paid Gantt (evergreen + boosts of winners + Google Search), launch on Meta (campaign→ad set→creative→ad) and Google (one mutate), daily report, CPL guard. Needs ad-account credentials |
+| Daily paid report (Facebook + Google) to the owner | ⭐ code | `otto_ads.py report` 07:35 → Telegram, best/worst campaign, suggested action as a card |
+| Month-over-month growth (reach, engagement, followers, spend, results, CPL) | ⭐ code | `otto_growth.py` + Mission Control Growth section + 1st-of-month review |
+| Stories / carousels / reels publishing | ✅ code | `otto_publish.py` (IG STORIES / CAROUSEL / REELS, FB photo stories, multi-photo, video); planner adds Mon/Wed/Fri stories |
 | Inbox (comments/DMs, WhatsApp) | ❌ | STRUCTURE.md §2.5 — phase E |
 | Brand memory / taste layer (binding brand voice) | 🟡 | brand-profile.md (locked) + `taste_log` → Mission Control card "What you've taught Otto"; no full brand page yet |
 | Native MCP (control from Claude/ChatGPT) | ❌ | rec-008 — OpenClaw-native, cheap to add later |

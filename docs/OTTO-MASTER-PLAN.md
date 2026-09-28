@@ -97,3 +97,12 @@ Module status update: M1 ✅ code · M2 🟡 publisher written, tokens pending �
 - `otto_competitors.py` writes `competitors[brand]` summary → Mission Control "Competitor watch" card; dashboard also shows "What you've taught Otto" (taste log), source badges on recommendations, format chips, failed posts + rewrite requests in reminders.
 - Landing v5: pricing tiers (Starter €69 / Growth €149 / Agency €399, yearly −20 %, toggle; founding €197 band), "Otto for your industry" (8 industries), sticky mobile CTA, JSON-LD.
 - `docs/PRICING-EU.md` — EU market research (Native, AI tools, agencies) + recommended ladder for Max's decision.
+
+## 2026-09-28 (evening) — engine v1.2: paid layer + growth ledger + stories
+Max: "דוחות יומיים של קמפיינים פייסבוק גוגל + גאנט חודשי שיעלה לכל הרשתות + פוסטים אורגניים וסטוריז" and "כל נתוני השיווק מול העיניים, מה השתנה מחודש לחודש, צמיחה".
+- `platform/otto_ads.py` — report (Meta Marketing API + Google Ads GAQL: spend/results/CPL/CTR yesterday + 7d, best/worst, suggested action → rec card), plan (monthly paid Gantt: evergreen, 2 boosts of organic winners, Google Search; restricted categories → compliance hold, no Google), approve, launch (Meta campaign→adset→creative→ad; Google Search via one mutate with temp ids), guard (ended flights, CPL rule), pause.
+- `platform/otto_growth.py` — growth[brand]: months table (reach, engagement, posts, followers, spend, results, CPL, decisions, best pillar), MoM %, 90-day series, review text; `--send` on the 1st.
+- `platform/otto_publish.py` — IG stories/carousels/reels, FB photo stories/multi-photo/video. `otto_plan.py` — story slots Mon/Wed/Fri 12:00 (brands[].story_days/story_time).
+- Mission Control — Growth section (KPI deltas + sparkline + autopilot-start marker), "Paid · Facebook + Google" rail card, campaign flight bands in the month plan, day detail lists campaigns, KPI "Reach this month".
+- Landing — chapter 05 "Paid, and the numbers" (daily report + month-in-review widget), Growth tier copy.
+Module status: **M2 paid = code written (Meta + Google), waiting on ad-account credentials** · M6 analytics loop now includes the growth ledger.

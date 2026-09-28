@@ -115,6 +115,32 @@ section{padding-top:28px;scroll-margin-top:64px}
 .secondary-decisions summary{padding:11px 0;font-size:14px;color:var(--muted);cursor:pointer;user-select:none}
 .secondary-decisions[open] summary{margin-bottom:8px}
 
+/* ---------- growth (month over month) ---------- */
+.growth{display:grid;gap:12px}
+.gcard{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow-s);padding:16px;display:grid;gap:12px}
+.gcard .gh{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.gcard .gh .bn{font-weight:600;font-size:14px}
+.gcard .gh .since{font:500 11px/1 "JetBrains Mono",monospace;color:var(--faint)}
+.gcard .gh .best{margin-left:auto;font:500 11px/1 "Inter";color:var(--cobalt);background:var(--cobalt-tint);border-radius:999px;padding:5px 9px}
+.gkpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(118px,1fr));gap:8px}
+.gk{background:var(--canvas);border:1px solid var(--line-soft);border-radius:11px;padding:10px 12px}
+.gk .n{font:500 19px/1.1 "JetBrains Mono",monospace;letter-spacing:-.02em}
+.gk .l{font-size:11px;color:var(--muted);margin-top:4px;white-space:nowrap}
+.gk .dl{display:inline-block;font:600 10.5px/1 "JetBrains Mono",monospace;border-radius:6px;padding:4px 6px;margin-top:6px}
+.gk .dl.up{color:var(--green);background:var(--green-tint)}
+.gk .dl.dn{color:var(--red);background:var(--red-tint)}
+.gk .dl.flat{color:var(--faint);background:var(--line-soft)}
+.spark{width:100%;height:56px;display:block}
+.spark .ln{fill:none;stroke:var(--cobalt);stroke-width:1.8}
+.spark .ar{fill:rgba(36,71,240,.10)}
+.spark .st{stroke:var(--green);stroke-width:1;stroke-dasharray:3 3}
+.gfoot{font:500 11px/1.5 "JetBrains Mono",monospace;color:var(--faint);display:flex;gap:12px;flex-wrap:wrap}
+.gflight{width:26px;height:3px;border-radius:2px;background:var(--cobalt);margin-top:-2px}
+.gflight.google{background:var(--green)}
+.gflight.approved{opacity:.4}
+.gflight.paused,.gflight.ended{background:var(--faint);opacity:.5}
+.gday-detail .gdp.camp{background:var(--cobalt-tint);color:var(--cobalt-deep)}
+
 /* ---------- pipeline ---------- */
 .pipeline{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow-s);overflow:hidden}
 .brand-group + .brand-group{border-top:1px solid var(--line)}
@@ -325,6 +351,15 @@ footer{margin-top:44px;padding-top:16px;border-top:1px solid var(--line);font:50
     </details>
   </section>
 
+  <section id="growth-sec">
+    <div class="sec-head">
+      <h2>Growth</h2>
+      <span class="count" id="growth-month"></span>
+      <span class="hint">This month vs last · organic + paid, one table per brand</span>
+    </div>
+    <div class="growth" id="growth"></div>
+  </section>
+
   <section id="plan-sec">
     <div class="sec-head">
       <h2>Month plan</h2>
@@ -356,6 +391,7 @@ footer{margin-top:44px;padding-top:16px;border-top:1px solid var(--line);font:50
         <div class="pipeline" id="pipeline"></div>
       </div>
       <div class="rail">
+        <div class="card"><h4>Paid · Facebook + Google</h4><div id="ads"></div></div>
         <div class="card"><h4>What you've taught Otto</h4><div id="taste"></div></div>
         <div class="card"><h4>Competitor watch</h4><div id="compwatch"></div></div>
         <div class="card"><h4>Connections</h4><div id="connections"></div></div>
@@ -470,12 +506,14 @@ function render(d){
     (p0 > 0 ? `Clear ${p0===1?"one blocker":(NUMS[p0]||p0).toLowerCase()+" blockers"} below to enable live publishing.`
             : "Publishing is unblocked.");
 
-  document.getElementById("kpis").innerHTML = [
+  const g0 = d.growth && Object.values(d.growth)[0];
+  const gr = d.growth ? Object.values(d.growth).reduce((a,x)=>a+((x.months[x.current]||{}).reach||0),0) : 0;
+  document.getElementById("kpis").innerHTML = (g0 && gr ? [["go", (gr>=10000?(gr/1000).toFixed(1)+"k":gr), "Reach this month"]] : []).concat([
     ["alert", pending, "Awaiting approval"],
     ["", scheduled, "Approved & scheduled"],
     ["go", published, "Published"],
     ["", brands.length, "Brands onboarded"],
-  ].map(([c,n,l])=>`<div class="kpi ${c}"><div class="n">${n}</div><div class="l">${l}</div></div>`).join("");
+  ]).map(([c,n,l])=>`<div class="kpi ${c}"><div class="n">${n}</div><div class="l">${l}</div></div>`).join("");
 
   const badge = document.getElementById("nav-badge");
   badge.style.display = pending ? "" : "none";
@@ -561,6 +599,23 @@ function render(d){
     </div>`;
   }).join("");
 
+  renderGrowth(d);
+
+  // paid rail card (otto_ads.py report writes ads[brand].daily; campaigns[] from otto_ads.py plan/launch)
+  const ads = d.ads||{}, camps = d.campaigns||[];
+  document.getElementById("ads").innerHTML = Object.keys(ads).length || camps.length
+    ? brands.map(b=>{
+        const a = ads[b.id]||{}, days = Object.keys(a.daily||{}).sort(), last = days.length ? a.daily[days[days.length-1]] : null;
+        const sum = net => last && last[net] ? last[net].yesterday : null;
+        const m = sum("meta"), g = sum("google"), cur = (a.targets||{}).currency||"€";
+        const live = camps.filter(c=>c.brand===b.id && c.status==="live").length, appr = camps.filter(c=>c.brand===b.id && c.status==="approved").length, drafts = camps.filter(c=>c.brand===b.id && c.status==="draft").length;
+        const conn = a.connections||{};
+        return `<div class="mrow"><span class="ml">${esc(b.name)}</span><span class="mv">${live} live · ${appr} queued${drafts?` · ${drafts} draft`:""}</span></div>` +
+          (m ? `<div class="mrow" style="padding-left:10px"><span class="ml" style="font-size:12px">Meta yesterday</span><span class="mv" style="font-size:12px">${cur}${Math.round(m.spend)} · ${Math.round(m.results)} res · CPL ${m.cpl!=null?cur+m.cpl:"—"}</span></div>` : `<div class="mrow" style="padding-left:10px"><span class="ml" style="font-size:12px">Meta ads</span><span class="mv" style="font-size:11px;color:var(--faint)">${conn.meta?"connected":"not connected"}</span></div>`) +
+          (g ? `<div class="mrow" style="padding-left:10px"><span class="ml" style="font-size:12px">Google yesterday</span><span class="mv" style="font-size:12px">${cur}${Math.round(g.spend)} · ${Math.round(g.results)} conv · CPA ${g.cpl!=null?cur+g.cpl:"—"}</span></div>` : `<div class="mrow" style="padding-left:10px"><span class="ml" style="font-size:12px">Google ads</span><span class="mv" style="font-size:11px;color:var(--faint)">${conn.google?"connected":"not connected"}</span></div>`);
+      }).join("") + `<div class="zero">Daily report 07:35 to your Telegram · campaigns run on the calendar above · CPL guard files a card before anything is paused.</div>`
+    : `<div class="zero">Connect an ad account and Otto sends a daily Facebook + Google report, plans campaigns on the same calendar as organic, and guards your CPL.</div>`;
+
   // taste: what the owner's decisions taught the agency
   const tl = d.taste_log||[], agg = {};
   tl.forEach(t=>{ const k=(t.pillar||"?"); agg[k]=agg[k]||{a:0,s:0}; if(t.decision==="approve") agg[k].a++; if(t.decision==="skip") agg[k].s++; });
@@ -595,6 +650,57 @@ function render(d){
   }).join("");
 
   renderFleet(d.fleet||[]);
+}
+
+/* ================= growth ================= */
+const fmtN = n => n==null ? "—" : (Math.abs(n)>=10000 ? (n/1000).toFixed(1)+"k" : Number(n).toLocaleString("en-GB"));
+function delta(v, kind){                      // kind: pct | abs | inv (lower is better)
+  if(v==null) return `<span class="dl flat">no prior month</span>`;
+  const good = kind==="inv" ? v>=0 : v>=0;     // otto_growth already inverts cpl sign (positive = improvement)
+  const txt = kind==="abs" ? (v>0?"+":"")+fmtN(v) : (v>0?"+":"")+v.toFixed(0)+"%";
+  return `<span class="dl ${v===0?"flat":good?"up":"dn"}">${v===0?"·":good?"▲":"▼"} ${txt}${kind==="inv"?" CPL":""}</span>`;
+}
+function sparkline(series, key, startDate){
+  const pts = series.filter(x=>x[key]!=null);
+  if(pts.length < 2) return "";
+  const W=320, H=56, max=Math.max(...pts.map(x=>x[key]))||1;
+  const xy = pts.map((x,i)=>[ (i/(pts.length-1))*W, H-4-(x[key]/max)*(H-10) ]);
+  const line = xy.map((p,i)=>(i?"L":"M")+p[0].toFixed(1)+","+p[1].toFixed(1)).join(" ");
+  const area = line + ` L${W},${H} L0,${H} Z`;
+  let start = "";
+  if(startDate){ const i = pts.findIndex(x=>x.dt>=startDate); if(i>0){ const x=(i/(pts.length-1))*W; start=`<line class="st" x1="${x}" y1="0" x2="${x}" y2="${H}"/>`; } }
+  return `<svg class="spark" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none"><path class="ar" d="${area}"/><path class="ln" d="${line}"/>${start}</svg>`;
+}
+function renderGrowth(d){
+  const g = d.growth||{}, brands = d.brands||[];
+  const host = document.getElementById("growth");
+  const ids = Object.keys(g);
+  document.getElementById("growth-month").textContent = ids.length ? new Date(g[ids[0]].current+"-01").toLocaleDateString("en-GB",{month:"long"}) + " vs " + new Date(g[ids[0]].previous+"-01").toLocaleDateString("en-GB",{month:"short"}) : "soon";
+  if(!ids.length){
+    host.innerHTML = `<div class="queue-empty" style="color:var(--muted);background:var(--surface);border-color:var(--line)">Growth appears after the first published week: reach, engagement, followers, paid spend and CPL — this month vs last, per brand.</div>`;
+    return;
+  }
+  const hasData = id => { const c = g[id].months[g[id].current]||{}, p = g[id].months[g[id].previous]||{}; return (c.posts||p.posts||c.spend||p.spend||c.reach||p.reach); };
+  const quiet = ids.filter(id=>!hasData(id));
+  host.innerHTML = ids.filter(hasData).map(id=>{
+    const x = g[id], c = x.months[x.current], m = x.mom, b = brands.find(z=>z.id===id)||{name:id};
+    const cur = "€";
+    return `<div class="gcard">
+      <div class="gh"><span class="bn">${esc(b.name)}</span><span class="since">${x.started?"since "+fmtSlot(x.started).split(" ·")[0]:"no published posts yet"}</span>${x.best_pillar?`<span class="best">best pillar · ${esc(x.best_pillar)}</span>`:""}</div>
+      <div class="gkpis">
+        <div class="gk"><div class="n">${fmtN(c.reach)}</div><div class="l">Reach</div>${delta(m.reach,"pct")}</div>
+        <div class="gk"><div class="n">${fmtN(c.engagement)}</div><div class="l">Engagement</div>${delta(m.engagement,"pct")}</div>
+        <div class="gk"><div class="n">${fmtN(c.posts)}</div><div class="l">Posts published</div>${delta(m.posts,"abs")}</div>
+        <div class="gk"><div class="n">${fmtN(c.followers)}</div><div class="l">Followers</div>${delta(m.followers,"abs")}</div>
+        <div class="gk"><div class="n">${cur}${fmtN(Math.round(c.spend))}</div><div class="l">Paid spend</div>${delta(m.spend,"pct")}</div>
+        <div class="gk"><div class="n">${fmtN(Math.round(c.results))}</div><div class="l">Results (leads/sales)</div>${delta(m.results,"pct")}</div>
+        <div class="gk"><div class="n">${c.cpl!=null?cur+c.cpl:"—"}</div><div class="l">Cost per result</div>${delta(m.cpl,"inv")}</div>
+        <div class="gk"><div class="n">${fmtN(c.decisions)}</div><div class="l">Your decisions</div>${delta(m.decisions,"abs")}</div>
+      </div>
+      ${sparkline(x.daily||[], "reach7", x.started) || sparkline(x.daily||[], "spend", x.started)}
+      <div class="gfoot"><span>${(x.daily||[]).some(z=>z.reach7!=null)?"7-day reach, last 90 days":"paid spend per day"}</span><span>· · · autopilot started</span><span style="margin-left:auto">updated ${(x.updated_at||"").slice(0,10)}</span></div>
+    </div>`;
+  }).join("") + (quiet.length ? `<div class="zero">${quiet.map(id=>esc((brands.find(z=>z.id===id)||{name:id}).name)).join(" · ")}: growth starts with the first published week.</div>` : "");
 }
 
 let tickerTimers = [];
@@ -787,10 +893,13 @@ function renderPlan(d){
     const dt = new Date(y,m,day);
     const isToday = dt.toDateString()===today.toDateString();
     const dayPosts = monthPosts.filter(p=>new Date(p.slot).getDate()===day);
+    const iso = `${y}-${String(m+1).padStart(2,"0")}-${String(day).padStart(2,"0")}`;
+    const flights = (d.campaigns||[]).filter(c=>["approved","live","paused","ended"].includes(c.status) && c.start<=iso && iso<=c.end);
     grid += `<div class="gcol ${isToday?"today":""}" data-day="${day}" onclick="showDay(${day})">
       <span class="gd">${dt.toLocaleDateString("en-GB",{weekday:"narrow"})}</span>
       <span class="gn">${day}</span>
-      <span class="gcell">${dayPosts.map(p=>`<span class="gdot ${p.status}" title="${esc(p.hook)}"></span>`).join("")}</span>
+      <span class="gcell">${dayPosts.map(p=>`<span class="gdot ${p.status}" title="${esc(p.hook)}${p.format&&p.format!=="post"?" · "+p.format:""}"></span>`).join("")}</span>
+      ${flights.slice(0,3).map(c=>`<span class="gflight ${c.network} ${c.status}" title="${esc(c.name)} · ${c.currency||"€"}${c.daily_budget}/day"></span>`).join("")}
     </div>`;
   }
   document.getElementById("gantt-grid").innerHTML = grid;
@@ -805,12 +914,15 @@ function renderPlan(d){
 function showDay(day){
   const y = planMonth.getFullYear(), m = planMonth.getMonth();
   const dayPosts = (DATA.posts||[]).filter(p=>{ const s=new Date(p.slot); return s.getFullYear()===y&&s.getMonth()===m&&s.getDate()===day; });
+  const iso = `${y}-${String(m+1).padStart(2,"0")}-${String(day).padStart(2,"0")}`;
+  const dayCamps = (DATA.campaigns||[]).filter(c=>["approved","live","paused","ended"].includes(c.status) && c.start<=iso && iso<=c.end);
   const el = document.getElementById("gday-detail");
   const bn = id => ((DATA.brands||[]).find(b=>b.id===id)||{}).name||id;
-  if(!dayPosts.length){ el.style.display="none"; return; }
+  if(!dayPosts.length && !dayCamps.length){ el.style.display="none"; return; }
   el.style.display = "";
   el.innerHTML = `<div style="font:600 11px/1 'JetBrains Mono',monospace;color:var(--faint);letter-spacing:.1em">${new Date(y,m,day).toLocaleDateString("en-GB",{weekday:"long",day:"numeric",month:"short"}).toUpperCase()}</div>` +
     dayPosts.map(p=>`<div class="gdp"><span class="pf ${p.platform}">${PLAT[p.platform]||p.platform}</span><span dir="auto" style="min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(p.hook)}</span><span class="pill ${p.status}">${p.status.replace("_"," ")}</span></div>`).join("");
+  el.innerHTML += dayCamps.map(c=>`<div class="gdp camp"><span class="pf ${c.network==="google"?"li":"fb"}" style="background:${c.network==="google"?"var(--green)":"var(--cobalt)"}">${c.network==="google"?"G":"M"}</span><span style="min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(c.name)}</span><span class="pill ${c.status==="live"?"published":c.status==="approved"?"approved":"draft"}" style="margin-left:auto">${c.status} · ${c.currency||"€"}${c.daily_budget}/day</span></div>`).join("");
 }
 document.getElementById("gantt-prev").onclick = ()=>{ planMonth = new Date(planMonth.getFullYear(), planMonth.getMonth()-1, 1); renderPlan(DATA); };
 document.getElementById("gantt-next").onclick = ()=>{ planMonth = new Date(planMonth.getFullYear(), planMonth.getMonth()+1, 1); renderPlan(DATA); };
@@ -840,7 +952,7 @@ function renderReminders(d){
 }
 
 // bottom-nav active state
-const secIds = ["top","queue-sec","plan-sec","pipeline-sec","team-sec"];
+const secIds = ["top","queue-sec","growth-sec","plan-sec","pipeline-sec","team-sec"];
 const navLinks = [...document.querySelectorAll(".bnav a")];
 addEventListener("scroll", ()=>{
   let cur = "top";

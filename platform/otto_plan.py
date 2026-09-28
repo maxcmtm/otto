@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Otto month planner — "Otto builds your month".
 
-  otto_plan.py build <brand> <YYYY-MM> [--per-week 12] [--platforms fb,ig] [--dry] [--replace]
+  otto_plan.py build <brand> <YYYY-MM> [--per-week 12] [--platforms fb,ig] [--no-stories] [--dry] [--replace]
   otto_plan.py fill  <brand> <YYYY-MM> <copy.json> [--pending]
   otto_plan.py show  <brand> <YYYY-MM>
 
@@ -14,6 +14,8 @@ fill:  imports that copy back — a JSON list of {"id","hook","caption","visual_
 show:  prints the month grid.
 
 Slots come from brands[].slots in data.json (weekday -> ["HH:MM", ...]); defaults below.
+Stories: an Instagram story slot on brands[].story_days (default mon/wed/fri) at story_time (12:00),
+on top of the weekly feed quota. `--no-stories` turns them off.
 Pure stdlib. Writes through ap.py so the dashboard fallback stays in sync.
 """
 import calendar, json, sys
@@ -47,7 +49,7 @@ def month_days(ym):
     return [date(y, m, d) for d in range(1, calendar.monthrange(y, m)[1] + 1)]
 
 
-def build(bid, ym, per_week=12, platforms=("fb", "ig"), dry=False, replace=False):
+def build(bid, ym, per_week=12, platforms=("fb", "ig"), dry=False, replace=False, stories=True):
     d = ap.load()
     b = ap.brand(d, bid)
     assert b, f"unknown brand {bid}"
@@ -60,15 +62,22 @@ def build(bid, ym, per_week=12, platforms=("fb", "ig"), dry=False, replace=False
         d["posts"] = [p for p in d["posts"] if not (p["brand"] == bid and p.get("plan") == ym and p["status"] == "draft")]
 
     plan, week_count, idx = [], {}, 0
+    story_days = b.get("story_days") if b.get("story_days") is not None else ["mon", "wed", "fri"]
+    story_time = b.get("story_time") or "12:00"
     for day in month_days(ym):
         wk = day.isocalendar()[1]
+        if stories and DAYS[day.weekday()] in story_days and "ig" in platforms:
+            plan.append({"pillar": pillars[(idx + 2) % len(pillars)], "platform": "ig", "format": "story",
+                         "slot": f"{day.isoformat()}T{story_time}"})     # stories don't count against the weekly quota
         for t in slots.get(DAYS[day.weekday()], []):
             if week_count.get(wk, 0) >= per_week:
                 break
             pillar = pillars[idx % len(pillars)]
             platform = platforms[idx % len(platforms)]
             fmt = fmt_for(pillar, idx)
-            if fmt in ("story", "reel", "carousel") and "ig" in platforms:
+            if fmt == "story":
+                fmt = "post"          # feed slots never become stories; stories have their own daily slot
+            if fmt in ("reel", "carousel") and "ig" in platforms:
                 platform = "ig"          # stories/reels/carousels live on Instagram
             plan.append({"pillar": pillar, "platform": platform, "format": fmt,
                          "slot": f"{day.isoformat()}T{t}"})
@@ -144,7 +153,7 @@ def main():
     if cmd == "build":
         pw = int(a[a.index("--per-week") + 1]) if "--per-week" in a else 12
         pl = tuple(a[a.index("--platforms") + 1].split(",")) if "--platforms" in a else ("fb", "ig")
-        build(bid, ym, pw, pl, dry="--dry" in a, replace="--replace" in a)
+        build(bid, ym, pw, pl, dry="--dry" in a, replace="--replace" in a, stories="--no-stories" not in a)
     elif cmd == "fill":
         fill(bid, ym, a[3], pending="--pending" in a)
     elif cmd == "show":

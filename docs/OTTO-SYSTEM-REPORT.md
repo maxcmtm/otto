@@ -49,6 +49,8 @@ autopilot/
 │   ├── otto_publish.py       # cron מפרסם לפי סלוט (FB/IG) — צריך otto-secrets/meta-<brand>.json  [28.09]
 │   ├── otto_insights.py      # לופ אנליטיקס שבועי: מדדים, מנצחים, המלצת double-down             [28.09]
 │   ├── otto_telegram.py      # לופ הטלגרם בקוד: כרטיסים עם כפתורים, poll → ap.decide, ✏️ edit → edit_requests [28.09]
+│   ├── otto_ads.py           # ממומן: דוח יומי FB+Google, גאנט קמפיינים חודשי, launch ל-Meta/Google, שומר CPL     [28.09]
+│   ├── otto_growth.py        # ספר צמיחה: חודש מול חודש (reach/engagement/עוקבים/spend/results/CPL), סקירה ב-1 לחודש [28.09]
 │   ├── crons.md              # שורות ה-cron לשרת + nginx location /otto-peek
 │   ├── landing.html          # דף הנחיתה הציבורי v4 (fintech, ווידג'טים חיים, סריקה אמיתית)
 │   ├── deploy.sh             # sync-fallback + copy ל-/srv/pulse/otto/ + landing ל-/srv/pulse/pilot-landing.html
