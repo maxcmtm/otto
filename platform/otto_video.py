@@ -143,7 +143,7 @@ def render_scene(img, text, secs, out, color, font):
     vf = (f"scale={W}:{H}:force_original_aspect_ratio=increase,crop={W}:{H},"
           f"zoompan=z='min(zoom+0.0006,1.10)':x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':d={frames}:s={W}x{H}:fps={FPS},"
           f"drawbox=x=0:y=ih-{band}-120:w=iw:h={band}:color={color}@0.92:t=fill,"
-          f"drawtext=fontfile='{font}':textfile='{tfile}':fontcolor={fc}:fontsize={size}:line_spacing=12:x=64:y=h-{band}-120+64,"
+          f"drawtext=fontfile='{font}':textfile='{tfile}':fontcolor={fc}:fontsize={size}:line_spacing=12:x={'w-tw-64' if cre.RTL.search(text) else '64'}:y=h-{band}-120+64,"
           f"fade=t=in:st=0:d=0.4,fade=t=out:st={max(0, secs - 0.4)}:d=0.4,format=yuv420p")
     sh([shutil.which("ffmpeg"), "-y", "-loglevel", "error", "-loop", "1", "-i", str(img), "-t", str(secs), "-vf", vf,
         "-r", str(FPS), "-c:v", "libx264", "-preset", "veryfast", "-crf", "20", "-an", str(out)])

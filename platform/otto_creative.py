@@ -83,8 +83,9 @@ def overlay_text(src, dst, text, color="#2447F0", pos="bottom", size=None):
     color = color if hex_ok(color) else "#2447F0"
     fc = text_color_for(color)
     y = f"h-{band_h}+60" if pos == "bottom" else "(h-text_h)/2"
+    x = "w-tw-60" if RTL.search(text or "") else "60"          # right-align right-to-left copy
     band = f"drawbox=x=0:y=ih-{band_h}:w=iw:h={band_h}:color={color}@0.92:t=fill," if pos == "bottom" else f"drawbox=x=0:y=0:w=iw:h=ih:color={color}@0.55:t=fill,"
-    vf = (band + f"drawtext=fontfile='{fp}':textfile='{tfile}':fontcolor={fc}:fontsize={size}:line_spacing=10:x=60:y={y}")
+    vf = (band + f"drawtext=fontfile='{fp}':textfile='{tfile}':fontcolor={fc}:fontsize={size}:line_spacing=10:x={x}:y={y}")
     r = subprocess.run([ff, "-y", "-loglevel", "error", "-i", str(src), "-vf", vf, str(dst)], capture_output=True, text=True)
     os.unlink(tfile)
     if r.returncode != 0:
