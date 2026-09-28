@@ -32,3 +32,18 @@ platform/*.jpg
 # generated ad statics / reels — rendered on the server, served from /otto/assets, not versioned
 platform/assets/ads/
 platform/assets/reels/
+
+# motion projects: keep the source (brief, storyboard, script, frame.md, compositions); ignore heavy/generated media
+motion/*/node_modules/
+motion/*/renders/
+motion/*/snapshots/
+motion/*/assets/audio/*.wav
+motion/*/assets/audio/*.mp3
+motion/*/assets/bgm/
+motion/*/.hyperframes/frame-packets/
+motion/*/.media/
+
+# engine runtime state (server only)
+platform/data.json.lock
+platform/publish.log
+platform/.telegram-state.json

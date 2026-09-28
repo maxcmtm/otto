@@ -16,7 +16,8 @@ show:  prints the month grid.
 Slots come from brands[].slots in data.json (weekday -> ["HH:MM", ...]); defaults below.
 Stories: an Instagram story slot on brands[].story_days (default mon/wed/fri) at story_time (12:00),
 on top of the weekly feed quota. `--no-stories` turns them off.
-Pure stdlib. Writes through ap.py so the dashboard fallback stays in sync.
+Pure stdlib. Writes through ap.transaction() (lock + atomic save) so the dashboard fallback stays in sync.
+Post ids come from ap's persistent counters: a --replace never hands out an id that existed before.
 """
 import calendar, json, sys
 from datetime import date
@@ -25,7 +26,7 @@ from pathlib import Path
 import ap
 
 HERE = Path(__file__).parent
-BRANDS = HERE.parent / "brands"
+BRANDS = ap.BRANDS
 
 DEFAULT_SLOTS = {"mon": ["09:00", "18:00"], "tue": ["09:00", "18:00"], "wed": ["09:00", "18:00"],
                  "thu": ["09:00", "18:00"], "fri": ["09:00", "18:00"], "sat": ["10:00"], "sun": ["09:00"]}
@@ -99,7 +100,17 @@ def month_days(ym):
 
 
 def build(bid, ym, per_week=12, platforms=("fb", "ig"), dry=False, replace=False, stories=True):
-    d = ap.load()
+    if dry:
+        return _build(ap.load(), bid, ym, per_week, platforms, True, replace, stories)
+    with ap.transaction() as d:                      # no network here: the whole build is one short transaction
+        created = _build(d, bid, ym, per_week, platforms, False, replace, stories)
+    b = ap.brand(ap.load(), bid)
+    write_plan_md(b, ym, created)
+    print(f"planned {len(created)} draft posts for {bid} · {ym} → {plan_path(bid, ym)}")
+    return created
+
+
+def _build(d, bid, ym, per_week, platforms, dry, replace, stories):
     b = ap.brand(d, bid)
     assert b, f"unknown brand {bid}"
     pillars = b.get("pillars") or ["Education", "Trust & proof", "Use-case", "Product", "Engagement"]
@@ -152,9 +163,6 @@ def build(bid, ym, per_week=12, platforms=("fb", "ig"), dry=False, replace=False
         created.append(ap.add_post(d, bid, p["pillar"], p["platform"], p["slot"], "",
                                    format=p["format"], plan=ym,
                                    brief=f'{p["pillar"]} · {p["format"]} · angle TBD by Quill · visual on-brand per brand-profile.md'))
-    ap.save(d)
-    write_plan_md(b, ym, created)
-    print(f"planned {len(created)} draft posts for {bid} · {ym} → {plan_path(bid, ym)}")
     return created
 
 
@@ -175,20 +183,20 @@ def write_plan_md(b, ym, posts):
 
 
 def fill(bid, ym, copy_file, pending=False):
-    d = ap.load()
     items = json.loads(Path(copy_file).read_text())
     n = 0
-    for it in items:
-        p = ap.post(d, it["id"])
-        if not p or p["brand"] != bid:
-            sys.exit(f"unknown post {it.get('id')} for {bid}")
-        for k in ("hook", "caption", "visual_brief", "hashtags", "image", "format"):
-            if k in it:
-                p[k] = it[k]
-        if pending and p.get("hook") and p.get("caption"):
-            p["status"] = "pending_approval"
-        n += 1
-    ap.save(d)
+    with ap.transaction() as d:
+        for it in items:
+            p = ap.post(d, it["id"])
+            if not p or p["brand"] != bid:
+                sys.exit(f"unknown post {it.get('id')} for {bid}")          # aborts the transaction: nothing saved
+            for k in ("hook", "caption", "visual_brief", "hashtags", "image", "format", "slides", "script"):
+                if k in it:
+                    p[k] = it[k]
+            if pending and p.get("hook") and p.get("caption") and p["status"] == "draft":
+                p["status"] = "pending_approval"
+            n += 1
+    d = ap.load()
     b = ap.brand(d, bid)
     write_plan_md(b, ym, [p for p in d["posts"] if p["brand"] == bid and p.get("plan") == ym])
     print(f"filled {n} posts for {bid} · {ym}" + (" → pending_approval" if pending else ""))

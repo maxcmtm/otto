@@ -1,0 +1,25 @@
+{
+  "version": 1,
+  "about": "Hook types every Otto concept draws from. A concept = one angle for one persona; ship it with at least 3 hooks of DIFFERENT types. Placeholders in {braces} come from strategy.json. Meta limits: primary text first 125 chars carry the hook; headline <= 40 chars.",
+  "types": [
+    {"id": "callout", "name": "Call-out", "template": "{persona_label}: {outcome} without {pain}", "example": "Night-shift nurses: sleep through the day without melatonin fog", "stage": ["cold"], "compliance": "Never call out a health condition or personal attribute in restricted categories (Meta personal-attributes policy). Call out a situation or role instead."},
+    {"id": "contrarian", "name": "Contrarian", "template": "{common_belief}? Not quite.", "example": "More THC means stronger CBD? Not quite.", "stage": ["cold"], "compliance": "The correction must be provable from the proof bank."},
+    {"id": "mistake", "name": "Mistake", "template": "The {n} mistakes people make when {task}", "example": "The 3 mistakes people make when choosing a CBD oil", "stage": ["cold", "warm"], "compliance": "Mistakes must be general, not about the reader's body or finances."},
+    {"id": "number", "name": "Number / specific", "template": "{number} {unit} that {result}", "example": "40 seconds that settle the full vs broad question", "stage": ["cold", "warm"], "compliance": "Numbers only from the proof bank or the content itself (e.g. video length)."},
+    {"id": "pov", "name": "POV / scenario", "template": "POV: {relatable_moment}", "example": "POV: you're in the shop and every label says 'spectrum'", "stage": ["cold"], "compliance": "No before/after bodies, no suffering imagery."},
+    {"id": "myth_fact", "name": "Myth vs fact", "template": "Myth: {myth}. Fact: {fact}.", "example": "Myth: CBD gets you high. Fact: CBD is non-intoxicating.", "stage": ["cold", "warm"], "compliance": "Fact must be sourced; no medical efficacy claims."},
+    {"id": "review", "name": "Review quote", "template": "\"{verbatim_review}\" — {first_name}", "example": "\"The quality feels clean and trustworthy\" — Melanie S.", "stage": ["warm", "hot"], "compliance": "Verbatim only, with consent; no health outcomes in restricted categories."},
+    {"id": "comparison", "name": "Comparison", "template": "{option_a} vs {option_b}: which one is for you?", "example": "Full vs broad vs isolate: which one is for you?", "stage": ["warm"], "compliance": "Compare your own products or categories, never a named competitor's claims."},
+    {"id": "price_math", "name": "Price maths", "template": "{price} a month is {per_day} a day. Here is what that buys.", "example": "€45 is €1.50 a day. Here is what that buys.", "stage": ["hot"], "compliance": "Real prices from the site; show the full price, no hidden conditions."},
+    {"id": "checklist", "name": "Checklist before you buy", "template": "{n} things to check before you buy any {category}", "example": "3 things to check before you buy any CBD", "stage": ["warm"], "compliance": "Each check must be something the brand actually passes (lab report, origin…)."},
+    {"id": "founder", "name": "Founder / origin", "template": "Why we started {brand}: {origin_truth}", "example": "Why we publish every lab report: we were tired of guessing too.", "stage": ["warm"], "compliance": "True story only; ask the owner (onboarding question) before using."},
+    {"id": "objection_first", "name": "Objection first", "template": "\"{objection}\" — fair question.", "example": "\"Is this even legal?\" — fair question.", "stage": ["warm", "hot"], "compliance": "Answer with facts from the proof bank; no guarantees."},
+    {"id": "offer_deadline", "name": "Offer with a real deadline", "template": "{offer} until {date}. {reason}.", "example": "Starter bundle -20% until Sunday. We're clearing the autumn batch.", "stage": ["hot"], "compliance": "Deadline must be real (Omnibus 30-day prior-price rule in the EU)."}
+  ],
+  "rules": [
+    "At least 3 hooks per concept, from at least 2 different types.",
+    "The first 3 seconds of a reel = the hook, on screen and spoken, frame 0 already designed.",
+    "Write in the customer's words from strategy.json pains/objections; ban 'unlock', 'elevate', 'seamless', 'game-changer', 'revolutionary'.",
+    "Every hook passes brands/<slug>/compliance.json before it reaches the owner."
+  ]
+}

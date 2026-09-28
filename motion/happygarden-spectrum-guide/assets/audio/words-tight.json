@@ -1,0 +1,587 @@
+{
+ "vo-01-tight.wav": {
+  "duration": 6.1,
+  "words": [
+   {
+    "text": "Full",
+    "start": 0.0,
+    "end": 0.24
+   },
+   {
+    "text": "spectrum,",
+    "start": 0.24,
+    "end": 0.86
+   },
+   {
+    "text": "broad",
+    "start": 1.19,
+    "end": 1.23
+   },
+   {
+    "text": "spectrum,",
+    "start": 1.23,
+    "end": 1.91
+   },
+   {
+    "text": "isolate,",
+    "start": 2.24,
+    "end": 2.66
+   },
+   {
+    "text": "same",
+    "start": 2.99,
+    "end": 3.31
+   },
+   {
+    "text": "plant.",
+    "start": 3.31,
+    "end": 3.81
+   },
+   {
+    "text": "So",
+    "start": 4.14,
+    "end": 4.2
+   },
+   {
+    "text": "what's",
+    "start": 4.2,
+    "end": 4.6
+   },
+   {
+    "text": "actually",
+    "start": 4.6,
+    "end": 5.08
+   },
+   {
+    "text": "in",
+    "start": 5.08,
+    "end": 5.4
+   },
+   {
+    "text": "your",
+    "start": 5.4,
+    "end": 5.64
+   },
+   {
+    "text": "bottle?",
+    "start": 5.64,
+    "end": 5.94
+   }
+  ]
+ },
+ "vo-02-tight.wav": {
+  "duration": 12.21,
+  "words": [
+   {
+    "text": "Hemp",
+    "start": 0.0,
+    "end": 0.36
+   },
+   {
+    "text": "makes",
+    "start": 0.36,
+    "end": 0.76
+   },
+   {
+    "text": "more",
+    "start": 0.76,
+    "end": 1.22
+   },
+   {
+    "text": "than",
+    "start": 1.22,
+    "end": 1.56
+   },
+   {
+    "text": "CBD.",
+    "start": 1.56,
+    "end": 2.08
+   },
+   {
+    "text": "Think",
+    "start": 2.41,
+    "end": 2.59
+   },
+   {
+    "text": "of",
+    "start": 2.59,
+    "end": 2.79
+   },
+   {
+    "text": "it",
+    "start": 2.79,
+    "end": 2.97
+   },
+   {
+    "text": "as",
+    "start": 2.97,
+    "end": 3.23
+   },
+   {
+    "text": "a",
+    "start": 3.23,
+    "end": 3.41
+   },
+   {
+    "text": "team.",
+    "start": 3.41,
+    "end": 3.89
+   },
+   {
+    "text": "CBD,",
+    "start": 4.22,
+    "end": 4.22
+   },
+   {
+    "text": "the",
+    "start": 4.55,
+    "end": 4.65
+   },
+   {
+    "text": "minor",
+    "start": 4.65,
+    "end": 5.11
+   },
+   {
+    "text": "cannabinoids",
+    "start": 5.11,
+    "end": 5.93
+   },
+   {
+    "text": "CBG",
+    "start": 5.93,
+    "end": 7.27
+   },
+   {
+    "text": "and",
+    "start": 7.27,
+    "end": 7.73
+   },
+   {
+    "text": "CBN,",
+    "start": 7.73,
+    "end": 8.81
+   },
+   {
+    "text": "terpenes,",
+    "start": 9.14,
+    "end": 9.98
+   },
+   {
+    "text": "and",
+    "start": 10.31,
+    "end": 10.37
+   },
+   {
+    "text": "a",
+    "start": 10.37,
+    "end": 10.49
+   },
+   {
+    "text": "trace",
+    "start": 10.49,
+    "end": 11.01
+   },
+   {
+    "text": "of",
+    "start": 11.01,
+    "end": 11.45
+   },
+   {
+    "text": "THC.",
+    "start": 11.45,
+    "end": 12.05
+   }
+  ]
+ },
+ "vo-03-tight.wav": {
+  "duration": 8.79,
+  "words": [
+   {
+    "text": "Full",
+    "start": 0.0,
+    "end": 0.24
+   },
+   {
+    "text": "spectrum",
+    "start": 0.24,
+    "end": 0.82
+   },
+   {
+    "text": "keeps",
+    "start": 0.82,
+    "end": 1.28
+   },
+   {
+    "text": "the",
+    "start": 1.28,
+    "end": 1.56
+   },
+   {
+    "text": "whole",
+    "start": 1.56,
+    "end": 1.86
+   },
+   {
+    "text": "team,",
+    "start": 1.86,
+    "end": 2.38
+   },
+   {
+    "text": "trace",
+    "start": 2.71,
+    "end": 2.79
+   },
+   {
+    "text": "THC",
+    "start": 2.79,
+    "end": 3.51
+   },
+   {
+    "text": "included,",
+    "start": 3.51,
+    "end": 4.17
+   },
+   {
+    "text": "within",
+    "start": 4.5,
+    "end": 4.82
+   },
+   {
+    "text": "the",
+    "start": 4.82,
+    "end": 5.1
+   },
+   {
+    "text": "legal",
+    "start": 5.1,
+    "end": 5.38
+   },
+   {
+    "text": "limit.",
+    "start": 5.38,
+    "end": 5.82
+   },
+   {
+    "text": "People",
+    "start": 6.15,
+    "end": 6.45
+   },
+   {
+    "text": "call",
+    "start": 6.45,
+    "end": 6.83
+   },
+   {
+    "text": "it",
+    "start": 6.83,
+    "end": 7.11
+   },
+   {
+    "text": "the",
+    "start": 7.11,
+    "end": 7.31
+   },
+   {
+    "text": "entourage",
+    "start": 7.31,
+    "end": 8.13
+   },
+   {
+    "text": "effect.",
+    "start": 8.13,
+    "end": 8.63
+   }
+  ]
+ },
+ "vo-04-tight.wav": {
+  "duration": 6.54,
+  "words": [
+   {
+    "text": "Broad",
+    "start": 0.0,
+    "end": 0.36
+   },
+   {
+    "text": "spectrum,",
+    "start": 0.36,
+    "end": 1.0
+   },
+   {
+    "text": "the",
+    "start": 1.33,
+    "end": 1.45
+   },
+   {
+    "text": "same",
+    "start": 1.45,
+    "end": 1.77
+   },
+   {
+    "text": "team,",
+    "start": 1.77,
+    "end": 2.39
+   },
+   {
+    "text": "minus",
+    "start": 2.72,
+    "end": 2.86
+   },
+   {
+    "text": "the",
+    "start": 2.86,
+    "end": 3.22
+   },
+   {
+    "text": "THC.",
+    "start": 3.22,
+    "end": 3.92
+   },
+   {
+    "text": "Whole",
+    "start": 4.25,
+    "end": 4.43
+   },
+   {
+    "text": "plant,",
+    "start": 4.43,
+    "end": 4.95
+   },
+   {
+    "text": "zero",
+    "start": 5.28,
+    "end": 5.64
+   },
+   {
+    "text": "THC.",
+    "start": 5.64,
+    "end": 6.38
+   }
+  ]
+ },
+ "vo-05-tight.wav": {
+  "duration": 3.61,
+  "words": [
+   {
+    "text": "Isolate",
+    "start": 0.0,
+    "end": 0.68
+   },
+   {
+    "text": "is",
+    "start": 0.68,
+    "end": 1.02
+   },
+   {
+    "text": "pure",
+    "start": 1.02,
+    "end": 1.5
+   },
+   {
+    "text": "CBD,",
+    "start": 1.5,
+    "end": 2.22
+   },
+   {
+    "text": "nothing",
+    "start": 2.55,
+    "end": 2.95
+   },
+   {
+    "text": "else.",
+    "start": 2.95,
+    "end": 3.45
+   }
+  ]
+ },
+ "vo-06-tight.wav": {
+  "duration": 6.99,
+  "words": [
+   {
+    "text": "So,",
+    "start": 0.0,
+    "end": 0.32
+   },
+   {
+    "text": "want",
+    "start": 0.65,
+    "end": 0.81
+   },
+   {
+    "text": "the",
+    "start": 0.81,
+    "end": 1.01
+   },
+   {
+    "text": "whole",
+    "start": 1.01,
+    "end": 1.19
+   },
+   {
+    "text": "plant?",
+    "start": 1.19,
+    "end": 1.61
+   },
+   {
+    "text": "Full.",
+    "start": 1.94,
+    "end": 2.28
+   },
+   {
+    "text": "Whole",
+    "start": 2.61,
+    "end": 2.65
+   },
+   {
+    "text": "plant,",
+    "start": 2.65,
+    "end": 3.17
+   },
+   {
+    "text": "zero",
+    "start": 3.5,
+    "end": 3.7
+   },
+   {
+    "text": "THC,",
+    "start": 3.7,
+    "end": 4.3
+   },
+   {
+    "text": "broad.",
+    "start": 4.63,
+    "end": 5.01
+   },
+   {
+    "text": "Only",
+    "start": 5.34,
+    "end": 5.62
+   },
+   {
+    "text": "CBD,",
+    "start": 5.62,
+    "end": 6.2
+   },
+   {
+    "text": "isolate.",
+    "start": 6.53,
+    "end": 6.83
+   }
+  ]
+ },
+ "vo-07-tight.wav": {
+  "duration": 9.91,
+  "words": [
+   {
+    "text": "Whichever",
+    "start": 0.0,
+    "end": 0.42
+   },
+   {
+    "text": "you",
+    "start": 0.42,
+    "end": 0.76
+   },
+   {
+    "text": "choose,",
+    "start": 0.76,
+    "end": 1.34
+   },
+   {
+    "text": "every",
+    "start": 1.67,
+    "end": 2.05
+   },
+   {
+    "text": "Happy",
+    "start": 2.05,
+    "end": 2.51
+   },
+   {
+    "text": "Garden",
+    "start": 2.51,
+    "end": 2.87
+   },
+   {
+    "text": "batch",
+    "start": 2.87,
+    "end": 3.33
+   },
+   {
+    "text": "is",
+    "start": 3.33,
+    "end": 3.93
+   },
+   {
+    "text": "third",
+    "start": 3.93,
+    "end": 4.29
+   },
+   {
+    "text": "-party",
+    "start": 4.29,
+    "end": 4.81
+   },
+   {
+    "text": "lab",
+    "start": 4.81,
+    "end": 5.21
+   },
+   {
+    "text": "-tested",
+    "start": 5.21,
+    "end": 5.79
+   },
+   {
+    "text": "and",
+    "start": 5.79,
+    "end": 6.41
+   },
+   {
+    "text": "the",
+    "start": 6.41,
+    "end": 6.53
+   },
+   {
+    "text": "report",
+    "start": 6.53,
+    "end": 6.91
+   },
+   {
+    "text": "is",
+    "start": 6.91,
+    "end": 7.17
+   },
+   {
+    "text": "published.",
+    "start": 7.17,
+    "end": 7.63
+   },
+   {
+    "text": "Find",
+    "start": 7.96,
+    "end": 8.3
+   },
+   {
+    "text": "yours.",
+    "start": 8.3,
+    "end": 8.7
+   },
+   {
+    "text": "Link",
+    "start": 9.03,
+    "end": 9.11
+   },
+   {
+    "text": "in",
+    "start": 9.11,
+    "end": 9.45
+   },
+   {
+    "text": "bio.",
+    "start": 9.45,
+    "end": 9.75
+   }
+  ]
+ }
+}

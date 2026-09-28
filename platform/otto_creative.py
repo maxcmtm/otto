@@ -2,27 +2,34 @@
 """Otto creative — ad variants in every style, built from the angles that work in the category.
 
   otto_creative.py variants <campaign-id> [--dry]            # angles × formats → campaign.creatives (statics with copy, carousels, video)
-  otto_creative.py overlay <src.png> <dst.png> "<text>" [--color #2447F0] [--pos bottom|center]
+  otto_creative.py overlay <src.jpg> <dst.jpg> "<text>" [--color #2447F0] [--pos bottom|center]
   otto_creative.py angles <brand>                            # print the angle bank Otto would use
 
 Angle bank, in order of trust: brands/<slug>/angles.json (written by otto_competitors.py from the
 ad-library sweep: longevity winners = proven), the profile's "Winning angles" section, then the
 brand's best hooks. Every variant = one angle, one hook, one proof line, one CTA — and the copy is
 tested by Meta's dynamic creative (otto_ads.py launches all titles/bodies/images in one ad set).
-Text on image is rendered by ffmpeg (deterministic typography, brand band), never by the image model.
+Text on image is rendered by ffmpeg (deterministic typography, brand band), never by the image model:
+one drawtext per line (expansion=none, so "20% off" is literal), right-aligned for Hebrew/Arabic. When this
+ffmpeg's drawtext has text_shaping (libfribidi) it shapes RTL itself; otherwise lines are pre-reordered
+(bidi_line). Statics / carousel cards are written as real JPEG (Instagram and Meta both take it) and
+copied to the public assets dir right away (otto_paths.publish).
+CTA card text follows the brand language (he → "לפרטים בלינק", de → "Mehr erfahren", else English).
 """
 import json, os, re, shutil, subprocess, sys, tempfile, textwrap
 from pathlib import Path
 
 import ap
+import otto_paths as paths
 
 HERE = Path(__file__).parent
-BRANDS = HERE.parent / "brands"
-OUT = HERE / "assets" / "ads"
+BRANDS = ap.BRANDS
+OUT = paths.ASSETS / "ads"
 FONT_CANDIDATES = [os.environ.get("OTTO_FONT", ""), "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
                    "/usr/share/fonts/truetype/liberation/LiberationSans-Bold.ttf", "/System/Library/Fonts/Supplemental/Arial Bold.ttf",
                    "/System/Library/Fonts/Supplemental/Arial.ttf", "/Library/Fonts/Arial Bold.ttf"]
 CTA = {"leads": "SIGN_UP", "traffic": "LEARN_MORE", "sales": "SHOP_NOW", "engagement": "LEARN_MORE", "awareness": "LEARN_MORE"}
+CTA_CARD = {"he": "לפרטים בלינק", "de": "Mehr erfahren", "fr": "En savoir plus", "es": "Más información", "it": "Scopri di più"}
 
 
 def font_path():
@@ -50,16 +57,83 @@ def clean_text(t):
 
 
 def bidi_line(line):
-    """ffmpeg's drawtext has no bidi shaping: for RTL lines, reverse token order and RTL runs so the
+    """Fallback for an ffmpeg without text_shaping: for RTL lines, reverse token order and RTL runs so the
     rendered glyphs read correctly (digits and Latin tokens stay as they are)."""
     if not RTL.search(line):
         return line
-    toks = line.split(" ")[::-1]
-    return " ".join(t[::-1] if RTL.search(t) else t for t in toks)
+    toks = line.split(" ")
+    kind = ["rtl" if RTL.search(t) else "ltr" if re.search(r"[A-Za-z0-9]", t) else "neutral" for t in toks]
+    runs = []                                # consecutive LTR tokens (and neutrals between them) stay one run
+    for i, (t, k) in enumerate(zip(toks, kind)):
+        if k == "neutral" and runs and runs[-1][0] == "ltr" and "ltr" in kind[i + 1:i + 2]:
+            k = "ltr"
+        if runs and k == "ltr" and runs[-1][0] == "ltr":
+            runs[-1][1].append(t)
+        else:
+            runs.append([k, [t]])
+    out = []
+    for k, ts in reversed(runs):
+        out.append(" ".join(ts) if k == "ltr" else " ".join(_flip_token(t) for t in reversed(ts)))
+    return " ".join(out)
 
 
-def prep_lines(text, width=22, max_lines=4):
-    return [bidi_line(l) for l in textwrap.wrap(clean_text(text), width)[:max_lines]]
+def _flip_token(t):
+    """One RTL-context token → visual order: RTL letters reversed, digit/Latin pieces kept ("ב-50%" → "50%-ב")."""
+    segs = []
+    for seg in re.findall(r"[\u0590-\u05FF\u0600-\u06FF]+|[^\u0590-\u05FF\u0600-\u06FF]+", t):
+        if RTL.search(seg):
+            segs.append(seg[::-1])
+        else:
+            m = re.match(r"^([^A-Za-z0-9]*)(.*)$", seg)
+            segs += [x for x in (m.group(1), m.group(2)) if x]
+    return "".join(reversed(segs))
+
+
+_SHAPING = None
+
+
+def drawtext_shaping():
+    """True when this ffmpeg's drawtext has the text_shaping option (built with libfribidi).
+    OTTO_TEXT_SHAPING=0/1 overrides the probe."""
+    global _SHAPING
+    env = os.environ.get("OTTO_TEXT_SHAPING")
+    if env in ("0", "1"):
+        return env == "1"
+    if _SHAPING is None:
+        _SHAPING = False
+        ff = ffmpeg()
+        if ff:
+            try:
+                r = subprocess.run([ff, "-hide_banner", "-h", "filter=drawtext"], capture_output=True, text=True, timeout=20)
+                _SHAPING = bool(re.search(r"^\s*text_shaping\b", r.stdout + r.stderr, re.M))
+            except Exception:
+                _SHAPING = False
+    return _SHAPING
+
+
+def prep_lines(text, width=22, max_lines=4, shaping=None):
+    """Wrapped lines in logical order; pre-reordered for RTL only when drawtext cannot shape."""
+    shaping = drawtext_shaping() if shaping is None else shaping
+    lines = textwrap.wrap(clean_text(text), width)[:max_lines]
+    return lines if shaping else [bidi_line(l) for l in lines]
+
+
+def drawtext_chain(lines, font, fontcolor, size, y_top, rtl, margin=60, spacing=10):
+    """One drawtext per line (so RTL lines are each right-aligned). y_top is an ffmpeg expression for the
+    first line's top. Returns (filter string, temp files to delete)."""
+    shaping = drawtext_shaping()
+    parts, files = [], []
+    for i, ln in enumerate(lines):
+        with tempfile.NamedTemporaryFile("w", suffix=".txt", delete=False, encoding="utf-8") as tf:
+            tf.write(ln)
+            files.append(tf.name)
+        x = f"w-text_w-{margin}" if rtl else str(margin)
+        opt = (f"drawtext=fontfile='{font}':textfile='{tf.name}':expansion=none:fontcolor={fontcolor}:fontsize={size}"
+               f":x={x}:y={y_top}+{i * (size + spacing)}")
+        if shaping:
+            opt += ":text_shaping=1"
+        parts.append(opt)
+    return ",".join(parts), files
 
 
 def text_color_for(band_hex):
@@ -71,23 +145,35 @@ def text_color_for(band_hex):
 
 
 def overlay_text(src, dst, text, color="#2447F0", pos="bottom", size=None):
-    """Brand band + headline on an image. Returns dst path; raises if ffmpeg/font missing."""
+    """Brand band + headline on an image. Returns dst path; raises if ffmpeg/font missing.
+    A .jpg/.jpeg dst is written as high-quality JPEG (-q:v 2)."""
     fp, ff = font_path(), ffmpeg()
     if not ff or not fp:
         raise RuntimeError("ffmpeg or a TTF font is missing (set OTTO_FONT)")
     lines = prep_lines(text, 22)
-    with tempfile.NamedTemporaryFile("w", suffix=".txt", delete=False, encoding="utf-8") as tf:
-        tf.write("\n".join(lines)); tfile = tf.name
+    if not lines:
+        raise RuntimeError("no text to render")
     size = size or (64 if len(lines) <= 2 else 56)
-    band_h = size * len(lines) + 120
+    spacing = 10
+    text_h = size * len(lines) + spacing * (len(lines) - 1)
+    band_h = text_h + 120
     color = color if hex_ok(color) else "#2447F0"
     fc = text_color_for(color)
-    y = f"h-{band_h}+60" if pos == "bottom" else "(h-text_h)/2"
-    x = "w-tw-60" if RTL.search(text or "") else "60"          # right-align right-to-left copy
+    y_top = f"h-{band_h}+60" if pos == "bottom" else f"(h-{text_h})/2"
+    rtl = bool(RTL.search(text or ""))                          # right-align right-to-left copy
     band = f"drawbox=x=0:y=ih-{band_h}:w=iw:h={band_h}:color={color}@0.92:t=fill," if pos == "bottom" else f"drawbox=x=0:y=0:w=iw:h=ih:color={color}@0.55:t=fill,"
-    vf = (band + f"drawtext=fontfile='{fp}':textfile='{tfile}':fontcolor={fc}:fontsize={size}:line_spacing=10:x={x}:y={y}")
-    r = subprocess.run([ff, "-y", "-loglevel", "error", "-i", str(src), "-vf", vf, str(dst)], capture_output=True, text=True)
-    os.unlink(tfile)
+    chain, files = drawtext_chain(lines, fp, fc, size, y_top, rtl, margin=60, spacing=spacing)
+    vf = band + chain
+    out_opts = ["-frames:v", "1"]
+    if str(dst).lower().endswith((".jpg", ".jpeg")):
+        out_opts += ["-q:v", "2"]
+    Path(dst).parent.mkdir(parents=True, exist_ok=True)
+    try:
+        r = subprocess.run([ff, "-y", "-loglevel", "error", "-i", str(src), "-vf", vf] + out_opts + [str(dst)],
+                           capture_output=True, text=True)
+    finally:
+        for f in files:
+            os.unlink(f)
     if r.returncode != 0:
         raise RuntimeError(r.stderr[-300:])
     return str(dst)
@@ -95,7 +181,17 @@ def overlay_text(src, dst, text, color="#2447F0", pos="bottom", size=None):
 
 # ---------------- angle bank ----------------
 
+# internal notes that must never become ad copy: performance numbers, currency, lead counts, arrows,
+# unverified markers, agent notes, "don't" markers
+NOT_COPY = re.compile(r"\bCPL\b|\bCPA\b|ROAS|₪|€|\$\s?\d|→|->|\(\?\)|❌|✗|\bleads?\b|לידים|\d+\s*%?\s*(clicks|conv)|"
+                      r"\bagent\b|\bTODO\b|\bTBD\b|hypothes|placeholder", re.I)
+QUOTED = re.compile(r"[\"“”„«»]([^\"“”„«»]{6,140})[\"“”„«»]")
+
+
 def profile_angles(bid):
+    """Angles from the profile's "Winning angles" section — only quoted hooks ("…" on the line) or a clean
+    angle label (the **bold** title / text before " — "); lines carrying CPL, ₪/€, lead counts, arrows,
+    (?) or ❌ never become copy."""
     prof = BRANDS / bid / "brand-profile.md"
     if not prof.exists():
         return []
@@ -103,11 +199,32 @@ def profile_angles(bid):
     m = re.search(r"Winning angles.*?\n(.*?)(?=\n## |\Z)", t, re.S)
     out = []
     if m:
-        for ln in m.group(1).splitlines():
-            ln = clean_text(ln.strip().lstrip("-*0123456789. "))
-            if 8 < len(ln) < 160 and "(?)" not in ln and "agent" not in ln.lower():
-                out.append({"angle": ln, "source": "profile"})
+        for raw in m.group(1).splitlines():
+            raw = raw.strip()
+            if not raw or raw.startswith("#"):
+                continue
+            quotes = [q.strip() for q in QUOTED.findall(raw)]
+            if quotes:
+                if "❌" in raw or "✗" in raw:          # a quoted myth / don't — never an ad line
+                    continue
+                cands = quotes
+            else:
+                if NOT_COPY.search(raw):
+                    continue
+                body = raw.lstrip("-*0123456789. ")
+                bold = re.search(r"\*\*(.+?)\*\*", body)
+                label = bold.group(1) if bold else re.split(r"\s[—–-]\s", body)[0]
+                cands = [re.sub(r"\([^)]*\)", "", label)]
+            for c in cands:
+                c = clean_text(c).strip(" -—–:")
+                if 6 < len(c) < 160 and not NOT_COPY.search(c):
+                    out.append({"angle": c, "source": "profile"})
     return out[:5]
+
+
+def cta_card_text(b):
+    lang = ap.brand_lang(b)
+    return CTA_CARD.get(lang) or f"{b.get('name', '')}: talk to us".strip(": ")
 
 
 def angle_bank(d, bid, n=3):
@@ -164,6 +281,7 @@ def build(d, c, dry=False, base="https://dash.monyflow.work/otto/"):
     cr = {"angles": [], "titles": [], "bodies": [], "descriptions": [], "images": [], "carousels": [], "videos": [],
           "cta": CTA.get(c.get("objective"), "LEARN_MORE"), "built_at": ap.now_iso(), "dry": dry}
     OUT.mkdir(parents=True, exist_ok=True)
+    cta_card = cta_card_text(b)
     for i, a in enumerate(angles, 1):
         hook = trim(a["angle"], 40)
         body = trim(a["angle"], 90) + (f" {proof}" if proof else "") + f" — {b['name']}."
@@ -172,31 +290,32 @@ def build(d, c, dry=False, base="https://dash.monyflow.work/otto/"):
         cr["bodies"].append(trim(body, 125))
         img_post = ap.post(d, a.get("post") or "") or src_post
         if img_post and img_post.get("image"):
-            src = HERE / img_post["image"]
-            dst = OUT / f"{c['id']}-{i}-static.png"
+            dst = OUT / f"{c['id']}-{i}-static.jpg"
             if dry:
                 cr["images"].append({"file": f"assets/ads/{dst.name}", "from": img_post["id"], "text": hook, "planned": True})
             else:
                 try:
-                    overlay_text(src, dst, hook, pal)
+                    overlay_text(paths.local_path(img_post["image"]), dst, hook, pal)
+                    paths.publish(dst)
                     cr["images"].append({"file": f"assets/ads/{dst.name}", "from": img_post["id"], "text": hook})
                 except Exception as e:
                     cr["images"].append({"file": img_post["image"], "from": img_post["id"], "text": None, "note": str(e)[:120]})
             # carousel: hook / proof / cta on three images (rotating through the brand's visuals)
             cards = []
-            for j, txt in enumerate([hook, trim(proof or a["angle"], 40), f"{b['name']}: talk to us"], 1):
+            for j, txt in enumerate([hook, trim(proof or a["angle"], 40), cta_card], 1):
                 ip = posts[(i + j) % len(posts)] if posts else img_post
-                dst = OUT / f"{c['id']}-{i}-c{j}.png"
+                dst = OUT / f"{c['id']}-{i}-c{j}.jpg"
                 if dry:
                     cards.append({"file": f"assets/ads/{dst.name}", "text": txt, "planned": True})
                 else:
                     try:
-                        overlay_text(HERE / ip["image"], dst, txt, pal, pos="bottom", size=52)
+                        overlay_text(paths.local_path(ip["image"]), dst, txt, pal, pos="bottom", size=52)
+                        paths.publish(dst)
                         cards.append({"file": f"assets/ads/{dst.name}", "text": txt})
                     except Exception as e:
                         cards.append({"file": ip["image"], "text": txt, "note": str(e)[:80]})
             cr["carousels"].append({"angle": i, "cards": cards})
-        reel = HERE / "assets" / "reels" / f"{(img_post or {}).get('id', '')}.mp4"
+        reel = paths.ASSETS / "reels" / f"{(img_post or {}).get('id', '')}.mp4"
         if (img_post or {}).get("video") or reel.exists():
             cr["videos"].append({"file": (img_post or {}).get("video") or f"assets/reels/{reel.name}", "from": img_post["id"]})
     cr["descriptions"] = [trim(proof, 30)] if proof else []
@@ -220,9 +339,12 @@ def main():
         d = ap.load()
         c = next((x for x in d.get("campaigns", []) if x["id"] == a[1]), None)
         assert c, f"unknown campaign {a[1]}"
-        cr = build(d, c, dry="--dry" in a)
+        cr = build(d, c, dry="--dry" in a)            # renders outside the lock
         if "--dry" not in a:
-            ap.save(d)
+            with ap.transaction() as d2:              # then patch just this campaign
+                c2 = ap.campaign(d2, a[1])
+                if c2 is not None:
+                    c2["creatives"] = cr
         print(json.dumps({k: cr[k] for k in ("angles", "titles", "bodies", "cta")}, ensure_ascii=False, indent=1))
         print(f"images {len(cr['images'])} · carousels {len(cr['carousels'])} · videos {len(cr['videos'])}{' (dry)' if cr['dry'] else ''}")
     else:

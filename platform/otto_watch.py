@@ -6,14 +6,17 @@
                             approvals about to miss their slot. Sends only when something is wrong.
 
 State: metrics_history.jsonl (one snapshot/day), .watch-state.json (alert dedup, 1/day per key).
+Reads data.json through ap (OTTO_DATA respected); slot times are brand-local (ap.slot_dt, brands[].tz).
+Only numeric metric values are compared / summed (Graph can hand back None, dicts or strings).
 Sending goes through the OpenClaw CLI (same pattern as gateway_watchdog.sh).
 """
 import json, subprocess, sys
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
+import ap
+
 HERE = Path(__file__).parent
-DATA = HERE / "data.json"
 HIST = HERE / "metrics_history.jsonl"
 STATE = HERE / ".watch-state.json"
 OCLAW = "/home/ubuntu/.npm-global/bin/openclaw"
@@ -50,6 +53,21 @@ def fmt_slot(s):
         return s
 
 
+def load_data():
+    try:
+        return ap.load()
+    except Exception:
+        return {}
+
+
+def slot_of(d, p):
+    return ap.slot_dt(p, ap.brand(d, p.get("brand")))
+
+
+def numeric(m):
+    return {k: v for k, v in (m or {}).items() if ap.num(v) is not None}
+
+
 def history():
     rows = []
     if HIST.exists():
@@ -77,10 +95,12 @@ def drops(rows):
     out = []
     if len(rows) < 4:
         return out
-    latest, prior = rows[-1]["metrics"], rows[-8:-1]
+    latest, prior = rows[-1].get("metrics") or {}, rows[-8:-1]
     for brand, m in latest.items():
-        for k, v in m.items():
-            vals = [r["metrics"].get(brand, {}).get(k, 0) for r in prior]
+        for k, v in numeric(m).items():
+            v = ap.num(v)
+            vals = [ap.num(((r.get("metrics") or {}).get(brand) or {}).get(k)) for r in prior]
+            vals = [x for x in vals if x is not None]
             base = sum(vals) / len(vals) if vals else 0
             if base >= MIN_BASE and v < base * (1 - DROP_PCT / 100):
                 out.append((brand, k, v, base))
@@ -88,28 +108,28 @@ def drops(rows):
 
 
 def report():
-    d = load(DATA, {})
+    d = load_data()
     rows = snapshot(d)
     now = datetime.now(timezone.utc)
     posts = d.get("posts", [])
     pending = [p for p in posts if p["status"] == "pending_approval"]
-    next24 = [p for p in posts if p["status"] in ("approved", "scheduled")
-              and 0 <= (datetime.fromisoformat(p["slot"]).replace(tzinfo=timezone.utc) - now).total_seconds() < 86400]
+    next24 = [p for p in posts if p["status"] in ("approved", "scheduled") and slot_of(d, p)
+              and 0 <= (slot_of(d, p) - now).total_seconds() < 86400]
     yesterday = (now - timedelta(days=1)).date()
-    pub_y = [p for p in posts if p["status"] == "published"
-             and datetime.fromisoformat(p["slot"]).date() >= yesterday]
+    pub_y = [p for p in posts if p["status"] == "published" and slot_of(d, p)
+             and slot_of(d, p).astimezone(timezone.utc).date() >= yesterday]
     p0 = [r for r in d.get("recommendations", []) if r.get("priority") == "P0" and r.get("status") == "proposed"]
 
     lines = [f"*Otto daily* · {now.strftime('%a %d %b')}"]
     lines.append(f"\nWaiting for you: *{len(pending)}*" if pending else "\nNothing is waiting for you.")
     for p in pending[:4]:
-        lines.append(f"  · {p['hook'][:60]} ({fmt_slot(p['slot'])})")
+        lines.append(f"  · {p.get('hook', '')[:60]} ({fmt_slot(p['slot'])})")
     if next24:
         lines.append(f"Publishing in the next 24 h: *{len(next24)}*")
     if pub_y:
         lines.append(f"Published since yesterday: {len(pub_y)}")
     metr = d.get("metrics", {})
-    live = {b: m for b, m in metr.items() if sum(m.values()) > 0}
+    live = {b: numeric(m) for b, m in metr.items() if sum(ap.num(v) for v in numeric(m).values()) > 0}
     if live:
         lines.append("\n*Performance*")
         brand_names = {b["id"]: b["name"] for b in d.get("brands", [])}
@@ -126,7 +146,7 @@ def report():
 
 
 def watch():
-    d = load(DATA, {})
+    d = load_data()
     state = load(STATE, {})
     today = datetime.now(timezone.utc).date().isoformat()
     now = datetime.now(timezone.utc)
@@ -139,20 +159,28 @@ def watch():
             alerts.append(f"Drop at {brand}: {k} is at {v:,}, {DROP_PCT}%+ below the 7-day average ({base:,.0f}). Worth a look.")
 
     for p in d.get("posts", []):
-        slot = datetime.fromisoformat(p["slot"]).replace(tzinfo=timezone.utc)
+        slot = slot_of(d, p)
+        if slot is None:
+            continue
         hrs = (slot - now).total_seconds() / 3600
+        if p["status"] == "publishing":
+            key = f"stuck:{p['id']}"
+            since = ap.parse_iso(p.get("publishing_at"))
+            if key not in state and (since is None or since.tzinfo is None or now - since > timedelta(minutes=30)):
+                state[key] = 1
+                alerts.append(f"“{p.get('hook_en') or p.get('hook', '')[:50]}” was sent to Meta but never confirmed. Otto will not retry it — check the page.")
         if p["status"] == "pending_approval" and 0 < hrs <= 6:
             key = f"slot-soon:{p['id']}"
             if key not in state:
                 state[key] = 1
-                alerts.append(f"“{p.get('hook_en') or p['hook'][:50]}” is slotted for {fmt_slot(p['slot'])} and still not approved. {hrs:.0f} hours left.")
+                alerts.append(f"“{p.get('hook_en') or p.get('hook', '')[:50]}” is slotted for {fmt_slot(p['slot'])} and still not approved. {hrs:.0f} hours left.")
         # missed-publish only makes sense once a publishing channel is actually connected
         connected = any(c.get("status") == "connected" for c in d.get("connections", []))
         if connected and p["status"] in ("approved", "scheduled") and hrs < -2:
             key = f"missed:{p['id']}"
             if key not in state:
                 state[key] = 1
-                alerts.append(f"“{p.get('hook_en') or p['hook'][:50]}” was due {fmt_slot(p['slot'])} and did not publish. Checking the pipeline.")
+                alerts.append(f"“{p.get('hook_en') or p.get('hook', '')[:50]}” was due {fmt_slot(p['slot'])} and did not publish. Checking the pipeline.")
 
     # prune old dedup keys (keep 14 days)
     cutoff = (now - timedelta(days=14)).date().isoformat()

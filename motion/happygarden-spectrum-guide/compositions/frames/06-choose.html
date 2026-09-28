@@ -1,0 +1,348 @@
+<template>
+  <style>
+    /* Fonts — the two faces frame.md names (Source Serif 4 display, Inter chrome), latin subset from Google Fonts. */
+    @font-face {
+      font-family: "Source Serif 4";
+      font-style: normal;
+      font-weight: 400 600;
+      font-display: block;
+      src: url("https://fonts.gstatic.com/s/sourceserif4/v14/vEFI2_tTDB4M7-auWDN0ahZJW1gb8te1Xb7G.woff2") format("woff2");
+    }
+    @font-face {
+      font-family: "Inter";
+      font-style: normal;
+      font-weight: 500 600;
+      font-display: block;
+      src: url("https://fonts.gstatic.com/s/inter/v20/UcC73FwrK3iLTeHuS_nVMrMxCp50SjIa1ZL7W0Q5nw.woff2") format("woff2");
+    }
+
+    #root {
+      position: absolute;
+      inset: 0;
+      width: 1080px;
+      height: 1920px;
+      overflow: hidden;
+      font-family: "Source Serif 4", serif;
+      font-optical-sizing: auto;
+      font-kerning: normal;
+      color: #0e252c;
+    }
+
+    /* full-frame layers (every clip is a full-canvas box) */
+    [id="06-choose-ground"],
+    [id="06-choose-chrome"],
+    [id="06-choose-stage"],
+    [id="06-choose-cam"] {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 1080px;
+      height: 1920px;
+    }
+    [id="06-choose-ground"] {
+      background: #fffdf6;
+    }
+    [id="06-choose-cam"] {
+      transform-origin: 540px 860px;
+    }
+
+    /* topbar — quiet chrome, same on every frame */
+    [class~="06-choose-topbar"] {
+      position: absolute;
+      top: 64px;
+      left: 64px;
+      right: 64px;
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      padding-bottom: 20px;
+      border-bottom: 2px solid #0e252c;
+      font-family: "Inter", sans-serif;
+      font-size: 28px;
+      line-height: 1;
+      letter-spacing: 0.01em;
+      color: #0e252c;
+    }
+    [class~="06-choose-tb-brand"] {
+      font-weight: 600;
+    }
+    [class~="06-choose-tb-topic"] {
+      font-weight: 500;
+    }
+
+    /* headline */
+    [class~="06-choose-headline"] {
+      position: absolute;
+      top: 226px;
+      left: 64px;
+      width: 952px;
+      margin: 0;
+      font-size: 88px;
+      font-weight: 500;
+      line-height: 1;
+      letter-spacing: -0.02em;
+      color: #0e252c;
+    }
+    [class~="06-choose-hl-line"] {
+      display: block;
+      white-space: nowrap;
+    }
+    [class~="06-choose-word"] {
+      display: inline-block;
+    }
+
+    /* 2px hairlines (svg-path-draw) */
+    [class~="06-choose-hl-rule"] {
+      position: absolute;
+      top: 469px;
+      left: 64px;
+      width: 952px;
+      height: 2px;
+      overflow: visible;
+    }
+    [class~="06-choose-draw"] {
+      fill: none;
+      stroke: #0e252c;
+      stroke-width: 2;
+      stroke-linecap: butt;
+    }
+
+    /* decision rows: question left, spectrum pill right */
+    [class~="06-choose-rows"] {
+      position: absolute;
+      top: 470px;
+      left: 64px;
+      width: 952px;
+    }
+    [class~="06-choose-row"] {
+      position: relative;
+      height: 264px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 40px;
+    }
+    [class~="06-choose-row-rule"] {
+      position: absolute;
+      left: 0;
+      bottom: 0;
+      width: 952px;
+      height: 2px;
+      overflow: visible;
+    }
+    [class~="06-choose-q"] {
+      max-width: 560px;
+      font-size: 60px;
+      font-weight: 500;
+      line-height: 1.04;
+      letter-spacing: -0.015em;
+      color: #0e252c;
+    }
+    [class~="06-choose-qmask"] {
+      display: block;
+      overflow: hidden;
+      padding-bottom: 0.18em;
+      margin-bottom: -0.18em;
+      white-space: nowrap;
+    }
+    [class~="06-choose-qin"] {
+      display: block;
+    }
+    [class~="06-choose-pill"] {
+      flex: 0 0 auto;
+      display: flex;
+      align-items: center;
+      height: 88px;
+      padding: 0 32px 4px;
+      border-radius: 8px;
+      overflow: hidden;
+      font-size: 44px;
+      font-weight: 500;
+      line-height: 1;
+      letter-spacing: -0.01em;
+      white-space: nowrap;
+      transform-origin: 100% 50%;
+    }
+    [class~="06-choose-pill-label"] {
+      display: block;
+    }
+    [class~="06-choose-pill-full"] {
+      background: #ffbc00;
+      color: #081a1f;
+    }
+    [class~="06-choose-pill-broad"] {
+      background: #31856c;
+      color: #fffdf6;
+    }
+    [class~="06-choose-pill-isolate"] {
+      background: #0e252c;
+      color: #fffdf6;
+    }
+    /* orchestrator: no topbar in this film (consistency across frames) */
+    [class~="06-choose-topbar"] { display: none !important; }
+  </style>
+
+  <div
+    id="root"
+    data-composition-id="06-choose"
+    data-start="0"
+    data-duration="7.74"
+    data-width="1080"
+    data-height="1920"
+  >
+    <!-- background: cream ground, full-bleed -->
+    <div id="06-choose-ground" class="clip" data-start="0" data-duration="7.74" data-track-index="0"></div>
+
+    <!-- chrome: quiet topbar -->
+    <div id="06-choose-chrome" class="clip" data-start="0" data-duration="7.74" data-track-index="1">
+      <div class="06-choose-topbar">
+        <span class="06-choose-tb-brand">Happy Garden</span>
+        <span class="06-choose-tb-topic">CBD, explained</span>
+      </div>
+    </div>
+
+    <!-- stage: headline + three question→answer rows (all content ends ~y1270, above the 1594 caption cutoff) -->
+    <div id="06-choose-stage" class="clip" data-start="0" data-duration="7.74" data-track-index="2">
+      <div id="06-choose-cam">
+        <div class="06-choose-headline" data-layout-allow-overlap>
+          <span class="06-choose-hl-line" data-layout-allow-overlap><span class="06-choose-word" data-layout-allow-overlap>Pick</span> <span class="06-choose-word" data-layout-allow-overlap>yours</span> <span class="06-choose-word" data-layout-allow-overlap>in</span></span>
+          <span class="06-choose-hl-line" data-layout-allow-overlap><span class="06-choose-word" data-layout-allow-overlap>one</span> <span class="06-choose-word" data-layout-allow-overlap>question.</span></span>
+        </div>
+        <svg class="06-choose-hl-rule" viewBox="0 0 952 2" preserveAspectRatio="none" aria-hidden="true">
+          <path class="06-choose-draw" d="M0 1 H952" />
+        </svg>
+
+        <div class="06-choose-rows">
+          <div class="06-choose-row">
+            <div class="06-choose-q">
+              <span class="06-choose-qmask"><span class="06-choose-qin">Want the</span></span>
+              <span class="06-choose-qmask"><span class="06-choose-qin">whole plant?</span></span>
+            </div>
+            <div class="06-choose-pill 06-choose-pill-full"><span class="06-choose-pill-label">Full spectrum</span></div>
+            <svg class="06-choose-row-rule" viewBox="0 0 952 2" preserveAspectRatio="none" aria-hidden="true">
+              <path class="06-choose-draw" d="M0 1 H952" />
+            </svg>
+          </div>
+
+          <div class="06-choose-row">
+            <div class="06-choose-q">
+              <span class="06-choose-qmask"><span class="06-choose-qin">Whole plant,</span></span>
+              <span class="06-choose-qmask"><span class="06-choose-qin">zero THC?</span></span>
+            </div>
+            <div class="06-choose-pill 06-choose-pill-broad"><span class="06-choose-pill-label">Broad spectrum</span></div>
+            <svg class="06-choose-row-rule" viewBox="0 0 952 2" preserveAspectRatio="none" aria-hidden="true">
+              <path class="06-choose-draw" d="M0 1 H952" />
+            </svg>
+          </div>
+
+          <div class="06-choose-row">
+            <div class="06-choose-q">
+              <span class="06-choose-qmask"><span class="06-choose-qin">Only CBD?</span></span>
+            </div>
+            <div class="06-choose-pill 06-choose-pill-isolate"><span class="06-choose-pill-label">Isolate</span></div>
+            <svg class="06-choose-row-rule" viewBox="0 0 952 2" preserveAspectRatio="none" aria-hidden="true">
+              <path class="06-choose-draw" d="M0 1 H952" />
+            </svg>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+  <script>
+    (function () {
+      var FRAME = "06-choose";
+      var DURATION = 7.24;
+      var RULE_W = 952;
+
+      var cam = document.getElementById(FRAME + "-cam");
+      var pick = function (cls, scope) {
+        return Array.prototype.slice.call(
+          (scope || cam).querySelectorAll('[class~="' + FRAME + "-" + cls + '"]'),
+        );
+      };
+      var one = function (cls, scope) {
+        return pick(cls, scope)[0];
+      };
+
+      // svg-path-draw setup: dash = measured length, offset parked fully out of view
+      var ruleLen = function (path) {
+        var len = RULE_W;
+        try {
+          var m = path.getTotalLength();
+          if (m > 0) len = m;
+        } catch (e) {}
+        path.style.strokeDasharray = len + " " + len;
+        path.style.strokeDashoffset = len;
+        return len;
+      };
+      var draw = function (tl, path, at, dur) {
+        var len = ruleLen(path);
+        tl.fromTo(
+          path,
+          { strokeDashoffset: len },
+          { strokeDashoffset: 0, duration: dur, ease: "power2.out" },
+          at,
+        );
+      };
+
+      var tl = gsap.timeline({ paused: true });
+
+      // Camera: a faint push-in on the list that decays to stillness by the last frame
+      tl.fromTo(cam, { scale: 1 }, { scale: 1.018, duration: DURATION, ease: "power1.out" }, 0);
+
+      // Scene 1 (0.00–0.65s): headline per-word reveal, teal rule draws beneath it
+      tl.fromTo(
+        pick("word"),
+        { y: 36, opacity: 0 },
+        { y: 0, opacity: 1, duration: 0.8, ease: "power3.out", stagger: 0.07 },
+        0.06,
+      );
+      draw(tl, one("draw", one("hl-rule")), 0.3, 0.9);
+
+      // Scenes 2–4: each row arrives on its question cue, its pill settles on the answer word.
+      // VO cues (vo-06): "want" 0.65 · "Full" 1.94 · "Whole" 2.61 · "broad" 4.63 · "Only" 5.34 · "isolate" 6.53
+      var CUES = [
+        { row: 0.5, pill: 1.84, pillDur: 0.85 },
+        { row: 2.5, pill: 4.52, pillDur: 0.85 },
+        { row: 5.22, pill: 6.44, pillDur: 0.74 },
+      ];
+
+      pick("row").forEach(function (row, i) {
+        var c = CUES[i];
+        var q = one("q", row);
+        var pill = one("pill", row);
+        var label = one("pill-label", row);
+
+        // question slides up into its row, each line rising out of its own mask
+        tl.fromTo(q, { y: 28 }, { y: 0, duration: 1.0, ease: "power3.out" }, c.row);
+        tl.fromTo(
+          pick("qin", row),
+          { yPercent: 118, opacity: 0 },
+          { yPercent: 0, opacity: 1, duration: 0.95, ease: "expo.out", stagger: 0.09 },
+          c.row,
+        );
+        // the row's 2px hairline draws under it
+        draw(tl, one("draw", one("row-rule", row)), c.row + 0.12, 1.0);
+
+        // the answer pill settles in on the right — long-tail, no overshoot
+        tl.fromTo(
+          pill,
+          { opacity: 0, y: 22, scale: 0.94 },
+          { opacity: 1, y: 0, scale: 1, duration: c.pillDur, ease: "expo.out" },
+          c.pill,
+        );
+        tl.fromTo(
+          label,
+          { yPercent: 60, opacity: 0 },
+          { yPercent: 0, opacity: 1, duration: c.pillDur - 0.06, ease: "expo.out" },
+          c.pill + 0.06,
+        );
+      });
+
+      window.__timelines = window.__timelines || {};
+      window.__timelines[FRAME] = tl;
+    })();
+  </script>
+</template>

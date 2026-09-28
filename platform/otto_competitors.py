@@ -20,14 +20,14 @@ What the script automates every week, per competitor:
 Competitor list: brands/<slug>/competitors.json (created from brand-profile.md's competitors
 section on first run; sites without a URL are resolved via a DuckDuckGo lookup, best effort).
 """
-import json, re, sys, urllib.parse
+import json, os, re, sys, urllib.parse
 from datetime import datetime, timezone
 from pathlib import Path
 
 import otto_scan as sc
 
 HERE = Path(__file__).parent
-BRANDS = HERE.parent / "brands"
+BRANDS = Path(os.environ.get("OTTO_BRANDS") or HERE.parent / "brands")
 PROMO_PAGES = ["sale", "offer", "deal", "promo", "new", "blog", "news", "collection", "product", "shop", "menu", "pricing"]
 DROP_TOKENS = {"and", "etc", "others", "the", "all", "heavy", "on", "leaders", "gap", "most", "post", "generic"}
 
@@ -187,7 +187,7 @@ def sweep(bid, country=None, dry=False):
     if not dry:
         save_list(bid, items)
         append_report(bid, country, report, total_changes)
-        file_recommendation(bid, report, total_changes)
+        file_recommendation(bid, report, total_changes, country)
     print_report(bid, country, report, total_changes, dry)
     return report
 
@@ -240,25 +240,24 @@ def append_report(bid, country, report, total):
 
 
 def file_recommendation(bid, report, total, country="DE"):
-    """Summary card for Mission Control (competitors[brand]) + a recommendation when something moved."""
-    try:
-        import ap
-        d = ap.load()
-    except FileNotFoundError:
+    """Summary card for Mission Control (competitors[brand]) + a recommendation when something moved.
+    Runs after all the fetching, in one short ap.transaction; a re-run does not stack a duplicate card."""
+    import ap
+    if not ap.DATA.exists():
         print("(no data.json here — summary/recommendation not filed; run on the server)"); return
-    d.setdefault("competitors", {})[bid] = {
-        "last_sweep": today(), "country": country, "changes": total,
-        "items": [{"name": it["name"], "site": it.get("site", ""), "type": it.get("type", "direct"),
-                   "promos": (new.get("promos") or [])[:4], "changes": ch[:3], "error": new.get("error")}
-                  for it, _, new, ch, _ in report]}
-    if total:
-        names = [it["name"] for it, _, _, ch, _ in report if ch][:3]
-        r = ap.add_rec(d, "P2", f"Competitor sweep: {total} change(s) at {', '.join(names)}",
-                       "Weekly automated sweep found new headlines, promotions or price moves on competitor sites. "
-                       "Nova turns them into steal-and-improve briefs once you confirm which matter.",
-                       "Fresh angles for next week's plan", "Review sweep", brand=bid, source="otto_competitors")
-        print(f"filed {r['id']} in data.json")
-    ap.save(d)
+    with ap.transaction() as d:
+        d.setdefault("competitors", {})[bid] = {
+            "last_sweep": today(), "country": country, "changes": total,
+            "items": [{"name": it["name"], "site": it.get("site", ""), "type": it.get("type", "direct"),
+                       "promos": (new.get("promos") or [])[:4], "changes": ch[:3], "error": new.get("error")}
+                      for it, _, new, ch, _ in report]}
+        if total:
+            names = [it["name"] for it, _, _, ch, _ in report if ch][:3]
+            r = ap.add_rec_once(d, "P2", f"Competitor sweep: {total} change(s) at {', '.join(names)}",
+                                "Weekly automated sweep found new headlines, promotions or price moves on competitor sites. "
+                                "Nova turns them into steal-and-improve briefs once you confirm which matter.",
+                                "Fresh angles for next week's plan", "Review sweep", brand=bid, source="otto_competitors")
+            print(f"filed {r['id']} in data.json")
 
 
 def angles(bid):

@@ -1,0 +1,195 @@
+{
+  "brand": "happygarden",
+  "currency": "EUR",
+  "language": "en",
+  "tz": "Europe/Berlin",
+  "personas": [
+    {
+      "id": "p1",
+      "label": "Petra, 52, DE, office manager",
+      "situation": "Petra, 52, DE, office manager — \"Ich schlafe seit Jahren schlecht.\" Pain: chronic sleep issues, tried melatonin/pills | Trigger: a friend's recommendation or a review mentioning sleep | Convinces her:",
+      "awareness": "(?)",
+      "words": [
+        "Ich schlafe seit Jahren schlecht."
+      ]
+    },
+    {
+      "id": "p2",
+      "label": "Markus, 38, back pain, gym-goer",
+      "situation": "Markus, 38, back pain, gym-goer — wants recovery without pharma. Trigger: pain flare-up | Convinces: Full Spectrum education + GMP/US manufacturing",
+      "awareness": "(?)",
+      "words": []
+    },
+    {
+      "id": "p3",
+      "label": "Anna, 29, anxious professional, THC-averse",
+      "situation": "Anna, 29, anxious professional, THC-averse — Trigger: stress peak at work | Convinces: Isolate = zero THC, transparency",
+      "awareness": "(?)",
+      "words": []
+    },
+    {
+      "id": "p4",
+      "label": "Pet owner (cat/dog senior pet)",
+      "situation": "Pet owner (cat/dog senior pet) — Trigger: vet visit disappointment | Convinces: pet-specific line + reviews",
+      "awareness": "(?)",
+      "words": []
+    }
+  ],
+  "pains": [
+    {
+      "text": "Poor sleep / waking at night",
+      "persona": "(?)",
+      "source": "brand-profile.md"
+    },
+    {
+      "text": "Chronic pain & inflammation",
+      "persona": "(?)",
+      "source": "brand-profile.md"
+    },
+    {
+      "text": "Anxiety/stress without wanting psych meds",
+      "persona": "(?)",
+      "source": "brand-profile.md"
+    },
+    {
+      "text": "Distrust of CBD market (\"is this even real/legal/tested?\")",
+      "persona": "(?)",
+      "source": "brand-profile.md"
+    }
+  ],
+  "objections": [
+    {
+      "text": "\"Does CBD even work?\"",
+      "answer": "education pillar + entourage-effect explainer, never medical claims (\"may support\")",
+      "proof_id": "(?)"
+    },
+    {
+      "text": "\"Is it legal / will I get high?\"",
+      "answer": "THC-free Broad/Isolate lines, lab certificates",
+      "proof_id": "(?)"
+    },
+    {
+      "text": "\"Too expensive\"",
+      "answer": "dosing math (cost per day), bundle value",
+      "proof_id": "(?)"
+    },
+    {
+      "text": "\"Which product is for me?\"",
+      "answer": "spectrum picker content (quiz-style posts)",
+      "proof_id": "(?)"
+    }
+  ],
+  "offers": [
+    {
+      "id": "o1",
+      "name": "(?)",
+      "price": "€ 79",
+      "terms": "(?)",
+      "deadline": null,
+      "stage": "hot"
+    },
+    {
+      "id": "o2",
+      "name": "(?)",
+      "price": "€ 45",
+      "terms": "(?)",
+      "deadline": null,
+      "stage": "hot"
+    },
+    {
+      "id": "o3",
+      "name": "(?)",
+      "price": "€ 35",
+      "terms": "(?)",
+      "deadline": null,
+      "stage": "hot"
+    }
+  ],
+  "proof_bank": [
+    {
+      "id": "pr1",
+      "claim": "As an additional benefit, we follow GMP-ISO 7 Production Standards, so our products are approved by third parties",
+      "source": "https://www.happygardeneu.com/"
+    },
+    {
+      "id": "pr2",
+      "claim": "For this reason, we conduct third-party laboratory testing",
+      "source": "https://www.happygardeneu.com/"
+    },
+    {
+      "id": "pr3",
+      "claim": "Save time and money and sign up for a monthly subscription now! ● Free Shipping ● Saves you money every month ● A gift with every purchase Sign up and save! JOIN TO OUR FAMILY Sign up fo",
+      "source": "https://www.happygardeneu.com/"
+    },
+    {
+      "id": "pr4",
+      "claim": "In addition to having a delightful flavour, these gummies make it simple to ingest cannabidiol without the hassle of using a dropper or needing a glass of water",
+      "source": "https://www.happygardeneu.com/"
+    },
+    {
+      "id": "rv1",
+      "claim": "“4 months ago CBD-Katzenleckerlis mit Lachsgeschmack Tom Berger Reviewer 5/5 Unser Katze hat das Produkt gut angenommen.”",
+      "source": "customer review (verify consent)"
+    },
+    {
+      "id": "rv2",
+      "claim": "“4 months ago CBD-Katzenleckerlis mit Lachsgeschmack Melanie Schwarz Reviewer 5/5 Die Qualität wirkt sauber und vertrauenswürdig.”",
+      "source": "customer review (verify consent)"
+    }
+  ],
+  "cta_by_stage": {
+    "cold": "(?)",
+    "warm": "(?)",
+    "hot": "(?)"
+  },
+  "landing_by_stage": {
+    "cold": "https://www.happygardeneu.com/",
+    "warm": "https://www.happygardeneu.com/",
+    "hot": "https://www.happygardeneu.com/"
+  },
+  "events": [],
+  "targets": {
+    "cpl": null,
+    "cpa": null,
+    "roas": null
+  },
+  "angles": [
+    {
+      "id": "a1",
+      "angle": "German review verbatim — \"Endlich wieder durchschlafen\" style proof posts",
+      "persona": "(?)",
+      "stage": "(?)",
+      "source": "profile",
+      "status": "idea"
+    },
+    {
+      "id": "a2",
+      "angle": "Myth-busting — \"CBD gets you high\" ❌",
+      "persona": "(?)",
+      "stage": "(?)",
+      "source": "profile",
+      "status": "idea"
+    },
+    {
+      "id": "a3",
+      "angle": "Spectrum picker — \"Full vs Broad vs Isolate in 15 seconds\"",
+      "persona": "(?)",
+      "stage": "(?)",
+      "source": "profile",
+      "status": "idea"
+    },
+    {
+      "id": "a4",
+      "angle": "Lab-test transparency — show the actual certificate",
+      "persona": "(?)",
+      "stage": "(?)",
+      "source": "profile",
+      "status": "idea"
+    }
+  ],
+  "ask": [
+    "What is a lead or a sale worth to you — the most you'd pay for one?",
+    "What is the one offer you want new customers to take first (price, terms, any real deadline)?",
+    "Where should a ready-to-buy customer land: shop page, booking link, WhatsApp, or form?"
+  ]
+}

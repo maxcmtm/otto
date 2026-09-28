@@ -3,514 +3,361 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Otto — Marketing on autopilot. You just say yes.</title>
-<meta name="description" content="Otto is an AI marketing department: drop your URL, get a full month of posts, approve them from your phone, and let Otto publish, watch the numbers and tell you what to do next.">
-<meta property="og:title" content="Otto — Marketing on autopilot. You just say yes.">
-<meta property="og:description" content="Drop your URL. Otto plans your month, writes and designs every post, sends each one to your phone for a one-tap yes, publishes, and pings you only when a decision needs you.">
-<meta name="theme-color" content="#F5F7FB">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Cdefs%3E%3ClinearGradient id=%27g%27 x1=%270%27 y1=%270%27 x2=%271%27 y2=%271%27%3E%3Cstop offset=%270%27 stop-color=%27%233D5CFF%27/%3E%3Cstop offset=%271%27 stop-color=%27%231631B8%27/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width=%2732%27 height=%2732%27 rx=%279%27 fill=%27url(%23g)%27/%3E%3Crect x=%278%27 y=%278%27 width=%2716%27 height=%2716%27 rx=%274%27 fill=%27none%27 stroke=%27white%27 stroke-width=%272%27 opacity=%27.9%27/%3E%3C/svg%3E">
+<title>Otto — Your marketing department, in your pocket</title>
+<meta name="description" content="Otto plans, writes, designs and publishes your marketing, and asks you only for the decisions. Every post waits for your approval on your phone.">
+<meta property="og:title" content="Otto — Your marketing department, in your pocket">
+<meta property="og:description" content="Otto plans, writes, designs and publishes your marketing, and asks you only for the decisions.">
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#F5F5F7" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 rx=%278%27 fill=%27%232447F0%27/%3E%3Crect x=%278%27 y=%278%27 width=%2716%27 height=%2716%27 rx=%274%27 fill=%27none%27 stroke=%27white%27 stroke-width=%272%27 opacity=%27.9%27/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
+/* Radii 8 / 12 / 16 / 24 plus pills and circles. No text below 11px. */
 :root{
+  color-scheme:light dark;
   --canvas:#F5F5F7; --surface:#FFFFFF; --ink:#1D1D1F; --muted:#6E6E73; --faint:#86868B;
-  --cobalt:#2447F0; --cobalt-deep:#1631B8; --cobalt-tint:#EDF1FF; --cobalt-line:#C6D2FF;
-  --amber:#B45309; --amber-tint:#FFF4E2; --amber-line:#F2DFC2;
-  --green:#0B7A4B; --green-tint:#E5F6EE; --green-line:#CBEBDB;
-  --red:#B4231F; --red-tint:#FDEBEA;
-  --purple:#5B21B6; --pink:#BE185D;
-  --line:rgba(0,0,0,.08); --line-soft:rgba(60,60,67,.10);
-  --shadow-s:0 1px 1px rgba(0,0,0,.02),0 2px 8px rgba(0,0,0,.04);
-  --shadow-m:0 2px 4px rgba(0,0,0,.03),0 14px 36px rgba(0,0,0,.07);
-  --shadow-deck:0 30px 60px -16px rgba(0,0,0,.18),0 6px 16px rgba(0,0,0,.06);
-  --r:16px; --sans:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro Display","Helvetica Neue",Inter,system-ui,Arial,sans-serif; --serif:var(--sans); --mono:var(--sans);
-  --hair:rgba(60,60,67,.14);
+  --hair:rgba(60,60,67,.16); --fill:rgba(118,118,128,.12); --fill-2:rgba(118,118,128,.07);
+  --cobalt:#2447F0; --cobalt-tint:#EEF2FF; --on-accent:#FFFFFF;
+  --amber:#B25E09; --green:#1B7F4B; --red:#C62828;
+  --bar:rgba(245,245,247,.8); --glass:rgba(0,0,0,.5); --on-glass:#FFFFFF;
+  --shadow-s:0 1px 2px rgba(0,0,0,.04); --shadow-m:0 12px 32px rgba(0,0,0,.08);
+  --sans:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro Display","Helvetica Neue",Inter,system-ui,Arial,sans-serif;
 }
+@media(prefers-color-scheme:dark){:root{
+  --canvas:#000;--surface:#1C1C1E;--ink:#F5F5F7;--muted:#98989D;--faint:#6E6E73;--hair:rgba(84,84,88,.6);
+  --cobalt:#4D6BFF;--cobalt-tint:rgba(77,107,255,.16);--amber:#FF9F0A;--green:#30D158;--red:#FF453A;--shadow-s:none;
+  --fill:rgba(118,118,128,.24);--fill-2:rgba(118,118,128,.14);--bar:rgba(22,22,23,.8);--shadow-m:none;
+}}
 *{margin:0;padding:0;box-sizing:border-box}
 html{scroll-behavior:smooth;background:var(--canvas)}
-body{font:16px/1.55 var(--sans);color:var(--ink);-webkit-font-smoothing:antialiased;overflow-x:hidden;letter-spacing:-.005em;
-  background:
-    radial-gradient(1100px 620px at 82% -160px, rgba(36,71,240,.09), transparent 62%),
-    radial-gradient(700px 420px at -120px 24%, rgba(11,122,75,.05), transparent 60%),
-    var(--canvas)}
+body{font:17px/1.5 var(--sans);color:var(--ink);background:var(--canvas);-webkit-font-smoothing:antialiased;overflow-x:hidden;letter-spacing:-.01em}
 a{color:inherit;text-decoration:none}
 img{display:block;max-width:100%}
-button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
-.wrap{max-width:1160px;margin:0 auto;padding:0 20px}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;letter-spacing:inherit}
+:focus-visible{outline:2px solid var(--cobalt);outline-offset:2px}
+.wrap{max-width:1120px;margin:0 auto;padding:0 20px}
 section{padding:96px 0}
 @media(max-width:720px){section{padding:64px 0}}
-.eyebrow{font:500 14px/1.3 var(--sans);color:var(--cobalt);margin-bottom:12px;display:flex;align-items:center;gap:10px;text-transform:none;letter-spacing:0}
-.eyebrow.center{justify-content:center}
-h2{font:600 clamp(30px,4.2vw,44px)/1.08 var(--sans);letter-spacing:-.025em;max-width:640px;text-wrap:balance}
-h2 b{font-weight:600;color:var(--cobalt)}
-.sub{color:var(--muted);font-size:17px;line-height:1.65;margin-top:16px;max-width:560px}
+.band-w{background:var(--surface)}
+.eyebrow{font:600 15px/1.3 var(--sans);color:var(--muted);margin-bottom:12px}
+h2{font:600 clamp(30px,4vw,44px)/1.1 var(--sans);letter-spacing:-.025em;max-width:680px;text-wrap:balance}
+h2 b{color:inherit;font-weight:inherit}
+.sub{color:var(--muted);font-size:19px;line-height:1.5;margin-top:16px;max-width:600px}
+@media(max-width:720px){.sub{font-size:17px}}
 .center{text-align:center}
 .center h2,.center .sub{margin-left:auto;margin-right:auto}
-.mono{font-family:var(--mono)}
 
 /* buttons */
-.btn{display:inline-flex;align-items:center;gap:8px;font:600 15px/1 var(--sans);border-radius:980px;padding:14px 22px;transition:transform .15s,box-shadow .15s,background .15s;white-space:nowrap}
-.btn.primary{background:var(--cobalt);color:#fff}
-.btn.primary:hover{filter:brightness(1.06)}
-.btn.ghost{background:rgba(60,60,67,.08);color:var(--ink)}
-.btn.ghost:hover{border-color:var(--cobalt-line)}
-.btn.white{background:#fff;color:var(--cobalt-deep);box-shadow:0 8px 24px rgba(0,0,0,.18)}
-.btn.white:hover{transform:translateY(-1px)}
-.btn.outline{color:#fff;border:1px solid rgba(255,255,255,.4)}
+.btn{display:inline-flex;align-items:center;justify-content:center;height:48px;padding:0 24px;border-radius:999px;font:600 17px/1 var(--sans);white-space:nowrap;transition:opacity .15s}
+.btn:active{opacity:.8}
+.btn.primary{background:var(--cobalt);color:var(--on-accent)}
+@media(hover:hover){.btn.primary:hover{opacity:.9}}
+.btn.sm{height:36px;padding:0 16px;font-size:15px}
 
 /* reveal */
-.rv{opacity:0;transform:translateY(18px);transition:opacity .7s ease,transform .7s ease}
+.rv{opacity:0;transform:translateY(8px);transition:opacity .4s ease,transform .4s ease}
 .rv.in{opacity:1;transform:none}
 
 /* ================= NAV ================= */
-nav.top{position:fixed;top:0;left:0;right:0;z-index:60;background:rgba(245,247,251,.72);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-bottom:1px solid transparent;transition:border-color .25s,background .25s}
-nav.top.solid{background:rgba(255,255,255,.86);border-color:var(--line)}
-nav.top .in{max-width:1160px;margin:0 auto;padding:0 20px;height:64px;display:flex;align-items:center;gap:26px}
-.logo{display:flex;align-items:center;gap:9px;font:600 15px/1 var(--sans);letter-spacing:-.01em}
-.mark{width:30px;height:30px;position:relative;perspective:120px;flex:none}
-.mark .face{position:absolute;inset:0;border-radius:9px;background:linear-gradient(145deg,#3D5CFF,#1631B8);box-shadow:inset 0 1px 0 rgba(255,255,255,.35),0 6px 14px rgba(36,71,240,.35);transform:rotateX(14deg) rotateY(-14deg)}
-.mark .face::after{content:"";position:absolute;inset:7px;border-radius:5px;border:1.5px solid rgba(255,255,255,.85);border-bottom-color:rgba(255,255,255,.25);border-right-color:rgba(255,255,255,.25)}
-.navlinks{display:flex;gap:22px;font:500 14px/1 var(--sans);color:var(--muted)}
+nav.top{position:fixed;top:0;left:0;right:0;z-index:60;background:var(--bar);backdrop-filter:saturate(180%) blur(20px);-webkit-backdrop-filter:saturate(180%) blur(20px);border-bottom:1px solid transparent;transition:border-color .2s}
+nav.top.solid{border-bottom-color:var(--hair)}
+nav.top .in{max-width:1120px;margin:0 auto;padding:0 20px;height:56px;display:flex;align-items:center;gap:32px}
+.logo{display:flex;align-items:center;gap:8px;font:600 17px/1 var(--sans);letter-spacing:-.02em}
+.mark{width:24px;height:24px;border-radius:8px;background:var(--cobalt);position:relative;flex:none}
+.mark::after{content:"";position:absolute;inset:6px;border-radius:3px;border:1.5px solid var(--on-accent);opacity:.9}
+.navlinks{display:flex;gap:24px;font:400 15px/1 var(--sans);color:var(--muted)}
 .navlinks a:hover{color:var(--ink)}
-nav.top .cta{margin-left:auto;display:flex;align-items:center;gap:14px}
-nav.top .login{font:500 14px/1 var(--sans);color:var(--muted)}
-nav.top .btn{padding:10px 16px;font-size:13.5px}
+nav.top .cta{margin-left:auto;display:flex;align-items:center;gap:16px}
+nav.top .login{font:400 15px/1 var(--sans);color:var(--muted)}
+nav.top .login:hover{color:var(--ink)}
+nav.top .cta .btn{transition:opacity .2s}
+nav.top.cta-off .cta .btn{opacity:0;pointer-events:none}
 @media(max-width:860px){.navlinks,nav.top .login{display:none}}
 
 /* ================= HERO ================= */
-.hero{position:relative;padding:132px 0 0;overflow:hidden}
-.hero-grid{display:grid;gap:44px;align-items:center}
-@media(min-width:960px){.hero-grid{grid-template-columns:1fr 1.05fr}}
-.pill{display:inline-flex;align-items:center;gap:9px;font:500 13px/1 var(--sans);background:var(--surface);border-radius:999px;padding:7px 13px 7px 8px;box-shadow:var(--shadow-s);color:var(--muted)}
-.pill .new{font:600 11px/1 var(--sans);background:var(--cobalt);color:#fff;border-radius:999px;padding:5px 9px}
-.pill i{width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 0 3px rgba(11,122,75,.15)}
-.hero h1{font:600 clamp(42px,6vw,72px)/1.04 var(--sans);letter-spacing:-.035em;margin-top:24px;color:var(--ink)}
-.hero h1 em{font-style:normal;color:var(--cobalt);display:inline-block;min-width:1ch}
-.hero h1 .cur{display:inline-block;width:3px;height:.82em;background:var(--cobalt);vertical-align:-.06em;margin-left:5px;animation:blink 1s steps(2) infinite}
-@keyframes blink{50%{opacity:0}}
-.hero .lead{font-size:18.5px;line-height:1.6;color:var(--muted);margin-top:20px;max-width:520px}
-.hero .lead b{color:var(--ink);font-weight:600}
-.hero form{display:flex;gap:8px;max-width:560px;margin-top:30px;background:var(--surface);border-radius:980px;padding:6px 6px 6px 20px;box-shadow:var(--shadow-m);align-items:center}
-.hero form:focus-within{border-color:var(--cobalt-line);box-shadow:0 0 0 4px rgba(36,71,240,.10),var(--shadow-m)}
-.hero input{flex:1;min-width:0;font:500 16px/1 var(--sans);color:var(--ink);background:none;border:0;outline:0;padding:12px 0}
+.hero{padding:120px 0 0}
+@media(max-width:560px){.hero{padding-top:96px}}
+.hero-grid{display:grid;gap:56px;align-items:center}
+@media(min-width:960px){.hero-grid{grid-template-columns:1.1fr .9fr;gap:64px}}
+.newpill{display:inline-flex;align-items:center;gap:4px;height:32px;padding:0 12px;border-radius:999px;background:var(--surface);box-shadow:var(--shadow-s),0 0 0 1px var(--hair);font:400 13px/1 var(--sans);color:var(--muted);white-space:nowrap}
+.newpill b{font-weight:600;color:var(--ink)}
+.hero h1{font:600 clamp(40px,6vw,64px)/1.05 var(--sans);letter-spacing:-.03em;margin-top:24px;max-width:620px;text-wrap:balance}
+.hero .lead{font-size:21px;line-height:1.45;color:var(--muted);margin-top:20px;max-width:540px}
+@media(max-width:560px){.hero .lead{font-size:19px}}
+.hero form{display:flex;align-items:center;gap:8px;max-width:520px;margin-top:32px;padding:6px 6px 6px 20px;background:var(--surface);border-radius:999px;box-shadow:var(--shadow-s),0 0 0 1px var(--hair)}
+.hero form:focus-within{box-shadow:0 0 0 2px var(--cobalt)}
+.hero input{flex:1;min-width:0;height:44px;font:400 17px/1 var(--sans);color:var(--ink);background:none;border:0;outline:0}
 .hero input::placeholder{color:var(--faint)}
-.hero form .btn{padding:14px 20px}
-.hero .note{margin-top:14px;font-size:13.5px;color:var(--faint)}
-.hero .note b{font:600 13px/1 var(--sans);color:var(--ink);margin-right:6px}
+.hero form .btn{height:44px}
+.hero .note{margin-top:12px;font-size:15px;color:var(--faint)}
 @media(max-width:560px){
-  .hero{padding-top:104px}
-  .hero form{flex-direction:column;padding:8px;border-radius:18px}
-  .hero input{padding:12px 12px}
-  .hero form .btn{width:100%;justify-content:center}
+  .hero form{flex-direction:column;align-items:stretch;padding:8px;border-radius:24px}
+  .hero input{width:100%;padding:0 12px}
+  .hero form .btn{width:100%}
 }
 
-/* 3D stage */
-.stage{position:relative;width:min(540px,100%);aspect-ratio:1/1;margin:0 auto;perspective:1400px}
-.orb{position:absolute;left:50%;top:50%;width:52%;aspect-ratio:1/1;transform:translate(-50%,-50%);border-radius:50%;
-  background:radial-gradient(circle at 36% 30%,#A9BAFF 0%,#5B79FF 26%,#2447F0 52%,#1631B8 74%,#0B1A6B 100%);
-  box-shadow:inset -34px -44px 90px rgba(4,10,50,.45),inset 22px 22px 60px rgba(255,255,255,.28),0 50px 100px rgba(36,71,240,.38),0 0 0 1px rgba(255,255,255,.4);
-  animation:bob 7s ease-in-out infinite}
-.orb::after{content:"";position:absolute;left:18%;top:11%;width:38%;height:22%;border-radius:50%;background:radial-gradient(ellipse at center,rgba(255,255,255,.75),rgba(255,255,255,0) 70%);filter:blur(1px)}
-.orb::before{content:"";position:absolute;inset:-12%;border-radius:50%;background:radial-gradient(circle,rgba(36,71,240,.22),transparent 65%);z-index:-1}
-@keyframes bob{0%,100%{transform:translate(-50%,-50%) translateY(0)}50%{transform:translate(-50%,-50%) translateY(-10px)}}
-.ring{position:absolute;left:50%;top:50%;border:1.5px solid rgba(36,71,240,.30);border-radius:50%;transform-style:preserve-3d;animation:orbit 22s linear infinite}
-.ring.r1{width:84%;aspect-ratio:1/1}
-.ring.r2{width:112%;aspect-ratio:1/1;border-color:rgba(36,71,240,.14);animation-duration:34s;animation-direction:reverse}
-@keyframes orbit{from{transform:translate(-50%,-50%) rotateX(74deg) rotateZ(0)}to{transform:translate(-50%,-50%) rotateX(74deg) rotateZ(360deg)}}
-.ring i{position:absolute;top:-5px;left:50%;width:10px;height:10px;border-radius:50%;background:var(--cobalt);box-shadow:0 0 14px var(--cobalt)}
-.ring.r2 i{background:#fff;border:2px solid var(--cobalt);width:12px;height:12px;top:-6px}
-.tilt{position:absolute;inset:0;transform-style:preserve-3d;transition:transform .2s ease-out}
-.fc{position:absolute;background:var(--surface);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow-deck);transform-style:preserve-3d;animation:floaty 6s ease-in-out infinite}
-.fc.kpi{left:0;top:4%;width:42%;padding:12px 14px;transform:translateZ(30px);animation-delay:-1s}
-.fc.tgc{right:0;top:2%;width:49%;padding:10px;transform:translateZ(90px);animation-delay:-3s}
-.fc.rec{left:2%;bottom:0;width:54%;padding:13px 14px;transform:translateZ(130px);animation-delay:-2s}
-.fc.chip{right:2%;bottom:14%;padding:9px 12px;transform:translateZ(160px);display:flex;align-items:center;gap:8px;font:600 11px/1 var(--sans);color:var(--green);background:var(--green-tint);border-color:var(--green-line);animation-delay:-4s}
-.fc.chip i{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 0 3px rgba(11,122,75,.15)}
-@keyframes floaty{0%,100%{margin-top:0}50%{margin-top:-8px}}
-.fc h5{font:500 11px/1 var(--sans);color:var(--faint);display:flex;align-items:center;gap:6px;text-transform:none;letter-spacing:0}
-.fc h5 .live{margin-left:auto;color:var(--green);display:flex;align-items:center;gap:5px;letter-spacing:.08em}
-.fc h5 .live::before{content:"";width:5px;height:5px;border-radius:50%;background:var(--green);animation:pulse 2.4s infinite}
-.kpi .krow{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-top:10px}
-.kpi .k{background:var(--canvas);border:1px solid var(--line-soft);border-radius:9px;padding:8px 8px}
-.kpi .k .n{font:500 17px/1 var(--mono);letter-spacing:-.02em}
-.kpi .k .n.go{color:var(--green)}.kpi .k .n.al{color:var(--amber)}
-.kpi .k .l{font-size:9.5px;color:var(--muted);margin-top:4px;white-space:nowrap}
-.kpi .voice{font:500 12.5px/1.4 var(--sans);color:var(--ink);margin-top:10px}
-.tgc .th{display:flex;align-items:center;gap:7px;font:600 11px/1 var(--sans);padding:2px 2px 8px}
-.tgc .th .tav{width:22px;height:22px;border-radius:50%;background:linear-gradient(145deg,#3D5CFF,#1631B8);color:#fff;display:grid;place-items:center;font:700 9px/1 var(--sans)}
-.tgc .th .tt{margin-left:auto;font:400 9.5px/1 var(--mono);color:var(--faint)}
-.tgc .timg{border-radius:10px;overflow:hidden;aspect-ratio:16/10;background:#0B1230}
-.tgc .timg img{width:100%;height:100%;object-fit:cover}
-.tgc .tcap{font-size:11px;line-height:1.45;margin-top:8px;color:var(--ink)}
-.tgc .tmeta{font:500 10.5px/1.3 var(--sans);color:var(--faint);margin-top:5px}
-.ib{display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px;margin-top:8px}
-.ib span{background:var(--cobalt-tint);border:1px solid var(--cobalt-line);border-radius:8px;padding:8px 3px;text-align:center;font:600 10px/1 var(--sans);color:var(--cobalt-deep);position:relative;transition:background .2s,color .2s}
-.ib span.ok{background:var(--green-tint);border-color:var(--green-line);color:var(--green)}
-.ib span.hit{background:var(--green);color:#fff;transform:scale(.97)}
-.ib span.hit::after{content:"";position:absolute;inset:-10px;border-radius:50%;border:2px solid rgba(11,122,75,.55);animation:ring .6s ease-out forwards}
-@keyframes ring{from{transform:scale(.4);opacity:1}to{transform:scale(1.4);opacity:0}}
-.res{margin-top:8px;font:600 10.5px/1.3 var(--sans);color:var(--green);display:flex;align-items:center;gap:6px}
-.rec .rt{font:600 13.5px/1.35 var(--sans);margin-top:8px;letter-spacing:-.01em}
-.rec .rw{font-size:11.5px;color:var(--muted);line-height:1.5;margin-top:5px}
-.rec .prio{font:500 11px/1 var(--sans);color:var(--amber);background:var(--amber-tint);border-radius:6px;padding:5px 7px}
-.ib2{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:10px}
-.ib2 span{background:var(--cobalt-tint);border:1px solid var(--cobalt-line);border-radius:9px;padding:9px;text-align:center;font:600 11px/1 var(--sans);color:var(--cobalt-deep);position:relative}
-.ib2 span.ok{background:var(--cobalt);border-color:var(--cobalt);color:#fff;box-shadow:0 4px 12px rgba(36,71,240,.28)}
-.ib2 span.hit{background:var(--green);border-color:var(--green)}
-.ib2 span.hit::after{content:"";position:absolute;inset:-10px;border-radius:50%;border:2px solid rgba(11,122,75,.55);animation:ring .6s ease-out forwards}
-@media(max-width:600px){
-  .stage{aspect-ratio:auto;height:480px}
-  .fc{animation:none}
-  .fc.kpi{width:46%;top:0;left:0}.fc.kpi .voice{display:none}
-  .fc.tgc{width:52%;top:0;right:0}
-  .fc.rec{width:64%;left:0;bottom:0}
-  .fc.chip{top:60%;right:0;bottom:auto;font-size:10px}
-}
+/* product visual: the Today screen */
+.device{justify-self:center;width:min(340px,100%)}
+.screen{background:var(--canvas);border-radius:24px;overflow:hidden;box-shadow:var(--shadow-m),0 0 0 1px var(--hair)}
+.s-bar{height:44px;display:flex;align-items:center;gap:8px;padding:0 16px;font:600 15px/1 var(--sans);background:var(--bar)}
+.s-bar .mark{width:20px;height:20px}
+.s-bar .mark::after{inset:5px}
+.s-bar .pv{margin-left:auto;font:400 12px/1 var(--sans);color:var(--faint)}
+.s-body{padding:8px 16px 20px}
+.s-date{font:500 12px/1.3 var(--sans);color:var(--muted)}
+.s-title{font:700 30px/1.1 var(--sans);letter-spacing:-.03em;margin-top:2px}
+.s-status{font-size:15px;line-height:1.35;color:var(--muted);margin-top:6px}
+.s-cta{display:flex;align-items:center;justify-content:center;height:40px;margin-top:12px;border-radius:999px;background:var(--cobalt);color:var(--on-accent);font:600 15px/1 var(--sans)}
+.s-h{font:700 17px/1.2 var(--sans);letter-spacing:-.02em;margin:20px 0 8px}
+.s-list{background:var(--surface);border-radius:12px;overflow:hidden}
+.s-row{display:flex;align-items:center;gap:12px;padding:10px 12px;position:relative}
+.s-row+.s-row::before{content:"";position:absolute;top:0;left:64px;right:0;height:1px;background:var(--hair)}
+.s-row img{width:40px;height:40px;border-radius:8px;object-fit:cover;flex:none;background:var(--fill)}
+.s-row p{font-size:13px;line-height:1.35;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.s-row span{display:block;font-size:11px;line-height:1.3;color:var(--muted);margin-top:2px}
+.s-row span.late{color:var(--red)}
+.s-tabs{display:flex;border-top:1px solid var(--hair);background:var(--bar);padding:8px 0 12px}
+.s-tabs span{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;font:500 11px/1 var(--sans);color:var(--faint)}
+.s-tabs span.on{color:var(--cobalt)}
+.s-tabs svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
 
 /* marquee */
-.marquee{position:relative;margin-top:54px;padding:12px 0 10px;overflow:hidden;-webkit-mask-image:linear-gradient(90deg,transparent,#000 5%,#000 95%,transparent);mask-image:linear-gradient(90deg,transparent,#000 5%,#000 95%,transparent)}
-.track{display:flex;gap:18px;width:max-content;animation:scroll 75s linear infinite;padding-left:18px}
-.marquee:hover .track{animation-play-state:paused}
-@keyframes scroll{to{transform:translateX(-50%)}}
-.mq-head{display:flex;align-items:center;gap:12px;margin-top:70px}
+.mq-head{margin-top:88px}
+@media(max-width:600px){.mq-head{margin-top:56px}}
 .mq-head .eyebrow{margin:0}
-.mq-head .hint{font:400 13px/1 var(--sans);color:var(--faint);margin-left:auto}
-@media(max-width:600px){.mq-head .hint{display:none}.mq-head{margin-top:44px}}
-.pc{width:258px;flex:none;background:var(--surface);border-radius:18px;overflow:hidden;color:var(--ink);box-shadow:var(--shadow-m);transition:transform .25s,box-shadow .25s}
-.pc:hover{transform:translateY(-6px);box-shadow:var(--shadow-deck)}
-.pc-head{display:flex;align-items:center;gap:9px;padding:11px 13px}
-.av{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;font:700 11px/1 var(--sans);flex:none}
-.av.hg{background:#FFBC00;color:#111}
-.av.cm{background:linear-gradient(135deg,#C9A227,#2B2118);color:#fff}
-.pc-name{font:600 12.5px/1.2 var(--sans)}
-.pc-sub{font:400 12px/1.3 var(--sans);color:var(--faint)}
-.pf{margin-left:auto;width:24px;height:24px;border-radius:7px;display:grid;place-items:center;font:700 9px/1 var(--sans);color:#fff;flex:none}
-.pf.ig{background:linear-gradient(135deg,#7A3BFF,#E1306C)}
-.pf.fb{background:#1877F2}
-.pf.li{background:#0A66C2}
-.pf.tg{background:#29A9EB;font-size:12px}
+.marquee{margin-top:16px;padding:4px 0 16px;overflow:hidden;-webkit-mask-image:linear-gradient(90deg,transparent,#000 4%,#000 96%,transparent);mask-image:linear-gradient(90deg,transparent,#000 4%,#000 96%,transparent)}
+.track{display:flex;gap:16px;width:max-content;animation:scroll 150s linear infinite;padding-left:16px}
+@keyframes scroll{to{transform:translateX(-50%)}}
+.pc{width:240px;flex:none;background:var(--surface);border-radius:16px;overflow:hidden;box-shadow:var(--shadow-s),0 0 0 1px var(--hair)}
+.pc-head{display:flex;align-items:center;gap:8px;padding:12px}
+.av{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;font:600 12px/1 var(--sans);background:var(--fill);color:var(--ink);flex:none}
+.pc-name{font:600 13px/1.25 var(--sans)}
+.pc-sub{font-size:12px;line-height:1.25;color:var(--faint)}
+.glyph{margin-left:auto;width:18px;height:18px;color:var(--muted);flex:none}
+.glyph svg{width:18px;height:18px;display:block}
 .pc-media{position:relative;aspect-ratio:4/5;background:#0E1428;overflow:hidden;display:grid;place-items:center}
 .pc-media img{width:100%;height:100%;object-fit:cover}
-.pc-media .txt{padding:26px 22px;text-align:center;font:600 20px/1.3 var(--sans);letter-spacing:-.02em;color:#fff;text-wrap:balance}
+.pc-media .txt{padding:24px 20px;text-align:center;font:600 19px/1.3 var(--sans);letter-spacing:-.02em;color:#fff;text-wrap:balance}
 .pc-media .txt.dark{color:#111}
-.pc-media .st{position:absolute;top:10px;right:10px;font:500 11px/1 var(--sans);border-radius:6px;padding:6px 8px;backdrop-filter:blur(6px);text-transform:none}
-.st.pub{background:rgba(11,122,75,.92);color:#fff}
-.st.app{background:rgba(36,71,240,.92);color:#fff}
-.st.rev{background:rgba(255,244,226,.96);color:#8A5A00}
-.st.sch{background:rgba(91,33,182,.9);color:#fff}
-.st.dr{background:rgba(16,24,43,.72);color:#fff}
-.pc-cap{padding:11px 13px 6px;font:400 12px/1.5 var(--sans);color:#3A445C;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.st{position:absolute;top:8px;left:8px;font:500 12px/1 var(--sans);border-radius:999px;padding:6px 10px;background:var(--glass);color:var(--on-glass);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
+.pc-cap{margin:12px;font-size:13px;line-height:1.45;color:var(--muted);display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
 .pc-cap b{font-weight:600;color:var(--ink)}
-.pc-foot{display:flex;gap:16px;padding:6px 13px 12px;font:500 12px/1 var(--sans);color:var(--faint)}
-
-/* ================= PROOF STRIP ================= */
-.proof{padding:56px 0 0}
-.stats{display:grid;gap:14px;grid-template-columns:repeat(4,1fr)}
-@media(max-width:860px){.stats{grid-template-columns:repeat(2,1fr)}}
-.stat{background:var(--surface);border-radius:var(--r);padding:20px 22px;box-shadow:var(--shadow-s)}
-.stat .n{font:600 32px/1 var(--sans);letter-spacing:-.03em}
-.stat .n small{font:500 13px/1 var(--sans);color:var(--faint);margin-left:6px;text-transform:none;letter-spacing:0}
-.stat .l{font-size:13px;color:var(--muted);margin-top:8px;line-height:1.45}
 
 /* ================= CHAPTERS ================= */
-.chapters{display:grid;gap:110px}
-@media(max-width:720px){.chapters{gap:72px}}
-.chapter{display:grid;gap:44px;align-items:center}
-@media(min-width:960px){.chapter{grid-template-columns:1fr 1.15fr}.chapter.flip .ch-text{order:2}}
-.ch-text h2{font-size:clamp(30px,4vw,42px)}
-.ch-text .sub{margin-top:14px}
-.ch-text .num{font:500 14px/1 var(--sans);color:var(--cobalt);display:flex;align-items:center;gap:12px;margin-bottom:14px;text-transform:none;letter-spacing:0}
-.ch-cta{display:flex;gap:12px;margin-top:26px;flex-wrap:wrap;align-items:center}
-.ch-cta .hint{font:400 13px/1.4 var(--sans);color:var(--faint)}
-.widget{background:var(--surface);border-radius:22px;box-shadow:var(--shadow-m);padding:18px;position:relative;overflow:hidden}
-.widget .wtag{position:absolute;top:14px;right:14px;font:500 11px/1 var(--sans);color:var(--faint);background:rgba(60,60,67,.08);border-radius:6px;padding:6px 8px;z-index:3;text-transform:none;letter-spacing:0}
+.chapters{display:grid;gap:112px;margin-top:80px}
+@media(max-width:720px){.chapters{gap:72px;margin-top:56px}}
+.chapter{display:grid;gap:40px;align-items:center}
+@media(min-width:960px){.chapter{grid-template-columns:1fr 1.15fr;gap:64px}.chapter.flip{grid-template-columns:1.15fr 1fr}.chapter.flip .ch-text{order:2}}
+.chapter>*{min-width:0}
+.ch-text .num{font:600 15px/1.3 var(--sans);color:var(--muted);margin-bottom:12px}
+.ch-text h2{font-size:clamp(28px,3.4vw,40px)}
+.widget{background:var(--canvas);border-radius:24px;padding:16px;min-width:0}
+.wtag{font-size:13px;line-height:1.4;color:var(--faint);margin-top:12px;padding:0 4px}
 
 /* --- 01 scan --- */
-.browser{background:var(--canvas);border:1px solid var(--line);border-radius:14px;overflow:hidden}
-.bbar{display:flex;align-items:center;gap:8px;padding:10px 12px;background:#fff;border-bottom:1px solid var(--line)}
-.bbar i{width:10px;height:10px;border-radius:50%;background:#E4E8F1}
-.bbar i:nth-child(1){background:#FF5F57}.bbar i:nth-child(2){background:#FEBC2E}.bbar i:nth-child(3){background:#28C840}
-.burl{margin-left:6px;flex:1;background:var(--canvas);border-radius:8px;padding:7px 12px;font:500 12.5px/1 var(--sans);color:var(--ink);display:flex;align-items:center;gap:8px;min-height:30px}
-.burl .lock{color:var(--green);font-size:11px}
-.burl .c{width:2px;height:12px;background:var(--cobalt);animation:blink 1s steps(2) infinite}
-.bgrid{display:grid;grid-template-columns:1fr 1fr;gap:14px;padding:14px}
+.browser{background:var(--surface);border-radius:16px;overflow:hidden;box-shadow:var(--shadow-s)}
+.bbar{display:flex;align-items:center;gap:8px;padding:10px 12px;border-bottom:1px solid var(--hair)}
+.bbar i{width:10px;height:10px;border-radius:50%;background:var(--fill);flex:none}
+.burl{margin-left:8px;flex:1;min-width:0;height:30px;background:var(--fill-2);border-radius:8px;padding:0 12px;font:400 13px/30px var(--sans);color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bgrid{display:grid;grid-template-columns:.9fr 1.1fr;gap:12px;padding:12px}
 @media(max-width:560px){.bgrid{grid-template-columns:1fr}}
-.steps{list-style:none;display:grid;gap:8px;align-content:start}
-.steps li{display:flex;align-items:center;gap:10px;font:500 12.5px/1.3 var(--sans);color:var(--faint);background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px 12px;transition:all .3s}
-.steps li .dot{width:16px;height:16px;border-radius:50%;border:1.5px solid var(--line);display:grid;place-items:center;font-size:9px;flex:none;transition:all .3s}
-.steps li.on{color:var(--ink);border-color:var(--cobalt-line);background:var(--cobalt-tint)}
-.steps li.on .dot{border-color:var(--cobalt);background:conic-gradient(var(--cobalt) 0 25%,transparent 0);animation:spin 1s linear infinite}
+.steps{list-style:none;display:grid;gap:2px;align-content:start}
+.steps li{display:flex;align-items:center;gap:10px;font-size:13px;line-height:1.3;color:var(--faint);padding:8px;transition:color .3s}
+.steps li .dot{width:16px;height:16px;border-radius:50%;border:1.5px solid var(--hair);flex:none;display:grid;place-items:center}
+.steps li.on{color:var(--ink)}
+.steps li.on .dot{border-top-color:var(--ink);animation:spin .8s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
-.steps li.done{color:var(--ink);border-color:var(--line)}
-.steps li.done .dot{border-color:var(--green);background:var(--green);color:#fff}
-.steps li.done .dot::after{content:"✓"}
-.profile{background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px 14px;display:grid;gap:9px;align-content:start;box-shadow:var(--shadow-s)}
-.profile .ph{display:flex;align-items:center;gap:8px;font:600 12px/1 var(--sans);padding-bottom:9px;border-bottom:1px solid var(--line-soft)}
-.profile .ph img{width:24px;height:24px;border-radius:50%;background:#0B1230}
-.profile .ph .ptag{margin-left:auto;font:500 11px/1 var(--sans);color:var(--cobalt);background:var(--cobalt-tint);border-radius:5px;padding:5px 7px}
-.prow{opacity:0;transform:translateY(6px);transition:opacity .4s,transform .4s}
+.steps li.done{color:var(--ink)}
+.steps li.done .dot{border-color:transparent;background:var(--fill)}
+.steps li.done .dot::after{content:"";width:6px;height:3px;margin-top:-2px;border-left:1.5px solid var(--muted);border-bottom:1.5px solid var(--muted);transform:rotate(-45deg)}
+.profile{border:1px solid var(--hair);border-radius:12px;padding:12px;display:grid;gap:10px;align-content:start}
+.profile .ph{display:flex;align-items:baseline;gap:8px;font:600 13px/1.3 var(--sans);padding-bottom:10px;border-bottom:1px solid var(--hair)}
+.profile .ph .ptag{margin-left:auto;font:400 12px/1 var(--sans);color:var(--faint)}
+.prow{opacity:0;transform:translateY(4px);transition:opacity .4s,transform .4s}
 .prow.in{opacity:1;transform:none}
-.prow .pl{font:500 11px/1 var(--sans);color:var(--faint);text-transform:none;letter-spacing:0}
-.prow .pv{font-size:12.5px;line-height:1.45;margin-top:3px}
-.prow .pv i{font-style:italic;color:var(--muted)}
-.sw{display:inline-block;width:16px;height:16px;border-radius:5px;margin-right:5px;vertical-align:-3px;border:1px solid rgba(16,24,43,.08)}
-.chips{display:flex;gap:5px;flex-wrap:wrap;margin-top:4px}
-.chip{font:500 10.5px/1 var(--sans);color:var(--cobalt-deep);background:var(--cobalt-tint);border-radius:999px;padding:5px 8px}
-.chip.warn{color:var(--amber);background:var(--amber-tint)}
+.prow .pl{font-size:12px;line-height:1.3;color:var(--faint)}
+.prow .pv{font-size:13px;line-height:1.45;margin-top:2px}
+.prow .pv i{font-style:normal;color:var(--muted)}
+.prow .fonts{font-size:12px;color:var(--faint)}
+.sw{display:inline-block;width:16px;height:16px;border-radius:50%;margin-right:4px;vertical-align:-3px;box-shadow:inset 0 0 0 1px var(--hair)}
+.chips{display:flex;gap:4px;flex-wrap:wrap;margin-top:4px}
+.chip{font:500 12px/1 var(--sans);color:var(--muted);background:var(--fill);border-radius:999px;padding:6px 10px}
 
 /* --- 02 plan --- */
-.cal{background:var(--canvas);border:1px solid var(--line);border-radius:14px;padding:14px}
-.cal-head{display:flex;align-items:center;gap:10px;margin-bottom:10px}
-.cal-head .m{font:600 13.5px/1 var(--sans)}
-.cal-head .cnt{margin-left:auto;font:500 12px/1 var(--sans);color:var(--cobalt);background:var(--cobalt-tint);border-radius:999px;padding:6px 9px}
-.cal-head .cnt b{font-weight:500}
-.dow{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-bottom:6px}
-.dow span{font:500 10.5px/1 var(--sans);color:var(--faint);text-align:center}
-.days{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
-.day{background:#fff;border:1px solid var(--line);border-radius:9px;min-height:64px;padding:5px 5px 4px;display:flex;flex-direction:column;gap:3px;position:relative}
-.day.off{background:transparent;border-color:transparent}
-.day .dn{font:500 10.5px/1 var(--sans);color:var(--faint);margin-bottom:1px}
+.cal{background:var(--surface);border-radius:16px;padding:16px;box-shadow:var(--shadow-s)}
+.cal-head{display:flex;align-items:baseline;gap:8px;margin-bottom:12px}
+.cal-head .m{font:600 17px/1.2 var(--sans)}
+.cal-head .cnt{margin-left:auto;font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
+.dow,.days{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px}
+.dow{margin-bottom:4px}
+.dow span{font:500 12px/1 var(--sans);color:var(--faint);text-align:center;padding:4px 0}
+.day{min-height:64px;border-radius:8px;padding:4px;display:flex;flex-direction:column;gap:3px;background:var(--fill-2);min-width:0}
+.day.off{background:none}
+.day .dn{font:400 12px/1 var(--sans);color:var(--muted);padding:2px 2px 3px}
 .day.today .dn{color:var(--cobalt);font-weight:600}
-.pchip{height:14px;border-radius:4px;display:flex;align-items:center;gap:3px;padding:0 4px;font:600 8px/1 var(--sans);color:#fff;opacity:0;transform:scale(.6);transition:opacity .25s,transform .25s;overflow:hidden;white-space:nowrap}
+.pchip{height:16px;border-radius:8px;padding:0 6px;display:flex;align-items:center;font:500 11px/1 var(--sans);color:var(--cobalt);background:var(--cobalt-tint);opacity:0;transform:scale(.8);transition:opacity .25s,transform .25s;overflow:hidden;white-space:nowrap}
 .pchip.in{opacity:1;transform:none}
-.pchip.edu{background:var(--cobalt)}.pchip.proof{background:var(--green)}.pchip.use{background:#D99A1E}.pchip.prod{background:var(--purple)}.pchip.eng{background:var(--pink)}
-.pchip small{font:500 7px/1 var(--sans);opacity:.85}
-.legend{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;font:500 11px/1 var(--sans);color:var(--muted)}
-.legend span{display:flex;align-items:center;gap:5px}
-.legend i{width:9px;height:9px;border-radius:3px}
-.slotline{margin-top:12px;display:flex;align-items:center;gap:9px;background:#fff;border:1px solid var(--line);border-radius:10px;padding:9px 12px;font-size:12.5px;color:var(--muted);opacity:0;transition:opacity .4s}
+@media(max-width:560px){.day{min-height:48px}.pchip{height:6px;padding:0;background:color-mix(in srgb,var(--cobalt) 45%,transparent)}.pchip span,.cnt-x{display:none}}
+.slotline{margin-top:12px;font-size:13px;line-height:1.45;color:var(--muted);opacity:0;transition:opacity .4s}
 .slotline.in{opacity:1}
-.slotline img{width:22px;height:22px;border-radius:50%;background:#0B1230}
 .slotline b{color:var(--ink);font-weight:600}
-@media(max-width:560px){.day{min-height:52px}.pchip{font-size:0;padding:0;height:7px;border-radius:3px}.pchip small{display:none}}
 
-/* --- 03 approve (Telegram, light theme) --- */
-.approve-stage{display:grid;grid-template-columns:auto 1fr;gap:22px;align-items:center}
-@media(max-width:640px){.approve-stage{grid-template-columns:1fr;justify-items:center}}
-.phone{width:300px;background:#10182B;border:1px solid rgba(150,160,188,.3);border-radius:38px;padding:12px 10px 16px;box-shadow:var(--shadow-deck),0 0 60px rgba(36,71,240,.10);position:relative}
-.phone .notch{width:96px;height:20px;background:#070A14;border-radius:12px;margin:0 auto 8px}
-.tg{background:#E3E9F0;border-radius:26px;height:520px;overflow:hidden;display:flex;flex-direction:column;position:relative}
-.tg-bar{display:flex;align-items:center;gap:9px;padding:10px 12px;background:#fff;border-bottom:1px solid var(--line);flex:none}
-.tg-bar .tav{width:30px;height:30px;border-radius:50%;background:linear-gradient(145deg,#3D5CFF,#1631B8);display:grid;place-items:center;font:700 10px/1 var(--sans);color:#fff}
-.tg-bar .tn{font:600 12.5px/1.2 var(--sans)}
-.tg-bar .ts{font:400 10px/1.3 var(--sans);color:var(--faint)}
-.tg-feed{flex:1;overflow:hidden;padding:12px 10px;display:flex;flex-direction:column;gap:9px;justify-content:flex-end;
-  background:radial-gradient(500px 260px at 50% 0%,rgba(36,71,240,.08),transparent 70%),#E3E9F0}
-.msg{max-width:92%;background:#fff;border-radius:14px 14px 14px 4px;padding:9px 10px 8px;color:var(--ink);font:400 11.5px/1.5 var(--sans);opacity:0;transform:translateY(10px);transition:opacity .35s,transform .35s;flex:none;box-shadow:0 1px 1px rgba(16,24,43,.06)}
+/* --- 03 approve (Telegram) --- */
+.phone{width:min(320px,100%);margin:0 auto;background:var(--surface);border-radius:24px;overflow:hidden;box-shadow:var(--shadow-s),0 0 0 1px var(--hair)}
+.tg-bar{display:flex;align-items:center;gap:10px;padding:10px 12px;border-bottom:1px solid var(--hair)}
+.tav{width:32px;height:32px;border-radius:50%;background:var(--cobalt);display:grid;place-items:center;flex:none}
+.tav i{width:12px;height:12px;border-radius:3px;border:1.5px solid var(--on-accent)}
+.tg-bar .tn{font:600 13px/1.25 var(--sans)}
+.tg-bar .ts{font-size:12px;line-height:1.25;color:var(--faint)}
+.tg-feed{height:500px;overflow:hidden;padding:12px 10px;display:flex;flex-direction:column;gap:8px;justify-content:flex-end;background:var(--canvas)}
+.msg{max-width:92%;background:var(--surface);border-radius:16px 16px 16px 8px;padding:8px 10px;font-size:13px;line-height:1.45;color:var(--ink);opacity:0;transform:translateY(8px);transition:opacity .4s,transform .4s;flex:none;box-shadow:var(--shadow-s)}
 .msg.in{opacity:1;transform:none}
-.msg.me{align-self:flex-end;background:#DCE6FF;border-radius:14px 14px 4px 14px}
-.msg .mimg{border-radius:9px;overflow:hidden;aspect-ratio:1/1;max-height:150px;margin-bottom:7px;background:#0B1230}
+.msg.me{align-self:flex-end;background:var(--cobalt-tint);border-radius:16px 16px 8px 16px}
+.msg .mimg{border-radius:12px;overflow:hidden;aspect-ratio:1/1;max-height:140px;margin-bottom:8px;background:var(--fill)}
 .msg .mimg img{width:100%;height:100%;object-fit:cover}
-.msg .meta{font:500 10.5px/1.3 var(--sans);color:var(--faint);margin-top:6px}
 .msg .cap{white-space:pre-wrap}
-.msg .t{display:block;text-align:right;font-size:9px;color:var(--faint);margin-top:4px}
-.typing{align-self:flex-start;display:flex;gap:4px;padding:8px 12px;background:#fff;border-radius:14px;opacity:0;transition:opacity .2s}
+.msg .meta{font-size:12px;color:var(--faint);margin-top:6px}
+.msg .t{display:block;text-align:right;font-size:11px;color:var(--faint);margin-top:4px}
+.ib{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;margin-top:8px}
+.ib.two{grid-template-columns:1fr 1fr}
+.ib span{border-radius:8px;padding:8px 4px;text-align:center;font:500 12px/1 var(--sans);color:var(--cobalt);background:var(--fill-2);transition:background .2s,color .2s}
+.ib span.hit{background:var(--cobalt);color:var(--on-accent)}
+.res{margin-top:8px;font-size:12px;line-height:1.4;color:var(--muted)}
+.typing{align-self:flex-start;display:flex;gap:4px;padding:10px 12px;background:var(--surface);border-radius:16px;opacity:0;transition:opacity .2s;flex:none}
 .typing.in{opacity:1}
-.typing i{width:6px;height:6px;border-radius:50%;background:var(--faint);animation:bounce 1s infinite}
+.typing i{width:6px;height:6px;border-radius:50%;background:var(--faint);animation:dots 1s infinite}
 .typing i:nth-child(2){animation-delay:.15s}.typing i:nth-child(3){animation-delay:.3s}
-@keyframes bounce{0%,80%,100%{transform:translateY(0);opacity:.5}40%{transform:translateY(-4px);opacity:1}}
-.deckside{display:grid;gap:14px}
-.mini-deck{position:relative;height:250px;max-width:300px}
-.mcard{position:absolute;inset:0;background:#fff;border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow-m);overflow:hidden;display:flex;flex-direction:column;transition:transform .5s cubic-bezier(.2,.8,.2,1),opacity .5s}
-.mcard.u1{transform:translateY(-10px) scale(.96);opacity:.75}
-.mcard.u2{transform:translateY(-20px) scale(.92);opacity:.5}
-.mcard.gone{transform:translateX(140%) rotate(16deg);opacity:0}
-.mcard .mh{display:flex;align-items:center;gap:8px;padding:9px 12px;border-bottom:1px solid var(--line-soft);font:600 11.5px/1 var(--sans)}
-.mcard .mm{flex:1;display:grid;place-items:center;padding:16px;text-align:center;font:600 15px/1.35 var(--sans);letter-spacing:-.01em;color:#fff;background:radial-gradient(120% 140% at 20% 10%,#1B2B5E 0%,#0A1130 60%,#070B1E 100%)}
-.mcard .mf{display:flex;gap:6px;padding:9px 12px;border-top:1px solid var(--line-soft)}
-.mcard .mf span{font:500 11px/1 var(--sans);color:var(--muted);background:rgba(60,60,67,.08);border-radius:5px;padding:5px 7px}
-.mcard .stamp{position:absolute;top:14px;left:14px;font:800 16px/1 var(--sans);letter-spacing:.1em;color:#22C55E;border:3px solid #22C55E;border-radius:8px;padding:5px 9px;transform:rotate(-12deg);background:rgba(255,255,255,.9);opacity:0;transition:opacity .2s}
-.mcard.stamped .stamp{opacity:1}
-.mirror{display:flex;gap:10px;align-items:center;background:var(--cobalt-tint);border:1px dashed #B9C7FA;border-radius:12px;padding:11px 13px;font-size:12.5px;color:var(--cobalt-deep);line-height:1.45;max-width:300px}
-.mirror b{display:block;color:var(--ink)}
-.mirror .tgi{width:30px;height:30px;border-radius:50%;background:#29A9EB;color:#fff;display:grid;place-items:center;font-size:14px;flex:none}
+@keyframes dots{0%,80%,100%{opacity:.35}40%{opacity:1}}
 
-/* --- 04 watch --- */
-.watch{background:#E3E9F0;border-radius:18px;padding:14px;min-height:430px;display:flex;flex-direction:column;gap:10px;justify-content:flex-end;overflow:hidden;position:relative}
-.watch .msg{max-width:100%;font-size:12.5px}
-.watch .msg b{color:var(--ink);font-weight:600}
-.watch .msg .hd{display:flex;align-items:center;gap:8px;font:600 12.5px/1 var(--sans);color:var(--ink);margin-bottom:6px}
-.watch .msg .hd .tm{margin-left:auto;font:400 11px/1 var(--sans);color:var(--faint)}
-.watch .msg.alert{border-left:3px solid #F2B742}
-.watch .msg.rec{border-left:3px solid var(--cobalt)}
-.watch .msg ul{list-style:none;display:grid;gap:3px;margin-top:4px}
-.watch .msg li{display:flex;gap:7px;font-size:12px;color:var(--muted)}
-.watch .msg li::before{content:"·";color:var(--cobalt)}
-.watch .kpi{display:inline-flex;align-items:center;gap:5px;font:500 11px/1.3 var(--sans);background:var(--green-tint);color:var(--green);border-radius:6px;padding:5px 7px;margin-top:6px}
-.watch .kpi.dn{background:var(--amber-tint);color:var(--amber)}
+/* --- 04 / 05 message cards --- */
+.watch{display:flex;flex-direction:column;gap:12px;justify-content:flex-end}
+.watch .msg{max-width:100%;font-size:15px;line-height:1.45;padding:14px 16px;border-radius:16px}
+.watch .msg .hd{display:flex;align-items:baseline;gap:8px;font:600 15px/1.3 var(--sans);margin-bottom:6px}
+.watch .msg .hd .tm{margin-left:auto;font:400 13px/1 var(--sans);color:var(--faint)}
+.watch .msg b{font-weight:600}
+.watch ul{list-style:none;display:grid;gap:4px;margin-top:4px}
+.watch li{padding-left:14px;position:relative;color:var(--muted)}
+.watch li::before{content:"";position:absolute;left:2px;top:.62em;width:4px;height:4px;border-radius:50%;background:var(--faint)}
+.watch li b{color:var(--ink)}
+.watch .kpi{display:inline-block;margin-top:10px;font-size:13px;color:var(--muted);background:var(--fill-2);border-radius:8px;padding:6px 8px}
+.watch .sug{margin-top:8px;color:var(--muted)}
+.watch .ib span{font-size:13px;padding:10px 4px}
+.watch .res{font-size:13px}
+@media(max-width:560px){.watch .msg{font-size:13px;padding:12px}.watch .msg .hd{font-size:13px}.watch .msg .hd .tm{font-size:12px}}
 
-/* ================= FLIP ================= */
-.flip-grid{display:grid;gap:16px;margin-top:44px}
-@media(min-width:820px){.flip-grid{grid-template-columns:1fr 1fr;position:relative}}
-.fcol{border-radius:20px;padding:30px 28px;background:var(--surface);box-shadow:var(--shadow-s);position:relative}
-.fcol .tag{font:500 13px/1 var(--sans);color:var(--faint);margin-bottom:10px}
-.fcol h3{font:600 24px/1.15 var(--sans);letter-spacing:-.02em;margin-bottom:16px;color:var(--muted)}
-.fcol.otto{border-color:#B9C7FA;background:linear-gradient(180deg,rgba(36,71,240,.06),transparent 40%),var(--surface);box-shadow:var(--shadow-m)}
-.fcol.otto .tag{color:var(--cobalt)}
-.fcol.otto h3{color:var(--ink)}
-.fcol li{list-style:none;display:flex;gap:12px;padding:9px 0;color:var(--muted);font-size:14.5px;line-height:1.55;border-bottom:1px solid var(--line-soft)}
-.fcol li:last-child{border-bottom:0}
-.fcol.otto li{color:var(--ink)}
-.fcol li::before{content:"✕";color:var(--red);font-weight:700;flex:none;opacity:.7}
-.fcol.otto li::before{content:"✓";color:var(--green);opacity:1}
-.vs{display:none}
-@media(min-width:820px){.vs{display:grid;place-items:center;position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:46px;height:46px;border-radius:50%;background:var(--ink);color:#fff;font:600 12px/1 var(--sans);box-shadow:0 6px 18px rgba(16,24,43,.3);z-index:2}}
+/* ================= SOLUTIONS ================= */
+.ind-chips{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:32px}
+.ind-chips button{height:36px;padding:0 16px;border-radius:999px;font:500 15px/1 var(--sans);color:var(--ink);background:var(--surface);box-shadow:inset 0 0 0 1px var(--hair);transition:background .15s,color .15s}
+.ind-chips button.on{background:var(--ink);color:var(--canvas);box-shadow:none}
+.sol{display:grid;gap:32px;margin-top:32px;align-items:center;background:var(--surface);border-radius:24px;padding:24px}
+@media(min-width:900px){.sol{grid-template-columns:1.1fr .9fr;padding:40px}}
+.sol>*{min-width:0}
+.sol h3{font:600 clamp(24px,3vw,32px)/1.15 var(--sans);letter-spacing:-.02em}
+.sol .sdesc{color:var(--muted);font-size:17px;line-height:1.5;margin-top:12px}
+.sol .spill{display:flex;gap:4px;flex-wrap:wrap;margin-top:16px}
+.sol .shooks{list-style:none;margin-top:24px;border-top:1px solid var(--hair)}
+.sol .shooks li{padding:12px 0;border-bottom:1px solid var(--hair);font-size:15px;line-height:1.4}
+.sol .pc{width:100%;max-width:300px;margin:0 auto}
+.sol .pc-media{aspect-ratio:1/1}
 
 /* ================= COMPARE ================= */
-.cmp-wrap{margin-top:44px;overflow-x:auto;-webkit-overflow-scrolling:touch}
-table.cmp{width:100%;min-width:760px;border-collapse:separate;border-spacing:0;background:var(--surface);border:1px solid var(--line);border-radius:20px;overflow:hidden;box-shadow:var(--shadow-s)}
-.cmp th,.cmp td{padding:16px 18px;text-align:left;vertical-align:top;border-bottom:1px solid var(--line-soft);font-size:14px}
-.cmp tr:last-child td{border-bottom:0}
-.cmp th{font:500 13px/1 var(--sans);color:var(--faint);background:#FAFAFC;text-transform:none;letter-spacing:0}
-.cmp th.otto,.cmp td.otto{background:var(--cobalt-tint);color:var(--cobalt-deep);font-weight:600}
-.cmp th.otto{color:var(--cobalt);font-weight:600;font-size:16px}
-.cmp td:first-child{font:500 13px/1.4 var(--sans);color:var(--faint);width:180px;text-transform:none;letter-spacing:0}
-.cmp td .big{font:600 19px/1 var(--sans);letter-spacing:-.02em;display:block;margin-bottom:3px}
-.cmp-note{font-size:12.5px;color:var(--faint);margin-top:14px;line-height:1.55;max-width:760px}
+.cmp-wrap{margin-top:48px;overflow-x:auto;-webkit-overflow-scrolling:touch}
+table.cmp{width:100%;min-width:720px;border-collapse:collapse}
+.cmp th,.cmp td{padding:16px;text-align:left;vertical-align:top;border-bottom:1px solid var(--hair);font-size:15px;line-height:1.4}
+.cmp thead th{font:600 15px/1.3 var(--sans);color:var(--muted)}
+.cmp thead th.otto{color:var(--ink)}
+.cmp td{color:var(--muted)}
+.cmp td.otto{color:var(--ink)}
+.cmp td:first-child{color:var(--ink);font-weight:500;width:180px}
+.cmp tbody tr:last-child td{border-bottom:0}
+.cmp .big{display:block;font:600 17px/1.3 var(--sans);color:var(--ink)}
+.cmp-note{font-size:13px;line-height:1.5;color:var(--faint);margin-top:16px;max-width:760px}
+@media(max-width:720px){.cmp th:first-child,.cmp td:first-child{position:sticky;left:0;background:var(--surface);z-index:1;width:132px}}
 
-/* ================= TEAM ================= */
-.team{display:grid;gap:14px;margin-top:44px;grid-template-columns:repeat(3,1fr)}
-@media(max-width:900px){.team{grid-template-columns:repeat(2,1fr)}}
-@media(max-width:560px){.team{grid-template-columns:1fr}}
-.bot{background:var(--surface);border-radius:18px;padding:18px;box-shadow:var(--shadow-s);display:flex;flex-direction:column;gap:12px;transition:transform .2s,border-color .2s,box-shadow .2s}
-.bot:hover{transform:translateY(-3px);border-color:var(--cobalt-line);box-shadow:var(--shadow-m)}
-.b-top{display:flex;align-items:center;gap:12px}
-.b-av{width:44px;height:44px;flex:none;border-radius:50%;background:rgba(60,60,67,.08);display:grid;place-items:center;font:600 17px/1 var(--sans);color:var(--ink)}
-.bot.standby .b-av{color:var(--faint)}
-.b-name{font:600 17px/1 var(--sans);letter-spacing:-.01em}
-.b-role{font:400 12.5px/1.4 var(--sans);color:var(--cobalt);margin-top:3px;text-transform:none;letter-spacing:0}
-.b-state{margin-left:auto;width:8px;height:8px;border-radius:50%;background:var(--green);animation:pulse 2.4s infinite;flex:none;align-self:flex-start;margin-top:4px}
-.b-state.standby{background:#D99A1E;animation:none}
-@keyframes pulse{0%,100%{box-shadow:0 0 0 3px rgba(11,122,75,.15)}50%{box-shadow:0 0 0 7px rgba(11,122,75,.04)}}
-.b-desc{font-size:13.5px;color:var(--muted);line-height:1.55}
-.b-feed{border-top:1px solid var(--line-soft);padding-top:9px;min-height:30px}
-.b-line{font:400 12.5px/1.5 var(--sans);color:var(--muted);display:flex;gap:6px;transition:opacity .35s,transform .35s}
-.b-line.out{opacity:0;transform:translateY(-4px)}
-.b-line .tick{display:none}
+/* ================= WHAT OTTO DOES ================= */
+.jobs{max-width:800px;margin:48px auto 0;background:var(--surface);border-radius:16px;list-style:none}
+.job{display:grid;grid-template-columns:240px 1fr;gap:4px 24px;padding:20px 24px;border-top:1px solid var(--hair)}
+.job:first-child{border-top:0}
+.job h3{font:600 17px/1.4 var(--sans)}
+.job p{font-size:17px;line-height:1.4;color:var(--muted)}
+@media(max-width:640px){.job{grid-template-columns:1fr;padding:16px}.job p{font-size:15px}}
 
 /* ================= PRICING ================= */
-.price{max-width:520px;margin:44px auto 0;background:var(--surface);border:1px solid #B9C7FA;border-radius:26px;padding:38px 36px;box-shadow:var(--shadow-deck);position:relative}
-.price .badge{position:absolute;top:-13px;left:50%;transform:translateX(-50%);font:600 10px/1 var(--mono);letter-spacing:.16em;background:var(--cobalt);color:#fff;border-radius:7px;padding:7px 12px;white-space:nowrap;box-shadow:0 4px 12px rgba(36,71,240,.35)}
-.price .tier{font:500 40px/1 var(--serif);letter-spacing:-.02em}
-.price .tdesc{color:var(--muted);font-size:14.5px;margin-top:8px;line-height:1.5}
-.price .amt{display:flex;align-items:baseline;gap:6px;margin-top:22px}
-.price .amt .cur{font:500 22px/1 var(--serif);color:var(--muted)}
-.price .amt .n{font:500 64px/1 var(--serif);letter-spacing:-.03em}
-.price .amt .per{font-size:13px;color:var(--muted);margin-left:6px}
-.price .amt .per b{display:block;color:var(--ink);font-weight:600}
-.price ul{list-style:none;margin:22px 0 26px;border-top:1px solid var(--line-soft);padding-top:8px}
-.price li{display:flex;gap:12px;padding:9px 0;font-size:14.5px;line-height:1.5}
-.price li::before{content:"✓";color:var(--green);font-weight:700;flex:none}
-.price .btn{width:100%;justify-content:center;padding:17px}
-.works{display:flex;align-items:center;gap:10px;margin-top:22px;padding-top:18px;border-top:1px solid var(--line-soft)}
-.works .wl{font:400 12px/1 var(--sans);color:var(--faint);margin-right:4px}
-.works .pf{margin:0;width:26px;height:26px}
-.price-note{font-size:12.5px;color:var(--faint);text-align:center;margin-top:16px;line-height:1.55}
+.offer{max-width:560px;margin:48px auto 0;background:var(--canvas);border-radius:24px;padding:40px}
+@media(max-width:560px){.offer{padding:24px}}
+.offer .oname{font:600 17px/1.3 var(--sans)}
+.offer .amt{display:flex;align-items:baseline;gap:8px;margin-top:8px}
+.offer .amt .n{font:700 56px/1 var(--sans);letter-spacing:-.04em}
+.offer .amt .per{font-size:17px;color:var(--muted)}
+.offer .odesc{font-size:17px;line-height:1.5;color:var(--muted);margin-top:16px}
+.offer ul{list-style:none;margin:24px 0;border-top:1px solid var(--hair)}
+.offer li{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--hair);font-size:15px;line-height:1.45}
+.offer li::before{content:"";flex:none;width:10px;height:5px;margin-top:6px;border-left:1.5px solid var(--muted);border-bottom:1.5px solid var(--muted);transform:rotate(-45deg)}
+.offer .btn{width:100%}
+.offer .onote{font-size:13px;line-height:1.5;color:var(--faint);margin-top:12px;text-align:center}
+.after{max-width:960px;margin:72px auto 0}
+.after h3{font:600 24px/1.2 var(--sans);letter-spacing:-.02em}
+.after .asub{font-size:15px;line-height:1.5;color:var(--muted);margin-top:4px}
+.plans{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));margin-top:24px;border-top:1px solid var(--hair)}
+.plan{padding:24px 24px 24px 0}
+.plan+.plan{padding-left:24px;border-left:1px solid var(--hair)}
+@media(max-width:860px){.plans{grid-template-columns:1fr}.plan,.plan+.plan{padding:20px 0;border-left:0;border-bottom:1px solid var(--hair)}}
+.plan .phd{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+.plan .pn{font:600 17px/1.3 var(--sans)}
+.plan .pp{font:600 17px/1.3 var(--sans);font-variant-numeric:tabular-nums;white-space:nowrap}
+.plan .pp small{font-size:13px;font-weight:400;color:var(--muted)}
+.plan .pb{font-size:13px;line-height:1.4;color:var(--faint);margin-top:2px}
+.plan .pd{font-size:15px;line-height:1.45;color:var(--muted);margin-top:8px}
+.plan ul{list-style:none;margin-top:12px;display:grid;gap:6px}
+.plan li{font-size:13px;line-height:1.45;color:var(--muted)}
+.tier-note{font-size:13px;line-height:1.5;color:var(--faint);margin-top:16px}
 
-/* pricing tiers */
-.toggle{display:inline-flex;gap:4px;background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:4px;margin-top:22px;box-shadow:var(--shadow-s)}
-.toggle button{font:600 13px/1 var(--sans);color:var(--muted);border-radius:999px;padding:9px 16px;display:flex;align-items:center;gap:7px}
-.toggle button.on{background:var(--ink);color:#fff}
-.toggle .save{font:500 11px/1 var(--sans);color:var(--green);background:var(--green-tint);border-radius:999px;padding:4px 6px}
-.toggle button.on .save{background:rgba(255,255,255,.16);color:#BFF5D8}
-.tiers{display:grid;gap:16px;margin-top:40px;grid-template-columns:repeat(3,1fr);align-items:stretch}
-@media(max-width:900px){.tiers{grid-template-columns:1fr;max-width:520px;margin-left:auto;margin-right:auto}}
-.tier{background:var(--surface);border-radius:24px;padding:30px 28px;box-shadow:var(--shadow-s);display:flex;flex-direction:column;position:relative}
-.tier.featured{border-color:#B9C7FA;box-shadow:var(--shadow-deck);background:linear-gradient(180deg,rgba(36,71,240,.05),transparent 30%),var(--surface)}
-.tier .tfor{font:500 13px/1 var(--sans);color:var(--faint)}
-.tier.featured .tfor{color:var(--cobalt)}
-.tier .tname{font:600 30px/1 var(--sans);letter-spacing:-.03em;margin-top:10px}
-.tier .tdesc{color:var(--muted);font-size:14px;line-height:1.5;margin-top:8px;min-height:42px}
-.tier .tprice{display:flex;align-items:baseline;gap:4px;margin-top:20px}
-.tier .tprice .cur{font:500 20px/1 var(--sans);color:var(--muted)}
-.tier .tprice .n{font:600 48px/1 var(--sans);letter-spacing:-.04em}
-.tier .tprice .per{font-size:13px;color:var(--muted);margin-left:4px}
-.tier .tbill{font-size:12px;color:var(--faint);margin-top:6px;min-height:16px}
-.tier .tbrands{display:flex;justify-content:space-between;align-items:center;margin-top:16px;padding:10px 12px;border:1px solid var(--line);border-radius:10px;font-size:13px}
-.tier .tbrands b{font-weight:600}
-.tier .tbrands span{font:400 12px/1 var(--sans);color:var(--faint)}
-.tier .btn{margin-top:18px;justify-content:center}
-.tier .twhat{font:500 13px/1 var(--sans);color:var(--faint);margin:20px 0 2px}
-.tier ul{list-style:none;flex:1}
-.tier li{display:flex;gap:10px;padding:7px 0;font-size:13.5px;line-height:1.5}
-.tier li::before{content:"✓";color:var(--green);font-weight:700;flex:none}
-.tier .works{margin-top:18px;padding-top:14px}
-.tier .badge{position:absolute;top:-13px;left:28px;font:500 12px/1 var(--sans);background:var(--cobalt);color:#fff;border-radius:999px;padding:7px 11px}
-.tier-note{font-size:12.5px;color:var(--faint);text-align:center;margin-top:16px;line-height:1.55}
-.founding{max-width:1160px;margin:34px auto 0;background:var(--ink);color:#fff;border-radius:24px;padding:28px 30px;display:grid;gap:22px;align-items:center;box-shadow:0 24px 60px rgba(16,24,43,.25)}
-@media(min-width:860px){.founding{grid-template-columns:auto 1fr auto}}
-.founding .fp{font:600 42px/1 var(--sans);letter-spacing:-.04em;white-space:nowrap}
-.founding .fp small{font:400 13px/1.4 var(--sans);display:block;color:#BFD0FF;margin-top:6px}
-.founding .ft{font-size:14.5px;line-height:1.6;color:#C9D2EC}
-.founding .ft b{color:#fff;display:block;font:600 19px/1.25 var(--sans);letter-spacing:-.01em;margin-bottom:6px}
-.founding .btn.white{white-space:nowrap}
+/* ================= FAQ ================= */
+.faq{max-width:800px;margin:48px auto 0;background:var(--surface);border-radius:16px}
+.faq details+details{border-top:1px solid var(--hair)}
+.faq summary{padding:20px 24px;font:600 17px/1.4 var(--sans);cursor:pointer;list-style:none;display:flex;gap:16px;align-items:center}
+.faq summary::-webkit-details-marker{display:none}
+.faq summary::after{content:"";margin-left:auto;flex:none;width:8px;height:8px;border-right:1.5px solid var(--faint);border-bottom:1.5px solid var(--faint);transform:translateY(-2px) rotate(45deg);transition:transform .2s}
+.faq details[open] summary::after{transform:translateY(2px) rotate(-135deg)}
+.faq .fa{padding:0 24px 20px;color:var(--muted);font-size:17px;line-height:1.5}
+@media(max-width:560px){.faq summary{padding:16px}.faq .fa{padding:0 16px 16px;font-size:15px}}
 
-/* solutions by industry */
-.ind-chips{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:30px}
-.ind-chips button{font:600 13px/1 var(--sans);color:var(--muted);background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:10px 15px;transition:all .15s}
-.ind-chips button:hover{border-color:var(--cobalt-line);color:var(--ink)}
-.ind-chips button.on{background:var(--cobalt);border-color:var(--cobalt);color:#fff;box-shadow:0 4px 12px rgba(36,71,240,.28)}
-.sol{display:grid;gap:28px;margin-top:34px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:24px;padding:28px;box-shadow:var(--shadow-m)}
-@media(min-width:900px){.sol{grid-template-columns:1.1fr .9fr;padding:36px}}
-.sol h3{font:600 clamp(26px,3.2vw,34px)/1.1 var(--sans);letter-spacing:-.025em}
-.sol h3 b{color:var(--cobalt);font-weight:600}
-.sol .sdesc{color:var(--muted);font-size:15px;line-height:1.6;margin-top:12px}
-.sol .spill{display:flex;gap:6px;flex-wrap:wrap;margin-top:16px}
-.sol .shooks{list-style:none;margin-top:18px;display:grid;gap:8px}
-.sol .shooks li{display:flex;gap:10px;font-size:14px;line-height:1.45;color:var(--ink)}
-.sol .shooks li::before{content:"→";color:var(--cobalt);flex:none;font-weight:600}
-.sol .pc{width:100%;max-width:300px;margin:0 auto;box-shadow:var(--shadow-deck)}
-.sol .pc-media{aspect-ratio:1/1}
+/* ================= FINAL ================= */
+.final .btn{margin-top:32px}
+footer{padding:24px 0 40px;font-size:13px;color:var(--faint);border-top:1px solid var(--hair)}
+footer .in{max-width:1120px;margin:0 auto;padding:0 20px;display:flex;gap:16px;flex-wrap:wrap}
+footer a{margin-left:auto}
+footer a:hover{color:var(--ink)}
 
 /* sticky mobile CTA */
 .sticky-cta{display:none}
 @media(max-width:720px){
-  .sticky-cta{display:flex;position:fixed;left:12px;right:12px;bottom:12px;z-index:55;background:rgba(255,255,255,.9);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid var(--line);border-radius:16px;padding:10px 10px 10px 14px;align-items:center;gap:10px;box-shadow:var(--shadow-deck);transform:translateY(120%);transition:transform .3s}
+  .sticky-cta{display:flex;position:fixed;left:12px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom,0px));z-index:55;background:var(--bar);backdrop-filter:saturate(180%) blur(20px);-webkit-backdrop-filter:saturate(180%) blur(20px);border-radius:16px;padding:8px 8px 8px 16px;align-items:center;gap:12px;box-shadow:var(--shadow-m),0 0 0 1px var(--hair);transform:translateY(calc(100% + 24px));transition:transform .3s}
   .sticky-cta.show{transform:none}
-  .sticky-cta .t{font-size:12.5px;color:var(--muted);line-height:1.3;flex:1}
-  .sticky-cta .t b{display:block;color:var(--ink);font-weight:600}
-  .sticky-cta .btn{padding:12px 16px;font-size:13.5px}
+  .sticky-cta .t{font-size:13px;line-height:1.3;color:var(--muted);flex:1;min-width:0}
+  .sticky-cta .t b{display:block;color:var(--ink);font-weight:600;font-size:15px}
+  .sticky-cta .btn{height:40px;font-size:15px;padding:0 16px}
   footer{padding-bottom:96px}
 }
 
-/* ================= FAQ ================= */
-.faq{max-width:760px;margin:44px auto 0}
-.faq details{border-radius:14px;background:var(--surface);margin-bottom:10px;overflow:hidden;box-shadow:var(--shadow-s)}
-.faq summary{padding:18px 22px;font:600 15px/1.4 var(--sans);cursor:pointer;list-style:none;display:flex;gap:12px}
-.faq summary::-webkit-details-marker{display:none}
-.faq summary::after{content:"+";margin-left:auto;color:var(--faint);font-size:20px;font-weight:300;line-height:1}
-.faq details[open] summary::after{content:"–"}
-.faq .fa{padding:0 22px 20px;color:var(--muted);font-size:14.5px;line-height:1.7}
-
-/* ================= FINAL ================= */
-.final{position:relative;padding:0 20px 40px}
-.final .band{max-width:1160px;margin:0 auto;background:linear-gradient(135deg,#2447F0,#1631B8);color:#fff;border-radius:30px;padding:96px 28px;text-align:center;position:relative;overflow:hidden;box-shadow:0 30px 80px rgba(36,71,240,.30)}
-.final .band::before,.final .band::after{display:none}
-.final .in{position:relative;z-index:2}
-.final .eyebrow{color:rgba(255,255,255,.7)}
-.final h2{color:#fff;margin:0 auto;font-size:clamp(34px,5vw,56px)}
-.final h2 em{color:#BFD0FF;font-style:normal}
-.final .sub{color:rgba(255,255,255,.82);margin:16px auto 0}
-footer{padding:26px 0 40px;font:400 12px/1.7 var(--sans);color:var(--faint)}
-footer .in{max-width:1160px;margin:0 auto;padding:0 20px;display:flex;gap:18px;flex-wrap:wrap;align-items:center}
-footer a{margin-left:auto}
-footer a:hover{color:var(--ink)}
-
 @media (prefers-reduced-motion:reduce){
-  .track,.ring,.orb,.fc{animation:none}.rv{opacity:1;transform:none;transition:none}
-  .hero h1 .cur{animation:none}.b-state{animation:none}
+  html{scroll-behavior:auto}
+  .track,.steps li.on .dot,.typing i{animation:none}
+  .rv,.msg,.prow,.pchip,.slotline{opacity:1;transform:none;transition:none}
 }
 </style>
 <script type="application/ld+json">
 {"@context":"https://schema.org","@graph":[
- {"@type":"SoftwareApplication","name":"Otto","applicationCategory":"BusinessApplication","operatingSystem":"Web, Telegram","description":"An AI marketing department: drop your URL, get a full month of posts, approve them from your phone, and let Otto publish, watch the numbers and tell you what to do next.","offers":{"@type":"Offer","price":"197","priceCurrency":"EUR","description":"Founding pilot, one-time","url":"https://whop.com/checkout/plan_joHl1qsZoiJc9"}},
+ {"@type":"SoftwareApplication","name":"Otto","applicationCategory":"BusinessApplication","operatingSystem":"Web, Telegram","description":"Otto plans, writes, designs and publishes your marketing, and asks you only for the decisions. Every post waits for your approval on your phone.","offers":{"@type":"Offer","price":"197","priceCurrency":"EUR","description":"Founding pilot, one-time","url":"https://whop.com/checkout/plan_joHl1qsZoiJc9"}},
  {"@type":"FAQPage","mainEntity":[
-  {"@type":"Question","name":"Does anything publish without my approval?","acceptedAnswer":{"@type":"Answer","text":"No. Every post waits for your yes — in Telegram or in the dashboard. Trusted pillars can auto-publish later; it is off by default."}},
-  {"@type":"Question","name":"How is this different from a scheduler plus ChatGPT?","acceptedAnswer":{"@type":"Answer","text":"Those wait for you to drive them. Otto owns the entire loop — plan, copy, visuals, publishing, analytics, competitor research — and comes to you only with finished work and decisions."}},
-  {"@type":"Question","name":"Will the content actually sound like my brand?","acceptedAnswer":{"@type":"Answer","text":"Otto builds your brand profile from your own site (palette, phrasing, reviews, proof), asks at most four questions, and every approve or skip teaches it your taste."}},
-  {"@type":"Question","name":"Which channels and languages?","acceptedAnswer":{"@type":"Answer","text":"Facebook and Instagram today, LinkedIn on request. Content in English, German and Hebrew, right-to-left handled."}},
-  {"@type":"Question","name":"What happens after the pilot?","acceptedAnswer":{"@type":"Answer","text":"Founding customers keep their environment and get grandfathered terms when Otto moves to monthly plans."}}
+  {"@type":"Question","name":"Does anything publish without my approval?","acceptedAnswer":{"@type":"Answer","text":"No. Every post waits for your approval, in Telegram or in the dashboard. You can let trusted pillars publish automatically later; it is off by default."}},
+  {"@type":"Question","name":"How is this different from a scheduler plus ChatGPT?","acceptedAnswer":{"@type":"Answer","text":"With those tools you do the work: the idea, the prompt, the edit, the visual, the slot, the stats. Otto does all of it and comes to you only with finished posts and decisions."}},
+  {"@type":"Question","name":"Will the content actually sound like my brand?","acceptedAnswer":{"@type":"Answer","text":"Otto builds your brand profile from your own site (colours, wording, customer reviews), asks at most four questions, and learns from every post you approve or skip."}},
+  {"@type":"Question","name":"Which channels and languages?","acceptedAnswer":{"@type":"Answer","text":"Facebook and Instagram today, LinkedIn on request. Content in English, German and Hebrew, including right-to-left layouts."}},
+  {"@type":"Question","name":"What happens after the pilot?","acceptedAnswer":{"@type":"Answer","text":"You keep your setup, and your founding terms carry over when Otto moves to monthly plans."}}
  ]}
 ]}
 </script>
@@ -519,18 +366,17 @@ footer a:hover{color:var(--ink)}
 
 <nav class="top" id="nav">
   <div class="in">
-    <a class="logo" href="#top"><span class="mark"><span class="face"></span></span>Otto</a>
+    <a class="logo" href="#top"><span class="mark" aria-hidden="true"></span>Otto</a>
     <div class="navlinks">
       <a href="#how">How it works</a>
       <a href="#examples">Examples</a>
       <a href="#solutions">Industries</a>
-      <a href="#team">Your team</a>
       <a href="#pricing">Pricing</a>
       <a href="#faq">FAQ</a>
     </div>
     <div class="cta">
       <a class="login" href="https://dash.monyflow.work/otto/">Log in</a>
-      <a class="btn primary" href="https://whop.com/checkout/plan_joHl1qsZoiJc9">Get Otto →</a>
+      <a class="btn primary sm" href="https://whop.com/checkout/plan_joHl1qsZoiJc9">Get started</a>
     </div>
   </div>
 </nav>
@@ -539,128 +385,105 @@ footer a:hover{color:var(--ink)}
 <header class="hero" id="top">
   <div class="wrap hero-grid">
     <div>
-      <span class="pill"><span class="new">New</span><i></i>Otto Watch is live — drop alerts within the hour</span>
-      <h1>Marketing for<br><em id="tw">restaurants</em><span class="cur"></span></h1>
-      <p class="lead">Otto plans, writes, designs and publishes — then sends <b>you</b> the to-do list. Your entire job: one tap on your phone.</p>
+      <span class="newpill"><b>New:</b> daily paid reports</span>
+      <h1>Your marketing department, in your pocket.</h1>
+      <p class="lead">Otto plans, writes, designs and publishes your marketing — and asks you only for the decisions.</p>
       <form id="hero-form" autocomplete="off">
         <input id="hero-url" type="text" inputmode="url" placeholder="yourcompany.com" aria-label="Your website">
-        <button class="btn primary" type="submit">Show me what Otto does →</button>
+        <button class="btn primary" type="submit">Scan my site</button>
       </form>
-      <p class="note"><b>Drop your URL</b> and watch what happens to it below. No signup.</p>
+      <p class="note">See what Otto reads from your website. No signup.</p>
     </div>
-    <div class="stage" id="stage" aria-hidden="true">
-      <div class="ring r2"><i></i></div>
-      <div class="orb"></div>
-      <div class="ring r1"><i></i></div>
-      <div class="tilt" id="tilt">
-        <div class="fc kpi">
-          <h5>Mission Control<span class="live">Live</span></h5>
-          <div class="krow">
-            <div class="k"><div class="n al">3</div><div class="l">waiting</div></div>
-            <div class="k"><div class="n">2</div><div class="l">today</div></div>
-            <div class="k"><div class="n go">+18%</div><div class="l">reach</div></div>
+    <div class="device" aria-hidden="true">
+      <div class="screen">
+        <div class="s-bar"><span class="mark"></span>Otto</div>
+        <div class="s-body">
+          <p class="s-date">Monday 28 September</p>
+          <p class="s-title">Today</p>
+          <p class="s-status">Three posts need your approval.</p>
+          <span class="s-cta">Review 3 posts</span>
+          <p class="s-h">Needs you</p>
+          <div class="s-list">
+            <div class="s-row"><img src="/otto/assets/posts/cm-002.png" alt=""><div><p>At 43, with no clinical background, she opened a practice</p><span>Facebook · 29 Sept 18:00</span></div></div>
+            <div class="s-row"><img src="/otto/assets/posts/hg-001.png" alt=""><div><p>Full vs broad spectrum vs isolate: a 60-second guide</p><span>Instagram · 30 Sept 08:00</span></div></div>
+            <div class="s-row"><img src="/otto/assets/posts/cm-007.png" alt=""><div><p>Myth: you need a psychology degree to help people</p><span>Instagram · 1 Oct 09:00</span></div></div>
           </div>
-          <div class="voice">Good morning. Three decisions today — two minutes.</div>
         </div>
-        <div class="fc tgc" id="hero-tg">
-          <div class="th"><span class="tav">O</span>Otto<span class="tt">08:14</span></div>
-          <div class="timg"><img src="/otto/assets/posts/cm-002.png" alt=""></div>
-          <div class="tcap">At 43, with no clinical background, Ronit opened her own practice. Full story ↓</div>
-          <div class="tmeta">Facebook · Sat 18:00 · Alumni stories</div>
-          <div class="ib"><span>❌ Skip</span><span>✏️ Edit</span><span class="ok">✅ Approve</span></div>
+        <div class="s-tabs">
+          <span class="on"><svg viewBox="0 0 24 24"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10v9.5h13V10"/></svg>Today</span>
+          <span><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="m8.5 12.3 2.3 2.3 4.7-4.9"/></svg>Review</span>
+          <span><svg viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15" rx="3"/><path d="M3.5 9.5h17M8 3.5v3M16 3.5v3"/></svg>Calendar</span>
+          <span><svg viewBox="0 0 24 24"><path d="M8 6.5h12M8 12h12M8 17.5h12"/><circle cx="4.5" cy="6.5" r="1"/><circle cx="4.5" cy="12" r="1"/><circle cx="4.5" cy="17.5" r="1"/></svg>Posts</span>
+          <span><svg viewBox="0 0 24 24"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></svg>Settings</span>
         </div>
-        <div class="fc rec" id="hero-rec">
-          <h5>Recommendation<span class="prio" style="margin-left:auto">Suggested</span></h5>
-          <div class="rt">Add LinkedIn for the career-change pillar.</div>
-          <div class="ib2"><span class="ok">Approve</span><span>Not now</span></div>
-        </div>
-        <div class="fc chip"><i></i>Published · Sun 08:00 · reach 2,410</div>
       </div>
     </div>
   </div>
 
   <div class="wrap mq-head rv">
-    <div class="eyebrow" style="margin:0">Real posts Otto produced this month</div>
-    <span class="hint">Two live brands. Hover to pause.</span>
+    <p class="eyebrow">Real posts Otto made this month for two brands</p>
   </div>
   <div class="marquee" id="examples" aria-label="Examples of posts Otto produced">
     <div class="track" id="track"></div>
   </div>
 </header>
 
-<!-- ================= PROOF ================= -->
-<section class="proof">
-  <div class="wrap">
-    <div class="stats">
-      <div class="stat rv"><div class="n">4<small>min a day</small></div><div class="l">Your total time on marketing. Approve at the coffee machine.</div></div>
-      <div class="stat rv"><div class="n">50<small>posts a month</small></div><div class="l">Planned, written and designed for you across your channels.</div></div>
-      <div class="stat rv"><div class="n">24<small>hours</small></div><div class="l">From your URL to a live plan waiting for your first yes.</div></div>
-      <div class="stat rv"><div class="n">&lt;1<small>hour</small></div><div class="l">Until Otto pings you when a metric drops — with the fix drafted.</div></div>
-    </div>
-  </div>
-</section>
-
 <!-- ================= HOW IT WORKS ================= -->
-<section id="how">
+<section id="how" class="band-w">
   <div class="wrap">
     <div class="center rv">
-      <div class="eyebrow center">How it works</div>
-      <h2>Five steps. <b>You only do one of them.</b></h2>
-      <p class="sub">Every widget below is the real loop, not a slideshow. Sample brand: Happy Garden, a CBD store in the EU.</p>
+      <h2>How it works</h2>
+      <p class="sub">Five steps from your website to published posts. The examples below use Happy Garden, a CBD shop in the EU.</p>
     </div>
 
-    <div class="chapters" style="margin-top:80px">
+    <div class="chapters">
 
       <!-- 01 -->
       <div class="chapter rv">
         <div class="ch-text">
-          <div class="num">Step 1 · Drop your URL</div>
+          <p class="num">Step 1 · Your website</p>
           <h2>Otto reads your business.</h2>
-          <p class="sub">Paste your website. Otto reads every page, pulls your colors, your voice and your real customer reviews, maps your competitors and profiles who actually buys from you. You answer at most four questions. No questionnaire, ever.</p>
-          <div class="ch-cta"><a class="btn primary" href="https://whop.com/checkout/plan_joHl1qsZoiJc9">Start with my URL</a><span class="hint">At most four questions. No forms.</span></div>
+          <p class="sub">Paste your website. Otto reads every page, takes your colours, your tone and your real customer reviews, finds your competitors and works out who buys from you. Then it asks you at most four questions.</p>
         </div>
         <div class="widget" id="w-scan">
-          <span class="wtag">Live sample</span>
           <div class="browser">
-            <div class="bbar"><i></i><i></i><i></i><div class="burl"><span class="lock">🔒</span><span id="scan-url"></span><span class="c"></span></div></div>
+            <div class="bbar"><i></i><i></i><i></i><div class="burl" id="scan-url"></div></div>
             <div class="bgrid">
               <ul class="steps" id="scan-steps">
                 <li><span class="dot"></span>Reading the site</li>
-                <li><span class="dot"></span>Extracting brand DNA</li>
-                <li><span class="dot"></span>Mapping competitors</li>
-                <li><span class="dot"></span>Profiling the audience</li>
+                <li><span class="dot"></span>Reading your colours and tone</li>
+                <li><span class="dot"></span>Finding competitors</li>
+                <li><span class="dot"></span>Working out your audience</li>
                 <li><span class="dot"></span>Drafting the month</li>
               </ul>
               <div class="profile">
-                <div class="ph">Brand profile<span class="ptag">Auto-filled</span></div>
-                <div class="prow" data-k="industry"><div class="pl">Industry</div><div class="pv">CBD wellness · EU e-commerce · DACH + UK</div></div>
-                <div class="prow" data-k="palette"><div class="pl">Palette</div><div class="pv"><span class="sw" style="background:#FFBC00"></span><span class="sw" style="background:#111"></span><span class="sw" style="background:#F95C8F"></span><span class="sw" style="background:#F5F5F5"></span><span class="sw" style="background:#25D366"></span></div></div>
-                <div class="prow" data-k="voice"><div class="pl">Voice</div><div class="pv"><i>Educational, trust-first. Lab tests over hype.</i></div></div>
+                <div class="ph">Brand profile<span class="ptag">Filled in by Otto</span></div>
+                <div class="prow" data-k="industry"><div class="pl">Industry</div><div class="pv">CBD wellness · online shop · Germany, Austria, UK</div></div>
+                <div class="prow" data-k="palette"><div class="pl">Colours</div><div class="pv"><span class="sw" style="background:#FFBC00"></span><span class="sw" style="background:#111"></span><span class="sw" style="background:#F95C8F"></span><span class="sw" style="background:#F5F5F5"></span><span class="sw" style="background:#25D366"></span></div></div>
+                <div class="prow" data-k="voice"><div class="pl">Tone</div><div class="pv"><i>Educational and trust-first. Lab results over hype.</i></div></div>
                 <div class="prow" data-k="proof"><div class="pl">Competitors</div><div class="pv">Nordic Oil · Naturecan · CBD Vital · Hempamed</div></div>
-                <div class="prow" data-k="audience"><div class="pl">Audience</div><div class="pv">Petra, 52, Germany — <i>“I haven’t slept well in years.”</i></div></div>
-                <div class="prow" data-k="plan"><div class="pl">Plan</div><div class="chips"><span class="chip">Education</span><span class="chip">Trust &amp; proof</span><span class="chip">Use-case</span><span class="chip">Product</span><span class="chip">Engagement</span><span class="chip warn">Restricted on Meta → organic-first</span></div></div>
+                <div class="prow" data-k="audience"><div class="pl">Audience</div><div class="pv">Petra, 52, Germany: <i>“I haven’t slept well in years.”</i></div></div>
+                <div class="prow" data-k="plan"><div class="pl">Plan</div><div class="chips"><span class="chip">Education</span><span class="chip">Trust and proof</span><span class="chip">Use cases</span><span class="chip">Product</span><span class="chip">Engagement</span><span class="chip">Restricted on Meta, so organic first</span></div></div>
               </div>
             </div>
           </div>
+          <p class="wtag">Sample profile</p>
         </div>
       </div>
 
       <!-- 02 -->
       <div class="chapter flip rv">
         <div class="ch-text">
-          <div class="num">Step 2 · Otto builds your month</div>
-          <h2>A full month, planned before you ask.</h2>
-          <p class="sub">Fifty posts, twelve stories and four explainer reels a month, spread over five pillars and slotted into the hours your audience is online. The mix of carousels, statics and reels follows what works in your category. Written in your voice, designed on-brand. You open a calendar that is already full.</p>
-          <div class="ch-cta"><a class="btn ghost" href="#pricing">See what's included</a><span class="hint">Facebook, Instagram, LinkedIn, stories, reels.</span></div>
+          <p class="num">Step 2 · The plan</p>
+          <h2>Otto plans the whole month.</h2>
+          <p class="sub">Fifty posts, twelve stories and four short explainer reels a month, spread across your content pillars and set for the hours your audience is online. Carousels, single images and reels in the mix that works in your category, written in your tone and designed in your colours.</p>
         </div>
         <div class="widget" id="w-plan">
-          <span class="wtag">Month plan</span>
           <div class="cal">
-            <div class="cal-head"><span class="m">October 2026</span><span class="cnt"><b id="plan-count">0</b> posts · 5 pillars · FB + IG</span></div>
+            <div class="cal-head"><span class="m">October 2026</span><span class="cnt"><span id="plan-count">0</span> posts<span class="cnt-x"> · Facebook and Instagram</span></span></div>
             <div class="dow"><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span></div>
             <div class="days" id="days"></div>
-            <div class="legend"><span><i style="background:var(--cobalt)"></i>Education</span><span><i style="background:var(--green)"></i>Trust &amp; proof</span><span><i style="background:#D99A1E"></i>Use-case</span><span><i style="background:var(--purple)"></i>Product</span><span><i style="background:var(--pink)"></i>Engagement</span></div>
-            <div class="slotline" id="slotline">Sage: <b>best slots Sun 09:00 · Tue 18:00</b>, from your audience's activity, not a guess.</div>
+            <p class="slotline" id="slotline">Best times for Happy Garden: <b>Sunday 09:00 and Tuesday 18:00</b>, taken from when its audience is online.</p>
           </div>
         </div>
       </div>
@@ -668,29 +491,14 @@ footer a:hover{color:var(--ink)}
       <!-- 03 -->
       <div class="chapter rv">
         <div class="ch-text">
-          <div class="num">Step 3 · You approve from your phone</div>
-          <h2>Swipe right. <b>That's your whole job.</b></h2>
-          <p class="sub">Every post lands in your Telegram exactly as it will look in the feed. Approve, skip, or reply “make it shorter” and Otto rewrites it on the spot. Nothing publishes without your yes — and yes takes one tap at the coffee machine.</p>
-          <div class="ch-cta"><a class="btn primary" href="https://whop.com/checkout/plan_joHl1qsZoiJc9">Get my approval deck</a><span class="hint">Telegram or dashboard. Same card.</span></div>
+          <p class="num">Step 3 · Your approval</p>
+          <h2>Nothing is posted until you approve it.</h2>
+          <p class="sub">Every post arrives in Telegram exactly as it will appear in the feed. Approve it, skip it, or reply “make it shorter” and Otto rewrites it. The same posts wait in your dashboard, so you can decide wherever you are.</p>
         </div>
         <div class="widget" id="w-approve">
-          <span class="wtag">Approval loop</span>
-          <div class="approve-stage">
-            <div class="phone">
-              <div class="notch"></div>
-              <div class="tg">
-                <div class="tg-bar"><span class="tav">O</span><div><div class="tn">Otto</div><div class="ts">bot · your marketing department</div></div></div>
-                <div class="tg-feed" id="tg-feed"></div>
-              </div>
-            </div>
-            <div class="deckside">
-              <div class="mini-deck" id="mini-deck">
-                <div class="mcard u2"><div class="mh"><span class="av cm" style="width:22px;height:22px;font-size:9px">CM</span>CMTM College<span class="pf fb" style="width:20px;height:20px;font-size:8px">FB</span></div><div class="mm">10,000 graduates. 25 years. One family.</div><div class="mf"><span>Community</span></div></div>
-                <div class="mcard u1"><div class="mh"><span class="av hg" style="width:22px;height:22px;font-size:9px">HG</span>Happy Garden<span class="pf ig" style="width:20px;height:20px;font-size:8px">IG</span></div><div class="mm">Full vs Broad vs Isolate — 60-second guide</div><div class="mf"><span>Education</span><span>Sun 08:00</span></div></div>
-                <div class="mcard top" id="mcard-top"><div class="stamp">APPROVED</div><div class="mh"><span class="av cm" style="width:22px;height:22px;font-size:9px">CM</span>CMTM College<span class="pf fb" style="width:20px;height:20px;font-size:8px">FB</span></div><div class="mm">At 43, with no clinical background, she opened a practice</div><div class="mf"><span>Alumni stories</span><span>Sat 18:00</span></div></div>
-              </div>
-              <div class="mirror"><span class="tgi">✈</span><span><b>Same card, both places.</b>Decide in Telegram and the dashboard deck updates live — or the other way round.</span></div>
-            </div>
+          <div class="phone">
+            <div class="tg-bar"><span class="tav"><i></i></span><div><div class="tn">Otto</div><div class="ts">Your marketing department</div></div></div>
+            <div class="tg-feed" id="tg-feed"></div>
           </div>
         </div>
       </div>
@@ -698,13 +506,11 @@ footer a:hover{color:var(--ink)}
       <!-- 04 -->
       <div class="chapter flip rv">
         <div class="ch-text">
-          <div class="num">Step 4 · Otto publishes, watches, tells you what to do</div>
-          <h2>The agency <b>speaks first.</b></h2>
-          <p class="sub">Approved posts go out on their slot. Otto watches reach, clicks and leads against your own baselines around the clock, sends a 30-second briefing every morning, and pings you within the hour when something drops — with the fix already drafted. You decide. Otto does.</p>
-          <div class="ch-cta"><a class="btn ghost" href="#faq">What if I'm not around?</a><span class="hint">07:30 briefing. Hourly watch.</span></div>
+          <p class="num">Step 4 · Publishing and alerts</p>
+          <h2>Otto tells you when something changes.</h2>
+          <p class="sub">Approved posts go out on schedule. Otto compares reach, clicks and leads with your own averages, sends a short briefing every morning, and messages you when something drops, with a fix already drafted. You decide; Otto does the work.</p>
         </div>
         <div class="widget" id="w-watch">
-          <span class="wtag">Proactive engine</span>
           <div class="watch" id="watch-feed"></div>
         </div>
       </div>
@@ -712,13 +518,11 @@ footer a:hover{color:var(--ink)}
       <!-- 05 -->
       <div class="chapter rv">
         <div class="ch-text">
-          <div class="num">Step 5 · Paid, and the numbers</div>
-          <h2>Every number you'd ask an agency for. <b>Every morning.</b></h2>
-          <p class="sub">Connect your ad accounts and Otto sends a daily Facebook + Google report, plans campaigns on the same calendar as your posts, guards your cost per lead, and shows you month-over-month growth — reach, engagement, followers, spend, results — in one place.</p>
-          <div class="ch-cta"><a class="btn ghost" href="#pricing">See the Growth plan</a><span class="hint">07:35 paid report. Month in review.</span></div>
+          <p class="num">Step 5 · Ads and reports</p>
+          <h2>A short report every morning, and the month at a glance.</h2>
+          <p class="sub">Connect your Meta and Google ad accounts and Otto plans campaigns on the same calendar as your posts, sends a daily report on spend and results, and shows month-over-month growth: reach, engagement, followers, spend and leads.</p>
         </div>
         <div class="widget" id="w-paid">
-          <span class="wtag">With your ad accounts connected</span>
           <div class="watch" id="paid-feed"></div>
         </div>
       </div>
@@ -728,147 +532,120 @@ footer a:hover{color:var(--ink)}
 </section>
 
 <!-- ================= SOLUTIONS ================= -->
-<section id="solutions" style="padding-top:0">
+<section id="solutions">
   <div class="wrap">
     <div class="center rv">
-      <div class="eyebrow center">Otto for your industry</div>
-      <h2>Same engine. <b>Your business, your voice.</b></h2>
-      <p class="sub">The profile Otto builds from your site decides the pillars, the angles and the look. Pick an industry to see what a first week looks like.</p>
+      <p class="eyebrow">Industries</p>
+      <h2>Otto adapts to your kind of business.</h2>
+      <p class="sub">Your pillars, angles and look come from the profile Otto builds from your site. Pick an industry to see a first week.</p>
       <div class="ind-chips" id="ind-chips" role="tablist"></div>
     </div>
     <div class="sol rv" id="sol"></div>
   </div>
 </section>
 
-<!-- ================= FLIP ================= -->
-<section style="background:var(--surface);border-top:1px solid var(--line);border-bottom:1px solid var(--line)">
-  <div class="wrap">
-    <div class="center rv">
-      <div class="eyebrow center">The flip</div>
-      <h2>Every marketing tool gives you more work. <b>Otto gives you less.</b></h2>
-      <p class="sub">Schedulers, AI writers, dashboards — they all sit and wait for you to drive them. Otto drives itself, and drives you only when a human decision is actually needed.</p>
-    </div>
-    <div class="flip-grid rv">
-      <div class="fcol">
-        <div class="tag">Before</div>
-        <h3>Marketing today</h3>
-        <ul>
-          <li>You brief the agency. Then chase the agency.</li>
-          <li>“What should we post this week?” — every week, from zero.</li>
-          <li>Canva at midnight because the visual isn't ready.</li>
-          <li>Ads bleed for nine days before anyone notices.</li>
-          <li>Reports arrive monthly, when it's too late to act.</li>
-          <li>Every tool waits for you to open it.</li>
-        </ul>
-      </div>
-      <div class="vs">VS</div>
-      <div class="fcol otto">
-        <div class="tag">After</div>
-        <h3>Marketing with Otto</h3>
-        <ul>
-          <li>Otto builds the month's plan — content, slots, channels.</li>
-          <li>Posts arrive written, designed and scheduled. You swipe.</li>
-          <li>Visuals are generated on-brand, per post, automatically.</li>
-          <li>A drop in performance pings your phone within the hour.</li>
-          <li>A daily briefing tells you what happened and what's next.</li>
-          <li>Otto comes to you. In Telegram. With a button.</li>
-        </ul>
-      </div>
-    </div>
-  </div>
-</section>
-
 <!-- ================= COMPARE ================= -->
-<section>
+<section class="band-w">
   <div class="wrap">
     <div class="center rv">
-      <div class="eyebrow center">What it replaces</div>
-      <h2>All your marketing, <b>one quiet system.</b></h2>
-      <p class="sub">See how Otto compares to the ways you could get this done today.</p>
+      <p class="eyebrow">Compared</p>
+      <h2>What Otto replaces.</h2>
+      <p class="sub">The other ways to get the same work done, side by side.</p>
     </div>
     <div class="cmp-wrap rv">
       <table class="cmp">
-        <thead><tr><th></th><th class="otto">Otto</th><th>Agency</th><th>In-house hire</th><th>Tools + ChatGPT</th></tr></thead>
+        <thead><tr><th></th><th class="otto">Otto</th><th>Agency</th><th>In-house hire</th><th>Tools and ChatGPT</th></tr></thead>
         <tbody>
-          <tr><td>Cost</td><td class="otto"><span class="big">€197</span>one-time, founding cohort</td><td><span class="big">€1.5–5k</span>per month, plus project fees</td><td><span class="big">€4–6k</span>per month, salary + overhead</td><td><span class="big">€60–100</span>per month, plus your evenings</td></tr>
-          <tr><td>Time to first post</td><td class="otto">24 hours</td><td>2–4 weeks</td><td>2–3 months</td><td>Tonight — if you write it</td></tr>
-          <tr><td>Who drives</td><td class="otto">Otto. You approve.</td><td>You brief, they execute</td><td>You manage</td><td>You, every time</td></tr>
-          <tr><td>Your time / week</td><td class="otto">~30 minutes</td><td>Meetings, emails, approvals</td><td>1:1s, follow-up, HR</td><td>8–10 hours</td></tr>
-          <tr><td>Watches performance</td><td class="otto">Hourly, and alerts you</td><td>Monthly report</td><td>When you ask</td><td>Never</td></tr>
+          <tr><td>Cost</td><td class="otto"><span class="big">€197</span>one-time, founding pilot</td><td><span class="big">€1.5–5k</span>a month, plus project fees</td><td><span class="big">€4–6k</span>a month, salary and overhead</td><td><span class="big">€60–100</span>a month, plus your evenings</td></tr>
+          <tr><td>Time to first post</td><td class="otto">24 hours</td><td>2–4 weeks</td><td>2–3 months</td><td>Tonight, if you write it</td></tr>
+          <tr><td>Who does the work</td><td class="otto">Otto. You approve.</td><td>You brief, they execute</td><td>You manage</td><td>You, every time</td></tr>
+          <tr><td>Your time each week</td><td class="otto">About 30 minutes</td><td>Meetings, emails, approvals</td><td>One-to-ones and follow-up</td><td>8–10 hours</td></tr>
+          <tr><td>Watches performance</td><td class="otto">Every hour, and tells you</td><td>Monthly report</td><td>When you ask</td><td>Never</td></tr>
           <tr><td>Commitment</td><td class="otto">None</td><td>3–6 months</td><td>Notice period</td><td>None</td></tr>
         </tbody>
       </table>
-      <p class="cmp-note">Agency and in-house figures are market ranges — retainers, project costs, salary, social costs and overhead. Otto's founding price is one-time for the pilot cohort and moves to monthly plans afterwards.</p>
     </div>
+    <p class="cmp-note rv">Agency and in-house figures are market ranges for retainers, project costs, salary, social costs and overhead. Otto’s founding price is a one-time payment for the pilot group; monthly plans follow.</p>
   </div>
 </section>
 
-<!-- ================= TEAM ================= -->
-<section id="team" style="background:var(--surface);border-top:1px solid var(--line);border-bottom:1px solid var(--line)">
+<!-- ================= WHAT OTTO DOES ================= -->
+<section id="team">
   <div class="wrap">
     <div class="center rv">
-      <div class="eyebrow center">Your AI team</div>
-      <h2>Six specialists. <b>One quiet department.</b></h2>
-      <p class="sub">Each one owns a job. Orion runs the room and only interrupts you with a decision. No dashboards to babysit.</p>
+      <h2>What Otto does every day</h2>
     </div>
-    <div class="team rv" id="team-grid"></div>
+    <ul class="jobs rv">
+      <li class="job"><h3>Plans your month</h3><p>Pillars, formats and posting times for every channel, a month ahead.</p></li>
+      <li class="job"><h3>Writes every post</h3><p>Hooks, captions and stories in your tone, based on what your site and customers say.</p></li>
+      <li class="job"><h3>Designs visuals and reels</h3><p>Images, carousels and short explainer reels in your colours.</p></li>
+      <li class="job"><h3>Publishes on schedule</h3><p>Approved posts go out at the hours your audience is online.</p></li>
+      <li class="job"><h3>Watches the numbers</h3><p>Reach, clicks, leads and ad spend against your own averages, every day.</p></li>
+      <li class="job"><h3>Studies your competitors</h3><p>A weekly look at what they post and advertise, turned into ideas for you.</p></li>
+    </ul>
   </div>
 </section>
 
 <!-- ================= PRICING ================= -->
-<section id="pricing">
+<section id="pricing" class="band-w">
   <div class="wrap">
     <div class="center rv">
-      <div class="eyebrow center">Pricing</div>
-      <h2>Pick your plan. <b>Or take a founding seat today.</b></h2>
-      <p class="sub">One brand, a few, or a whole roster. Prices in euro, excl. VAT. Plans open after the founding pilot — founding members get grandfathered terms.</p>
-      <div class="toggle" role="tablist" aria-label="Billing cycle"><button class="on" data-cycle="monthly" role="tab">Monthly</button><button data-cycle="yearly" role="tab">Yearly <span class="save">−20%</span></button></div>
+      <p class="eyebrow">Pricing</p>
+      <h2>Start with the founding pilot.</h2>
+      <p class="sub">One payment, no subscription. Prices in euro, excluding VAT.</p>
     </div>
-    <div class="tiers rv" id="tiers"></div>
-    <p class="tier-note" id="tier-note"></p>
-    <div class="founding rv">
-      <div class="fp">€197<small>One-time · founding pilot</small></div>
-      <div class="ft"><b>Get in before the plans open.</b>Your own private Otto, onboarding from your URL, a month of posts with visuals, Telegram approvals, daily briefing and drop alerts — live within 24 hours. Founding customers keep their environment and get grandfathered terms when monthly plans launch.</div>
-      <a class="btn white" href="https://whop.com/checkout/plan_joHl1qsZoiJc9">Get Otto — €197 →</a>
+    <div class="offer rv">
+      <p class="oname">Founding pilot</p>
+      <div class="amt"><span class="n">€197</span><span class="per">one-time</span></div>
+      <p class="odesc">Otto set up from your website, a month of posts with visuals, approvals in Telegram, a morning briefing and alerts when something drops. Live within 24 hours.</p>
+      <ul>
+        <li>50 posts, 12 stories and 4 explainer reels for one brand</li>
+        <li>Facebook and Instagram, LinkedIn on request</li>
+        <li>Approve in Telegram or the dashboard</li>
+        <li>Morning briefing and alerts within the hour</li>
+        <li>Competitor research for your market</li>
+        <li>Your setup and founding terms carry over to the monthly plans</li>
+      </ul>
+      <a class="btn primary" href="https://whop.com/checkout/plan_joHl1qsZoiJc9">Get started</a>
+      <p class="onote">Secure checkout through Whop.</p>
+    </div>
+    <div class="after rv">
+      <h3>After the pilot</h3>
+      <p class="asub">Monthly plans open once the pilot ends.</p>
+      <div class="plans" id="plans"></div>
+      <p class="tier-note" id="tier-note"></p>
     </div>
   </div>
 </section>
 
 <!-- ================= FAQ ================= -->
-<section id="faq" style="padding-top:40px">
+<section id="faq">
   <div class="wrap">
     <div class="center rv">
-      <div class="eyebrow center">Before you decide</div>
-      <h2>Fair questions.</h2>
+      <h2>Questions</h2>
     </div>
     <div class="faq rv">
-      <details><summary>Does anything publish without my approval?</summary><div class="fa">No. Every post waits for your yes — in Telegram or in the dashboard, whichever is closer. Later you can let trusted pillars auto-publish; it's off by default.</div></details>
-      <details><summary>How is this different from a scheduler plus ChatGPT?</summary><div class="fa">Those wait for you: you think of the idea, write the prompt, fix the output, design the visual, pick the slot, press publish, check the stats. Otto owns that entire loop and comes to you only with finished work and decisions. The direction of work is reversed — that's the product.</div></details>
-      <details><summary>Will the content actually sound like my brand?</summary><div class="fa">Otto builds your brand profile from your own site: your palette, your phrasing, your real customer reviews, your proof. Then it asks you at most four questions to close the gaps. That profile binds every post and visual — and every approve or skip teaches it your taste.</div></details>
-      <details><summary>What if I'm not around to approve?</summary><div class="fa">Nothing breaks. Otto reminds you before a slot is missed, and reschedules if you don't answer. Your morning briefing lists exactly what's waiting.</div></details>
-      <details><summary>Which channels and languages?</summary><div class="fa">Facebook and Instagram today, LinkedIn on request. Content in English, German and Hebrew, including right-to-left layouts — we run a Hebrew-language brand on Otto right now.</div></details>
-      <details><summary>What do I need to bring?</summary><div class="fa">Your website URL, your social accounts connected once via official login (revoke anytime), and Telegram on your phone. That's the whole setup.</div></details>
-      <details><summary>What happens after the pilot?</summary><div class="fa">Founding customers keep their environment and get grandfathered terms when Otto moves to monthly plans. Early is the good side of this trade.</div></details>
+      <details><summary>Does anything publish without my approval?</summary><div class="fa">No. Every post waits for your approval, in Telegram or in the dashboard, whichever is closer. You can let trusted pillars publish automatically later; it is off by default.</div></details>
+      <details><summary>How is this different from a scheduler plus ChatGPT?</summary><div class="fa">With those tools you do the work: you think of the idea, write the prompt, fix the output, make the visual, pick the slot, press publish and check the stats. Otto does all of that and comes to you only with finished posts and decisions.</div></details>
+      <details><summary>Will the content actually sound like my brand?</summary><div class="fa">Otto builds your brand profile from your own site: your colours, your wording, your real customer reviews. It asks you at most four questions to fill the gaps. Every post and visual follows that profile, and every post you approve or skip teaches it more.</div></details>
+      <details><summary>What if I’m not around to approve?</summary><div class="fa">Nothing breaks. Otto reminds you before a post is due and moves it to a new slot if you don’t answer. Your morning briefing lists what is waiting.</div></details>
+      <details><summary>Which channels and languages?</summary><div class="fa">Facebook and Instagram today, LinkedIn on request. Content in English, German and Hebrew, including right-to-left layouts. One of the brands running on Otto today publishes in Hebrew.</div></details>
+      <details><summary>What do I need to bring?</summary><div class="fa">Your website address, your social accounts connected once through their official login (you can revoke access at any time), and Telegram on your phone.</div></details>
+      <details><summary>What happens after the pilot?</summary><div class="fa">You keep your setup, and your founding terms carry over when Otto moves to monthly plans.</div></details>
     </div>
   </div>
 </section>
 
 <!-- ================= FINAL ================= -->
-<section class="final">
-  <div class="band rv">
-    <div class="in">
-      <div class="eyebrow center">Last call</div>
-      <h2>Stop running your marketing.<br><em>Start approving it.</em></h2>
-      <p class="sub">Focus on the business. Otto handles the noise — and pings you when it matters.</p>
-      <div style="margin-top:30px;display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
-        <a class="btn white" href="https://whop.com/checkout/plan_joHl1qsZoiJc9">Get Otto — €197 →</a>
-        <a class="btn outline" href="#how">See it run again ↑</a>
-      </div>
-    </div>
+<section class="final band-w">
+  <div class="wrap center rv">
+    <h2>Try Otto for a month.</h2>
+    <p class="sub">€197 once. Set up from your website and live within 24 hours.</p>
+    <a class="btn primary" href="https://whop.com/checkout/plan_joHl1qsZoiJc9">Get started</a>
   </div>
 </section>
-<div class="sticky-cta" id="sticky-cta"><div class="t"><b>Otto — founding seat €197</b>Live in 24 hours · grandfathered terms</div><a class="btn primary" href="https://whop.com/checkout/plan_joHl1qsZoiJc9">Get Otto →</a></div>
-<footer><div class="in"><span>Otto · AI marketing department · 2026</span><a href="https://dash.monyflow.work/otto/">Log in</a></div></footer>
+<div class="sticky-cta" id="sticky-cta"><div class="t"><b>Founding pilot</b>€197 one-time</div><a class="btn primary" href="https://whop.com/checkout/plan_joHl1qsZoiJc9">Get started</a></div>
+<footer><div class="in"><span>Otto · 2026</span><a href="https://dash.monyflow.work/otto/">Log in</a></div></footer>
 
 <script>
 (function(){
@@ -876,92 +653,58 @@ const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const $ = (s,el=document)=>el.querySelector(s);
 const $$ = (s,el=document)=>[...el.querySelectorAll(s)];
 const A = '/otto/assets/';
+const escH = t => String(t??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 
 /* ---------- nav ---------- */
 const nav = $('#nav');
-const onScroll = ()=> nav.classList.toggle('solid', scrollY > 40);
+const onScroll = ()=> nav.classList.toggle('solid', scrollY > 8);
 addEventListener('scroll', onScroll, {passive:true}); onScroll();
-
-/* ---------- typewriter ---------- */
-const WORDS = ['restaurants','clinics','e-commerce brands','coaches','real estate','dental practices','gyms','law firms','SaaS startups','hotels','CBD brands','therapists'];
-const tw = $('#tw');
-if(!RM){
-  let wi=0, ci=WORDS[0].length, del=true;
-  const step = ()=>{
-    const w = WORDS[wi];
-    if(del){ ci--; tw.textContent = w.slice(0,ci); if(ci===0){ del=false; wi=(wi+1)%WORDS.length; setTimeout(step,260); return; } setTimeout(step,38); }
-    else { ci++; tw.textContent = WORDS[wi].slice(0,ci); if(ci===WORDS[wi].length){ del=true; setTimeout(step,2100); return; } setTimeout(step,70); }
-  };
-  setTimeout(step, 2200);
-}
 
 /* ---------- timeline helper ---------- */
 function TL(){ this.t=[]; }
 TL.prototype.at=function(ms,fn){ this.t.push(setTimeout(fn,ms)); return this; };
 TL.prototype.clear=function(){ this.t.forEach(clearTimeout); this.t=[]; };
 
-/* ---------- hero 3D stage: pointer tilt + auto-play ---------- */
-const stage=$('#stage'), tilt=$('#tilt');
-let tx=0, ty=0, raf=null;
-const applyTilt=()=>{ tilt.style.transform=`rotateY(${tx}deg) rotateX(${ty}deg)`; raf=null; };
-if(!RM && matchMedia('(pointer:fine)').matches){
-  stage.addEventListener('pointermove',e=>{ const r=stage.getBoundingClientRect(); const dx=(e.clientX-r.left)/r.width-.5, dy=(e.clientY-r.top)/r.height-.5; tx=dx*12; ty=-dy*10; if(!raf) raf=requestAnimationFrame(applyTilt); });
-  stage.addEventListener('pointerleave',()=>{ tx=0; ty=0; if(!raf) raf=requestAnimationFrame(applyTilt); });
-}
-const heroTg=$('#hero-tg'), heroRec=$('#hero-rec');
-const heroIB = heroTg.querySelector('.ib').outerHTML, heroIB2 = heroRec.querySelector('.ib2').outerHTML;
-const heroTL = new TL();
-function heroReset(){
-  const r1=heroTg.querySelector('.res'), r2=heroRec.querySelector('.res');
-  if(r1) r1.outerHTML=heroIB; else if(!heroTg.querySelector('.ib')) heroTg.insertAdjacentHTML('beforeend',heroIB);
-  if(r2) r2.outerHTML=heroIB2; else if(!heroRec.querySelector('.ib2')) heroRec.insertAdjacentHTML('beforeend',heroIB2);
-  $$('.hit',heroTg).concat($$('.hit',heroRec)).forEach(el=>el.classList.remove('hit'));
-}
-function heroPlay(){
-  heroTL.clear(); heroReset();
-  heroTL.at(0,()=>{ const ok=heroTg.querySelector('.ib .ok'); ok&&ok.classList.add('hit'); });
-  heroTL.at(420,()=>{ const ib=heroTg.querySelector('.ib'); if(ib) ib.outerHTML='<div class="res">✅ Approved · publishes Sat 18:00</div>'; });
-  heroTL.at(2200,()=>{ const ok=heroRec.querySelector('.ib2 .ok'); ok&&ok.classList.add('hit'); });
-  heroTL.at(2620,()=>{ const ib2=heroRec.querySelector('.ib2'); if(ib2) ib2.outerHTML='<div class="res">✅ Approved · Quill is drafting the LinkedIn plan</div>'; });
-  heroTL.at(6200,heroReset);
-}
-if(!RM){ setTimeout(heroPlay,2600); setInterval(heroPlay,9200); }
-
 /* ---------- reveal ---------- */
 const io = new IntersectionObserver(es=>es.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target);} }),{threshold:.12});
 $$('.rv').forEach(el=>io.observe(el));
 
 /* ---------- marquee ---------- */
+const GLYPH = {
+  ig:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="4" width="16" height="16" rx="5"/><circle cx="12" cy="12" r="3.6"/><circle cx="16.8" cy="7.2" r="1" fill="currentColor" stroke="none"/></svg>',
+  fb:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M13.4 21v-7.6h2.5l.4-3h-2.9V8.6c0-.9.3-1.5 1.5-1.5h1.6V4.4c-.3 0-1.2-.1-2.3-.1-2.2 0-3.7 1.3-3.7 3.8v2.3H8v3h2.5V21z"/></svg>'
+};
+const PNAME = {ig:'Instagram', fb:'Facebook'};
 const POSTS = [
-  {b:'hg',n:'Happy Garden',s:'happygardeneu.com · IG',p:'ig',img:'posts/hg-001.png',st:['pub','PUBLISHED · SUN 08:00'],cap:'<b>happygarden</b> Full Spectrum, Broad Spectrum, Isolate — same plant, three very different products. 🌿 60 seconds to know what\'s in your bottle →'},
-  {b:'cm',n:'CMTM College',s:'cmtm.co.il · FB',p:'fb',img:'posts/cm-002.png',st:['app','APPROVED · SAT 18:00'],cap:'<b>CMTM College</b> At 43, with no clinical background, Ronit enrolled “just for herself”. Two years later: a full practice and a full calendar.'},
-  {b:'hg',n:'Happy Garden',s:'happygardeneu.com · FB',p:'fb',txt:'What our customers actually say',bg:'linear-gradient(160deg,#1C2A4A,#0B1230)',st:['app','APPROVED · TUE 17:00'],cap:'<b>Happy Garden</b> “The quality feels clean and trustworthy” — Melanie S. ⭐⭐⭐⭐⭐ Every batch independently lab tested.'},
-  {b:'cm',n:'CMTM College',s:'cmtm.co.il · IG',p:'ig',img:'posts/cm-001.png',st:['rev','IN REVIEW'],cap:'<b>cmtm.college</b> “Healing from the root” isn’t a slogan. It’s a method. Five slides on how it works → swipe.'},
-  {b:'hg',n:'Happy Garden',s:'happygardeneu.com · IG',p:'ig',txt:'Myth: “CBD gets you high.” ✕',bg:'#FFBC00',dark:1,st:['sch','SCHEDULED · THU 18:00'],cap:'<b>happygarden</b> Fact: CBD is non-intoxicating. Our Broad Spectrum and Isolate lines contain zero THC. Wellness without the buzz.'},
-  {b:'cm',n:'CMTM College',s:'cmtm.co.il · IG',p:'ig',img:'posts/cm-007.png',st:['sch','SCHEDULED · MON 09:00'],cap:'<b>cmtm.college</b> Myth: you need a psychology degree to help people. Reality: a structured path has trained practitioners for 25 years.'},
-  {b:'hg',n:'Happy Garden',s:'happygardeneu.com · IG',p:'ig',txt:'Why CBN is called the “sleepy cannabinoid”',bg:'radial-gradient(120% 100% at 80% 0%,#33509F,#0B1230 60%)',st:['app','APPROVED · WED 20:00'],cap:'<b>happygarden</b> CBD gets the fame, but CBN is the quiet specialist. Our CBD+CBG+CBN blend is built for one job: the evening wind-down.'},
-  {b:'cm',n:'CMTM College',s:'cmtm.co.il · FB',p:'fb',txt:'10,000 graduates. 25 years. One family.',bg:'linear-gradient(160deg,#5A4A2E,#2B2118)',st:['pub','PUBLISHED · WED 09:00'],cap:'<b>CMTM College</b> 25 years of training practitioners. 10,000 graduates. A community that stays with them long after the diploma.'},
-  {b:'hg',n:'Happy Garden',s:'happygardeneu.com · IG story',p:'ig',txt:'What brings you to CBD? 😴 💪 🧘 🐾',bg:'linear-gradient(160deg,#F95C8F,#F5716A)',st:['sch','SCHEDULED · MON 19:00'],cap:'<b>happygarden</b> Poll: Sleep / Recovery / Calm / My pet — tap to vote. We\'ll write next week around the winner.'},
-  {b:'cm',n:'CMTM College',s:'cmtm.co.il · FB',p:'fb',txt:'A second career with meaning: 3 questions to ask first',bg:'linear-gradient(160deg,#2B4A3E,#10251C)',st:['dr','DRAFT'],cap:'<b>CMTM College</b> Not everyone should become a therapist. But if you answered yes to all three, let’s talk.'},
-  {b:'hg',n:'Happy Garden',s:'happygardeneu.com · FB',p:'fb',txt:'3 things to check before buying any CBD product',bg:'linear-gradient(160deg,#1C4A35,#0A2A1C)',st:['rev','IN REVIEW'],cap:'<b>Happy Garden</b> Lab report. Spectrum. Origin. We publish all three — here\'s how to read them in 15 seconds.'},
-  {b:'cm',n:'CMTM College',s:'cmtm.co.il · IG',p:'ig',txt:'Back from a hard month and “carrying on as usual”? The body remembers.',bg:'linear-gradient(160deg,#3A3A5C,#171733)',st:['dr','DRAFT'],cap:'<b>cmtm.college</b> There is a way to process what the body carries. No drama, no promises. Tools.'},
+  {n:'Happy Garden',s:'happygardeneu.com',p:'ig',img:'posts/hg-001.png',st:'Published · Sun 08:00',cap:'<b>happygarden</b> Full spectrum, broad spectrum, isolate: same plant, three very different products. Sixty seconds to know what’s in your bottle.'},
+  {n:'CMTM College',s:'cmtm.co.il',p:'fb',img:'posts/cm-002.png',st:'Approved · Sat 18:00',cap:'<b>CMTM College</b> At 43, with no clinical background, Ronit enrolled “just for herself”. Two years later: a full practice and a full calendar.'},
+  {n:'Happy Garden',s:'happygardeneu.com',p:'fb',txt:'What our customers actually say',bg:'linear-gradient(160deg,#1C2A4A,#0B1230)',st:'Approved · Tue 17:00',cap:'<b>Happy Garden</b> “The quality feels clean and trustworthy.” Melanie S. Every batch is independently lab tested.'},
+  {n:'CMTM College',s:'cmtm.co.il',p:'ig',img:'posts/cm-001.png',st:'In review',cap:'<b>cmtm.college</b> “Healing from the root” isn’t a slogan. It’s a method. Five slides on how it works.'},
+  {n:'Happy Garden',s:'happygardeneu.com',p:'ig',txt:'Myth: “CBD gets you high.”',bg:'#FFBC00',dark:1,st:'Scheduled · Thu 18:00',cap:'<b>happygarden</b> Fact: CBD doesn’t get you high. Our broad spectrum and isolate lines contain no THC at all.'},
+  {n:'CMTM College',s:'cmtm.co.il',p:'ig',img:'posts/cm-007.png',st:'Scheduled · Mon 09:00',cap:'<b>cmtm.college</b> Myth: you need a psychology degree to help people. Reality: a structured path has trained practitioners for 25 years.'},
+  {n:'Happy Garden',s:'happygardeneu.com',p:'ig',txt:'Why CBN is called the “sleepy cannabinoid”',bg:'radial-gradient(120% 100% at 80% 0%,#33509F,#0B1230 60%)',st:'Approved · Wed 20:00',cap:'<b>happygarden</b> CBD gets the attention, but CBN is the quiet specialist. Our CBD, CBG and CBN blend is made for the evening wind-down.'},
+  {n:'CMTM College',s:'cmtm.co.il',p:'fb',txt:'10,000 graduates. 25 years. One family.',bg:'linear-gradient(160deg,#5A4A2E,#2B2118)',st:'Published · Wed 09:00',cap:'<b>CMTM College</b> 25 years of training practitioners. 10,000 graduates, and a community that stays with them long after the diploma.'},
+  {n:'Happy Garden',s:'happygardeneu.com · story',p:'ig',txt:'What brings you to CBD?',bg:'linear-gradient(160deg,#F95C8F,#F5716A)',st:'Scheduled · Mon 19:00',cap:'<b>happygarden</b> Poll: sleep, recovery, calm or your pet. Tap to vote; next week’s posts follow the winner.'},
+  {n:'CMTM College',s:'cmtm.co.il',p:'fb',txt:'A second career with meaning: 3 questions to ask first',bg:'linear-gradient(160deg,#2B4A3E,#10251C)',st:'Draft',cap:'<b>CMTM College</b> Not everyone should become a therapist. But if you answered yes to all three, let’s talk.'},
+  {n:'Happy Garden',s:'happygardeneu.com',p:'fb',txt:'3 things to check before buying any CBD product',bg:'linear-gradient(160deg,#1C4A35,#0A2A1C)',st:'In review',cap:'<b>Happy Garden</b> Lab report, spectrum, origin. We publish all three; here’s how to read them in 15 seconds.'},
+  {n:'CMTM College',s:'cmtm.co.il',p:'ig',txt:'Back from a hard month and “carrying on as usual”? The body remembers.',bg:'linear-gradient(160deg,#3A3A5C,#171733)',st:'Draft',cap:'<b>cmtm.college</b> There is a way to process what the body carries. No drama, no promises. Tools.'},
 ];
 const card = p => `<div class="pc">
-  <div class="pc-head"><span class="av ${p.b}">${p.b.toUpperCase()}</span><div><div class="pc-name">${p.n}</div><div class="pc-sub">${p.s}</div></div><span class="pf ${p.p}">${p.p.toUpperCase()}</span></div>
-  <div class="pc-media" ${p.bg?`style="background:${p.bg}"`:''}>${p.img?`<img src="${A}${p.img}" alt="" loading="lazy">`:`<div class="txt ${p.dark?'dark':''}" ${p.rtl?'dir="rtl"':''}>${p.txt}</div>`}<span class="st ${p.st[0]}">${p.st[1]}</span></div>
-  <div class="pc-cap" ${p.rtl?'dir="rtl"':''}>${p.cap}</div>
-  <div class="pc-foot"><span>Like</span><span>Comment</span><span>Share</span></div>
+  <div class="pc-head"><span class="av">${p.n.charAt(0)}</span><div><div class="pc-name">${p.n}</div><div class="pc-sub">${p.s}</div></div><span class="glyph" title="${PNAME[p.p]}">${GLYPH[p.p]}</span></div>
+  <div class="pc-media" ${p.bg?`style="background:${p.bg}"`:''}>${p.img?`<img src="${A}${p.img}" alt="" loading="lazy">`:`<div class="txt ${p.dark?'dark':''}">${p.txt}</div>`}<span class="st">${p.st}</span></div>
+  <div class="pc-cap">${p.cap}</div>
 </div>`;
-$('#track').innerHTML = POSTS.map(card).join('') + POSTS.map(card).join('');
+$('#track').innerHTML = POSTS.map(card).join('') + `<div style="display:contents" aria-hidden="true">${POSTS.map(card).join('')}</div>`;
 
-/* ---------- widget engine ---------- */
+/* ---------- widget engine: each widget plays once when it scrolls into view ---------- */
 const widgets = [];
-function register(el, reset, run){ const w={el,reset,run,tl:new TL(),live:false}; widgets.push(w); return w; }
-function loop(w){ if(w.locked) return; w.tl.clear(); w.reset(); if(RM){ w.run(w.tl,true); return; } const d = w.run(w.tl,false); w.tl.at(d+2400, ()=>{ if(w.live) loop(w); }); }
+function register(el, reset, run){ const w={el,reset,run,tl:new TL(),played:false,locked:false}; widgets.push(w); reset(); return w; }
+function play(w){ w.tl.clear(); w.reset(); w.run(w.tl, RM); w.played = true; }
 const wio = new IntersectionObserver(es=>es.forEach(e=>{
+  if(!e.isIntersecting) return;
   const w = widgets.find(x=>x.el===e.target); if(!w) return;
-  if(e.isIntersecting && !w.live){ w.live=true; loop(w); }
-  else if(!e.isIntersecting && w.live){ w.live=false; w.tl.clear(); }
+  wio.unobserve(e.target);
+  if(!w.played && !w.locked) play(w);
 }),{threshold:.35});
 
 /* --- 01 scan --- */
@@ -970,26 +713,25 @@ const scan = register($('#w-scan'),
   ()=>{ $('#scan-url').textContent=''; $$('#scan-steps li').forEach(l=>l.className=''); $$('#w-scan .prow').forEach(r=>r.classList.remove('in')); },
   (tl,instant)=>{
     const steps=$$('#scan-steps li'), rows=$$('#w-scan .prow'), url=$('#scan-url');
-    if(instant){ url.textContent=SCAN_URL; steps.forEach(l=>l.className='done'); rows.forEach(r=>r.classList.add('in')); return 0; }
+    if(instant){ url.textContent=SCAN_URL; steps.forEach(l=>l.className='done'); rows.forEach(r=>r.classList.add('in')); return; }
     let t=200;
-    [...SCAN_URL].forEach((ch,i)=>tl.at(t+i*45,()=>url.textContent+=ch)); t+=SCAN_URL.length*45+500;
+    [...SCAN_URL].forEach((ch,i)=>tl.at(t+i*45,()=>url.textContent+=ch)); t+=SCAN_URL.length*45+400;
     const show=[[0],[1,2],[3],[4],[5]];
     steps.forEach((li,i)=>{
       tl.at(t,()=>{ li.className='on'; });
-      tl.at(t+1000,()=>{ li.className='done'; show[i].forEach(k=>rows[k]&&rows[k].classList.add('in')); });
-      t+=1100;
+      tl.at(t+900,()=>{ li.className='done'; show[i].forEach(k=>rows[k]&&rows[k].classList.add('in')); });
+      t+=1000;
     });
-    return t+300;
   });
 
 /* --- 02 plan --- */
-const PIL=['edu','proof','use','prod','eng'], PN={edu:'Edu',proof:'Proof',use:'Use',prod:'Prod',eng:'Poll'};
+const SLOTS=[['08:00','18:00'],['12:30','18:00'],['08:00','19:00'],['09:00','19:00'],['08:00','17:00'],['11:00'],['09:00']];   // Mon…Sun
 const daysEl=$('#days');
 (function buildCal(){
-  let h=''; for(let i=0;i<3;i++) h+='<div class="day off"></div>';           // Oct 1 2026 = Thursday
+  let h=''; for(let i=0;i<3;i++) h+='<div class="day off"></div>';           // 1 Oct 2026 is a Thursday
   for(let d=1; d<=31; d++){
-    const dow=(3+d-1)%7; const chips = dow===5 ? ([10,24].includes(d)?1:0) : dow===6 ? 1 : 2; let c='';   // 22 weekdays×2 + 4 Sundays + 2 Saturdays = 50
-    for(let k=0;k<chips;k++){ const pl=PIL[(d+k*2)%5]; const plat=(d+k)%2?'IG':'FB'; c+=`<span class="pchip ${pl}">${PN[pl]}<small>${plat}</small></span>`; }
+    const dow=(3+d-1)%7; const chips = dow===5 ? ([10,24].includes(d)?1:0) : dow===6 ? 1 : 2; let c='';   // 22 weekdays x 2 + 4 Sundays + 2 Saturdays = 50
+    for(let k=0;k<chips;k++){ c+=`<span class="pchip"><span>${SLOTS[dow][k]}</span></span>`; }
     h+=`<div class="day ${d===5?'today':''}"><span class="dn">${d}</span>${c}</div>`;
   }
   daysEl.innerHTML=h;
@@ -998,100 +740,86 @@ register($('#w-plan'),
   ()=>{ $$('.pchip',daysEl).forEach(c=>c.classList.remove('in')); $('#plan-count').textContent='0'; $('#slotline').classList.remove('in'); },
   (tl,instant)=>{
     const chips=$$('.pchip',daysEl), cnt=$('#plan-count');
-    if(instant){ chips.forEach(c=>c.classList.add('in')); cnt.textContent=chips.length; $('#slotline').classList.add('in'); return 0; }
-    chips.forEach((c,i)=>tl.at(300+i*55,()=>{ c.classList.add('in'); cnt.textContent=i+1; }));
-    const end=300+chips.length*55; tl.at(end+300,()=>$('#slotline').classList.add('in'));
-    return end+900;
+    if(instant){ chips.forEach(c=>c.classList.add('in')); cnt.textContent=chips.length; $('#slotline').classList.add('in'); return; }
+    chips.forEach((c,i)=>tl.at(300+i*40,()=>{ c.classList.add('in'); cnt.textContent=i+1; }));
+    tl.at(300+chips.length*40+300,()=>$('#slotline').classList.add('in'));
   });
 
 /* --- 03 approve --- */
 const feed=$('#tg-feed');
-const msgPost=(img,cap,meta,rtl)=>`<div class="msg"><div class="mimg"><img src="${A}${img}" alt=""></div><div class="cap" ${rtl?'dir="rtl"':''}>${cap}</div><div class="meta">${meta}</div><div class="ib"><span>❌ Skip</span><span>✏️ Edit</span><span class="ok">✅ Approve</span></div><span class="t">08:14</span></div>`;
-const push=(html)=>{ feed.insertAdjacentHTML('beforeend',html); const m=feed.lastElementChild; requestAnimationFrame(()=>m.classList.add('in')); while(feed.children.length>4) feed.firstElementChild.remove(); return m; };
-const approveMsg=(m,when)=>{ const ib=$('.ib',m); const ok=$('.ok',ib); ok.classList.add('hit'); setTimeout(()=>{ ib.outerHTML=`<div class="res">✅ Approved · publishes ${when}</div>`; },420); };
-const deck=$('#mini-deck');
-const deckHTML=deck.innerHTML;
+const IB='<div class="ib"><span>Skip</span><span>Edit</span><span class="ok">Approve</span></div>';
+const msgPost=(img,cap,meta)=>`<div class="msg"><div class="mimg"><img src="${A}${img}" alt=""></div><div class="cap">${cap}</div><div class="meta">${meta}</div>${IB}<span class="t">08:14</span></div>`;
+const push=(html,now)=>{ feed.insertAdjacentHTML('beforeend',html); const m=feed.lastElementChild; if(now) m.classList.add('in'); else requestAnimationFrame(()=>requestAnimationFrame(()=>m.classList.add('in'))); while(feed.children.length>4) feed.firstElementChild.remove(); return m; };
+const approveMsg=(m,when)=>{ const ib=$('.ib',m); if(!ib) return; $('.ok',ib).classList.add('hit'); setTimeout(()=>{ ib.outerHTML=`<div class="res">Approved · publishes ${when}</div>`; },400); };
+const P1=['posts/cm-002.png','At 43, with no clinical background, Ronit enrolled “just for herself”. Two years later: a full practice and a full calendar.','Facebook · Sat 18:00 · Alumni stories'];
+const P2=['posts/hg-001.png','Full spectrum, broad spectrum, isolate: same plant, three very different products. Sixty seconds to know exactly what’s in your bottle.','Instagram · Sun 08:00 · Education'];
+const REWRITE=`<div class="msg"><div class="cap">Rewritten:\n\nFull, broad or isolate? Same plant, three products, and every batch is lab tested. A 60-second guide.</div><div class="meta">Instagram · Sun 08:00 · Education</div>${IB}<span class="t">08:15</span></div>`;
 register($('#w-approve'),
-  ()=>{ feed.innerHTML=''; deck.innerHTML=deckHTML; },
+  ()=>{ feed.innerHTML=''; },
   (tl,instant)=>{
-    const top=()=>$('.mcard.top',deck);
-    if(instant){ const m=push(msgPost('posts/cm-002.png','At 43, with no clinical background, Ronit enrolled “just for herself”. Two years later: a full practice.','FACEBOOK · SAT 18:00 · ALUMNI STORIES',0)); m.classList.add('in'); return 0; }
+    if(instant){
+      const m1=push(msgPost(...P1),1); $('.ib',m1).outerHTML='<div class="res">Approved · publishes Sat 18:00</div>';
+      push(msgPost(...P2),1); push('<div class="msg me">Shorter, and mention the lab tests<span class="t">08:15</span></div>',1);
+      const m3=push(REWRITE,1); $('.ib',m3).outerHTML='<div class="res">Approved · publishes Sun 08:00</div>';
+      return;
+    }
     let m1,m3;
-    tl.at(200,()=>{ m1=push(msgPost('posts/cm-002.png','At 43, with no clinical background, Ronit enrolled “just for herself”. Two years later: a full practice and a full calendar.','FACEBOOK · SAT 18:00 · ALUMNI STORIES',0)); });
-    tl.at(1900,()=>{ approveMsg(m1,'Sat 18:00'); const t=top(); t&&t.classList.add('stamped'); });
-    tl.at(2500,()=>{ const t=top(); if(!t) return; t.classList.add('gone'); t.classList.remove('top'); const u1=$('.mcard.u1',deck), u2=$('.mcard.u2',deck); if(u1){u1.classList.remove('u1'); u1.classList.add('top');} if(u2){u2.classList.remove('u2'); u2.classList.add('u1');} });
-    tl.at(3100,()=>{ push(msgPost('posts/hg-001.png','Full Spectrum, Broad Spectrum, Isolate — same plant, three very different products. 🌿 60 seconds to know exactly what\'s in your bottle → swipe.','INSTAGRAM · SUN 08:00 · EDUCATION',0)); });
-    tl.at(4700,()=>{ push(`<div class="msg me">shorter — and mention the lab tests<span class="t">08:15</span></div>`); });
-    tl.at(5300,()=>{ push(`<div class="typing"><i></i><i></i><i></i></div>`); });
-    tl.at(6300,()=>{ const ty=$('.typing',feed); ty&&ty.remove(); m3=push(`<div class="msg"><div class="cap">✍️ Rewritten:\n\nFull, Broad or Isolate? Same plant, three products — every batch third-party lab tested. 60-second guide → swipe.</div><div class="meta">INSTAGRAM · SUN 08:00 · EDUCATION</div><div class="ib"><span>❌ Skip</span><span>✏️ Edit</span><span class="ok">✅ Approve</span></div><span class="t">08:15</span></div>`); });
-    tl.at(7900,()=>{ approveMsg(m3,'Sun 08:00'); const t=top(); t&&t.classList.add('stamped'); });
-    tl.at(8500,()=>{ const t=top(); t&&t.classList.add('gone'); });
-    return 9200;
+    tl.at(200,()=>{ m1=push(msgPost(...P1)); });
+    tl.at(1800,()=>approveMsg(m1,'Sat 18:00'));
+    tl.at(2800,()=>push(msgPost(...P2)));
+    tl.at(4300,()=>push('<div class="msg me">Shorter, and mention the lab tests<span class="t">08:15</span></div>'));
+    tl.at(4900,()=>push('<div class="typing"><i></i><i></i><i></i></div>'));
+    tl.at(5900,()=>{ const ty=$('.typing',feed); ty&&ty.remove(); m3=push(REWRITE); });
+    tl.at(7400,()=>approveMsg(m3,'Sun 08:00'));
   });
 
-/* --- 04 watch --- */
+/* --- 04 watch: finished state first, only the last message animates in --- */
+const DAILY=`<div class="msg"><div class="hd">Morning briefing<span class="tm">07:30</span></div><ul><li><b>3 posts</b> are waiting for your approval</li><li><b>2 go out today</b>, at 09:00 and 18:00</li><li>Reach this week is <b>18% higher</b> than last week</li></ul><span class="kpi">Reach 12,480 · saves 214 · leads 9</span></div>`;
+const ALERT=`<div class="msg"><div class="hd">Alert<span class="tm">14:12</span></div>Clicks on the <b>spring campaign</b> are down <b>34%</b> on your 7-day average, from 1,140 to 750.<ul><li>Cause: the new use-case post is reaching the same people</li><li>Fix: pause ad set B and move its budget to A until Thursday</li></ul><div class="res">Fix applied at 14:13</div></div>`;
+const REC=`<div class="msg"><div class="hd">Recommendation<span class="tm">16:40</span></div><b>Add LinkedIn for the career-change pillar.</b> Your core audience is more active there. One more channel, the same content plan.<div class="ib two"><span>Not now</span><span class="ok">Approve</span></div></div>`;
 const wf=$('#watch-feed');
-const wpush=(html)=>{ wf.insertAdjacentHTML('beforeend',html); const m=wf.lastElementChild; requestAnimationFrame(()=>m.classList.add('in')); while(wf.children.length>4) wf.firstElementChild.remove(); return m; };
-const DAILY=`<div class="msg"><div class="hd">☀️ Otto Daily<span class="tm">07:30</span></div><ul><li><b>3 posts</b> waiting for your sign-off</li><li><b>2 publish today</b> on schedule — 09:00 and 18:00</li><li>Reach this week <b>+18%</b> vs last week</li></ul><span class="kpi">↗ reach 12,480 · saves 214 · leads 9</span></div>`;
-const ALERT=`<div class="msg alert"><div class="hd">🔔 Otto Alert<span class="tm">14:12</span></div>Clicks on the <b>spring campaign</b> dropped <b>34%</b> against your 7-day average.<span class="kpi dn">↘ 1,140 → 750 clicks</span><ul style="margin-top:8px"><li>Cause: audience overlap with the new use-case post</li><li>Fix drafted: pause ad set B, shift budget to A until Thursday</li></ul><div class="ib2"><span class="ok">✅ Apply fix</span><span>Not now</span></div></div>`;
-const REC=`<div class="msg rec"><div class="hd">💡 Your agency recommends<span class="tm">16:40</span></div><b>Add LinkedIn for the career-change pillar.</b> Your core audience over-indexes there. One extra channel, same content plan, near-zero extra cost.<div class="ib2"><span class="ok">✅ Approve</span><span>Not now</span></div></div>`;
+function lastIn(host, html){ host.innerHTML=html; const ms=$$('.msg',host); ms.forEach((m,i)=>m.classList.toggle('in', i<ms.length-1)); }
 register($('#w-watch'),
-  ()=>{ wf.innerHTML=''; },
-  (tl,instant)=>{
-    if(instant){ [DAILY,ALERT,REC].forEach(h=>wpush(h).classList.add('in')); return 0; }
-    let a,r;
-    tl.at(200,()=>wpush(DAILY));
-    tl.at(1900,()=>{ a=wpush(ALERT); });
-    tl.at(3600,()=>{ const ok=$('.ok',a); ok.classList.add('hit'); setTimeout(()=>{ $('.ib2',a).outerHTML=`<div class="res">✅ Fix applied · ad set B paused 14:13</div>`; },420); });
-    tl.at(4600,()=>{ r=wpush(REC); });
-    tl.at(6300,()=>{ const ok=$('.ok',r); ok.classList.add('hit'); setTimeout(()=>{ $('.ib2',r).outerHTML=`<div class="res">✅ Approved · Quill drafting the LinkedIn plan — ready by 18:00</div>`; },420); });
-    return 7600;
-  });
+  ()=>lastIn(wf, DAILY+ALERT+REC),
+  (tl,instant)=>{ const last=wf.lastElementChild; if(instant) last.classList.add('in'); else tl.at(300,()=>last.classList.add('in')); });
 
 /* --- 05 paid + growth --- */
+const PAID=`<div class="msg"><div class="hd">Ads report<span class="tm">Tue 07:35</span></div><ul><li><b>Meta:</b> €42 spent yesterday, 9 leads at <b>€4.70</b> each (7-day average €5.10)</li><li>Best ad: “Sleep, CBN” at €3.20 a lead</li><li>Watch: “Isolate, anxiety” at €9.80 a lead, three days over target</li><li><b>Google:</b> €18, 41 clicks and 2 sales at €9 each. Top search: “cbd oil sleep”</li></ul><p class="sug">Suggested: pause “Isolate, anxiety” and move €10 a day to “Sleep, CBN”.</p><div class="res">Applied at 07:36</div></div>`;
+const GROWTH=`<div class="msg"><div class="hd">September so far<span class="tm">vs August</span></div><ul><li><b>22 posts</b> published (+5), reach <b>48,200</b> (+38%), engagement <b>1,240</b> (+21%)</li><li><b>3,410</b> followers (+120)</li><li>€640 in ads brought 131 leads at <b>€4.90</b> each, 12% less than August</li><li>Best pillar: Education. You made 41 decisions.</li></ul><span class="kpi">October is planned: 50 posts and 4 campaigns</span></div>`;
 const pf=$('#paid-feed');
-const ppush=(html)=>{ pf.insertAdjacentHTML('beforeend',html); const m=pf.lastElementChild; requestAnimationFrame(()=>m.classList.add('in')); while(pf.children.length>3) pf.firstElementChild.remove(); return m; };
-const PAID=`<div class="msg"><div class="hd">💸 Paid · Tue 07:35<span class="tm">yesterday</span></div><ul><li><b>Meta:</b> €42 spent (7d €310) · 9 leads · CPL <b>€4.7</b> (7d €5.1) · CTR 1.8%</li><li>▲ best: “Sleep — CBN” CPL €3.2</li><li>▼ watch: “Isolate — anxiety” CPL €9.8, 3 days above target</li><li><b>Google:</b> €18 · 41 clicks · 2 conv · CPA €9 · top term “cbd oil sleep”</li></ul><span class="kpi dn">Suggested: pause “Isolate — anxiety”, move €10/day to “Sleep — CBN”</span><div class="ib2"><span class="ok">✅ Apply</span><span>Not now</span></div></div>`;
-const GROWTH=`<div class="msg rec"><div class="hd">📈 September so far<span class="tm">vs August</span></div><ul><li>Posts published <b>22</b> (▲ +5) · reach <b>48,200</b> (▲ +38%) · engagement <b>1,240</b> (▲ +21%)</li><li>Followers <b>3,410</b> (▲ +120)</li><li>Paid €640 → 131 results · CPL <b>€4.9</b> (▲ 12% better)</li><li>Best pillar: Education · you made 41 decisions</li></ul><span class="kpi">↗ next month: 50 posts + 4 campaigns already planned</span></div>`;
 register($('#w-paid'),
-  ()=>{ pf.innerHTML=''; },
-  (tl,instant)=>{
-    if(instant){ [PAID,GROWTH].forEach(h=>ppush(h).classList.add('in')); return 0; }
-    let a;
-    tl.at(200,()=>{ a=ppush(PAID); });
-    tl.at(2600,()=>{ const ok=$('.ok',a); ok.classList.add('hit'); setTimeout(()=>{ $('.ib2',a).outerHTML=`<div class="res">✅ Applied · “Isolate — anxiety” paused 07:36 · budget shifted</div>`; },420); });
-    tl.at(4200,()=>{ ppush(GROWTH); });
-    return 6400;
-  });
+  ()=>lastIn(pf, PAID+GROWTH),
+  (tl,instant)=>{ const last=pf.lastElementChild; if(instant) last.classList.add('in'); else tl.at(300,()=>last.classList.add('in')); });
 
 widgets.forEach(w=>wio.observe(w.el));
 
-/* ---------- hero form → REAL scan through the Otto API (sample fallback) ---------- */
+/* ---------- hero form: real scan through the Otto API (sample fallback) ---------- */
 const PEEK = (location.hostname==='localhost'||location.hostname==='127.0.0.1') ? 'http://localhost:8161/otto-peek' : '/otto-peek';
 const SAMPLE_ROWS = {}; $$('#w-scan .prow').forEach(r=>SAMPLE_ROWS[r.dataset.k]=r.innerHTML);
-const escH = t => String(t??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-const PILLARS_FOR = {'CBD':['Education','Trust & proof','Use-case','Product','Engagement'],'Restaurant':['Dishes & seasons','Behind the kitchen','Guests & reviews','Events','Offers'],'Clinic':['Education','Patient stories','Before & after','Meet the team','Booking'],'Education':['Method education','Student stories','Career change','Community','Enrolment'],'E-commerce':['Product','Social proof','How-to','Behind the brand','Offers'],'Real estate':['Listings','Neighbourhood','Buyer education','Client stories','Market updates'],'SaaS':['Product','Use-case','Customer stories','Education','Launches'],'Fitness':['Workouts','Member stories','Nutrition','Community','Offers'],'Beauty':['Treatments','Before & after','Skin education','Team','Offers'],'Legal':['Education','Case stories','FAQ','Team','Consult'],'Hotel':['Rooms & views','Local guide','Guest stories','Seasonal offers','Behind the scenes'],'Coaching':['Insights','Client wins','Framework','Personal story','Program'],'Home':['Projects','Before & after','Tips','Reviews','Quotes'],'Automotive':['Inventory','Service tips','Customer stories','Offers','Team']};
+const LANG = {en:'English',de:'German',he:'Hebrew',fr:'French',es:'Spanish',it:'Italian',nl:'Dutch',pt:'Portuguese',ru:'Russian',ar:'Arabic',pl:'Polish',ro:'Romanian',hu:'Hungarian',sv:'Swedish',da:'Danish',el:'Greek',tr:'Turkish'};
+const PILLARS_FOR = {'CBD':['Education','Trust and proof','Use cases','Product','Engagement'],'Restaurant':['Dishes and seasons','Behind the kitchen','Guests and reviews','Events','Offers'],'Clinic':['Education','Patient stories','Before and after','Meet the team','Booking'],'Education':['Method','Student stories','Career change','Community','Enrolment'],'E-commerce':['Product','Social proof','How-to','Behind the brand','Offers'],'Real estate':['Listings','Neighbourhood','Buyer education','Client stories','Market updates'],'SaaS':['Product','Use cases','Customer stories','Education','Launches'],'Fitness':['Workouts','Member stories','Nutrition','Community','Offers'],'Beauty':['Treatments','Before and after','Skin education','Team','Offers'],'Legal':['Education','Case stories','FAQ','Team','Consultations'],'Hotel':['Rooms and views','Local guide','Guest stories','Seasonal offers','Behind the scenes'],'Coaching':['Insights','Client wins','Framework','Personal story','Programme'],'Home':['Projects','Before and after','Tips','Reviews','Quotes'],'Automotive':['Inventory','Service tips','Customer stories','Offers','Team']};
 const RESTRICTED = /cbd|clinic|medical|legal|finance/i;
 function fillReal(r, domain){
   const set=(k,html)=>{ const row=$(`#w-scan .prow[data-k="${k}"]`); row.querySelector('.pl').nextElementSibling.outerHTML=html; };
-  set('industry',`<div class="pv">${escH(r.industry)} · ${escH((r.languages||[]).join(', ').toUpperCase()||'?')} · ${escH(r.platform||'')}</div>`);
+  const langs=(r.languages||[]).map(l=>LANG[String(l).toLowerCase()]||String(l).toUpperCase()).join(', ');
+  set('industry',`<div class="pv">${[r.industry, langs, r.platform].filter(Boolean).map(escH).join(' · ')||'—'}</div>`);
   const sw=(r.palette||[]).concat(r.neutrals||[]).slice(0,6).map(h=>`<span class="sw" style="background:${escH(h)}" title="${escH(h)}"></span>`).join('');
-  set('palette',`<div class="pv">${sw||'<i>no brand colors detected</i>'}${r.fonts&&r.fonts.length?' <span class="mono" style="font-size:10.5px;color:var(--faint)">'+escH(r.fonts.slice(0,2).join(' · '))+'</span>':''}</div>`);
+  set('palette',`<div class="pv">${sw||'<i>No brand colours found</i>'}${r.fonts&&r.fonts.length?' <span class="fonts">'+escH(r.fonts.slice(0,2).join(' · '))+'</span>':''}</div>`);
   set('voice',`<div class="pv"><i>${escH(r.description||r.title||'—')}</i></div>`);
   const proof=(r.trust||[]).slice(0,3).map(escH).join(' · ');
-  $('#w-scan .prow[data-k="proof"] .pl').textContent='Proof on site';
-  set('proof',`<div class="pv">${proof||'<i>no trust anchors found yet — Otto asks you for reviews (1 of ≤4 questions)</i>'}</div>`);
+  $('#w-scan .prow[data-k="proof"] .pl').textContent='Proof on the site';
+  set('proof',`<div class="pv">${proof||'<i>None found yet. Otto will ask you for reviews.</i>'}</div>`);
   const q=(r.quotes||[])[0];
-  $('#w-scan .prow[data-k="audience"] .pl').textContent=q?'Customer voice':'Socials';
-  set('audience',`<div class="pv">${q?'<i>“'+escH(q.slice(0,140))+'”</i>':(Object.keys(r.socials||{}).length?escH(Object.keys(r.socials).join(' · ')):'<i>none linked — Otto connects them at onboarding</i>')}</div>`);
+  $('#w-scan .prow[data-k="audience"] .pl').textContent=q?'Customer voice':'Social accounts';
+  set('audience',`<div class="pv">${q?'<i>“'+escH(q.slice(0,140))+'”</i>':(Object.keys(r.socials||{}).length?escH(Object.keys(r.socials).join(' · ')):'<i>None linked. Otto connects them during setup.</i>')}</div>`);
   const key=Object.keys(PILLARS_FOR).find(k=>(r.industry||'').toLowerCase().includes(k.toLowerCase()));
   const pillars=(PILLARS_FOR[key]||['Education','Proof','Product','Behind the scenes','Engagement']).map(p=>`<span class="chip">${escH(p)}</span>`).join('');
-  set('plan',`<div class="chips">${pillars}${RESTRICTED.test(r.industry||'')?'<span class="chip warn">Restricted on Meta → organic-first</span>':''}</div>`);
-  $('#w-scan .wtag').textContent=`Real scan · ${r.pages||1} page${r.pages===1?'':'s'} read · ${escH(domain)}`;
+  set('plan',`<div class="chips">${pillars}${RESTRICTED.test(r.industry||'')?'<span class="chip">Restricted on Meta, so organic first</span>':''}</div>`);
+  $('#w-scan .wtag').textContent=`Real scan of ${domain}: ${r.pages||1} page${r.pages===1?'':'s'} read`;
 }
 function fillSample(note){ for(const k in SAMPLE_ROWS){ const row=$(`#w-scan .prow[data-k="${k}"]`); row.innerHTML=SAMPLE_ROWS[k]; } $('#w-scan .wtag').textContent=note; }
 async function scanReal(domain){
-  scan.locked=true; scan.tl.clear(); scan.reset(); fillSample('Reading your site…');
+  scan.locked=true; scan.played=true; scan.tl.clear(); scan.reset(); fillSample('Reading your site…');
   const steps=$$('#scan-steps li'), rows=$$('#w-scan .prow'), url=$('#scan-url'); const tl=scan.tl;
   [...domain].forEach((ch,i)=>tl.at(200+i*45,()=>url.textContent+=ch));
   tl.at(200+domain.length*45+300,()=>{ steps[0].className='on'; });
@@ -1099,95 +827,75 @@ async function scanReal(domain){
   try{ const ctl=new AbortController(); const to=setTimeout(()=>ctl.abort(),20000);
        const res=await fetch(PEEK+'?url='+encodeURIComponent(domain),{signal:ctl.signal}); clearTimeout(to);
        if(res.ok) data=await res.json(); }catch(e){}
-  if(data && !data.error) fillReal(data,domain); else fillSample('Sample profile. Could not read '+domain+' from here; Otto reads it after checkout.');
+  if(data && !data.error) fillReal(data,domain); else fillSample(`Sample profile. We couldn’t read ${domain} from here; Otto reads it after you sign up.`);
   let t=300; const show=[[0],[1,2],[3],[4],[5]];
   steps.forEach((li,i)=>{ tl.at(t,()=>{ li.className='on'; }); tl.at(t+800,()=>{ li.className='done'; show[i].forEach(k=>rows[k]&&rows[k].classList.add('in')); }); t+=900; });
 }
 $('#hero-form').addEventListener('submit',e=>{
   e.preventDefault();
   const v=$('#hero-url').value.trim().replace(/^https?:\/\//i,'').replace(/^www\./i,'').replace(/[\/?#].*$/,'');
-  $('#how').scrollIntoView({behavior:'smooth',block:'start'});
-  if(!v){ scan.locked=false; SCAN_URL='happygardeneu.com'; setTimeout(()=>{ scan.live=true; loop(scan); },500); return; }
+  $('#how').scrollIntoView({behavior:RM?'auto':'smooth',block:'start'});
+  if(!v){ scan.locked=false; SCAN_URL='happygardeneu.com'; fillSample('Sample profile'); setTimeout(()=>play(scan),500); return; }
   SCAN_URL=v; setTimeout(()=>scanReal(v),400);
 });
 
 /* ---------- pricing (edit numbers here) ---------- */
 const PRICING = {
-  yearlyDiscount: 0.20,
   checkout: 'https://whop.com/checkout/plan_joHl1qsZoiJc9',
   tiers: [
-    {id:'starter', name:'Starter', tfor:'For one brand', monthly:69, brands:'1 brand', extra:'+€39 / extra brand',
+    {id:'starter', name:'Starter', monthly:69, brands:'1 brand', extra:'€39 per extra brand',
      desc:'A whole month of content, approved from your phone.',
-     features:['50 posts, 12 stories and 4 explainer reels (30–60 s) a month','Carousels, statics and reels in the mix your competitors prove works','Facebook + Instagram (LinkedIn on request)','Approve in Telegram or the dashboard','Morning briefing + drop alerts within the hour','Monthly competitor sweep']},
-    {id:'growth', name:'Growth', tfor:'Best for growth', monthly:149, brands:'3 brands', extra:'+€39 / extra brand', featured:true,
-     desc:'Everything in Starter, plus the loop that learns.',
-     features:['3 brands included','Ad creatives in every style: statics with copy, carousels, video, tested by angle *','Daily Facebook + Google Ads report, CPL guard *','Month-over-month growth: reach, followers, results','Weekly competitor sweep + ad-library winners feed the angles','A human on the phone within 2 hours']},
-    {id:'agency', name:'Agency', tfor:'For agencies', monthly:399, brands:'10 workspaces', extra:'+€49 / extra workspace',
+     features:['50 posts, 12 stories and 4 explainer reels (30–60 seconds) a month','Carousels, single images and reels in the mix that works in your category','Facebook and Instagram, LinkedIn on request','Approve in Telegram or the dashboard','Morning briefing and alerts within the hour','Monthly competitor research']},
+    {id:'growth', name:'Growth', monthly:149, brands:'3 brands', extra:'€39 per extra brand',
+     desc:'Everything in Starter, plus ads and growth reports.',
+     features:['3 brands included','Ad creatives in every format, tested against each other *','Daily Facebook and Google Ads report *','Month-over-month growth: reach, followers, results','Weekly competitor research, including their ads','A person on the phone within 2 hours']},
+    {id:'agency', name:'Agency', monthly:399, brands:'10 workspaces', extra:'€49 per extra workspace',
      desc:'A workspace per client, each with its own Telegram.',
-     features:['10 client workspaces, one brand each','Growth features in every workspace','Each client approves in their own Telegram','White-label weekly reports','Named account manager','Ads on each client’s own ad account *']},
+     features:['10 client workspaces, one brand each','Everything in Growth for every workspace','Each client approves in their own Telegram','Weekly reports under your own brand','A named account manager','Ads on each client’s own ad account *']},
   ],
-  note:'* Ads autopilot and AI reels roll out to Growth and Agency as they go live. Every plan CTA reserves your seat at the founding price until subscriptions open.'
+  note:'* Ads and reels arrive in Growth and Agency as each one goes live.'
 };
-let CYCLE='monthly';
-function renderTiers(){
-  $('#tiers').innerHTML = PRICING.tiers.map(t=>{
-    const price = CYCLE==='yearly' ? Math.round(t.monthly*(1-PRICING.yearlyDiscount)) : t.monthly;
-    return `<div class="tier ${t.featured?'featured':''}">${t.featured?'<span class="badge">Most popular</span>':''}
-      <div class="tfor">${t.tfor}</div><div class="tname">${t.name}</div><div class="tdesc">${t.desc}</div>
-      <div class="tprice"><span class="cur">€</span><span class="n">${price}</span><span class="per">/ month</span></div>
-      <div class="tbill">${CYCLE==='yearly'?`billed yearly · €${price*12} / year`:'billed monthly · cancel anytime'}</div>
-      <div class="tbrands"><b>${t.brands}</b><span>${escH(t.extra)}</span></div>
-      <a class="btn ${t.featured?'primary':'ghost'}" href="${PRICING.checkout}">Reserve at founding price →</a>
-      <div class="twhat">What you get</div><ul>${t.features.map(f=>`<li>${escH(f)}</li>`).join('')}</ul>
-      <div class="works"><span class="wl">Works with</span><span class="pf fb">f</span><span class="pf ig">IG</span><span class="pf li">in</span><span class="pf tg">✈</span></div>
-    </div>`; }).join('');
-  $('#tier-note').textContent = PRICING.note;
-  $$('.toggle button').forEach(b=>b.classList.toggle('on', b.dataset.cycle===CYCLE));
-}
-$$('.toggle button').forEach(b=>b.addEventListener('click',()=>{ CYCLE=b.dataset.cycle; renderTiers(); }));
-renderTiers();
+$('#plans').innerHTML = PRICING.tiers.map(t=>`<div class="plan">
+    <div class="phd"><span class="pn">${escH(t.name)}</span><span class="pp">€${t.monthly}<small> / month</small></span></div>
+    <div class="pb">${escH(t.brands)} · ${escH(t.extra)}</div>
+    <p class="pd">${escH(t.desc)}</p>
+    <ul>${t.features.map(f=>`<li>${escH(f)}</li>`).join('')}</ul>
+  </div>`).join('');
+$('#tier-note').textContent = PRICING.note;
 
 /* ---------- solutions by industry ---------- */
 const SOLUTIONS = [
-  {k:'Restaurants', h:'Marketing for <b>restaurants</b>', d:'Tonight’s table, not a stock photo of a fork. Otto turns your menu, your seasons and your guests’ reviews into a week that fills seats.', pillars:['Dishes & seasons','Behind the kitchen','Guests & reviews','Events','Offers'], hooks:['The dish our regulars order twice a week','What 6 a.m. looks like in our kitchen','“Best lamb in town” — Marta, last Friday'], bg:'linear-gradient(160deg,#87422B,#361A11)', card:'Tuesday just found its after-work plan.'},
-  {k:'Clinics', h:'Marketing for <b>clinics</b>', d:'Patient stories, plain-language education and a calm, trustworthy look — with restricted-category rules handled before anything goes out.', pillars:['Education','Patient stories','Meet the team','Before & after','Booking'], hooks:['Three questions to ask before any treatment','Why we explain the plan before we start','Meet Dr. Levi: 14 years, one rule'], bg:'radial-gradient(120% 100% at 80% 0%,#33509F,#0B1230 60%)', card:'The visit you keep putting off takes 20 minutes.'},
-  {k:'E-commerce', h:'Marketing for <b>e-commerce brands</b>', d:'Product, proof and how-to in your palette, with launches and offers slotted around the hours your customers actually shop.', pillars:['Product','Social proof','How-to','Behind the brand','Offers'], hooks:['Full vs Broad vs Isolate — 60-second guide','“Finally sleeping through” — Melanie S.','3 things to check before buying any CBD'], bg:'#FFBC00', dark:1, card:'Myth: “CBD gets you high.” ✕'},
-  {k:'Coaches', h:'Marketing for <b>coaches</b>', d:'Your framework, your clients’ wins and your story — in your voice, every week, without you writing a word.', pillars:['Insights','Client wins','Framework','Personal story','Program'], hooks:['The one question I ask every new client','She doubled her rate in 90 days. Here’s the sequence.','Why I stopped selling “motivation”'], bg:'linear-gradient(160deg,#2B4A3E,#10251C)', card:'Confidence is a schedule, not a feeling.'},
-  {k:'Real estate', h:'Marketing for <b>real estate</b>', d:'Listings that look like the neighbourhood, buyer education and client stories, planned around open-house weekends.', pillars:['Listings','Neighbourhood','Buyer education','Client stories','Market updates'], hooks:['What €450k buys you in three districts','The 5-minute walk that sells this street','From first viewing to keys in 41 days'], bg:'linear-gradient(160deg,#1C2A4A,#0B1230)', card:'Big decisions rarely belong to one person.'},
-  {k:'Gyms', h:'Marketing for <b>gyms</b>', d:'Member stories, workouts and nutrition with an energetic look — and offers timed to the months people actually sign up.', pillars:['Workouts','Member stories','Nutrition','Community','Offers'], hooks:['The 12-minute session for people who hate mornings','Dan, 52, first pull-up in 30 years','What our coaches eat on leg day'], bg:'linear-gradient(160deg,#3A3A5C,#171733)', card:'Your first week is the hardest. We know the way in.'},
-  {k:'SaaS', h:'Marketing for <b>SaaS</b>', d:'Use-cases, customer stories and launches on LinkedIn and X, in a modern editorial look — planned so your feed never goes quiet between releases.', pillars:['Product','Use-case','Customer stories','Education','Launches'], hooks:['How a 3-person team runs onboarding for 2,000 users','The report our customers screenshot most','Shipped this week: one thing, done well'], bg:'radial-gradient(120% 100% at 20% 0%,#2447F0,#101B54 60%)', card:'Good automation leaves people free for the hard cases.'},
-  {k:'Hotels', h:'Marketing for <b>hotels</b>', d:'Rooms, views and the local guide your guests ask for — seasonal offers slotted to booking windows.', pillars:['Rooms & views','Local guide','Guest stories','Seasonal offers','Behind the scenes'], hooks:['The lake is quietest just before the sun disappears','Three places our concierge sends everyone','Off-season, on purpose: 20% for slow mornings'], bg:'linear-gradient(160deg,#5A4A2E,#2B2118)', card:'Some summer days are made for a swim.'},
+  {k:'Restaurants', h:'Marketing for restaurants', d:'Tonight’s table, not a stock photo of a fork. Otto turns your menu, your seasons and your guests’ reviews into a week that fills seats.', pillars:['Dishes and seasons','Behind the kitchen','Guests and reviews','Events','Offers'], hooks:['The dish our regulars order twice a week','What 6 a.m. looks like in our kitchen','“Best lamb in town.” Marta, last Friday'], bg:'linear-gradient(160deg,#87422B,#361A11)', card:'Tuesday just found its after-work plan.'},
+  {k:'Clinics', h:'Marketing for clinics', d:'Patient stories, plain-language education and a calm, trustworthy look, with the rules for restricted categories checked before anything goes out.', pillars:['Education','Patient stories','Meet the team','Before and after','Booking'], hooks:['Three questions to ask before any treatment','Why we explain the plan before we start','Meet Dr. Levi: 14 years, one rule'], bg:'radial-gradient(120% 100% at 80% 0%,#33509F,#0B1230 60%)', card:'The visit you keep putting off takes 20 minutes.'},
+  {k:'E-commerce', h:'Marketing for online shops', d:'Product, proof and how-to posts in your colours, with launches and offers set around the hours your customers actually shop.', pillars:['Product','Social proof','How-to','Behind the brand','Offers'], hooks:['Full vs broad vs isolate: a 60-second guide','“Finally sleeping through.” Melanie S.','3 things to check before buying any CBD'], bg:'#FFBC00', dark:1, card:'Myth: “CBD gets you high.”'},
+  {k:'Coaches', h:'Marketing for coaches', d:'Your framework, your clients’ results and your story, in your voice, every week, without you writing a word.', pillars:['Insights','Client wins','Framework','Personal story','Programme'], hooks:['The one question I ask every new client','She doubled her rate in 90 days. Here’s how.','Why I stopped selling “motivation”'], bg:'linear-gradient(160deg,#2B4A3E,#10251C)', card:'Confidence is a schedule, not a feeling.'},
+  {k:'Real estate', h:'Marketing for real estate', d:'Listings that show the neighbourhood, buyer education and client stories, planned around open-house weekends.', pillars:['Listings','Neighbourhood','Buyer education','Client stories','Market updates'], hooks:['What €450k buys you in three districts','The 5-minute walk that sells this street','From first viewing to keys in 41 days'], bg:'linear-gradient(160deg,#1C2A4A,#0B1230)', card:'Big decisions rarely belong to one person.'},
+  {k:'Gyms', h:'Marketing for gyms', d:'Member stories, workouts and nutrition, with offers timed to the months people actually sign up.', pillars:['Workouts','Member stories','Nutrition','Community','Offers'], hooks:['The 12-minute session for people who hate mornings','Dan, 52, first pull-up in 30 years','What our coaches eat on leg day'], bg:'linear-gradient(160deg,#3A3A5C,#171733)', card:'Your first week is the hardest. We know the way in.'},
+  {k:'SaaS', h:'Marketing for software companies', d:'Use cases, customer stories and launches on LinkedIn, planned so your feed never goes quiet between releases.', pillars:['Product','Use cases','Customer stories','Education','Launches'], hooks:['How a 3-person team onboards 2,000 users','The report our customers screenshot most','Shipped this week: one thing, done well'], bg:'radial-gradient(120% 100% at 20% 0%,#2447F0,#101B54 60%)', card:'Good automation leaves people free for the hard cases.'},
+  {k:'Hotels', h:'Marketing for hotels', d:'Rooms, views and the local guide your guests ask for, with seasonal offers set to booking windows.', pillars:['Rooms and views','Local guide','Guest stories','Seasonal offers','Behind the scenes'], hooks:['The lake is quietest just before sunset','Three places our concierge sends everyone','Off-season, on purpose: 20% off slow mornings'], bg:'linear-gradient(160deg,#5A4A2E,#2B2118)', card:'Some summer days are made for a swim.'},
 ];
 function renderSolution(i){
   const s=SOLUTIONS[i];
-  $$('#ind-chips button').forEach((b,j)=>b.classList.toggle('on',i===j));
-  $('#sol').innerHTML=`<div><h3>${s.h}</h3><p class="sdesc">${s.d}</p><div class="spill">${s.pillars.map(p=>`<span class="chip">${escH(p)}</span>`).join('')}</div>
+  $$('#ind-chips button').forEach((b,j)=>{ b.classList.toggle('on',i===j); b.setAttribute('aria-selected', i===j); });
+  $('#sol').innerHTML=`<div><h3>${escH(s.h)}</h3><p class="sdesc">${escH(s.d)}</p><div class="spill">${s.pillars.map(p=>`<span class="chip">${escH(p)}</span>`).join('')}</div>
     <ul class="shooks">${s.hooks.map(h=>`<li>${escH(h)}</li>`).join('')}</ul></div>
-    <div class="pc"><div class="pc-head"><span class="av" style="background:var(--cobalt-tint);color:var(--cobalt-deep)">${escH(s.k[0])}</span><div><div class="pc-name">Your brand</div><div class="pc-sub">${escH(s.k.toLowerCase())} · IG</div></div><span class="pf ig">IG</span></div>
-    <div class="pc-media" style="background:${s.bg}"><div class="txt ${s.dark?'dark':''}">${escH(s.card)}</div><span class="st app">READY FOR YOUR YES</span></div>
-    <div class="pc-cap"><b>yourbrand</b> Otto writes the caption in your voice, from your site — and asks before it publishes.</div>
-    <div class="pc-foot"><span>Like</span><span>Comment</span><span>Share</span></div></div>`;
+    <div class="pc"><div class="pc-head"><span class="av">${escH(s.k.charAt(0))}</span><div><div class="pc-name">Your brand</div><div class="pc-sub">${escH(s.k.toLowerCase())}</div></div><span class="glyph" title="Instagram">${GLYPH.ig}</span></div>
+    <div class="pc-media" style="background:${s.bg}"><div class="txt ${s.dark?'dark':''}">${escH(s.card)}</div><span class="st">Ready for approval</span></div>
+    <div class="pc-cap"><b>yourbrand</b> Otto writes the caption in your voice, from your site, and asks you before it publishes.</div></div>`;
 }
-$('#ind-chips').innerHTML = SOLUTIONS.map((s,i)=>`<button role="tab" data-i="${i}">${escH(s.k)}</button>`).join('');
+$('#ind-chips').innerHTML = SOLUTIONS.map((s,i)=>`<button type="button" role="tab" data-i="${i}">${escH(s.k)}</button>`).join('');
 $$('#ind-chips button').forEach(b=>b.addEventListener('click',()=>renderSolution(+b.dataset.i)));
 renderSolution(0);
 
-/* ---------- sticky mobile CTA (after the hero) ---------- */
-const sticky=$('#sticky-cta'), heroEl=$('#top');
-const stickyCheck=()=>sticky.classList.toggle('show', innerWidth<=720 && scrollY > heroEl.offsetHeight*0.9 && scrollY < document.body.scrollHeight-innerHeight-320);
+/* ---------- sticky mobile CTA: only one CTA on screen at a time ---------- */
+const sticky=$('#sticky-cta'), heroEl=$('#top'), pricingEl=$('#pricing'), finalEl=$('.final');
+const onScreen = el => { const r=el.getBoundingClientRect(); return r.top < innerHeight && r.bottom > 0; };
+const stickyCheck=()=>{
+  const show = innerWidth<=720 && scrollY > heroEl.offsetHeight*0.6 && !onScreen(pricingEl.querySelector('.offer')) && !onScreen(finalEl);
+  sticky.classList.toggle('show', show);
+  nav.classList.toggle('cta-off', show);
+};
 addEventListener('scroll', stickyCheck, {passive:true}); addEventListener('resize', stickyCheck); stickyCheck();
-
-/* ---------- team ---------- */
-const TEAM=[
-  {id:'orion',n:'Orion',r:'Orchestrator',d:'Runs the room. Compiles your briefing, routes every decision to you, and keeps the fleet on schedule.',f:["Compiled today's briefing 06:00",'Routing 2 decisions to you','Watching the Sat 18:00 slot','Fleet sync: 5 agents reporting']},
-  {id:'quill',n:'Quill',r:'Content',d:'Writes every post in your voice — hooks, captions, stories — on proven direct-response frameworks, never filler.',f:['Drafted 11 posts across 2 brands','Rewriting hg-003 hook — v2','DE variants ready for review','4 posts queued for your sign-off']},
-  {id:'sage',n:'Sage',r:'Organic growth',d:'Owns the calendar: best hours per channel, hashtag sets, and a queue that never runs dry.',f:['Best CMTM slot: Sun 09:00','IG hashtag sets refreshed','Slotting week 2 calendar','LinkedIn pillar mapped']},
-  {id:'nova',n:'Nova',r:'Ideas & trends',d:'Scans your competitors and the trend feed weekly, and turns gaps nobody runs into briefs.',f:['3 new recommendations queued','Trend scan: sleep-season chatter ↑','Competitor sweep: 6 ads >30 days','Watching 6 content pillars']},
-  {id:'atlas',n:'Atlas',r:'Paid ads',d:'Turns your organic winners into ad variants inside a daily ceiling you set. Never spends silently.',f:['CMTM audience drafts ready','CBD policy: organic-first for HG','Waiting on your ad account'],sb:1},
-  {id:'echo',n:'Echo',r:'Analytics',d:'Sets your baselines, watches for drops every hour, and writes the one-sentence weekly conclusion.',f:['Baselines: reach · saves · leads','Activates with your first live week'],sb:1},
-];
-$('#team-grid').innerHTML = TEAM.map(a=>`<div class="bot ${a.sb?'standby':''}"><div class="b-top"><div class="b-av">${escH(a.n[0])}</div><div><div class="b-name">${a.n}</div><div class="b-role">${a.r}</div></div><span class="b-state ${a.sb?'standby':''}"></span></div><div class="b-desc">${a.d}</div><div class="b-feed"><div class="b-line" data-id="${a.id}"><span class="tx">${a.f[0]}</span></div></div></div>`).join('');
-if(!RM){ let k=0; setInterval(()=>{ k++; TEAM.forEach(a=>{ const l=$(`.b-line[data-id="${a.id}"]`); l.classList.add('out'); setTimeout(()=>{ $('.tx',l).textContent=a.f[k%a.f.length]; l.classList.remove('out'); },350); }); },3400); }
 })();
 </script>
 </body>

@@ -10,11 +10,15 @@ identity (title, description, og:*), languages, platform, VISUAL IDENTITY (palet
 inline + linked CSS, logo, fonts), socials, contact, currency + price points, trust anchors,
 review-style quotes, headings, navigation, and an industry guess.
 
+Every fetch (homepage, subpages, CSS) is SSRF-guarded: each redirect hop is re-validated (http/https, ports
+80/443, public IPs only — ip.is_global) and the connection is pinned to the validated address. --peek honours
+a total deadline (used by the public /otto-peek endpoint).
+
 Writes brands/<slug>/scan.json and — if the brand has no profile yet — a
 brands/<slug>/brand-profile.md draft following BRAND-PROFILE-TEMPLATE.md (AUTO sections
 filled from the scan, inference sections marked for the creative engine to complete).
 """
-import ipaddress, json, re, socket, sys, urllib.parse, urllib.request
+import http.client, ipaddress, json, os, re, socket, ssl, sys, time, urllib.parse
 from collections import Counter
 from datetime import datetime, timezone
 from html import unescape
@@ -22,7 +26,7 @@ from html.parser import HTMLParser
 from pathlib import Path
 
 HERE = Path(__file__).parent
-BRANDS = HERE.parent / "brands"
+BRANDS = Path(os.environ.get("OTTO_BRANDS") or HERE.parent / "brands")
 TEMPLATE = BRANDS / "BRAND-PROFILE-TEMPLATE.md"
 UA = ("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) "
       "Chrome/128.0 Safari/537.36 OttoScan/1.0")
@@ -65,7 +69,22 @@ INDUSTRIES = {
 }
 
 
-# ---------------- fetching ----------------
+# ---------------- fetching (SSRF-guarded) ----------------
+# Every fetch — homepage, subpages, CSS, competitor pages — goes through guarded_get(): each hop (redirects
+# included) must be http/https on port 80/443, must not name a local host, and must resolve ONLY to global
+# unicast IPs (ip.is_global — rejects RFC1918, loopback, link-local/metadata 169.254/16, CGNAT 100.64/10,
+# ULA, v4-mapped private …). The connection then goes to that validated IP (DNS pinned per request, with
+# the real hostname for Host/SNI/cert checks), so a rebinding resolver cannot swap the address after the check.
+
+ALLOWED_PORTS = {None, 80, 443}
+BLOCKED_SUFFIXES = (".local", ".internal", ".localhost", ".lan", ".home.arpa", ".localdomain")
+MAX_REDIRECTS = 5
+READ_CHUNK = 65536
+
+
+class Blocked(Exception):
+    pass
+
 
 def normalize_url(u):
     u = u.strip()
@@ -78,35 +97,154 @@ def host_of(u):
     return (urllib.parse.urlsplit(u).hostname or "").lower()
 
 
-def safe_host(u):
-    """Only public http(s) hosts — used by the public /otto-peek endpoint (SSRF guard)."""
+def ip_ok(ip):
+    ip = ipaddress.ip_address(ip)
+    mapped = getattr(ip, "ipv4_mapped", None)
+    if mapped is not None:
+        ip = mapped
+    return bool(ip.is_global) and not (ip.is_private or ip.is_loopback or ip.is_link_local or ip.is_multicast
+                                       or ip.is_reserved or ip.is_unspecified)
+
+
+def check_url(u):
+    """→ (split, ascii host, port) or raises Blocked."""
     p = urllib.parse.urlsplit(u)
-    if p.scheme not in ("http", "https") or not p.hostname or p.port not in (None, 80, 443):
-        return False
-    if p.hostname in ("localhost",) or p.hostname.endswith(".local") or p.hostname.endswith(".internal"):
-        return False
+    if p.scheme not in ("http", "https"):
+        raise Blocked(f"scheme {p.scheme or '?'} not allowed")
     try:
-        infos = socket.getaddrinfo(p.hostname, None)
-    except socket.gaierror:
-        return False
-    for info in infos:
-        ip = ipaddress.ip_address(info[4][0])
-        if ip.is_private or ip.is_loopback or ip.is_link_local or ip.is_reserved or ip.is_multicast or ip.is_unspecified:
-            return False
-    return True
+        port = p.port
+    except ValueError:
+        raise Blocked("bad port")
+    if port not in ALLOWED_PORTS:
+        raise Blocked(f"port {port} not allowed")
+    if p.username or p.password:
+        raise Blocked("credentials in url")
+    host = (p.hostname or "").rstrip(".")
+    if not host:
+        raise Blocked("no host")
+    try:
+        host = host.encode("idna").decode("ascii").lower()
+    except (UnicodeError, ValueError):
+        raise Blocked("bad host")
+    if host == "localhost" or host.endswith(BLOCKED_SUFFIXES):
+        raise Blocked("local host name")
+    return p, host, port or (443 if p.scheme == "https" else 80)
 
 
-def fetch(url, limit=1_500_000, timeout=12):
-    """Returns (final_url, text, content_type). Follows redirects. Never raises on HTTP errors > returns ''."""
-    req = urllib.request.Request(url, headers={"User-Agent": UA, "Accept": "text/html,*/*;q=0.8",
-                                               "Accept-Language": "en,de;q=0.8,he;q=0.7"})
+def resolve_public(host, port):
+    """All addresses the name resolves to must be public; returns the one to connect to."""
     try:
-        with urllib.request.urlopen(req, timeout=timeout) as r:
-            raw = r.read(limit)
-            ctype = r.headers.get("Content-Type", "")
-            charset = r.headers.get_content_charset() or "utf-8"
-            return r.geturl(), raw.decode(charset, "ignore"), ctype
-    except Exception as e:  # network / http errors: caller decides
+        ipaddress.ip_address(host)
+        literal = [host]
+    except ValueError:
+        literal = None
+    if literal:
+        ips = literal
+    else:
+        try:
+            infos = socket.getaddrinfo(host, port, type=socket.SOCK_STREAM)
+        except socket.gaierror:
+            raise Blocked("dns lookup failed")
+        ips = list(dict.fromkeys(i[4][0].split("%")[0] for i in infos))
+    if not ips:
+        raise Blocked("no address")
+    for ip in ips:
+        if not ip_ok(ip):
+            raise Blocked(f"non-public address {ip}")
+    return ips[0]
+
+
+def safe_host(u):
+    """Only public http(s) hosts — pre-check for the public /otto-peek endpoint."""
+    try:
+        _, host, port = check_url(u)
+        resolve_public(host, port)
+        return True
+    except Blocked:
+        return False
+
+
+class _PinnedHTTP(http.client.HTTPConnection):
+    def __init__(self, host, ip, port, timeout):
+        super().__init__(host, port, timeout=timeout)
+        self._pin = ip
+
+    def connect(self):
+        self.sock = socket.create_connection((self._pin, self.port), self.timeout)
+
+
+class _PinnedHTTPS(http.client.HTTPSConnection):
+    def __init__(self, host, ip, port, timeout):
+        super().__init__(host, port, timeout=timeout, context=ssl.create_default_context())
+        self._pin = ip
+
+    def connect(self):
+        sock = socket.create_connection((self._pin, self.port), self.timeout)
+        self.sock = self._context.wrap_socket(sock, server_hostname=self.host)
+
+
+def _request_target(p):
+    path = urllib.parse.quote(p.path or "/", safe="/%:@!$&'()*+,;=~-._")
+    if p.query:
+        path += "?" + urllib.parse.quote(p.query, safe="=&%/:@!$'()*+,;~-._?")
+    return path
+
+
+def _remaining(deadline, timeout):
+    if deadline is None:
+        return timeout
+    left = deadline - time.time()
+    if left <= 0.2:
+        raise Blocked("deadline reached")
+    return min(timeout, left)
+
+
+def guarded_get(url, limit=1_500_000, timeout=12, deadline=None, headers=None):
+    """GET with the SSRF guard on every hop. Returns (final_url, bytes, content_type, charset); raises on error."""
+    hdrs = {"User-Agent": UA, "Accept": "text/html,*/*;q=0.8", "Accept-Language": "en,de;q=0.8,he;q=0.7",
+            "Accept-Encoding": "identity", "Connection": "close"}
+    hdrs.update(headers or {})
+    for _ in range(MAX_REDIRECTS + 1):
+        p, host, port = check_url(url)
+        ip = resolve_public(host, port)
+        t = _remaining(deadline, timeout)
+        conn = _PinnedHTTPS(host, ip, port, t) if p.scheme == "https" else _PinnedHTTP(host, ip, port, t)
+        try:
+            conn.request("GET", _request_target(p), headers=hdrs)
+            r = conn.getresponse()
+            if r.status in (301, 302, 303, 307, 308):
+                loc = r.getheader("Location")
+                if not loc:
+                    raise Blocked(f"HTTP {r.status} without Location")
+                url = urllib.parse.urljoin(url, loc.strip())
+                continue
+            if r.status >= 400:
+                raise Blocked(f"HTTP Error {r.status}: {r.reason}")
+            chunks, got = [], 0
+            while got < limit:
+                if conn.sock is not None:
+                    conn.sock.settimeout(_remaining(deadline, timeout))
+                chunk = r.read(min(READ_CHUNK, limit - got))
+                if not chunk:
+                    break
+                chunks.append(chunk); got += len(chunk)
+            return url, b"".join(chunks), r.getheader("Content-Type", "") or "", r.headers.get_content_charset() or "utf-8"
+        finally:
+            conn.close()
+    raise Blocked("too many redirects")
+
+
+def fetch(url, limit=1_500_000, timeout=12, deadline=None):
+    """Returns (final_url, text, content_type). Follows redirects (each hop re-validated).
+    Never raises: on any error returns (url, '', 'error:<reason>')."""
+    try:
+        final, raw, ctype, charset = guarded_get(url, limit=limit, timeout=timeout, deadline=deadline)
+        try:
+            text = raw.decode(charset, "ignore")
+        except LookupError:
+            text = raw.decode("utf-8", "ignore")
+        return final, text, ctype
+    except Exception as e:  # network / http errors / blocked: caller decides
         return url, "", "error:" + str(e)[:120]
 
 
@@ -414,16 +552,19 @@ def pick_internal(base, links, n):
     return out
 
 
-def scan(url, pages=5, page_limit=1_200_000):
+def scan(url, pages=5, page_limit=1_200_000, deadline=None):
+    """deadline (epoch seconds) bounds the whole scan: fetches past it are skipped."""
     url = normalize_url(url)
-    final, html, ctype = fetch(url)
+    final, html, ctype = fetch(url, deadline=deadline)
     if not html:
         return {"url": url, "error": ctype or "empty response"}
     home = parse(html)
     internal = pick_internal(final, home.links, pages)
     subpages = []
     for u in internal:
-        _, h, ct = fetch(u, limit=page_limit)
+        if deadline and time.time() > deadline - 1:
+            break
+        _, h, ct = fetch(u, limit=page_limit, deadline=deadline)
         if h and "text/html" in ct:
             subpages.append((u, parse(h)))
 
@@ -431,7 +572,9 @@ def scan(url, pages=5, page_limit=1_200_000):
     css_texts = list(home.styles)
     css_links = [absolute(final, href) for href, _, rel, _ in home.links if "stylesheet" in rel][:4]
     for cu in css_links:
-        _, c, _ = fetch(cu, limit=400_000)
+        if deadline and time.time() > deadline - 1:
+            break
+        _, c, _ = fetch(cu, limit=400_000, deadline=deadline)
         if c:
             css_texts.append(c)
     palette, neutrals = palette_from([html] + css_texts)
@@ -471,9 +614,9 @@ def scan(url, pages=5, page_limit=1_200_000):
     }
 
 
-def peek(url):
+def peek(url, deadline=None):
     """Compact scan for the landing/dashboard 'peek' (homepage + 2 pages, fast)."""
-    s = scan(url, pages=2, page_limit=600_000)
+    s = scan(url, pages=2, page_limit=600_000, deadline=deadline)
     if "error" in s:
         return s
     return {"url": s["final_url"], "title": s["identity"]["title"] or s["identity"]["site_name"],

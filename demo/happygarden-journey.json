@@ -1,0 +1,1434 @@
+{
+ "brand": {
+  "id": "happygarden",
+  "name": "Happy Garden CBD",
+  "url": "happygardeneu.com"
+ },
+ "simulated_from_day": 4,
+ "assumptions": {
+  "followers": 1200,
+  "base_rate": 0.18,
+  "follow_rate": 0.0035,
+  "ctr_org": 0.006,
+  "paid_start": 31,
+  "budget": 20.0,
+  "cpc": 0.55,
+  "cpc_floor": 0.38,
+  "cvr": 0.021,
+  "aov": 58.0,
+  "currency": "€",
+  "paid_note": "CBD is a restricted category on Meta: month 1 is organic-only; month 2 adds a compliant traffic campaign to an educational landing page."
+ },
+ "disclaimer": "Days 0–3 are Otto's real outputs for this brand. Everything after is a simulation from the stated assumptions, not a promise of results.",
+ "events": [
+  {
+   "day": 0,
+   "title": "Drops the URL",
+   "what": "Otto reads https://www.happygardeneu.com/?v=9c049173fad5: 5 pages, palette #FFBC00, #003388, #0E252C, industry CBD & hemp wellness.",
+   "real": true
+  },
+  {
+   "day": 0,
+   "title": "Answers the open questions",
+   "what": "What is a lead or a sale worth to you — the most you'd pay for one? · What is the one offer you want new customers to take first (price, terms, any real deadline)? · Where should a ready-to-buy customer land: shop page, booking link, WhatsApp, or form?",
+   "real": true
+  },
+  {
+   "day": 1,
+   "title": "Competitors mapped",
+   "what": "Nordic Oil, Naturecan, CBD Vital, Hempamed",
+   "real": true
+  },
+  {
+   "day": 1,
+   "title": "The month is planned",
+   "what": "50 feed posts, 13 stories, 8 explainer reels across 5 pillars, slotted to the audience's hours.",
+   "real": true
+  },
+  {
+   "day": 2,
+   "title": "First approval cards in Telegram",
+   "what": "4 posts with visuals; one tap each.",
+   "real": true
+  },
+  {
+   "day": 3,
+   "title": "First reel",
+   "what": "A 57-second motion-design explainer, scripted from the brand profile and voiced.",
+   "real": true
+  },
+  {
+   "day": 7,
+   "title": "First morning report",
+   "what": "What went out, what performed, what is waiting.",
+   "real": false
+  },
+  {
+   "day": 14,
+   "title": "First winner",
+   "what": "Education carousels outperform product posts; next week's plan shifts toward them.",
+   "real": false
+  },
+  {
+   "day": 30,
+   "title": "Paid plan approved",
+   "what": "CBD is a restricted category on Meta: month 1 is organic-only; month 2 adds a compliant traffic campaign to an educational landing page.",
+   "real": false
+  },
+  {
+   "day": 45,
+   "title": "Competitor sweep flags a price move",
+   "what": "Otto proposes a bundle post the same week (one tap).",
+   "real": false
+  },
+  {
+   "day": 60,
+   "title": "Month in review",
+   "what": "Reach, followers, clicks, orders — month over month, in one message.",
+   "real": false
+  },
+  {
+   "day": 89,
+   "title": "Quarter closes",
+   "what": "Plan for the next quarter built from what won.",
+   "real": false
+  }
+ ],
+ "months": [
+  {
+   "month": "2026-10",
+   "reach": 22079,
+   "followers_end": 1275,
+   "clicks": 167,
+   "spend": 19.24,
+   "results": 4,
+   "revenue": 205,
+   "posts": 53,
+   "reels": 9
+  },
+  {
+   "month": "2026-11",
+   "reach": 26999,
+   "followers_end": 1370,
+   "clicks": 1286,
+   "spend": 574.88,
+   "results": 27,
+   "revenue": 1560,
+   "posts": 51,
+   "reels": 8
+  },
+  {
+   "month": "2026-12",
+   "reach": 31628,
+   "followers_end": 1477,
+   "clicks": 1404,
+   "spend": 555.46,
+   "results": 28,
+   "revenue": 1641,
+   "posts": 50,
+   "reels": 9
+  }
+ ],
+ "series": [
+  {
+   "date": "2026-10-01",
+   "reach": 488,
+   "followers": 1202,
+   "clicks": 3,
+   "spend": 0.0,
+   "results": 0.05,
+   "revenue": 3.16,
+   "posts": 2,
+   "formats": [
+    "post",
+    "carousel"
+   ]
+  },
+  {
+   "date": "2026-10-02",
+   "reach": 844,
+   "followers": 1204,
+   "clicks": 5,
+   "spend": 0.0,
+   "results": 0.09,
+   "revenue": 5.01,
+   "posts": 2,
+   "formats": [
+    "post",
+    "reel"
+   ]
+  },
+  {
+   "date": "2026-10-03",
+   "reach": 281,
+   "followers": 1205,
+   "clicks": 2,
+   "spend": 0.0,
+   "results": 0.03,
+   "revenue": 1.91,
+   "posts": 1,
+   "formats": [
+    "carousel"
+   ]
+  },
+  {
+   "date": "2026-10-04",
+   "reach": 193,
+   "followers": 1206,
+   "clicks": 1,
+   "spend": 0.0,
+   "results": 0.03,
+   "revenue": 1.65,
+   "posts": 1,
+   "formats": [
+    "post"
+   ]
+  },
+  {
+   "date": "2026-10-05",
+   "reach": 749,
+   "followers": 1209,
+   "clicks": 4,
+   "spend": 0.0,
+   "results": 0.08,
+   "revenue": 4.4,
+   "posts": 2,
+   "formats": [
+    "post",
+    "carousel"
+   ]
+  },
+  {
+   "date": "2026-10-06",
+   "reach": 842,
+   "followers": 1212,
+   "clicks": 5,
+   "spend": 0.0,
+   "results": 0.1,
+   "revenue": 5.75,
+   "posts": 2,
+   "formats": [
+    "post",
+    "reel"
+   ]
+  },
+  {
+   "date": "2026-10-07",
+   "reach": 690,
+   "followers": 1214,
+   "clicks": 4,
+   "spend": 0.0,
+   "results": 0.07,
+   "revenue": 3.86,
+   "posts": 2,
+   "formats": [
+    "post",
+    "carousel"
+   ]
+  },
+  {
+   "date": "2026-10-08",
+   "reach": 615,
+   "followers": 1216,
+   "clicks": 4,
+   "spend": 0.0,
+   "results": 0.08,
+   "revenue": 4.53,
+   "posts": 2,
+   "formats": [
+    "post",
+    "carousel"
+   ]
+  },
+  {
+   "date": "2026-10-09",
+   "reach": 1183,
+   "followers": 1220,
+   "clicks": 7,
+   "spend": 0.0,
+   "results": 0.15,
+   "revenue": 8.93,
+   "posts": 2,
+   "formats": [
+    "post",
+    "reel"
+   ]
+  },
+  {
+   "date": "2026-10-10",
+   "reach": 457,
+   "followers": 1222,
+   "clicks": 3,
+   "spend": 0.0,
+   "results": 0.06,
+   "revenue": 3.72,
+   "posts": 1,
+   "formats": [
+    "carousel"
+   ]
+  },
+  {
+   "date": "2026-10-11",
+   "reach": 190,
+   "followers": 1222,
+   "clicks": 1,
+   "spend": 0.0,
+   "results": 0.02,
+   "revenue": 1.29,
+   "posts": 1,
+   "formats": [
+    "post"
+   ]
+  },
+  {
+   "date": "2026-10-12",
+   "reach": 630,
+   "followers": 1225,
+   "clicks": 4,
+   "spend": 0.0,
+   "results": 0.09,
+   "revenue": 5.41,
+   "posts": 2,
+   "formats": [
+    "post",
+    "carousel"
+   ]
+  },
+  {
+   "date": "2026-10-13",
+   "reach": 1077,
+   "followers": 1229,
+   "clicks": 7,
+   "spend": 0.0,
+   "results": 0.14,
+   "revenue": 7.92,
+   "posts": 2,
+   "formats": [
+    "post",
+    "reel"
+   ]
+  },
+  {
+   "date": "2026-10-14",
+   "reach": 869,
+   "followers": 1232,
+   "clicks": 5,
+   "spend": 0.0,
+   "results": 0.1,
+   "revenue": 5.96,
+   "posts": 2,
+   "formats": [
+    "post",
+    "carousel"
+   ]
+  },
+  {
+   "date": "2026-10-15",
+   "reach": 767,
+   "followers": 1235,
+   "clicks": 4,
+   "spend": 0.0,
+   "results": 0.09,
+   "revenue": 5.0,
+   "posts": 2,
+   "formats": [
+    "post",
+    "carousel"
+   ]
+  },
+  {
+   "date": "2026-10-16",
+   "reach": 959,
+   "followers": 1238,
+   "clicks": 5,
+   "spend": 0.0,
+   "results": 0.09,
+   "revenue": 5.11,
+   "posts": 2,
+   "formats": [
+    "post",
+    "reel"
+   ]
+  },
+  {
+   "date": "2026-10-17",
+   "reach": 460,
+   "followers": 1239,
+   "clicks": 3,
+   "spend": 0.0,
+   "results": 0.05,
+   "revenue": 2.97,
+   "posts": 1,
+   "formats": [
+    "carousel"
+   ]
+  },
+  {
+   "date": "2026-10-18",
+   "reach": 304,
+   "followers": 1240,
+   "clicks": 2,
+   "spend": 0.0,
+   "results": 0.04,
+   "revenue": 2.23,
+   "posts": 1,
+   "formats": [
+    "post"
+   ]
+  },
+  {
+   "date": "2026-10-19",
+   "reach": 894,
+   "followers": 1243,
+   "clicks": 5,
+   "spend": 0.0,
+   "results": 0.1,
+   "revenue": 6.01,
+   "posts": 2,
+   "formats": [
+    "post",
+    "carousel"
+   ]
+  },
+  {
+   "date": "2026-10-20",
+   "reach": 1334,
+   "followers": 1247,
+   "clicks": 7,
+   "spend": 0.0,
+   "results": 0.14,
+   "revenue": 7.86,
+   "posts": 2,
+   "formats": [
+    "post",
+    "reel"
+   ]
+  },
+  {
+   "date": "2026-10-21",
+   "reach": 733,
+   "followers": 1249,
+   "clicks": 4,
+   "spend": 0.0,
+   "results": 0.08,
+   "revenue": 4.41,
+   "posts": 2,
+   "formats": [
+    "post",
+    "carousel"
+   ]
+  },
+  {
+   "date": "2026-10-22",
+   "reach": 676,
+   "followers": 1252,
+   "clicks": 4,
+   "spend": 0.0,
+   "results": 0.09,
+   "revenue": 5.26,
+   "posts": 2,
+   "formats": [
+    "post",
+    "carousel"
+   ]
+  },
+  {
+   "date": "2026-10-23",
+   "reach": 1282,
+   "followers": 1257,
+   "clicks": 8,
+   "spend": 0.0,
+   "results": 0.2,
+   "revenue": 11.68,
+   "posts": 2,
+   "formats": [
+    "post",
+    "reel"
+   ]
+  },
+  {
+   "date": "2026-10-24",
+   "reach": 494,
+   "followers": 1259,
+   "clicks": 3,
+   "spend": 0.0,
+   "results": 0.05,
+   "revenue": 2.95,
+   "posts": 1,
+   "formats": [
+    "carousel"
+   ]
+  },
+  {
+   "date": "2026-10-25",
+   "reach": 287,
+   "followers": 1260,
+   "clicks": 2,
+   "spend": 0.0,
+   "results": 0.03,
+   "revenue": 1.62,
+   "posts": 1,
+   "formats": [
+    "post"
+   ]
+  },
+  {
+   "date": "2026-10-26",
+   "reach": 695,
+   "followers": 1262,
+   "clicks": 4,
+   "spend": 0.0,
+   "results": 0.07,
+   "revenue": 3.83,
+   "posts": 2,
+   "formats": [
+    "post",
+    "carousel"
+   ]
+  },
+  {
+   "date": "2026-10-27",
+   "reach": 901,
+   "followers": 1265,
+   "clicks": 6,
+   "spend": 0.0,
+   "results": 0.1,
+   "revenue": 5.85,
+   "posts": 2,
+   "formats": [
+    "post",
+    "reel"
+   ]
+  },
+  {
+   "date": "2026-10-28",
+   "reach": 733,
+   "followers": 1268,
+   "clicks": 5,
+   "spend": 0.0,
+   "results": 0.12,
+   "revenue": 7.09,
+   "posts": 2,
+   "formats": [
+    "post",
+    "carousel"
+   ]
+  },
+  {
+   "date": "2026-10-29",
+   "reach": 710,
+   "followers": 1270,
+   "clicks": 4,
+   "spend": 0.0,
+   "results": 0.07,
+   "revenue": 4.28,
+   "posts": 2,
+   "formats": [
+    "post",
+    "carousel"
+   ]
+  },
+  {
+   "date": "2026-10-30",
+   "reach": 1377,
+   "followers": 1273,
+   "clicks": 9,
+   "spend": 0.0,
+   "results": 0.2,
+   "revenue": 11.55,
+   "posts": 2,
+   "formats": [
+    "post",
+    "reel"
+   ]
+  },
+  {
+   "date": "2026-10-31",
+   "reach": 365,
+   "followers": 1275,
+   "clicks": 37,
+   "spend": 19.24,
+   "results": 0.93,
+   "revenue": 53.7,
+   "posts": 1,
+   "formats": [
+    "carousel"
+   ]
+  },
+  {
+   "date": "2026-11-01",
+   "reach": 338,
+   "followers": 1276,
+   "clicks": 37,
+   "spend": 18.99,
+   "results": 0.67,
+   "revenue": 38.73,
+   "posts": 1,
+   "formats": [
+    "post"
+   ]
+  },
+  {
+   "date": "2026-11-02",
+   "reach": 900,
+   "followers": 1279,
+   "clicks": 41,
+   "spend": 19.7,
+   "results": 1.03,
+   "revenue": 59.92,
+   "posts": 2,
+   "formats": [
+    "post",
+    "carousel"
+   ]
+  },
+  {
+   "date": "2026-11-03",
+   "reach": 1413,
+   "followers": 1285,
+   "clicks": 44,
+   "spend": 18.76,
+   "results": 0.93,
+   "revenue": 53.67,
+   "posts": 2,
+   "formats": [
+    "post",
+    "reel"
+   ]
+  },
+  {
+   "date": "2026-11-04",
+   "reach": 695,
+   "followers": 1287,
+   "clicks": 40,
+   "spend": 19.51,
+   "results": 0.99,
+   "revenue": 57.7,
+   "posts": 2,
+   "formats": [
+    "post",
+    "carousel"
+   ]
+  },
+  {
+   "date": "2026-11-05",
+   "reach": 863,
+   "followers": 1290,
+   "clicks": 41,
+   "spend": 18.98,
+   "results": 0.77,
+   "revenue": 44.61,
+   "posts": 2,
+   "formats": [
+    "post",
+    "carousel"
+   ]
+  },
+  {
+   "date": "2026-11-06",
+   "reach": 1131,
+   "followers": 1295,
+   "clicks": 45,
+   "spend": 19.74,
+   "results": 0.93,
+   "revenue": 53.78,
+   "posts": 2,
+   "formats": [
+    "post",
+    "reel"
+   ]
+  },
+  {
+   "date": "2026-11-07",
+   "reach": 516,
+   "followers": 1297,
+   "clicks": 39,
+   "spend": 19.46,
+   "results": 0.96,
+   "revenue": 55.63,
+   "posts": 1,
+   "formats": [
+    "carousel"
+   ]
+  },
+  {
+   "date": "2026-11-08",
+   "reach": 346,
+   "followers": 1298,
+   "clicks": 37,
+   "spend": 18.69,
+   "results": 0.87,
+   "revenue": 50.66,
+   "posts": 1,
+   "formats": [
+    "post"
+   ]
+  },
+  {
+   "date": "2026-11-09",
+   "reach": 956,
+   "followers": 1301,
+   "clicks": 43,
+   "spend": 19.91,
+   "results": 0.99,
+   "revenue": 57.42,
+   "posts": 2,
+   "formats": [
+    "post",
+    "carousel"
+   ]
+  },
+  {
+   "date": "2026-11-10",
+   "reach": 1032,
+   "followers": 1304,
+   "clicks": 44,
+   "spend": 19.69,
+   "results": 0.8,
+   "revenue": 46.38,
+   "posts": 2,
+   "formats": [
+    "post",
+    "reel"
+   ]
+  },
+  {
+   "date": "2026-11-11",
+   "reach": 1087,
+   "followers": 1308,
+   "clicks": 42,
+   "spend": 18.61,
+   "results": 0.71,
+   "revenue": 41.33,
+   "posts": 2,
+   "formats": [
+    "post",
+    "carousel"
+   ]
+  },
+  {
+   "date": "2026-11-12",
+   "reach": 925,
+   "followers": 1311,
+   "clicks": 43,
+   "spend": 19.09,
+   "results": 1.03,
+   "revenue": 59.94,
+   "posts": 2,
+   "formats": [
+    "post",
+    "carousel"
+   ]
+  },
+  {
+   "date": "2026-11-13",
+   "reach": 1304,
+   "followers": 1315,
+   "clicks": 44,
+   "spend": 19.34,
+   "results": 0.84,
+   "revenue": 48.88,
+   "posts": 2,
+   "formats": [
+    "post",
+    "reel"
+   ]
+  },
+  {
+   "date": "2026-11-14",
+   "reach": 483,
+   "followers": 1317,
+   "clicks": 40,
+   "spend": 18.97,
+   "results": 0.82,
+   "revenue": 47.76,
+   "posts": 1,
+   "formats": [
+    "carousel"
+   ]
+  },
+  {
+   "date": "2026-11-15",
+   "reach": 332,
+   "followers": 1318,
+   "clicks": 40,
+   "spend": 19.87,
+   "results": 0.85,
+   "revenue": 49.32,
+   "posts": 1,
+   "formats": [
+    "post"
+   ]
+  },
+  {
+   "date": "2026-11-16",
+   "reach": 926,
+   "followers": 1321,
+   "clicks": 41,
+   "spend": 18.41,
+   "results": 0.96,
+   "revenue": 55.72,
+   "posts": 2,
+   "formats": [
+    "post",
+    "carousel"
+   ]
+  },
+  {
+   "date": "2026-11-17",
+   "reach": 1285,
+   "followers": 1326,
+   "clicks": 45,
+   "spend": 18.92,
+   "results": 0.95,
+   "revenue": 54.99,
+   "posts": 2,
+   "formats": [
+    "post",
+    "reel"
+   ]
+  },
+  {
+   "date": "2026-11-18",
+   "reach": 1023,
+   "followers": 1330,
+   "clicks": 43,
+   "spend": 18.84,
+   "results": 0.99,
+   "revenue": 57.6,
+   "posts": 2,
+   "formats": [
+    "post",
+    "carousel"
+   ]
+  },
+  {
+   "date": "2026-11-19",
+   "reach": 874,
+   "followers": 1333,
+   "clicks": 44,
+   "spend": 19.11,
+   "results": 0.96,
+   "revenue": 55.41,
+   "posts": 2,
+   "formats": [
+    "post",
+    "carousel"
+   ]
+  },
+  {
+   "date": "2026-11-20",
+   "reach": 1512,
+   "followers": 1338,
+   "clicks": 47,
+   "spend": 19.16,
+   "results": 1.16,
+   "revenue": 67.45,
+   "posts": 2,
+   "formats": [
+    "post",
+    "reel"
+   ]
+  },
+  {
+   "date": "2026-11-21",
+   "reach": 593,
+   "followers": 1341,
+   "clicks": 41,
+   "spend": 18.82,
+   "results": 0.89,
+   "revenue": 51.62,
+   "posts": 1,
+   "formats": [
+    "carousel"
+   ]
+  },
+  {
+   "date": "2026-11-22",
+   "reach": 418,
+   "followers": 1342,
+   "clicks": 39,
+   "spend": 18.59,
+   "results": 0.81,
+   "revenue": 46.77,
+   "posts": 1,
+   "formats": [
+    "post"
+   ]
+  },
+  {
+   "date": "2026-11-23",
+   "reach": 816,
+   "followers": 1345,
+   "clicks": 45,
+   "spend": 19.84,
+   "results": 0.81,
+   "revenue": 47.25,
+   "posts": 2,
+   "formats": [
+    "post",
+    "carousel"
+   ]
+  },
+  {
+   "date": "2026-11-24",
+   "reach": 1574,
+   "followers": 1350,
+   "clicks": 51,
+   "spend": 19.95,
+   "results": 0.94,
+   "revenue": 54.74,
+   "posts": 2,
+   "formats": [
+    "post",
+    "reel"
+   ]
+  },
+  {
+   "date": "2026-11-25",
+   "reach": 1057,
+   "followers": 1355,
+   "clicks": 45,
+   "spend": 18.66,
+   "results": 0.91,
+   "revenue": 52.87,
+   "posts": 2,
+   "formats": [
+    "post",
+    "carousel"
+   ]
+  },
+  {
+   "date": "2026-11-26",
+   "reach": 863,
+   "followers": 1357,
+   "clicks": 45,
+   "spend": 19.56,
+   "results": 0.76,
+   "revenue": 43.8,
+   "posts": 2,
+   "formats": [
+    "post",
+    "carousel"
+   ]
+  },
+  {
+   "date": "2026-11-27",
+   "reach": 1538,
+   "followers": 1362,
+   "clicks": 49,
+   "spend": 19.22,
+   "results": 0.84,
+   "revenue": 48.94,
+   "posts": 2,
+   "formats": [
+    "post",
+    "reel"
+   ]
+  },
+  {
+   "date": "2026-11-28",
+   "reach": 717,
+   "followers": 1365,
+   "clicks": 43,
+   "spend": 18.57,
+   "results": 0.82,
+   "revenue": 47.28,
+   "posts": 1,
+   "formats": [
+    "carousel"
+   ]
+  },
+  {
+   "date": "2026-11-29",
+   "reach": 270,
+   "followers": 1366,
+   "clicks": 40,
+   "spend": 18.61,
+   "results": 0.81,
+   "revenue": 46.81,
+   "posts": 1,
+   "formats": [
+    "post"
+   ]
+  },
+  {
+   "date": "2026-11-30",
+   "reach": 1212,
+   "followers": 1370,
+   "clicks": 48,
+   "spend": 19.31,
+   "results": 1.09,
+   "revenue": 63.08,
+   "posts": 2,
+   "formats": [
+    "post",
+    "carousel"
+   ]
+  },
+  {
+   "date": "2026-12-01",
+   "reach": 1172,
+   "followers": 1374,
+   "clicks": 45,
+   "spend": 18.52,
+   "results": 1.11,
+   "revenue": 64.63,
+   "posts": 2,
+   "formats": [
+    "post",
+    "reel"
+   ]
+  },
+  {
+   "date": "2026-12-02",
+   "reach": 1165,
+   "followers": 1379,
+   "clicks": 47,
+   "spend": 19.78,
+   "results": 0.97,
+   "revenue": 56.34,
+   "posts": 2,
+   "formats": [
+    "post",
+    "carousel"
+   ]
+  },
+  {
+   "date": "2026-12-03",
+   "reach": 944,
+   "followers": 1383,
+   "clicks": 44,
+   "spend": 18.61,
+   "results": 0.93,
+   "revenue": 54.22,
+   "posts": 2,
+   "formats": [
+    "post",
+    "carousel"
+   ]
+  },
+  {
+   "date": "2026-12-04",
+   "reach": 1346,
+   "followers": 1387,
+   "clicks": 47,
+   "spend": 18.9,
+   "results": 0.91,
+   "revenue": 52.66,
+   "posts": 2,
+   "formats": [
+    "post",
+    "reel"
+   ]
+  },
+  {
+   "date": "2026-12-05",
+   "reach": 676,
+   "followers": 1389,
+   "clicks": 43,
+   "spend": 18.68,
+   "results": 0.85,
+   "revenue": 49.51,
+   "posts": 1,
+   "formats": [
+    "carousel"
+   ]
+  },
+  {
+   "date": "2026-12-06",
+   "reach": 275,
+   "followers": 1390,
+   "clicks": 43,
+   "spend": 19.57,
+   "results": 0.91,
+   "revenue": 53.06,
+   "posts": 1,
+   "formats": [
+    "post"
+   ]
+  },
+  {
+   "date": "2026-12-07",
+   "reach": 1022,
+   "followers": 1393,
+   "clicks": 47,
+   "spend": 19.09,
+   "results": 0.99,
+   "revenue": 57.3,
+   "posts": 2,
+   "formats": [
+    "post",
+    "carousel"
+   ]
+  },
+  {
+   "date": "2026-12-08",
+   "reach": 1563,
+   "followers": 1398,
+   "clicks": 52,
+   "spend": 19.97,
+   "results": 1.03,
+   "revenue": 59.77,
+   "posts": 2,
+   "formats": [
+    "post",
+    "reel"
+   ]
+  },
+  {
+   "date": "2026-12-09",
+   "reach": 1219,
+   "followers": 1402,
+   "clicks": 46,
+   "spend": 18.49,
+   "results": 0.83,
+   "revenue": 48.19,
+   "posts": 2,
+   "formats": [
+    "post",
+    "carousel"
+   ]
+  },
+  {
+   "date": "2026-12-10",
+   "reach": 966,
+   "followers": 1405,
+   "clicks": 45,
+   "spend": 18.54,
+   "results": 1.07,
+   "revenue": 62.2,
+   "posts": 2,
+   "formats": [
+    "post",
+    "carousel"
+   ]
+  },
+  {
+   "date": "2026-12-11",
+   "reach": 1863,
+   "followers": 1411,
+   "clicks": 52,
+   "spend": 19.14,
+   "results": 0.94,
+   "revenue": 54.29,
+   "posts": 2,
+   "formats": [
+    "post",
+    "reel"
+   ]
+  },
+  {
+   "date": "2026-12-12",
+   "reach": 586,
+   "followers": 1413,
+   "clicks": 47,
+   "spend": 19.96,
+   "results": 1.01,
+   "revenue": 58.47,
+   "posts": 1,
+   "formats": [
+    "carousel"
+   ]
+  },
+  {
+   "date": "2026-12-13",
+   "reach": 326,
+   "followers": 1414,
+   "clicks": 43,
+   "spend": 18.97,
+   "results": 0.72,
+   "revenue": 41.91,
+   "posts": 1,
+   "formats": [
+    "post"
+   ]
+  },
+  {
+   "date": "2026-12-14",
+   "reach": 1060,
+   "followers": 1418,
+   "clicks": 46,
+   "spend": 18.41,
+   "results": 0.88,
+   "revenue": 51.25,
+   "posts": 2,
+   "formats": [
+    "post",
+    "carousel"
+   ]
+  },
+  {
+   "date": "2026-12-15",
+   "reach": 1444,
+   "followers": 1422,
+   "clicks": 49,
+   "spend": 18.89,
+   "results": 0.91,
+   "revenue": 52.99,
+   "posts": 2,
+   "formats": [
+    "post",
+    "reel"
+   ]
+  },
+  {
+   "date": "2026-12-16",
+   "reach": 1136,
+   "followers": 1426,
+   "clicks": 51,
+   "spend": 19.81,
+   "results": 1.02,
+   "revenue": 59.07,
+   "posts": 2,
+   "formats": [
+    "post",
+    "carousel"
+   ]
+  },
+  {
+   "date": "2026-12-17",
+   "reach": 1115,
+   "followers": 1429,
+   "clicks": 50,
+   "spend": 19.43,
+   "results": 0.86,
+   "revenue": 49.75,
+   "posts": 2,
+   "formats": [
+    "post",
+    "carousel"
+   ]
+  },
+  {
+   "date": "2026-12-18",
+   "reach": 2048,
+   "followers": 1437,
+   "clicks": 55,
+   "spend": 18.62,
+   "results": 1.16,
+   "revenue": 67.19,
+   "posts": 2,
+   "formats": [
+    "post",
+    "reel"
+   ]
+  },
+  {
+   "date": "2026-12-19",
+   "reach": 617,
+   "followers": 1440,
+   "clicks": 48,
+   "spend": 19.72,
+   "results": 1.04,
+   "revenue": 60.24,
+   "posts": 1,
+   "formats": [
+    "carousel"
+   ]
+  },
+  {
+   "date": "2026-12-20",
+   "reach": 466,
+   "followers": 1441,
+   "clicks": 45,
+   "spend": 18.77,
+   "results": 0.76,
+   "revenue": 44.36,
+   "posts": 1,
+   "formats": [
+    "post"
+   ]
+  },
+  {
+   "date": "2026-12-21",
+   "reach": 974,
+   "followers": 1445,
+   "clicks": 49,
+   "spend": 19.4,
+   "results": 1.09,
+   "revenue": 63.21,
+   "posts": 2,
+   "formats": [
+    "post",
+    "carousel"
+   ]
+  },
+  {
+   "date": "2026-12-22",
+   "reach": 1654,
+   "followers": 1450,
+   "clicks": 55,
+   "spend": 19.6,
+   "results": 1.15,
+   "revenue": 66.92,
+   "posts": 2,
+   "formats": [
+    "post",
+    "reel"
+   ]
+  },
+  {
+   "date": "2026-12-23",
+   "reach": 1161,
+   "followers": 1454,
+   "clicks": 48,
+   "spend": 18.52,
+   "results": 0.92,
+   "revenue": 53.26,
+   "posts": 2,
+   "formats": [
+    "post",
+    "carousel"
+   ]
+  },
+  {
+   "date": "2026-12-24",
+   "reach": 961,
+   "followers": 1458,
+   "clicks": 50,
+   "spend": 19.19,
+   "results": 1.0,
+   "revenue": 58.14,
+   "posts": 2,
+   "formats": [
+    "post",
+    "carousel"
+   ]
+  },
+  {
+   "date": "2026-12-25",
+   "reach": 1881,
+   "followers": 1465,
+   "clicks": 54,
+   "spend": 18.52,
+   "results": 0.97,
+   "revenue": 56.42,
+   "posts": 2,
+   "formats": [
+    "post",
+    "reel"
+   ]
+  },
+  {
+   "date": "2026-12-26",
+   "reach": 544,
+   "followers": 1467,
+   "clicks": 47,
+   "spend": 19.31,
+   "results": 0.8,
+   "revenue": 46.27,
+   "posts": 1,
+   "formats": [
+    "carousel"
+   ]
+  },
+  {
+   "date": "2026-12-27",
+   "reach": 300,
+   "followers": 1468,
+   "clicks": 47,
+   "spend": 19.51,
+   "results": 1.05,
+   "revenue": 60.8,
+   "posts": 1,
+   "formats": [
+    "post"
+   ]
+  },
+  {
+   "date": "2026-12-28",
+   "reach": 1094,
+   "followers": 1472,
+   "clicks": 51,
+   "spend": 19.83,
+   "results": 0.95,
+   "revenue": 55.17,
+   "posts": 2,
+   "formats": [
+    "post",
+    "carousel"
+   ]
+  },
+  {
+   "date": "2026-12-29",
+   "reach": 2050,
+   "followers": 1477,
+   "clicks": 58,
+   "spend": 19.71,
+   "results": 1.44,
+   "revenue": 83.48,
+   "posts": 2,
+   "formats": [
+    "post",
+    "reel"
+   ]
+  }
+ ],
+ "real": {
+  "scan": {
+   "final_url": "https://www.happygardeneu.com/?v=9c049173fad5",
+   "industry": "CBD & hemp wellness",
+   "languages": [
+    "en"
+   ],
+   "platform": "WooCommerce + WordPress"
+  },
+  "palette": [
+   "#FFBC00",
+   "#003388",
+   "#0E252C",
+   "#31856C",
+   "#F5716A"
+  ],
+  "posts": [
+   {
+    "id": "hg-001",
+    "hook": "Full vs Broad Spectrum vs Isolate — 60-second guide",
+    "caption": "Full Spectrum, Broad Spectrum, Isolate — same plant, three very different products. 🌿\n\nFULL — every compound working together (the entourage effect).\nBROAD — the same team, minus THC.\nISOLATE — pure CBD, nothing else.\n\n60 seconds to know exactly what's in your bottle → swipe.\n\n#CBD #CBDeducation #sleepbetter #wellness",
+    "platform": "ig",
+    "pillar": "Education",
+    "image": "assets/posts/hg-001.png",
+    "format": null
+   },
+   {
+    "id": "hg-002",
+    "hook": "What our customers actually say",
+    "caption": null,
+    "platform": "fb",
+    "pillar": "Trust & proof",
+    "image": null,
+    "format": null
+   },
+   {
+    "id": "hg-003",
+    "hook": "CBN + CBD for sleep: what the entourage effect means",
+    "caption": null,
+    "platform": "ig",
+    "pillar": "Use-case",
+    "image": null,
+    "format": null
+   },
+   {
+    "id": "hg-004",
+    "hook": "Poll: what's your #1 sleep struggle?",
+    "caption": null,
+    "platform": "ig",
+    "pillar": "Engagement",
+    "image": null,
+    "format": null
+   }
+  ],
+  "competitors": [
+   "Nordic Oil",
+   "Naturecan",
+   "CBD Vital",
+   "Hempamed"
+  ],
+  "ask": [
+   "What is a lead or a sale worth to you — the most you'd pay for one?",
+   "What is the one offer you want new customers to take first (price, terms, any real deadline)?",
+   "Where should a ready-to-buy customer land: shop page, booking link, WhatsApp, or form?"
+  ]
+ }
+}

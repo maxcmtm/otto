@@ -1,0 +1,10 @@
+{
+ "provider": "auto",
+ "lines": [],
+ "bgm": {
+  "mode": "generate",
+  "prompt": "soft organic acoustic underscore, warm fingerpicked guitar and light felt piano, gentle pulse, calm and premium, minimal, 88 bpm, no vocals, no drums fills",
+  "query": "calm organic acoustic",
+  "blob": "calm botanical wellness explainer"
+ }
+}

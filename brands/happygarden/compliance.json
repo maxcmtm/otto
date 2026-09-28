@@ -1,0 +1,21 @@
+{
+  "notes": "CBD (EU novel food + Meta restricted category): no medical cure/treat/heal claims in any language we publish in, no THC or intoxication promotion. 'May support' language only. Edit freely; 're:' entries are case-insensitive regexes.",
+  "banned": [
+    "re:\\bcur(e|es|ed|ing)\\b",
+    "re:\\bheal(s|ed|ing)?\\b",
+    "re:\\btreat(s|ed|ing)\\b",
+    "re:\\btreatment (for|of)\\b",
+    "re:\\bprevents? (disease|illness|cancer|anxiety|depression|insomnia|inflammation)",
+    "re:\\bclinically proven\\b",
+    "re:\\b(heilt|heilen|heilung|geheilt|heilend)\\b",
+    "re:\\b(behandelt|behandeln|behandlung (von|bei|gegen))\\b",
+    "re:\\b(get|gets|getting) (you )?high\\b",
+    "re:\\bhigh[- ]thc\\b",
+    "re:\\bthc[- ](rich|reich|heavy)\\b",
+    "re:\\bstoned\\b",
+    "re:\\bberauschend",
+    "re:\\brausch(wirkung|zustand)?\\b"
+  ],
+  "required_disclaimer": null,
+  "disclaimer_on": ["posts"]
+}

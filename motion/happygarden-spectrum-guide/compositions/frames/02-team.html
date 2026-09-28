@@ -1,0 +1,460 @@
+<template>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+  <style>
+    /* Latin subsets of the Google Fonts faces named in frame.md (variable, opsz axis kept). */
+    @font-face {
+      font-family: "Source Serif 4";
+      font-style: normal;
+      font-weight: 400 600;
+      font-display: block;
+      src: url(https://fonts.gstatic.com/s/sourceserif4/v14/vEFI2_tTDB4M7-auWDN0ahZJW1gb8te1Xb7G.woff2) format("woff2");
+      unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+    }
+    @font-face {
+      font-family: "Inter";
+      font-style: normal;
+      font-weight: 400 600;
+      font-display: block;
+      src: url(https://fonts.gstatic.com/s/inter/v20/UcC73FwrK3iLTeHuS_nVMrMxCp50SjIa1ZL7W0Q5nw.woff2) format("woff2");
+      unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+    }
+
+    #root {
+      position: absolute;
+      inset: 0;
+      width: 1080px;
+      height: 1920px;
+      overflow: hidden;
+      font-family: "Inter", sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* full-bleed teal ground: its own clip, never painted on #root */
+    [id="02-team-ground"] {
+      position: absolute;
+      inset: 0;
+      width: 1080px;
+      height: 1920px;
+      background: #0E252C;
+    }
+    [id="02-team-stage"] {
+      position: absolute;
+      inset: 0;
+      width: 1080px;
+      height: 1920px;
+    }
+
+    /* ── headline (supporting): two discrete states sharing one zoom-through wrapper ── */
+    [id="02-team-hl"] {
+      position: absolute;
+      left: 176px;
+      top: 300px;
+      width: 728px;
+      height: 176px;
+      transform-origin: 0% 50%;
+    }
+    [class~="02-team-state"] {
+      position: absolute;
+      left: 0;
+      top: 0;
+      margin: 0;
+      font-family: "Source Serif 4", serif;
+      font-optical-sizing: auto;
+      font-weight: 500;
+      font-size: 84px;
+      line-height: 88px;
+      letter-spacing: -0.02em;
+      color: #FFFDF6;
+      white-space: nowrap;
+    }
+    [class~="02-team-line"] {
+      display: block;
+      white-space: nowrap;
+    }
+    [id="02-team-hl-b"] {
+      visibility: hidden; /* discrete state B — the SEQUENCE sets swap it in at 2.41s */
+    }
+    [class~="02-team-w"] {
+      display: inline-block;
+    }
+    [class~="02-team-hi"] {
+      color: #FFBC00;
+    }
+
+    /* ── the five-chip stack (shared stage, frames 02–05 — identical to 03-full's opening state) ── */
+    [class~="02-team-chip"] {
+      position: absolute;
+      left: 180px;
+      width: 720px;
+      height: 128px;
+      border-radius: 64px;
+      display: flex;
+      align-items: center;
+      padding-left: 46px;
+      box-sizing: border-box;
+      transform-origin: 50% 50%;
+    }
+    [class~="02-team-glyph"] {
+      width: 36px;
+      height: 36px;
+      flex: 0 0 36px;
+      margin-right: 26px;
+      overflow: visible;
+    }
+    [class~="02-team-glyph"] path,
+    [class~="02-team-glyph"] circle {
+      fill: none;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+    [class~="02-team-name"] {
+      font-family: "Inter", sans-serif;
+      font-weight: 600;
+      font-size: 44px;
+      line-height: 1;
+      letter-spacing: 0;
+      white-space: nowrap;
+    }
+
+    [id="02-team-chip-cbd"] { top: 560px; background: #FFBC00; color: #0E252C; }
+    [id="02-team-chip-cbg"] { top: 716px; background: #FFFDF6; color: #0E252C; }
+    [id="02-team-chip-cbn"] { top: 872px; background: #FFFDF6; color: #0E252C; }
+    [id="02-team-chip-cbd"] [class~="02-team-glyph"] path,
+    [id="02-team-chip-cbg"] [class~="02-team-glyph"] path,
+    [id="02-team-chip-cbn"] [class~="02-team-glyph"] path { stroke: #0E252C; }
+
+    [id="02-team-chip-terp"] { top: 1028px; background: #31856C; color: #FFFDF6; }
+    [id="02-team-chip-terp"] [class~="02-team-glyph"] path { stroke: #FFFDF6; }
+
+    [id="02-team-chip-thc"] { top: 1184px; background: transparent; color: #FFFDF6; }
+    [id="02-team-chip-thc"] [class~="02-team-glyph"] path { stroke: #FFFDF6; }
+    [id="02-team-thc-outline"] {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 720px;
+      height: 128px;
+      overflow: visible;
+    }
+    [id="02-team-thc-rect"] {
+      fill: none;
+      stroke: #FFFDF6;
+      stroke-width: 2;
+      stroke-dasharray: 14 10;
+    }
+    /* mask pen: a solid white stroke traced round the pill reveals the dashed outline beneath */
+    [id="02-team-thc-pen"] {
+      fill: none;
+      stroke: #FFFFFF;
+      stroke-width: 12;
+      stroke-linecap: butt;
+    }
+
+    /* brief 2px cream outline tick around the CBD chip */
+    [id="02-team-ring"] {
+      position: absolute;
+      left: 172px;
+      top: 552px;
+      width: 736px;
+      height: 144px;
+      border: 2px solid #FFFDF6;
+      border-radius: 72px;
+      box-sizing: border-box;
+      transform-origin: 50% 50%;
+    }
+
+    /* ── "minor cannabinoids" group label: 2px cream bracket + spine label in the left margin,
+          spanning the CBG + CBN slots (mirrors 03-full's right-edge bracket) ── */
+    [id="02-team-bracket"] {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 1080px;
+      height: 1920px;
+      overflow: visible;
+      opacity: 0.7;
+    }
+    [id="02-team-bracket-path"] {
+      fill: none;
+      stroke: #FFFDF6;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+    [id="02-team-minor-rot"] {
+      position: absolute;
+      left: 100px;
+      top: 858px;
+      width: 0;
+      height: 0;
+      transform: rotate(-90deg); /* static spine rotation lives on this wrapper; GSAP only moves the child */
+      transform-origin: 0 0;
+    }
+    [id="02-team-minor"] {
+      position: absolute;
+      left: -150px;
+      top: -15px;
+      width: 300px;
+      height: 30px;
+      text-align: center;
+      font-family: "Inter", sans-serif;
+      font-weight: 500;
+      font-size: 30px;
+      line-height: 30px;
+      letter-spacing: 0;
+      color: #FFFDF6;
+      white-space: nowrap;
+    }
+  </style>
+
+  <div id="root" data-composition-id="02-team" data-width="1080" data-height="1920" data-duration="12.96">
+    <div id="02-team-ground" class="clip" data-start="0" data-duration="12.96" data-track-index="0"></div>
+
+    <div id="02-team-stage" class="clip" data-start="0" data-duration="12.96" data-track-index="1">
+      <div id="02-team-hl">
+        <div id="02-team-hl-a" data-layout-allow-overlap class="02-team-state">
+          <span class="02-team-line" data-layout-allow-overlap><span class="02-team-w" data-layout-allow-overlap>Hemp</span> <span class="02-team-w" data-layout-allow-overlap>makes</span></span>
+          <span class="02-team-line" data-layout-allow-overlap><span class="02-team-w" data-layout-allow-overlap>more</span> <span class="02-team-w" data-layout-allow-overlap>than</span> <span class="02-team-w 02-team-hi" data-layout-allow-overlap>CBD.</span></span>
+        </div>
+        <div id="02-team-hl-b" data-layout-allow-overlap class="02-team-state">
+          <span class="02-team-line" data-layout-allow-overlap>Think of it</span>
+          <span class="02-team-line" data-layout-allow-overlap>as a <span class="02-team-hi" data-layout-allow-overlap>team.</span></span>
+        </div>
+      </div>
+
+      <div id="02-team-chip-cbd" class="02-team-chip">
+        <svg class="02-team-glyph" viewBox="0 0 36 36" aria-hidden="true">
+          <path d="M18 3 L31 10.5 L31 25.5 L18 33 L5 25.5 L5 10.5 Z" />
+        </svg>
+        <span class="02-team-name">CBD</span>
+      </div>
+
+      <div id="02-team-chip-cbg" class="02-team-chip">
+        <svg class="02-team-glyph" viewBox="0 0 36 36" aria-hidden="true">
+          <path d="M18 3 L31 10.5 L31 25.5 L18 33 L5 25.5 L5 10.5 Z" />
+        </svg>
+        <span class="02-team-name">CBG</span>
+      </div>
+
+      <div id="02-team-chip-cbn" class="02-team-chip">
+        <svg class="02-team-glyph" viewBox="0 0 36 36" aria-hidden="true">
+          <path d="M18 3 L31 10.5 L31 25.5 L18 33 L5 25.5 L5 10.5 Z" />
+        </svg>
+        <span class="02-team-name">CBN</span>
+      </div>
+
+      <div id="02-team-chip-terp" class="02-team-chip">
+        <svg class="02-team-glyph" viewBox="0 0 36 36" aria-hidden="true">
+          <path id="02-team-leaf" d="M7 29 C7 16 16 7.5 29.5 6.5 C29.5 20 21 29 7 29 Z" />
+          <path id="02-team-leaf-rib" d="M7 29 L21 15" />
+        </svg>
+        <span class="02-team-name">Terpenes</span>
+      </div>
+
+      <div id="02-team-chip-thc" class="02-team-chip">
+        <svg id="02-team-thc-outline" viewBox="0 0 720 128" aria-hidden="true">
+          <defs>
+            <mask id="02-team-thc-mask" maskUnits="userSpaceOnUse" x="-12" y="-12" width="744" height="152">
+              <rect id="02-team-thc-pen" x="1" y="1" width="718" height="126" rx="63" ry="63" />
+            </mask>
+          </defs>
+          <rect id="02-team-thc-rect" x="1" y="1" width="718" height="126" rx="63" ry="63" mask="url(#02-team-thc-mask)" />
+        </svg>
+        <svg id="02-team-thc-glyph" class="02-team-glyph" viewBox="0 0 36 36" aria-hidden="true">
+          <path d="M18 3 L31 10.5 L31 25.5 L18 33 L5 25.5 L5 10.5 Z" />
+        </svg>
+        <span id="02-team-thc-name" class="02-team-name">THC · trace</span>
+      </div>
+
+      <div id="02-team-ring"></div>
+
+      <svg id="02-team-bracket" viewBox="0 0 1080 1920" aria-hidden="true">
+        <path id="02-team-bracket-path" d="M162 718 L132 718 L132 998 L162 998" />
+      </svg>
+      <div id="02-team-minor-rot"><div id="02-team-minor">minor cannabinoids</div></div>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      var FRAME_ID = "02-team";
+      var DUR = 12.46;
+      var byId = function (id) { return document.getElementById(FRAME_ID + "-" + id); };
+      var stage = byId("stage");
+      var all = function (cls) { return stage.querySelectorAll('[class~="' + FRAME_ID + "-" + cls + '"]'); };
+
+      var tl = gsap.timeline({ paused: true });
+
+      // measured stroke length (svg-path-draw); geometry fallback if the API is unavailable
+      var measure = function (el, fallback) {
+        var len = el && el.getTotalLength ? el.getTotalLength() : 0;
+        return len && isFinite(len) ? len : fallback;
+      };
+
+      // ── discrete-text-sequence: whole headline states replaced at VO thresholds.
+      //    Each threshold is a zero-duration tl.set (state, not a callback — seek-safe). ──
+      var STATES = { a: byId("hl-a"), b: byId("hl-b") };
+      var SEQUENCE = [
+        { t: 0.0, state: "a" },   // "Hemp makes more than CBD."
+        { t: 2.41, state: "b" }   // "Think of it as a team." — on "Think"
+      ];
+      for (var q = 0; q < SEQUENCE.length; q++) {
+        for (var key in STATES) {
+          tl.set(STATES[key], { visibility: key === SEQUENCE[q].state ? "inherit" : "hidden" }, SEQUENCE[q].t);
+        }
+      }
+
+      // ── Scene 1 (0.00–2.40s): headline per-word reveal on the VO; CBD chip pops on "CBD" ──
+      var words = all("w");
+      var WORD_AT = [0.02, 0.36, 0.76, 1.22, 1.56]; // Hemp · makes · more · than · CBD.
+      for (var i = 0; i < words.length; i++) {
+        tl.fromTo(
+          words[i],
+          { opacity: 0, y: 36, filter: "blur(10px)" },
+          { opacity: 1, y: 0, filter: "blur(0px)", duration: 0.7, ease: "power3.out" },
+          WORD_AT[i]
+        );
+      }
+      // spring-pop-entrance, calm settle: scale 0 → 1, power3.out, no overshoot
+      tl.fromTo(
+        byId("chip-cbd"),
+        { scale: 0, opacity: 0, y: 12 },
+        { scale: 1, opacity: 1, y: 0, duration: 0.6, ease: "power3.out" },
+        1.56
+      );
+
+      // ── Scene 2 (2.40–4.20s): headline swaps in place — zoom-through velocity-matched cut ──
+      var hl = byId("hl");
+      var CUT = 2.41;
+      tl.fromTo(
+        hl,
+        { scale: 1, filter: "blur(0px)" },
+        { scale: 1.2, filter: "blur(10px)", duration: 0.2, ease: "power3.in" },
+        CUT - 0.2
+      );
+      tl.fromTo(
+        hl,
+        { opacity: 1 },
+        { opacity: 0.15, duration: 0.2, ease: "none" },
+        CUT - 0.2
+      );
+      // hard cut at peak blur: the SEQUENCE set swaps the state; the incoming line keeps scaling up
+      tl.fromTo(
+        hl,
+        { scale: 0.75, filter: "blur(10px)", opacity: 0.15 },
+        { scale: 1, filter: "blur(0px)", opacity: 1, duration: 0.5, ease: "expo.out", immediateRender: false },
+        CUT
+      );
+
+      // ── Scene 3 (4.20–5.90s): CBD outline tick on "CBD"; group label on "the minor cannabinoids" ──
+      var ring = byId("ring");
+      tl.fromTo(
+        ring,
+        { opacity: 0, scale: 1.04 },
+        { opacity: 1, scale: 1, duration: 0.3, ease: "power2.out" },
+        4.22
+      );
+      tl.fromTo(
+        ring,
+        { opacity: 1 },
+        { opacity: 0, duration: 0.5, ease: "power2.inOut", immediateRender: false },
+        4.6
+      );
+
+      var bracket = byId("bracket-path");
+      var BR_LEN = measure(bracket, 30 + 280 + 30);
+      bracket.style.strokeDasharray = BR_LEN + " " + BR_LEN;
+      tl.fromTo(
+        bracket,
+        { strokeDashoffset: BR_LEN },
+        { strokeDashoffset: 0, duration: 0.7, ease: "power2.out" },
+        4.65
+      );
+      var minor = byId("minor");
+      tl.fromTo(
+        minor,
+        { opacity: 0, x: -16 },
+        { opacity: 0.7, x: 0, duration: 0.6, ease: "power3.out" },
+        4.72
+      );
+
+      // ── Scene 4 (5.90–9.10s): CBG then CBN slide up into their slots; label settles at 50% ──
+      var slideIn = function (el, at) {
+        tl.fromTo(
+          el,
+          { y: 40, opacity: 0 },
+          { y: 0, opacity: 1, duration: 0.7, ease: "power3.out" },
+          at
+        );
+      };
+      slideIn(byId("chip-cbg"), 5.93);
+      slideIn(byId("chip-cbn"), 7.73);
+      tl.fromTo(
+        minor,
+        { opacity: 0.7 },
+        { opacity: 0.5, duration: 0.8, ease: "power2.out", immediateRender: false },
+        8.45
+      );
+      tl.fromTo(
+        byId("bracket"),
+        { opacity: 0.7 },
+        { opacity: 0.5, duration: 0.8, ease: "power2.out", immediateRender: false },
+        8.45
+      );
+
+      // ── Scene 5 (9.10–10.30s): Terpenes lands in slot four; its leaf glyph draws on ──
+      slideIn(byId("chip-terp"), 9.14);
+      var leaf = byId("leaf");
+      var rib = byId("leaf-rib");
+      var LEAF_LEN = measure(leaf, 64);
+      var RIB_LEN = measure(rib, 20);
+      leaf.style.strokeDasharray = LEAF_LEN + " " + LEAF_LEN;
+      rib.style.strokeDasharray = RIB_LEN + " " + RIB_LEN;
+      var LEAF_AT = 9.36, LEAF_DUR = 0.55;
+      tl.fromTo(
+        leaf,
+        { strokeDashoffset: LEAF_LEN },
+        { strokeDashoffset: 0, duration: LEAF_DUR, ease: "power2.out" },
+        LEAF_AT
+      );
+      tl.fromTo(
+        rib,
+        { strokeDashoffset: RIB_LEN },
+        { strokeDashoffset: 0, duration: LEAF_DUR * 0.7, ease: "power2.out" },
+        LEAF_AT + LEAF_DUR * 0.75
+      );
+
+      // ── Scene 6 (10.30–end): dashed THC outline draws itself round slot five (svg-path-draw
+      //    on the mask pen); its label fades in on "THC"; the full stack holds still to the end ──
+      var pen = byId("thc-pen");
+      var PEN_LEN = measure(pen, 2 * (718 - 126) + Math.PI * 126) + 4;
+      pen.style.strokeDasharray = PEN_LEN + " " + PEN_LEN;
+      tl.fromTo(
+        pen,
+        { strokeDashoffset: PEN_LEN },
+        { strokeDashoffset: 0, duration: 0.78, ease: "power2.out" },
+        10.49
+      );
+      var THC_LABEL_AT = 11.38;
+      tl.fromTo(
+        byId("thc-glyph"),
+        { opacity: 0, y: 10 },
+        { opacity: 1, y: 0, duration: 0.5, ease: "power1.out" },
+        THC_LABEL_AT
+      );
+      tl.fromTo(
+        byId("thc-name"),
+        { opacity: 0, y: 10 },
+        { opacity: 1, y: 0, duration: 0.5, ease: "power1.out" },
+        THC_LABEL_AT
+      );
+      // from ~11.9s the five-chip stack holds still (03-full opens on exactly this state);
+      // a no-op anchor keeps the timeline length equal to the frame duration
+      tl.set({}, {}, DUR);
+
+      window.__timelines = window.__timelines || {};
+      window.__timelines[FRAME_ID] = tl;
+    })();
+  </script>
+</template>

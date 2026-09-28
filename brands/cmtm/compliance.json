@@ -1,0 +1,20 @@
+{
+  "notes": "Therapy training college (mental-health adjacent, Meta personal-attributes policy): no cure/healing promises (EN + HE), no questions or statements that assert the viewer's (or their child's) condition — 'Do you suffer from…', 'Is your child…'. Third-person stories are fine. Edit freely; 're:' entries are case-insensitive regexes.",
+  "banned": [
+    "re:\\bcur(e|es|ed|ing)\\b",
+    "re:\\bheal(s|ed|ing)?\\b",
+    "re:\\btreat(s|ed|ing) (your|anxiety|depression|trauma|adhd|ptsd)\\b",
+    "re:(?<![\\u0590-\\u05FF])[והלשבכמ]?(מרפא|מרפאים|מרפאה את|לרפא|תרפא|נרפא|נרפאה|ריפוי)(?![\\u0590-\\u05FF])",
+    "re:\\bdo you suffer\\b",
+    "re:\\bare you suffering\\b",
+    "re:\\bare you (depressed|anxious|traumati[sz]ed|struggling with)\\b",
+    "re:\\b(is|does|has) your (child|kid|son|daughter)\\b",
+    "re:\\byour (anxiety|depression|trauma|adhd|ptsd|panic attacks)\\b",
+    "re:האם (אתה|את|אתם|אתן) (סובל|סובלת|סובלים|סובלות|מתמודד|מתמודדת|מתמודדים|מתמודדות)",
+    "re:(?<![\\u0590-\\u05FF])(אתה|את|אתם|אתן) (סובל|סובלת|סובלים|סובלות) מ",
+    "re:האם (הילד|הילדה|ילדך|ילדתך|הילדים|הילדות) (שלך|שלכם|שלכן)?",
+    "re:(?<![\\u0590-\\u05FF])(הילד|הילדה|הילדים) (שלך|שלכם|שלכן) (סובל|סובלת|סובלים|מתמודד|מתמודדת)"
+  ],
+  "required_disclaimer": null,
+  "disclaimer_on": ["posts"]
+}

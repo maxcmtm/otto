@@ -4,24 +4,29 @@
   otto_video.py plan   <post-id> [--seconds 45]         # scene script from the post (Quill may write post.script first)
   otto_video.py render <post-id> [--dry] [--no-voice]    # scenes → images → voice-over → ffmpeg → assets/reels/<id>.mp4 → post.video
   otto_video.py demo   <out.mp4> [--voice]               # render a sample reel from existing post images (local check)
+  otto_video.py missing [--brand <id>]                   # ids of reel posts (draft/pending_approval) that have no video yet (cron loop)
 
 A reel = 4–7 scenes. Each scene: one on-brand vertical image (Leonardo, brand palette), a slow
 Ken Burns move, a caption in the brand band (ffmpeg drawtext, same typography as the ad statics),
 optional voice-over (ElevenLabs, $OTTO_SECRETS/elevenlabs.json {api_key, voice_id}) and a music bed
 from assets/music/*.mp3 (royalty-free, optional). 1080×1920, 30 fps, H.264 + AAC, capped at 60 s.
 post.script = [{"text","seconds","visual"}] — if missing, `plan` derives it from hook + caption.
+Scene images and voice clips are cached per scene under assets/reels/<post-id>/ keyed by a hash of the
+scene text (+ visual / voice), so editing one line of the script re-renders only that scene.
+The finished mp4 is copied to the public assets dir (otto_paths.publish) before post.video is set.
 Needs ffmpeg + ffprobe on PATH and a TTF font (OTTO_FONT or the defaults in otto_creative.py).
 """
-import json, os, re, shutil, subprocess, sys, tempfile, textwrap, urllib.request
+import hashlib, json, os, re, shutil, subprocess, sys, tempfile, textwrap, urllib.request
 from pathlib import Path
 
 import ap
 import otto_creative as cre
+import otto_paths as paths
 
 HERE = Path(__file__).parent
-BRANDS = HERE.parent / "brands"
-REELS = HERE / "assets" / "reels"
-MUSIC = HERE / "assets" / "music"
+BRANDS = ap.BRANDS
+REELS = paths.ASSETS / "reels"
+MUSIC = paths.ASSETS / "music"
 SECRETS = Path(os.environ.get("OTTO_SECRETS") or HERE.parent.parent / "otto-secrets")
 W, H, FPS = 1080, 1920, 30
 
@@ -52,8 +57,18 @@ def plan_script(p, b, seconds=45):
 
 # ---------------- assets ----------------
 
+def scene_key(*parts):
+    return hashlib.sha1("\x1f".join(str(x or "") for x in parts).encode("utf-8")).hexdigest()[:12]
+
+
+def _cached(d, stem):
+    hits = sorted(d.glob(stem + ".*"))
+    return hits[0] if hits else None
+
+
 def scene_images(p, script, dry):
-    """One 9:16 image per scene via Leonardo (skips existing). Dry/no key → reuse the post image."""
+    """One 9:16 image per scene via Leonardo, cached by a hash of the scene (brand + visual + text).
+    Dry/no key → reuse the post image."""
     d = REELS / p["id"]
     d.mkdir(parents=True, exist_ok=True)
     out = []
@@ -63,9 +78,11 @@ def scene_images(p, script, dry):
     except SystemExit:
         key = None
     for i, sc in enumerate(script, 1):
-        f = d / f"s{i}.png"
-        if f.exists():
-            out.append(f); continue
+        stem = "s-" + scene_key(p["brand"], sc.get("visual"), sc.get("text"))
+        hit = _cached(d, stem)
+        if hit:
+            out.append(hit); continue
+        f = None
         if key:
             pal, industry, style = gv.brand_visual(p["brand"])
             prompt = (f"vertical 9:16 social video frame, {industry or 'brand'}. Brand palette (dominant): {', '.join(pal) or 'brand colors'}. "
@@ -83,19 +100,24 @@ def scene_images(p, script, dry):
                     if g.get("status") == "COMPLETE" and g.get("generated_images"):
                         q = urllib.request.Request(g["generated_images"][0]["url"], headers={"User-Agent": gv.UA})
                         with urllib.request.urlopen(q, timeout=60) as x:
-                            f.write_bytes(x.read())
+                            data = x.read()
+                        f = d / (stem + paths.EXT.get(paths.sniff(data) or "", ".jpg"))   # named by real type
+                        f.write_bytes(data)
                         break
                     if g.get("status") == "FAILED":
                         break
             except Exception as e:
                 print("scene image failed:", e)
-        if not f.exists():
-            src = HERE / p["image"] if p.get("image") else None
+        if f is None or not f.exists():
+            src = paths.local_path(p["image"]) if p.get("image") else None
+            # fallbacks are not cached under the scene key, so the next render with a key retries Leonardo
             if src and src.exists():
+                f = d / (stem + "-fb" + paths.EXT.get(paths.sniff(src) or "", src.suffix or ".jpg"))
                 shutil.copy(src, f)
             else:
-                cre_font = cre.font_path()
-                sh([shutil.which("ffmpeg"), "-y", "-loglevel", "error", "-f", "lavfi", "-i", f"color=c={brand_color(p['brand'])}:s={W}x{H}:d=1", "-frames:v", "1", str(f)])
+                f = d / (stem + "-fb.jpg")
+                sh([shutil.which("ffmpeg"), "-y", "-loglevel", "error", "-f", "lavfi", "-i", f"color=c={brand_color(p['brand'])}:s={W}x{H}:d=1",
+                    "-frames:v", "1", "-q:v", "2", str(f)])
         out.append(f)
     return out
 
@@ -114,12 +136,14 @@ def voice_over(script, out_dir, voice=True):
     if not voice or not f.exists():
         return [None] * len(script)
     c = json.loads(f.read_text())
+    model = c.get("model_id", "eleven_multilingual_v2")
     outs = []
+    out_dir.mkdir(parents=True, exist_ok=True)
     for i, sc in enumerate(script, 1):
-        mp3 = out_dir / f"v{i}.mp3"
+        mp3 = out_dir / f"v-{scene_key(c.get('voice_id'), model, sc['text'])}.mp3"
         if not mp3.exists():
             req = urllib.request.Request(f"https://api.elevenlabs.io/v1/text-to-speech/{c['voice_id']}",
-                                         data=json.dumps({"text": sc["text"], "model_id": c.get("model_id", "eleven_multilingual_v2")}).encode(),
+                                         data=json.dumps({"text": sc["text"], "model_id": model}).encode(),
                                          headers={"xi-api-key": c["api_key"], "Content-Type": "application/json", "Accept": "audio/mpeg"})
             try:
                 with urllib.request.urlopen(req, timeout=90) as r:
@@ -135,19 +159,23 @@ def voice_over(script, out_dir, voice=True):
 def render_scene(img, text, secs, out, color, font):
     frames = int(secs * FPS)
     lines = cre.prep_lines(text, 24)
-    with tempfile.NamedTemporaryFile("w", suffix=".txt", delete=False, encoding="utf-8") as tf:
-        tf.write("\n".join(lines)); tfile = tf.name
     size = 62 if len(lines) <= 2 else 54
-    band = size * len(lines) + 130
+    spacing = 12
+    band = size * len(lines) + spacing * max(0, len(lines) - 1) + 130
     fc = cre.text_color_for(color if cre.hex_ok(color) else "#2447F0")
+    chain, files = cre.drawtext_chain(lines, font, fc, size, f"h-{band}-120+64", bool(cre.RTL.search(text or "")),
+                                      margin=64, spacing=spacing)
     vf = (f"scale={W}:{H}:force_original_aspect_ratio=increase,crop={W}:{H},"
           f"zoompan=z='min(zoom+0.0006,1.10)':x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':d={frames}:s={W}x{H}:fps={FPS},"
           f"drawbox=x=0:y=ih-{band}-120:w=iw:h={band}:color={color}@0.92:t=fill,"
-          f"drawtext=fontfile='{font}':textfile='{tfile}':fontcolor={fc}:fontsize={size}:line_spacing=12:x={'w-tw-64' if cre.RTL.search(text) else '64'}:y=h-{band}-120+64,"
+          + (chain + "," if chain else "") +
           f"fade=t=in:st=0:d=0.4,fade=t=out:st={max(0, secs - 0.4)}:d=0.4,format=yuv420p")
-    sh([shutil.which("ffmpeg"), "-y", "-loglevel", "error", "-loop", "1", "-i", str(img), "-t", str(secs), "-vf", vf,
-        "-r", str(FPS), "-c:v", "libx264", "-preset", "veryfast", "-crf", "20", "-an", str(out)])
-    os.unlink(tfile)
+    try:
+        sh([shutil.which("ffmpeg"), "-y", "-loglevel", "error", "-loop", "1", "-i", str(img), "-t", str(secs), "-vf", vf,
+            "-r", str(FPS), "-c:v", "libx264", "-preset", "veryfast", "-crf", "20", "-an", str(out)])
+    finally:
+        for f in files:
+            os.unlink(f)
     return out
 
 
@@ -193,31 +221,42 @@ def assemble(scenes, vos, out_mp4, color, workdir):
     return out_mp4, total
 
 
+def _save_script(pid, script):
+    with ap.transaction() as d:
+        q = ap.post(d, pid)
+        if q is not None and not q.get("script"):
+            q["script"] = script
+
+
 def render(pid, dry=False, voice=True):
-    d = ap.load()
+    d = ap.load()                                   # snapshot: all slow work happens outside the lock
     p = ap.post(d, pid)
     assert p, f"unknown post {pid}"
     b = ap.brand(d, p["brand"]) or {}
     script = p.get("script") or plan_script(p, b)
-    p["script"] = script
     if dry:
         for i, sc in enumerate(script, 1):
             print(f"scene {i} · {sc.get('seconds', 6)}s · {sc['text']}")
         print(f"-- {len(script)} scenes ≈ {sum(int(s.get('seconds', 6)) for s in script)}s (dry: no images, no render)")
-        ap.save(d); return
+        _save_script(pid, script); return
     imgs = scene_images(p, script, dry=False)
     work = REELS / p["id"]
     vos = voice_over(script, work, voice)
     REELS.mkdir(parents=True, exist_ok=True)
     out = REELS / f"{p['id']}.mp4"
     _, total = assemble(list(zip(imgs, script)), vos, out, brand_color(p["brand"]), work)
-    p["video"] = f"assets/reels/{p['id']}.mp4"; p["video_seconds"] = round(total, 1); p["format"] = p.get("format") or "reel"
-    ap.save(d)
+    paths.publish(out)                              # public before anything points at it
+    with ap.transaction() as d2:
+        q = ap.post(d2, pid)
+        if q is None:
+            print(f"{pid} disappeared while rendering — video kept at {out}"); return
+        q["script"] = q.get("script") or script
+        q["video"] = f"assets/reels/{pid}.mp4"; q["video_seconds"] = round(total, 1); q["format"] = q.get("format") or "reel"
     print(f"rendered {out} · {total:.0f}s · {len(imgs)} scenes · voice {'yes' if any(vos) else 'no'}")
 
 
 def demo(out, voice=False):
-    imgs = sorted((HERE / "assets" / "posts").glob("*.png"))[:5]
+    imgs = sorted(p for p in (paths.ASSETS / "posts").glob("*") if p.suffix.lower() in (".jpg", ".jpeg", ".png"))[:5]
     assert imgs, "no post images to demo with"
     script = [{"text": "Full spectrum, broad spectrum, isolate. Same plant, three products.", "seconds": 6},
               {"text": "Full: every compound working together.", "seconds": 5},
@@ -234,14 +273,22 @@ if __name__ == "__main__":
     a = sys.argv[1:]
     cmd = a[0] if a else ""
     if cmd == "plan":
-        d = ap.load(); p = ap.post(d, a[1]); b = ap.brand(d, p["brand"]) or {}
         secs = int(a[a.index("--seconds") + 1]) if "--seconds" in a else 45
-        p["script"] = plan_script(p, b, secs); ap.save(d)
+        with ap.transaction() as d:
+            p = ap.post(d, a[1]); assert p, f"unknown post {a[1]}"
+            b = ap.brand(d, p["brand"]) or {}
+            p["script"] = plan_script(p, b, secs)
         for i, sc in enumerate(p["script"], 1):
             print(f"scene {i} · {sc['seconds']}s · {sc['text']}")
     elif cmd == "render":
         render(a[1], dry="--dry" in a, voice="--no-voice" not in a)
     elif cmd == "demo":
         demo(a[1], voice="--voice" in a)
+    elif cmd == "missing":
+        bid = a[a.index("--brand") + 1] if "--brand" in a else None
+        for p in ap.load().get("posts", []):
+            if p.get("format") == "reel" and not p.get("video") and p.get("status") in ("draft", "pending_approval") \
+                    and (not bid or p.get("brand") == bid):
+                print(p["id"])
     else:
         print(__doc__)

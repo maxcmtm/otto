@@ -1,0 +1,370 @@
+<template>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+  <style>
+    /* Latin subsets of the Google Fonts faces named in frame.md (variable, opsz axis kept). */
+    @font-face {
+      font-family: "Source Serif 4";
+      font-style: normal;
+      font-weight: 400 600;
+      font-display: block;
+      src: url(https://fonts.gstatic.com/s/sourceserif4/v14/vEFI2_tTDB4M7-auWDN0ahZJW1gb8te1Xb7G.woff2) format("woff2");
+      unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+    }
+    @font-face {
+      font-family: "Inter";
+      font-style: normal;
+      font-weight: 400 600;
+      font-display: block;
+      src: url(https://fonts.gstatic.com/s/inter/v20/UcC73FwrK3iLTeHuS_nVMrMxCp50SjIa1ZL7W0Q5nw.woff2) format("woff2");
+      unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+    }
+
+    #root {
+      position: absolute;
+      inset: 0;
+      width: 1080px;
+      height: 1920px;
+      overflow: hidden;
+      font-family: "Inter", sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* full-bleed teal ground: its own clip, never painted on #root */
+    [id="05-isolate-ground"] {
+      position: absolute;
+      inset: 0;
+      width: 1080px;
+      height: 1920px;
+      background: #0E252C;
+    }
+    [id="05-isolate-stage"] {
+      position: absolute;
+      inset: 0;
+      width: 1080px;
+      height: 1920px;
+    }
+
+    /* ── label: "Broad spectrum" → "Isolate" (focal type, same slot as frames 03–04) ── */
+    [id="05-isolate-label"] {
+      position: absolute;
+      left: 176px;
+      top: 300px;
+      min-width: 720px;
+      margin: 0;
+      font-family: "Source Serif 4", serif;
+      font-optical-sizing: auto;
+      font-weight: 500;
+      font-size: 112px;
+      line-height: 1;
+      letter-spacing: -0.02em;
+      color: #FFBC00;
+      white-space: nowrap;
+    }
+
+    /* ── "0% THC" stamp exactly where frame 04 left it (under the label, stack's left edge) ── */
+    [id="05-isolate-stamp"] {
+      position: absolute;
+      left: 180px;
+      top: 446px;
+      height: 72px;
+      padding: 0 32px;
+      border-radius: 36px;
+      display: flex;
+      align-items: center;
+      background: #31856C;
+      color: #FFFDF6;
+      font-family: "Inter", sans-serif;
+      font-weight: 600;
+      font-size: 40px;
+      line-height: 1;
+      letter-spacing: 0.01em;
+      white-space: nowrap;
+      box-sizing: border-box;
+      transform-origin: 0% 50%;
+    }
+
+    /* ── the chip stack (shared stage, frames 02–05), re-centred 78px lower as frame 04 ended ── */
+    [class~="05-isolate-chip"] {
+      position: absolute;
+      left: 180px;
+      width: 720px;
+      height: 128px;
+      border-radius: 64px;
+      display: flex;
+      align-items: center;
+      padding-left: 46px;
+      box-sizing: border-box;
+      transform-origin: 50% 50%;
+    }
+    [class~="05-isolate-glyph"] {
+      width: 36px;
+      height: 36px;
+      flex: 0 0 36px;
+      margin-right: 26px;
+      overflow: visible;
+    }
+    [class~="05-isolate-glyph"] path {
+      fill: none;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+    [class~="05-isolate-name"] {
+      font-family: "Inter", sans-serif;
+      font-weight: 600;
+      font-size: 44px;
+      line-height: 1;
+      letter-spacing: 0;
+      white-space: nowrap;
+    }
+
+    [id="05-isolate-chip-cbg"] { top: 794px; background: #FFFDF6; color: #0E252C; }
+    [id="05-isolate-chip-cbn"] { top: 950px; background: #FFFDF6; color: #0E252C; }
+    [id="05-isolate-chip-cbg"] [class~="05-isolate-glyph"] path,
+    [id="05-isolate-chip-cbn"] [class~="05-isolate-glyph"] path { stroke: #0E252C; }
+    [id="05-isolate-chip-terp"] { top: 1106px; background: #31856C; color: #FFFDF6; }
+    [id="05-isolate-chip-terp"] [class~="05-isolate-glyph"] path { stroke: #FFFDF6; }
+
+    /* ── CBD: the hero. Box is its landed footprint (936×218, straight edge 181–899 =
+          the old chip's run); the yellow pill is a clip-path inset that starts as the
+          720×128 chip at y 638 and opens to the full pill. ── */
+    [id="05-isolate-cbd"] {
+      position: absolute;
+      left: 72px;
+      top: 593px;
+      width: 936px;
+      height: 218px;
+      z-index: 3;
+    }
+    [id="05-isolate-cbd-bg"] {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 936px;
+      height: 218px;
+      background: #FFBC00;
+      clip-path: inset(45px 108px 45px 108px round 64px);
+    }
+    [id="05-isolate-cbd-content"] {
+      position: absolute;
+      left: 390px;
+      top: 87px;
+      width: 156px;
+      height: 44px;
+      display: flex;
+      align-items: center;
+      color: #0E252C;
+      transform-origin: 50% 50%;
+    }
+    [id="05-isolate-cbd-content"] [class~="05-isolate-glyph"] path { stroke: #0E252C; }
+
+    /* ── yellow bracket (CBD → Terpenes, as frame 04 ended) ── */
+    [id="05-isolate-bracket"] {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 1080px;
+      height: 1920px;
+      overflow: visible;
+    }
+    [id="05-isolate-bracket-path"] {
+      fill: none;
+      stroke: #FFBC00;
+      stroke-width: 4;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      stroke-dasharray: 652 720;
+      stroke-dashoffset: 0;
+    }
+
+    /* ── the cream line under the hero ── */
+    [id="05-isolate-line"] {
+      position: absolute;
+      left: 178px;
+      top: 1000px;
+      margin: 0;
+      font-family: "Source Serif 4", serif;
+      font-optical-sizing: auto;
+      font-weight: 500;
+      font-size: 80px;
+      line-height: 1.06;
+      letter-spacing: -0.02em;
+      color: #FFFDF6;
+      white-space: nowrap;
+    }
+    [class~="05-isolate-row"] {
+      display: block;
+      white-space: nowrap;
+    }
+    [class~="05-isolate-word"] {
+      display: inline-block;
+    }
+  </style>
+
+  <div id="root" data-composition-id="05-isolate" data-width="1080" data-height="1920" data-duration="4.36">
+    <div id="05-isolate-ground" class="clip" data-start="0" data-duration="4.36" data-track-index="0"></div>
+
+    <div id="05-isolate-stage" class="clip" data-start="0" data-duration="4.36" data-track-index="1">
+      <div id="05-isolate-label">Broad spectrum</div>
+
+      <div id="05-isolate-stamp">0% THC</div>
+
+      <div id="05-isolate-chip-cbg" class="05-isolate-chip">
+        <svg class="05-isolate-glyph" viewBox="0 0 36 36" aria-hidden="true">
+          <path d="M18 3 L31 10.5 L31 25.5 L18 33 L5 25.5 L5 10.5 Z" />
+        </svg>
+        <span class="05-isolate-name">CBG</span>
+      </div>
+
+      <div id="05-isolate-chip-cbn" class="05-isolate-chip">
+        <svg class="05-isolate-glyph" viewBox="0 0 36 36" aria-hidden="true">
+          <path d="M18 3 L31 10.5 L31 25.5 L18 33 L5 25.5 L5 10.5 Z" />
+        </svg>
+        <span class="05-isolate-name">CBN</span>
+      </div>
+
+      <div id="05-isolate-chip-terp" class="05-isolate-chip">
+        <svg class="05-isolate-glyph" viewBox="0 0 36 36" aria-hidden="true">
+          <path d="M7 29 C7 16 16 7.5 29.5 6.5 C29.5 20 21 29 7 29 Z" />
+          <path d="M7 29 L21 15" />
+        </svg>
+        <span class="05-isolate-name">Terpenes</span>
+      </div>
+
+      <svg id="05-isolate-bracket" viewBox="0 0 1080 1920" aria-hidden="true">
+        <path id="05-isolate-bracket-path" d="M918 640 L948 640 L948 1232 L918 1232" />
+      </svg>
+
+      <div id="05-isolate-cbd">
+        <div id="05-isolate-cbd-bg"></div>
+        <div id="05-isolate-cbd-content">
+          <svg class="05-isolate-glyph" viewBox="0 0 36 36" aria-hidden="true">
+            <path d="M18 3 L31 10.5 L31 25.5 L18 33 L5 25.5 L5 10.5 Z" />
+          </svg>
+          <span class="05-isolate-name">CBD</span>
+        </div>
+      </div>
+
+      <div id="05-isolate-line" data-layout-allow-overlap>
+        <div class="05-isolate-row" data-layout-allow-overlap><span class="05-isolate-word" data-layout-allow-overlap>Pure</span> <span class="05-isolate-word" data-layout-allow-overlap>CBD.</span></div>
+        <div class="05-isolate-row" data-layout-allow-overlap><span class="05-isolate-word" data-layout-allow-overlap>Nothing</span> <span class="05-isolate-word" data-layout-allow-overlap>else.</span></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      var FRAME_ID = "05-isolate";
+      var DURATION = 3.86;
+      var byId = function (id) { return document.getElementById(FRAME_ID + "-" + id); };
+      var stage = byId("stage");
+
+      var tl = gsap.timeline({ paused: true });
+
+      // ── Scene 1 (0.00–1.00s): stage exactly as frame 04 ended. On "Isolate" the label
+      //    swaps in place (discrete-text-sequence: instant state jump, no roll / blur) and
+      //    the "0% THC" stamp fades; the three chips that are about to leave recede. ──
+      var label = byId("label");
+      var SEQUENCE = [
+        { t: 0.0, text: "Broad spectrum" },
+        { t: 0.1, text: "Isolate" }
+      ];
+      var textAt = function (time) {
+        for (var i = SEQUENCE.length - 1; i >= 0; i--) {
+          if (time >= SEQUENCE[i].t) return SEQUENCE[i].text;
+        }
+        return SEQUENCE[0].text;
+      };
+      var driver = { t: 0 };
+      tl.to(
+        driver,
+        {
+          t: DURATION,
+          duration: DURATION,
+          ease: "none",
+          onUpdate: function () {
+            var next = textAt(driver.t);
+            if (label.textContent !== next) label.textContent = next;
+          }
+        },
+        0
+      );
+
+      tl.fromTo(
+        byId("stamp"),
+        { opacity: 1, scale: 1 },
+        { opacity: 0, scale: 0.96, duration: 0.5, ease: "power3.out" },
+        0.1
+      );
+
+      var cbg = byId("chip-cbg"), cbn = byId("chip-cbn"), terp = byId("chip-terp");
+      tl.fromTo(
+        [cbg, cbn, terp],
+        { opacity: 1 },
+        { opacity: 0.6, duration: 0.5, ease: "power3.out", stagger: 0.06 },
+        0.34
+      );
+
+      // ── Scene 2 (1.00–2.50s): on "pure CBD" (1.02s) Terpenes, CBN, CBG lift away
+      //    bottom → top, 120ms apart (frame 04's lift: y −24, blur 6px, fade, power3);
+      //    the bracket retracts bottom → top to nothing. ──
+      var LEAVERS = [terp, cbn, cbg];
+      for (var k = 0; k < LEAVERS.length; k++) {
+        tl.fromTo(
+          LEAVERS[k],
+          { y: 0, opacity: 0.6, filter: "blur(0px)" },
+          { y: -24, opacity: 0, filter: "blur(6px)", duration: 0.6, ease: "power3.out", immediateRender: false },
+          1.02 + k * 0.12
+        );
+      }
+
+      // dasharray 652 (path length) + 720 gap: offset past 652 leaves no zero-length round-cap dot
+      tl.fromTo(
+        byId("bracket-path"),
+        { strokeDashoffset: 0 },
+        { strokeDashoffset: 660, duration: 0.66, ease: "power3.inOut" },
+        1.02
+      );
+
+      // then CBD glides to the stage centre (y 702 → 806) and grows 1.7×: the pill opens
+      // 720×128 → 936×218 (radius stays half the height, so it is a true pill every frame),
+      // the glyph + name scale 1.7× and settle centred. scale-swap feel, power3, no overshoot.
+      var GLIDE_AT = 1.44;
+      var GLIDE_DUR = 1.0;
+      var GLIDE_EASE = "power3.inOut";
+      tl.fromTo(
+        byId("cbd"),
+        { y: 0 },
+        { y: 104, duration: GLIDE_DUR, ease: GLIDE_EASE },
+        GLIDE_AT
+      );
+      tl.fromTo(
+        byId("cbd-bg"),
+        { clipPath: "inset(45px 108px 45px 108px round 64px)" },
+        { clipPath: "inset(0px 0px 0px 0px round 109px)", duration: GLIDE_DUR, ease: GLIDE_EASE },
+        GLIDE_AT
+      );
+      // content starts left-aligned like every chip (glyph at x 226 = 180 + 46 padding)
+      tl.fromTo(
+        byId("cbd-content"),
+        { x: -236, scale: 1 },
+        { x: 0, scale: 1.7, duration: GLIDE_DUR, ease: GLIDE_EASE },
+        GLIDE_AT
+      );
+
+      // ── Scene 3 (2.50–end): on "nothing else" (2.55s) the cream line reveals per word
+      //    under the hero; then the frame holds still to the end. ──
+      var words = stage.querySelectorAll('[class~="' + FRAME_ID + '-word"]');
+      tl.fromTo(
+        words,
+        { opacity: 0, y: 28, filter: "blur(8px)" },
+        { opacity: 1, y: 0, filter: "blur(0px)", duration: 0.62, ease: "power3.out", stagger: 0.09 },
+        2.55
+      );
+      // last word lands at ~3.44s; the slot holds the final state to 3.86s
+
+      window.__timelines = window.__timelines || {};
+      window.__timelines["05-isolate"] = tl;
+    })();
+  </script>
+</template>

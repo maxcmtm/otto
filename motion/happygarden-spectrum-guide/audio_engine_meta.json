@@ -1,0 +1,719 @@
+{
+ "tts_provider": null,
+ "voice_id": null,
+ "bgm": {
+  "path": "assets/bgm/track.wav",
+  "volume": 0.12,
+  "query": "soft organic acoustic underscore",
+  "duration_s": 57.25
+ },
+ "bgm_pending": false,
+ "bgm_provider": "musicgen",
+ "bgm_pid": 35085,
+ "bgm_log": "/Users/maxsalkov/otto/motion/happygarden-spectrum-guide/assets/bgm/bgm-1790623354858.log",
+ "bgm_mode": "detached-seed-loop",
+ "bgm_target_duration_s": 57.25,
+ "bgm_seed_duration_s": 28,
+ "bgm_loop_count": 3,
+ "voices": [
+  {
+   "id": "01",
+   "path": "assets/audio/vo-01-final.wav",
+   "duration_s": 6.35,
+   "words": [
+    {
+     "id": "w01_00",
+     "text": "Full",
+     "start": 0,
+     "end": 0.24
+    },
+    {
+     "id": "w01_01",
+     "text": "spectrum,",
+     "start": 0.24,
+     "end": 0.86
+    },
+    {
+     "id": "w01_02",
+     "text": "broad",
+     "start": 1.19,
+     "end": 1.23
+    },
+    {
+     "id": "w01_03",
+     "text": "spectrum,",
+     "start": 1.23,
+     "end": 1.91
+    },
+    {
+     "id": "w01_04",
+     "text": "isolate,",
+     "start": 2.24,
+     "end": 2.66
+    },
+    {
+     "id": "w01_05",
+     "text": "same",
+     "start": 2.99,
+     "end": 3.31
+    },
+    {
+     "id": "w01_06",
+     "text": "plant.",
+     "start": 3.31,
+     "end": 3.81
+    },
+    {
+     "id": "w01_07",
+     "text": "So",
+     "start": 4.14,
+     "end": 4.2
+    },
+    {
+     "id": "w01_08",
+     "text": "what's",
+     "start": 4.2,
+     "end": 4.6
+    },
+    {
+     "id": "w01_09",
+     "text": "actually",
+     "start": 4.6,
+     "end": 5.08
+    },
+    {
+     "id": "w01_10",
+     "text": "in",
+     "start": 5.08,
+     "end": 5.4
+    },
+    {
+     "id": "w01_11",
+     "text": "your",
+     "start": 5.4,
+     "end": 5.64
+    },
+    {
+     "id": "w01_12",
+     "text": "bottle?",
+     "start": 5.64,
+     "end": 5.94
+    }
+   ]
+  },
+  {
+   "id": "02",
+   "path": "assets/audio/vo-02-final.wav",
+   "duration_s": 12.46,
+   "words": [
+    {
+     "id": "w02_00",
+     "text": "Hemp",
+     "start": 0,
+     "end": 0.36
+    },
+    {
+     "id": "w02_01",
+     "text": "makes",
+     "start": 0.36,
+     "end": 0.76
+    },
+    {
+     "id": "w02_02",
+     "text": "more",
+     "start": 0.76,
+     "end": 1.22
+    },
+    {
+     "id": "w02_03",
+     "text": "than",
+     "start": 1.22,
+     "end": 1.56
+    },
+    {
+     "id": "w02_04",
+     "text": "CBD.",
+     "start": 1.56,
+     "end": 2.08
+    },
+    {
+     "id": "w02_05",
+     "text": "Think",
+     "start": 2.41,
+     "end": 2.59
+    },
+    {
+     "id": "w02_06",
+     "text": "of",
+     "start": 2.59,
+     "end": 2.79
+    },
+    {
+     "id": "w02_07",
+     "text": "it",
+     "start": 2.79,
+     "end": 2.97
+    },
+    {
+     "id": "w02_08",
+     "text": "as",
+     "start": 2.97,
+     "end": 3.23
+    },
+    {
+     "id": "w02_09",
+     "text": "a",
+     "start": 3.23,
+     "end": 3.41
+    },
+    {
+     "id": "w02_10",
+     "text": "team.",
+     "start": 3.41,
+     "end": 3.89
+    },
+    {
+     "id": "w02_11",
+     "text": "CBD,",
+     "start": 4.22,
+     "end": 4.22
+    },
+    {
+     "id": "w02_12",
+     "text": "the",
+     "start": 4.55,
+     "end": 4.65
+    },
+    {
+     "id": "w02_13",
+     "text": "minor",
+     "start": 4.65,
+     "end": 5.11
+    },
+    {
+     "id": "w02_14",
+     "text": "cannabinoids",
+     "start": 5.11,
+     "end": 5.93
+    },
+    {
+     "id": "w02_15",
+     "text": "CBG",
+     "start": 5.93,
+     "end": 7.27
+    },
+    {
+     "id": "w02_16",
+     "text": "and",
+     "start": 7.27,
+     "end": 7.73
+    },
+    {
+     "id": "w02_17",
+     "text": "CBN,",
+     "start": 7.73,
+     "end": 8.81
+    },
+    {
+     "id": "w02_18",
+     "text": "terpenes,",
+     "start": 9.14,
+     "end": 9.98
+    },
+    {
+     "id": "w02_19",
+     "text": "and",
+     "start": 10.31,
+     "end": 10.37
+    },
+    {
+     "id": "w02_20",
+     "text": "a",
+     "start": 10.37,
+     "end": 10.49
+    },
+    {
+     "id": "w02_21",
+     "text": "trace",
+     "start": 10.49,
+     "end": 11.01
+    },
+    {
+     "id": "w02_22",
+     "text": "of",
+     "start": 11.01,
+     "end": 11.45
+    },
+    {
+     "id": "w02_23",
+     "text": "THC.",
+     "start": 11.45,
+     "end": 12.05
+    }
+   ]
+  },
+  {
+   "id": "03",
+   "path": "assets/audio/vo-03-final.wav",
+   "duration_s": 9.04,
+   "words": [
+    {
+     "id": "w03_00",
+     "text": "Full",
+     "start": 0,
+     "end": 0.24
+    },
+    {
+     "id": "w03_01",
+     "text": "spectrum",
+     "start": 0.24,
+     "end": 0.82
+    },
+    {
+     "id": "w03_02",
+     "text": "keeps",
+     "start": 0.82,
+     "end": 1.28
+    },
+    {
+     "id": "w03_03",
+     "text": "the",
+     "start": 1.28,
+     "end": 1.56
+    },
+    {
+     "id": "w03_04",
+     "text": "whole",
+     "start": 1.56,
+     "end": 1.86
+    },
+    {
+     "id": "w03_05",
+     "text": "team,",
+     "start": 1.86,
+     "end": 2.38
+    },
+    {
+     "id": "w03_06",
+     "text": "trace",
+     "start": 2.71,
+     "end": 2.79
+    },
+    {
+     "id": "w03_07",
+     "text": "THC",
+     "start": 2.79,
+     "end": 3.51
+    },
+    {
+     "id": "w03_08",
+     "text": "included,",
+     "start": 3.51,
+     "end": 4.17
+    },
+    {
+     "id": "w03_09",
+     "text": "within",
+     "start": 4.5,
+     "end": 4.82
+    },
+    {
+     "id": "w03_10",
+     "text": "the",
+     "start": 4.82,
+     "end": 5.1
+    },
+    {
+     "id": "w03_11",
+     "text": "legal",
+     "start": 5.1,
+     "end": 5.38
+    },
+    {
+     "id": "w03_12",
+     "text": "limit.",
+     "start": 5.38,
+     "end": 5.82
+    },
+    {
+     "id": "w03_13",
+     "text": "People",
+     "start": 6.15,
+     "end": 6.45
+    },
+    {
+     "id": "w03_14",
+     "text": "call",
+     "start": 6.45,
+     "end": 6.83
+    },
+    {
+     "id": "w03_15",
+     "text": "it",
+     "start": 6.83,
+     "end": 7.11
+    },
+    {
+     "id": "w03_16",
+     "text": "the",
+     "start": 7.11,
+     "end": 7.31
+    },
+    {
+     "id": "w03_17",
+     "text": "entourage",
+     "start": 7.31,
+     "end": 8.13
+    },
+    {
+     "id": "w03_18",
+     "text": "effect.",
+     "start": 8.13,
+     "end": 8.63
+    }
+   ]
+  },
+  {
+   "id": "04",
+   "path": "assets/audio/vo-04-final.wav",
+   "duration_s": 6.79,
+   "words": [
+    {
+     "id": "w04_00",
+     "text": "Broad",
+     "start": 0,
+     "end": 0.36
+    },
+    {
+     "id": "w04_01",
+     "text": "spectrum,",
+     "start": 0.36,
+     "end": 1
+    },
+    {
+     "id": "w04_02",
+     "text": "the",
+     "start": 1.33,
+     "end": 1.45
+    },
+    {
+     "id": "w04_03",
+     "text": "same",
+     "start": 1.45,
+     "end": 1.77
+    },
+    {
+     "id": "w04_04",
+     "text": "team,",
+     "start": 1.77,
+     "end": 2.39
+    },
+    {
+     "id": "w04_05",
+     "text": "minus",
+     "start": 2.72,
+     "end": 2.86
+    },
+    {
+     "id": "w04_06",
+     "text": "the",
+     "start": 2.86,
+     "end": 3.22
+    },
+    {
+     "id": "w04_07",
+     "text": "THC.",
+     "start": 3.22,
+     "end": 3.92
+    },
+    {
+     "id": "w04_08",
+     "text": "Whole",
+     "start": 4.25,
+     "end": 4.43
+    },
+    {
+     "id": "w04_09",
+     "text": "plant,",
+     "start": 4.43,
+     "end": 4.95
+    },
+    {
+     "id": "w04_10",
+     "text": "zero",
+     "start": 5.28,
+     "end": 5.64
+    },
+    {
+     "id": "w04_11",
+     "text": "THC.",
+     "start": 5.64,
+     "end": 6.38
+    }
+   ]
+  },
+  {
+   "id": "05",
+   "path": "assets/audio/vo-05-final.wav",
+   "duration_s": 3.86,
+   "words": [
+    {
+     "id": "w05_00",
+     "text": "Isolate",
+     "start": 0,
+     "end": 0.68
+    },
+    {
+     "id": "w05_01",
+     "text": "is",
+     "start": 0.68,
+     "end": 1.02
+    },
+    {
+     "id": "w05_02",
+     "text": "pure",
+     "start": 1.02,
+     "end": 1.5
+    },
+    {
+     "id": "w05_03",
+     "text": "CBD,",
+     "start": 1.5,
+     "end": 2.22
+    },
+    {
+     "id": "w05_04",
+     "text": "nothing",
+     "start": 2.55,
+     "end": 2.95
+    },
+    {
+     "id": "w05_05",
+     "text": "else.",
+     "start": 2.95,
+     "end": 3.45
+    }
+   ]
+  },
+  {
+   "id": "06",
+   "path": "assets/audio/vo-06-final.wav",
+   "duration_s": 7.24,
+   "words": [
+    {
+     "id": "w06_00",
+     "text": "So,",
+     "start": 0,
+     "end": 0.32
+    },
+    {
+     "id": "w06_01",
+     "text": "want",
+     "start": 0.65,
+     "end": 0.81
+    },
+    {
+     "id": "w06_02",
+     "text": "the",
+     "start": 0.81,
+     "end": 1.01
+    },
+    {
+     "id": "w06_03",
+     "text": "whole",
+     "start": 1.01,
+     "end": 1.19
+    },
+    {
+     "id": "w06_04",
+     "text": "plant?",
+     "start": 1.19,
+     "end": 1.61
+    },
+    {
+     "id": "w06_05",
+     "text": "Full.",
+     "start": 1.94,
+     "end": 2.28
+    },
+    {
+     "id": "w06_06",
+     "text": "Whole",
+     "start": 2.61,
+     "end": 2.65
+    },
+    {
+     "id": "w06_07",
+     "text": "plant,",
+     "start": 2.65,
+     "end": 3.17
+    },
+    {
+     "id": "w06_08",
+     "text": "zero",
+     "start": 3.5,
+     "end": 3.7
+    },
+    {
+     "id": "w06_09",
+     "text": "THC,",
+     "start": 3.7,
+     "end": 4.3
+    },
+    {
+     "id": "w06_10",
+     "text": "broad.",
+     "start": 4.63,
+     "end": 5.01
+    },
+    {
+     "id": "w06_11",
+     "text": "Only",
+     "start": 5.34,
+     "end": 5.62
+    },
+    {
+     "id": "w06_12",
+     "text": "CBD,",
+     "start": 5.62,
+     "end": 6.2
+    },
+    {
+     "id": "w06_13",
+     "text": "isolate.",
+     "start": 6.53,
+     "end": 6.83
+    }
+   ]
+  },
+  {
+   "id": "07",
+   "path": "assets/audio/vo-07-final.wav",
+   "duration_s": 11.51,
+   "words": [
+    {
+     "id": "w07_00",
+     "text": "Whichever",
+     "start": 0,
+     "end": 0.42
+    },
+    {
+     "id": "w07_01",
+     "text": "you",
+     "start": 0.42,
+     "end": 0.76
+    },
+    {
+     "id": "w07_02",
+     "text": "choose,",
+     "start": 0.76,
+     "end": 1.34
+    },
+    {
+     "id": "w07_03",
+     "text": "every",
+     "start": 1.67,
+     "end": 2.05
+    },
+    {
+     "id": "w07_04",
+     "text": "Happy",
+     "start": 2.05,
+     "end": 2.51
+    },
+    {
+     "id": "w07_05",
+     "text": "Garden",
+     "start": 2.51,
+     "end": 2.87
+    },
+    {
+     "id": "w07_06",
+     "text": "batch",
+     "start": 2.87,
+     "end": 3.33
+    },
+    {
+     "id": "w07_07",
+     "text": "is",
+     "start": 3.33,
+     "end": 3.93
+    },
+    {
+     "id": "w07_08",
+     "text": "third-party",
+     "start": 3.93,
+     "end": 4.81
+    },
+    {
+     "id": "w07_10",
+     "text": "lab-tested",
+     "start": 4.81,
+     "end": 5.79
+    },
+    {
+     "id": "w07_12",
+     "text": "and",
+     "start": 5.79,
+     "end": 6.41
+    },
+    {
+     "id": "w07_13",
+     "text": "the",
+     "start": 6.41,
+     "end": 6.53
+    },
+    {
+     "id": "w07_14",
+     "text": "report",
+     "start": 6.53,
+     "end": 6.91
+    },
+    {
+     "id": "w07_15",
+     "text": "is",
+     "start": 6.91,
+     "end": 7.17
+    },
+    {
+     "id": "w07_16",
+     "text": "published.",
+     "start": 7.17,
+     "end": 7.63
+    },
+    {
+     "id": "w07_17",
+     "text": "Find",
+     "start": 7.96,
+     "end": 8.3
+    },
+    {
+     "id": "w07_18",
+     "text": "yours.",
+     "start": 8.3,
+     "end": 8.7
+    },
+    {
+     "id": "w07_19",
+     "text": "Link",
+     "start": 9.03,
+     "end": 9.11
+    },
+    {
+     "id": "w07_20",
+     "text": "in",
+     "start": 9.11,
+     "end": 9.45
+    },
+    {
+     "id": "w07_21",
+     "text": "bio.",
+     "start": 9.45,
+     "end": 9.75
+    }
+   ]
+  }
+ ],
+ "sfx": [],
+ "total_duration_s": 57.25
+}

@@ -51,6 +51,8 @@ autopilot/
 │   ├── otto_telegram.py      # לופ הטלגרם בקוד: כרטיסים עם כפתורים, poll → ap.decide, ✏️ edit → edit_requests [28.09]
 │   ├── otto_ads.py           # ממומן: דוח יומי FB+Google, גאנט קמפיינים חודשי, launch ל-Meta/Google, שומר CPL     [28.09]
 │   ├── otto_growth.py        # ספר צמיחה: חודש מול חודש (reach/engagement/עוקבים/spend/results/CPL), סקירה ב-1 לחודש [28.09]
+│   ├── otto_motion.py        # רילסים ב-motion design (HyperFrames): prepare/voice/words/finish לכל פוסט   [28.09]
+│   ├── otto_strategy.py      # strategy.json לכל מותג: פרסונות, כאבים, התנגדויות, הצעות, בנק הוכחות, CTA לפי שלב [28.09]
 │   ├── crons.md              # שורות ה-cron לשרת + nginx location /otto-peek
 │   ├── landing.html          # דף הנחיתה הציבורי v4 (fintech, ווידג'טים חיים, סריקה אמיתית)
 │   ├── deploy.sh             # sync-fallback + copy ל-/srv/pulse/otto/ + landing ל-/srv/pulse/pilot-landing.html
@@ -60,6 +62,9 @@ autopilot/
 ├── skills/otto-creative-engine/SKILL.md
 ├── skills/otto-competitor-research/SKILL.md   # חדש 28.09
 ├── skills/otto-autopilot/SKILL.md             # האורקסטרטור: מה רץ מתי, מה Otto מחליט לבד, פרוטוקול כרטיסי טלגרם [28.09]
+├── skills/otto-motion-director/SKILL.md       # במאי הרילסים: תסריט, סטוריבורד מתוזמן למילים, מערכת עיצוב, קול, מוזיקה [28.09]
+├── skills/otto-creative-engine/hooks/         # בנק הוקים: 13 סוגים עם תבניות, שלבי משפך וכללי תאימות [28.09]
+├── motion/<brand>-<post>/                     # פרויקטי HyperFrames; motion/happygarden-spectrum-guide = בניית הייחוס
 └── research/  (mcp-connections-m2.md, creative-and-competitor-stack.md)
 ```
 

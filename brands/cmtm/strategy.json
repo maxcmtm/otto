@@ -1,0 +1,138 @@
+{
+  "brand": "cmtm",
+  "currency": "ILS",
+  "language": "he",
+  "tz": "Asia/Jerusalem",
+  "personas": [
+    {
+      "id": "p1",
+      "label": "מיכל, 42, מנהלת אדמיניסטרטיבית",
+      "situation": "מיכל, 42, מנהלת אדמיניסטרטיבית — \"אני נשחקת ואין לזה משמעות.\" Pain: שחיקה + חלום להיות מטפלת בלי 7 שנות פסיכולוגיה | Trigger: וובינר/יום פתוח, סיפור בוגרת \"תוך שנה הפכתי למטפלת\" | משכנע: דיפלומה + סטא",
+      "awareness": "(?)",
+      "words": [
+        "אני נשחקת ואין לזה משמעות.",
+        "תוך שנה הפכתי למטפלת"
+      ]
+    },
+    {
+      "id": "p2",
+      "label": "רחלי, 35, מגזר חרדי",
+      "situation": "רחלי, 35, מגזר חרדי — מחפשת מקצוע מכובד מהבית. Trigger: קמפוס חרדי ייעודי | משכנע: צניעות, הפרדה, פרנסה",
+      "awareness": "(?)",
+      "words": []
+    },
+    {
+      "id": "p3",
+      "label": "דנה, 38, אמא לילד עם חרדות (צד המטופלים)",
+      "situation": "דנה, 38, אמא לילד עם חרדות (צד המטופלים) — Pain: \"ניסינו הכל\" | Trigger: תוכן הורים/מילואים אקטואלי | משכנע: עדויות הורים",
+      "awareness": "(?)",
+      "words": []
+    }
+  ],
+  "pains": [
+    {
+      "text": "שחיקה מקצועית בלי משמעות (\"לקום בבוקר לעבודה שממלאת אותך\")",
+      "persona": "(?)",
+      "source": "brand-profile.md"
+    },
+    {
+      "text": "חלום לטפל אבל אין תואר/זמן/כסף למסלול אקדמי",
+      "persona": "(?)",
+      "source": "brand-profile.md"
+    },
+    {
+      "text": "פחד \"אני לא מסוגלת\" / גיל",
+      "persona": "(?)",
+      "source": "brand-profile.md"
+    },
+    {
+      "text": "פרנסה — האם אפשר להתפרנס מזה באמת",
+      "persona": "(?)",
+      "source": "brand-profile.md"
+    }
+  ],
+  "objections": [
+    {
+      "text": "\"אין לי רקע טיפולי\"",
+      "answer": "\"גם בלי רקע — 10,000+ בוגרים\"",
+      "proof_id": "(?)"
+    },
+    {
+      "text": "\"אי אפשר להתפרנס מזה\"",
+      "answer": "שיעור בונוס שיווק/קליניקה + עדות \"קליניקה מלאה\" (CPL ₪44, 355 לידים)",
+      "proof_id": "(?)"
+    },
+    {
+      "text": "\"עוד קורס ניו-אייג'\"",
+      "answer": "25 שנות ניסיון, שיטה של יובל לוי, סטאז' מודרך",
+      "proof_id": "(?)"
+    }
+  ],
+  "offers": [
+    {
+      "id": "o1",
+      "name": "(?)",
+      "price": "350₪",
+      "terms": "(?)",
+      "deadline": null,
+      "stage": "hot"
+    }
+  ],
+  "proof_bank": [],
+  "cta_by_stage": {
+    "cold": "(?)",
+    "warm": "(?)",
+    "hot": "(?)"
+  },
+  "landing_by_stage": {
+    "cold": "https://cmtm.co.il",
+    "warm": "https://cmtm.co.il",
+    "hot": "https://cmtm.co.il"
+  },
+  "events": [],
+  "targets": {
+    "cpl": null,
+    "cpa": null,
+    "roas": null
+  },
+  "angles": [
+    {
+      "id": "a1",
+      "angle": "הסבה תוך שנה — \"תוך שנה הפכתי למטפלת טובה!\" (647 לידים, ₪44)",
+      "persona": "(?)",
+      "stage": "(?)",
+      "source": "profile",
+      "status": "idea"
+    },
+    {
+      "id": "a2",
+      "angle": "יום פתוח / איך להרוויח — ₪29 CPL",
+      "persona": "(?)",
+      "stage": "(?)",
+      "source": "profile",
+      "status": "idea"
+    },
+    {
+      "id": "a3",
+      "angle": "אקטואליה → ביקוש למטפלים (מלחמה/מילואים) — ₪39-42",
+      "persona": "(?)",
+      "stage": "(?)",
+      "source": "profile",
+      "status": "idea"
+    },
+    {
+      "id": "a4",
+      "angle": "עדות בוגרת עם תוצאה (קליניקה מלאה)",
+      "persona": "(?)",
+      "stage": "(?)",
+      "source": "profile",
+      "status": "idea"
+    }
+  ],
+  "ask": [
+    "What is a lead or a sale worth to you — the most you'd pay for one?",
+    "What is the one offer you want new customers to take first (price, terms, any real deadline)?",
+    "What proof can we show (reviews you have permission to quote, certificates, numbers you can back)?",
+    "Where should a ready-to-buy customer land: shop page, booking link, WhatsApp, or form?"
+  ]
+}
