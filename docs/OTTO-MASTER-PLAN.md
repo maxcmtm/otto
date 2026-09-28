@@ -90,3 +90,10 @@ Directive from Max: "מערכת שיווק אוטומטית לחלוטין, כו
 - `skills/otto-autopilot/SKILL.md` — the orchestration playbook (onboarding, daily, weekly, monthly, what Otto decides alone, Telegram card protocol). `platform/crons.md` — server crons.
 - `docs/NATIVE-PARITY.md` — feature-by-feature parity + edge checklist vs native.no, with the build order.
 Module status update: M1 ✅ code · M2 🟡 publisher written, tokens pending · M3 unchanged · M4 ✅ · M5 unchanged · **M6 ✅ code (competitors + insights loop), live after M2** · M7 unchanged.
+
+## 2026-09-28 (later) — engine v1.1: Telegram loop in code, visuals from state, pricing proposal
+- `platform/otto_telegram.py` — cards with inline buttons (send-cards / send-recs), long-poll handler (poll): approve/skip/later → `ap.decide` + card edited in place; ✏️ edit → owner's reply → `edit_requests[]` for Quill. Needs a bot token (`otto-secrets/telegram.json`) + systemd service (crons.md).
+- `platform/genvisuals.py` — no more hardcoded list: every post without an image, prompt from the profile's palette/style + the post's brief, writes `image` back.
+- `otto_competitors.py` writes `competitors[brand]` summary → Mission Control "Competitor watch" card; dashboard also shows "What you've taught Otto" (taste log), source badges on recommendations, format chips, failed posts + rewrite requests in reminders.
+- Landing v5: pricing tiers (Starter €69 / Growth €149 / Agency €399, yearly −20 %, toggle; founding €197 band), "Otto for your industry" (8 industries), sticky mobile CTA, JSON-LD.
+- `docs/PRICING-EU.md` — EU market research (Native, AI tools, agencies) + recommended ladder for Max's decision.

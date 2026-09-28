@@ -237,21 +237,26 @@ def append_report(bid, country, report, total):
         f.write(head + "\n".join(lines))
 
 
-def file_recommendation(bid, report, total):
-    if total == 0:
-        return
+def file_recommendation(bid, report, total, country="DE"):
+    """Summary card for Mission Control (competitors[brand]) + a recommendation when something moved."""
     try:
         import ap
         d = ap.load()
+    except FileNotFoundError:
+        print("(no data.json here — summary/recommendation not filed; run on the server)"); return
+    d.setdefault("competitors", {})[bid] = {
+        "last_sweep": today(), "country": country, "changes": total,
+        "items": [{"name": it["name"], "site": it.get("site", ""), "type": it.get("type", "direct"),
+                   "promos": (new.get("promos") or [])[:4], "changes": ch[:3], "error": new.get("error")}
+                  for it, _, new, ch, _ in report]}
+    if total:
         names = [it["name"] for it, _, _, ch, _ in report if ch][:3]
         r = ap.add_rec(d, "P2", f"Competitor sweep: {total} change(s) at {', '.join(names)}",
                        "Weekly automated sweep found new headlines, promotions or price moves on competitor sites. "
                        "Nova turns them into steal-and-improve briefs once you confirm which matter.",
                        "Fresh angles for next week's plan", "Review sweep", brand=bid, source="otto_competitors")
-        ap.save(d)
         print(f"filed {r['id']} in data.json")
-    except FileNotFoundError:
-        print("(no data.json here — recommendation not filed; run on the server)")
+    ap.save(d)
 
 
 def main():

@@ -9,8 +9,8 @@ description: "Otto's orchestration playbook — the fully automatic marketing lo
 designs, publishes, watches, researches competitors and proposes the next move. The owner only
 taps ✅ / ❌ in Telegram. Nothing else is asked of them, ever.
 
-**Engine (platform/):** `otto_scan.py` → `otto_plan.py` → *copy + visuals (skills)* → Telegram cards →
-`ap.py decide` → `otto_publish.py` → `otto_insights.py` → `otto_competitors.py` → back to the plan.
+**Engine (platform/):** `otto_scan.py` → `otto_plan.py` → *copy (Quill, skill)* → `genvisuals.py` → `otto_telegram.py send-cards` →
+`otto_telegram.py poll` (buttons → `ap.decide`) → `otto_publish.py` → `otto_insights.py` → `otto_competitors.py` → back to the plan.
 State lives in `data.json` (writes only through `ap.py`), files per brand in `brands/<slug>/`.
 
 ## 0. Onboarding (once per brand, target < 1 hour, owner touches it twice)
@@ -21,20 +21,22 @@ State lives in `data.json` (writes only through `ap.py`), files per brand in `br
 5. `otto_competitors.py add <slug> <name> <site>` ×5-8 (or let `sweep` seed from the profile) → `otto_competitors.py sweep <slug>` → agent completes the ad-library part (otto-competitor-research) → 3-5 briefs.
 6. `otto_plan.py build <slug> <YYYY-MM>` → month of draft slots (pillar rotation, platform, format, best hours).
 7. **Quill (otto-copy-engine):** write hook + caption per slot from the profile + competitor briefs → `copy.json` → `otto_plan.py fill <slug> <month> copy.json`.
-8. Visuals for the first week: `genvisuals.py` (Leonardo GPT Image 2, brand palette + logo rule) → `ap.py set <id> '{"image":"assets/posts/<id>.png"}'`.
-9. `ap.py set <id> '{"status":"pending_approval"}'` for week 1 → Telegram cards (format below).
+8. Visuals for the first week: `genvisuals.py --brand <slug> --limit 12` (reads every post without an image, prompt from the profile's palette/style + the post's brief; writes `image` back itself).
+9. `otto_plan.py fill … --pending` (or `ap.py set <id> '{"status":"pending_approval"}'`) for week 1 → `otto_telegram.py send-cards` (format below).
 10. **Owner touch #2 — connect channels:** Meta OAuth (Page + IG) → `otto-secrets/meta-<slug>.json`; Telegram already paired. Until credentials exist the publisher waits and says so.
 
 ## 1. Daily (every day, no owner action unless a card arrives)
 | when (IL) | what | how |
 |---|---|---|
 | 07:30 | Morning briefing (waiting / publishing today / reach / blockers) | `otto_watch.py report` (cron) |
-| 08:00 | Send today's approval cards (posts due within 72 h, status pending_approval) | agent: one Telegram card per post |
+| 08:00 | Send today's approval cards (posts due within 72 h, status pending_approval) | `otto_telegram.py send-cards` (cron) — photo + caption + buttons |
+| always | Button taps → state + taste log; ✏️ Edit → owner's reply stored in `edit_requests[]` | `otto_telegram.py poll` (systemd service, long-polling) |
+| hourly | Rewrite every `edit_requests[]` item in the owner's words, `ap.py set` the new copy, `send-cards --resend` for that post | Quill (skill) |
 | every 15 min | Publish approved posts whose slot arrived | `otto_publish.py` (cron) |
 | hourly :15 | Guard: metric drops ≥30 %, missed slots, approvals about to miss their slot | `otto_watch.py watch` (cron) |
-| on callback | Owner decision → state + taste log | `ap.py decide <id> approve|skip|later --via telegram` |
+| on callback | Owner decision → state + taste log (handled by the poller; `ap.py decide … --via telegram` is the manual equivalent) | `otto_telegram.py poll` |
 | on "edit" reply | Rewrite with the owner's instruction, resend the card | Quill (copy engine) → `ap.py set` |
-| 18:00 | Keep the deck full: next 7 days must have visuals + captions; generate what's missing | agent + `genvisuals.py` |
+| 18:00 | Keep the deck full: next 7 days must have captions + visuals; generate what's missing | Quill for copy · `genvisuals.py --brand <slug>` for images (cron) · `otto_telegram.py send-recs` for new recommendations |
 
 Rules: never publish without `approved`. A `later` keeps the post pending and re-sends the card next morning.
 If a slot is < 6 h away and still pending, `otto_watch` pings once; if it passes, `otto_publish` marks it
@@ -68,13 +70,16 @@ Card = photo (the visual) + caption:
 Why this post: <one line from the plan/brief>
 ```
 Inline buttons: `✅ Approve` `✏️ Edit` `❌ Skip` `↷ Later` with callback data `otto:<post-id>:approve|edit|skip|later`.
-Handler: `ap.py decide <post-id> <approve|skip|later> --via telegram`; `edit` = reply-to flow (owner types the change,
-Quill rewrites, card is re-sent with the same id). Recommendation cards: `otto:rec:<rec-id>:approve|dismiss` → `ap.py rec`.
+Handler: `otto_telegram.py poll` (Bot API long-polling; only `owner_chat_id` may decide). Approve/skip/later → `ap.decide` +
+the card is edited in place (buttons removed, outcome appended). `edit` → force-reply prompt; the owner's reply is stored in
+`edit_requests[]` and the post goes back to draft; Quill rewrites and `send-cards --resend`. Recommendation cards:
+`otto:rec:<rec-id>:approve|dismiss`. Config: `otto-secrets/telegram.json` {bot_token, owner_chat_id}.
 The same card is visible in Mission Control; whichever surface decides first wins (`approved_via`).
 
 ## 6. Crons (server, UTC — see platform/crons.md)
-`otto_watch.py report` 04:30 · `otto_watch.py watch` hourly :15 · `otto_publish.py` */15 ·
-`otto_competitors.py sweep <brand>` Mon 03:00 · `otto_insights.py` Fri 03:00 · monthly plan 25th 03:00.
+`otto_watch.py report` 04:30 · `otto_telegram.py send-cards` 05:00 · `otto_telegram.py poll` (service) · `otto_watch.py watch` hourly :15 ·
+`otto_publish.py` */15 · `genvisuals.py --brand <b>` 15:00 · `otto_telegram.py send-recs` 15:30 · `otto_competitors.py sweep <brand>` Mon 03:00 ·
+`otto_insights.py` Fri 03:00 · monthly plan 25th 03:00.
 
 ## 7. Files Otto maintains per brand
 `brand-profile.md` (locked source of truth) · `scan.json` · `competitors.json` + `competitors/*.json` snapshots ·

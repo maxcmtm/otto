@@ -408,6 +408,72 @@ table.cmp{width:100%;min-width:760px;border-collapse:separate;border-spacing:0;b
 .works .pf{margin:0;width:26px;height:26px}
 .price-note{font-size:12.5px;color:var(--faint);text-align:center;margin-top:16px;line-height:1.55}
 
+/* pricing tiers */
+.toggle{display:inline-flex;gap:4px;background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:4px;margin-top:22px;box-shadow:var(--shadow-s)}
+.toggle button{font:600 13px/1 var(--sans);color:var(--muted);border-radius:999px;padding:9px 16px;display:flex;align-items:center;gap:7px}
+.toggle button.on{background:var(--ink);color:#fff}
+.toggle .save{font:600 10px/1 var(--mono);color:var(--green);background:var(--green-tint);border-radius:999px;padding:4px 6px}
+.toggle button.on .save{background:rgba(255,255,255,.16);color:#BFF5D8}
+.tiers{display:grid;gap:16px;margin-top:40px;grid-template-columns:repeat(3,1fr);align-items:stretch}
+@media(max-width:900px){.tiers{grid-template-columns:1fr;max-width:520px;margin-left:auto;margin-right:auto}}
+.tier{background:var(--surface);border:1px solid var(--line);border-radius:24px;padding:30px 28px;box-shadow:var(--shadow-s);display:flex;flex-direction:column;position:relative}
+.tier.featured{border-color:#B9C7FA;box-shadow:var(--shadow-deck);background:linear-gradient(180deg,rgba(36,71,240,.05),transparent 30%),var(--surface)}
+.tier .tfor{font:600 10px/1 var(--mono);letter-spacing:.18em;color:var(--faint)}
+.tier.featured .tfor{color:var(--cobalt)}
+.tier .tname{font:500 36px/1 var(--serif);letter-spacing:-.02em;margin-top:12px}
+.tier .tdesc{color:var(--muted);font-size:14px;line-height:1.5;margin-top:8px;min-height:42px}
+.tier .tprice{display:flex;align-items:baseline;gap:4px;margin-top:20px}
+.tier .tprice .cur{font:500 20px/1 var(--serif);color:var(--muted)}
+.tier .tprice .n{font:500 52px/1 var(--serif);letter-spacing:-.03em}
+.tier .tprice .per{font-size:13px;color:var(--muted);margin-left:4px}
+.tier .tbill{font-size:12px;color:var(--faint);margin-top:6px;min-height:16px}
+.tier .tbrands{display:flex;justify-content:space-between;align-items:center;margin-top:16px;padding:10px 12px;border:1px solid var(--line);border-radius:10px;font-size:13px}
+.tier .tbrands b{font-weight:600}
+.tier .tbrands span{font:500 11px/1 var(--mono);color:var(--faint)}
+.tier .btn{margin-top:18px;justify-content:center}
+.tier .twhat{font:600 10px/1 var(--mono);letter-spacing:.16em;color:var(--faint);margin:22px 0 4px}
+.tier ul{list-style:none;flex:1}
+.tier li{display:flex;gap:10px;padding:7px 0;font-size:13.5px;line-height:1.5}
+.tier li::before{content:"✓";color:var(--green);font-weight:700;flex:none}
+.tier .works{margin-top:18px;padding-top:14px}
+.tier .badge{position:absolute;top:-12px;left:28px;font:600 10px/1 var(--mono);letter-spacing:.16em;background:var(--cobalt);color:#fff;border-radius:7px;padding:7px 11px;box-shadow:0 4px 12px rgba(36,71,240,.35)}
+.tier-note{font-size:12.5px;color:var(--faint);text-align:center;margin-top:16px;line-height:1.55}
+.founding{max-width:1160px;margin:34px auto 0;background:var(--ink);color:#fff;border-radius:24px;padding:28px 30px;display:grid;gap:22px;align-items:center;box-shadow:0 24px 60px rgba(16,24,43,.25)}
+@media(min-width:860px){.founding{grid-template-columns:auto 1fr auto}}
+.founding .fp{font:500 44px/1 var(--serif);letter-spacing:-.03em;white-space:nowrap}
+.founding .fp small{font:500 14px/1.4 var(--mono);display:block;color:#BFD0FF;margin-top:6px;letter-spacing:.06em}
+.founding .ft{font-size:14.5px;line-height:1.6;color:#C9D2EC}
+.founding .ft b{color:#fff;display:block;font:500 20px/1.25 var(--serif);margin-bottom:6px}
+.founding .btn.white{white-space:nowrap}
+
+/* solutions by industry */
+.ind-chips{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:30px}
+.ind-chips button{font:600 13px/1 var(--sans);color:var(--muted);background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:10px 15px;transition:all .15s}
+.ind-chips button:hover{border-color:var(--cobalt-line);color:var(--ink)}
+.ind-chips button.on{background:var(--cobalt);border-color:var(--cobalt);color:#fff;box-shadow:0 4px 12px rgba(36,71,240,.28)}
+.sol{display:grid;gap:28px;margin-top:34px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:24px;padding:28px;box-shadow:var(--shadow-m)}
+@media(min-width:900px){.sol{grid-template-columns:1.1fr .9fr;padding:36px}}
+.sol h3{font:italic 500 clamp(26px,3.4vw,36px)/1.12 var(--serif);letter-spacing:-.018em}
+.sol h3 b{font-style:normal;color:var(--cobalt);font-weight:500}
+.sol .sdesc{color:var(--muted);font-size:15px;line-height:1.6;margin-top:12px}
+.sol .spill{display:flex;gap:6px;flex-wrap:wrap;margin-top:16px}
+.sol .shooks{list-style:none;margin-top:18px;display:grid;gap:8px}
+.sol .shooks li{display:flex;gap:10px;font-size:14px;line-height:1.45;color:var(--ink)}
+.sol .shooks li::before{content:"→";color:var(--cobalt);flex:none;font-weight:600}
+.sol .pc{width:100%;max-width:300px;margin:0 auto;box-shadow:var(--shadow-deck)}
+.sol .pc-media{aspect-ratio:1/1}
+
+/* sticky mobile CTA */
+.sticky-cta{display:none}
+@media(max-width:720px){
+  .sticky-cta{display:flex;position:fixed;left:12px;right:12px;bottom:12px;z-index:55;background:rgba(255,255,255,.9);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid var(--line);border-radius:16px;padding:10px 10px 10px 14px;align-items:center;gap:10px;box-shadow:var(--shadow-deck);transform:translateY(120%);transition:transform .3s}
+  .sticky-cta.show{transform:none}
+  .sticky-cta .t{font-size:12.5px;color:var(--muted);line-height:1.3;flex:1}
+  .sticky-cta .t b{display:block;color:var(--ink);font-weight:600}
+  .sticky-cta .btn{padding:12px 16px;font-size:13.5px}
+  footer{padding-bottom:96px}
+}
+
 /* ================= FAQ ================= */
 .faq{max-width:760px;margin:44px auto 0}
 .faq details{border:1px solid var(--line);border-radius:14px;background:var(--surface);margin-bottom:10px;overflow:hidden;box-shadow:var(--shadow-s)}
@@ -437,6 +503,18 @@ footer a:hover{color:var(--ink)}
   .hero h1 .cur{animation:none}.b-state{animation:none}
 }
 </style>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@graph":[
+ {"@type":"SoftwareApplication","name":"Otto","applicationCategory":"BusinessApplication","operatingSystem":"Web, Telegram","description":"An AI marketing department: drop your URL, get a full month of posts, approve them from your phone, and let Otto publish, watch the numbers and tell you what to do next.","offers":{"@type":"Offer","price":"197","priceCurrency":"EUR","description":"Founding pilot, one-time","url":"https://whop.com/checkout/plan_joHl1qsZoiJc9"}},
+ {"@type":"FAQPage","mainEntity":[
+  {"@type":"Question","name":"Does anything publish without my approval?","acceptedAnswer":{"@type":"Answer","text":"No. Every post waits for your yes — in Telegram or in the dashboard. Trusted pillars can auto-publish later; it is off by default."}},
+  {"@type":"Question","name":"How is this different from a scheduler plus ChatGPT?","acceptedAnswer":{"@type":"Answer","text":"Those wait for you to drive them. Otto owns the entire loop — plan, copy, visuals, publishing, analytics, competitor research — and comes to you only with finished work and decisions."}},
+  {"@type":"Question","name":"Will the content actually sound like my brand?","acceptedAnswer":{"@type":"Answer","text":"Otto builds your brand profile from your own site (palette, phrasing, reviews, proof), asks at most four questions, and every approve or skip teaches it your taste."}},
+  {"@type":"Question","name":"Which channels and languages?","acceptedAnswer":{"@type":"Answer","text":"Facebook and Instagram today, LinkedIn on request. Content in English, German and Hebrew, right-to-left handled."}},
+  {"@type":"Question","name":"What happens after the pilot?","acceptedAnswer":{"@type":"Answer","text":"Founding customers keep their environment and get grandfathered terms when Otto moves to monthly plans."}}
+ ]}
+]}
+</script>
 </head>
 <body>
 
@@ -446,6 +524,7 @@ footer a:hover{color:var(--ink)}
     <div class="navlinks">
       <a href="#how">How it works</a>
       <a href="#examples">Examples</a>
+      <a href="#solutions">Industries</a>
       <a href="#team">Your team</a>
       <a href="#pricing">Pricing</a>
       <a href="#faq">FAQ</a>
@@ -636,6 +715,19 @@ footer a:hover{color:var(--ink)}
   </div>
 </section>
 
+<!-- ================= SOLUTIONS ================= -->
+<section id="solutions" style="padding-top:0">
+  <div class="wrap">
+    <div class="center rv">
+      <div class="eyebrow center">Otto for your industry</div>
+      <h2>Same engine. <b>Your business, your voice.</b></h2>
+      <p class="sub">The profile Otto builds from your site decides the pillars, the angles and the look. Pick an industry to see what a first week looks like.</p>
+      <div class="ind-chips" id="ind-chips" role="tablist"></div>
+    </div>
+    <div class="sol rv" id="sol"></div>
+  </div>
+</section>
+
 <!-- ================= FLIP ================= -->
 <section style="background:var(--surface);border-top:1px solid var(--line);border-bottom:1px solid var(--line)">
   <div class="wrap">
@@ -716,26 +808,17 @@ footer a:hover{color:var(--ink)}
   <div class="wrap">
     <div class="center rv">
       <div class="eyebrow center">Pricing</div>
-      <h2>One price. <b>Your own private Otto.</b></h2>
-      <p class="sub">Agencies charge this per week. Otto charges it once — for the founding cohort.</p>
+      <h2>Pick your plan. <b>Or take a founding seat today.</b></h2>
+      <p class="sub">One brand, a few, or a whole roster. Prices in euro, excl. VAT. Plans open after the founding pilot — founding members get grandfathered terms.</p>
+      <div class="toggle" role="tablist" aria-label="Billing cycle"><button class="on" data-cycle="monthly" role="tab">Monthly</button><button data-cycle="yearly" role="tab">Yearly <span class="save">−20%</span></button></div>
     </div>
-    <div class="price rv">
-      <div class="badge">FOUNDING PILOT · LIMITED SEATS</div>
-      <div class="tier">Founding</div>
-      <p class="tdesc">A full marketing department in your own private environment, live within 24 hours.</p>
-      <div class="amt"><span class="cur">€</span><span class="n">197</span><span class="per"><b>one-time</b>no subscription during the pilot</span></div>
-      <ul>
-        <li>Your own private Otto environment — your data stays yours</li>
-        <li>Onboarding from your URL, at most 4 questions, no forms</li>
-        <li>Monthly plan + copy in your voice + on-brand visuals, from day one</li>
-        <li>Telegram approvals, daily briefing and drop alerts included</li>
-        <li>Hebrew, English and German content, right-to-left handled</li>
-        <li>Live within 24 hours of purchase</li>
-      </ul>
-      <a class="btn primary" href="https://whop.com/checkout/plan_joHl1qsZoiJc9">Get Otto — €197 →</a>
-      <div class="works"><span class="wl">WORKS WITH</span><span class="pf fb">f</span><span class="pf ig">IG</span><span class="pf li">in</span><span class="pf tg">✈</span></div>
+    <div class="tiers rv" id="tiers"></div>
+    <p class="tier-note" id="tier-note"></p>
+    <div class="founding rv">
+      <div class="fp">€197<small>ONE-TIME · FOUNDING PILOT</small></div>
+      <div class="ft"><b>Get in before the plans open.</b>Your own private Otto, onboarding from your URL, a month of posts with visuals, Telegram approvals, daily briefing and drop alerts — live within 24 hours. Founding customers keep their environment and get grandfathered terms when monthly plans launch.</div>
+      <a class="btn white" href="https://whop.com/checkout/plan_joHl1qsZoiJc9">Get Otto — €197 →</a>
     </div>
-    <p class="price-note">Founding customers keep their environment and get grandfathered terms when Otto moves to monthly plans.</p>
   </div>
 </section>
 
@@ -772,6 +855,7 @@ footer a:hover{color:var(--ink)}
     </div>
   </div>
 </section>
+<div class="sticky-cta" id="sticky-cta"><div class="t"><b>Otto — founding seat €197</b>Live in 24 hours · grandfathered terms</div><a class="btn primary" href="https://whop.com/checkout/plan_joHl1qsZoiJc9">Get Otto →</a></div>
 <footer><div class="in"><span>OTTO · AI MARKETING DEPARTMENT · BUILT ON OPENCLAW · 2026</span><a href="https://dash.monyflow.work/otto/">LOG IN</a></div></footer>
 
 <script>
@@ -998,6 +1082,71 @@ $('#hero-form').addEventListener('submit',e=>{
   if(!v){ scan.locked=false; SCAN_URL='happygardeneu.com'; setTimeout(()=>{ scan.live=true; loop(scan); },500); return; }
   SCAN_URL=v; setTimeout(()=>scanReal(v),400);
 });
+
+/* ---------- pricing (edit numbers here) ---------- */
+const PRICING = {
+  yearlyDiscount: 0.20,
+  checkout: 'https://whop.com/checkout/plan_joHl1qsZoiJc9',
+  tiers: [
+    {id:'starter', name:'Starter', tfor:'FOR ONE BRAND', monthly:69, brands:'1 brand', extra:'+€39 / extra brand',
+     desc:'A whole month of content, approved from your phone.',
+     features:['50 posts a month, written and designed for you','Facebook + Instagram (LinkedIn on request)','Approve in Telegram or the dashboard','Morning briefing + drop alerts within the hour','Monthly competitor sweep','On-brand visuals for every post']},
+    {id:'growth', name:'Growth', tfor:'BEST FOR GROWTH', monthly:149, brands:'3 brands', extra:'+€39 / extra brand', featured:true,
+     desc:'Everything in Starter, plus the loop that learns.',
+     features:['3 brands included','Weekly competitor sweep + ad-library winners','Analytics loop: winners shape next week','LinkedIn included','Ads on autopilot inside a ceiling you set *','A human on the phone within 2 hours']},
+    {id:'agency', name:'Agency', tfor:'FOR AGENCIES', monthly:399, brands:'10 workspaces', extra:'+€49 / extra workspace',
+     desc:'A workspace per client, each with its own Telegram.',
+     features:['10 client workspaces, one brand each','Growth features in every workspace','Each client approves in their own Telegram','White-label weekly reports','Named account manager','Ads on each client’s own ad account *']},
+  ],
+  note:'* Ads autopilot and AI reels roll out to Growth and Agency as they go live. Every plan CTA reserves your seat at the founding price until subscriptions open.'
+};
+let CYCLE='monthly';
+function renderTiers(){
+  $('#tiers').innerHTML = PRICING.tiers.map(t=>{
+    const price = CYCLE==='yearly' ? Math.round(t.monthly*(1-PRICING.yearlyDiscount)) : t.monthly;
+    return `<div class="tier ${t.featured?'featured':''}">${t.featured?'<span class="badge">MOST POPULAR</span>':''}
+      <div class="tfor">${t.tfor}</div><div class="tname">${t.name}</div><div class="tdesc">${t.desc}</div>
+      <div class="tprice"><span class="cur">€</span><span class="n">${price}</span><span class="per">/ month</span></div>
+      <div class="tbill">${CYCLE==='yearly'?`billed yearly · €${price*12} / year`:'billed monthly · cancel anytime'}</div>
+      <div class="tbrands"><b>${t.brands}</b><span>${escH(t.extra)}</span></div>
+      <a class="btn ${t.featured?'primary':'ghost'}" href="${PRICING.checkout}">Reserve at founding price →</a>
+      <div class="twhat">WHAT YOU GET</div><ul>${t.features.map(f=>`<li>${escH(f)}</li>`).join('')}</ul>
+      <div class="works"><span class="wl">WORKS WITH</span><span class="pf fb">f</span><span class="pf ig">IG</span><span class="pf li">in</span><span class="pf tg">✈</span></div>
+    </div>`; }).join('');
+  $('#tier-note').textContent = PRICING.note;
+  $$('.toggle button').forEach(b=>b.classList.toggle('on', b.dataset.cycle===CYCLE));
+}
+$$('.toggle button').forEach(b=>b.addEventListener('click',()=>{ CYCLE=b.dataset.cycle; renderTiers(); }));
+renderTiers();
+
+/* ---------- solutions by industry ---------- */
+const SOLUTIONS = [
+  {k:'Restaurants', h:'Marketing for <b>restaurants</b>', d:'Tonight’s table, not a stock photo of a fork. Otto turns your menu, your seasons and your guests’ reviews into a week that fills seats.', pillars:['Dishes & seasons','Behind the kitchen','Guests & reviews','Events','Offers'], hooks:['The dish our regulars order twice a week','What 6 a.m. looks like in our kitchen','“Best lamb in town” — Marta, last Friday'], bg:'linear-gradient(160deg,#87422B,#361A11)', card:'Tuesday just found its after-work plan.'},
+  {k:'Clinics', h:'Marketing for <b>clinics</b>', d:'Patient stories, plain-language education and a calm, trustworthy look — with restricted-category rules handled before anything goes out.', pillars:['Education','Patient stories','Meet the team','Before & after','Booking'], hooks:['Three questions to ask before any treatment','Why we explain the plan before we start','Meet Dr. Levi: 14 years, one rule'], bg:'radial-gradient(120% 100% at 80% 0%,#33509F,#0B1230 60%)', card:'The visit you keep putting off takes 20 minutes.'},
+  {k:'E-commerce', h:'Marketing for <b>e-commerce brands</b>', d:'Product, proof and how-to in your palette, with launches and offers slotted around the hours your customers actually shop.', pillars:['Product','Social proof','How-to','Behind the brand','Offers'], hooks:['Full vs Broad vs Isolate — 60-second guide','“Finally sleeping through” — Melanie S.','3 things to check before buying any CBD'], bg:'#FFBC00', dark:1, card:'Myth: “CBD gets you high.” ✕'},
+  {k:'Coaches', h:'Marketing for <b>coaches</b>', d:'Your framework, your clients’ wins and your story — in your voice, every week, without you writing a word.', pillars:['Insights','Client wins','Framework','Personal story','Program'], hooks:['The one question I ask every new client','She doubled her rate in 90 days. Here’s the sequence.','Why I stopped selling “motivation”'], bg:'linear-gradient(160deg,#2B4A3E,#10251C)', card:'Confidence is a schedule, not a feeling.'},
+  {k:'Real estate', h:'Marketing for <b>real estate</b>', d:'Listings that look like the neighbourhood, buyer education and client stories, planned around open-house weekends.', pillars:['Listings','Neighbourhood','Buyer education','Client stories','Market updates'], hooks:['What €450k buys you in three districts','The 5-minute walk that sells this street','From first viewing to keys in 41 days'], bg:'linear-gradient(160deg,#1C2A4A,#0B1230)', card:'Big decisions rarely belong to one person.'},
+  {k:'Gyms', h:'Marketing for <b>gyms</b>', d:'Member stories, workouts and nutrition with an energetic look — and offers timed to the months people actually sign up.', pillars:['Workouts','Member stories','Nutrition','Community','Offers'], hooks:['The 12-minute session for people who hate mornings','Dan, 52, first pull-up in 30 years','What our coaches eat on leg day'], bg:'linear-gradient(160deg,#3A3A5C,#171733)', card:'Your first week is the hardest. We know the way in.'},
+  {k:'SaaS', h:'Marketing for <b>SaaS</b>', d:'Use-cases, customer stories and launches on LinkedIn and X, in a modern editorial look — planned so your feed never goes quiet between releases.', pillars:['Product','Use-case','Customer stories','Education','Launches'], hooks:['How a 3-person team runs onboarding for 2,000 users','The report our customers screenshot most','Shipped this week: one thing, done well'], bg:'radial-gradient(120% 100% at 20% 0%,#2447F0,#101B54 60%)', card:'Good automation leaves people free for the hard cases.'},
+  {k:'Hotels', h:'Marketing for <b>hotels</b>', d:'Rooms, views and the local guide your guests ask for — seasonal offers slotted to booking windows.', pillars:['Rooms & views','Local guide','Guest stories','Seasonal offers','Behind the scenes'], hooks:['The lake is quietest just before the sun disappears','Three places our concierge sends everyone','Off-season, on purpose: 20% for slow mornings'], bg:'linear-gradient(160deg,#5A4A2E,#2B2118)', card:'Some summer days are made for a swim.'},
+];
+function renderSolution(i){
+  const s=SOLUTIONS[i];
+  $$('#ind-chips button').forEach((b,j)=>b.classList.toggle('on',i===j));
+  $('#sol').innerHTML=`<div><h3>${s.h}</h3><p class="sdesc">${s.d}</p><div class="spill">${s.pillars.map(p=>`<span class="chip">${escH(p)}</span>`).join('')}</div>
+    <ul class="shooks">${s.hooks.map(h=>`<li>${escH(h)}</li>`).join('')}</ul></div>
+    <div class="pc"><div class="pc-head"><span class="av" style="background:var(--cobalt-tint);color:var(--cobalt-deep)">${escH(s.k[0])}</span><div><div class="pc-name">Your brand</div><div class="pc-sub">${escH(s.k.toLowerCase())} · IG</div></div><span class="pf ig">IG</span></div>
+    <div class="pc-media" style="background:${s.bg}"><div class="txt ${s.dark?'dark':''}">${escH(s.card)}</div><span class="st app">READY FOR YOUR YES</span></div>
+    <div class="pc-cap"><b>yourbrand</b> Otto writes the caption in your voice, from your site — and asks before it publishes.</div>
+    <div class="pc-foot"><span>♡ Like</span><span>💬 Comment</span><span>↗ Share</span></div></div>`;
+}
+$('#ind-chips').innerHTML = SOLUTIONS.map((s,i)=>`<button role="tab" data-i="${i}">${escH(s.k)}</button>`).join('');
+$$('#ind-chips button').forEach(b=>b.addEventListener('click',()=>renderSolution(+b.dataset.i)));
+renderSolution(0);
+
+/* ---------- sticky mobile CTA (after the hero) ---------- */
+const sticky=$('#sticky-cta'), heroEl=$('#top');
+new IntersectionObserver(es=>es.forEach(e=>sticky.classList.toggle('show', !e.isIntersecting && innerWidth<=720)),{threshold:0}).observe(heroEl);
 
 /* ---------- team ---------- */
 const TEAM=[

@@ -42,12 +42,13 @@ autopilot/
 │   ├── ap.py                 # CLI — כל כתיבה ל-data.json עוברת פה (add/status/recs/sync-fallback)
 │   ├── otto_api.py           # action API, localhost:8161, nginx מפרוקסה /otto-api/ (systemd: otto-api.service)
 │   ├── otto_watch.py         # מנוע פרואקטיבי: דוח בוקר יומי + שומר שעתי (התראות ירידה/סלוטים)
-│   ├── genvisuals.py         # ויז'ואלים דרך Leonardo GPT Image 2 → assets/posts/<post-id>.png
+│   ├── genvisuals.py         # ויז'ואלים לכל פוסט בלי תמונה מ-data.json (פלטה מהפרופיל) → assets/posts/<id>.png [28.09 refactor]
 │   ├── otto_scan.py          # URL → scan.json + brand-profile draft (+ /otto-peek ללנדינג)   [28.09 engine v1]
 │   ├── otto_plan.py          # תוכנית חודשית → posts draft + content-plan-YYYY-MM.md, fill copy  [28.09]
 │   ├── otto_competitors.py   # חקר מתחרים שבועי אוטומטי: דלתאות אתרים, פרומואים, ad-library links [28.09]
 │   ├── otto_publish.py       # cron מפרסם לפי סלוט (FB/IG) — צריך otto-secrets/meta-<brand>.json  [28.09]
 │   ├── otto_insights.py      # לופ אנליטיקס שבועי: מדדים, מנצחים, המלצת double-down             [28.09]
+│   ├── otto_telegram.py      # לופ הטלגרם בקוד: כרטיסים עם כפתורים, poll → ap.decide, ✏️ edit → edit_requests [28.09]
 │   ├── crons.md              # שורות ה-cron לשרת + nginx location /otto-peek
 │   ├── landing.html          # דף הנחיתה הציבורי v4 (fintech, ווידג'טים חיים, סריקה אמיתית)
 │   ├── deploy.sh             # sync-fallback + copy ל-/srv/pulse/otto/ + landing ל-/srv/pulse/pilot-landing.html
@@ -155,7 +156,7 @@ MCP server (stdio, Python) לפרסום אורגני Meta. Multi-tenant: תהל�
 
 **חוסם מכירה end-to-end אוטומטית (provisioner):** Hetzner creds (HCLOUD_TOKEN+SSH key) · Telegram api_id/api_hash+userbot session ל-bot factory · פורמט הזרקת Claude auth ללקוח (sub-account/BYOK/pool) · `PILOT_SEND=1` בפרוד.
 
-**החלטות פתוחות למקס:** שפת פוסטים HG (EN/DE/שניהם) · תזמון מעבר למנוי · איחוד שם סופי Otto vs Pilot בקוד/Whop.
+**החלטות פתוחות למקס:** שפת פוסטים HG (EN/DE/שניהם) · תזמון מעבר למנוי + אישור הסולם €69/€149/€399 (הצעה מנומקת ב-`docs/PRICING-EU.md`, המספרים ב-`landing.html` → `PRICING`) · איחוד שם סופי Otto vs Pilot בקוד/Whop · בוט טלגרם ייעודי ל-Otto (`otto-secrets/telegram.json`).
 
 **טכני הבא בתור (עודכן 28.09 — רוב הפריטים נכתבו כקוד ב-engine v1, ראה MASTER-PLAN):** callback טלגרם → `ap.py decide <id> approve|skip|later --via telegram` (הפרוטוקול ב-skills/otto-autopilot) · פרסום בסלוט = `otto_publish.py` (cron */15, ממתין לטוקנים) · לופ אנליטיקס = `otto_insights.py` (cron שישי) · חקר מתחרים = `otto_competitors.py sweep` (cron שני) · nginx `location /otto-peek` לסריקה אמיתית מהלנדינג · הפרדת autopilot-core לסוכן משלו.
 
