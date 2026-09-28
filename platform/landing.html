@@ -556,12 +556,12 @@ footer a:hover{color:var(--ink)}
               </ul>
               <div class="profile">
                 <div class="ph"><img src="/otto/assets/agents/orion.png" alt="">Brand profile<span class="ptag">AUTO-FILLED</span></div>
-                <div class="prow"><div class="pl">Industry</div><div class="pv">CBD wellness · EU e-commerce · DACH + UK</div></div>
-                <div class="prow"><div class="pl">Palette</div><div class="pv"><span class="sw" style="background:#FFBC00"></span><span class="sw" style="background:#111"></span><span class="sw" style="background:#F95C8F"></span><span class="sw" style="background:#F5F5F5"></span><span class="sw" style="background:#25D366"></span></div></div>
-                <div class="prow"><div class="pl">Voice</div><div class="pv"><i>Educational, trust-first. Lab tests over hype.</i></div></div>
-                <div class="prow"><div class="pl">Competitors</div><div class="pv">Nordic Oil · Naturecan · CBD Vital · Hempamed</div></div>
-                <div class="prow"><div class="pl">Audience</div><div class="pv">Petra, 52, Germany — <i>“I haven’t slept well in years.”</i></div></div>
-                <div class="prow"><div class="pl">Plan</div><div class="chips"><span class="chip">Education</span><span class="chip">Trust &amp; proof</span><span class="chip">Use-case</span><span class="chip">Product</span><span class="chip">Engagement</span><span class="chip warn">Restricted on Meta → organic-first</span></div></div>
+                <div class="prow" data-k="industry"><div class="pl">Industry</div><div class="pv">CBD wellness · EU e-commerce · DACH + UK</div></div>
+                <div class="prow" data-k="palette"><div class="pl">Palette</div><div class="pv"><span class="sw" style="background:#FFBC00"></span><span class="sw" style="background:#111"></span><span class="sw" style="background:#F95C8F"></span><span class="sw" style="background:#F5F5F5"></span><span class="sw" style="background:#25D366"></span></div></div>
+                <div class="prow" data-k="voice"><div class="pl">Voice</div><div class="pv"><i>Educational, trust-first. Lab tests over hype.</i></div></div>
+                <div class="prow" data-k="proof"><div class="pl">Competitors</div><div class="pv">Nordic Oil · Naturecan · CBD Vital · Hempamed</div></div>
+                <div class="prow" data-k="audience"><div class="pl">Audience</div><div class="pv">Petra, 52, Germany — <i>“I haven’t slept well in years.”</i></div></div>
+                <div class="prow" data-k="plan"><div class="pl">Plan</div><div class="chips"><span class="chip">Education</span><span class="chip">Trust &amp; proof</span><span class="chip">Use-case</span><span class="chip">Product</span><span class="chip">Engagement</span><span class="chip warn">Restricted on Meta → organic-first</span></div></div>
               </div>
             </div>
           </div>
@@ -861,7 +861,7 @@ $('#track').innerHTML = POSTS.map(card).join('') + POSTS.map(card).join('');
 /* ---------- widget engine ---------- */
 const widgets = [];
 function register(el, reset, run){ const w={el,reset,run,tl:new TL(),live:false}; widgets.push(w); return w; }
-function loop(w){ w.tl.clear(); w.reset(); if(RM){ w.run(w.tl,true); return; } const d = w.run(w.tl,false); w.tl.at(d+2400, ()=>{ if(w.live) loop(w); }); }
+function loop(w){ if(w.locked) return; w.tl.clear(); w.reset(); if(RM){ w.run(w.tl,true); return; } const d = w.run(w.tl,false); w.tl.at(d+2400, ()=>{ if(w.live) loop(w); }); }
 const wio = new IntersectionObserver(es=>es.forEach(e=>{
   const w = widgets.find(x=>x.el===e.target); if(!w) return;
   if(e.isIntersecting && !w.live){ w.live=true; loop(w); }
@@ -954,14 +954,49 @@ register($('#w-watch'),
 
 widgets.forEach(w=>wio.observe(w.el));
 
-/* ---------- hero form → scan ---------- */
+/* ---------- hero form → REAL scan through the Otto API (sample fallback) ---------- */
+const PEEK = (location.hostname==='localhost'||location.hostname==='127.0.0.1') ? 'http://localhost:8161/otto-peek' : '/otto-peek';
+const SAMPLE_ROWS = {}; $$('#w-scan .prow').forEach(r=>SAMPLE_ROWS[r.dataset.k]=r.innerHTML);
+const escH = t => String(t??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const PILLARS_FOR = {'CBD':['Education','Trust & proof','Use-case','Product','Engagement'],'Restaurant':['Dishes & seasons','Behind the kitchen','Guests & reviews','Events','Offers'],'Clinic':['Education','Patient stories','Before & after','Meet the team','Booking'],'Education':['Method education','Student stories','Career change','Community','Enrolment'],'E-commerce':['Product','Social proof','How-to','Behind the brand','Offers'],'Real estate':['Listings','Neighbourhood','Buyer education','Client stories','Market updates'],'SaaS':['Product','Use-case','Customer stories','Education','Launches'],'Fitness':['Workouts','Member stories','Nutrition','Community','Offers'],'Beauty':['Treatments','Before & after','Skin education','Team','Offers'],'Legal':['Education','Case stories','FAQ','Team','Consult'],'Hotel':['Rooms & views','Local guide','Guest stories','Seasonal offers','Behind the scenes'],'Coaching':['Insights','Client wins','Framework','Personal story','Program'],'Home':['Projects','Before & after','Tips','Reviews','Quotes'],'Automotive':['Inventory','Service tips','Customer stories','Offers','Team']};
+const RESTRICTED = /cbd|clinic|medical|legal|finance/i;
+function fillReal(r, domain){
+  const set=(k,html)=>{ const row=$(`#w-scan .prow[data-k="${k}"]`); row.querySelector('.pl').nextElementSibling.outerHTML=html; };
+  set('industry',`<div class="pv">${escH(r.industry)} · ${escH((r.languages||[]).join(', ').toUpperCase()||'?')} · ${escH(r.platform||'')}</div>`);
+  const sw=(r.palette||[]).concat(r.neutrals||[]).slice(0,6).map(h=>`<span class="sw" style="background:${escH(h)}" title="${escH(h)}"></span>`).join('');
+  set('palette',`<div class="pv">${sw||'<i>no brand colors detected</i>'}${r.fonts&&r.fonts.length?' <span class="mono" style="font-size:10.5px;color:var(--faint)">'+escH(r.fonts.slice(0,2).join(' · '))+'</span>':''}</div>`);
+  set('voice',`<div class="pv"><i>${escH(r.description||r.title||'—')}</i></div>`);
+  const proof=(r.trust||[]).slice(0,3).map(escH).join(' · ');
+  $('#w-scan .prow[data-k="proof"] .pl').textContent='Proof on site';
+  set('proof',`<div class="pv">${proof||'<i>no trust anchors found yet — Otto asks you for reviews (1 of ≤4 questions)</i>'}</div>`);
+  const q=(r.quotes||[])[0];
+  $('#w-scan .prow[data-k="audience"] .pl').textContent=q?'Customer voice':'Socials';
+  set('audience',`<div class="pv">${q?'<i>“'+escH(q.slice(0,140))+'”</i>':(Object.keys(r.socials||{}).length?escH(Object.keys(r.socials).join(' · ')):'<i>none linked — Otto connects them at onboarding</i>')}</div>`);
+  const key=Object.keys(PILLARS_FOR).find(k=>(r.industry||'').toLowerCase().includes(k.toLowerCase()));
+  const pillars=(PILLARS_FOR[key]||['Education','Proof','Product','Behind the scenes','Engagement']).map(p=>`<span class="chip">${escH(p)}</span>`).join('');
+  set('plan',`<div class="chips">${pillars}${RESTRICTED.test(r.industry||'')?'<span class="chip warn">Restricted on Meta → organic-first</span>':''}</div>`);
+  $('#w-scan .wtag').textContent=`REAL SCAN · ${r.pages||1} PAGE${r.pages===1?'':'S'} READ · ${escH(domain).toUpperCase()}`;
+}
+function fillSample(note){ for(const k in SAMPLE_ROWS){ const row=$(`#w-scan .prow[data-k="${k}"]`); row.innerHTML=SAMPLE_ROWS[k]; } $('#w-scan .wtag').textContent=note; }
+async function scanReal(domain){
+  scan.locked=true; scan.tl.clear(); scan.reset(); fillSample('READING YOUR SITE…');
+  const steps=$$('#scan-steps li'), rows=$$('#w-scan .prow'), url=$('#scan-url'); const tl=scan.tl;
+  [...domain].forEach((ch,i)=>tl.at(200+i*45,()=>url.textContent+=ch));
+  tl.at(200+domain.length*45+300,()=>{ steps[0].className='on'; });
+  let data=null;
+  try{ const ctl=new AbortController(); const to=setTimeout(()=>ctl.abort(),20000);
+       const res=await fetch(PEEK+'?url='+encodeURIComponent(domain),{signal:ctl.signal}); clearTimeout(to);
+       if(res.ok) data=await res.json(); }catch(e){}
+  if(data && !data.error) fillReal(data,domain); else fillSample('SAMPLE PROFILE · COULD NOT READ '+domain.toUpperCase()+' FROM HERE — OTTO READS IT AFTER CHECKOUT');
+  let t=300; const show=[[0],[1,2],[3],[4],[5]];
+  steps.forEach((li,i)=>{ tl.at(t,()=>{ li.className='on'; }); tl.at(t+800,()=>{ li.className='done'; show[i].forEach(k=>rows[k]&&rows[k].classList.add('in')); }); t+=900; });
+}
 $('#hero-form').addEventListener('submit',e=>{
   e.preventDefault();
   const v=$('#hero-url').value.trim().replace(/^https?:\/\//i,'').replace(/^www\./i,'').replace(/[\/?#].*$/,'');
-  SCAN_URL = v || 'happygardeneu.com';
-  $('#w-scan .wtag').textContent = v ? 'LIVE SAMPLE · YOUR REAL PROFILE ARRIVES AFTER CHECKOUT' : 'LIVE SAMPLE';
   $('#how').scrollIntoView({behavior:'smooth',block:'start'});
-  setTimeout(()=>{ scan.live=true; loop(scan); }, 500);
+  if(!v){ scan.locked=false; SCAN_URL='happygardeneu.com'; setTimeout(()=>{ scan.live=true; loop(scan); },500); return; }
+  SCAN_URL=v; setTimeout(()=>scanReal(v),400);
 });
 
 /* ---------- team ---------- */

@@ -77,3 +77,16 @@ Skill חי ב-`openclaw-installer/skills-bundle/otto-copy-engine/SKILL.md` — V
 ## 2026-09-28 — Competitor research skill + system handoff report
 - New skill: `autopilot/skills/otto-competitor-research/SKILL.md` — Meta Ad Library / TikTok Creative Center / Google Ads Transparency sweeps per brand (longevity = #1 signal), scaled path via Apify/ScrapeCreators/official Meta API. Output `brands/<slug>/competitor-research.md` → feeds creative engine + M6 loop.
 - `OTTO-SYSTEM-REPORT.md` — full self-contained system handoff (architecture, all core prompts, live state, blockers) for Max's local Claude Code.
+
+## 2026-09-28 — Autopilot engine v1 (Claude Code, local → git)
+Directive from Max: "מערכת שיווק אוטומטית לחלוטין, כולל חקר מתחרים אוטומטי". The loop is now code, not ad-hoc agent work:
+- `platform/otto_scan.py` — URL → `scan.json` + brand-profile draft (identity, palette/logo/fonts, socials, prices, trust, quotes, industry). Also powers the public `/otto-peek` endpoint the landing uses for a REAL scan of a visitor's site.
+- `platform/otto_plan.py` — brand pillars + slots → full month of draft posts in data.json + `content-plan-YYYY-MM.md`; `fill` imports Quill's copy (`--pending` → straight to the deck).
+- `platform/otto_competitors.py` — weekly sweep: competitor list (seeded from the profile, sites resolved), site fingerprints + diffs, live promos, ad-library checklist links, dated section in `competitor-research.md`, recommendation filed when something moved.
+- `platform/otto_publish.py` — cron publisher (FB photo/feed, IG image) with grace window, retries, failed→P0; needs `otto-secrets/meta-<brand>.json`.
+- `platform/otto_insights.py` — weekly metrics pull, winners ranking, `winning-posts.md`, "double down" recommendation.
+- `platform/ap.py` — `decide` (approve/skip/later + taste log), `set`, `brand-add`, `taste`; env-overridable paths for tests.
+- `platform/otto_api.py` — `/otto-api/decide`, `/otto-api/peek`, public `/otto-peek` (SSRF-guarded, rate-limited, cached).
+- `skills/otto-autopilot/SKILL.md` — the orchestration playbook (onboarding, daily, weekly, monthly, what Otto decides alone, Telegram card protocol). `platform/crons.md` — server crons.
+- `docs/NATIVE-PARITY.md` — feature-by-feature parity + edge checklist vs native.no, with the build order.
+Module status update: M1 ✅ code · M2 🟡 publisher written, tokens pending · M3 unchanged · M4 ✅ · M5 unchanged · **M6 ✅ code (competitors + insights loop), live after M2** · M7 unchanged.

@@ -1,0 +1,184 @@
+{
+  "url": "https://www.happygardeneu.com",
+  "final_url": "https://www.happygardeneu.com/?v=9c049173fad5",
+  "scanned_at": "2026-09-28T16:02:39Z",
+  "pages": [
+    "https://www.happygardeneu.com/?v=9c049173fad5",
+    "https://www.happygardeneu.com/cbd-collections/cbd-oil/",
+    "https://www.happygardeneu.com/cbd-collections/cbd-gummies/",
+    "https://www.happygardeneu.com/cbd-collections/cbd-creams-balms/",
+    "https://www.happygardeneu.com/cbd-collections/cbd-cosmetics/"
+  ],
+  "identity": {
+    "title": "Happy Garden | Premium CBD Products for Health & Wellness",
+    "description": "Welcome to Happy Garden! Discover our wide range of high-quality CBD products designed to promote wellness and relaxation. Shop now for oils, edibles, topicals, and more.",
+    "site_name": "Happy Garden",
+    "og_title": "Happy Garden | Premium CBD Products for Health & Wellness",
+    "og_image": null
+  },
+  "industry": "CBD & hemp wellness",
+  "industry_candidates": [
+    {
+      "industry": "CBD & hemp wellness",
+      "score": 245
+    },
+    {
+      "industry": "E-commerce & retail",
+      "score": 55
+    },
+    {
+      "industry": "Education & courses",
+      "score": 19
+    }
+  ],
+  "languages": [
+    "en"
+  ],
+  "platform": "WooCommerce + WordPress",
+  "visual": {
+    "palette": [
+      {
+        "hex": "#FFBC00",
+        "count": 53
+      },
+      {
+        "hex": "#003388",
+        "count": 52
+      },
+      {
+        "hex": "#0E252C",
+        "count": 23
+      },
+      {
+        "hex": "#31856C",
+        "count": 14
+      },
+      {
+        "hex": "#F5716A",
+        "count": 10
+      },
+      {
+        "hex": "#F95C8F",
+        "count": 10
+      }
+    ],
+    "neutrals": [
+      {
+        "hex": "#FFFFFF",
+        "count": 137
+      },
+      {
+        "hex": "#000000",
+        "count": 61
+      },
+      {
+        "hex": "#CCCCCC",
+        "count": 31
+      }
+    ],
+    "logo": "https://www.happygardeneu.com/wp-content/themes/HG/images/logo-mobile.svg",
+    "fonts": [
+      "Comfortaa",
+      "slick",
+      "Open Sans Hebrew"
+    ],
+    "theme_color": null
+  },
+  "socials": {
+    "whatsapp": "https://api.whatsapp.com/send/?phone=34930464979&text=Hi%2C+I+have+a+question&type=phone_number&app_absent=0",
+    "youtube": "https://youtube.com/channel/UCrz6SOLQ7tXwr_BOIezqXqQ",
+    "instagram": "https://instagram.com/happy_garden_cbd",
+    "facebook": "https://facebook.com/happygardencbd"
+  },
+  "contact": {
+    "emails": [],
+    "phones": []
+  },
+  "commerce": {
+    "currency": "EUR",
+    "prices": [
+      "€ 79",
+      "€ 45",
+      "€ 35",
+      "€ 129",
+      "€ 99",
+      "€ 29",
+      "€ 55",
+      "€ 65",
+      "€ 42",
+      "€ 49"
+    ],
+    "promos": [
+      "sale",
+      "20% discount",
+      "Bundle",
+      "Free Shipping",
+      "20% off"
+    ]
+  },
+  "trust": [
+    "As an additional benefit, we follow GMP-ISO 7 Production Standards, so our products are approved by third parties",
+    "For this reason, we conduct third-party laboratory testing",
+    "Save time and money and sign up for a monthly subscription now! ● Free Shipping ● Saves you money every month ● A gift with every purchase Sign up and save! JOIN TO OUR FAMILY Sign up fo",
+    "In addition to having a delightful flavour, these gummies make it simple to ingest cannabidiol without the hassle of using a dropper or needing a glass of water"
+  ],
+  "quotes": [
+    "4 months ago CBD-Katzenleckerlis mit Lachsgeschmack Tom Berger Reviewer 5/5 Unser Katze hat das Produkt gut angenommen.",
+    "4 months ago CBD-Katzenleckerlis mit Lachsgeschmack Melanie Schwarz Reviewer 5/5 Die Qualität wirkt sauber und vertrauenswürdig."
+  ],
+  "headings": [
+    "CBD Products",
+    "Best Sellers",
+    "CBD Oil 30% Isolate (Pure...",
+    "CBD Oil 15% – Full ...",
+    "CBD Oil 10% – Full ...",
+    "CBG & CBD Oil",
+    "CBD Oil 40% – Full ...",
+    "CBD VAPE Mango Haze flavo...",
+    "CBD VAPE – Kush Note flav...",
+    "Our Standards",
+    "CBD Spectrum",
+    "Full Spectrum",
+    "Broad Spectrum",
+    "CBD Isolate",
+    "CBN",
+    "CBG",
+    "Full spectrum products include all the cannabinoids found in the cannabis plant. Recent research has revealed that extracting all cannabinoids from the plant cr",
+    "Cannabinoid Distribution",
+    "CBD Oil 20% – Full Spec...",
+    "CBD Oil 24% – Full Spec...",
+    "Broad spectrum products contain all the cannabinoids found in the cannabis plant except for THC. They primarily contain CBD, the main component, along with othe",
+    "CBD broad spectrum & Mul...",
+    "Bundle – CBD VAPE Mango...",
+    "Isolate products only contain the most prominent cannabinoid found in the cannabis plant, CBD, while excluding other cannabinoids. The primary benefit of CBD li",
+    "CBD Isolate & Vitamin C ..."
+  ],
+  "nav": [
+    "EN",
+    "RO",
+    "ES",
+    "DE",
+    "Oils",
+    "Gummies",
+    "Creams & Balms",
+    "Cosmetics",
+    "Flowers",
+    "Capsules",
+    "CBD Vapes",
+    "Pets",
+    "All products >>",
+    "Skin Care",
+    "Pain Relief",
+    "Stress & Anxiety",
+    "Sleep",
+    "Athletes",
+    "CBG",
+    "CBD Isolate",
+    "Full spectrum",
+    "CBN",
+    "Broad Spectrum",
+    "HHC",
+    "Wholesale"
+  ],
+  "text_sample": "Happy Garden | Premium CBD Products for Health & Wellness 0 EN RO ES DE Search for: Search CBD Products Oils Gummies Creams & Balms Cosmetics Flowers Capsules CBD Vapes Pets All products >> Benefits Skin Care Pain Relief Stress & Anxiety Sleep Athletes Pets All products >> Spectrum CBG CBD Isolate Full spectrum CBN Broad Spectrum All products >> HHC Wholesale Blog About Us Contact Us My account EN RO ES DE X Search for: Search 0 CBD Products Flowers Oils Creams & Balms Gummies Vapes Capsules CBD For Pets All Products >> Benefits Skin Care Pain Relief Stress & Anxiety Sleep Athletes Pets All products >> CBD Spectrum Full spectrum Broad Spectrum CBD Isolate CBG CBN All products >> HHC High & THC Wholesale Blog About Us Contact Us Hey good to see you here How can we help you today? Pains Stress and anxiety Sleep problems Other athletes? click here There is a 20% discount waiting for you inside X Need Help? Stress & Anxiety Sleep Pain Relief Athletes Stress & Anxiety Pets CBD Products Flowers High & THC Vapes Gummies Pets Oils Capsules Creams & Balms Best Sellers CBD Oil 30% Isolate (Pure... 3000mg | 10ml 3000mg | 10ml € 79 € 79 Add to cart CBD Oil 15% – Full ... 1500mg | 10ml 1500mg | 10ml € 45 € 45 Add to cart CBD Oil 10% – Full ... 1000mg | 10ml 1000mg | 10ml € 35 € 35 Add to cart CBG & CBD Oil 4000mg | 30ml 4000mg | 30ml € 129 € 129 Add to cart CBD Oil 40% – Full ... 4000mg | 10ml 4000mg | 10ml € 99 € 99 Add to cart CBD VAPE Mango Haze flavo... 550mg | 1ml 550mg | 1ml € 29 € "
+}

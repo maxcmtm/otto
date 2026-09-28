@@ -43,12 +43,20 @@ autopilot/
 │   ├── otto_api.py           # action API, localhost:8161, nginx מפרוקסה /otto-api/ (systemd: otto-api.service)
 │   ├── otto_watch.py         # מנוע פרואקטיבי: דוח בוקר יומי + שומר שעתי (התראות ירידה/סלוטים)
 │   ├── genvisuals.py         # ויז'ואלים דרך Leonardo GPT Image 2 → assets/posts/<post-id>.png
-│   ├── deploy.sh             # sync-fallback + copy ל-/srv/pulse/otto/ (חי ב-dash.monyflow.work/otto/)
+│   ├── otto_scan.py          # URL → scan.json + brand-profile draft (+ /otto-peek ללנדינג)   [28.09 engine v1]
+│   ├── otto_plan.py          # תוכנית חודשית → posts draft + content-plan-YYYY-MM.md, fill copy  [28.09]
+│   ├── otto_competitors.py   # חקר מתחרים שבועי אוטומטי: דלתאות אתרים, פרומואים, ad-library links [28.09]
+│   ├── otto_publish.py       # cron מפרסם לפי סלוט (FB/IG) — צריך otto-secrets/meta-<brand>.json  [28.09]
+│   ├── otto_insights.py      # לופ אנליטיקס שבועי: מדדים, מנצחים, המלצת double-down             [28.09]
+│   ├── crons.md              # שורות ה-cron לשרת + nginx location /otto-peek
+│   ├── landing.html          # דף הנחיתה הציבורי v4 (fintech, ווידג'טים חיים, סריקה אמיתית)
+│   ├── deploy.sh             # sync-fallback + copy ל-/srv/pulse/otto/ + landing ל-/srv/pulse/pilot-landing.html
 │   ├── onboarding.html, ads.html, analytics.html, approve.html
 │   └── ARCHITECTURE.md, STRUCTURE.md
 ├── mcp/otto-social-mcp/      # MCP server שלנו לפרסום אורגני Meta (7 כלים)
 ├── skills/otto-creative-engine/SKILL.md
 ├── skills/otto-competitor-research/SKILL.md   # חדש 28.09
+├── skills/otto-autopilot/SKILL.md             # האורקסטרטור: מה רץ מתי, מה Otto מחליט לבד, פרוטוקול כרטיסי טלגרם [28.09]
 └── research/  (mcp-connections-m2.md, creative-and-competitor-stack.md)
 ```
 
@@ -149,7 +157,7 @@ MCP server (stdio, Python) לפרסום אורגני Meta. Multi-tenant: תהל�
 
 **החלטות פתוחות למקס:** שפת פוסטים HG (EN/DE/שניהם) · תזמון מעבר למנוי · איחוד שם סופי Otto vs Pilot בקוד/Whop.
 
-**טכני הבא בתור:** callback טלגרם→state machine מלא לאישורים · queue.json→scheduler cron לפרסום בסלוט · לופ אנליטיקס שבועי (Insights→כיוונון באץ' הבא) · הפרדת autopilot-core לסוכן משלו.
+**טכני הבא בתור (עודכן 28.09 — רוב הפריטים נכתבו כקוד ב-engine v1, ראה MASTER-PLAN):** callback טלגרם → `ap.py decide <id> approve|skip|later --via telegram` (הפרוטוקול ב-skills/otto-autopilot) · פרסום בסלוט = `otto_publish.py` (cron */15, ממתין לטוקנים) · לופ אנליטיקס = `otto_insights.py` (cron שישי) · חקר מתחרים = `otto_competitors.py sweep` (cron שני) · nginx `location /otto-peek` לסריקה אמיתית מהלנדינג · הפרדת autopilot-core לסוכן משלו.
 
 ## 10. Git + עבודה מול Claude Code מקומי (חי מ-28.09.2026)
 **הריפו:** https://github.com/maxcmtm/otto — פרטי, branch `main`. Root הריפו = `autopilot/` בשרת. הדחיפה מהשרת דרך deploy key בשם `otto-server` (המפתח: `~/.ssh/id_ed25519` בשרת, עם write access).
