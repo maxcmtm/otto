@@ -23,7 +23,9 @@ Legend: ✅ have · 🟡 partial · ❌ missing · ⭐ our edge (they don't have
 | Weekly competitor research | ⭐ code | `otto_competitors.py sweep` (site deltas, live promos, ad-library checklist, summary card in Mission Control) + otto-competitor-research skill. Native shows none. |
 | Proactive alerts (drop within the hour) + morning briefing | ⭐ live | `otto_watch.py` (cron) |
 | Agency speaks first (recommendations as first-class objects) | ⭐ live | `recommendations[]`, Mission Control deck, engine scripts file recs automatically |
-| AI video (reels) | ❌ both | fal.ai/Kling decided (M3) — needs FAL_KEY; Native has zero video generation |
+| AI video (reels) | ⭐ code | `otto_video.py`: 30–60 s explainer reels (scene images, Ken Burns, brand captions, voice-over, music) via ffmpeg — four a month in the base package. Kling/Veo clips (fal.ai) can replace stills later. Native has zero video generation |
+| Ad creatives in every style, competitor-informed | ⭐ code | `otto_creative.py` + Meta dynamic creative: angles from the ad-library sweep × statics-with-copy / carousels / video, 5 titles × 3 bodies tested in one ad set |
+| Format mix from what competitors post | ⭐ code | `otto_plan.py format_mix` (industry default blended with `competitors[].formats`), carousels with copy on the slides |
 | Hebrew / RTL | ⭐ | cmtm runs in Hebrew; UI English |
 
 ## Marketing site
@@ -47,8 +49,10 @@ Legend: ✅ have · 🟡 partial · ❌ missing · ⭐ our edge (they don't have
 | Sticky mobile CTA | ⭐ ✅ |
 
 ## Design
-Native: dark painted Nordic hero, EB Garamond italic, gold accent, light body. **Otto: never that.** Porcelain/cobalt fintech,
-Fraunces italic, Inter, JetBrains Mono, 3D orb + floating product cards. Rule from Max (28.09): "if I look the same I can't compete."
+Native: dark painted Nordic hero, EB Garamond italic, gold accent, light body. **Otto: never that.**
+Max, 28.09 (evening): "Apple-level, finer, must not feel AI-designed; no Hebrew anywhere; the avatars feel kitschy; too cluttered."
+So: system font (SF on Apple devices, Inter fallback), sentence case everywhere, no mono uppercase labels, no emoji in UI chrome,
+no cartoon avatars (initials), hairline grouped lists, a real month grid, pill buttons, cobalt used sparingly. Applies to the dashboard and the landing.
 
 ## Next in order
 1. M2 tokens (Max): Meta app + page token per brand → `otto-secrets/meta-<brand>.json` → publisher + insights go live.

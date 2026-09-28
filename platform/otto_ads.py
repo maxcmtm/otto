@@ -297,8 +297,13 @@ def plan(bid, ym, budget=20.0, dry=False):
         print(f"-- {len(flights)} flights · ≈{cur}{total:,.0f} for {ym} (dry)")
         return flights
     created = []
+    import otto_creative as cre
     for f in flights:
         c = dict(f, id=new_campaign_id(d), brand=bid, plan=ym, currency=cur, landing_url=bits["url"], status="draft", remote={}, created_at=ap.now_iso())
+        try:
+            cre.build(d, c, dry=True)               # plan the variants now (angles × formats); files render at launch
+        except Exception as e:
+            c["creatives"] = {"error": str(e)[:120]}
         d.setdefault("campaigns", []).append(c); created.append(c)
     ap.add_rec(d, "P1", f"Approve the {ym} paid plan: {len(created)} campaigns, ≈{cur}{total:,.0f}",
                "Evergreen on Meta all month, two 5-day boosts of your best organic posts" + (", one Google Search campaign on brand + category intent" if not bits["restricted"] else "") +
@@ -336,9 +341,37 @@ OBJ = {"leads": ("OUTCOME_LEADS", "LEAD_GENERATION"), "traffic": ("OUTCOME_TRAFF
        "awareness": ("OUTCOME_AWARENESS", "REACH")}
 
 
+def upload_images(files, m, base):
+    """Public URLs → ad account image hashes (adimages accepts url=)."""
+    hashes = []
+    for f in files:
+        url = f if f.startswith("http") else base.rstrip("/") + "/" + f.lstrip("/")
+        try:
+            r = pub.graph("POST", f"{m['ad_account_id']}/adimages", m["access_token"], url=url)
+            img = next(iter(r.get("images", {}).values()), {})
+            if img.get("hash"):
+                hashes.append(img["hash"])
+        except pub.GraphError as e:
+            print("image upload failed:", f, e)
+    return hashes
+
+
+def upload_videos(files, m, base):
+    ids = []
+    for f in files:
+        url = f if f.startswith("http") else base.rstrip("/") + "/" + f.lstrip("/")
+        try:
+            ids.append(pub.graph("POST", f"{m['ad_account_id']}/advideos", m["access_token"], file_url=url)["id"])
+        except pub.GraphError as e:
+            print("video upload failed:", f, e)
+    return ids
+
+
 def launch_meta(d, c, m, base):
     objective, opt = OBJ.get(c["objective"], OBJ["traffic"])
     tok, act = m["access_token"], m["ad_account_id"]
+    import otto_creative as cre
+    cr = cre.build(d, c, dry=False, base=base)       # render statics/carousels with copy now
     camp = pub.graph("POST", f"{act}/campaigns", tok, name=c["name"], objective=objective, status="PAUSED",
                      special_ad_categories="[]", buying_type="AUCTION")["id"]
     targeting = {"geo_locations": {"countries": c["audience"].get("countries", ["DE"])},
@@ -350,18 +383,35 @@ def launch_meta(d, c, m, base):
         adset_params["promoted_object"] = json.dumps({"page_id": m["page_id"]})
     elif c["objective"] == "sales" and m.get("pixel_id"):
         adset_params["promoted_object"] = json.dumps({"pixel_id": m["pixel_id"], "custom_event_type": "PURCHASE"})
+    hashes = upload_images([i["file"] for i in cr.get("images", []) if i.get("file")] +
+                           [k["file"] for car in cr.get("carousels", []) for k in car["cards"] if k.get("file")], m, base)
+    videos = upload_videos([v["file"] for v in cr.get("videos", [])], m, base)
+    dynamic = len(hashes) >= 2 or len(cr.get("titles", [])) >= 2
+    if dynamic:
+        adset_params["is_dynamic_creative"] = "true"
     adset = pub.graph("POST", f"{act}/adsets", tok, **adset_params)["id"]
     post = ap.post(d, c["creative"].get("post") or "") or {}
-    link_data = {"link": c.get("landing_url") or "https://" + (post.get("brand") or ""), "message": (post.get("caption") or post.get("hook") or c["name"])[:1000],
-                 "name": (post.get("hook") or c["name"])[:40], "call_to_action": {"type": "LEARN_MORE", "value": {"link": c.get("landing_url") or ""}}}
-    if post.get("image"):
-        link_data["picture"] = pub.image_url(post, base)
-    creative = pub.graph("POST", f"{act}/adcreatives", tok, name=c["name"] + " · creative",
-                         object_story_spec=json.dumps({"page_id": m["page_id"], "link_data": link_data}))["id"]
+    link = c.get("landing_url") or "https://" + (post.get("brand") or "")
+    if dynamic:
+        spec = {"images": [{"hash": h} for h in hashes[:10]], "bodies": [{"text": t} for t in cr["bodies"][:5]],
+                "titles": [{"text": t} for t in cr["titles"][:5]], "descriptions": [{"text": t} for t in cr.get("descriptions", [])[:2]] or [{"text": ""}],
+                "ad_formats": ["SINGLE_IMAGE"] + (["SINGLE_VIDEO"] if videos else []), "call_to_action_types": [cr.get("cta", "LEARN_MORE")],
+                "link_urls": [{"website_url": link}]}
+        if videos:
+            spec["videos"] = [{"video_id": v} for v in videos[:3]]
+        creative = pub.graph("POST", f"{act}/adcreatives", tok, name=c["name"] + " · dynamic",
+                             object_story_spec=json.dumps({"page_id": m["page_id"]}), asset_feed_spec=json.dumps(spec))["id"]
+    else:
+        link_data = {"link": link, "message": (post.get("caption") or post.get("hook") or c["name"])[:1000],
+                     "name": (post.get("hook") or c["name"])[:40], "call_to_action": {"type": cr.get("cta", "LEARN_MORE"), "value": {"link": link}}}
+        if post.get("image"):
+            link_data["picture"] = pub.image_url(post, base)
+        creative = pub.graph("POST", f"{act}/adcreatives", tok, name=c["name"] + " · creative",
+                             object_story_spec=json.dumps({"page_id": m["page_id"], "link_data": link_data}))["id"]
     ad = pub.graph("POST", f"{act}/ads", tok, name=c["name"] + " · ad", adset_id=adset, creative=json.dumps({"creative_id": creative}), status="ACTIVE")["id"]
     pub.graph("POST", adset, tok, status="ACTIVE")
     pub.graph("POST", camp, tok, status="ACTIVE")
-    return {"campaign_id": camp, "adset_id": adset, "creative_id": creative, "ad_id": ad}
+    return {"campaign_id": camp, "adset_id": adset, "creative_id": creative, "ad_id": ad, "dynamic": dynamic, "images": len(hashes), "videos": len(videos)}
 
 
 def launch_google(c, g):

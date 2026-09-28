@@ -9,315 +9,316 @@
 <title>Otto — Mission Control</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fraunces:ital,opsz,wght@1,9..144,400;1,9..144,500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 :root{
-  --canvas:#F5F7FB; --surface:#FFFFFF; --ink:#10182B; --muted:#5B6478; --faint:#667085;
-  --cobalt:#2447F0; --cobalt-deep:#1631B8; --cobalt-tint:#EDF1FF;
-  --amber:#B45309; --amber-tint:#FFF4E2;
-  --green:#0B7A4B; --green-tint:#E5F6EE;
-  --red:#B4231F; --red-tint:#FDEBEA;
-  --line:#E4E8F1; --line-soft:#EDF0F6;
-  --shadow-s:0 1px 2px rgba(16,24,43,.05),0 2px 8px rgba(16,24,43,.04);
-  --shadow-m:0 2px 6px rgba(16,24,43,.06),0 12px 32px rgba(36,71,240,.08);
-  --r:14px;
-  --nav-h:calc(58px + env(safe-area-inset-bottom,0px));
+  --canvas:#F5F5F7; --surface:#FFFFFF; --ink:#1D1D1F; --muted:#6E6E73; --faint:#86868B;
+  --cobalt:#2447F0; --cobalt-deep:#1B36C4; --cobalt-tint:#EEF2FF;
+  --amber:#B25E09; --amber-tint:#FFF3E3;
+  --green:#1B7F4B; --green-tint:#E7F6EE;
+  --red:#C62828; --red-tint:#FDECEC;
+  --line:rgba(0,0,0,.08); --line-soft:rgba(60,60,67,.10); --hair:rgba(60,60,67,.14);
+  --shadow-s:0 1px 1px rgba(0,0,0,.02),0 2px 6px rgba(0,0,0,.04);
+  --shadow-m:0 2px 4px rgba(0,0,0,.03),0 12px 32px rgba(0,0,0,.06);
+  --r:16px;
+  --nav-h:calc(56px + env(safe-area-inset-bottom,0px));
+  --font:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro Display","Helvetica Neue",Inter,system-ui,Arial,sans-serif;
 }
 *{margin:0;padding:0;box-sizing:border-box}
 html{background:var(--canvas);scroll-behavior:smooth}
-body{
-  font:14px/1.5 "Inter",system-ui,sans-serif;color:var(--ink);
-  background:
-    radial-gradient(900px 480px at 82% -140px, rgba(36,71,240,.07), transparent 62%),
-    var(--canvas);
-  min-height:100vh;
-  padding-bottom:var(--nav-h);
-  -webkit-tap-highlight-color:transparent;
-}
-.wrap{max-width:1080px;margin:0 auto;padding:0 16px 48px}
-section{padding-top:28px;scroll-margin-top:64px}
+body{font:15px/1.47 var(--font);color:var(--ink);background:var(--canvas);min-height:100vh;padding-bottom:var(--nav-h);
+  -webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent;font-feature-settings:"cv11","ss01";letter-spacing:-.005em}
+.wrap{max-width:1040px;margin:0 auto;padding:0 16px 48px}
+section{padding-top:34px;scroll-margin-top:64px}
+h1,h2,h3,h4{letter-spacing:-.015em}
+.num,.kpi .n,.mv,.gk .n,.qslot,.rv-bs,.gcol .gn,.cal .dn{font-variant-numeric:tabular-nums}
 
 /* ---------- app bar ---------- */
-.appbar{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.85);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
-.appbar-in{max-width:1080px;margin:0 auto;padding:0 16px;display:flex;align-items:center;gap:11px;height:54px}
-.mark{width:28px;height:28px;border-radius:8px;background:linear-gradient(145deg,#3D5CFF,#1631B8);box-shadow:inset 0 1px 0 rgba(255,255,255,.35),0 4px 10px rgba(36,71,240,.30);position:relative;flex:none}
-.mark::after{content:"";position:absolute;inset:6px;border-radius:4px;border:1.5px solid rgba(255,255,255,.85);border-bottom-color:rgba(255,255,255,.25);border-right-color:rgba(255,255,255,.25)}
-.wordmark{font-weight:700;font-size:14px;letter-spacing:.12em}
-.wordmark small{display:block;font-weight:500;font-size:9.5px;letter-spacing:.18em;color:var(--faint)}
+.appbar{position:sticky;top:0;z-index:50;background:rgba(245,245,247,.78);backdrop-filter:saturate(180%) blur(20px);-webkit-backdrop-filter:saturate(180%) blur(20px);border-bottom:1px solid var(--line)}
+.appbar-in{max-width:1040px;margin:0 auto;padding:0 16px;display:flex;align-items:center;gap:10px;height:52px}
+.mark{width:26px;height:26px;border-radius:8px;background:linear-gradient(145deg,#3D5CFF,#1B36C4);position:relative;flex:none}
+.mark::after{content:"";position:absolute;inset:6px;border-radius:4px;border:1.5px solid rgba(255,255,255,.9);border-bottom-color:rgba(255,255,255,.3);border-right-color:rgba(255,255,255,.3)}
+.wordmark{font-weight:600;font-size:15px;letter-spacing:-.01em}
+.wordmark small{display:none}
 .spacer{flex:1}
-.live{display:inline-flex;align-items:center;gap:7px;font:500 10.5px/1 "JetBrains Mono",monospace;letter-spacing:.06em;color:var(--green);background:var(--green-tint);border:1px solid #CBEBDB;border-radius:999px;padding:6px 11px;white-space:nowrap}
-.live.snap{color:var(--amber);background:var(--amber-tint);border-color:#F2DFC2}
-.live i{width:6px;height:6px;border-radius:50%;background:currentColor;animation:pulse 2.4s infinite}
-@keyframes pulse{0%,100%{box-shadow:0 0 0 3px rgba(11,122,75,.15)}50%{box-shadow:0 0 0 6px rgba(11,122,75,.05)}}
+.live{display:inline-flex;align-items:center;gap:6px;font:500 12px/1 var(--font);color:var(--green);background:var(--green-tint);border-radius:999px;padding:6px 10px;white-space:nowrap;text-transform:none}
+.live.snap{color:var(--muted);background:rgba(60,60,67,.08)}
+.live i{width:6px;height:6px;border-radius:50%;background:currentColor}
 
 /* ---------- briefing ---------- */
-.briefing{padding:22px 0 6px}
-.eyebrow{font:600 10.5px/1 "JetBrains Mono",monospace;letter-spacing:.2em;color:var(--cobalt);text-transform:uppercase;margin-bottom:12px}
-.voice{font:italic 500 clamp(24px,5.6vw,36px)/1.18 "Fraunces",serif;letter-spacing:-.01em;max-width:640px}
-.voice b{color:var(--cobalt);font-weight:500}
-.brief-summary{margin-top:10px;max-width:560px;font-size:14.5px;line-height:1.6;color:var(--muted)}
-.data-notice{display:none;margin-top:12px;padding:10px 14px;border-radius:8px;background:var(--amber-tint);color:var(--amber);font-size:13px;max-width:560px}
+.briefing{padding:26px 0 4px}
+.eyebrow{font:400 13px/1.3 var(--font);color:var(--faint);margin-bottom:8px;text-transform:none;letter-spacing:0}
+.voice{font:600 clamp(26px,5vw,32px)/1.15 var(--font);letter-spacing:-.022em;max-width:640px}
+.voice b{color:var(--cobalt);font-weight:600}
+.brief-summary{margin-top:8px;max-width:600px;font-size:15px;line-height:1.5;color:var(--muted)}
+.data-notice{display:none;margin-top:12px;padding:10px 14px;border-radius:12px;background:var(--amber-tint);color:var(--amber);font-size:13px;max-width:560px}
 .data-notice.show{display:block}
-.kpis{display:flex;gap:10px;margin:18px -16px 0;padding:2px 16px 8px;overflow-x:auto;scrollbar-width:none}
+.kpis{display:flex;gap:8px;margin:18px -16px 0;padding:2px 16px 6px;overflow-x:auto;scrollbar-width:none}
 .kpis::-webkit-scrollbar{display:none}
-.kpi{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:12px 16px;min-width:118px;flex:none;box-shadow:var(--shadow-s)}
-.kpi .n{font:500 22px/1.1 "JetBrains Mono",monospace;letter-spacing:-.02em}
-.kpi .l{font-size:11.5px;color:var(--muted);margin-top:3px;white-space:nowrap}
+.kpi{background:var(--surface);border-radius:14px;padding:12px 14px;min-width:124px;flex:none;box-shadow:var(--shadow-s)}
+.kpi .n{font:600 24px/1.1 var(--font);letter-spacing:-.02em}
+.kpi .l{font-size:12.5px;color:var(--muted);margin-top:4px;white-space:nowrap}
 .kpi.alert .n{color:var(--amber)}
 .kpi.go .n{color:var(--green)}
 
 /* ---------- section heads ---------- */
-.sec-head{display:flex;align-items:baseline;gap:11px;margin-bottom:14px;flex-wrap:wrap}
-.sec-head h2{font-size:16px;font-weight:600;letter-spacing:-.01em}
-.sec-head .count{font:500 11px/1 "JetBrains Mono",monospace;color:var(--cobalt);background:var(--cobalt-tint);border-radius:999px;padding:5px 9px}
-.sec-head .hint{font-size:12px;color:var(--faint);flex-basis:100%}
+.sec-head{display:flex;align-items:baseline;gap:8px;margin-bottom:12px;flex-wrap:wrap}
+.sec-head h2{font-size:21px;font-weight:600;letter-spacing:-.02em}
+.sec-head .count{font:400 14px/1 var(--font);color:var(--faint);background:none;padding:0}
+.sec-head .hint{font-size:13px;color:var(--faint);flex-basis:100%}
 @media(min-width:720px){.sec-head .hint{flex-basis:auto;margin-left:auto}}
 
-/* ---------- approval queue (posts needing sign-off) ---------- */
+/* ---------- approval queue ---------- */
 .queue{display:grid;gap:12px}
-.qcard{background:var(--surface);border:1px solid #EAD9BC;border-radius:var(--r);box-shadow:var(--shadow-s);padding:16px;display:grid;gap:12px}
+.qcard{background:var(--surface);border-radius:var(--r);box-shadow:var(--shadow-s);padding:16px;display:grid;gap:12px;cursor:pointer}
 .qtop{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
-.pf{width:26px;height:26px;border-radius:8px;display:grid;place-items:center;font:600 10px/1 "Inter";color:#fff;flex:none}
+.pf{width:24px;height:24px;border-radius:7px;display:grid;place-items:center;font:600 10px/1 var(--font);color:#fff;flex:none}
 .pf.ig{background:linear-gradient(135deg,#7A3BFF,#E1306C)}
 .pf.fb{background:#1877F2}
 .pf.li{background:#0A66C2}
-.qbrand{font-weight:600;font-size:12.5px}
-.qslot{font:500 11.5px/1 "JetBrains Mono",monospace;color:var(--faint);margin-left:auto}
-.qhook{font-size:15px;line-height:1.5;font-weight:500}
-.qpillar{font-size:12px;color:var(--faint)}
+.qbrand{font-weight:600;font-size:13px}
+.qslot{font-size:13px;color:var(--faint);margin-left:auto}
+.qhook{font-size:16px;line-height:1.4;font-weight:600;letter-spacing:-.01em}
+.qpillar{font-size:13px;color:var(--faint)}
 .qbtns{display:flex;gap:10px}
-.abtn{flex:1;font:600 14px/1 "Inter";border-radius:11px;padding:14px 12px;text-align:center;cursor:pointer;border:1px solid transparent;transition:filter .15s,opacity .15s;user-select:none}
-.abtn:active{filter:brightness(.94)}
-.abtn.approve{background:var(--cobalt);color:#fff;box-shadow:0 4px 12px rgba(36,71,240,.28)}
-.abtn.skip{background:var(--surface);color:var(--muted);border-color:var(--line)}
+.abtn{flex:1;font:600 15px/1 var(--font);border-radius:980px;padding:13px 12px;text-align:center;cursor:pointer;border:0;transition:filter .15s,opacity .15s,transform .1s;user-select:none}
+.abtn:active{transform:scale(.985)}
+.abtn.approve{background:var(--cobalt);color:#fff}
+.abtn.skip{background:rgba(60,60,67,.08);color:var(--ink)}
 .abtn.busy{opacity:.5;pointer-events:none}
-.queue-empty{background:var(--green-tint);border:1px solid #CBEBDB;border-radius:var(--r);padding:18px;color:var(--green);font-size:14px;font-weight:500}
+.queue-empty{background:var(--surface);border-radius:var(--r);padding:16px 18px;color:var(--muted);font-size:14.5px;box-shadow:var(--shadow-s)}
+.qmedia{margin:-16px -16px 0;border-radius:var(--r) var(--r) 0 0;overflow:hidden;aspect-ratio:16/8;background:rgba(60,60,67,.06);position:relative}
+.qmedia img{width:100%;height:100%;object-fit:cover;display:block}
+.qmedia .qtxt{position:absolute;inset:0;display:grid;place-items:center;padding:18px;text-align:center;font:600 17px/1.35 var(--font);color:#fff;letter-spacing:-.01em}
+.review-cta{display:flex;align-items:center;gap:12px;background:var(--cobalt);border-radius:var(--r);padding:14px 16px;color:#fff;cursor:pointer;user-select:none;margin-bottom:12px}
+.review-cta:active{filter:brightness(.96)}
+.review-cta .rc-stack{display:flex;flex:none}
+.review-cta .rc-stack img,.review-cta .rc-stack .rc-ph{width:40px;height:40px;border-radius:10px;object-fit:cover;border:2px solid rgba(255,255,255,.9);margin-left:-12px;background:rgba(255,255,255,.25)}
+.review-cta .rc-stack :first-child{margin-left:0}
+.review-cta .rc-t{flex:1;min-width:0}
+.review-cta .rc-t b{display:block;font-size:15px;font-weight:600}
+.review-cta .rc-t span{font-size:13px;opacity:.85}
+.review-cta .rc-go{font:600 14px/1 var(--font);background:rgba(255,255,255,.18);border-radius:980px;padding:10px 14px;white-space:nowrap}
 
-/* ---------- decisions ---------- */
-.deck{display:grid;gap:12px}
-.rec{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px;box-shadow:0 1px 2px rgba(16,24,43,.04);display:grid;gap:10px;position:relative}
-.rec.lead{border-color:#B9C7FA;box-shadow:0 4px 16px rgba(16,24,43,.06)}
-.rec.lead::before{content:"NEXT BEST ACTION";position:absolute;top:-9px;left:16px;font:600 9px/1 "JetBrains Mono",monospace;letter-spacing:.16em;color:#fff;background:var(--cobalt);padding:4px 8px;border-radius:5px}
-.rec-top{display:flex;align-items:center;gap:9px}
-.prio{font:600 10.5px/1 "JetBrains Mono",monospace;letter-spacing:.08em;border-radius:7px;padding:6px 8px;flex:none}
-.prio.P0{color:var(--red);background:var(--red-tint)}
-.prio.P1{color:var(--amber);background:var(--amber-tint)}
-.prio.P2{color:var(--muted);background:var(--line-soft)}
-.rec h3{font-size:15px;font-weight:600;letter-spacing:-.01em;line-height:1.35}
-.rec .why{font-size:13.5px;color:var(--muted);line-height:1.55}
-.rec .impact{font-size:12px;color:var(--green);display:flex;align-items:center;gap:6px}
-.rec .impact::before{content:"↗";font-weight:700}
+/* ---------- recommendations ---------- */
+.deck{display:grid;gap:10px}
+.rec{background:var(--surface);border-radius:var(--r);padding:16px;box-shadow:var(--shadow-s);display:grid;gap:8px;position:relative}
+.rec.lead{box-shadow:var(--shadow-m)}
+.rec-top{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.prio{display:inline-flex;align-items:center;gap:6px;font:500 12.5px/1 var(--font);color:var(--muted)}
+.prio::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--faint)}
+.prio.P0::before{background:var(--red)}
+.prio.P1::before{background:#E08A0C}
+.rec h3{font-size:16px;font-weight:600;letter-spacing:-.012em;line-height:1.35}
+.rec .why{font-size:14px;color:var(--muted);line-height:1.5}
+.rec .impact{font-size:13px;color:var(--cobalt)}
 .rec .qbtns .abtn{padding:12px}
-.rec .state{font:500 10.5px/1 "JetBrains Mono",monospace;color:var(--faint);letter-spacing:.05em}
-.rec .src{margin-left:auto;font:500 10px/1 "JetBrains Mono",monospace;color:var(--cobalt);background:var(--cobalt-tint);border-radius:5px;padding:4px 6px;white-space:nowrap}
-.pill.failed{color:var(--red);background:var(--red-tint)}
-.secondary-decisions{margin-top:14px}
-.secondary-decisions summary{padding:11px 0;font-size:14px;color:var(--muted);cursor:pointer;user-select:none}
+.rec .state{font:400 12px/1 var(--font);color:var(--faint)}
+.rec .src{margin-left:auto;font:500 12px/1 var(--font);color:var(--faint)}
+.secondary-decisions{margin-top:12px}
+.secondary-decisions summary{padding:10px 0;font-size:14px;color:var(--cobalt);cursor:pointer;user-select:none;list-style:none}
+.secondary-decisions summary::-webkit-details-marker{display:none}
 .secondary-decisions[open] summary{margin-bottom:8px}
 
-/* ---------- growth (month over month) ---------- */
+/* ---------- growth ---------- */
 .growth{display:grid;gap:12px}
-.gcard{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow-s);padding:16px;display:grid;gap:12px}
+.gcard{background:var(--surface);border-radius:var(--r);box-shadow:var(--shadow-s);padding:16px;display:grid;gap:12px}
 .gcard .gh{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
-.gcard .gh .bn{font-weight:600;font-size:14px}
-.gcard .gh .since{font:500 11px/1 "JetBrains Mono",monospace;color:var(--faint)}
-.gcard .gh .best{margin-left:auto;font:500 11px/1 "Inter";color:var(--cobalt);background:var(--cobalt-tint);border-radius:999px;padding:5px 9px}
+.gcard .gh .bn{font-weight:600;font-size:15px}
+.gcard .gh .since{font-size:13px;color:var(--faint)}
+.gcard .gh .best{margin-left:auto;font-size:13px;color:var(--cobalt)}
 .gkpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(118px,1fr));gap:8px}
-.gk{background:var(--canvas);border:1px solid var(--line-soft);border-radius:11px;padding:10px 12px}
-.gk .n{font:500 19px/1.1 "JetBrains Mono",monospace;letter-spacing:-.02em}
-.gk .l{font-size:11px;color:var(--muted);margin-top:4px;white-space:nowrap}
-.gk .dl{display:inline-block;font:600 10.5px/1 "JetBrains Mono",monospace;border-radius:6px;padding:4px 6px;margin-top:6px}
+.gk{background:var(--canvas);border-radius:12px;padding:10px 12px}
+.gk .n{font:600 20px/1.1 var(--font);letter-spacing:-.02em}
+.gk .l{font-size:12px;color:var(--muted);margin-top:4px;white-space:nowrap}
+.gk .dl{display:inline-block;font:500 12px/1 var(--font);border-radius:6px;padding:4px 6px;margin-top:6px}
 .gk .dl.up{color:var(--green);background:var(--green-tint)}
 .gk .dl.dn{color:var(--red);background:var(--red-tint)}
-.gk .dl.flat{color:var(--faint);background:var(--line-soft)}
+.gk .dl.flat{color:var(--faint);background:rgba(60,60,67,.08)}
 .spark{width:100%;height:56px;display:block}
 .spark .ln{fill:none;stroke:var(--cobalt);stroke-width:1.8}
-.spark .ar{fill:rgba(36,71,240,.10)}
+.spark .ar{fill:rgba(36,71,240,.08)}
 .spark .st{stroke:var(--green);stroke-width:1;stroke-dasharray:3 3}
-.gfoot{font:500 11px/1.5 "JetBrains Mono",monospace;color:var(--faint);display:flex;gap:12px;flex-wrap:wrap}
-.gflight{width:26px;height:3px;border-radius:2px;background:var(--cobalt);margin-top:-2px}
-.gflight.google{background:var(--green)}
-.gflight.approved{opacity:.4}
-.gflight.paused,.gflight.ended{background:var(--faint);opacity:.5}
-.gday-detail .gdp.camp{background:var(--cobalt-tint);color:var(--cobalt-deep)}
+.gfoot{font-size:12px;color:var(--faint);display:flex;gap:12px;flex-wrap:wrap}
 
-/* ---------- pipeline ---------- */
-.pipeline{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow-s);overflow:hidden}
-.brand-group + .brand-group{border-top:1px solid var(--line)}
-.brand-head{display:flex;align-items:center;gap:9px;padding:13px 16px;background:linear-gradient(to bottom,#FAFBFE,#F6F8FC);border-bottom:1px solid var(--line-soft)}
-.brand-dot{width:9px;height:9px;border-radius:3px;background:var(--cobalt);flex:none}
-.brand-head .bn{font-weight:600;font-size:13px}
-.brand-head .bu{font:500 11px/1 "JetBrains Mono",monospace;color:var(--faint);overflow:hidden;text-overflow:ellipsis}
-.post{display:grid;grid-template-columns:26px 1fr auto;gap:10px;align-items:center;padding:12px 16px;border-bottom:1px solid var(--line-soft)}
-.post:last-child{border-bottom:0}
-.hook{font-size:13.5px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.hook small{display:block;font:500 11px/1.5 "JetBrains Mono",monospace;color:var(--faint)}
-.pill{font:600 11px/1.2 "Inter";letter-spacing:.02em;border-radius:999px;padding:5px 9px;white-space:nowrap}
+/* ---------- pipeline (grouped list) ---------- */
+.pipeline{background:var(--surface);border-radius:var(--r);box-shadow:var(--shadow-s);overflow:hidden}
+.brand-group + .brand-group{border-top:8px solid var(--canvas)}
+.brand-head{display:flex;align-items:baseline;gap:8px;padding:14px 16px 8px}
+.brand-dot{display:none}
+.brand-head .bn{font-weight:600;font-size:15px}
+.brand-head .bu{font-size:13px;color:var(--faint);overflow:hidden;text-overflow:ellipsis}
+.post{display:grid;grid-template-columns:24px 1fr auto;gap:10px;align-items:center;padding:11px 16px;position:relative}
+.post::after{content:"";position:absolute;left:50px;right:0;bottom:0;height:1px;background:var(--hair)}
+.post:last-child::after{display:none}
+.hook{font-size:14.5px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hook small{display:block;font-size:12.5px;color:var(--faint);margin-top:1px}
+.pill{font:500 12px/1.2 var(--font);border-radius:6px;padding:4px 7px;white-space:nowrap;text-transform:lowercase}
 .pill.pending_approval{color:var(--amber);background:var(--amber-tint)}
 .pill.approved{color:var(--cobalt);background:var(--cobalt-tint)}
 .pill.scheduled{color:#5B21B6;background:#F1EBFF}
 .pill.published{color:var(--green);background:var(--green-tint)}
-.pill.draft{color:var(--muted);background:var(--line-soft)}
-.pill.skipped{color:var(--faint);background:var(--line-soft);text-decoration:line-through}
+.pill.draft{color:var(--muted);background:rgba(60,60,67,.08)}
+.pill.skipped{color:var(--faint);background:rgba(60,60,67,.06);text-decoration:line-through}
+.pill.failed{color:var(--red);background:var(--red-tint)}
 
 /* ---------- rail cards ---------- */
 .cols{display:grid;gap:20px}
 @media(min-width:900px){.cols{grid-template-columns:1fr 320px;align-items:start}}
-.rail{display:grid;gap:16px}
-.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow-s);padding:16px}
-.card h4{font-size:11.5px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);margin-bottom:12px}
-.conn{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--line-soft)}
+.rail{display:grid;gap:14px}
+.card{background:var(--surface);border-radius:var(--r);box-shadow:var(--shadow-s);padding:14px 16px}
+.card h4{font-size:13px;font-weight:600;color:var(--muted);margin-bottom:8px;letter-spacing:0;text-transform:none}
+.sig-h{font-size:12.5px;color:var(--faint);margin:10px 0 2px}
+.sig-h:first-of-type{margin-top:0}
+.conn{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--hair)}
 .conn:last-child{border-bottom:0}
-.conn .cn{font-weight:600;font-size:13px}
-.conn .cb{font-size:12px;color:var(--faint)}
-.conn .cs{margin-left:auto;font:600 10.5px/1.2 "Inter";border-radius:999px;padding:5px 9px;white-space:nowrap}
+.conn .cn{font-weight:500;font-size:14px}
+.conn .cb{font-size:12.5px;color:var(--faint)}
+.conn .cs{margin-left:auto;font:500 12px/1.2 var(--font);border-radius:6px;padding:4px 7px;white-space:nowrap}
 .conn .cs.not_connected{color:var(--amber);background:var(--amber-tint)}
 .conn .cs.connected{color:var(--green);background:var(--green-tint)}
-.conn .cs.planned{color:var(--muted);background:var(--line-soft)}
-.mrow{display:flex;justify-content:space-between;align-items:baseline;padding:7px 0;border-bottom:1px solid var(--line-soft)}
+.conn .cs.planned{color:var(--muted);background:rgba(60,60,67,.08)}
+.mrow{display:flex;justify-content:space-between;align-items:baseline;gap:10px;padding:7px 0;border-bottom:1px solid var(--hair)}
 .mrow:last-child{border-bottom:0}
-.mrow .ml{font-size:12.5px;color:var(--muted)}
-.mrow .mv{font:500 13px/1 "JetBrains Mono",monospace}
-.zero{font-size:12px;color:var(--faint);background:var(--line-soft);border-radius:10px;padding:12px 14px;margin-top:12px;line-height:1.55}
+.mrow .ml{font-size:13.5px;color:var(--muted)}
+.mrow .mv{font-size:13.5px;font-weight:500}
+.zero{font-size:12.5px;color:var(--faint);background:var(--canvas);border-radius:10px;padding:10px 12px;margin-top:10px;line-height:1.5}
 
-/* ---------- fleet ---------- */
-.fleet{display:flex;gap:12px;margin:0 -16px;padding:2px 16px 10px;overflow-x:auto;scrollbar-width:none}
-.fleet::-webkit-scrollbar{display:none}
-@media(min-width:900px){.fleet{display:grid;grid-template-columns:repeat(auto-fit,minmax(165px,1fr));margin:0;padding:0;overflow:visible}}
-.bot{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px;box-shadow:var(--shadow-s);display:flex;flex-direction:column;gap:9px;min-width:200px;flex:none}
-.b-top{display:flex;align-items:center;gap:10px}
-.b-av{width:46px;height:46px;flex:none;position:relative;display:grid;place-items:center;font:600 13px/1 "JetBrains Mono",monospace;color:transparent;filter:drop-shadow(0 4px 8px rgba(16,24,43,.2))}
-.b-av.noimg{border-radius:13px;background:radial-gradient(120% 120% at 30% 20%,#33509F 0%,#0B1230 70%);border:1px solid rgba(36,71,240,.35);color:#B9C9FF;filter:none;overflow:hidden}
-.b-av img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain}
-.b-name{font-weight:600;font-size:13px}
-.b-role{font-size:11px;color:var(--faint);margin-top:1px}
-.b-state{margin-left:auto;width:8px;height:8px;border-radius:50%;flex:none;align-self:flex-start;margin-top:3px}
-.b-state.active{background:var(--green);animation:pulse 2.4s infinite}
-.b-state.standby{background:var(--amber)}
-.b-feed{min-height:32px;border-top:1px solid var(--line-soft);padding-top:8px}
-.b-line{font:500 11px/1.5 "JetBrains Mono",monospace;color:var(--muted);display:flex;gap:6px;align-items:baseline;transition:opacity .35s,transform .35s}
+/* ---------- behind the scenes (quiet list) ---------- */
+.fleet{background:var(--surface);border-radius:var(--r);box-shadow:var(--shadow-s);overflow:hidden}
+.bot{display:flex;align-items:center;gap:12px;padding:11px 16px;position:relative}
+.bot::after{content:"";position:absolute;left:56px;right:0;bottom:0;height:1px;background:var(--hair)}
+.bot:last-child::after{display:none}
+.tini{width:30px;height:30px;border-radius:50%;background:rgba(60,60,67,.08);color:var(--ink);display:grid;place-items:center;font:600 13px/1 var(--font);flex:none}
+.bot.standby .tini{color:var(--faint)}
+.tmain{flex:1;min-width:0}
+.b-name{font-weight:500;font-size:14.5px}
+.b-role{font-size:13px;color:var(--faint);font-weight:400;margin-left:6px}
+.b-feed{min-height:0}
+.b-line{font-size:13px;color:var(--muted);transition:opacity .35s,transform .35s;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .b-line.out{opacity:0;transform:translateY(-4px)}
-.b-line .tick{color:var(--cobalt);flex:none}
-.bot.standby .b-line .tick{color:var(--amber)}
+.b-state{width:8px;height:8px;border-radius:50%;flex:none}
+.b-state.active{background:var(--green)}
+.b-state.standby{background:#C7C7CC}
 
-/* ---------- queue thumbnails + review CTA ---------- */
-.qcard{cursor:pointer}
-.qmedia{margin:-16px -16px 0;border-radius:var(--r) var(--r) 0 0;overflow:hidden;aspect-ratio:16/8;background:var(--line-soft);position:relative}
-.qmedia img{width:100%;height:100%;object-fit:cover;display:block}
-.qmedia .qtxt{position:absolute;inset:0;display:grid;place-items:center;padding:18px;text-align:center;font:italic 500 17px/1.35 "Fraunces",serif;color:#fff}
-.review-cta{display:flex;align-items:center;gap:12px;background:linear-gradient(135deg,#2447F0,#1631B8);border-radius:var(--r);padding:16px;color:#fff;box-shadow:0 8px 24px rgba(36,71,240,.35);cursor:pointer;user-select:none;margin-bottom:12px}
-.review-cta:active{filter:brightness(.95)}
-.review-cta .rc-stack{display:flex;flex:none}
-.review-cta .rc-stack img,.review-cta .rc-stack .rc-ph{width:44px;height:44px;border-radius:10px;object-fit:cover;border:2px solid rgba(255,255,255,.85);margin-left:-14px;background:linear-gradient(135deg,#6B7FD7,#3D5CFF)}
-.review-cta .rc-stack :first-child{margin-left:0}
-.review-cta .rc-t{flex:1;min-width:0}
-.review-cta .rc-t b{display:block;font-size:15px}
-.review-cta .rc-t span{font-size:12px;opacity:.85}
-.review-cta .rc-go{font:600 13px/1 "Inter";background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.3);border-radius:10px;padding:11px 14px;white-space:nowrap}
-
-/* ---------- reviewer (tinder-style full-screen) ---------- */
-.reviewer{position:fixed;inset:0;z-index:100;background:rgba(10,13,26,.62);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);display:none;flex-direction:column;overscroll-behavior:contain}
+/* ---------- reviewer ---------- */
+.reviewer{position:fixed;inset:0;z-index:100;background:rgba(0,0,0,.5);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);display:none;flex-direction:column;overscroll-behavior:contain}
 .reviewer.open{display:flex}
 .rv-bar{display:flex;align-items:center;gap:10px;padding:calc(10px + env(safe-area-inset-top,0px)) 16px 10px;color:#fff}
-.rv-close{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);display:grid;place-items:center;font-size:16px;cursor:pointer;color:#fff;flex:none}
-.rv-prog{font:500 12px/1 "JetBrains Mono",monospace;letter-spacing:.08em;opacity:.85}
+.rv-close{width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.16);display:grid;place-items:center;font-size:15px;cursor:pointer;color:#fff;flex:none}
+.rv-prog{font-size:13px;opacity:.85}
 .rv-dots{display:flex;gap:5px;margin-left:auto}
-.rv-dots i{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.28)}
-.rv-dots i.done{background:#4ADE80}.rv-dots i.skip{background:rgba(255,255,255,.55)}.rv-dots i.cur{background:#fff;transform:scale(1.25)}
+.rv-dots i{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.3)}
+.rv-dots i.done{background:#34C759}.rv-dots i.skip{background:rgba(255,255,255,.6)}.rv-dots i.cur{background:#fff;transform:scale(1.25)}
 .rv-stage{flex:1;position:relative;margin:4px 14px;min-height:0}
-.rv-card{position:absolute;inset:0;max-width:430px;margin:0 auto;background:var(--surface);border-radius:22px;box-shadow:0 24px 64px rgba(5,8,20,.5);display:flex;flex-direction:column;overflow:hidden;touch-action:pan-y;will-change:transform}
-.rv-card.under{transform:scale(.94) translateY(12px);filter:brightness(.9);pointer-events:none}
-.rv-card.under2{transform:scale(.88) translateY(22px);filter:brightness(.8);pointer-events:none}
+.rv-card{position:absolute;inset:0;max-width:430px;margin:0 auto;background:var(--surface);border-radius:22px;box-shadow:0 24px 64px rgba(0,0,0,.35);display:flex;flex-direction:column;overflow:hidden;touch-action:pan-y;will-change:transform}
+.rv-card.under{transform:scale(.94) translateY(12px);filter:brightness(.92);pointer-events:none}
+.rv-card.under2{transform:scale(.88) translateY(22px);filter:brightness(.84);pointer-events:none}
 .rv-card.fly{transition:transform .32s ease-out,opacity .32s}
 .rv-card.snap{transition:transform .22s ease-out}
-.rv-head{display:flex;align-items:center;gap:9px;padding:11px 14px;border-bottom:1px solid var(--line-soft);flex:none}
-.rv-av{width:34px;height:34px;border-radius:50%;flex:none;display:grid;place-items:center;font:600 13px/1 "Inter";color:#fff}
-.rv-bn{font-weight:600;font-size:13px}
-.rv-bs{font:500 10.5px/1.4 "JetBrains Mono",monospace;color:var(--faint)}
+.rv-head{display:flex;align-items:center;gap:9px;padding:12px 14px;border-bottom:1px solid var(--hair);flex:none}
+.rv-av{width:32px;height:32px;border-radius:50%;flex:none;display:grid;place-items:center;font:600 13px/1 var(--font);color:#fff}
+.rv-bn{font-weight:600;font-size:14px}
+.rv-bs{font-size:12px;color:var(--faint)}
 .rv-plat{margin-left:auto}
 .rv-media{position:relative;flex:none;aspect-ratio:1/1;max-height:46vh;background:#0E1428;overflow:hidden}
 .rv-media img{width:100%;height:100%;object-fit:cover;display:block}
-.rv-media .rv-txtvis{position:absolute;inset:0;display:grid;place-items:center;padding:26px;text-align:center;font:italic 500 clamp(19px,5.5vw,26px)/1.35 "Fraunces",serif;color:#fff}
-.rv-media .genlabel{position:absolute;left:10px;bottom:10px;font:500 9.5px/1 "JetBrains Mono",monospace;letter-spacing:.1em;color:rgba(255,255,255,.75);background:rgba(10,13,26,.45);border-radius:6px;padding:5px 8px;backdrop-filter:blur(4px)}
+.rv-media .rv-txtvis{position:absolute;inset:0;display:grid;place-items:center;padding:26px;text-align:center;font:600 clamp(19px,5.5vw,26px)/1.3 var(--font);color:#fff;letter-spacing:-.015em}
+.rv-media .genlabel{position:absolute;left:10px;bottom:10px;font:500 11px/1 var(--font);color:rgba(255,255,255,.85);background:rgba(0,0,0,.35);border-radius:6px;padding:5px 8px;backdrop-filter:blur(4px)}
 .rv-body{padding:12px 16px 8px;overflow-y:auto;flex:1;min-height:0}
-.rv-cap{font-size:13.5px;line-height:1.6;white-space:pre-wrap;word-break:break-word}
+.rv-cap{font-size:14px;line-height:1.55;white-space:pre-wrap;word-break:break-word}
 .rv-meta{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px;padding-bottom:6px}
-.rv-chip{font:500 10.5px/1 "JetBrains Mono",monospace;color:var(--muted);background:var(--line-soft);border-radius:999px;padding:6px 10px}
-.rv-stamp{position:absolute;top:26px;font:800 26px/1 "Inter";letter-spacing:.12em;padding:8px 16px;border:3.5px solid;border-radius:12px;opacity:0;transform:rotate(-14deg);pointer-events:none;z-index:5}
-.rv-stamp.ok{left:18px;color:#22C55E;border-color:#22C55E;background:rgba(255,255,255,.85)}
-.rv-stamp.no{right:18px;color:#EF4444;border-color:#EF4444;background:rgba(255,255,255,.85);transform:rotate(14deg)}
-.rv-actions{display:flex;align-items:center;justify-content:center;gap:26px;padding:14px 0 calc(18px + env(safe-area-inset-bottom,0px));flex:none}
-.rv-btn{width:62px;height:62px;border-radius:50%;display:grid;place-items:center;font-size:24px;cursor:pointer;user-select:none;border:none;transition:transform .12s}
-.rv-btn:active{transform:scale(.9)}
-.rv-btn.skip{background:#fff;color:#EF4444;box-shadow:0 8px 22px rgba(5,8,20,.4)}
-.rv-btn.ok{background:linear-gradient(135deg,#22C55E,#0B7A4B);color:#fff;box-shadow:0 8px 22px rgba(34,197,94,.45);width:72px;height:72px;font-size:28px}
-.rv-btn.later{background:rgba(255,255,255,.14);color:#fff;border:1px solid rgba(255,255,255,.25);width:48px;height:48px;font-size:15px}
+.rv-chip{font:500 12px/1 var(--font);color:var(--muted);background:rgba(60,60,67,.08);border-radius:999px;padding:6px 10px}
+.rv-stamp{position:absolute;top:26px;font:700 22px/1 var(--font);letter-spacing:.06em;padding:8px 14px;border:3px solid;border-radius:12px;opacity:0;transform:rotate(-12deg);pointer-events:none;z-index:5}
+.rv-stamp.ok{left:18px;color:#34C759;border-color:#34C759;background:rgba(255,255,255,.88)}
+.rv-stamp.no{right:18px;color:#FF3B30;border-color:#FF3B30;background:rgba(255,255,255,.88);transform:rotate(12deg)}
+.rv-actions{display:flex;align-items:center;justify-content:center;gap:24px;padding:14px 0 calc(18px + env(safe-area-inset-bottom,0px));flex:none}
+.rv-btn{width:60px;height:60px;border-radius:50%;display:grid;place-items:center;font-size:22px;cursor:pointer;user-select:none;border:none;transition:transform .12s}
+.rv-btn:active{transform:scale(.92)}
+.rv-btn.skip{background:#fff;color:#FF3B30;box-shadow:0 8px 22px rgba(0,0,0,.3)}
+.rv-btn.ok{background:var(--cobalt);color:#fff;box-shadow:0 8px 22px rgba(36,71,240,.4);width:70px;height:70px;font-size:26px}
+.rv-btn.later{background:rgba(255,255,255,.16);color:#fff;width:46px;height:46px;font-size:15px}
 .rv-empty{position:absolute;inset:0;display:grid;place-items:center;color:#fff;text-align:center;padding:30px}
-.rv-empty .big{font:italic 500 26px/1.3 "Fraunces",serif;margin-bottom:8px}
-.rv-empty .sub{font-size:13.5px;opacity:.8;max-width:280px;margin:0 auto}
+.rv-empty .big{font:600 24px/1.25 var(--font);letter-spacing:-.02em;margin-bottom:8px}
+.rv-empty .sub{font-size:14px;opacity:.85;max-width:280px;margin:0 auto}
 @media(min-width:900px){.rv-stage{margin:10px auto;width:430px}}
 
-/* ---------- plan (month gantt + reminders) ---------- */
-.gantt{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow-s);padding:14px 0 6px;overflow:hidden}
-.gantt-head{display:flex;align-items:center;gap:10px;padding:0 16px 12px}
-.gantt-head .gm{font-weight:600;font-size:14px}
-.gantt-head .gnav{margin-left:auto;display:flex;gap:6px}
-.gantt-head .gnav span{width:30px;height:30px;border-radius:9px;border:1px solid var(--line);display:grid;place-items:center;cursor:pointer;color:var(--muted);font-size:13px;user-select:none}
-.gantt-scroll{overflow-x:auto;scrollbar-width:none;padding:0 16px 8px}
-.gantt-scroll::-webkit-scrollbar{display:none}
-.gantt-grid{display:grid;grid-auto-flow:column;gap:0;min-width:max-content}
-.gcol{width:34px;display:flex;flex-direction:column;align-items:center;gap:5px;padding:4px 0;border-radius:9px}
-.gcol.today{background:var(--cobalt-tint)}
-.gcol .gd{font:500 10px/1 "JetBrains Mono",monospace;color:var(--faint)}
-.gcol.today .gd{color:var(--cobalt);font-weight:700}
-.gcol .gn{font:600 12px/1 "JetBrains Mono",monospace;color:var(--muted)}
-.gcol.today .gn{color:var(--cobalt)}
-.gcell{width:22px;display:flex;flex-direction:column;gap:3px;align-items:center;min-height:40px;padding-top:4px}
-.gdot{width:9px;height:9px;border-radius:3px;flex:none}
-.gdot.pending_approval{background:var(--amber)}
+/* ---------- month calendar ---------- */
+.cal{background:var(--surface);border-radius:var(--r);box-shadow:var(--shadow-s);overflow:hidden}
+.cal-head{display:flex;align-items:center;gap:10px;padding:14px 16px 8px}
+.cal-head .gm{font-weight:600;font-size:17px;letter-spacing:-.015em}
+.cal-head .gnav{margin-left:auto;display:flex;gap:6px}
+.cal-head .gnav span{width:30px;height:30px;border-radius:50%;background:rgba(60,60,67,.08);display:grid;place-items:center;cursor:pointer;color:var(--ink);font-size:16px;user-select:none;line-height:1}
+.cal-dow{display:grid;grid-template-columns:repeat(7,1fr);padding:0 10px}
+.cal-dow span{font:500 11px/1 var(--font);color:var(--faint);text-align:center;padding:8px 0 6px;letter-spacing:.02em;text-transform:uppercase}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;padding:0 10px 10px}
+.gcol{min-height:62px;border-radius:10px;padding:6px 6px 5px;display:flex;flex-direction:column;gap:4px;cursor:pointer;position:relative;transition:background .15s}
+.gcol:hover{background:var(--canvas)}
+.gcol.off{visibility:hidden}
+.gcol.sel{background:var(--cobalt-tint)}
+.gcol .gd{display:none}
+.gcol .gn{font-size:13px;font-weight:500;color:var(--ink);width:24px;height:24px;display:grid;place-items:center;border-radius:50%}
+.gcol.today .gn{background:var(--cobalt);color:#fff;font-weight:600}
+.gcell{display:flex;gap:3px;flex-wrap:wrap;align-items:center;min-height:9px}
+.gdot{width:7px;height:7px;border-radius:50%;flex:none}
+.gdot.pending_approval{background:#E08A0C}
 .gdot.approved,.gdot.scheduled{background:var(--cobalt)}
 .gdot.published{background:var(--green)}
-.gdot.draft{background:#C7CEDD}
-.gdot.skipped{background:#E4E8F1}
-.glegend{display:flex;gap:14px;flex-wrap:wrap;padding:8px 16px 8px;border-top:1px solid var(--line-soft)}
-.glegend span{display:inline-flex;align-items:center;gap:6px;font-size:11px;color:var(--faint)}
-.gday-detail{padding:4px 16px 12px;display:grid;gap:8px}
-.gday-detail .gdp{display:flex;gap:9px;align-items:center;font-size:12.5px;background:var(--line-soft);border-radius:10px;padding:9px 11px}
+.gdot.draft{background:#C7C7CC}
+.gdot.skipped{background:#E5E5EA}
+.gdot.failed{background:var(--red)}
+.gmore{font-size:10px;color:var(--faint);line-height:1}
+.gflights{display:flex;flex-direction:column;gap:2px;margin-top:auto}
+.gflight{height:3px;border-radius:2px;background:var(--cobalt)}
+.gflight.google{background:var(--green)}
+.gflight.approved{opacity:.4}
+.gflight.paused,.gflight.ended{background:#C7C7CC}
+.glegend{display:flex;gap:14px;flex-wrap:wrap;padding:10px 16px 12px;border-top:1px solid var(--hair)}
+.glegend span{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--faint)}
+.gday-detail{padding:4px 12px 12px;display:grid;gap:6px}
+.gday-detail .gdh{font-size:13px;font-weight:600;color:var(--muted);padding:6px 4px 2px}
+.gday-detail .gdp{display:flex;gap:9px;align-items:center;font-size:13.5px;background:var(--canvas);border-radius:10px;padding:9px 11px}
 .gday-detail .gdp .pill{margin-left:auto}
-.reminders{display:grid;gap:10px;margin-top:16px}
-.rem{display:flex;gap:11px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-left:3px solid var(--cobalt);border-radius:11px;padding:12px 14px;box-shadow:var(--shadow-s)}
-.rem.urgent{border-left-color:var(--red)}
-.rem.warn{border-left-color:var(--amber)}
-.rem .ri{font-size:15px;flex:none;margin-top:1px}
-.rem .rt{font-size:13px;font-weight:600;line-height:1.4}
-.rem .rs{font-size:12px;color:var(--muted);margin-top:2px;line-height:1.5}
+.gday-detail .gdp.camp{background:var(--cobalt-tint);color:var(--cobalt-deep)}
+@media(max-width:560px){.gcol{min-height:54px;padding:4px 4px 4px}.gcol .gn{width:22px;height:22px;font-size:12px}}
 
-footer{margin-top:44px;padding-top:16px;border-top:1px solid var(--line);font:500 10.5px/1.6 "JetBrains Mono",monospace;color:var(--faint)}
+/* ---------- reminders (grouped list) ---------- */
+.reminders{background:var(--surface);border-radius:var(--r);box-shadow:var(--shadow-s);overflow:hidden;margin-top:12px}
+.reminders .queue-empty{box-shadow:none;border-radius:0}
+.rem{display:flex;gap:12px;align-items:flex-start;padding:12px 16px;position:relative}
+.rem::after{content:"";position:absolute;left:50px;right:0;bottom:0;height:1px;background:var(--hair)}
+.rem:last-child::after{display:none}
+.rem .ri{width:22px;height:22px;border-radius:50%;border:1.5px solid var(--faint);flex:none;margin-top:1px;font-size:0}
+.rem.urgent .ri{border-color:var(--red)}
+.rem.warn .ri{border-color:#E08A0C}
+.rem .rt{font-size:15px;font-weight:500;line-height:1.4;letter-spacing:-.005em}
+.rem .rs{font-size:13px;color:var(--muted);margin-top:2px;line-height:1.45}
 
-/* ---------- bottom nav (mobile) ---------- */
-.bnav{position:fixed;left:0;right:0;bottom:0;z-index:60;display:flex;background:rgba(255,255,255,.92);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px)}
-.bnav a{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:9px 0 7px;font:500 10px/1 "Inter";color:var(--faint);text-decoration:none;position:relative}
-.bnav a .ico{font-size:17px;line-height:1}
-.bnav a.on{color:var(--cobalt);font-weight:600}
-.bnav a .badge{position:absolute;top:4px;left:calc(50% + 7px);min-width:16px;height:16px;border-radius:999px;background:var(--amber);color:#fff;font:600 9.5px/16px "Inter";text-align:center;padding:0 4px}
+footer{margin-top:40px;padding-top:14px;border-top:1px solid var(--hair);font-size:12px;color:var(--faint)}
+
+/* ---------- tab bar (mobile) ---------- */
+.bnav{position:fixed;left:0;right:0;bottom:0;z-index:60;display:flex;background:rgba(249,249,249,.86);backdrop-filter:saturate(180%) blur(20px);-webkit-backdrop-filter:saturate(180%) blur(20px);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px)}
+.bnav a{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:7px 0 6px;font:500 10px/1 var(--font);color:var(--faint);text-decoration:none;position:relative}
+.bnav a .ico{width:24px;height:24px;display:block}
+.bnav a .ico svg{width:24px;height:24px;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.bnav a.on{color:var(--cobalt)}
+.bnav a .badge{position:absolute;top:3px;left:calc(50% + 6px);min-width:16px;height:16px;border-radius:999px;background:#FF3B30;color:#fff;font:600 10px/16px var(--font);text-align:center;padding:0 4px}
 @media(min-width:900px){.bnav{display:none}body{padding-bottom:0}}
 
 /* ---------- toast ---------- */
-.toast{position:fixed;left:50%;bottom:calc(var(--nav-h) + 14px);transform:translateX(-50%) translateY(16px);z-index:80;background:var(--ink);color:#fff;font:500 13px/1.3 "Inter";border-radius:11px;padding:12px 18px;box-shadow:0 12px 32px rgba(16,24,43,.3);opacity:0;pointer-events:none;transition:opacity .25s,transform .25s;max-width:88vw;text-align:center}
+.toast{position:fixed;left:50%;bottom:calc(var(--nav-h) + 14px);transform:translateX(-50%) translateY(16px);z-index:80;background:rgba(29,29,31,.94);color:#fff;font:500 13.5px/1.3 var(--font);border-radius:980px;padding:11px 18px;box-shadow:0 8px 24px rgba(0,0,0,.2);opacity:0;transition:opacity .2s,transform .2s;pointer-events:none;white-space:nowrap}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 .toast.err{background:var(--red)}
 @media(min-width:900px){.toast{bottom:24px}}
-
-@media (prefers-reduced-motion:reduce){.live i,.b-state.active{animation:none}}
 </style>
 </head>
 <body>
 <header class="appbar">
   <div class="appbar-in">
     <div class="mark"></div>
-    <div class="wordmark">OTTO<small>MISSION CONTROL</small></div>
+    <div class="wordmark">Otto</div>
     <div class="spacer"></div>
-    <span class="live snap" id="live-badge"><i></i>SNAPSHOT</span>
+    <span class="live snap" id="live-badge"><i></i>Snapshot</span>
   </div>
 </header>
 
@@ -326,22 +327,22 @@ footer{margin-top:44px;padding-top:16px;border-top:1px solid var(--line);font:50
     <div class="eyebrow" id="brief-date">Today's briefing</div>
     <h1 class="voice" id="voice"></h1>
     <p class="brief-summary" id="brief-summary"></p>
-    <p role="status" class="data-notice" id="data-notice">Read-only snapshot — actions are disabled. Open via the dashboard URL to manage live.</p>
+    <p role="status" class="data-notice" id="data-notice">Read-only snapshot. Open the live dashboard to act.</p>
     <div class="kpis" id="kpis"></div>
   </div>
 
   <section id="queue-sec">
     <div class="sec-head">
-      <h2>Waiting for your sign-off</h2>
+      <h2>Waiting for you</h2>
       <span class="count" id="queue-count"></span>
-      <span class="hint">One tap approves — publishing follows the slot</span>
+      
     </div>
     <div class="queue" id="queue"></div>
   </section>
 
   <section id="decisions-sec">
     <div class="sec-head">
-      <h2>Your agency recommends</h2>
+      <h2>Recommendations</h2>
       <span class="count" id="rec-count"></span>
     </div>
     <div class="deck" id="deck"></div>
@@ -355,29 +356,31 @@ footer{margin-top:44px;padding-top:16px;border-top:1px solid var(--line);font:50
     <div class="sec-head">
       <h2>Growth</h2>
       <span class="count" id="growth-month"></span>
-      <span class="hint">This month vs last · organic + paid, one table per brand</span>
+      
     </div>
     <div class="growth" id="growth"></div>
   </section>
 
   <section id="plan-sec">
     <div class="sec-head">
-      <h2>Month plan</h2>
+      <h2>This month</h2>
       <span class="count" id="plan-count"></span>
-      <span class="hint">Tap a day to see what goes out</span>
+      <span class="hint">Tap a day to see what goes out.</span>
     </div>
-    <div class="gantt">
-      <div class="gantt-head">
+    <div class="cal">
+      <div class="cal-head">
         <span class="gm" id="gantt-month"></span>
         <div class="gnav"><span id="gantt-prev">‹</span><span id="gantt-next">›</span></div>
       </div>
-      <div class="gantt-scroll"><div class="gantt-grid" id="gantt-grid"></div></div>
+      <div class="cal-dow"><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span></div>
+      <div class="cal-grid" id="gantt-grid"></div>
       <div class="gday-detail" id="gday-detail" style="display:none"></div>
       <div class="glegend">
         <span><i class="gdot pending_approval"></i>needs approval</span>
         <span><i class="gdot approved"></i>scheduled</span>
         <span><i class="gdot published"></i>published</span>
         <span><i class="gdot draft"></i>draft</span>
+        <span><i class="gflight" style="width:14px"></i>campaign</span>
       </div>
     </div>
     <div class="sec-head" style="margin-top:22px"><h2>Reminders</h2><span class="count" id="rem-count"></span></div>
@@ -387,24 +390,20 @@ footer{margin-top:44px;padding-top:16px;border-top:1px solid var(--line);font:50
   <section id="pipeline-sec">
     <div class="cols">
       <div>
-        <div class="sec-head"><h2>Content pipeline</h2><span class="count" id="post-count"></span></div>
+        <div class="sec-head"><h2>Pipeline</h2><span class="count" id="post-count"></span></div>
         <div class="pipeline" id="pipeline"></div>
       </div>
       <div class="rail">
-        <div class="card"><h4>Paid · Facebook + Google</h4><div id="ads"></div></div>
-        <div class="card"><h4>What you've taught Otto</h4><div id="taste"></div></div>
-        <div class="card"><h4>Competitor watch</h4><div id="compwatch"></div></div>
         <div class="card"><h4>Connections</h4><div id="connections"></div></div>
-        <div class="card"><h4>Performance</h4><div id="metrics"></div>
-          <div class="zero">Metrics activate with the first published week. The agency reads them and adjusts the plan — you only see the conclusions.</div>
-        </div>
+        <div class="card"><h4>Paid</h4><div id="ads"></div></div>
+        <div class="card"><h4>Signals</h4><div class="sig-h">What Otto learned from you</div><div id="taste"></div><div class="sig-h">Competitors</div><div id="compwatch"></div><div id="metrics" style="display:none"></div></div>
       </div>
     </div>
   </section>
 
   <section id="team-sec">
     <div class="sec-head">
-      <h2>Your AI team</h2>
+      <h2>Behind the scenes</h2>
       <span class="count" id="fleet-count"></span>
     </div>
     <div class="fleet" id="fleet"></div>
@@ -414,11 +413,11 @@ footer{margin-top:44px;padding-top:16px;border-top:1px solid var(--line);font:50
 </div>
 
 <nav class="bnav" id="bnav">
-  <a href="#top" class="on" data-sec="top"><span class="ico">◉</span>Overview</a>
-  <a href="#queue-sec" data-sec="queue-sec"><span class="ico">✓</span>Review<span class="badge" id="nav-badge" style="display:none"></span></a>
-  <a href="#plan-sec" data-sec="plan-sec"><span class="ico">▦</span>Plan</a>
-  <a href="#pipeline-sec" data-sec="pipeline-sec"><span class="ico">≣</span>Pipeline</a>
-  <a href="#team-sec" data-sec="team-sec"><span class="ico">⬡</span>Team</a>
+  <a href="#top" data-sec="top" class="on"><span class="ico"><svg viewBox="0 0 24 24"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10v9.5h13V10"/></svg></span>Today</a>
+  <a href="#queue-sec" data-sec="queue-sec"><span class="ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="m8.5 12.3 2.3 2.3 4.7-4.9"/></svg></span>Review<span class="badge" id="nav-badge" style="display:none"></span></a>
+  <a href="#plan-sec" data-sec="plan-sec"><span class="ico"><svg viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15" rx="3"/><path d="M3.5 9.5h17M8 3.5v3M16 3.5v3"/></svg></span>Month</a>
+  <a href="#pipeline-sec" data-sec="pipeline-sec"><span class="ico"><svg viewBox="0 0 24 24"><path d="M8 6.5h12M8 12h12M8 17.5h12"/><circle cx="4.5" cy="6.5" r="1"/><circle cx="4.5" cy="12" r="1"/><circle cx="4.5" cy="17.5" r="1"/></svg></span>Pipeline</a>
+  <a href="#team-sec" data-sec="team-sec"><span class="ico"><svg viewBox="0 0 24 24"><circle cx="9" cy="8.5" r="3.5"/><path d="M2.5 19.5c.7-3.4 3.2-5 6.5-5s5.8 1.6 6.5 5"/><circle cx="17" cy="9.5" r="2.5"/><path d="M16 14.7c2.6.2 4.6 1.6 5.3 4.3"/></svg></span>Team</a>
 </nav>
 
 <div class="reviewer" id="reviewer" role="dialog" aria-modal="true" aria-label="Post review">
@@ -437,7 +436,7 @@ footer{margin-top:44px;padding-top:16px;border-top:1px solid var(--line);font:50
 
 <div class="toast" id="toast"></div>
 
-<script id="fallback-data" type="application/json">{"generated": "2026-09-27T20:35:38Z", "recommendations": [{"id": "rec-001", "priority": "P0", "title": "Approve 4 posts waiting for review", "why": "Week-1 content for both brands is drafted and slotted. Publishing starts Sep 27 — approving today keeps the schedule intact.", "impact": "Keeps the first publishing week on time", "cta": "Review queue", "status": "proposed"}, {"id": "rec-002", "priority": "P0", "title": "Connect Meta assets for the pilot brand", "why": "Live publishing (Phase 4) is blocked until a Facebook Page + Instagram account are linked. Everything upstream is ready.", "impact": "Unblocks automated publishing end-to-end", "cta": "Connect assets", "status": "proposed"}, {"id": "rec-003", "priority": "P1", "title": "Run the pilot on CMTM first", "why": "Hebrew organic content, an engaged alumni community, and no ad-category restrictions. Happy Garden is CBD — restricted on Meta, better as brand #2.", "impact": "Fastest path to a proven publishing loop", "cta": "Confirm choice", "status": "proposed"}, {"id": "rec-004", "priority": "P1", "title": "Move Otto from €197 one-time to monthly plans", "why": "Native charges $79–499/mo for the same job. Recurring pricing funds the agency loop and matches how the market already buys.", "impact": "Recurring revenue instead of one-off sales", "cta": "See pricing draft", "status": "proposed"}, {"id": "rec-005", "priority": "P2", "title": "Add LinkedIn for the career-change pillar", "why": "CMTM's core audience (women 28–55 changing careers) over-indexes on LinkedIn. One extra channel, same content plan.", "impact": "New audience at near-zero extra cost", "cta": "Draft channel plan", "status": "proposed"}, {"id": "rec-006", "priority": "P1", "title": "Ship AI short-form video — Native has none", "why": "Deep-dive confirms Native has zero video support, their most-cited gap. Our video_generate + Leonardo pipeline already exists — autopilot Reels/TikToks is pure differentiation.", "impact": "A format the competition cannot match", "cta": "See video plan", "status": "proposed"}, {"id": "rec-007", "priority": "P1", "title": "Adopt binding brand fingerprints in onboarding", "why": "Native's Taste Layer paper shows brand voice as binding generation params (not hints) is why their output isn't slop. Our interview-based onboarding can produce a richer fingerprint than their URL scrape.", "impact": "On-brand output at scale, fewer declines", "cta": "Approve spec", "status": "proposed"}, {"id": "rec-008", "priority": "P2", "title": "Expose Autopilot via MCP from any assistant", "why": "Native ships an MCP endpoint for Claude/ChatGPT control. We are OpenClaw-native — this is home turf and we can out-execute them.", "impact": "Agentic distribution wedge", "cta": "Draft scope", "status": "proposed"}], "brands": [{"id": "happygarden", "name": "Happy Garden CBD", "url": "happygardeneu.com", "lang": "EN/DE", "status": "active", "pillars": ["Education", "Trust & proof", "Use-case", "Product", "Engagement"], "compliance": "CBD is a restricted category on Meta — organic-first strategy"}, {"id": "cmtm", "name": "CMTM College", "native_name": "מכללת תרפיית מימדים", "url": "cmtm.co.il", "lang": "HE", "status": "active", "pillars": ["Alumni stories", "Method education", "Career change", "Parenting", "Current events", "Community"], "compliance": "No healing claims · mental-health targeting restricted on Meta"}], "posts": [{"id": "hg-001", "brand": "happygarden", "pillar": "Education", "platform": "ig", "hook": "Full vs Broad Spectrum vs Isolate — 60-second guide", "status": "pending_approval", "slot": "2026-09-27T08:00", "approved_via": "dashboard", "caption": "Full Spectrum, Broad Spectrum, Isolate — same plant, three very different products. 🌿\n\nFULL — every compound working together (the entourage effect).\nBROAD — the same team, minus THC.\nISOLATE — pure CBD, nothing else.\n\n60 seconds to know exactly what's in your bottle → swipe.\n\n#CBD #CBDeducation #sleepbetter #wellness", "image": "assets/posts/hg-001.png"}, {"id": "hg-002", "brand": "happygarden", "pillar": "Trust & proof", "platform": "fb", "hook": "Was deutsche Kunden wirklich sagen (echte Reviews)", "status": "approved", "slot": "2026-09-27T17:00"}, {"id": "hg-003", "brand": "happygarden", "pillar": "Use-case", "platform": "ig", "hook": "CBN + CBD for sleep: what the entourage effect means", "status": "draft", "slot": "2026-09-28T08:00"}, {"id": "hg-004", "brand": "happygarden", "pillar": "Engagement", "platform": "ig", "hook": "Poll: what's your #1 sleep struggle?", "status": "scheduled", "slot": "2026-09-28T19:00"}, {"id": "cm-001", "brand": "cmtm", "pillar": "Method education", "platform": "ig", "hook": "מה זה בכלל 'לרפא מהשורש'? 5 שקפים על תת-מודע", "status": "pending_approval", "slot": "2026-09-27T09:00", "caption": "״לרפא מהשורש״ — לא סיסמה. שיטה.\n\nרוב הכלים שאנחנו מכירים עובדים על הסימפטום: להרגיע, לווסת, לנהל.\nתרפיית מימדים עובדת על השורש — האמונות והדפוסים שנחרטו בתת-מודע הרבה לפני שידענו לבחור.\n\n5 שקפים שמסבירים איך זה עובד ← החליקו.\n\n(התוצאות משתנות מאדם לאדם — אין בפוסט הבטחה טיפולית)", "image": "assets/posts/cm-001.png"}, {"id": "cm-002", "brand": "cmtm", "pillar": "Alumni stories", "platform": "fb", "hook": "בגיל 43, בלי רקע טיפולי, פתחה קליניקה", "status": "pending_approval", "slot": "2026-09-27T18:00", "caption": "בגיל 43, בלי רקע טיפולי, רונית נכנסה ללימודים ״רק בשביל עצמה״.\n\nשנתיים אחרי — קליניקה פעילה, יומן מלא, ותחושה שהיא סוף־סוף במקום הנכון.\n\nהסיפור המלא של רונית — בתגובה הראשונה 👇\n\n25 שנה. 10,000 בוגרים. מכללת תרפיית מימדים.", "image": "assets/posts/cm-002.png"}, {"id": "cm-003", "brand": "cmtm", "pillar": "Career change", "platform": "fb", "hook": "קריירה שנייה עם משמעות — 3 שאלות לבדוק אם זה בשבילך", "status": "draft", "slot": "2026-09-28T09:00"}, {"id": "cm-004", "brand": "cmtm", "pillar": "Parenting", "platform": "ig", "hook": "הילד 'רגיש מדי'? מה שוויסות חושי מנסה להגיד לכם", "status": "draft", "slot": "2026-09-28T18:00"}, {"id": "cm-005", "brand": "cmtm", "pillar": "Current events", "platform": "fb", "hook": "חוזרים ממילואים וממשיכים כרגיל? הגוף זוכר", "status": "draft", "slot": "2026-10-01T09:00"}, {"id": "cm-006", "brand": "cmtm", "pillar": "Community", "platform": "ig", "hook": "10,000 בוגרים. 25 שנה. משפחה אחת", "status": "published", "slot": "2026-09-24T09:00"}, {"id": "cm-007", "brand": "cmtm", "pillar": "Myth-busting", "platform": "ig", "hook": "מיתוס: צריך תואר בפסיכולוגיה כדי לטפל", "status": "pending_approval", "slot": "2026-09-29T09:00", "caption": "מיתוס: ״צריך תואר בפסיכולוגיה כדי לטפל בבני אדם״.\n\nמציאות: העולם הטיפולי רחב בהרבה — ויש מסלול מוסדר, מעמיק ומעשי, שמכשיר מטפלים כבר 25 שנה.\n\nמה כן צריך? רצון לעומק, מסגרת רצינית, והכשרה נכונה.\n\nכל הפרטים על המסלול ← בלינק בביו.", "image": "assets/posts/cm-007.png"}], "agents": [{"id": "maximus", "role": "Owner / build", "scope": "Development, deploys, incidents", "status": "active"}, {"id": "autopilot-core", "role": "Orchestrator", "scope": "Onboarding · plans · approvals · scheduling", "status": "planned"}, {"id": "autopilot-client-*", "role": "Per-client", "scope": "Single brand, isolated workspace, separate tokens", "status": "planned"}], "metrics": {"happygarden": {"reach": 0, "saves": 0, "clicks": 0, "leads": 0}, "cmtm": {"reach": 0, "saves": 0, "clicks": 0, "leads": 0}}, "connections": [{"id": "meta-cmtm", "service": "Instagram + Facebook", "brand": "CMTM College", "status": "not_connected"}, {"id": "meta-hg", "service": "Instagram + Facebook", "brand": "Happy Garden CBD", "status": "not_connected"}, {"id": "linkedin", "service": "LinkedIn", "brand": "Shared", "status": "planned"}], "fleet": [{"id": "orion", "name": "Orion", "role": "Orchestrator", "status": "active", "feed": ["Compiled today's briefing 06:00", "Routing 2 blockers to Max", "Watching Sep 27 publish deadline", "Fleet sync: 4 agents reporting"]}, {"id": "quill", "name": "Quill", "role": "Content agent", "status": "active", "feed": ["Drafted 11 posts across 2 brands", "Rewriting hg-003 hook — v2", "HE + DE variants ready for review", "4 posts queued for your sign-off"]}, {"id": "sage", "name": "Sage", "role": "Organic growth", "status": "active", "feed": ["Best CMTM slot: Sun 09:00", "IG hashtag sets refreshed", "LinkedIn pillar mapped (P2)", "Slotting week 2 calendar"]}, {"id": "nova", "name": "Nova", "role": "Ideas & trends", "status": "active", "feed": ["3 new recommendations queued", "Trend scan: reserve-duty chatter ↑", "Native gap found: short-form video", "Watching 6 content pillars"]}, {"id": "atlas", "name": "Atlas", "role": "Paid ads", "status": "standby", "feed": ["Waiting on Meta connection", "CMTM audience drafts ready", "CBD policy: organic-first for HG"]}, {"id": "echo", "name": "Echo", "role": "Analytics", "status": "standby", "feed": ["Activates with first published week", "Baselines set: reach · saves · leads"]}]}</script>
+<script id="fallback-data" type="application/json">{"generated": "2026-09-27T20:35:38Z", "recommendations": [{"id": "rec-001", "priority": "P0", "title": "Approve 4 posts waiting for review", "why": "Week-1 content for both brands is drafted and slotted. Publishing starts Sep 27 — approving today keeps the schedule intact.", "impact": "Keeps the first publishing week on time", "cta": "Review queue", "status": "proposed"}, {"id": "rec-002", "priority": "P0", "title": "Connect Meta assets for the pilot brand", "why": "Live publishing (Phase 4) is blocked until a Facebook Page + Instagram account are linked. Everything upstream is ready.", "impact": "Unblocks automated publishing end-to-end", "cta": "Connect assets", "status": "proposed"}, {"id": "rec-003", "priority": "P1", "title": "Run the pilot on CMTM first", "why": "Hebrew organic content, an engaged alumni community, and no ad-category restrictions. Happy Garden is CBD — restricted on Meta, better as brand #2.", "impact": "Fastest path to a proven publishing loop", "cta": "Confirm choice", "status": "proposed"}, {"id": "rec-004", "priority": "P1", "title": "Move Otto from €197 one-time to monthly plans", "why": "Native charges $79–499/mo for the same job. Recurring pricing funds the agency loop and matches how the market already buys.", "impact": "Recurring revenue instead of one-off sales", "cta": "See pricing draft", "status": "proposed"}, {"id": "rec-005", "priority": "P2", "title": "Add LinkedIn for the career-change pillar", "why": "CMTM's core audience (women 28–55 changing careers) over-indexes on LinkedIn. One extra channel, same content plan.", "impact": "New audience at near-zero extra cost", "cta": "Draft channel plan", "status": "proposed"}, {"id": "rec-006", "priority": "P1", "title": "Ship AI short-form video — Native has none", "why": "Deep-dive confirms Native has zero video support, their most-cited gap. Our video_generate + Leonardo pipeline already exists — autopilot Reels/TikToks is pure differentiation.", "impact": "A format the competition cannot match", "cta": "See video plan", "status": "proposed"}, {"id": "rec-007", "priority": "P1", "title": "Adopt binding brand fingerprints in onboarding", "why": "Native's Taste Layer paper shows brand voice as binding generation params (not hints) is why their output isn't slop. Our interview-based onboarding can produce a richer fingerprint than their URL scrape.", "impact": "On-brand output at scale, fewer declines", "cta": "Approve spec", "status": "proposed"}, {"id": "rec-008", "priority": "P2", "title": "Expose Autopilot via MCP from any assistant", "why": "Native ships an MCP endpoint for Claude/ChatGPT control. We are OpenClaw-native — this is home turf and we can out-execute them.", "impact": "Agentic distribution wedge", "cta": "Draft scope", "status": "proposed"}], "brands": [{"id": "happygarden", "name": "Happy Garden CBD", "url": "happygardeneu.com", "lang": "EN/DE", "status": "active", "pillars": ["Education", "Trust & proof", "Use-case", "Product", "Engagement"], "compliance": "CBD is a restricted category on Meta — organic-first strategy"}, {"id": "cmtm", "name": "CMTM College", "url": "cmtm.co.il", "lang": "HE · shown in English", "status": "active", "pillars": ["Alumni stories", "Method education", "Career change", "Parenting", "Current events", "Community"], "compliance": "No healing claims · mental-health targeting restricted on Meta"}], "posts": [{"id": "hg-001", "brand": "happygarden", "pillar": "Education", "platform": "ig", "hook": "Full vs Broad Spectrum vs Isolate — 60-second guide", "status": "pending_approval", "slot": "2026-09-27T08:00", "approved_via": "dashboard", "caption": "Full Spectrum, Broad Spectrum, Isolate — same plant, three very different products. 🌿\n\nFULL — every compound working together (the entourage effect).\nBROAD — the same team, minus THC.\nISOLATE — pure CBD, nothing else.\n\n60 seconds to know exactly what's in your bottle → swipe.\n\n#CBD #CBDeducation #sleepbetter #wellness", "image": "assets/posts/hg-001.png"}, {"id": "hg-002", "brand": "happygarden", "pillar": "Trust & proof", "platform": "fb", "hook": "Was deutsche Kunden wirklich sagen (echte Reviews)", "status": "approved", "slot": "2026-09-27T17:00"}, {"id": "hg-003", "brand": "happygarden", "pillar": "Use-case", "platform": "ig", "hook": "CBN + CBD for sleep: what the entourage effect means", "status": "draft", "slot": "2026-09-28T08:00"}, {"id": "hg-004", "brand": "happygarden", "pillar": "Engagement", "platform": "ig", "hook": "Poll: what's your #1 sleep struggle?", "status": "scheduled", "slot": "2026-09-28T19:00"}, {"id": "cm-001", "brand": "cmtm", "pillar": "Method education", "platform": "ig", "hook": "“Healing from the root”: what it actually means. Five slides on the subconscious", "status": "pending_approval", "slot": "2026-09-27T09:00", "caption": "“Healing from the root” isn’t a slogan. It’s a method.\n\nMost tools we know work on the symptom: calm it, regulate it, manage it.\nDimension Therapy works on the root: the beliefs and patterns written into the subconscious long before we knew how to choose.\n\nFive slides on how it works → swipe.\n\n(Results vary from person to person. No therapeutic promise is made in this post.)", "image": "assets/posts/cm-001.png"}, {"id": "cm-002", "brand": "cmtm", "pillar": "Alumni stories", "platform": "fb", "hook": "At 43, with no clinical background, she opened a practice", "status": "pending_approval", "slot": "2026-09-27T18:00", "caption": "At 43, with no clinical background, Ronit enrolled “just for herself”.\n\nTwo years later: an active practice, a full calendar, and the feeling that she is finally in the right place.\n\nRonit’s full story in the first comment 👇\n\n25 years. 10,000 graduates. CMTM College.", "image": "assets/posts/cm-002.png"}, {"id": "cm-003", "brand": "cmtm", "pillar": "Career change", "platform": "fb", "hook": "A second career with meaning: three questions to ask first", "status": "draft", "slot": "2026-09-28T09:00"}, {"id": "cm-004", "brand": "cmtm", "pillar": "Parenting", "platform": "ig", "hook": "Is your child “too sensitive”? What sensory regulation is trying to tell you", "status": "draft", "slot": "2026-09-28T18:00"}, {"id": "cm-005", "brand": "cmtm", "pillar": "Current events", "platform": "fb", "hook": "Back from a hard month and carrying on as usual? The body remembers", "status": "draft", "slot": "2026-10-01T09:00"}, {"id": "cm-006", "brand": "cmtm", "pillar": "Community", "platform": "ig", "hook": "10,000 graduates. 25 years. One family", "status": "published", "slot": "2026-09-24T09:00"}, {"id": "cm-007", "brand": "cmtm", "pillar": "Myth-busting", "platform": "ig", "hook": "Myth: you need a psychology degree to help people", "status": "pending_approval", "slot": "2026-09-29T09:00", "caption": "Myth: “You need a psychology degree to help people.”\n\nReality: the therapeutic world is far wider, and there is a structured, deep, practical path that has trained practitioners for 25 years.\n\nWhat you do need: a wish to go deep, a serious framework, and the right training.\n\nAll the details about the programme → link in bio.", "image": "assets/posts/cm-007.png"}], "agents": [{"id": "maximus", "role": "Owner / build", "scope": "Development, deploys, incidents", "status": "active"}, {"id": "autopilot-core", "role": "Orchestrator", "scope": "Onboarding · plans · approvals · scheduling", "status": "planned"}, {"id": "autopilot-client-*", "role": "Per-client", "scope": "Single brand, isolated workspace, separate tokens", "status": "planned"}], "metrics": {"happygarden": {"reach": 0, "saves": 0, "clicks": 0, "leads": 0}, "cmtm": {"reach": 0, "saves": 0, "clicks": 0, "leads": 0}}, "connections": [{"id": "meta-cmtm", "service": "Instagram + Facebook", "brand": "CMTM College", "status": "not_connected"}, {"id": "meta-hg", "service": "Instagram + Facebook", "brand": "Happy Garden CBD", "status": "not_connected"}, {"id": "linkedin", "service": "LinkedIn", "brand": "Shared", "status": "planned"}], "fleet": [{"id": "orion", "name": "Orion", "role": "Orchestrator", "status": "active", "feed": ["Compiled today's briefing 06:00", "Routing 2 blockers to Max", "Watching Sep 27 publish deadline", "Fleet sync: 4 agents reporting"]}, {"id": "quill", "name": "Quill", "role": "Content agent", "status": "active", "feed": ["Drafted 11 posts across 2 brands", "Rewriting hg-003 hook — v2", "HE + DE variants ready for review", "4 posts queued for your sign-off"]}, {"id": "sage", "name": "Sage", "role": "Organic growth", "status": "active", "feed": ["Best CMTM slot: Sun 09:00", "IG hashtag sets refreshed", "LinkedIn pillar mapped (P2)", "Slotting week 2 calendar"]}, {"id": "nova", "name": "Nova", "role": "Ideas & trends", "status": "active", "feed": ["3 new recommendations queued", "Trend scan: reserve-duty chatter ↑", "Native gap found: short-form video", "Watching 6 content pillars"]}, {"id": "atlas", "name": "Atlas", "role": "Paid ads", "status": "standby", "feed": ["Waiting on Meta connection", "CMTM audience drafts ready", "CBD policy: organic-first for HG"]}, {"id": "echo", "name": "Echo", "role": "Analytics", "status": "standby", "feed": ["Activates with first published week", "Baselines set: reach · saves · leads"]}]}</script>
 <script>
 const PLAT = {ig:"IG", fb:"FB", li:"IN"};
 const SRC = {otto_competitors:"Nova · competitor sweep", otto_insights:"Echo · analytics", otto_publish:"Publisher", otto_watch:"Otto Watch", otto_plan:"Sage · planner"};
@@ -450,6 +449,8 @@ const fmtSlot = s => {
          String(d.getHours()).padStart(2,"0") + ":" + String(d.getMinutes()).padStart(2,"0");
 };
 const esc = t => String(t??"").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const H = p => p.hook_en || p.hook || "";          // English display copy when the client content is in another language
+const C = p => p.caption_en || p.caption || H(p);
 
 let toastT;
 function toast(msg, err){
@@ -494,26 +495,24 @@ function render(d){
 
   const now = new Date(d.generated||Date.now());
   document.getElementById("brief-date").textContent =
-    "Today's briefing · " + new Date().toLocaleDateString("en-GB",{weekday:"long",day:"numeric",month:"long"});
-  document.getElementById("gen").textContent = "Last sync " + (d.generated||"—").replace("T"," ").replace("Z"," UTC");
+    new Date().toLocaleDateString("en-GB",{weekday:"long",day:"numeric",month:"long"});
+  document.getElementById("gen").textContent = "Last updated " + (d.generated||"—").replace("T"," ").replace("Z"," UTC");
 
   const NUMS = ["No","One","Two","Three","Four","Five","Six","Seven","Eight","Nine"];
   document.getElementById("voice").textContent = pending > 0
     ? `${NUMS[pending]||pending} post${pending===1?"":"s"} need${pending===1?"s":""} your sign-off.`
     : "Nothing needs your sign-off today.";
   document.getElementById("brief-summary").textContent =
-    `Content is planned across ${(NUMS[brands.length]||brands.length).toLowerCase()} brands. ` +
-    (p0 > 0 ? `Clear ${p0===1?"one blocker":(NUMS[p0]||p0).toLowerCase()+" blockers"} below to enable live publishing.`
-            : "Publishing is unblocked.");
+    (p0 > 0 ? `${p0===1?"One thing":(NUMS[p0]||p0)+" things"} need${p0===1?"s":""} you before publishing goes live.` : "Everything else is running on schedule.");
 
   const g0 = d.growth && Object.values(d.growth)[0];
   const gr = d.growth ? Object.values(d.growth).reduce((a,x)=>a+((x.months[x.current]||{}).reach||0),0) : 0;
-  document.getElementById("kpis").innerHTML = (g0 && gr ? [["go", (gr>=10000?(gr/1000).toFixed(1)+"k":gr), "Reach this month"]] : []).concat([
-    ["alert", pending, "Awaiting approval"],
-    ["", scheduled, "Approved & scheduled"],
+  document.getElementById("kpis").innerHTML = [
+    ["alert", pending, "Waiting for you"],
+    ["", scheduled, "Scheduled"],
     ["go", published, "Published"],
-    ["", brands.length, "Brands onboarded"],
-  ]).map(([c,n,l])=>`<div class="kpi ${c}"><div class="n">${n}</div><div class="l">${l}</div></div>`).join("");
+    (g0 && gr) ? ["go", (gr>=10000?(gr/1000).toFixed(1)+"k":gr), "Reach this month"] : ["", brands.length, brands.length===1?"Brand":"Brands"],
+  ].map(([c,n,l])=>`<div class="kpi ${c}"><div class="n">${n}</div><div class="l">${l}</div></div>`).join("");
 
   const badge = document.getElementById("nav-badge");
   badge.style.display = pending ? "" : "none";
@@ -526,27 +525,27 @@ function render(d){
       <div class="rc-stack">${pendingPosts.slice(0,3).map(p=>p.image
         ? `<img src="${esc(p.image)}" alt="" onerror="this.outerHTML='<span class=rc-ph></span>'">`
         : `<span class="rc-ph" style="background:${brandGrad(p.brand)}"></span>`).join("")}</div>
-      <div class="rc-t"><b>Review ${pending} post${pending===1?"":"s"}</b><span>See each one exactly as it will look in the feed</span></div>
-      <div class="rc-go">Start →</div>
+      <div class="rc-t"><b>Review ${pending} post${pending===1?"":"s"}</b><span>Each one exactly as it will appear in the feed</span></div>
+      <div class="rc-go">Start</div>
     </div>` +
     pendingPosts.map((p,i)=>`
     <div class="qcard" onclick="openReviewer(${i})">
       ${p.image
-        ? `<div class="qmedia"><img src="${esc(p.image)}" alt="" loading="lazy" onerror="this.parentNode.innerHTML='<div class=qtxt dir=auto style=background:${brandGrad(p.brand).replace(/ /g,"")}>${esc(p.hook).replace(/'/g,"&#39;")}</div>'"></div>`
-        : `<div class="qmedia"><div class="qtxt" dir="auto" style="background:${brandGrad(p.brand)}">${esc(p.hook)}</div></div>`}
+        ? `<div class="qmedia"><img src="${esc(p.image)}" alt="" loading="lazy" onerror="this.parentNode.innerHTML='<div class=qtxt dir=auto style=background:${brandGrad(p.brand).replace(/ /g,"")}>${esc(H(p)).replace(/'/g,"&#39;")}</div>'"></div>`
+        : `<div class="qmedia"><div class="qtxt" dir="auto" style="background:${brandGrad(p.brand)}">${esc(H(p))}</div></div>`}
       <div class="qtop">
         <span class="pf ${p.platform}">${PLAT[p.platform]||p.platform}</span>
         <span class="qbrand">${esc(brandName(p.brand))}</span>
         <span class="qslot">${fmtSlot(p.slot)}</span>
       </div>
-      <div class="qhook" dir="auto">${esc(p.hook)}</div>
-      <div class="qpillar">${esc(p.pillar)} · ${p.id} · tap to preview</div>
+      <div class="qhook" dir="auto">${esc(H(p))}</div>
+      <div class="qpillar">${esc(p.pillar)} · ${p.id}</div>
       <div class="qbtns" onclick="event.stopPropagation()">
         <div class="abtn approve" onclick="act('post','${p.id}','approved',this)">Approve</div>
         <div class="abtn skip" onclick="act('post','${p.id}','skipped',this)">Skip</div>
       </div>
     </div>`).join(""))
-    : `<div class="queue-empty">✓ Queue is clear — everything approved or scheduled.</div>`;
+    : `<div class="queue-empty">Queue is clear. Everything is approved or scheduled.</div>`;
 
   renderPlan(d);
 
@@ -555,8 +554,8 @@ function render(d){
   const recCard = (r, lead) => `
     <div class="rec ${lead?"lead":""}">
       <div class="rec-top">
-        <span class="prio ${r.priority}">${r.priority}</span>
-        <span class="state">${r.id} · ${esc(r.status)}</span>
+        <span class="prio ${r.priority}">${{P0:"Needs you",P1:"Suggested",P2:"When you have a minute"}[r.priority]||r.priority}</span>
+        <span class="state">${r.id}</span>
         ${r.source?`<span class="src">${esc(SRC[r.source]||r.source)}</span>`:""}
       </div>
       <h3>${esc(r.title)}</h3>
@@ -576,7 +575,7 @@ function render(d){
   if(rest.length){
     sec.style.display = "";
     document.getElementById("secondary-summary").textContent =
-      `${rest.length} strategic suggestion${rest.length===1?"":"s"}`;
+      `Show ${rest.length} more suggestion${rest.length===1?"":"s"}`;
     document.getElementById("deck-secondary").innerHTML = rest.map(r=>recCard(r,false)).join("");
   } else { sec.style.display = "none"; }
 
@@ -593,7 +592,7 @@ function render(d){
       </div>
       ${bp.map(p=>`<div class="post">
         <span class="pf ${p.platform}">${PLAT[p.platform]||p.platform}</span>
-        <span class="hook" dir="auto" title="${esc(p.hook)}">${esc(p.hook)||`<i style="color:var(--faint)">slot reserved — copy pending</i>`}<small>${fmtSlot(p.slot)} · ${esc(p.pillar)}${p.format&&p.format!=="post"?" · "+esc(p.format):""}${p.image?" · 🖼":""}</small></span>
+        <span class="hook" dir="auto" title="${esc(H(p))}">${esc(H(p))||`<i style="color:var(--faint)">slot reserved — copy pending</i>`}<small>${fmtSlot(p.slot)} · ${esc(p.pillar)}${p.format&&p.format!=="post"?" · "+esc(p.format):""}${p.image?" · 🖼":""}</small></span>
         <span class="pill ${p.status}">${p.status.replace("_"," ")}</span>
       </div>`).join("")}
     </div>`;
@@ -708,18 +707,15 @@ function renderFleet(fleet){
   const host = document.getElementById("fleet");
   tickerTimers.forEach(clearInterval); tickerTimers = [];
   document.getElementById("fleet-count").textContent =
-    fleet.filter(a=>a.status==="active").length + " active";
+    fleet.filter(a=>a.status==="active").length + " working";
   host.innerHTML = fleet.map(a=>`
     <div class="bot ${a.status}">
-      <div class="b-top">
-        <div class="b-av">${esc((a.name||"?")[0])}<img src="assets/agents/${esc(a.id)}.png" alt="" loading="lazy" onerror="this.parentNode.classList.add('noimg');this.remove()"></div>
-        <div>
-          <div class="b-name">${esc(a.name)}</div>
-          <div class="b-role">${esc(a.role)}</div>
-        </div>
-        <span class="b-state ${a.status}"></span>
+      <span class="tini">${esc((a.name||"?")[0])}</span>
+      <div class="tmain">
+        <div class="b-name">${esc(a.name)} <span class="b-role">${esc(a.role)}</span></div>
+        <div class="b-feed"><div class="b-line" id="feed-${esc(a.id)}"><span class="tx"></span></div></div>
       </div>
-      <div class="b-feed"><div class="b-line" id="feed-${esc(a.id)}"><span class="tick">▸</span><span class="tx"></span></div></div>
+      <span class="b-state ${a.status}"></span>
     </div>`).join("");
   const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
   fleet.forEach((a,i)=>{
@@ -753,8 +749,8 @@ let RV = {deck:[], idx:0, open:false, results:{}};
 function rvCardHTML(p, layer){
   const b = (DATA.brands||[]).find(x=>x.id===p.brand)||{};
   const media = p.image
-    ? `<img src="${esc(p.image)}" alt="" draggable="false" onerror="this.outerHTML='<div class=rv-txtvis dir=auto style=\\'background:${brandGrad(p.brand)}\\'>${esc(p.hook).replace(/'/g,"&#39;")}</div>'">`
-    : `<div class="rv-txtvis" dir="auto" style="background:${brandGrad(p.brand)}">${esc(p.hook)}</div>`;
+    ? `<img src="${esc(p.image)}" alt="" draggable="false" onerror="this.outerHTML='<div class=rv-txtvis dir=auto style=\\'background:${brandGrad(p.brand)}\\'>${esc(H(p)).replace(/'/g,"&#39;")}</div>'">`
+    : `<div class="rv-txtvis" dir="auto" style="background:${brandGrad(p.brand)}">${esc(H(p))}</div>`;
   return `<div class="rv-card ${layer}" data-id="${p.id}">
     <div class="rv-stamp ok">APPROVE</div>
     <div class="rv-stamp no">SKIP</div>
@@ -765,7 +761,7 @@ function rvCardHTML(p, layer){
     </div>
     <div class="rv-media">${media}${p.image?'<span class="genlabel">AI VISUAL · OTTO</span>':""}</div>
     <div class="rv-body">
-      <div class="rv-cap" dir="auto">${esc(p.caption||p.hook)}</div>
+      <div class="rv-cap" dir="auto">${esc(C(p))}</div>
       <div class="rv-meta"><span class="rv-chip">${esc(p.pillar)}</span><span class="rv-chip">${p.id}</span><span class="rv-chip">slot ${fmtSlot(p.slot)}</span></div>
     </div>
   </div>`;
@@ -776,8 +772,8 @@ function rvRender(){
   const rest = RV.deck.slice(RV.idx);
   if(!rest.length){
     stage.innerHTML = `<div class="rv-empty"><div>
-      <div class="big">All reviewed ✓</div>
-      <div class="sub">${Object.values(RV.results).filter(v=>v==="approved").length} approved · ${Object.values(RV.results).filter(v=>v==="skipped").length} skipped. Otto takes it from here.</div>
+      <div class="big">All reviewed</div>
+      <div class="sub">${Object.values(RV.results).filter(v=>v==="approved").length} approved, ${Object.values(RV.results).filter(v=>v==="skipped").length} skipped. Otto takes it from here.</div>
     </div></div>`;
     document.getElementById("rv-prog").textContent = "done";
     setTimeout(closeReviewer, 1600);
@@ -830,7 +826,7 @@ async function rvDecide(status){
       if(!r.ok) throw new Error(j.error || r.status);
       DATA = j.data;
       RV.results[p.id] = status;
-      toast((status==="approved"?"✓ Approved":"Skipped") + " · " + p.id);
+      toast((status==="approved"?"Approved":"Skipped") + " · " + p.id);
     }catch(e){ toast("Failed: "+e.message, true); }
   }
   setTimeout(()=>{ RV.idx++; rvRender(); if(!RV.open) return; render(DATA); }, 300);
@@ -876,79 +872,74 @@ addEventListener("keydown", e=>{
   if(e.key==="ArrowDown") rvDecide("later");
 });
 
-/* ================= month plan (gantt) + reminders ================= */
-let planMonth = null; // Date at month start
+/* ================= month calendar + reminders ================= */
+let planMonth = null, selDay = null;
+const FLIGHT_OK = ["approved","live","paused","ended"];
+function isoOf(y,m,day){ return `${y}-${String(m+1).padStart(2,"0")}-${String(day).padStart(2,"0")}`; }
 function renderPlan(d){
-  const posts = d.posts||[], brands = d.brands||[];
+  const posts = d.posts||[];
   if(!planMonth){ const n=new Date(); planMonth = new Date(n.getFullYear(), n.getMonth(), 1); }
   const y = planMonth.getFullYear(), m = planMonth.getMonth();
   const days = new Date(y, m+1, 0).getDate();
   const today = new Date();
   const monthPosts = posts.filter(p=>{ const s=new Date(p.slot); return s.getFullYear()===y && s.getMonth()===m; });
-  document.getElementById("gantt-month").textContent =
-    planMonth.toLocaleDateString("en-GB",{month:"long",year:"numeric"});
+  document.getElementById("gantt-month").textContent = planMonth.toLocaleDateString("en-GB",{month:"long",year:"numeric"});
   document.getElementById("plan-count").textContent = monthPosts.length + " posts";
+  const lead = (new Date(y,m,1).getDay()+6)%7;            // Monday-first
   let grid = "";
+  for(let i=0;i<lead;i++) grid += `<div class="gcol off"></div>`;
   for(let day=1; day<=days; day++){
-    const dt = new Date(y,m,day);
+    const dt = new Date(y,m,day), iso = isoOf(y,m,day);
     const isToday = dt.toDateString()===today.toDateString();
     const dayPosts = monthPosts.filter(p=>new Date(p.slot).getDate()===day);
-    const iso = `${y}-${String(m+1).padStart(2,"0")}-${String(day).padStart(2,"0")}`;
-    const flights = (d.campaigns||[]).filter(c=>["approved","live","paused","ended"].includes(c.status) && c.start<=iso && iso<=c.end);
-    grid += `<div class="gcol ${isToday?"today":""}" data-day="${day}" onclick="showDay(${day})">
-      <span class="gd">${dt.toLocaleDateString("en-GB",{weekday:"narrow"})}</span>
+    const flights = (d.campaigns||[]).filter(c=>FLIGHT_OK.includes(c.status) && c.start<=iso && iso<=c.end);
+    const dots = dayPosts.slice(0,3).map(p=>`<span class="gdot ${p.status}"></span>`).join("") + (dayPosts.length>3?`<span class="gmore">+${dayPosts.length-3}</span>`:"");
+    grid += `<div class="gcol ${isToday?"today":""} ${selDay===iso?"sel":""}" data-day="${day}" onclick="showDay(${day})" title="${dayPosts.length} post${dayPosts.length===1?"":"s"}${flights.length?" · "+flights.length+" campaign"+(flights.length===1?"":"s"):""}">
       <span class="gn">${day}</span>
-      <span class="gcell">${dayPosts.map(p=>`<span class="gdot ${p.status}" title="${esc(p.hook)}${p.format&&p.format!=="post"?" · "+p.format:""}"></span>`).join("")}</span>
-      ${flights.slice(0,3).map(c=>`<span class="gflight ${c.network} ${c.status}" title="${esc(c.name)} · ${c.currency||"€"}${c.daily_budget}/day"></span>`).join("")}
+      <span class="gcell">${dots}</span>
+      ${flights.length?`<span class="gflights">${flights.slice(0,2).map(c=>`<span class="gflight ${c.network} ${c.status}"></span>`).join("")}</span>`:""}
     </div>`;
   }
   document.getElementById("gantt-grid").innerHTML = grid;
-  document.getElementById("gday-detail").style.display = "none";
-  // auto-scroll to today
-  requestAnimationFrame(()=>{
-    const t = document.querySelector(".gcol.today");
-    if(t) t.scrollIntoView({block:"nearest", inline:"center"});
-  });
+  if(selDay && selDay.startsWith(isoOf(y,m,1).slice(0,7))) showDay(+selDay.slice(8)); else document.getElementById("gday-detail").style.display = "none";
   renderReminders(d);
 }
 function showDay(day){
-  const y = planMonth.getFullYear(), m = planMonth.getMonth();
-  const dayPosts = (DATA.posts||[]).filter(p=>{ const s=new Date(p.slot); return s.getFullYear()===y&&s.getMonth()===m&&s.getDate()===day; });
-  const iso = `${y}-${String(m+1).padStart(2,"0")}-${String(day).padStart(2,"0")}`;
-  const dayCamps = (DATA.campaigns||[]).filter(c=>["approved","live","paused","ended"].includes(c.status) && c.start<=iso && iso<=c.end);
+  const y = planMonth.getFullYear(), m = planMonth.getMonth(), iso = isoOf(y,m,day);
+  selDay = iso;
+  document.querySelectorAll(".gcol").forEach(c=>c.classList.toggle("sel", c.dataset.day==String(day)));
+  const dayPosts = (DATA.posts||[]).filter(p=>{ const s=new Date(p.slot); return s.getFullYear()===y&&s.getMonth()===m&&s.getDate()===day; }).sort((a,b)=>a.slot<b.slot?-1:1);
+  const dayCamps = (DATA.campaigns||[]).filter(c=>FLIGHT_OK.includes(c.status) && c.start<=iso && iso<=c.end);
   const el = document.getElementById("gday-detail");
   const bn = id => ((DATA.brands||[]).find(b=>b.id===id)||{}).name||id;
-  if(!dayPosts.length && !dayCamps.length){ el.style.display="none"; return; }
   el.style.display = "";
-  el.innerHTML = `<div style="font:600 11px/1 'JetBrains Mono',monospace;color:var(--faint);letter-spacing:.1em">${new Date(y,m,day).toLocaleDateString("en-GB",{weekday:"long",day:"numeric",month:"short"}).toUpperCase()}</div>` +
-    dayPosts.map(p=>`<div class="gdp"><span class="pf ${p.platform}">${PLAT[p.platform]||p.platform}</span><span dir="auto" style="min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(p.hook)}</span><span class="pill ${p.status}">${p.status.replace("_"," ")}</span></div>`).join("");
-  el.innerHTML += dayCamps.map(c=>`<div class="gdp camp"><span class="pf ${c.network==="google"?"li":"fb"}" style="background:${c.network==="google"?"var(--green)":"var(--cobalt)"}">${c.network==="google"?"G":"M"}</span><span style="min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(c.name)}</span><span class="pill ${c.status==="live"?"published":c.status==="approved"?"approved":"draft"}" style="margin-left:auto">${c.status} · ${c.currency||"€"}${c.daily_budget}/day</span></div>`).join("");
+  const head = `<div class="gdh">${new Date(y,m,day).toLocaleDateString("en-GB",{weekday:"long",day:"numeric",month:"long"})}</div>`;
+  if(!dayPosts.length && !dayCamps.length){ el.innerHTML = head + `<div class="gdp" style="color:var(--faint)">Nothing scheduled.</div>`; return; }
+  el.innerHTML = head +
+    dayPosts.map(p=>`<div class="gdp"><span class="pf ${p.platform}">${PLAT[p.platform]||p.platform}</span><span dir="auto" style="min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(H(p))||"<i>slot reserved</i>"}</span><span style="color:var(--faint);font-size:12px;white-space:nowrap">${bn(p.brand)} · ${String(new Date(p.slot).getHours()).padStart(2,"0")}:${String(new Date(p.slot).getMinutes()).padStart(2,"0")}${p.format&&p.format!=="post"?" · "+esc(p.format):""}</span><span class="pill ${p.status}">${p.status.replace("_"," ")}</span></div>`).join("") +
+    dayCamps.map(c=>`<div class="gdp camp"><span class="pf" style="background:${c.network==="google"?"var(--green)":"var(--cobalt)"}">${c.network==="google"?"G":"M"}</span><span style="min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(c.name)}</span><span class="pill ${c.status==="live"?"published":c.status==="approved"?"approved":"draft"}" style="margin-left:auto">${c.status} · ${c.currency||"€"}${c.daily_budget}/day</span></div>`).join("");
 }
-document.getElementById("gantt-prev").onclick = ()=>{ planMonth = new Date(planMonth.getFullYear(), planMonth.getMonth()-1, 1); renderPlan(DATA); };
-document.getElementById("gantt-next").onclick = ()=>{ planMonth = new Date(planMonth.getFullYear(), planMonth.getMonth()+1, 1); renderPlan(DATA); };
+document.getElementById("gantt-prev").onclick = ()=>{ planMonth = new Date(planMonth.getFullYear(), planMonth.getMonth()-1, 1); selDay=null; renderPlan(DATA); };
+document.getElementById("gantt-next").onclick = ()=>{ planMonth = new Date(planMonth.getFullYear(), planMonth.getMonth()+1, 1); selDay=null; renderPlan(DATA); };
 
 function renderReminders(d){
   const now = new Date(), rems = [];
-  const H = 36e5;
+  const H1 = 36e5;
   (d.posts||[]).filter(p=>p.status==="pending_approval").forEach(p=>{
-    const slot = new Date(p.slot), hrs = (slot-now)/H;
-    if(hrs < 0) rems.push({cls:"urgent", ico:"⏰", t:`Slot passed — "${p.hook}"`, s:`Was due ${fmtSlot(p.slot)}. Approve now and Otto reslots it, or skip.`});
-    else if(hrs < 48) rems.push({cls:"warn", ico:"✍️", t:`Approve before ${fmtSlot(p.slot)}`, s:`"${p.hook}" publishes in ${Math.round(hrs)}h once approved.`});
+    const slot = new Date(p.slot), hrs = (slot-now)/H1;
+    if(hrs < 0) rems.push({cls:"urgent", t:`Missed slot: ${H(p)}`, s:`Was due ${fmtSlot(p.slot)}. Approve and Otto reslots it, or skip.`});
+    else if(hrs < 48) rems.push({cls:"warn", t:`Approve before ${fmtSlot(p.slot)}`, s:`“${H(p)}” publishes in ${Math.round(hrs)} hours once approved.`});
   });
-  (d.connections||[]).filter(c=>c.status==="not_connected").forEach(c=>
-    rems.push({cls:"urgent", ico:"🔌", t:`Connect ${c.service} — ${c.brand}`, s:"Publishing stays manual until this is linked. ~5 minutes with the OAuth link Otto sent."}));
-  (d.recommendations||[]).filter(r=>r.status==="proposed"&&r.priority==="P0").forEach(r=>
-    rems.push({cls:"warn", ico:"🎯", t:r.title, s:r.impact}));
   const edits = (d.edit_requests||[]).filter(e=>!e.done);
-  if(edits.length) rems.push({cls:"warn", ico:"✍️", t:`${edits.length} rewrite request${edits.length===1?"":"s"} waiting for Quill`, s:edits.slice(0,2).map(e=>`${e.post}: “${e.note}”`).join(" · ")});
+  if(edits.length) rems.push({cls:"warn", t:`${edits.length} rewrite request${edits.length===1?"":"s"} waiting for Quill`, s:edits.slice(0,2).map(e=>`${e.post}: “${e.note}”`).join(" · ")});
   const failed = (d.posts||[]).filter(p=>p.status==="failed");
-  if(failed.length) rems.push({cls:"urgent", ico:"🚨", t:`${failed.length} post${failed.length===1?"":"s"} failed to publish`, s:failed.slice(0,2).map(p=>`${p.id}: ${p.error||"unknown error"}`).join(" · ")});
-  const upcoming = (d.posts||[]).filter(p=>["approved","scheduled"].includes(p.status) && (new Date(p.slot)-now)/H>0 && (new Date(p.slot)-now)/H<72);
-  if(upcoming.length) rems.push({cls:"", ico:"🗓", t:`${upcoming.length} post${upcoming.length===1?" is":"s are"} scheduled for the next 3 days`, s:"Nothing needed from you — Otto publishes on slot and reports back."});
-  document.getElementById("rem-count").textContent = rems.length ? rems.length + " open" : "clear";
+  if(failed.length) rems.push({cls:"urgent", t:`${failed.length} post${failed.length===1?"":"s"} failed to publish`, s:failed.slice(0,2).map(p=>`${p.id}: ${p.error||"unknown error"}`).join(" · ")});
+  const upcoming = (d.posts||[]).filter(p=>["approved","scheduled"].includes(p.status) && (new Date(p.slot)-now)/H1>0 && (new Date(p.slot)-now)/H1<72);
+  if(upcoming.length) rems.push({cls:"", t:`${upcoming.length} post${upcoming.length===1?" is":"s are"} scheduled for the next three days`, s:"Nothing needed from you. Otto publishes on the slot and reports back."});
+  document.getElementById("rem-count").textContent = rems.length ? rems.length : "";
   document.getElementById("reminders").innerHTML = rems.length
-    ? rems.map(r=>`<div class="rem ${r.cls}"><span class="ri">${r.ico}</span><div><div class="rt" dir="auto">${esc(r.t)}</div><div class="rs" dir="auto">${esc(r.s)}</div></div></div>`).join("")
-    : `<div class="queue-empty">✓ No reminders — the month is running itself.</div>`;
+    ? rems.map(r=>`<div class="rem ${r.cls}"><span class="ri"></span><div><div class="rt" dir="auto">${esc(r.t)}</div><div class="rs" dir="auto">${esc(r.s)}</div></div></div>`).join("")
+    : `<div class="queue-empty">No reminders. The month is running itself.</div>`;
 }
 
 // bottom-nav active state
@@ -967,9 +958,9 @@ addEventListener("scroll", ()=>{
 function setBadge(live){
   const b = document.getElementById("live-badge");
   LIVE = live;
-  if(live){ b.classList.remove("snap"); b.innerHTML = "<i></i>LIVE"; }
+  if(live){ b.classList.remove("snap"); b.innerHTML = "<i></i>Live"; }
   else{
-    b.classList.add("snap"); b.innerHTML = "<i></i>SNAPSHOT";
+    b.classList.add("snap"); b.innerHTML = "<i></i>Snapshot";
     document.getElementById("data-notice").classList.add("show");
   }
 }

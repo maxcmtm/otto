@@ -66,6 +66,22 @@ If a slot is < 6 h away and still pending, `otto_watch` pings once; if it passes
 | on approval | `otto_ads.py approve <brand> <month>` — nothing spends before this | agent after the owner's ✅ |
 Credentials: `meta-<brand>.json` gains `ad_account_id`, `pixel_id`, `lead_form_id`; `google-<brand>.json` = OAuth client + refresh token + customer id.
 
+## 3a. Formats, reels and ad creatives — agency-grade, competitor-informed
+- **Format mix** (`otto_plan.py`): carousels / statics / reels per brand from `brands[].format_mix`, else the industry default blended
+  with what competitors actually post (`otto_competitors.py formats <brand> <name> post=3,carousel=5,reel=8` after the IG grid browse).
+  At least four explainer reels a month in every package. Stories Mon/Wed/Fri.
+- **Carousels with copy** (`genvisuals.py`): 3–5 slides, hook on slide one, points on the rest, text rendered by ffmpeg in the brand band
+  (Quill may pre-write `post.slides`).
+- **Reels 30–60 s** (`otto_video.py`): `plan <post>` (or Quill writes `post.script`: 4–7 scenes) → `render <post>`: one vertical image per
+  scene, Ken Burns, captions in the brand band, voice-over (ElevenLabs, `otto-secrets/elevenlabs.json`) and a music bed
+  (`assets/music/*.mp3`). Publisher posts it as an IG reel / FB video.
+- **Ad creatives in every style** (`otto_creative.py`): angle bank = competitor longevity winners (`angles.json`, written by
+  `otto_competitors.py angles` from the research md) → profile winning angles → best hooks. Per campaign: 3 angles × (static with the hook
+  on the image, 3-card carousel, video if a reel exists) + 5 titles / 3 bodies / descriptions / CTA. `otto_ads.py launch` uploads all of it
+  into ONE ad set with Meta dynamic creative, so the platform finds the winning combination; `otto_ads.py report` surfaces best/worst.
+- The Monday ad-library browse (otto-competitor-research) is what makes this agency-grade: record longevity winners, hooks and formats
+  in `competitor-research.md` and `competitors.json`; the scripts turn them into next month's mix and next week's angles.
+
 ## 3c. Growth ledger — `otto_growth.py`
 Daily 05:10 `otto_growth.py rollup` recomputes `growth[brand]` (this month vs last: reach, engagement, posts, followers, spend,
 results, CPL, decisions, best pillar, 90-day daily series). Mission Control shows it as the Growth section. On the 1st,

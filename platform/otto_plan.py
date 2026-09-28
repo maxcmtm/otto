@@ -36,7 +36,56 @@ FORMAT_FOR = {"education": "carousel", "proof": "post", "trust": "post", "use": 
               "community": "post", "behind": "reel", "career": "post"}
 
 
-def fmt_for(pillar, idx):
+MIX_BY_INDUSTRY = [("education", {"post": .4, "carousel": .4, "reel": .2}), ("coaching", {"post": .4, "carousel": .4, "reel": .2}),
+                   ("legal", {"post": .5, "carousel": .35, "reel": .15}), ("saas", {"post": .4, "carousel": .4, "reel": .2}),
+                   ("restaurant", {"post": .4, "carousel": .15, "reel": .45}), ("hotel", {"post": .4, "carousel": .15, "reel": .45}),
+                   ("fitness", {"post": .35, "carousel": .2, "reel": .45}), ("beauty", {"post": .4, "carousel": .2, "reel": .4}),
+                   ("real estate", {"post": .4, "carousel": .3, "reel": .3}), ("e-commerce", {"post": .45, "carousel": .3, "reel": .25}),
+                   ("cbd", {"post": .45, "carousel": .35, "reel": .2})]
+DEFAULT_MIX = {"post": .5, "carousel": .3, "reel": .2}
+
+
+def format_mix(b):
+    """brands[].format_mix wins; else competitors' observed formats blended with the industry default."""
+    if b.get("format_mix"):
+        return b["format_mix"]
+    base = DEFAULT_MIX
+    industry = ""
+    sj = BRANDS / b["id"] / "scan.json"
+    if sj.exists():
+        industry = json.loads(sj.read_text()).get("industry", "").lower()
+    for k, mix in MIX_BY_INDUSTRY:
+        if k in industry:
+            base = mix; break
+    cj = BRANDS / b["id"] / "competitors.json"
+    if cj.exists():
+        seen = {}
+        for it in json.loads(cj.read_text()):
+            for f, n in (it.get("formats") or {}).items():
+                seen[f] = seen.get(f, 0) + n
+        tot = sum(seen.values())
+        if tot >= 10:                                  # enough observed competitor posts to matter
+            obs = {f: seen.get(f, 0) / tot for f in ("post", "carousel", "reel")}
+            base = {f: round(0.5 * base.get(f, 0) + 0.5 * obs.get(f, 0), 2) for f in base}
+    return base
+
+
+def mix_pattern(mix, n=10):
+    """Deterministic interleaving of formats for n slots (largest remainder, then spread out)."""
+    counts = {f: int(round(mix.get(f, 0) * n)) for f in ("post", "carousel", "reel")}
+    while sum(counts.values()) < n: counts["post"] += 1
+    while sum(counts.values()) > n: counts[max(counts, key=counts.get)] -= 1
+    seq, acc = [], {f: 0.0 for f in counts}
+    for _ in range(n):
+        for f in counts:
+            acc[f] += counts[f] / n
+        f = max(acc, key=acc.get); acc[f] -= 1; seq.append(f)
+    return seq
+
+
+def fmt_for(pillar, idx, pattern=None):
+    if pattern:
+        return pattern[idx % len(pattern)]
     key = pillar.lower()
     for k, v in FORMAT_FOR.items():
         if k in key:
@@ -62,6 +111,7 @@ def build(bid, ym, per_week=12, platforms=("fb", "ig"), dry=False, replace=False
         d["posts"] = [p for p in d["posts"] if not (p["brand"] == bid and p.get("plan") == ym and p["status"] == "draft")]
 
     plan, week_count, idx = [], {}, 0
+    pattern = mix_pattern(format_mix(b))
     story_days = b.get("story_days") if b.get("story_days") is not None else ["mon", "wed", "fri"]
     story_time = b.get("story_time") or "12:00"
     for day in month_days(ym):
@@ -74,7 +124,7 @@ def build(bid, ym, per_week=12, platforms=("fb", "ig"), dry=False, replace=False
                 break
             pillar = pillars[idx % len(pillars)]
             platform = platforms[idx % len(platforms)]
-            fmt = fmt_for(pillar, idx)
+            fmt = fmt_for(pillar, idx, pattern)
             if fmt == "story":
                 fmt = "post"          # feed slots never become stories; stories have their own daily slot
             if fmt in ("reel", "carousel") and "ig" in platforms:
@@ -84,10 +134,17 @@ def build(bid, ym, per_week=12, platforms=("fb", "ig"), dry=False, replace=False
             week_count[wk] = week_count.get(wk, 0) + 1
             idx += 1
 
+    # the base package promises four explainer reels a month — top up if the mix fell short
+    reels = [x for x in plan if x["format"] == "reel"]
+    if len(reels) < 4:
+        for x in [x for x in plan if x["format"] == "post" and x["platform"] == "ig"][:4 - len(reels)]:
+            x["format"] = "reel"
     if dry:
         for p in plan:
             print(f'{p["slot"]}  {p["platform"]:2}  {p["format"]:8}  {p["pillar"]}')
-        print(f"-- {len(plan)} posts for {bid} · {ym} (dry run)")
+        counts = {}
+        for x in plan: counts[x["format"]] = counts.get(x["format"], 0) + 1
+        print(f"-- {len(plan)} posts for {bid} · {ym} (dry run) · mix {format_mix(b)} · {counts}")
         return plan
 
     created = []

@@ -144,8 +144,33 @@ def run(bid=None, ids=None, limit=6, statuses=("draft", "pending_approval"), dry
                 done[p["id"]] = None; print("FAILED", p["id"])
         if len(done) < len(jobs):
             time.sleep(12)
+    # carousels: 3 slides with the copy on them (hook / point / point), from the base image + 2 more
+    try:
+        import otto_creative as cre
+        for p, pr, gid in jobs:
+            if p.get("format") == "carousel" and p.get("image"):
+                slides = p.get("slides") or carousel_slides(p)
+                pal = brand_visual(p["brand"])[0]
+                files = []
+                for i, txt in enumerate(slides[:5], 1):
+                    dst = OUT / f"{p['id']}-{i}.png"
+                    try:
+                        cre.overlay_text(HERE / p["image"], dst, txt, pal[0] if pal else "#2447F0", pos="bottom" if i > 1 else "center", size=58)
+                        files.append(f"assets/posts/{dst.name}")
+                    except Exception as e:
+                        print("slide failed", p["id"], i, e)
+                if len(files) >= 2:
+                    p["images"] = files; p["slides"] = slides
+    except Exception as e:
+        print("carousel step skipped:", e)
     ap.save(d)
     print("DONE", json.dumps(done))
+
+
+def carousel_slides(p):
+    """Hook + up to 4 caption sentences → slide texts (Quill can pre-write post.slides for better ones)."""
+    sents = [s.strip() for s in re.split(r"(?<=[.!?])\s+|\n+", p.get("caption") or "") if 15 <= len(s.strip()) <= 120 and not s.strip().startswith("#")]
+    return [p.get("hook") or sents[0]] + [s for s in sents if s != p.get("hook")][:4]
 
 
 if __name__ == "__main__":

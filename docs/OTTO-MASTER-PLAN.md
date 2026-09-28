@@ -106,3 +106,8 @@ Max: "דוחות יומיים של קמפיינים פייסבוק גוגל + ג
 - Mission Control — Growth section (KPI deltas + sparkline + autopilot-start marker), "Paid · Facebook + Google" rail card, campaign flight bands in the month plan, day detail lists campaigns, KPI "Reach this month".
 - Landing — chapter 05 "Paid, and the numbers" (daily report + month-in-review widget), Growth tier copy.
 Module status: **M2 paid = code written (Meta + Google), waiting on ad-account credentials** · M6 analytics loop now includes the growth ledger.
+
+## 2026-09-28 (night) — v1.3: Apple-grade UI, English only, reels, ad creatives, format mix
+Max: "עיצוב יותר של Apple, שלא יורגש שזה עוצב ב-AI", "הכל באנגלית", "האווטארים מצועצעים, בלגן בעיניים", "רילסים של הסברה 30–60 שניות בחבילה הבסיסית", "קרוסלות לפי מה שהמתחרים עושים", "מודעות בכל הסגנונות עם טקסטים, זוויות מהמתחרים", "רמת סוכנות הכי גבוהה".
+- Mission Control + landing restyled: system font, sentence case, no mono/emoji/avatars, grouped hairline lists, real month calendar, Apple Reminders-style list, four KPIs, rail = Connections · Paid · Signals, team = quiet list. Demo data, watch messages, mockups: English only (`hook_en`/`caption_en` supported for non-English clients).
+- `platform/otto_video.py` — explainer reels (scenes → images → captions → VO → music) via ffmpeg. `platform/otto_creative.py` — text on image (brand band), ad variants (angles × static/carousel/video, titles/bodies), angle bank from `angles.json` (competitor sweep) → profile → hooks. `otto_ads.py launch` = Meta dynamic creative (asset_feed_spec). `otto_plan.py` — format mix by industry + competitors, ≥4 reels/month. `genvisuals.py` — carousel slides with copy. `otto_competitors.py angles/formats`.

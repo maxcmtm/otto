@@ -4,6 +4,8 @@
   otto_competitors.py list  <brand>
   otto_competitors.py add   <brand> <name> [site] [--type direct|aspirational|adjacent] [--fb url] [--ig handle] [--tiktok handle]
   otto_competitors.py sweep <brand> [--country DE] [--dry]
+  otto_competitors.py formats <brand> <name> post=3,carousel=5,reel=8      # what they post (from the IG grid browse)
+  otto_competitors.py angles <brand>                                      # research md + formats → angles.json (planner + ad creative read it)
 
 What the script automates every week, per competitor:
   1. Reads their site (home + promo/news/collection pages) and fingerprints it: headlines,
@@ -259,6 +261,32 @@ def file_recommendation(bid, report, total, country="DE"):
     ap.save(d)
 
 
+def angles(bid):
+    """competitor-research.md (longevity winners, synthesis, briefs) + competitors[].formats → brands/<slug>/angles.json.
+    The agent fills those sections after the ad-library browse; this turns them into data the planner and the ad
+    creative engine read. Placeholders '(agent fills)' are ignored."""
+    path = BRANDS / bid / "competitor-research.md"
+    out, formats, grab = [], {}, False
+    if path.exists():
+        for ln in path.read_text().splitlines():
+            if ln.startswith("#"):
+                grab = any(k in ln.lower() for k in ("longevity", "steal", "synthesis", "gaps", "briefs", "winners"))
+                continue
+            t = ln.strip()
+            if grab and t.startswith(("-", "*", "|")) and "agent fills" not in t and "_(" not in t:
+                t = t.lstrip("-*| ").strip()
+                if 12 < len(t) < 200 and not t.startswith("longevity winners") and not t.lower().startswith(("id |", "steal-and-improve angles:", "gaps nobody runs:", "briefs for")):
+                    out.append({"angle": t, "source": "competitor-research"})
+    for it in load_list(bid):
+        for f, n in (it.get("formats") or {}).items():
+            formats[f] = formats.get(f, 0) + n
+    data = {"angles": out[:12], "formats": formats, "updated": today()}
+    (BRANDS / bid).mkdir(parents=True, exist_ok=True)
+    (BRANDS / bid / "angles.json").write_text(json.dumps(data, ensure_ascii=False, indent=2) + "\n")
+    print(f"{bid}: {len(out)} angle(s), formats {formats or '—'} → angles.json")
+    return data
+
+
 def main():
     a = sys.argv[1:]
     if len(a) < 2:
@@ -279,6 +307,16 @@ def main():
     elif cmd == "sweep":
         country = a[a.index("--country") + 1] if "--country" in a else None
         sweep(bid, country, dry="--dry" in a)
+        if "--dry" not in a:
+            angles(bid)
+    elif cmd == "angles":
+        angles(bid)
+    elif cmd == "formats":                       # otto_competitors.py formats <brand> <name> post=3,carousel=5,reel=8  (from the IG grid browse)
+        items = load_list(bid)
+        it = next((x for x in items if x["name"].lower() == a[2].lower()), None)
+        assert it, f"unknown competitor {a[2]}"
+        it["formats"] = {k: int(v) for k, v in (kv.split("=") for kv in a[3].split(","))}
+        save_list(bid, items); print(f"{it['name']}: formats {it['formats']}")
     else:
         print(__doc__)
 

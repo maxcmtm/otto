@@ -14,6 +14,8 @@ and are safe to re-run (idempotent per slot / per week).
 # visuals for every post without an image (18:00 IL) — one line per brand, ~$0.20/image
 0 15 * * *   cd /home/ubuntu/.openclaw/workspace-maximus/autopilot/platform && python3 genvisuals.py --brand happygarden --limit 12 >> genvisuals.log 2>&1
 0 15 * * *   cd /home/ubuntu/.openclaw/workspace-maximus/autopilot/platform && python3 genvisuals.py --brand cmtm --limit 12 >> genvisuals.log 2>&1
+# reels: render every reel-format post without a video (needs ffmpeg + a TTF font; voice needs otto-secrets/elevenlabs.json)
+30 15 * * *  cd /home/ubuntu/.openclaw/workspace-maximus/autopilot/platform && for id in $(python3 -c "import ap;d=ap.load();print(' '.join(p['id'] for p in d['posts'] if p.get('format')=='reel' and not p.get('video') and p['status'] in ('draft','pending_approval')))"); do python3 otto_video.py render $id >> reels.log 2>&1; done
 # publisher: approved posts go out on their slot (needs otto-secrets/meta-<brand>.json per brand)
 */15 * * * * cd /home/ubuntu/.openclaw/workspace-maximus/autopilot/platform && python3 otto_publish.py >> publish.log 2>&1
 # paid layer: launch approved flights 06:00 IL, guard 06:05, daily Facebook + Google report 07:35 IL
@@ -53,6 +55,8 @@ RestartSec=5
 [Install]
 WantedBy=default.target
 ```
+Reels + ad statics need `ffmpeg`/`ffprobe` and a bold TTF (`apt install ffmpeg fonts-dejavu-core`; or set OTTO_FONT).
+
 Paid credentials: `otto-secrets/meta-<brand>.json` + `ad_account_id`/`pixel_id`/`lead_form_id`; `otto-secrets/google-<brand>.json`
 {client_id, client_secret, refresh_token, developer_token, customer_id, login_customer_id}.
 

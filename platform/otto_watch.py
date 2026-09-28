@@ -100,27 +100,27 @@ def report():
              and datetime.fromisoformat(p["slot"]).date() >= yesterday]
     p0 = [r for r in d.get("recommendations", []) if r.get("priority") == "P0" and r.get("status") == "proposed"]
 
-    lines = [f"☀️ *דוח Otto יומי* · {now.strftime('%d/%m')}"]
-    lines.append(f"\n✍️ ממתינים לאישור שלך: *{len(pending)}*" if pending else "\n✍️ תור האישורים נקי ✓")
+    lines = [f"*Otto daily* · {now.strftime('%a %d %b')}"]
+    lines.append(f"\nWaiting for you: *{len(pending)}*" if pending else "\nNothing is waiting for you.")
     for p in pending[:4]:
         lines.append(f"  · {p['hook'][:60]} ({fmt_slot(p['slot'])})")
     if next24:
-        lines.append(f"🗓 יוצאים ב-24ש הקרובות: *{len(next24)}*")
+        lines.append(f"Publishing in the next 24 h: *{len(next24)}*")
     if pub_y:
-        lines.append(f"📤 פורסמו מאתמול: {len(pub_y)}")
+        lines.append(f"Published since yesterday: {len(pub_y)}")
     metr = d.get("metrics", {})
     live = {b: m for b, m in metr.items() if sum(m.values()) > 0}
     if live:
-        lines.append("\n📊 *ביצועים:*")
+        lines.append("\n*Performance*")
         brand_names = {b["id"]: b["name"] for b in d.get("brands", [])}
         for b, m in live.items():
             lines.append(f"  {brand_names.get(b, b)}: reach {m.get('reach',0):,} · clicks {m.get('clicks',0):,} · leads {m.get('leads',0)}")
         for brand, k, v, base in drops(rows):
-            lines.append(f"  ⚠️ {brand_names.get(brand, brand)}: {k} ירד ל-{v:,} (ממוצע שבועי {base:,.0f})")
+            lines.append(f"  Watch: {brand_names.get(brand, brand)} {k} is down to {v:,} (7-day average {base:,.0f})")
     else:
-        lines.append("📊 מדדים יופעלו עם השבוע המפורסם הראשון.")
+        lines.append("Metrics start with the first published week.")
     if p0:
-        lines.append(f"\n🚧 חוסמים (P0): " + " · ".join(r["title"] for r in p0[:2]))
+        lines.append(f"\nNeeds you: " + " · ".join(r["title"] for r in p0[:2]))
     lines.append(f"\n{DASH}")
     send("\n".join(lines))
 
@@ -136,7 +136,7 @@ def watch():
         key = f"drop:{brand}:{k}:{today}"
         if key not in state:
             state[key] = 1
-            alerts.append(f"📉 ירידה ב-{brand}: {k} עומד על {v:,} — {DROP_PCT}%+ מתחת לממוצע השבועי ({base:,.0f}). שווה הצצה.")
+            alerts.append(f"Drop at {brand}: {k} is at {v:,}, {DROP_PCT}%+ below the 7-day average ({base:,.0f}). Worth a look.")
 
     for p in d.get("posts", []):
         slot = datetime.fromisoformat(p["slot"]).replace(tzinfo=timezone.utc)
@@ -145,21 +145,21 @@ def watch():
             key = f"slot-soon:{p['id']}"
             if key not in state:
                 state[key] = 1
-                alerts.append(f"⏰ \"{p['hook'][:50]}\" מתוזמן ל-{fmt_slot(p['slot'])} ועדיין לא אושר — {hrs:.0f} שעות לאשר.")
+                alerts.append(f"“{p.get('hook_en') or p['hook'][:50]}” is slotted for {fmt_slot(p['slot'])} and still not approved. {hrs:.0f} hours left.")
         # missed-publish only makes sense once a publishing channel is actually connected
         connected = any(c.get("status") == "connected" for c in d.get("connections", []))
         if connected and p["status"] in ("approved", "scheduled") and hrs < -2:
             key = f"missed:{p['id']}"
             if key not in state:
                 state[key] = 1
-                alerts.append(f"🚨 \"{p['hook'][:50]}\" היה אמור לצאת ב-{fmt_slot(p['slot'])} ולא פורסם. בודק את הצנרת.")
+                alerts.append(f"“{p.get('hook_en') or p['hook'][:50]}” was due {fmt_slot(p['slot'])} and did not publish. Checking the pipeline.")
 
     # prune old dedup keys (keep 14 days)
     cutoff = (now - timedelta(days=14)).date().isoformat()
     state = {k: v for k, v in state.items() if not k.split(":")[-1][:4].isdigit() or k.split(":")[-1] >= cutoff}
     STATE.write_text(json.dumps(state))
     if alerts:
-        send("🔔 *Otto Alert*\n\n" + "\n\n".join(alerts) + f"\n\n{DASH}")
+        send("*Otto alert*\n\n" + "\n\n".join(alerts) + f"\n\n{DASH}")
         print(f"sent {len(alerts)} alerts")
     else:
         print("all clear")
