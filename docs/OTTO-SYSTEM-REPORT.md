@@ -22,9 +22,10 @@ Date: 2026-09-28 (עודכן אחרי דיפלוי ל-git) · Author: Maximus ·
 ## 2.5 הדומיין וה-URLs החיים (dash.monyflow.work)
 כל ה-web של Otto רץ תחת הדומיין **dash.monyflow.work** (nginx על השרת, מגיש מ-`/srv/pulse/`):
 - **https://dash.monyflow.work/otto/** — Otto Mission Control (הדשבורד). מאחורי magic-link auth. הדף מזהה לבד: אם ה-action API חי → badge LIVE + כפתורי אישור אמיתיים; אחרת read-only SNAPSHOT.
-- **https://dash.monyflow.work/pilot-landing.html** — דף המכירה הציבורי של Otto (v3 27.09: "Otto runs your marketing and sends YOU the to-do list", מוקאפ טלפון עם swipe מונפש, timeline של שבוע-עם-Otto בבועות טלגרם, גריד פיצ'רים, מחיר founding €197, FAQ) → checkout ב-Whop.
+- **https://dash.monyflow.work/pilot-landing.html** — דף המכירה הציבורי של Otto. **v4 (28.09, Claude Code מקומי) חי בריפו: `platform/landing.html`** — נבנה על מבנה ה-conversion של Native (דוגמאות אמיתיות + ווידג'טים שרצים חי) אבל בשפה העיצובית של Otto בלבד: fintech בהיר (porcelain/cobalt, Inter + Fraunces italic + JetBrains Mono), הירו תלת-ממדי עם ה-core orb + טבעות מסלול + כרטיסי מוצר צפים (pointer-tilt), מרקיז של פוסטים אמיתיים מ-`assets/posts/`, 4 פרקי "How it works" עם ווידג'טים חיים (סריקת URL→פרופיל, לוח חודשי שמתמלא, לופ אישור בטלגרם+deck, מנוע פרואקטיבי), flip, טבלת השוואה, צוות 6 הסוכנים, מחיר founding €197, FAQ. **חוק:** לא להיראות כמו Native — אם זה נראה כמוהם אי אפשר להתחרות בהם. הדף מפנה ל-`/otto/assets/...` בנתיב מוחלט, ולכן `deploy.sh` מעתיק אותו ל-`/srv/pulse/pilot-landing.html` (אותו host כמו `/otto/`). הגרסה הישנה (v3, dark Space Grotesk) נשארת רק ב-`dashboard/pilot-landing.html` בשרת עד הדיפלוי הבא.
 - **`/otto-api/`** — proxy של nginx ל-otto_api.py (localhost:8161) — הכפתורים בדשבורד כותבים דרכו ל-data.json.
-- דיפלוי: `deploy.sh` מעתיק את הסטטיקה ל-`/srv/pulse/otto/` (copy, לא symlink — nginx לא יכול לעבור דרך `~/.openclaw` שהוא 700). הלנדינג = hardlink מ-`dashboard/pilot-landing.html`, שמירה שם = דיפלוי מיידי.
+- דיפלוי: `deploy.sh` מעתיק את הסטטיקה ל-`/srv/pulse/otto/` וגם את `landing.html` ל-`/srv/pulse/pilot-landing.html` (copy, לא symlink — nginx לא יכול לעבור דרך `~/.openclaw` שהוא 700). מ-28.09 הלנדינג נערך **רק בריפו** (`platform/landing.html`), לא ב-`dashboard/`.
+- תצוגה מקומית (Claude Code): שרת סטטי שמגיש תיקייה עם `otto -> platform` symlink + `pilot-landing.html -> platform/landing.html`, כך שהנתיבים `/otto/assets/...` זהים לפרוד.
 - הערה: הדומיין משרת גם דשבורדים אחרים של מקס (Pulse וכו') — Otto חי תחת `/otto/` + הלנדינג.
 
 ## 3. ארכיטקטורה — Mission Control

@@ -25,3 +25,6 @@ platform/*.jpg
 
 # allow brand/post assets
 !platform/assets/**
+
+# local tooling
+.claude/
