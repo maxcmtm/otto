@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="{{lang}}" dir="{{dir}}" class="{{html_class}}">
+<head><meta charset="utf-8">
+<!-- checklist: "N things to check before…". Every item must be something the brand really passes.
+     data: title*, items* (strings or {text, note}; 2-5), kicker, footnote (the brand's sign-off line),
+           theme: light (default) | dark, cta, tag -->
+{{&_head}}
+<style>
+.box>.kicker{margin-top:64px}
+.title{font-size:calc(80px*var(--k));margin-top:24px;max-width:940px}
+.list{list-style:none;margin-top:56px;border-top:2px solid var(--rule)}
+.t-dark .list,.t-dark .list li{border-color:rgba(255,255,255,.18)}
+.list li{display:flex;gap:30px;align-items:flex-start;padding:32px 0;border-bottom:2px solid var(--rule)}
+.list .tick{width:calc(58px*var(--k));height:calc(58px*var(--k));margin-top:-4px}
+html.em-marker .t-light .tick{background:var(--accent);color:var(--ink)}
+.item{font:600 calc(38px*var(--k))/1.18 var(--f-display);letter-spacing:-.018em}
+html[dir=rtl] .item{letter-spacing:0;font-weight:700;font-size:calc(38px*var(--k));line-height:1.25}
+.note{font:400 calc(25px*var(--k))/1.4 var(--f-text);margin-top:8px}
+html[dir=rtl] .note{font-size:calc(26px*var(--k))}
+.footnote{font:var(--w-serif) calc(46px*var(--k))/1.1 var(--f-serif);font-style:italic;margin-top:40px;letter-spacing:-.01em}
+html[dir=rtl] .footnote{font-style:normal;font-family:var(--f-display);font-weight:var(--w-display);font-size:calc(38px*var(--k))}
+.t-light .footnote{color:var(--accent-text)}
+html.em-marker .t-light .footnote{color:var(--ink)}
+html.em-marker .t-light .footnote span{background:linear-gradient(var(--accent),var(--accent)) 0 86%/100% .3em no-repeat}
+.t-dark .footnote{color:var(--accent-on-dark)}
+</style>
+</head>
+<body>
+<div class="ad t-{{#if theme}}{{theme}}{{else}}light{{/if}}">
+  <div class="frame">
+    {{> top}}
+    <div class="box" data-box>
+      {{#if kicker}}<div class="kicker"><span>{{kicker}}</span></div>{{/if}}
+      <h1 class="display title" data-fit="1" data-min="44" data-lines="3">{{title}}</h1>
+      <div class="push"></div>
+      <ul class="list">
+        {{#each items}}<li><span class="tick">{{> tick}}</span><div>
+          <div class="item" data-fit="3" data-min="26">{{#if text}}{{text}}{{else}}{{.}}{{/if}}</div>
+          {{#if note}}<div class="note muted" data-fit="2" data-min="19">{{note}}</div>{{/if}}
+        </div></li>{{/each}}
+      </ul>
+      {{#if footnote}}<p class="footnote"><span>{{footnote}}</span></p>{{/if}}
+    </div>
+    {{> foot}}
+  </div>
+</div>
+{{&_foot}}
+</body>
+</html>

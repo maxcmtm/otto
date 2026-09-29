@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="{{lang}}" dir="{{dir}}" class="{{html_class}}">
+<head><meta charset="utf-8">
+<!-- editorial: photo + headline.
+     data: headline* (use *word* for the accent), sub, kicker, tag, cta, photo, photo_pos,
+           layout: "auto" (default: overlay on a dark photo, split on a bright one) | "overlay" | "split" -->
+{{&_head}}
+<style>
+/* overlay */
+.overlay .headline{font-size:calc(104px*var(--k));margin-top:24px;color:#fff}
+.overlay .sub{color:rgba(255,255,255,.88);margin-top:26px;max-width:880px}
+.overlay .bar.top,.overlay .bar.foot{color:#fff}
+.overlay .kicker{color:#fff}
+.overlay .foot{padding-top:44px}
+html.f-story .overlay .headline{font-size:calc(100px*var(--k))}
+
+/* split: photo above a paper panel (feed, square); in story the photo sits below the copy, filling the
+   bottom 35 % that Reels/Stories UI covers anyway */
+.split{--ph:57%}
+html.f-square .split{--ph:47%}
+.split .ph{position:absolute;inset:0 0 auto 0;height:var(--ph)}
+.split .panel{position:absolute;inset:var(--ph) 0 0 0}
+.split .frame{z-index:4}
+.split .bar.top{color:#fff}
+.split .textcol{position:absolute;z-index:3;display:flex;flex-direction:column;
+  inset:calc(var(--ph) + 60px) var(--pad) var(--bot) var(--pad)}
+html.f-square .split .textcol{inset:calc(var(--ph) + 46px) var(--pad) var(--bot) var(--pad)}
+.split .headline{font-size:calc(96px*var(--k));margin-top:22px}
+.split .sub{margin-top:22px;font-size:calc(29px*var(--k))}
+.split .foot{margin-top:auto}
+html.f-story .split{--ph:44%}
+html.f-story .split .ph{inset:auto 0 0 0}
+html.f-story .split .panel{inset:0 0 var(--ph) 0}
+html.f-story .split .bar.top{color:inherit}
+html.f-story .split .ph .shade-t{display:none}
+html.f-story .split .textcol{inset:calc(var(--top) + 110px) var(--pad) calc(var(--ph) + 64px) var(--pad)}
+html.f-story .split .headline{font-size:calc(104px*var(--k))}
+.split .textcol>.push{display:none}
+html.f-story .split .textcol{justify-content:center}
+html.f-story .split .foot{margin-top:0;padding-top:48px}
+</style>
+</head>
+<body>
+{{#if split}}
+<div class="ad split t-light">
+  <div class="ph pic grain">
+    {{#if photo}}<img class="photo" src="{{photo}}" style="object-position:{{photo_pos}}" alt="">{{/if}}
+    <div class="shade-t"></div>
+  </div>
+  <div class="panel t-light"></div>
+  <div class="frame">{{> top}}</div>
+  <div class="textcol" data-box>
+    {{#if kicker}}<div class="kicker"><span>{{kicker}}</span></div>{{/if}}
+    <h1 class="display headline" data-fit="1" data-min="44" data-lines="4">{{headline}}</h1>
+    {{#if sub}}<p class="lede sub muted" data-fit="2" data-min="22" data-lines="3">{{sub}}</p>{{/if}}
+    {{> foot}}
+  </div>
+</div>
+{{else}}
+<div class="ad overlay t-dark grain">
+  {{#if photo}}<img class="photo" src="{{photo}}" style="object-position:{{photo_pos}}" alt="">{{/if}}
+  <div class="shade-t"></div><div class="shade-b"></div>
+  <div class="frame on-dark">
+    {{> top}}
+    <div class="box" data-box>
+      <div class="push"></div>
+      {{#if kicker}}<div class="kicker"><span>{{kicker}}</span></div>{{/if}}
+      <h1 class="display headline" data-fit="1" data-min="50" data-lines="4">{{headline}}</h1>
+      {{#if sub}}<p class="lede sub" data-fit="2" data-min="22" data-lines="3">{{sub}}</p>{{/if}}
+      {{> foot}}
+    </div>
+  </div>
+</div>
+{{/if}}
+{{&_foot}}
+</body>
+</html>

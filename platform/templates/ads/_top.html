@@ -1,0 +1,4 @@
+<header class="bar top">
+  <div class="mark">{{#if logo_src}}<img src="{{logo_src}}" alt="">{{else}}{{brand.name}}{{/if}}</div>
+  {{#if counter}}<div class="meta"><bdi dir="ltr">{{counter}}</bdi></div>{{else}}{{#if tag}}<div class="chip"><span>{{tag}}</span></div>{{/if}}{{/if}}
+</header>

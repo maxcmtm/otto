@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="{{lang}}" dir="{{dir}}" class="{{html_class}}">
+<head><meta charset="utf-8">
+<!-- quote: a customer / graduate quote, verbatim.
+     data: quote*, name*, detail ("Verified customer, Germany"), rating (1-5, only when real), note ("Translated
+           from German"), portrait (photo of the person, with consent), portrait_pos, photo (story: fills the band
+           below the copy), theme: light (default) | dark, cta, tag -->
+{{&_head}}
+<style>
+.band{position:absolute;left:0;right:0;bottom:0;height:var(--bot);z-index:0;display:none}
+html.f-story .has-band .band{display:block}
+.qmark{font:400 calc(300px*var(--k))/1 var(--f-serif);height:calc(150px*var(--k));margin:0 0 6px -8px;color:var(--accent);flex:none;
+  font-family:"Instrument Serif",var(--f-serif)}
+html[dir=rtl] .qmark{transform:scaleX(-1);margin:0 -8px 6px 0;text-align:left}
+html.em-marker .t-light .qmark{color:var(--accent)}
+.t-dark .qmark{color:var(--accent-on-dark)}
+.quote{font-size:calc(116px*var(--k));line-height:.98;letter-spacing:-.02em}
+html[dir=rtl] .quote{font-size:calc(82px*var(--k));line-height:1.18;font-weight:500}
+.quote em{font-size:1em}
+.hr{margin:56px 0 34px}
+.attrib{display:flex;align-items:center;gap:26px}
+.portrait{width:calc(112px*var(--k));height:calc(112px*var(--k));border-radius:50%;overflow:hidden;flex:none;position:relative}
+.portrait img{width:100%;height:100%;object-fit:cover}
+.who{flex:1 1 auto;min-width:0}
+.name{font:700 calc(30px*var(--k))/1.15 var(--f-text);letter-spacing:-.005em}
+html[dir=rtl] .name{font-size:calc(32px*var(--k))}
+.detail{font:400 calc(23px*var(--k))/1.3 var(--f-text);margin-top:6px}
+html[dir=rtl] .detail{font-size:calc(25px*var(--k))}
+.note{margin-top:28px}
+.stars{flex:none}
+</style>
+</head>
+<body>
+<div class="ad t-{{#if theme}}{{theme}}{{else}}light{{/if}} {{#if photo}}has-band{{/if}}">
+  {{#if photo}}<div class="band pic grain"><img class="photo" src="{{photo}}" style="object-position:{{photo_pos}}" alt=""></div>{{/if}}
+  <div class="frame">
+    {{> top}}
+    <div class="box" data-box>
+      <div class="push"></div>
+      <div class="qmark">&ldquo;</div>
+      <blockquote class="serif quote" data-fit="1" data-min="38" data-lines="6">{{quote}}</blockquote>
+      <div class="hr"></div>
+      <div class="attrib">
+        {{#if portrait}}<div class="portrait"><img src="{{portrait}}" style="object-position:{{portrait_pos}}" alt=""></div>{{/if}}
+        <div class="who">
+          <div class="name">{{name}}</div>
+          {{#if detail}}<div class="detail muted">{{detail}}</div>{{/if}}
+        </div>
+        {{> stars}}
+      </div>
+      {{#if note}}<div class="small note muted">{{note}}</div>{{/if}}
+      <div class="push"></div>
+    </div>
+    {{> foot}}
+  </div>
+</div>
+{{&_foot}}
+</body>
+</html>

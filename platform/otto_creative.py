@@ -22,6 +22,11 @@ from pathlib import Path
 import ap
 import otto_paths as paths
 
+try:
+    import otto_render                    # studio templates via headless Chrome
+except Exception:
+    otto_render = None
+
 HERE = Path(__file__).parent
 BRANDS = ap.BRANDS
 OUT = paths.ASSETS / "ads"
@@ -180,6 +185,16 @@ def overlay_text(src, dst, text, color="#2447F0", pos="bottom", size=None):
     return str(dst)
 
 
+def render_card(template, data, src, dst, text, color, bid, **overlay_kw):
+    """otto_render template; the ffmpeg band when no headless Chrome (or OTTO_RENDERER=ffmpeg)."""
+    if otto_render is not None and os.environ.get("OTTO_RENDERER", "html") != "ffmpeg":
+        try:
+            return otto_render.render(template, dict(data, photo=str(src)), dst, brand=bid)
+        except otto_render.RenderError as e:
+            print(f"otto_render fallback: {str(e)[:160]}", file=sys.stderr)
+    return overlay_text(src, dst, text, color, **overlay_kw)
+
+
 # ---------------- angle bank ----------------
 
 # internal notes that must never become ad copy: performance numbers, currency, lead counts, arrows,
@@ -296,13 +311,17 @@ def build(d, c, dry=False, base="https://dash.monyflow.work/otto/"):
                 cr["images"].append({"file": f"assets/ads/{dst.name}", "from": img_post["id"], "text": hook, "planned": True})
             else:
                 try:
-                    overlay_text(paths.local_path(img_post["image"]), dst, hook, pal)
+                    render_card("editorial", {"headline": hook, "sub": proof.strip("“”")}, paths.local_path(img_post["image"]),
+                                dst, hook, pal, bid)
                     paths.publish(dst)
                     cr["images"].append({"file": f"assets/ads/{dst.name}", "from": img_post["id"], "text": hook})
                 except Exception as e:
                     cr["images"].append({"file": img_post["image"], "from": img_post["id"], "text": None, "note": str(e)[:120]})
             # carousel: hook / proof / cta on three images (rotating through the brand's visuals)
             cards = []
+            card_data = [("carousel_cover", {"headline": hook}),
+                         ("carousel_inner", {"title": trim(proof or a["angle"], 140)}),
+                         ("carousel_cta", {"headline": hook, "cta": cta_card})]
             for j, txt in enumerate([hook, trim(proof or a["angle"], 40), cta_card], 1):
                 ip = posts[(i + j) % len(posts)] if posts else img_post
                 dst = OUT / f"{c['id']}-{i}-c{j}.jpg"
@@ -310,7 +329,9 @@ def build(d, c, dry=False, base="https://dash.monyflow.work/otto/"):
                     cards.append({"file": f"assets/ads/{dst.name}", "text": txt, "planned": True})
                 else:
                     try:
-                        overlay_text(paths.local_path(ip["image"]), dst, txt, pal, pos="bottom", size=52)
+                        tpl, data = card_data[j - 1]
+                        render_card(tpl, dict(data, n=j, total=3), paths.local_path(ip["image"]), dst, txt, pal, bid,
+                                    pos="bottom", size=52)
                         paths.publish(dst)
                         cards.append({"file": f"assets/ads/{dst.name}", "text": txt})
                     except Exception as e:

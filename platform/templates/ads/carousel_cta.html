@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="{{lang}}" dir="{{dir}}" class="{{html_class}}">
+<head><meta charset="utf-8">
+<!-- carousel_cta: the last slide. One ask.
+     data: headline*, cta*, sub, photo (a small image beside the ask), photo_pos, theme: dark (default) | accent | light, n, total -->
+{{&_head}}
+<style>
+.headline{font-size:calc(104px*var(--k))}
+.sub{margin-top:30px;max-width:860px}
+.ask{display:flex;align-items:center;gap:30px;margin-top:56px;flex-wrap:wrap}
+.pill{font-size:calc(30px*var(--k));padding:30px 46px}
+html[dir=rtl] .pill{font-size:calc(32px*var(--k))}
+.big-host{font:600 calc(26px*var(--k))/1 var(--f-text);opacity:.8}
+.mini{width:calc(250px*var(--k));height:calc(250px*var(--k));border-radius:18px;margin-bottom:60px;flex:none}
+.bar.foot .segs{width:240px}
+</style>
+</head>
+<body>
+<div class="ad t-{{#if theme}}{{theme}}{{else}}dark{{/if}}">
+  <div class="frame">
+    {{> top}}
+    <div class="box" data-box>
+      <div class="push"></div>
+      {{#if photo}}<div class="mini pic"><img class="photo" src="{{photo}}" style="object-position:{{photo_pos}}" alt=""></div>{{/if}}
+      <h2 class="display headline" data-fit="1" data-min="48" data-lines="4">{{headline}}</h2>
+      {{#if sub}}<p class="lede sub muted" data-fit="2" data-min="22" data-lines="3">{{sub}}</p>{{/if}}
+      <div class="ask"><span class="pill"><span>{{cta}}</span></span></div>
+      <div class="push"></div>
+    </div>
+    <footer class="bar foot">
+      <div class="segs">{{#each _segments}}<i class="{{#if on}}on{{/if}}"></i>{{/each}}</div>
+      <span class="big-host">{{brand.host}}</span>
+    </footer>
+  </div>
+</div>
+{{&_foot}}
+</body>
+</html>

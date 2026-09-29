@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="{{lang}}" dir="{{dir}}" class="{{html_class}}">
+<head><meta charset="utf-8">
+<!-- offer: price card with one CTA. Real prices only; a struck "was" price needs the EU 30-day prior price.
+     data: name*, price (or a word such as "Free"), price_note ("30 ml · THC-free"), was, features (2-4),
+           cta*, terms (fine print), kicker, photo, photo_pos, theme: accent (default) | dark | light.
+     Feed and story. -->
+{{&_head}}
+<style>
+.ad{--fade:var(--accent)}
+.ad.t-dark{--fade:var(--deep)}
+.ad.t-light{--fade:var(--surface)}
+.hero{position:absolute;inset:0 0 auto 0;height:64%;z-index:0}
+.hero .fade{position:absolute;inset:auto 0 0 0;height:42%;z-index:1;background:linear-gradient(to bottom,rgba(0,0,0,0),var(--fade))}
+.hero .shade-t{z-index:1}
+.frame{z-index:3}
+.top-on-photo{color:#fff}
+.card{margin-top:auto;background:var(--surface);color:var(--ink);border-radius:30px;padding:54px 56px 50px;
+  display:flex;flex-direction:column;box-shadow:0 30px 60px -30px rgba(var(--deep-rgb),.45)}
+.card .kicker{margin-bottom:22px}
+.name{font-size:calc(58px*var(--k));letter-spacing:-.03em;line-height:1.02}
+html[dir=rtl] .name{letter-spacing:0;line-height:1.12;font-size:calc(54px*var(--k))}
+.pricerow{display:flex;align-items:flex-end;gap:22px;margin-top:30px;overflow:hidden}
+.price{font-size:calc(150px*var(--k));white-space:nowrap}
+html[dir=rtl] .price{font-size:calc(128px*var(--k))}
+.was{font:500 calc(34px*var(--k))/1 var(--f-text);text-decoration:line-through;opacity:.5;padding-bottom:.5em}
+.pnote{font:500 calc(24px*var(--k))/1.3 var(--f-text);padding-bottom:.55em;opacity:.7}
+html[dir=rtl] .pnote{font-size:calc(26px*var(--k))}
+.feats{list-style:none;margin-top:34px;display:flex;flex-direction:column;gap:16px}
+.feats li{display:flex;gap:16px;align-items:center;font:500 calc(25px*var(--k))/1.3 var(--f-text)}
+html[dir=rtl] .feats li{font-size:calc(27px*var(--k))}
+.feats .tick{width:calc(34px*var(--k));height:calc(34px*var(--k))}
+html.em-marker .feats .tick{background:var(--accent);color:var(--ink)}
+.act{display:flex;align-items:center;gap:30px;margin-top:40px;flex-wrap:wrap}
+.card .pill{background:var(--ink);color:var(--surface)}
+.t-dark .card .pill{background:var(--accent);color:var(--accent-ink)}
+.terms{font:400 calc(18px*var(--k))/1.4 var(--f-text);opacity:.6;flex:1 1 280px}
+html[dir=rtl] .terms{font-size:calc(20px*var(--k))}
+/* story: the card sits in the safe zone near the top, the product photo fills the rest */
+html.f-story .hero{inset:0;height:100%}
+html.f-story .hero .fade{display:none}
+html.f-story .card{margin-top:0}
+html.f-story .top-on-photo{color:inherit}
+</style>
+</head>
+<body>
+<div class="ad t-{{#if theme}}{{theme}}{{else}}accent{{/if}}">
+  {{#if photo}}<div class="hero pic grain"><img class="photo" src="{{photo}}" style="object-position:{{photo_pos}}" alt=""><div class="shade-t"></div><div class="fade"></div></div>{{/if}}
+  <div class="frame">
+    <div class="{{#if photo}}top-on-photo{{/if}}">{{> top}}</div>
+    <div class="card" data-box>
+      {{#if kicker}}<div class="kicker"><span>{{kicker}}</span></div>{{/if}}
+      <h2 class="display name" data-fit="1" data-min="34" data-lines="2">{{name}}</h2>
+      {{#if price}}<div class="pricerow">
+        <span class="num price" data-fitw data-min="70">{{price}}</span>
+        {{#if was}}<span class="was">{{was}}</span>{{/if}}
+        {{#if price_note}}<span class="pnote">{{price_note}}</span>{{/if}}
+      </div>{{/if}}
+      {{#if features}}<ul class="feats">{{#each features}}<li><span class="tick">{{> tick}}</span><span data-fit="3" data-min="18">{{.}}</span></li>{{/each}}</ul>{{/if}}
+      <div class="act">
+        <span class="pill"><span>{{cta}}</span></span>
+        {{#if terms}}<span class="terms">{{terms}}</span>{{/if}}
+      </div>
+    </div>
+  </div>
+</div>
+{{&_foot}}
+</body>
+</html>

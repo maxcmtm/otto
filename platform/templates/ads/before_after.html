@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="{{lang}}" dir="{{dir}}" class="{{html_class}}">
+<head><meta charset="utf-8">
+<!-- before_after: the situation before and after (a process, a choice, a career), never bodies or symptoms.
+     data: before*, after*, kicker, before_label, after_label, photo_after (sits between the two statements),
+           photo_after_pos, photo_before (shown muted), photo_before_pos, cta, tag. -->
+{{&_head}}
+<style>
+.ba{display:flex;flex-direction:column}
+.half{position:relative;overflow:hidden}
+.before{flex:0 0 39%;display:flex;flex-direction:column;padding:var(--top) var(--pad) 48px}
+html.f-square .before{flex-basis:44%}
+.before .pic{position:absolute;inset:0;z-index:0}
+.before .pic .photo{filter:grayscale(1) contrast(.9) brightness(1.08);opacity:.22}
+.after{flex:1 1 auto;display:flex;flex-direction:column;min-height:0}
+.after .pic{flex:1 1 auto;min-height:0}
+.after .txt{flex:none;padding:46px var(--pad) var(--bot);display:flex;flex-direction:column}
+.after.nophoto .txt{flex:1 1 auto;justify-content:center}
+.z{position:relative;z-index:2;display:flex;flex-direction:column;flex:1 1 auto;min-height:0}
+.before .kicker{margin-top:auto}
+.tagline{display:flex;align-items:center;gap:16px;margin:30px 0 20px}
+.label.ghost{box-shadow:inset 0 0 0 1.5px rgba(var(--ink-rgb),.5);color:rgba(var(--ink-rgb),.7)}
+.label.solid{background:var(--accent);color:var(--accent-ink)}
+.stmt-b{font-size:calc(70px*var(--k));color:rgba(var(--ink-rgb),.62);max-width:900px}
+.stmt-a{font-size:calc(90px*var(--k));max-width:920px;margin-top:22px}
+.after .foot{padding-top:38px}
+/* story: the after-photo fills the bottom band the Reels UI covers; both statements stay in the safe zone */
+html.f-story .before{flex-basis:auto;padding-bottom:56px}
+html.f-story .before .kicker{margin-top:56px}
+html.f-story .after .pic{order:2;flex:0 0 var(--bot)}
+html.f-story .after .txt{flex:1 1 auto;padding-bottom:48px;justify-content:center}
+</style>
+</head>
+<body>
+<div class="ad ba">
+  <section class="half before t-paper2">
+    {{#if photo_before}}<div class="pic"><img class="photo" src="{{photo_before}}" style="object-position:{{photo_before_pos}}" alt=""></div>{{/if}}
+    <div class="z" data-box>
+      {{> top}}
+      {{#if kicker}}<div class="kicker"><span>{{kicker}}</span></div>{{else}}<div class="push"></div>{{/if}}
+      <div class="tagline"><span class="label ghost"><span>{{#if before_label}}{{before_label}}{{else}}{{L.before}}{{/if}}</span></span></div>
+      <p class="display stmt-b" data-fit="2" data-min="34" data-lines="3">{{before}}</p>
+    </div>
+  </section>
+  <section class="half after t-dark {{#unless photo_after}}nophoto{{/unless}}">
+    {{#if photo_after}}<div class="pic grain"><img class="photo" src="{{photo_after}}" style="object-position:{{photo_after_pos}}" alt=""></div>{{/if}}
+    <div class="txt" data-box>
+      <span class="label solid"><span>{{#if after_label}}{{after_label}}{{else}}{{L.after}}{{/if}}</span></span>
+      <p class="display stmt-a" data-fit="1" data-min="38" data-lines="3">{{after}}</p>
+      {{> foot}}
+    </div>
+  </section>
+</div>
+{{&_foot}}
+</body>
+</html>

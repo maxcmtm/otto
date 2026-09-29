@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="{{lang}}" dir="{{dir}}" class="{{html_class}}">
+<head><meta charset="utf-8">
+<!-- comparison: the brand's own options (or categories) side by side. Never a named competitor's claims.
+     data: title*, columns* [{name, highlight?}] (2-3), rows* [{label, values: ["yes" | "no" | text…]}],
+           kicker, footnote, photo (a strip above the table), photo_pos, theme: light (default) | dark, cta, tag -->
+{{&_head}}
+<style>
+.box>.kicker{margin-top:56px}
+.title{font-size:calc(80px*var(--k));margin-top:22px}
+.strip{height:calc(230px*var(--k));margin-top:40px;border-radius:18px;flex:none}
+.tbl{margin-top:36px;display:grid;grid-template-columns:1.25fr repeat(var(--cols),1fr);flex:none}
+.tbl.c2{grid-template-columns:1fr repeat(2,1.15fr)}
+.cell{padding:24px 14px;border-bottom:2px solid var(--rule);display:flex;align-items:center;justify-content:center;
+  text-align:center;font:500 calc(25px*var(--k))/1.25 var(--f-text);min-height:calc(96px*var(--k))}
+html[dir=rtl] .cell{font-size:calc(29px*var(--k))}
+.t-dark .cell{border-color:rgba(255,255,255,.16)}
+.cell.lab{justify-content:flex-start;text-align:start;padding-inline-start:0;font-weight:600}
+.cell.hd{font:700 calc(30px*var(--k))/1.1 var(--f-display);letter-spacing:-.02em;border-bottom:3px solid currentColor;
+  padding-top:0;padding-bottom:20px;min-height:0;align-items:flex-end}
+html[dir=rtl] .cell.hd{letter-spacing:0;font-size:calc(36px*var(--k))}
+.cell.hd.lab{border-bottom-color:transparent}
+.cell.hi{background:rgba(var(--accent-rgb),.14)}
+.cell .tick{width:calc(40px*var(--k));height:calc(40px*var(--k))}
+html.em-marker .cell .tick{background:var(--accent);color:var(--ink)}
+.cell .dash{width:28px}
+.footnote{margin-top:32px}
+html.f-story .strip,html.f-square .strip{display:none}
+.tbl.c2 .cell{min-height:calc(128px*var(--k));font-size:calc(30px*var(--k))}
+html[dir=rtl] .tbl.c2 .cell{font-size:calc(32px*var(--k))}
+.tbl.c2 .cell.hd{font-size:calc(40px*var(--k));min-height:0}
+.tbl.c2 .cell .tick{width:calc(48px*var(--k));height:calc(48px*var(--k))}
+</style>
+</head>
+<body>
+<div class="ad t-{{#if theme}}{{theme}}{{else}}light{{/if}}">
+  <div class="frame">
+    {{> top}}
+    <div class="box" data-box>
+      {{#if kicker}}<div class="kicker"><span>{{kicker}}</span></div>{{/if}}
+      <h1 class="display title" data-fit="1" data-min="44" data-lines="2">{{title}}</h1>
+      {{#if photo}}<div class="strip pic grain"><img class="photo" src="{{photo}}" style="object-position:{{photo_pos}}" alt=""></div>{{/if}}
+      <div class="push"></div>
+      <div class="tbl c{{_ncols}}" style="--cols:{{_ncols}}">
+        <div class="cell hd lab"></div>
+        {{#each columns}}<div class="cell hd {{#if highlight}}hi{{/if}}"><span>{{name}}</span></div>{{/each}}
+        {{#each rows}}<div class="cell lab"><span>{{label}}</span></div>{{#each _cells}}<div class="cell {{#if hi}}hi{{/if}}">{{#if yes}}<span class="tick">{{> tick}}</span>{{else}}{{#if no}}<span class="dash"></span>{{else}}<span>{{text}}</span>{{/if}}{{/if}}</div>{{/each}}{{/each}}
+      </div>
+      {{#if footnote}}<p class="small footnote muted">{{footnote}}</p>{{/if}}
+      <div class="push"></div>
+    </div>
+    {{> foot}}
+  </div>
+</div>
+{{&_foot}}
+</body>
+</html>

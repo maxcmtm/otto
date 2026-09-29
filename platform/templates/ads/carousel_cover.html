@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="{{lang}}" dir="{{dir}}" class="{{html_class}}">
+<head><meta charset="utf-8">
+<!-- carousel_cover: slide 1 of a carousel. The hook only.
+     data: headline*, kicker, sub, photo, photo_pos, layout (auto | overlay | split), n, total, swipe -->
+{{&_head}}
+<style>
+.headline{font-size:calc(116px*var(--k));margin-top:26px}
+.sub{margin-top:26px;max-width:860px}
+.swipe{display:flex;align-items:center;gap:18px;font:600 calc(20px*var(--k))/1 var(--f-text);letter-spacing:.14em;text-transform:uppercase}
+html[dir=rtl] .swipe{letter-spacing:0;text-transform:none;font-size:calc(24px*var(--k))}
+.swipe i{display:block;width:64px;height:2px;background:currentColor;position:relative}
+.swipe i::after{content:"";position:absolute;inset-inline-end:0;top:-5px;width:12px;height:12px;border-top:2px solid currentColor;
+  border-inline-end:2px solid currentColor;transform:rotate(45deg)}
+html[dir=rtl] .swipe i::after{transform:rotate(-45deg)}
+.foot{padding-top:48px}
+/* overlay */
+.overlay .frame{color:#fff}
+/* split */
+.split .ph{position:absolute;inset:0 0 auto 0;height:52%}
+.split .frame .bar.top{color:#fff}
+.split .textcol{position:absolute;z-index:3;inset:calc(52% + 56px) var(--pad) var(--bot) var(--pad);display:flex;flex-direction:column}
+.split .headline{font-size:calc(112px*var(--k))}
+.split .foot{margin-top:auto}
+/* no photo */
+.plain .headline{font-size:calc(128px*var(--k))}
+.plain .bigrule{width:180px;height:10px;background:var(--accent-on-dark);margin-bottom:56px}
+</style>
+</head>
+<body>
+{{#if photo}}{{#if split}}
+<div class="ad split t-light">
+  <div class="ph pic grain"><img class="photo" src="{{photo}}" style="object-position:{{photo_pos}}" alt=""><div class="shade-t"></div></div>
+  <div class="frame">{{> top}}</div>
+  <div class="textcol" data-box>
+    {{#if kicker}}<div class="kicker"><span>{{kicker}}</span></div>{{/if}}
+    <h1 class="display headline" data-fit="1" data-min="48" data-lines="4">{{headline}}</h1>
+    <div class="bar foot"><span class="swipe"><span>{{#if swipe}}{{swipe}}{{else}}{{L.swipe}}{{/if}}</span><i></i></span><span class="host">{{brand.host}}</span></div>
+  </div>
+</div>
+{{else}}
+<div class="ad overlay t-dark grain">
+  <img class="photo" src="{{photo}}" style="object-position:{{photo_pos}}" alt="">
+  <div class="shade-t"></div><div class="shade-b"></div>
+  <div class="frame on-dark">
+    {{> top}}
+    <div class="box" data-box>
+      <div class="push"></div>
+      {{#if kicker}}<div class="kicker"><span>{{kicker}}</span></div>{{/if}}
+      <h1 class="display headline" data-fit="1" data-min="52" data-lines="4">{{headline}}</h1>
+      {{#if sub}}<p class="lede sub" data-fit="2" data-min="22" data-lines="3">{{sub}}</p>{{/if}}
+      <div class="bar foot"><span class="swipe"><span>{{#if swipe}}{{swipe}}{{else}}{{L.swipe}}{{/if}}</span><i></i></span><span class="host">{{brand.host}}</span></div>
+    </div>
+  </div>
+</div>
+{{/if}}{{else}}
+<div class="ad plain t-dark">
+  <div class="frame">
+    {{> top}}
+    <div class="box" data-box>
+      <div class="push"></div>
+      <div class="bigrule"></div>
+      {{#if kicker}}<div class="kicker"><span>{{kicker}}</span></div>{{/if}}
+      <h1 class="display headline" data-fit="1" data-min="52" data-lines="5">{{headline}}</h1>
+      {{#if sub}}<p class="lede sub muted" data-fit="2" data-min="22" data-lines="3">{{sub}}</p>{{/if}}
+      <div class="push"></div>
+      <div class="bar foot"><span class="swipe"><span>{{#if swipe}}{{swipe}}{{else}}{{L.swipe}}{{/if}}</span><i></i></span><span class="host">{{brand.host}}</span></div>
+    </div>
+  </div>
+</div>
+{{/if}}
+{{&_foot}}
+</body>
+</html>

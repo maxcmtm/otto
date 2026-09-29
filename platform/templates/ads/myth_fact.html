@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="{{lang}}" dir="{{dir}}" class="{{html_class}}">
+<head><meta charset="utf-8">
+<!-- myth_fact: a common belief, struck out, and the sourced correction.
+     data: myth*, fact*, kicker, source (where the fact comes from), theme: light (default) | dark, cta, tag.
+     Feed and square. The fact must be provable from the brand's proof bank. -->
+{{&_head}}
+<style>
+.box>.kicker{margin-top:70px}
+html.f-square .box>.kicker{margin-top:40px}
+.row{display:flex;flex-direction:column}
+.head{display:flex;align-items:center;gap:16px;margin-bottom:24px}
+.ico{width:calc(46px*var(--k));height:calc(46px*var(--k));border-radius:50%;display:grid;place-items:center;flex:none}
+.ico svg{width:54%;height:54%}
+.myth .ico{box-shadow:inset 0 0 0 2px currentColor;opacity:.55}
+.fact .ico{background:var(--accent);color:var(--accent-ink)}
+.word{font:700 calc(20px*var(--k))/1 var(--f-text);letter-spacing:.16em;text-transform:uppercase}
+html[dir=rtl] .word{letter-spacing:0;font-size:calc(26px*var(--k))}
+.myth .word{opacity:.6}
+.m{font-size:calc(68px*var(--k));opacity:.5;text-decoration:line-through;text-decoration-thickness:.075em;
+  text-decoration-color:var(--accent);text-decoration-skip-ink:none}
+.t-dark .m{text-decoration-color:var(--accent-on-dark);opacity:.62}
+html.em-marker .t-light .m{text-decoration-color:var(--accent);opacity:.55}
+.split{display:flex;align-items:center;gap:0;margin:52px 0}
+html.f-square .split{margin:36px 0}
+.split .hr{flex:1}
+.f{font-size:calc(80px*var(--k))}
+.source{margin-top:34px;display:flex;gap:12px;align-items:center}
+</style>
+</head>
+<body>
+<div class="ad t-{{#if theme}}{{theme}}{{else}}light{{/if}}">
+  <div class="frame">
+    {{> top}}
+    <div class="box" data-box>
+      {{#if kicker}}<div class="kicker"><span>{{kicker}}</span></div>{{/if}}
+      <div class="push"></div>
+      <div class="row myth">
+        <div class="head"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11"/></svg></span><span class="word">{{L.myth}}</span></div>
+        <p class="display m" data-fit="2" data-min="34" data-lines="3">{{myth}}</p>
+      </div>
+      <div class="split"><div class="hr"></div></div>
+      <div class="row fact">
+        <div class="head"><span class="ico">{{> tick}}</span><span class="word">{{L.fact}}</span></div>
+        <p class="display f" data-fit="1" data-min="38" data-lines="4">{{fact}}</p>
+        {{#if source}}<p class="small source muted">{{source}}</p>{{/if}}
+      </div>
+      <div class="push"></div>
+    </div>
+    {{> foot}}
+  </div>
+</div>
+{{&_foot}}
+</body>
+</html>

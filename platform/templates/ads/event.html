@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="{{lang}}" dir="{{dir}}" class="{{html_class}}">
+<head><meta charset="utf-8">
+<!-- event: webinar / open day / live session date card. Real dates only.
+     data: title*, date* ("2026-10-14" → localised day, month, weekday; any other text is shown as is), time,
+           details (2-4: duration, place, host), kicker, cta*, photo, photo_pos, theme: dark (default) | light.
+     Feed and story. -->
+{{&_head}}
+<style>
+.ad{--fade:var(--deep)}
+.ad.t-light{--fade:var(--surface)}
+.hero{position:absolute;inset:0 0 auto 0;height:50%;z-index:0}
+.hero .fade{position:absolute;inset:auto 0 0 0;height:45%;background:linear-gradient(to bottom,rgba(0,0,0,0),var(--fade));z-index:1}
+.hero .shade-t{z-index:1}
+.has-hero .bar.top{color:#fff}
+.tile{width:calc(250px*var(--k));height:calc(262px*var(--k));background:var(--accent);color:var(--accent-ink);border-radius:22px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;flex:none;gap:6px}
+.tile .day{font-size:calc(150px*var(--k));line-height:.85}
+.tile .mon{font:700 calc(26px*var(--k))/1 var(--f-text);letter-spacing:.16em;text-transform:uppercase}
+html[dir=rtl] .tile .mon{letter-spacing:0;font-size:calc(30px*var(--k))}
+.tile.wide{width:auto;padding:0 40px}
+.when{display:flex;align-items:flex-end;gap:34px}
+.whentxt{padding-bottom:10px}
+.wd{font:700 calc(40px*var(--k))/1.1 var(--f-display);letter-spacing:-.02em}
+html[dir=rtl] .wd{letter-spacing:0}
+.tm{font:500 calc(30px*var(--k))/1.2 var(--f-text);margin-top:8px}
+.title{font-size:calc(84px*var(--k));margin-top:50px}
+.box>.kicker{margin-top:44px}
+.details{display:flex;flex-wrap:wrap;gap:12px 0;margin-top:30px;font:500 calc(25px*var(--k))/1.3 var(--f-text)}
+html[dir=rtl] .details{font-size:calc(27px*var(--k))}
+.details span+span::before{content:"";display:inline-block;width:6px;height:6px;border-radius:50%;background:currentColor;opacity:.5;
+  margin:0 18px;vertical-align:middle}
+.act{margin-top:48px;display:flex}
+.t-dark .pill{background:var(--accent);color:var(--accent-ink)}
+/* story: photo fills the band under the copy */
+html.f-story .hero{inset:auto 0 0 0;height:calc(var(--bot) + 120px)}
+html.f-story .hero .fade{inset:0 0 auto 0;height:40%;background:linear-gradient(to top,rgba(0,0,0,0),var(--fade))}
+html.f-story .has-hero .bar.top{color:inherit}
+html.f-story .hero .shade-t{display:none}
+</style>
+</head>
+<body>
+<div class="ad t-{{#if theme}}{{theme}}{{else}}dark{{/if}} {{#if photo}}has-hero{{/if}}">
+  {{#if photo}}<div class="hero pic grain"><img class="photo" src="{{photo}}" style="object-position:{{photo_pos}}" alt=""><div class="shade-t"></div><div class="fade"></div></div>{{/if}}
+  <div class="frame">
+    {{> top}}
+    <div class="box" data-box>
+      <div class="push"></div>
+      <div class="when">
+        {{#if date_day}}<div class="tile"><span class="num day">{{date_day}}</span><span class="mon">{{date_mon}}</span></div>
+        {{else}}<div class="tile wide"><span class="mon">{{date_label}}</span></div>{{/if}}
+        <div class="whentxt">
+          {{#if date_weekday}}<div class="wd">{{date_weekday}}</div>{{/if}}
+          {{#if time}}<div class="tm muted">{{time}}</div>{{/if}}
+        </div>
+      </div>
+      {{#if kicker}}<div class="kicker"><span>{{kicker}}</span></div>{{/if}}
+      <h1 class="display title" data-fit="1" data-min="44" data-lines="3">{{title}}</h1>
+      {{#if details}}<div class="details muted">{{#each details}}<span>{{.}}</span>{{/each}}</div>{{/if}}
+      <div class="act"><span class="pill"><span>{{cta}}</span></span></div>
+    </div>
+  </div>
+</div>
+{{&_foot}}
+</body>
+</html>

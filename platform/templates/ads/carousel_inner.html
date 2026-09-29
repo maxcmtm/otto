@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="{{lang}}" dir="{{dir}}" class="{{html_class}}">
+<head><meta charset="utf-8">
+<!-- carousel_inner: one point per slide.
+     data: title*, body, step ("01"), points (2-4 short tags), kicker, photo (image block under the copy), photo_pos,
+           theme: light (default) | dark, n, total -->
+{{&_head}}
+<style>
+.stepwrap{display:flex;align-items:flex-end;gap:34px;margin-top:60px;flex:none;overflow:hidden}
+.step{font-size:calc(500px*var(--k));letter-spacing:-.07em;margin-inline-start:-.05em;color:var(--accent-text)}
+html.em-marker .t-light .step{color:var(--ink)}
+.t-dark .step{color:var(--accent-on-dark)}
+.steprule{flex:1;height:14px;background:var(--accent);margin-bottom:.33em;font-size:calc(500px*var(--k))}
+.t-dark .steprule{background:var(--accent-on-dark)}
+.title{font-size:calc(118px*var(--k));margin-top:56px}
+.body{margin-top:30px;max-width:900px;font-size:calc(36px*var(--k))}
+html[dir=rtl] .body{font-size:calc(37px*var(--k))}
+html[dir=rtl] .step{letter-spacing:-.05em}
+html.f-square .step,html.f-square .steprule{font-size:calc(300px*var(--k))}
+.points{display:flex;flex-wrap:wrap;gap:14px;margin-top:40px}
+.points .chip{font-size:calc(21px*var(--k));padding:15px 22px 14px;opacity:.9}
+html[dir=rtl] .points .chip{font-size:calc(23px*var(--k))}
+.shot{margin-top:40px;flex:1 1 auto;min-height:calc(260px*var(--k));border-radius:18px}
+.bar.foot .segs{width:240px}
+</style>
+</head>
+<body>
+<div class="ad t-{{#if theme}}{{theme}}{{else}}light{{/if}}">
+  <div class="frame">
+    {{> top}}
+    <div class="box" data-box>
+      {{#if kicker}}<div class="kicker" style="margin-top:56px"><span>{{kicker}}</span></div>{{/if}}
+      {{#if step}}<div class="stepwrap"><span class="num step">{{step}}</span><span class="steprule"></span></div>{{/if}}
+      {{#unless photo}}<div class="push"></div>{{/unless}}
+      <h2 class="display title" data-fit="1" data-min="44" data-lines="3">{{title}}</h2>
+      {{#if body}}<p class="lede body muted" data-fit="2" data-min="22" data-lines="4">{{body}}</p>{{/if}}
+      {{#if points}}<div class="points">{{#each points}}<span class="chip"><span>{{.}}</span></span>{{/each}}</div>{{/if}}
+      {{#if photo}}<div class="shot pic grain"><img class="photo" src="{{photo}}" style="object-position:{{photo_pos}}" alt=""></div>{{/if}}
+    </div>
+    <footer class="bar foot">
+      <div class="segs">{{#each _segments}}<i class="{{#if on}}on{{/if}}"></i>{{/each}}</div>
+      <span class="host">{{brand.host}}</span>
+    </footer>
+  </div>
+</div>
+{{&_foot}}
+</body>
+</html>

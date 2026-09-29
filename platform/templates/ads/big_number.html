@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="{{lang}}" dir="{{dir}}" class="{{html_class}}">
+<head><meta charset="utf-8">
+<!-- big_number: one proof figure, set huge.
+     data: number* ("10,000+", "€1.50"), suffix ("a day"), label* (what the number means), kicker, body,
+           source (where the figure comes from), theme: light (default) | dark | accent, photo, photo_pos, cta, tag -->
+{{&_head}}
+<style>
+.ad{display:block}
+.band{position:absolute;left:0;right:0;bottom:0;height:34%;z-index:0}
+html.f-story .band{height:var(--bot)}
+html.f-square .band{display:none}
+.has-band .frame{bottom:calc(34% + 56px)}
+html.f-story .has-band .frame{bottom:calc(var(--bot) + 8px)}
+html.f-square .has-band .frame{bottom:var(--bot)}
+.has-band .bar.foot{display:none}
+.band .shade-t{background:linear-gradient(to bottom,rgba(var(--deep-rgb),.28),rgba(var(--deep-rgb),0) 40%)}
+
+.box>.kicker{margin-top:84px}
+html.f-story .box>.kicker{margin-top:40px}
+.figure{display:flex;align-items:flex-end;gap:24px;margin-top:40px;flex-wrap:nowrap;overflow:hidden;flex:none}
+.figure .num{font-size:calc(360px*var(--k));white-space:nowrap;margin-inline-start:-.04em;padding-top:.06em}
+html.f-story .figure .num{font-size:calc(330px*var(--k))}
+.suffix{font:var(--w-display) calc(54px*var(--k))/1 var(--f-display);letter-spacing:-.02em;padding-bottom:.28em;white-space:nowrap}
+html[dir=rtl] .suffix{letter-spacing:0}
+.t-light .suffix{color:var(--accent-text)}
+html.em-marker .t-light .suffix{color:var(--ink)}
+.t-dark .suffix{color:var(--accent-on-dark)}
+.rule{margin:40px 0 40px;width:120px;height:6px;background:var(--accent);flex:none}
+.t-accent .rule{background:var(--ink)}
+.t-dark .rule{background:var(--accent-on-dark)}
+
+.what{font-size:calc(66px*var(--k));max-width:900px}
+.body{margin-top:26px;max-width:860px}
+.source{margin-top:30px}
+</style>
+</head>
+<body>
+<div class="ad t-{{#if theme}}{{theme}}{{else}}light{{/if}} {{#if photo}}has-band{{/if}}">
+  {{#if photo}}<div class="band pic grain"><img class="photo" src="{{photo}}" style="object-position:{{photo_pos}}" alt=""><div class="shade-t"></div></div>{{/if}}
+  <div class="frame">
+    {{> top}}
+    <div class="box" data-box>
+      {{#if kicker}}<div class="kicker"><span>{{kicker}}</span></div>{{/if}}
+      <div class="figure">
+        <span class="num" data-fitw data-min="120">{{number}}</span>
+        {{#if suffix}}<span class="suffix">{{suffix}}</span>{{/if}}
+      </div>
+      <div class="push"></div>
+      <div class="rule"></div>
+      <h2 class="display what" data-fit="1" data-min="40" data-lines="3">{{label}}</h2>
+      {{#if body}}<p class="lede body muted" data-fit="2" data-min="22" data-lines="3">{{body}}</p>{{/if}}
+      {{#if source}}<p class="small source muted">{{source}}</p>{{/if}}
+    </div>
+    {{> foot}}
+  </div>
+</div>
+{{&_foot}}
+</body>
+</html>

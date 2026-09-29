@@ -1,0 +1,129 @@
+/* Otto ad design system: shared by every template in this folder.
+   Tokens (--accent, --ink, --surface, --deep, fonts…) are injected per brand by otto_render.tokens_css().
+   Formats: html.f-feed 1080x1350 · html.f-story 1080x1920 · html.f-square 1080x1080.
+   Safe zones: the .frame is the only place text goes. Story/Reels keeps the top 14 % (270px) and the bottom
+   35 % (672px) free of text and logos (Meta profile bar, caption, CTA button); sides 6 %+.
+   One accent per ad. Emphasis (*word* in copy → <em>) is the accent: coloured serif italic on dark,
+   and on paper either a darker accent (html.em-color) or a highlighter band behind ink (html.em-marker). */
+
+:root{--pad:80px;--top:72px;--bot:72px;--k:1;--rule:rgba(var(--ink-rgb),.16);--paper-line:rgba(var(--ink-rgb),.12)}
+html.f-story{--pad:88px;--top:270px;--bot:672px;--k:1.04}
+html.f-square{--pad:72px;--top:64px;--bot:64px;--k:.9}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:var(--w);height:var(--h);overflow:hidden;background:var(--surface)}
+body{font-family:var(--f-text);color:var(--ink);-webkit-font-smoothing:antialiased;text-rendering:geometricPrecision;
+  font-kerning:normal;font-feature-settings:"kern","liga","calt";font-synthesis:none}
+img{display:block}
+bdi.n{unicode-bidi:isolate;direction:ltr}
+
+.ad{position:relative;width:var(--w);height:var(--h);overflow:hidden;isolation:isolate}
+.frame{position:absolute;inset:var(--top) var(--pad) var(--bot) var(--pad);display:flex;flex-direction:column;z-index:3}
+.box{flex:1 1 auto;min-height:0;overflow:hidden;display:flex;flex-direction:column}
+.push{margin-block-start:auto}
+
+/* ---------- surfaces ---------- */
+.t-light{background:var(--surface);color:var(--ink)}
+.t-paper2{background:var(--surface2);color:var(--ink)}
+.t-dark{background:var(--deep);color:var(--on-deep)}
+.t-accent{background:var(--accent);color:var(--accent-ink)}
+.t-dark .muted,.on-dark .muted{color:rgba(255,255,255,.72)}
+.t-light .muted,.on-light .muted,.t-paper2 .muted{color:rgba(var(--ink-rgb),.64)}
+.t-accent .muted{opacity:.74}
+
+/* ---------- photo treatment: real photo, gentle grade, brand-tinted shade, fine grain ---------- */
+.photo{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;filter:saturate(.92) contrast(1.03) brightness(.99)}
+.shade-b{position:absolute;inset:0;z-index:1;pointer-events:none;
+  background:linear-gradient(to top,rgba(var(--deep-rgb),.92) 0%,rgba(var(--deep-rgb),.80) 24%,rgba(var(--deep-rgb),.46) 44%,rgba(var(--deep-rgb),.12) 62%,rgba(var(--deep-rgb),0) 74%)}
+html.f-story .shade-b{background:linear-gradient(to top,rgba(var(--deep-rgb),.35) 0%,rgba(var(--deep-rgb),.86) 34%,rgba(var(--deep-rgb),.78) 50%,rgba(var(--deep-rgb),.3) 66%,rgba(var(--deep-rgb),0) 78%)}
+.shade-t{position:absolute;inset:0;z-index:1;pointer-events:none;
+  background:linear-gradient(to bottom,rgba(var(--deep-rgb),.5) 0%,rgba(var(--deep-rgb),.14) 12%,rgba(var(--deep-rgb),0) 22%)}
+html.f-story .shade-t{background:linear-gradient(to bottom,rgba(var(--deep-rgb),.5) 0%,rgba(var(--deep-rgb),.18) 18%,rgba(var(--deep-rgb),0) 26%)}
+.shade-all{position:absolute;inset:0;z-index:1;background:rgba(var(--deep-rgb),.62)}
+.grain::after{content:"";position:absolute;inset:0;z-index:2;pointer-events:none;opacity:.09;mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .5  0 0 0 0 .5  0 0 0 0 .5  0 0 0 .9 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>")}
+.pic{position:relative;overflow:hidden;background:var(--surface2)}
+.pic .photo{position:absolute}
+
+/* ---------- type ---------- */
+.kicker{font:600 calc(20px*var(--k))/1.2 var(--f-text);letter-spacing:.16em;text-transform:uppercase;
+  display:flex;align-items:center;gap:16px}
+.kicker::before{content:"";flex:none;width:32px;height:2px;background:currentColor}
+.kicker.bare::before{display:none}
+.t-light .kicker::before,.on-light .kicker::before,.t-paper2 .kicker::before{background:var(--accent)}
+html.em-marker .t-light .kicker::before,html.em-marker .on-light .kicker::before,html.em-marker .t-paper2 .kicker::before{height:6px;width:26px}
+.t-dark .kicker::before,.on-dark .kicker::before{background:var(--accent-on-dark)}
+.display{font-family:var(--f-display);font-weight:var(--w-display);letter-spacing:-.034em;line-height:.99;
+  text-wrap:balance;font-size:calc(96px*var(--k))}
+.serif{font-family:var(--f-serif);font-weight:var(--w-serif);letter-spacing:-.012em;line-height:1.04;text-wrap:balance}
+em{font-family:var(--f-serif);font-style:italic;font-weight:var(--w-serif);letter-spacing:-.01em}
+.display em{letter-spacing:-.018em;font-size:1.07em;line-height:0}
+.serif em{font-size:1em}
+.lede{font:400 calc(30px*var(--k))/1.4 var(--f-text);text-wrap:pretty;letter-spacing:-.006em}
+.body{font:400 calc(26px*var(--k))/1.45 var(--f-text);text-wrap:pretty}
+.small{font:500 calc(19px*var(--k))/1.35 var(--f-text);letter-spacing:.01em}
+.num{font-family:var(--f-display);font-weight:var(--w-display);font-variant-numeric:lining-nums tabular-nums;letter-spacing:-.055em;line-height:.8}
+
+/* emphasis by surface */
+.t-dark em,.on-dark em{color:var(--accent-on-dark)}
+.t-light em,.on-light em,.t-paper2 em{color:var(--accent-text)}
+.t-accent em{color:inherit}
+html.em-marker .t-light em,html.em-marker .on-light em,html.em-marker .t-paper2 em{color:inherit;
+  background:linear-gradient(var(--accent),var(--accent)) 0 86%/100% .30em no-repeat;
+  -webkit-box-decoration-break:clone;box-decoration-break:clone;padding:0 .04em}
+
+/* RTL (Hebrew/Arabic): no uppercase or tracking, more leading, no italics; emphasis keeps the display face */
+html[dir=rtl] .kicker{letter-spacing:0;text-transform:none;font-size:calc(24px*var(--k));font-weight:700}
+html[dir=rtl] .display{letter-spacing:-.01em;line-height:1.06}
+html[dir=rtl] .serif{letter-spacing:0;line-height:1.2}
+html[dir=rtl] em{font-style:normal;letter-spacing:0}
+html[dir=rtl] .display em{font-family:var(--f-display);font-weight:var(--w-display);font-size:1em;line-height:inherit}
+html[dir=rtl] .serif em{font-family:inherit;font-weight:inherit}
+html[dir=rtl] .lede{letter-spacing:0;line-height:1.5;font-size:calc(31px*var(--k))}
+html[dir=rtl] .body{line-height:1.55;font-size:calc(27px*var(--k))}
+html[dir=rtl] .small{letter-spacing:0;font-size:calc(21px*var(--k))}
+html[dir=rtl] .num{letter-spacing:-.03em}
+
+/* ---------- furniture ---------- */
+.bar{display:flex;align-items:center;justify-content:space-between;gap:24px}
+.bar.top{flex:none;min-height:40px}
+.bar.foot{flex:none;padding-top:30px}
+.mark{font:700 calc(20px*var(--k))/1 var(--f-display);letter-spacing:.14em;text-transform:uppercase;white-space:nowrap}
+html[dir=rtl] .mark{letter-spacing:0;text-transform:none;font-size:calc(25px*var(--k));font-weight:800}
+.mark img{height:calc(44px*var(--k));width:auto}
+.host{font:500 calc(19px*var(--k))/1 var(--f-text);letter-spacing:.02em;white-space:nowrap;opacity:.78}
+.meta{font:600 calc(17px*var(--k))/1 var(--f-text);letter-spacing:.16em;text-transform:uppercase;white-space:nowrap;opacity:.86}
+html[dir=rtl] .meta{letter-spacing:0;font-size:calc(21px*var(--k));text-transform:none}
+.cta{font:600 calc(24px*var(--k))/1 var(--f-text);padding-bottom:9px;border-bottom:2px solid var(--accent);letter-spacing:-.004em;white-space:nowrap}
+html[dir=rtl] .cta{font-size:calc(26px*var(--k));font-weight:700}
+.t-dark .cta,.on-dark .cta{border-color:var(--accent-on-dark)}
+.t-accent .cta{border-color:currentColor}
+.hr{height:2px;background:var(--rule);border:0;flex:none}
+.t-dark .hr,.on-dark .hr{background:rgba(255,255,255,.2)}
+.t-accent .hr{background:rgba(var(--ink-rgb),.2)}
+.pill{display:inline-flex;align-items:center;justify-content:center;gap:14px;align-self:flex-start;
+  font:700 calc(27px*var(--k))/1 var(--f-text);padding:26px 40px;border-radius:999px;background:var(--accent);
+  color:var(--accent-ink);letter-spacing:-.006em;white-space:nowrap}
+html[dir=rtl] .pill{font-size:calc(29px*var(--k))}
+.pill.ink{background:var(--ink);color:var(--surface)}
+.t-accent .pill{background:var(--ink);color:var(--surface)}
+.label{display:inline-flex;align-items:center;align-self:flex-start;font:700 calc(17px*var(--k))/1 var(--f-text);letter-spacing:.14em;
+  text-transform:uppercase;padding:11px 15px 10px;border-radius:3px}
+html[dir=rtl] .label{letter-spacing:0;text-transform:none;font-size:calc(22px*var(--k));padding:9px 15px}
+.chip{display:inline-flex;align-items:center;font:600 calc(17px*var(--k))/1 var(--f-text);letter-spacing:.14em;text-transform:uppercase;
+  padding:11px 16px 10px;border-radius:999px;box-shadow:inset 0 0 0 1.5px currentColor;white-space:nowrap}
+html[dir=rtl] .chip{letter-spacing:0;text-transform:none;font-size:calc(21px*var(--k));padding:9px 16px}
+.segs{display:flex;gap:8px;width:220px}
+.segs i{display:block;height:3px;flex:1;background:currentColor;opacity:.24;border-radius:2px}
+.segs i.on{opacity:1}
+.stars{display:flex;gap:6px}
+.stars svg{width:calc(26px*var(--k));height:calc(26px*var(--k))}
+.stars .on{fill:var(--accent)}
+.stars .off{fill:currentColor;opacity:.2}
+html.em-marker .t-light .stars .on{fill:var(--ink)}
+.tick{flex:none;display:inline-grid;place-items:center;border-radius:50%;background:var(--accent);color:var(--accent-ink)}
+.tick svg{width:56%;height:56%}
+.dash{flex:none;display:inline-block;height:3px;border-radius:2px;background:currentColor;opacity:.35}
+.pb{display:block;height:.6em}
+/* bright photo under the brand bar (split layouts): a firmer top shade keeps the wordmark legible */
+.split .shade-t{background:linear-gradient(to bottom,rgba(var(--deep-rgb),.62) 0%,rgba(var(--deep-rgb),.3) 11%,rgba(var(--deep-rgb),0) 24%)}

@@ -1,0 +1,753 @@
+{
+ "_about": "Demo specs for `otto_render.py demo <brand> <out>`. Copy is drawn from each brand's profile, proof bank and content plan and passes brands/<slug>/compliance.json. Paths resolve against the repo root. name = output file stem.",
+ "happygarden": [
+  {
+   "name": "01-editorial-overlay",
+   "label": "Editorial / overlay",
+   "template": "editorial",
+   "data": {
+    "kicker": "Evening ritual",
+    "headline": "Your evening, *minus* the guesswork.",
+    "sub": "A CBD, CBG and CBN blend made for the wind-down part of the day. Every batch third-party lab tested.",
+    "cta": "Explore the evening blend",
+    "photo": "motion/otto-kit/img/hg-evening.jpg",
+    "photo_pos": "50% 40%"
+   }
+  },
+  {
+   "name": "02-editorial-split",
+   "label": "Editorial / split",
+   "template": "editorial",
+   "data": {
+    "layout": "split",
+    "kicker": "Behind the label",
+    "headline": "We test every batch. *You read the report.*",
+    "sub": "An independent lab checks each batch before it ships, and the certificate is yours to see.",
+    "cta": "See a lab report",
+    "tag": "Lab tested",
+    "photo": "motion/otto-kit/img/hg-lab.jpg",
+    "photo_pos": "50% 62%"
+   }
+  },
+  {
+   "name": "03-editorial-story",
+   "label": "Editorial / story 9:16",
+   "template": "editorial",
+   "size": "story",
+   "data": {
+    "kicker": "Made to GMP standards",
+    "headline": "Clean CBD, *checked twice*.",
+    "sub": "Produced to GMP-ISO 7 standards, then tested by an independent lab.",
+    "cta": "Shop the oils",
+    "photo": "motion/otto-kit/img/hg-yellow.jpg",
+    "photo_pos": "50% 50%"
+   }
+  },
+  {
+   "name": "04-big-number",
+   "label": "Big number",
+   "template": "big_number",
+   "data": {
+    "kicker": "Price, honestly",
+    "number": "€1.50",
+    "suffix": "a day",
+    "label": "What a *€45 bottle* works out to over a month.",
+    "body": "THC-free Broad Spectrum oil, lab report included, free shipping on subscription.",
+    "source": "Based on one 30 ml bottle used over 30 days."
+   }
+  },
+  {
+   "name": "05-big-number-story",
+   "label": "Big number / story",
+   "template": "big_number",
+   "size": "story",
+   "data": {
+    "theme": "dark",
+    "kicker": "Price, honestly",
+    "number": "€1.50",
+    "suffix": "a day",
+    "label": "What a *€45 bottle* works out to over a month.",
+    "source": "Based on one 30 ml bottle used over 30 days.",
+    "photo": "motion/otto-kit/img/hg-yellow.jpg",
+    "photo_pos": "50% 60%"
+   }
+  },
+  {
+   "name": "06-quote",
+   "label": "Customer quote",
+   "template": "quote",
+   "data": {
+    "quote": "The quality feels *clean and trustworthy.*",
+    "name": "Melanie S.",
+    "detail": "Verified customer, Germany",
+    "rating": 5,
+    "note": "Translated from German",
+    "cta": "Read the reviews"
+   }
+  },
+  {
+   "name": "07-quote-square",
+   "label": "Quote / square 1:1",
+   "template": "quote",
+   "size": "square",
+   "data": {
+    "theme": "dark",
+    "quote": "The quality feels *clean and trustworthy.*",
+    "name": "Melanie S.",
+    "detail": "Verified customer, Germany",
+    "rating": 5,
+    "note": "Translated from German"
+   }
+  },
+  {
+   "name": "08-before-after",
+   "label": "Before / after",
+   "template": "before_after",
+   "data": {
+    "kicker": "Choosing CBD",
+    "before": "Forty bottles. The same vague word on every label.",
+    "after": "Three spectrums, *one lab report each*. Pick yours in fifteen seconds.",
+    "photo_after": "motion/otto-kit/img/hg-spectrum.jpg",
+    "photo_after_pos": "50% 55%",
+    "cta": "Take the spectrum guide"
+   }
+  },
+  {
+   "name": "09-myth-fact",
+   "label": "Myth vs fact",
+   "template": "myth_fact",
+   "data": {
+    "kicker": "Myth-busting",
+    "myth": "All CBD contains THC.",
+    "fact": "Our Broad Spectrum and Isolate oils are *THC-free*, and the lab report shows it.",
+    "source": "Every batch is tested by an independent lab.",
+    "cta": "Compare the spectrums"
+   }
+  },
+  {
+   "name": "10-myth-fact-square",
+   "label": "Myth vs fact / square",
+   "template": "myth_fact",
+   "size": "square",
+   "data": {
+    "theme": "dark",
+    "myth": "All CBD contains THC.",
+    "fact": "Our Broad Spectrum and Isolate oils are *THC-free*, and the lab report shows it."
+   }
+  },
+  {
+   "name": "11-checklist",
+   "label": "Checklist",
+   "template": "checklist",
+   "data": {
+    "kicker": "Before you buy",
+    "title": "3 things to check before you buy *any* CBD",
+    "items": [
+     {
+      "text": "A lab report you can actually read",
+      "note": "Independent, recent, and matched to the batch."
+     },
+     {
+      "text": "The spectrum on the label",
+      "note": "Full, broad or isolate. Each contains something different."
+     },
+     {
+      "text": "Where and how it was made",
+      "note": "GMP production and an origin you can trace."
+     }
+    ],
+    "footnote": "We publish all three.",
+    "cta": "See ours"
+   }
+  },
+  {
+   "name": "12-offer",
+   "label": "Offer / price card",
+   "template": "offer",
+   "data": {
+    "theme": "accent",
+    "kicker": "Start here",
+    "name": "Broad Spectrum CBD Oil",
+    "price": "€45",
+    "price_note": "30 ml · THC-free",
+    "features": [
+     "Third-party lab report for every batch",
+     "Free shipping on subscription",
+     "A gift with every order"
+    ],
+    "cta": "Shop the oil",
+    "terms": "Price incl. VAT. Subscription perks apply to monthly orders.",
+    "photo": "motion/otto-kit/img/hg-yellow.jpg",
+    "photo_pos": "50% 85%"
+   }
+  },
+  {
+   "name": "13-offer-story",
+   "label": "Offer / story",
+   "template": "offer",
+   "size": "story",
+   "data": {
+    "theme": "accent",
+    "kicker": "Start here",
+    "name": "Broad Spectrum CBD Oil",
+    "price": "€45",
+    "price_note": "30 ml · THC-free",
+    "features": [
+     "Third-party lab report for every batch",
+     "Free shipping on subscription"
+    ],
+    "cta": "Shop the oil",
+    "terms": "Price incl. VAT.",
+    "photo": "motion/otto-kit/img/hg-yellow.jpg",
+    "photo_pos": "50% 85%"
+   }
+  },
+  {
+   "name": "14-comparison",
+   "label": "Comparison",
+   "template": "comparison",
+   "data": {
+    "kicker": "Spectrum guide",
+    "title": "Full, broad or *isolate*?",
+    "columns": [
+     {
+      "name": "Full"
+     },
+     {
+      "name": "Broad"
+     },
+     {
+      "name": "Isolate"
+     }
+    ],
+    "rows": [
+     {
+      "label": "CBD",
+      "values": [
+       "yes",
+       "yes",
+       "yes"
+      ]
+     },
+     {
+      "label": "Other cannabinoids (CBG, CBN)",
+      "values": [
+       "yes",
+       "yes",
+       "no"
+      ]
+     },
+     {
+      "label": "Terpenes",
+      "values": [
+       "yes",
+       "yes",
+       "no"
+      ]
+     },
+     {
+      "label": "THC",
+      "values": [
+       "Trace, within legal limits",
+       "None",
+       "None"
+      ]
+     }
+    ],
+    "footnote": "Every oil ships with its third-party lab report.",
+    "cta": "Find your spectrum",
+    "photo": "motion/otto-kit/img/hg-spectrum.jpg",
+    "photo_pos": "50% 50%"
+   }
+  },
+  {
+   "name": "15-carousel-1-cover",
+   "label": "Carousel 1/5 cover",
+   "template": "carousel_cover",
+   "data": {
+    "n": 1,
+    "total": 5,
+    "kicker": "Spectrum guide",
+    "headline": "Full, broad or isolate? *The 30-second guide.*",
+    "photo": "motion/otto-kit/img/hg-spectrum.jpg",
+    "photo_pos": "50% 45%"
+   }
+  },
+  {
+   "name": "15-carousel-2",
+   "label": "Carousel 2/5",
+   "template": "carousel_inner",
+   "data": {
+    "n": 2,
+    "total": 5,
+    "step": "01",
+    "title": "Full Spectrum",
+    "body": "The whole plant: CBD with the other cannabinoids and terpenes, plus a trace of THC within legal limits.",
+    "points": [
+     "CBD, CBG, CBN",
+     "Terpenes",
+     "Trace THC"
+    ]
+   }
+  },
+  {
+   "name": "15-carousel-3",
+   "label": "Carousel 3/5",
+   "template": "carousel_inner",
+   "data": {
+    "n": 3,
+    "total": 5,
+    "step": "02",
+    "title": "Broad Spectrum",
+    "body": "Everything in full spectrum, with the THC taken out.",
+    "points": [
+     "CBD, CBG, CBN",
+     "Terpenes",
+     "No THC"
+    ]
+   }
+  },
+  {
+   "name": "15-carousel-4",
+   "label": "Carousel 4/5",
+   "template": "carousel_inner",
+   "data": {
+    "n": 4,
+    "total": 5,
+    "step": "03",
+    "title": "Isolate",
+    "body": "Pure CBD and nothing else. The simple choice if you want a single cannabinoid.",
+    "points": [
+     "CBD only",
+     "No terpenes",
+     "No THC"
+    ]
+   }
+  },
+  {
+   "name": "15-carousel-5-cta",
+   "label": "Carousel 5/5 CTA",
+   "template": "carousel_cta",
+   "data": {
+    "n": 5,
+    "total": 5,
+    "headline": "Still deciding? *Start with the lab report.*",
+    "sub": "Every batch is tested by an independent lab. Read it before you buy.",
+    "cta": "Find your spectrum"
+   }
+  },
+  {
+   "name": "16-founder-note",
+   "label": "Founder / team note",
+   "template": "founder_note",
+   "data": {
+    "kicker": "A note from the team",
+    "headline": "Why the lab report comes *first*.",
+    "body": "Buying CBD shouldn't mean taking a label on faith.\n\nSo every batch we sell is tested by an independent lab, and the results are there for you to read. If a bottle says broad spectrum, the report shows it. If it says THC-free, the report shows that too.\n\nRead it before you buy. That's the whole idea.",
+    "name": "The Happy Garden team",
+    "role": "happygardeneu.com"
+   }
+  },
+  {
+   "name": "17-event",
+   "label": "Event / date card",
+   "template": "event",
+   "data": {
+    "kicker": "Live on Instagram",
+    "title": "Reading a CBD lab report, *line by line*.",
+    "date": "2026-10-15",
+    "time": "19:00 CET",
+    "details": [
+     "30 minutes",
+     "Instagram Live",
+     "With our product team"
+    ],
+    "cta": "Set a reminder",
+    "photo": "motion/otto-kit/img/hg-lab.jpg",
+    "photo_pos": "50% 60%"
+   }
+  },
+  {
+   "name": "18-event-story",
+   "label": "Event / story",
+   "template": "event",
+   "size": "story",
+   "data": {
+    "kicker": "Live on Instagram",
+    "title": "Reading a CBD lab report, *line by line*.",
+    "date": "2026-10-15",
+    "time": "19:00 CET",
+    "details": [
+     "30 minutes",
+     "Instagram Live"
+    ],
+    "cta": "Set a reminder",
+    "photo": "motion/otto-kit/img/hg-lab.jpg",
+    "photo_pos": "50% 60%"
+   }
+  }
+ ],
+ "cmtm": [
+  {
+   "name": "01-editorial-overlay",
+   "label": "Editorial / overlay",
+   "template": "editorial",
+   "data": {
+    "kicker": "חינוך לשיטה",
+    "headline": "מה שקורה *מתחת לפני השטח*",
+    "sub": "תרפיית מימדים עובדת עם הגוף, הרגש והתת-מודע. בשיעור טעימה אפשר לראות איך זה נראה מבפנים.",
+    "cta": "לשיעור טעימה",
+    "photo": "motion/otto-kit/img/cm-001.jpg",
+    "photo_pos": "50% 40%"
+   }
+  },
+  {
+   "name": "02-editorial-split",
+   "label": "Editorial / split",
+   "template": "editorial",
+   "data": {
+    "layout": "split",
+    "kicker": "סיפורי בוגרות",
+    "headline": "בגיל 43, בלי רקע טיפולי, *פתחה קליניקה*",
+    "sub": "הכשרת מטפלים בשיטת תרפיית המימדים: סילבוס מלא, סטאז' מודרך וקהילה שממשיכה איתך.",
+    "cta": "לסיפור המלא",
+    "photo": "motion/otto-kit/img/cm-002.jpg",
+    "photo_pos": "50% 22%"
+   }
+  },
+  {
+   "name": "03-editorial-story",
+   "label": "Editorial / story 9:16",
+   "template": "editorial",
+   "size": "story",
+   "data": {
+    "kicker": "הסבה מקצועית",
+    "headline": "קריירה שנייה *עם משמעות*",
+    "sub": "הכשרת מטפלים פרונטלית בפתח תקווה, או דיגיטלית מכל מקום.",
+    "cta": "לבדיקת התאמה",
+    "photo": "motion/otto-kit/img/cm-007.jpg",
+    "photo_pos": "55% 50%"
+   }
+  },
+  {
+   "name": "04-big-number",
+   "label": "Big number",
+   "template": "big_number",
+   "data": {
+    "theme": "dark",
+    "kicker": "25 שנות הוראה",
+    "number": "10,000+",
+    "suffix": "בוגרים",
+    "label": "ובוגרות, שלמדו את השיטה *ישירות ממפתחיה*.",
+    "body": "הכשרה עם סילבוס, סטאז' מודרך על מטופלים אמיתיים וקהילת מטפלים פעילה.",
+    "source": "נתוני המכללה",
+    "cta": "לשיעור טעימה"
+   }
+  },
+  {
+   "name": "05-big-number-story",
+   "label": "Big number / story",
+   "template": "big_number",
+   "size": "story",
+   "data": {
+    "theme": "dark",
+    "kicker": "25 שנות הוראה",
+    "number": "10,000+",
+    "suffix": "בוגרים",
+    "label": "ובוגרות, שלמדו את השיטה *ישירות ממפתחיה*.",
+    "source": "נתוני המכללה",
+    "photo": "motion/otto-kit/img/cm-001.jpg",
+    "photo_pos": "50% 70%"
+   }
+  },
+  {
+   "name": "06-quote",
+   "label": "Graduate quote",
+   "template": "quote",
+   "data": {
+    "quote": "תוך שנה *הפכתי למטפלת טובה*. לא האמנתי שזה אפשרי בלי תואר.",
+    "name": "רות",
+    "detail": "בוגרת המסלול הבסיסי",
+    "portrait": "motion/otto-kit/img/cm-002.jpg",
+    "portrait_pos": "50% 18%",
+    "cta": "לסיפורי בוגרות"
+   }
+  },
+  {
+   "name": "07-quote-square",
+   "label": "Quote / square 1:1",
+   "template": "quote",
+   "size": "square",
+   "data": {
+    "theme": "dark",
+    "quote": "תוך שנה *הפכתי למטפלת טובה*.",
+    "name": "רות",
+    "detail": "בוגרת המסלול הבסיסי",
+    "portrait": "motion/otto-kit/img/cm-002.jpg",
+    "portrait_pos": "50% 18%"
+   }
+  },
+  {
+   "name": "08-before-after",
+   "label": "Before / after",
+   "template": "before_after",
+   "data": {
+    "kicker": "הסבה מקצועית",
+    "before": "עבודה שממלאת את היומן, לא את הלב.",
+    "after": "מקצוע טיפולי *עם שיטה, סטאז' וקהילה*.",
+    "photo_after": "motion/otto-kit/img/cm-007.jpg",
+    "photo_after_pos": "60% 50%",
+    "cta": "לבדיקת התאמה"
+   }
+  },
+  {
+   "name": "09-myth-fact",
+   "label": "Myth vs fact",
+   "template": "myth_fact",
+   "data": {
+    "kicker": "מיתוסים על הסבה",
+    "myth": "אי אפשר ללמוד טיפול בלי רקע קודם.",
+    "fact": "ההכשרה בנויה *גם למי שמגיעים בלי רקע*: מהבסיס, עם סטאז' מודרך על מטופלים אמיתיים.",
+    "source": "מתוך מבנה הרמה הבסיסית",
+    "cta": "לבדיקת התאמה"
+   }
+  },
+  {
+   "name": "10-myth-fact-square",
+   "label": "Myth vs fact / square",
+   "template": "myth_fact",
+   "size": "square",
+   "data": {
+    "theme": "dark",
+    "myth": "אי אפשר ללמוד טיפול בלי רקע קודם.",
+    "fact": "ההכשרה בנויה *גם למי שמגיעים בלי רקע*."
+   }
+  },
+  {
+   "name": "11-checklist",
+   "label": "Checklist",
+   "template": "checklist",
+   "data": {
+    "kicker": "לפני שנרשמים",
+    "title": "3 דברים לבדוק לפני שבוחרים *הכשרת מטפלים*",
+    "items": [
+     {
+      "text": "סטאז' מודרך על מטופלים אמיתיים",
+      "note": "לא רק תיאוריה: עבודה בפועל, בליווי מדריך."
+     },
+     {
+      "text": "שיטה עם מסגרת ברורה",
+      "note": "סילבוס, עבודת גמר ומבחן לפני הדיפלומה."
+     },
+     {
+      "text": "קהילה שנשארת גם אחרי",
+      "note": "המשך לימודים, סופרוויז'ן ומפגשי בוגרים."
+     }
+    ],
+    "footnote": "אצלנו תמצאו את שלושתם.",
+    "cta": "לבדיקת התאמה"
+   }
+  },
+  {
+   "name": "12-offer",
+   "label": "Offer / free lesson",
+   "template": "offer",
+   "data": {
+    "theme": "dark",
+    "kicker": "שיעור טעימה",
+    "name": "שיעור טעימה דיגיטלי עם מפתחי השיטה",
+    "price": "חינם",
+    "price_note": "בלי התחייבות",
+    "features": [
+     "שיעור וידאו מתוך קורס ההכשרה",
+     "תרגול קצר שאפשר לעשות מהבית",
+     "שיחת התאמה אישית עם יועצת"
+    ],
+    "cta": "לשיעור הטעימה",
+    "terms": "נחזור אליך תוך 48 שעות לתיאום.",
+    "photo": "motion/otto-kit/img/interior-room.jpg",
+    "photo_pos": "40% 60%"
+   }
+  },
+  {
+   "name": "13-offer-story",
+   "label": "Offer / story",
+   "template": "offer",
+   "size": "story",
+   "data": {
+    "theme": "dark",
+    "kicker": "שיעור טעימה",
+    "name": "שיעור טעימה דיגיטלי עם מפתחי השיטה",
+    "price": "חינם",
+    "price_note": "בלי התחייבות",
+    "features": [
+     "שיעור וידאו מתוך קורס ההכשרה",
+     "שיחת התאמה אישית עם יועצת"
+    ],
+    "cta": "לשיעור הטעימה",
+    "photo": "motion/otto-kit/img/interior-room.jpg",
+    "photo_pos": "40% 60%"
+   }
+  },
+  {
+   "name": "14-comparison",
+   "label": "Comparison",
+   "template": "comparison",
+   "data": {
+    "kicker": "איך לומדים",
+    "title": "פרונטלי או *דיגיטלי*?",
+    "columns": [
+     {
+      "name": "פרונטלי"
+     },
+     {
+      "name": "דיגיטלי"
+     }
+    ],
+    "rows": [
+     {
+      "label": "איפה",
+      "values": [
+       "פתח תקווה",
+       "מכל מקום בעולם"
+      ]
+     },
+     {
+      "label": "שיעורים",
+      "values": [
+       "מפגשים בכיתה",
+       "20 שיעורי וידאו ו-20 שיעורי אודיו"
+      ]
+     },
+     {
+      "label": "תרגולים",
+      "values": [
+       "yes",
+       "yes"
+      ]
+     },
+     {
+      "label": "דיפלומה",
+      "values": [
+       "yes",
+       "yes"
+      ]
+     }
+    ],
+    "footnote": "בשני המסלולים הדיפלומה מותנית בעבודת גמר ומבחן.",
+    "cta": "לבדיקת התאמה"
+   }
+  },
+  {
+   "name": "15-carousel-1-cover",
+   "label": "Carousel 1/5 cover",
+   "template": "carousel_cover",
+   "data": {
+    "n": 1,
+    "total": 5,
+    "kicker": "הכשרת מטפלים",
+    "headline": "איך נראית *שנה ראשונה* בהכשרה?",
+    "photo": "motion/otto-kit/img/cm-007.jpg",
+    "photo_pos": "55% 50%"
+   }
+  },
+  {
+   "name": "15-carousel-2",
+   "label": "Carousel 2/5",
+   "template": "carousel_inner",
+   "data": {
+    "n": 2,
+    "total": 5,
+    "step": "01",
+    "title": "לומדים את השיטה",
+    "body": "שיעורים עם המרצים שפיתחו אותה, בכיתה בפתח תקווה או דיגיטלית מכל מקום."
+   }
+  },
+  {
+   "name": "15-carousel-3",
+   "label": "Carousel 3/5",
+   "template": "carousel_inner",
+   "data": {
+    "n": 3,
+    "total": 5,
+    "step": "02",
+    "title": "מתרגלים בליווי",
+    "body": "סטאז' מודרך על מטופלים אמיתיים, עם משוב ממדריך לאורך הדרך."
+   }
+  },
+  {
+   "name": "15-carousel-4",
+   "label": "Carousel 4/5",
+   "template": "carousel_inner",
+   "data": {
+    "n": 4,
+    "total": 5,
+    "step": "03",
+    "title": "מסיימים עם דיפלומה",
+    "body": "עבודת גמר ומבחן, ואחר כך קהילת מטפלים שממשיכה איתך."
+   }
+  },
+  {
+   "name": "15-carousel-5-cta",
+   "label": "Carousel 5/5 CTA",
+   "template": "carousel_cta",
+   "data": {
+    "n": 5,
+    "total": 5,
+    "headline": "רוצים להרגיש את זה מבפנים? *שיעור טעימה, חינם.*",
+    "sub": "שיעור מתוך הקורס, ואחריו שיחת התאמה עם יועצת.",
+    "cta": "לשיעור הטעימה"
+   }
+  },
+  {
+   "name": "16-founder-note",
+   "label": "Founder note",
+   "template": "founder_note",
+   "data": {
+    "kicker": "מכתב מהמייסד",
+    "headline": "למה אני עדיין *נכנס לכיתה*",
+    "body": "לפני יותר מ-25 שנה התחלתי ללמד את השיטה לקבוצה קטנה. היום יש לנו מעל 10,000 בוגרים ובוגרות, ואני עדיין מלמד.\n\nכי מקצוע טיפולי לא לומדים מספר. לומדים אותו מאנשים, מתרגול, ומקהילה שמחזיקה אותך בדרך.\n\nאם זה מדבר אליכם, בואו לשיעור טעימה.",
+    "name": "יובל לוי",
+    "role": "מפתח השיטה ומייסד המכללה"
+   }
+  },
+  {
+   "name": "17-event",
+   "label": "Event / webinar",
+   "template": "event",
+   "data": {
+    "kicker": "וובינר פתוח",
+    "title": "איך נראית *שנה ראשונה* כמטפלת?",
+    "date": "2026-10-14",
+    "time": "20:30",
+    "details": [
+     "60 דקות",
+     "בזום",
+     "עם צוות המרצים"
+    ],
+    "cta": "לשמירת מקום",
+    "photo": "motion/otto-kit/img/interior-room.jpg",
+    "photo_pos": "40% 55%"
+   }
+  },
+  {
+   "name": "18-event-story",
+   "label": "Event / story",
+   "template": "event",
+   "size": "story",
+   "data": {
+    "kicker": "וובינר פתוח",
+    "title": "איך נראית *שנה ראשונה* כמטפלת?",
+    "date": "2026-10-14",
+    "time": "20:30",
+    "details": [
+     "60 דקות",
+     "בזום"
+    ],
+    "cta": "לשמירת מקום",
+    "photo": "motion/otto-kit/img/interior-room.jpg",
+    "photo_pos": "40% 55%"
+   }
+  }
+ ]
+}
