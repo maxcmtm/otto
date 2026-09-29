@@ -1,0 +1,274 @@
+<template id="e07-template">
+  <style>
+    @font-face { font-family: "Inter Tight"; src: url("assets/fonts/InterTight-var-latin.woff2") format("woff2"); font-weight: 100 900; font-display: block; }
+    @font-face { font-family: "Inter"; src: url("assets/fonts/Inter-var-latin.woff2") format("woff2"); font-weight: 100 900; font-display: block; }
+
+    /* Frame root: styled by id only (contract). No background here: the ground is its own clip layer. */
+    #root {
+      position: absolute;
+      inset: 0;
+      width: 1080px;
+      height: 1920px;
+      overflow: hidden;
+      font-family: "Inter", sans-serif;
+      color: #1D1D1F;
+    }
+
+    /* Full-bleed ground, full-duration clip on the lowest track */
+    #e07-bg { position: absolute; inset: 0; background: #F5F5F7; }
+
+    /* Headline zone y 250-520: two lines, 84px display M */
+    #e07-head {
+      position: absolute;
+      left: 60px;
+      top: 282px;
+      width: 960px;
+      text-align: center;
+      font-family: "Inter Tight", "Inter", sans-serif;
+      font-weight: 600;
+      font-size: 84px;
+      line-height: 1.06;
+      letter-spacing: -0.03em;
+      color: #1D1D1F;
+    }
+    .e07-line { display: block; white-space: nowrap; }
+    .e07-mask { display: inline-block; overflow: hidden; padding-bottom: .12em; margin-bottom: -.12em; vertical-align: bottom; }
+    .e07-w { display: inline-block; }
+
+    /* Metric above the Nov bar, right edge on the bar's right edge (x 960) */
+    #e07-metric {
+      position: absolute;
+      left: 440px;
+      top: 566px;
+      width: 520px;
+      text-align: right;
+    }
+    #e07-metric-in {
+      display: block;
+      font-family: "Inter Tight", "Inter", sans-serif;
+      font-weight: 650;
+      font-size: 96px;
+      line-height: 1;
+      letter-spacing: -0.035em;
+      color: #2447F0;
+      white-space: nowrap;
+    }
+
+    /* Bars: 180 wide, gap 40, baseline y 1400 (bottom 520 on a 1920 root), max height 700.
+       Static CSS = the settled chart; the opening square state is applied by gsap.set below. */
+    .e07-bar {
+      position: absolute;
+      bottom: 520px;
+      width: 180px;
+      height: 48px;
+      border-radius: 18px 18px 6px 6px;
+      background: #D9DEF9;
+    }
+    #e07-bar-aug { left: 120px; height: 322px; }
+    #e07-bar-sep { left: 340px; height: 441px; }
+    #e07-bar-oct { left: 560px; height: 567px; }
+    #e07-bar-nov { left: 780px; height: 700px; background: #2447F0; }
+
+    /* The Otto square's white inner outline (.ok-mark::after at --s 140px), carried as its own layer */
+    #e07-sq-in {
+      position: absolute;
+      left: 505px;
+      top: 865px;
+      width: 70px;
+      height: 70px;
+      box-sizing: border-box;
+      border: 8.4px solid #FFFFFF;
+      border-radius: 16.8px;
+      opacity: .95;
+    }
+
+    /* Month labels under the baseline */
+    #e07-lbls { position: absolute; left: 0; top: 1424px; width: 1080px; height: 44px; }
+    .e07-lbl {
+      position: absolute;
+      top: 0;
+      width: 180px;
+      text-align: center;
+      font-family: "Inter", sans-serif;
+      font-weight: 500;
+      font-size: 34px;
+      line-height: 1.2;
+      color: #6E6E73;
+    }
+    #e07-lbl-aug { left: 120px; }
+    #e07-lbl-sep { left: 340px; }
+    #e07-lbl-oct { left: 560px; }
+    #e07-lbl-nov { left: 780px; }
+
+    /* Footnote under the chart */
+    #e07-note { position: absolute; left: 60px; top: 1494px; width: 960px; text-align: center; }
+    #e07-note-in {
+      display: block;
+      font-family: "Inter", sans-serif;
+      font-weight: 400;
+      font-size: 30px;
+      line-height: 1.2;
+      color: #86868B;
+    }
+  </style>
+
+  <div id="root" data-composition-id="07-grew" data-width="1080" data-height="1920" data-duration="3.43">
+    <div id="e07-bg" class="clip" data-start="0" data-duration="3.43" data-track-index="0"></div>
+
+    <div id="e07-head">
+      <span class="e07-line"><span class="e07-mask"><span class="e07-w" id="e07-w1">Every</span></span> <span class="e07-mask"><span class="e07-w" id="e07-w2">month,</span></span></span>
+      <span class="e07-line"><span class="e07-mask"><span class="e07-w" id="e07-w3">you</span></span> <span class="e07-mask"><span class="e07-w" id="e07-w4">see</span></span> <span class="e07-mask"><span class="e07-w" id="e07-w5">what</span></span> <span class="e07-mask"><span class="e07-w" id="e07-w6">grew.</span></span></span>
+    </div>
+
+    <div id="e07-metric"><span id="e07-metric-in">+22% reach</span></div>
+
+    <div id="e07-lbls">
+      <div class="e07-lbl" id="e07-lbl-aug">Aug</div>
+      <div class="e07-lbl" id="e07-lbl-sep">Sep</div>
+      <div class="e07-lbl" id="e07-lbl-oct">Oct</div>
+      <div class="e07-lbl" id="e07-lbl-nov">Nov</div>
+    </div>
+
+    <div id="e07-note"><span id="e07-note-in">Example month</span></div>
+
+    <div class="e07-bar" id="e07-bar-aug"></div>
+    <div class="e07-bar" id="e07-bar-sep"></div>
+    <div class="e07-bar" id="e07-bar-oct"></div>
+    <div class="e07-bar" id="e07-bar-nov"></div>
+
+    <div id="e07-sq-in"></div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+  <script>
+    (function () {
+      // Geometry (frame px). The Otto square: 140px, centre (540, 900) -> rect x 470-610, y 830-970.
+      // Chart baseline y 1400; bars sit on it via CSS bottom, so y: -430 lifts a bar's foot to y 970.
+      var SQ_LEFT = 470;
+      var LIFT = -430;
+      var R_SQ = 42;
+      var COBALT = "#2447F0";
+      var TINT = "#D9DEF9";
+
+      var bars = [
+        { sel: "#e07-bar-aug", left: 120, h: 322, color: TINT,   rise: 0.54, lbl: "#e07-lbl-aug" },
+        { sel: "#e07-bar-sep", left: 340, h: 441, color: TINT,   rise: 1.26, lbl: "#e07-lbl-sep" },
+        { sel: "#e07-bar-oct", left: 560, h: 567, color: TINT,   rise: 1.76, lbl: "#e07-lbl-oct" },
+        { sel: "#e07-bar-nov", left: 780, h: 700, color: COBALT, rise: 2.26, lbl: "#e07-lbl-nov" }
+      ];
+      var STUB = 48;
+
+      function sqState(b) {
+        return {
+          x: SQ_LEFT - b.left, y: LIFT, width: 140, height: 140,
+          borderTopLeftRadius: R_SQ, borderTopRightRadius: R_SQ,
+          borderBottomLeftRadius: R_SQ, borderBottomRightRadius: R_SQ,
+          backgroundColor: COBALT
+        };
+      }
+
+      // ---- Opening state (handoff_in: square at rest, 140px at (540, 900)) ----
+      // The four bars stack exactly on the square's rect, so together they ARE the square.
+      bars.forEach(function (b) { gsap.set(b.sel, sqState(b)); });
+      gsap.set("#e07-sq-in", { x: 0, y: 0, scale: 1, opacity: 0.95 });
+      gsap.set(".e07-w", { yPercent: 105, opacity: 0 });
+      gsap.set(".e07-lbl", { y: 14, opacity: 0 });
+      gsap.set("#e07-metric-in", { y: 36, opacity: 0 });
+      gsap.set("#e07-note-in", { y: 12, opacity: 0 });
+      gsap.set(["#e07-head", "#e07-metric", "#e07-lbls", "#e07-note"], { x: 0, y: 0, scale: 1, opacity: 1 });
+
+      var tl = gsap.timeline({ paused: true });
+
+      // ---- Scene 1 (0.00-2.70): headline builds on the cues ----
+      var words = [
+        ["#e07-w1", 0.22], // Every
+        ["#e07-w2", 0.54], // month,
+        ["#e07-w3", 1.26], // you
+        ["#e07-w4", 1.48], // see
+        ["#e07-w5", 2.26], // what
+        ["#e07-w6", 2.68]  // grew.
+      ];
+      words.forEach(function (w) {
+        tl.fromTo(w[0], { yPercent: 105, opacity: 0 },
+          { yPercent: 0, opacity: 1, duration: 0.55, ease: "expo.out", immediateRender: false }, w[1]);
+      });
+
+      // The square drops to the chart baseline (foot at y 1400), power3.inOut
+      bars.forEach(function (b) {
+        tl.fromTo(b.sel, { y: LIFT }, { y: 0, duration: 0.36, ease: "power3.inOut", immediateRender: false }, 0);
+      });
+      tl.fromTo("#e07-sq-in", { y: 0 }, { y: 430, duration: 0.36, ease: "power3.inOut", immediateRender: false }, 0);
+      // its white outline dissolves as it lands
+      tl.fromTo("#e07-sq-in", { opacity: 0.95 }, { opacity: 0, duration: 0.12, ease: "power2.in", immediateRender: false }, 0.24);
+
+      // ...and splits into four bars: slide to their slots, widen to 180, flatten to stubs, take their colours.
+      // Aug keeps its height here because it rises straight away on "month" (0.54).
+      bars.forEach(function (b, i) {
+        var to = {
+          x: 0, width: 180,
+          borderTopLeftRadius: 18, borderTopRightRadius: 18,
+          borderBottomLeftRadius: 6, borderBottomRightRadius: 6,
+          backgroundColor: b.color,
+          duration: 0.40, ease: "power3.inOut", immediateRender: false
+        };
+        var from = {
+          x: SQ_LEFT - b.left, width: 140,
+          borderTopLeftRadius: R_SQ, borderTopRightRadius: R_SQ,
+          borderBottomLeftRadius: R_SQ, borderBottomRightRadius: R_SQ,
+          backgroundColor: COBALT
+        };
+        if (i > 0) { from.height = 140; to.height = STUB; }
+        tl.fromTo(b.sel, from, to, 0.34);
+      });
+
+      // Bars rise on month / you / exactly / what; each month label arrives with its bar
+      bars.forEach(function (b, i) {
+        tl.fromTo(b.sel, { height: i === 0 ? 140 : STUB },
+          { height: b.h, duration: 0.7, ease: "expo.out", immediateRender: false }, b.rise);
+        tl.fromTo(b.lbl, { y: 14, opacity: 0 },
+          { y: 0, opacity: 1, duration: 0.5, ease: "expo.out", immediateRender: false }, b.rise);
+      });
+
+      // ---- Scene 2 (2.68-3.10): on "grew" the metric lands above the Nov bar ----
+      tl.fromTo("#e07-metric-in", { y: 36, opacity: 0 },
+        { y: 0, opacity: 1, duration: 0.5, ease: "expo.out", immediateRender: false }, 2.68);
+      tl.fromTo("#e07-note-in", { y: 12, opacity: 0 },
+        { y: 0, opacity: 1, duration: 0.4, ease: "expo.out", immediateRender: false }, 2.76);
+
+      // ---- Scene 3 (3.10-3.43): bars and text collapse into the square; square at rest by 3.43 ----
+      // Text groups are pulled toward the square's centre (540, 900) and vanish into it.
+      var pulls = [
+        ["#e07-head",   0,    529], // centre ~ (540, 371)
+        ["#e07-metric", -160, 284], // centre ~ (700, 614)
+        ["#e07-lbls",   0,   -546], // centre ~ (540, 1446)
+        ["#e07-note",   0,   -612]  // centre ~ (540, 1512)
+      ];
+      pulls.forEach(function (p) {
+        tl.fromTo(p[0], { x: 0, y: 0, scale: 1, opacity: 1 },
+          { x: p[1], y: p[2], scale: 0.1, opacity: 0, duration: 0.24, ease: "power3.in", immediateRender: false }, 3.10);
+      });
+
+      // The four bars converge back onto the square's rect and turn cobalt
+      bars.forEach(function (b) {
+        var from = {
+          x: 0, y: 0, width: 180, height: b.h,
+          borderTopLeftRadius: 18, borderTopRightRadius: 18,
+          borderBottomLeftRadius: 6, borderBottomRightRadius: 6,
+          backgroundColor: b.color
+        };
+        var to = sqState(b);
+        to.duration = 0.24;
+        to.ease = "power3.in";
+        to.immediateRender = false;
+        tl.fromTo(b.sel, from, to, 3.10);
+      });
+
+      // The white outline returns as the bars lock onto the square; square at rest from 3.42
+      tl.fromTo("#e07-sq-in", { y: 0, scale: 0.85, opacity: 0 },
+        { y: 0, scale: 1, opacity: 0.95, duration: 0.09, ease: "power2.out", immediateRender: false }, 3.33);
+
+      window.__timelines = window.__timelines || {};
+      window.__timelines["07-grew"] = tl;
+    })();
+  </script>
+</template>

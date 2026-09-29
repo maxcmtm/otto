@@ -31,7 +31,13 @@ TEMPLATE = BRANDS / "BRAND-PROFILE-TEMPLATE.md"
 UA = ("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) "
       "Chrome/128.0 Safari/537.36 OttoScan/1.0")
 PAGE_KEYS = ["about", "story", "team", "product", "shop", "collection", "service", "treatment", "menu",
-             "pricing", "price", "plans", "review", "testimonial", "faq", "blog", "contact", "course"]
+             "pricing", "price", "plans", "review", "testimonial", "faq", "blog", "contact", "course",
+             # localized slugs (de / pt / nl / it / fr / es) — without them a European site is read as its homepage only
+             "ueber", "uber-uns", "leistung", "preis", "angebot", "bewertung", "kontakt", "kurs",
+             "sobre", "servico", "preco", "aulas", "curso", "testemunho", "contacto", "contato", "loja",
+             "over-ons", "dienst", "prijs", "prijz", "winkel", "cursus",
+             "chi-siamo", "servizi", "prezzi", "listino", "progetti", "contatti", "recensioni", "corsi", "negozio",
+             "a-propos", "tarif", "prestation", "avis", "boutique", "servicios", "precios", "tienda", "opiniones"]
 SKIP_TAGS = {"script", "style", "noscript", "svg", "template", "iframe"}
 GENERIC_FONTS = {"inherit", "initial", "sans-serif", "serif", "monospace", "system-ui", "-apple-system",
                  "blinkmacsystemfont", "segoe ui", "roboto", "helvetica neue", "helvetica", "arial",
@@ -43,20 +49,27 @@ TRUST_WORDS = ["gmp", "iso 9001", "iso ", "fda", "lab tested", "lab-tested", "th
                "★", "⭐", "reviews", "bewertungen", "המלצות", "בוגרים", "graduates", "clients", "customers served"]
 PROMO_RE = re.compile(r"((?<!\d)\d{1,2}\s?%\s?(?:off|rabatt|הנחה|discount)|free shipping|kostenloser versand|black friday|"
                       r"cyber monday|new arrival|limited time|bundle|gift card|use code [A-Z0-9]{3,}|sale\b)", re.I)
-PRICE_RE = re.compile(r"(?:(?:€|\$|£|₪|EUR|USD|ILS|NIS|GBP|CHF|NOK|SEK|DKK)\s?\d{1,5}(?:[.,]\d{2})?)|"
-                      r"(?:\d{1,5}(?:[.,]\d{2})?\s?(?:€|₪|\$|£|EUR|USD|ILS|NIS|kr\b|CHF))")
+# amounts with thousands separators first ("2.900 €", "₪18,500", "€1,234.56") — the plain form alone read them as "900 €" / "₪18,50"
+AMOUNT = r"(?:\d{1,3}(?:[.,\u00a0\u202f]\d{3})+(?:[.,]\d{2})?(?!\d)|\d{1,5}(?:[.,]\d{2})?)"
+PRICE_RE = re.compile(r"(?:(?:€|\$|£|₪|EUR|USD|ILS|NIS|GBP|CHF|NOK|SEK|DKK)\s?" + AMOUNT + r")|"
+                      r"(?:" + AMOUNT + r"\s?(?:€|₪|\$|£|EUR|USD|ILS|NIS|kr\b|CHF))")
 INDUSTRIES = {
     "CBD & hemp wellness": ["cbd", "hemp", "cannabinoid", "cbg", "cbn", "full spectrum", "broad spectrum"],
     "Restaurant & food": ["restaurant", "menu", "reservation", "chef", "dish", "brunch", "pizza", "sushi", "café", "cafe", "bistro"],
     "Clinic & medical": ["clinic", "patient", "treatment", "dental", "dentist", "doctor", "appointment", "therapy",
-                         "botox", "aesthetic", "laser", "physio", "מרפאה", "מרפאת", "רופא", "קליניקה", "טיפולים"],
+                         "botox", "aesthetic", "laser", "physio", "מרפאה", "מרפאת", "רופא", "קליניקה", "טיפולים",
+                         "zahnarzt", "zahnarztpraxis", "zahnmedizin", "arztpraxis", "patienten", "clínica", "dentista",
+                         "tandarts", "tandartspraktijk", "studio dentistico", "odontoiatria", "cabinet dentaire", "médecin"],
     "Education & courses": ["course", "academy", "college", "student", "curriculum", "learn", "training",
                             "certificate", "diploma", "webinar", "lesson", "מכללה", "מכללת", "קורס", "בוגרים",
-                            "לימודים", "לימודי", "הכשרה", "הכשרת", "דיפלומה", "סילבוס", "סטודנטים"],
+                            "לימודים", "לימודי", "הכשרה", "הכשרת", "דיפלומה", "סילבוס", "סטודנטים",
+                            "kurs", "kurse", "ausbildung", "weiterbildung", "curso", "cursos", "aulas", "escola", "formação",
+                            "cursus", "opleiding", "corso", "corsi", "scuola", "formazione", "école", "formation", "escuela"],
     "Marketing & agency": ["marketing", "agency", "seo", "social media", "branding", "campaign", "content creation",
                            "autopilot", "advertising", "ads"],
     "E-commerce & retail": ["add to cart", "cart", "checkout", "shipping", "shop", "collection", "free shipping",
-                            "returns", "warenkorb", "versand"],
+                            "returns", "warenkorb", "versand", "winkelwagen", "afrekenen", "verzending", "webshop", "bestellen",
+                            "carrinho", "loja online", "envio", "carrello", "spedizione", "panier", "livraison", "carrito", "envío"],
     "Real estate": ["real estate", "property", "apartment", "villa", "sqm", "m²", "for sale", "listing", "mortgage", "נדל"],
     "SaaS & software": ["software", "platform", "api", "integration", "dashboard", "free trial", "sign up", "saas", "workflow"],
     "Fitness & gym": ["gym", "fitness", "workout", "membership", "trainer", "yoga", "pilates", "crossfit"],
@@ -64,7 +77,9 @@ INDUSTRIES = {
     "Legal & finance": ["attorney", "lawyer", "legal", "accounting", "tax", "insurance", "loan", "trading", "broker", "עורך דין"],
     "Hotel & travel": ["hotel", "rooms", "booking", "resort", "guest", "travel", "tour", "check-in"],
     "Coaching & consulting": ["coach", "coaching", "consulting", "mentor", "mastermind", "program", "1:1"],
-    "Home & construction": ["renovation", "construction", "roofing", "plumbing", "solar", "interior", "furniture", "kitchen"],
+    "Home & construction": ["renovation", "construction", "roofing", "plumbing", "solar", "interior", "furniture", "kitchen",
+                            "arredamento", "arredo", "ristrutturazione", "interni", "innenarchitektur", "renovierung", "interieur",
+                            "verbouwing", "remodelação", "decoração"],
     "Automotive": ["dealership", "vehicle", "tires", "garage", "car wash", "auto repair"],
 }
 
@@ -578,7 +593,9 @@ def scan(url, pages=5, page_limit=1_200_000, deadline=None):
         if c:
             css_texts.append(c)
     palette, neutrals = palette_from([html] + css_texts)
-    theme = home.metas.get("theme-color")
+    theme = (home.metas.get("theme-color") or "").strip()
+    if not re.fullmatch(r"#[0-9a-fA-F]{3,8}|[a-zA-Z]{3,20}|rgba?\([\d\s.,%]+\)", theme):
+        theme = None                                  # only a CSS colour is stored (it lands in scan.json + the profile)
     if theme and re.match(r"^#[0-9a-fA-F]{3,6}$", theme):
         t = hex6(theme)
         if not any(p["hex"] == t for p in palette) and not is_neutral(t):

@@ -1,0 +1,304 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>03-reads · Otto reads your business</title>
+  </head>
+  <body>
+    <template>
+      <style>
+        @font-face { font-family: "Inter Tight"; src: url("assets/fonts/InterTight-var-latin.woff2") format("woff2"); font-weight: 100 900; font-display: block; }
+        @font-face { font-family: "Inter"; src: url("assets/fonts/Inter-var-latin.woff2") format("woff2"); font-weight: 100 900; font-display: block; }
+
+        #stage[data-composition-id="03-reads"] {
+          position: absolute; inset: 0; width: 1920px; height: 1080px; overflow: hidden;
+          font-family: "Inter", system-ui, sans-serif; color: #1D1D1F;
+        }
+        #stage[data-composition-id="03-reads"] * { box-sizing: border-box; }
+
+        /* full-bleed light ground, own layer */
+        #f03-bg { position: absolute; inset: 0; background: #F5F5F7; }
+
+        /* headline — top-centred, y ≈ 150 */
+        #f03-head {
+          position: absolute; left: 160px; right: 160px; top: 112px; height: 76px;
+          text-align: center; white-space: nowrap;
+          font: 600 64px/76px "Inter Tight", "Inter", sans-serif; letter-spacing: -0.03em; color: #1D1D1F;
+        }
+        .f03-m { display: inline-block; overflow: hidden; vertical-align: bottom; padding-bottom: .12em; margin-bottom: -.12em; }
+        .f03-w { display: inline-block; }
+        .f03-acc { color: #2447F0; }
+
+        /* Otto square (kit .ok-mark geometry) */
+        .f03-mark { width: var(--s); height: var(--s); border-radius: calc(var(--s) * .3); background: #2447F0; flex: none; }
+        .f03-mark::after { content: ""; position: absolute; inset: calc(var(--s) * .25); border-radius: calc(var(--s) * .12); border: calc(var(--s) * .06) solid #fff; opacity: .95; }
+
+        /* ── browser (starts as the website field from 02-otto) ── */
+        #f03-brw { position: absolute; inset: 0; }
+        #f03-win {
+          position: absolute; left: 510px; top: 485px; width: 900px; height: 110px; border-radius: 55px;
+          background: #FFFFFF; overflow: hidden;
+          box-shadow: 0px 1px 2px 0px rgba(0,0,0,0.05), 0px 18px 48px 0px rgba(0,0,0,0.1);
+        }
+        #f03-chrome { position: absolute; left: 0; top: 0; width: 900px; height: 76px; background: #FAFAFA; border-bottom: 1px solid rgba(60,60,67,.16); opacity: 0; }
+        .f03-dot { position: absolute; top: 31px; width: 14px; height: 14px; border-radius: 50%; background: #E0E0E3; }
+        #f03-url { position: absolute; left: 510px; top: 485px; width: 900px; height: 110px; border-radius: 55px; background: rgba(238,238,240,0); }
+        #f03-sq { --s: 56px; position: absolute; left: 547px; top: 512px; }
+        #f03-utx { position: absolute; left: 625px; top: 518px; height: 44px; display: flex; align-items: center; font: 500 44px/1 "Inter", sans-serif; color: #1D1D1F; white-space: nowrap; transform-origin: 0% 50%; }
+        #f03-read { position: absolute; left: 1255px; top: 505px; width: 150px; height: 70px; border-radius: 35px; background: #2447F0; color: #FFFFFF; display: flex; align-items: center; justify-content: center; font: 600 30px/1 "Inter", sans-serif; letter-spacing: -0.01em; }
+
+        /* the Happy Garden page (page-local origin = stage (160, 306) once settled) */
+        #f03-page { position: absolute; left: 0; top: 76px; width: 900px; height: 674px; color: #0E252C; }
+        #f03-nav { position: absolute; left: 24px; top: 0; width: 852px; height: 64px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(60,60,67,.12); }
+        .f03-brand { display: flex; align-items: center; gap: 10px; font: 700 22px/1 "Inter", sans-serif; letter-spacing: -0.02em; }
+        .f03-leaf { width: 20px; height: 20px; border-radius: 0 50% 0 50%; background: #31856C; }
+        .f03-links { display: flex; gap: 30px; padding-right: 4px; font: 500 18px/1 "Inter", sans-serif; }
+        #f03-hero { position: absolute; left: 24px; top: 80px; width: 852px; height: 300px; border-radius: 16px; overflow: hidden; background: #F3B72E; }
+        #f03-hero img { position: absolute; left: 0; top: -600px; width: 1108px; height: 1385px; }
+        .f03-htx { position: absolute; left: 32px; top: 83px; width: 460px; }
+        .f03-h1 { font: 650 46px/48px "Inter Tight", "Inter", sans-serif; letter-spacing: -0.03em; }
+        .f03-sub { margin-top: 14px; font: 500 19px/1.3 "Inter", sans-serif; opacity: .8; }
+        #f03-rev { position: absolute; left: 24px; top: 398px; height: 44px; display: flex; align-items: center; gap: 12px; font: 500 19px/1 "Inter", sans-serif; }
+        .f03-stars { display: flex; gap: 3px; }
+        .f03-stars svg { width: 20px; height: 20px; display: block; fill: #FFBC00; }
+        #f03-prods { position: absolute; left: 24px; top: 458px; width: 852px; display: grid; grid-template-columns: repeat(3, 1fr); column-gap: 18px; }
+        .f03-tile img { display: block; width: 100%; height: 150px; border-radius: 12px; object-fit: cover; }
+        .f03-tile span { display: block; margin-top: 12px; font: 600 18px/22px "Inter", sans-serif; }
+        #f03-hl { position: absolute; left: 12px; top: 6px; width: 876px; height: 54px; border: 2px solid #2447F0; border-radius: 10px; background: rgba(36,71,240,.06); }
+        #f03-scan { position: absolute; left: 0; top: 0; width: 900px; height: 2px; background: #2447F0; box-shadow: 0 0 0 6px rgba(36,71,240,.10); transform-origin: 158px 50%; }
+
+        /* ── brand profile card (640×720; settles at x 1120, y 250; exits to centre (960,560)) ── */
+        #f03-card {
+          position: absolute; left: 1120px; top: 250px; width: 640px; height: 720px; border-radius: 24px;
+          background: #FFFFFF; box-shadow: 0 1px 2px rgba(0,0,0,.05), 0 18px 48px rgba(0,0,0,.10); opacity: 0;
+        }
+        .f03-ct { position: absolute; left: 40px; top: 40px; font: 600 38px/40px "Inter Tight", "Inter", sans-serif; letter-spacing: -0.02em; color: #1D1D1F; }
+        .f03-cn { position: absolute; left: 40px; top: 94px; height: 24px; display: flex; align-items: center; gap: 10px; font: 500 21px/1 "Inter", sans-serif; color: #6E6E73; }
+        #f03-cnm { --s: 22px; position: relative; }
+        .f03-row { position: absolute; left: 40px; width: 560px; height: 112px; border-top: 1px solid rgba(60,60,67,.16); }
+        .f03-rc { position: absolute; inset: 0; display: grid; grid-template-columns: 150px 1fr; column-gap: 20px; align-items: center; opacity: 0; }
+        .f03-lb { font: 500 22px/1.2 "Inter", sans-serif; color: #6E6E73; }
+        .f03-vl { font: 500 25px/32px "Inter", sans-serif; color: #1D1D1F; letter-spacing: -0.01em; }
+        .f03-sk { position: absolute; height: 14px; border-radius: 7px; background: #EDEDF0; }
+        .f03-sws { display: flex; gap: 12px; }
+        .f03-sw { width: 84px; }
+        .f03-sw i { display: block; width: 84px; height: 40px; border-radius: 10px; box-shadow: inset 0 0 0 1px rgba(0,0,0,.10); }
+        .f03-sw b { display: block; margin-top: 8px; font: 500 15px/1 "Inter", sans-serif; color: #6E6E73; text-align: center; font-variant-numeric: tabular-nums; }
+
+        /* ── finding chips (left-centre anchored; scale from the left edge) ── */
+        .f03-chip { position: absolute; height: 48px; opacity: 0; transform-origin: 0% 50%; }
+        .f03-pop { height: 48px; display: flex; align-items: center; gap: 10px; padding: 0 20px 0 14px; border-radius: 999px; background: #FFFFFF;
+          box-shadow: 0 1px 2px rgba(0,0,0,.05), 0 18px 48px rgba(0,0,0,.10); font: 500 19px/1 "Inter", sans-serif; color: #1D1D1F; white-space: nowrap; transform-origin: 0% 50%; }
+        .f03-pop > i { width: 20px; height: 20px; border-radius: 6px; background: #2447F0; flex: none; }
+        .f03-pop .f03-stars svg { width: 16px; height: 16px; }
+        #f03-c2 { height: 100px; }
+        #f03-c2 .f03-pop { width: 150px; height: 100px; padding: 0; border-radius: 14px; border: 4px solid #FFFFFF; overflow: hidden; }
+        #f03-c2 img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: 50% 58%; }
+      </style>
+
+      <div id="stage" data-composition-id="03-reads" data-width="1920" data-height="1080" data-duration="4">
+        <div id="f03-bg"></div>
+
+        <div id="f03-head">
+          <span class="f03-m"><span class="f03-w">Otto</span></span>
+          <span class="f03-m"><span class="f03-w f03-acc">reads</span></span>
+          <span class="f03-m"><span class="f03-w">your</span></span>
+          <span class="f03-m"><span class="f03-w">business.</span></span>
+        </div>
+
+        <div id="f03-brw">
+          <div id="f03-win">
+            <div id="f03-chrome">
+              <span class="f03-dot" style="left: 24px"></span>
+              <span class="f03-dot" style="left: 46px"></span>
+              <span class="f03-dot" style="left: 68px"></span>
+            </div>
+            <div id="f03-page">
+              <div id="f03-nav">
+                <div class="f03-brand"><span class="f03-leaf"></span>Happy Garden</div>
+                <div class="f03-links"><span>Shop</span><span>Lab reports</span><span>About</span></div>
+              </div>
+              <div id="f03-hero">
+                <img src="assets/img/hg-yellow.jpg" alt="" />
+                <div class="f03-htx">
+                  <div class="f03-h1" id="f03-h1">Know exactly what’s in your bottle.</div>
+                  <div class="f03-sub">Third-party lab tested. Every batch.</div>
+                </div>
+              </div>
+              <div id="f03-rev">
+                <span class="f03-stars" aria-label="★★★★★">
+                  <svg viewBox="0 0 20 20"><path d="M10 1.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L10 14.9l-5.2 2.7 1-5.8L1.5 7.7l5.9-.9z" /></svg>
+                  <svg viewBox="0 0 20 20"><path d="M10 1.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L10 14.9l-5.2 2.7 1-5.8L1.5 7.7l5.9-.9z" /></svg>
+                  <svg viewBox="0 0 20 20"><path d="M10 1.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L10 14.9l-5.2 2.7 1-5.8L1.5 7.7l5.9-.9z" /></svg>
+                  <svg viewBox="0 0 20 20"><path d="M10 1.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L10 14.9l-5.2 2.7 1-5.8L1.5 7.7l5.9-.9z" /></svg>
+                  <svg viewBox="0 0 20 20"><path d="M10 1.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L10 14.9l-5.2 2.7 1-5.8L1.5 7.7l5.9-.9z" /></svg>
+                </span>
+                <span>4.8 · 1,240 reviews</span>
+              </div>
+              <div id="f03-prods">
+                <div class="f03-tile" id="f03-t1"><img src="assets/img/hg-spectrum.jpg" alt="" style="object-position: 50% 50%" /><span>Full spectrum 10%</span></div>
+                <div class="f03-tile" id="f03-t2"><img src="assets/img/hg-lab.jpg" alt="" style="object-position: 50% 55%" /><span>Broad spectrum 5%</span></div>
+                <div class="f03-tile" id="f03-t3"><img src="assets/img/hg-evening.jpg" alt="" style="object-position: 50% 70%" /><span>Isolate 20%</span></div>
+              </div>
+              <div id="f03-hl"></div>
+              <div id="f03-scan"></div>
+            </div>
+          </div>
+          <div id="f03-url"></div>
+          <div id="f03-sq" class="f03-mark"></div>
+          <div id="f03-utx"><span>h</span><span>a</span><span>p</span><span>p</span><span>y</span><span>g</span><span>a</span><span>r</span><span>d</span><span>e</span><span>n</span><span>e</span><span>u</span><span>.</span><span>c</span><span>o</span><span>m</span></div>
+          <div id="f03-read">Read</div>
+        </div>
+
+        <div id="f03-card">
+          <div class="f03-ct">Brand profile</div>
+          <div class="f03-cn"><span id="f03-cnm" class="f03-mark"></span>Filled in by Otto</div>
+
+          <div class="f03-row" id="f03-r0" style="top: 140px">
+            <span class="f03-sk" style="left: 0; top: 49px; width: 96px"></span>
+            <span class="f03-sk" style="left: 170px; top: 36px; width: 330px"></span>
+            <span class="f03-sk" style="left: 170px; top: 62px; width: 210px"></span>
+            <div class="f03-rc"><span class="f03-lb">Industry</span><span class="f03-vl">CBD&nbsp;wellness&nbsp;· online&nbsp;shop&nbsp;· Germany,&nbsp;Austria,&nbsp;UK</span></div>
+          </div>
+          <div class="f03-row" id="f03-r1" style="top: 252px">
+            <span class="f03-sk" style="left: 0; top: 49px; width: 84px"></span>
+            <span class="f03-sk" style="left: 170px; top: 36px; width: 300px"></span>
+            <span class="f03-sk" style="left: 170px; top: 62px; width: 180px"></span>
+            <div class="f03-rc">
+              <span class="f03-lb">Colours</span>
+              <span class="f03-sws">
+                <span class="f03-sw"><i style="background: #FFBC00"></i><b>#FFBC00</b></span>
+                <span class="f03-sw"><i style="background: #0E252C"></i><b>#0E252C</b></span>
+                <span class="f03-sw"><i style="background: #31856C"></i><b>#31856C</b></span>
+                <span class="f03-sw"><i style="background: #FFFFFF"></i><b>#FFFFFF</b></span>
+              </span>
+            </div>
+          </div>
+          <div class="f03-row" id="f03-r2" style="top: 364px">
+            <span class="f03-sk" style="left: 0; top: 49px; width: 70px"></span>
+            <span class="f03-sk" style="left: 170px; top: 36px; width: 340px"></span>
+            <span class="f03-sk" style="left: 170px; top: 62px; width: 240px"></span>
+            <div class="f03-rc"><span class="f03-lb">Tone</span><span class="f03-vl">Educational and trust-first. Lab&nbsp;results&nbsp;over&nbsp;hype.</span></div>
+          </div>
+          <div class="f03-row" id="f03-r3" style="top: 476px">
+            <span class="f03-sk" style="left: 0; top: 49px; width: 110px"></span>
+            <span class="f03-sk" style="left: 170px; top: 36px; width: 320px"></span>
+            <span class="f03-sk" style="left: 170px; top: 62px; width: 190px"></span>
+            <div class="f03-rc"><span class="f03-lb">Competitors</span><span class="f03-vl">Nordic&nbsp;Oil&nbsp;· Naturecan&nbsp;· CBD&nbsp;Vital&nbsp;· Hempamed</span></div>
+          </div>
+          <div class="f03-row" id="f03-r4" style="top: 588px">
+            <span class="f03-sk" style="left: 0; top: 49px; width: 92px"></span>
+            <span class="f03-sk" style="left: 170px; top: 36px; width: 310px"></span>
+            <span class="f03-sk" style="left: 170px; top: 62px; width: 220px"></span>
+            <div class="f03-rc"><span class="f03-lb">Audience</span><span class="f03-vl">Petra,&nbsp;52&nbsp;— “I&nbsp;haven’t&nbsp;slept&nbsp;well&nbsp;in&nbsp;years.”</span></div>
+          </div>
+        </div>
+
+        <div id="f03-chips">
+          <div class="f03-chip" id="f03-c1" style="left: 200px; top: 314px"><div class="f03-pop"><i></i>Happy Garden · Shop · Lab reports · About</div></div>
+          <div class="f03-chip" id="f03-c2" style="left: 700px; top: 486px"><div class="f03-pop"><img src="assets/img/hg-yellow.jpg" alt="" /></div></div>
+          <div class="f03-chip" id="f03-c3" style="left: 216px; top: 493px"><div class="f03-pop"><i></i>Know exactly what’s in your bottle.</div></div>
+          <div class="f03-chip" id="f03-c4" style="left: 990px; top: 758px"><div class="f03-pop"><i></i>4 competitors found</div></div>
+          <div class="f03-chip" id="f03-c5" style="left: 184px; top: 702px">
+            <div class="f03-pop">
+              <i></i>
+              <span class="f03-stars" aria-label="★★★★★">
+                <svg viewBox="0 0 20 20"><path d="M10 1.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L10 14.9l-5.2 2.7 1-5.8L1.5 7.7l5.9-.9z" /></svg>
+                <svg viewBox="0 0 20 20"><path d="M10 1.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L10 14.9l-5.2 2.7 1-5.8L1.5 7.7l5.9-.9z" /></svg>
+                <svg viewBox="0 0 20 20"><path d="M10 1.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L10 14.9l-5.2 2.7 1-5.8L1.5 7.7l5.9-.9z" /></svg>
+                <svg viewBox="0 0 20 20"><path d="M10 1.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L10 14.9l-5.2 2.7 1-5.8L1.5 7.7l5.9-.9z" /></svg>
+                <svg viewBox="0 0 20 20"><path d="M10 1.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L10 14.9l-5.2 2.7 1-5.8L1.5 7.7l5.9-.9z" /></svg>
+              </span>
+              4.8 · 1,240 reviews
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <script>
+        (function () {
+          window.__timelines = window.__timelines || {};
+          gsap.set(["#f03-scan", "#f03-hl"], { opacity: 0 });
+          var tl = gsap.timeline({ paused: true });
+          var ENT = "expo.out", MOVE = "power3.inOut", EXIT = "power2.in";
+          var NI = { immediateRender: false };
+          function o(a, b) { var r = {}, k; for (k in a) r[k] = a[k]; for (k in b) r[k] = b[k]; return r; }
+
+          /* ── 0.0 (12.0): the website field morphs into the browser's URL bar; page draws in ── */
+          tl.fromTo("#f03-win",
+            { left: 510, top: 485, width: 900, height: 110, borderRadius: 55,
+              boxShadow: "0px 1px 2px 0px rgba(0,0,0,0.05), 0px 18px 48px 0px rgba(0,0,0,0.1)" },
+            { left: 160, top: 230, width: 900, height: 750, borderRadius: 20,
+              boxShadow: "0px 2px 6px 0px rgba(0,0,0,0.06), 0px 40px 90px 0px rgba(0,0,0,0.18)",
+              duration: 0.5, ease: MOVE }, 0);
+          tl.fromTo("#f03-url",
+            { left: 510, top: 485, width: 900, height: 110, borderRadius: 55, backgroundColor: "rgba(238,238,240,0)" },
+            { left: 290, top: 245, width: 746, height: 46, borderRadius: 23, backgroundColor: "rgba(238,238,240,1)", duration: 0.5, ease: MOVE }, 0);
+          // square 56px @ (575,540) → favicon 28px @ (318,268)
+          tl.fromTo("#f03-sq", { x: 0, y: 0, scale: 1 }, { x: -257, y: -272, scale: 0.5, duration: 0.5, ease: MOVE }, 0);
+          // URL text 44px, left 625, centre y 540 → 22px, left 344, centre y 268
+          tl.fromTo("#f03-utx", { x: 0, y: 0, scale: 1 }, { x: -281, y: -272, scale: 0.5, duration: 0.5, ease: MOVE }, 0);
+          // Read button rides into the bar's end and is absorbed
+          tl.fromTo("#f03-read", { x: 0, y: 0 }, { x: -324, y: -272, duration: 0.5, ease: MOVE }, 0);
+          tl.fromTo("#f03-read", { opacity: 1, scale: 1 }, { opacity: 0, scale: 0.5, duration: 0.3, ease: EXIT }, 0);
+          tl.fromTo("#f03-chrome", { opacity: 0 }, { opacity: 1, duration: 0.4, ease: ENT }, 0.15);
+          tl.fromTo(["#f03-nav", "#f03-hero", "#f03-rev", "#f03-t1", "#f03-t2", "#f03-t3"],
+            { opacity: 0, y: 28 }, { opacity: 1, y: 0, duration: 0.7, ease: ENT, stagger: 0.05 }, 0.18);
+          // headline rises word by word
+          tl.fromTo("#f03-head .f03-w", { yPercent: 110 }, { yPercent: 0, duration: 0.8, ease: ENT, stagger: 0.05 }, 0);
+
+          /* ── 0.5 (12.5): profile card arrives empty; scan line is emitted from the favicon ── */
+          tl.fromTo("#f03-card", { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: 0.7, ease: ENT }, 0.5);
+          tl.fromTo("#f03-sq", { scale: 0.5 }, o(NI, { scale: 0.6, duration: 0.14, ease: ENT }), 0.5);
+          tl.fromTo("#f03-sq", { scale: 0.6 }, o(NI, { scale: 0.5, duration: 0.32, ease: MOVE }), 0.64);
+          tl.fromTo("#f03-scan", { opacity: 0, scaleX: 0 }, { opacity: 1, scaleX: 1, duration: 0.45, ease: ENT }, 0.5);
+          tl.fromTo("#f03-scan", { y: 0 }, { y: 671, duration: 2.0, ease: "none" }, 0.5); // steady read, bottom at 2.5
+          tl.fromTo("#f03-scan", { opacity: 1 }, o(NI, { opacity: 0, duration: 0.25, ease: EXIT }), 2.5);
+
+          /* ── highlight box: one cobalt box that re-targets on each beat ── */
+          var HL = [
+            { left: 12, top: 6, width: 876, height: 54 },   // nav            (1.0)
+            { left: 16, top: 72, width: 868, height: 316 }, // hero photo     (1.5)
+            { left: 44, top: 151, width: 476, height: 120 },// hero line      (2.0)
+            { left: 12, top: 394, width: 326, height: 52 }  // reviews        (3.0)
+          ];
+          tl.fromTo("#f03-hl", o(HL[0], { opacity: 0, scale: 1.04 }), { opacity: 1, scale: 1, duration: 0.35, ease: ENT }, 1.0);
+          tl.fromTo("#f03-hl", HL[0], o(NI, o(HL[1], { duration: 0.4, ease: MOVE })), 1.5);
+          tl.fromTo("#f03-hl", HL[1], o(NI, o(HL[2], { duration: 0.4, ease: MOVE })), 2.0);
+          tl.fromTo("#f03-hl", { opacity: 1 }, o(NI, { opacity: 0, duration: 0.25, ease: EXIT }), 2.5);
+          tl.fromTo("#f03-hl", o(HL[3], { opacity: 0, scale: 1.04 }), o(NI, o(HL[3], { opacity: 1, scale: 1, duration: 0.35, ease: ENT })), 3.0);
+
+          /* ── findings: a chip lifts off on the beat, flies to the card and lands as the next row ── */
+          var VAL_X = 1330;                              // card value column left edge (stage)
+          var ROW_Y = [446, 558, 670, 782, 894];         // card row centres (stage)
+          var CHIPS = [
+            { id: "#f03-c1", a: 1.0, sx: 200, sy: 338, s: 0.78 }, // Industry    ← nav
+            { id: "#f03-c2", a: 1.5, sx: 700, sy: 536, s: 0.6 },  // Colours     ← hero photo
+            { id: "#f03-c3", a: 2.0, sx: 216, sy: 517, s: 0.85 }, // Tone        ← hero line
+            { id: "#f03-c4", a: 2.5, sx: 990, sy: 782, s: 0.95 }, // Competitors ← off-page, right edge
+            { id: "#f03-c5", a: 3.0, sx: 184, sy: 726, s: 0.9 }   // Audience    ← reviews
+          ];
+          CHIPS.forEach(function (c, i) {
+            var A = c.a, row = "#f03-r" + i;
+            tl.fromTo(c.id, { opacity: 0 }, { opacity: 1, duration: 0.12, ease: ENT }, A);
+            tl.fromTo(c.id + " .f03-pop", { scale: 0.88 }, { scale: 1, duration: 0.3, ease: ENT }, A);
+            tl.fromTo(c.id, { x: 0, y: 0, scale: 1 },
+              { x: VAL_X - c.sx, y: ROW_Y[i] - c.sy, scale: c.s, duration: 0.38, ease: MOVE }, A + 0.06);
+            tl.fromTo(c.id, { opacity: 1 }, o(NI, { opacity: 0, duration: 0.1, ease: EXIT }), A + 0.36);
+            tl.fromTo(row + " .f03-sk", { opacity: 1 }, { opacity: 0, duration: 0.15, ease: EXIT }, A + 0.34);
+            tl.fromTo(row + " .f03-rc", { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 0.5, ease: ENT }, A + 0.4);
+          });
+          tl.fromTo("#f03-r1 .f03-sw", { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 0.45, ease: ENT, stagger: 0.05 }, 1.92);
+
+          /* ── 3.5 (15.5): browser exits left, headline exits, card glides to centre (960,560) ── */
+          tl.fromTo("#f03-head .f03-w", { yPercent: 0 }, o(NI, { yPercent: -110, duration: 0.3, ease: EXIT, stagger: 0.03 }), 3.5);
+          tl.fromTo("#f03-brw", { x: 0 }, { x: -1300, duration: 0.4, ease: EXIT }, 3.5);
+          tl.fromTo("#f03-card", { x: 0, y: 0 }, o(NI, { x: -480, y: -50, duration: 0.5, ease: MOVE }), 3.5);
+
+          window.__timelines["03-reads"] = tl;
+          tl.seek(0);
+        })();
+      </script>
+    </template>
+  </body>
+</html>

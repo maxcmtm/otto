@@ -5,20 +5,22 @@
   otto_watch.py watch    -> hourly guard: metric drops vs 7-day avg, missed publishes,
                             approvals about to miss their slot. Sends only when something is wrong.
 
-State: metrics_history.jsonl (one snapshot/day), .watch-state.json (alert dedup, 1/day per key).
+State: metrics_history.jsonl (one snapshot/day), .watch-state.json (alert dedup, 1/day per key) — both next to data.json.
 Reads data.json through ap (OTTO_DATA respected); slot times are brand-local (ap.slot_dt, brands[].tz).
 Only numeric metric values are compared / summed (Graph can hand back None, dicts or strings).
-Sending goes through the OpenClaw CLI (same pattern as gateway_watchdog.sh).
+Sending: the brand owner's Telegram bot ($OTTO_SECRETS/telegram.json, same as the approval cards — on a per-client instance
+that is the client, not Max); only without a bot config does it fall back to the OpenClaw CLI (Max's chat).
 """
 import json, subprocess, sys
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 import ap
+import otto_publish
 
 HERE = Path(__file__).parent
-HIST = HERE / "metrics_history.jsonl"
-STATE = HERE / ".watch-state.json"
+HIST = ap.DATA.parent / "metrics_history.jsonl"      # next to data.json (OTTO_DATA), like publish.log
+STATE = ap.DATA.parent / ".watch-state.json"
 OCLAW = "/home/ubuntu/.npm-global/bin/openclaw"
 TARGET = "590113904"
 DASH = "https://dash.monyflow.work/otto/"
@@ -34,13 +36,25 @@ def load(p, default):
 
 
 def send(text):
-    r = subprocess.run([OCLAW, "message", "send", "--channel", "telegram",
-                        "--account", "maximus", "--target", TARGET, "--message", text],
-                       capture_output=True, text=True, timeout=60)
-    if r.returncode != 0:  # fall back to default account routing
+    try:
+        import otto_telegram as tg
+        tok, chat = tg.config()
+        if tok and chat:
+            tg.send(text.replace("*", ""))      # plain text: a Markdown parse error would drop the whole report
+            return True
+    except Exception as e:
+        print("telegram send failed:", e, file=sys.stderr)
+    try:
         r = subprocess.run([OCLAW, "message", "send", "--channel", "telegram",
-                            "--target", TARGET, "--message", text],
+                            "--account", "maximus", "--target", TARGET, "--message", text],
                            capture_output=True, text=True, timeout=60)
+        if r.returncode != 0:  # fall back to default account routing
+            r = subprocess.run([OCLAW, "message", "send", "--channel", "telegram",
+                                "--target", TARGET, "--message", text],
+                               capture_output=True, text=True, timeout=60)
+    except (OSError, subprocess.SubprocessError) as e:
+        print("send failed (no Telegram bot config, no OpenClaw CLI):", e, file=sys.stderr)
+        return False
     if r.returncode != 0:
         print("send failed:", r.stderr[-400:], file=sys.stderr)
     return r.returncode == 0
@@ -151,6 +165,7 @@ def watch():
     today = datetime.now(timezone.utc).date().isoformat()
     now = datetime.now(timezone.utc)
     alerts = []
+    with_creds = {b["id"] for b in d.get("brands", []) if otto_publish.creds(b["id"])}
 
     for brand, k, v, base in drops(history()):
         key = f"drop:{brand}:{k}:{today}"
@@ -174,8 +189,9 @@ def watch():
             if key not in state:
                 state[key] = 1
                 alerts.append(f"“{p.get('hook_en') or p.get('hook', '')[:50]}” is slotted for {fmt_slot(p['slot'])} and still not approved. {hrs:.0f} hours left.")
-        # missed-publish only makes sense once a publishing channel is actually connected
-        connected = any(c.get("status") == "connected" for c in d.get("connections", []))
+        # missed-publish only makes sense once a publishing channel is actually connected: the dashboard's
+        # connections[] list, or the brand's Meta credentials (brand-add never adds a connections[] entry)
+        connected = any(c.get("status") == "connected" for c in d.get("connections", [])) or p.get("brand") in with_creds
         if connected and p["status"] in ("approved", "scheduled") and hrs < -2:
             key = f"missed:{p['id']}"
             if key not in state:

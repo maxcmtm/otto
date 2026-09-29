@@ -1,0 +1,164 @@
+/* ─────────────────────────────────────────────────────────────────────────────────────────────
+   Otto motion kit — the one visual system for every Otto video (showreel 16:9, explainer 9:16).
+   Copy the pieces you need into a frame (prefix classes with the frame id if the frame requires it).
+   Everything is sized in px at 1× for a 1920×1080 canvas; scale a component with transform, never by
+   editing its internals, so every frame shows the same geometry.
+   ───────────────────────────────────────────────────────────────────────────────────────────── */
+@font-face { font-family: "Inter Tight"; src: url("fonts/InterTight-var-latin.woff2") format("woff2"); font-weight: 100 900; font-display: block; }
+@font-face { font-family: "Inter"; src: url("fonts/Inter-var-latin.woff2") format("woff2"); font-weight: 100 900; font-display: block; }
+
+:root {
+  /* grounds */
+  --ok-canvas: #F5F5F7;      /* light scenes */
+  --ok-surface: #FFFFFF;
+  --ok-night: #0B0B0D;       /* dark scenes */
+  --ok-night-2: #17171B;     /* raised surface on night */
+  /* ink */
+  --ok-ink: #1D1D1F;
+  --ok-muted: #6E6E73;
+  --ok-faint: #86868B;
+  --ok-hair: rgba(60, 60, 67, .16);
+  --ok-on-night: #F5F5F7;
+  --ok-on-night-muted: #A1A1A6;
+  /* accent — Otto cobalt, the only saturated colour besides content photos */
+  --ok-cobalt: #2447F0;
+  --ok-cobalt-2: #5B75FF;    /* cobalt on night */
+  --ok-cobalt-tint: #EEF2FF;
+  --ok-green: #1B7F4B;       /* approved / up */
+  --ok-green-night: #34C77B;
+  /* type */
+  --ok-display: "Inter Tight", "Inter", system-ui, sans-serif;
+  --ok-ui: "Inter", system-ui, sans-serif;
+  /* depth */
+  --ok-shadow-card: 0 1px 2px rgba(0,0,0,.05), 0 18px 48px rgba(0,0,0,.10);
+  --ok-shadow-float: 0 2px 6px rgba(0,0,0,.06), 0 40px 90px rgba(0,0,0,.18);
+  /* motion (GSAP names) — expo.out for entrances, power3.inOut for moves, power2.in for exits.
+     No back/elastic/bounce. Entrances 0.5–0.9 s, moves 0.6–1.0 s, exits 0.25–0.4 s. */
+}
+
+/* ── Display type ─────────────────────────────────────────────────────────────────────────── */
+.ok-h-xl { font: 650 168px/0.92 var(--ok-display); letter-spacing: -0.045em; }
+.ok-h-l  { font: 650 112px/0.95 var(--ok-display); letter-spacing: -0.04em; }
+.ok-h-m  { font: 600 72px/1.0 var(--ok-display);  letter-spacing: -0.03em; }
+.ok-h-s  { font: 600 44px/1.08 var(--ok-display); letter-spacing: -0.02em; }
+.ok-eyebrow { font: 500 26px/1.2 var(--ok-ui); letter-spacing: -0.005em; color: var(--ok-muted); }
+.ok-accent { color: var(--ok-cobalt); }
+.ok-mask { display: inline-block; overflow: hidden; padding-bottom: .12em; margin-bottom: -.12em; vertical-align: bottom; }
+
+/* ── Logo ─────────────────────────────────────────────────────────────────────────────────── */
+.ok-mark { --s: 96px; width: var(--s); height: var(--s); border-radius: calc(var(--s) * .3); background: var(--ok-cobalt); position: relative; flex: none; }
+.ok-mark::after { content: ""; position: absolute; inset: calc(var(--s) * .25); border-radius: calc(var(--s) * .12); border: calc(var(--s) * .06) solid #fff; opacity: .95; }
+.ok-wordmark { display: flex; align-items: center; gap: calc(var(--s, 96px) * .3); font: 650 calc(var(--s, 96px) * 1.05)/1 var(--ok-display); letter-spacing: -0.04em; color: var(--ok-ink); }
+
+/* ── Phone (iPhone-style, 390×844 screen at 1×; scale the whole .ok-phone) ─────────────────── */
+.ok-phone { position: relative; width: 414px; height: 868px; border-radius: 68px; background: #111; padding: 12px; box-shadow: var(--ok-shadow-float), inset 0 0 0 2px #2a2a2e; }
+.ok-phone::before { /* side sheen */ content: ""; position: absolute; inset: 0; border-radius: 68px; box-shadow: inset 0 0 0 1px rgba(255,255,255,.08); pointer-events: none; }
+.ok-screen { position: relative; width: 390px; height: 844px; border-radius: 56px; overflow: hidden; background: var(--ok-canvas); font-family: var(--ok-ui); color: var(--ok-ink); }
+.ok-island { position: absolute; top: 11px; left: 50%; width: 120px; height: 35px; margin-left: -60px; border-radius: 20px; background: #000; z-index: 5; }
+.ok-status { position: absolute; top: 0; left: 0; right: 0; height: 54px; display: flex; justify-content: space-between; align-items: center; padding: 0 34px 0 40px; font: 600 16px/1 var(--ok-ui); z-index: 4; }
+
+/* Otto app — Today screen (inside .ok-screen) */
+.ok-app { position: absolute; inset: 54px 0 0 0; padding: 12px 20px 0; }
+.ok-app-bar { display: flex; align-items: center; gap: 8px; font: 600 17px/1 var(--ok-ui); letter-spacing: -0.02em; }
+.ok-app-bar .ok-mark { --s: 22px; }
+.ok-app-date { margin-top: 22px; font: 500 13px/1 var(--ok-ui); color: var(--ok-muted); }
+.ok-app-title { margin-top: 6px; font: 700 34px/1.05 var(--ok-ui); letter-spacing: -0.03em; }
+.ok-app-sub { margin-top: 6px; font: 400 15px/1.3 var(--ok-ui); color: var(--ok-muted); }
+.ok-btn { display: inline-flex; align-items: center; justify-content: center; height: 44px; padding: 0 20px; border-radius: 22px; background: var(--ok-cobalt); color: #fff; font: 600 16px/1 var(--ok-ui); letter-spacing: -0.01em; }
+.ok-btn.ghost { background: rgba(118,118,128,.12); color: var(--ok-ink); }
+.ok-list { margin-top: 18px; background: var(--ok-surface); border-radius: 14px; overflow: hidden; }
+.ok-row { display: flex; gap: 12px; align-items: center; padding: 10px 12px; border-bottom: 1px solid var(--ok-hair); }
+.ok-row:last-child { border-bottom: 0; }
+.ok-row img, .ok-row .ok-thumb { width: 44px; height: 44px; border-radius: 9px; object-fit: cover; flex: none; background: #ddd; }
+.ok-row b { display: block; font: 500 14px/1.25 var(--ok-ui); letter-spacing: -0.01em; }
+.ok-row small { display: block; margin-top: 3px; font: 400 12px/1 var(--ok-ui); color: var(--ok-muted); }
+.ok-tabbar { position: absolute; left: 0; right: 0; bottom: 0; height: 84px; display: flex; justify-content: space-around; padding-top: 10px; background: rgba(245,245,247,.92); border-top: 1px solid var(--ok-hair); font: 500 10px/1 var(--ok-ui); color: var(--ok-faint); }
+.ok-tabbar .on { color: var(--ok-cobalt); }
+
+/* ── Approval card (Telegram-style bubble; 360 wide at 1×) ─────────────────────────────────── */
+.ok-approve { width: 360px; border-radius: 18px; background: var(--ok-surface); box-shadow: var(--ok-shadow-card); overflow: hidden; font-family: var(--ok-ui); }
+.ok-approve img { display: block; width: 100%; aspect-ratio: 4 / 5; object-fit: cover; }
+.ok-approve .cap { padding: 12px 14px 4px; font: 400 14px/1.4 var(--ok-ui); color: var(--ok-ink); }
+.ok-approve .meta { padding: 0 14px 12px; font: 400 12px/1 var(--ok-ui); color: var(--ok-muted); }
+.ok-approve .acts { display: grid; grid-template-columns: 1fr 1fr 1fr; border-top: 1px solid var(--ok-hair); }
+.ok-approve .acts span { padding: 13px 0; text-align: center; font: 600 14px/1 var(--ok-ui); color: var(--ok-cobalt); }
+.ok-approve .acts span + span { border-left: 1px solid var(--ok-hair); }
+.ok-approve .acts .yes { background: var(--ok-cobalt); color: #fff; }
+.ok-check { width: 64px; height: 64px; border-radius: 50%; background: var(--ok-green); display: grid; place-items: center; }
+.ok-check svg { width: 34px; height: 34px; stroke: #fff; stroke-width: 3.2; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+
+/* ── Instagram-style post (400 wide) ──────────────────────────────────────────────────────── */
+.ok-post { width: 400px; background: var(--ok-surface); border-radius: 16px; overflow: hidden; box-shadow: var(--ok-shadow-card); font-family: var(--ok-ui); }
+.ok-post .hd { display: flex; align-items: center; gap: 10px; padding: 12px 14px; font: 600 14px/1 var(--ok-ui); }
+.ok-post .av { width: 32px; height: 32px; border-radius: 50%; background: var(--ok-canvas); display: grid; place-items: center; font: 600 13px/1 var(--ok-ui); color: var(--ok-muted); }
+.ok-post .hd small { display: block; margin-top: 3px; font: 400 12px/1 var(--ok-ui); color: var(--ok-muted); }
+.ok-post img { display: block; width: 100%; aspect-ratio: 4 / 5; object-fit: cover; }
+.ok-post .cap { padding: 10px 14px 14px; font: 400 13px/1.4 var(--ok-ui); color: var(--ok-ink); }
+.ok-badge { position: absolute; top: 12px; left: 12px; padding: 6px 10px; border-radius: 999px; background: rgba(0,0,0,.55); color: #fff; font: 600 12px/1 var(--ok-ui); }
+
+/* ── Browser window (site being read) — 1100×700 ──────────────────────────────────────────── */
+.ok-browser { width: 1100px; height: 700px; border-radius: 18px; background: var(--ok-surface); box-shadow: var(--ok-shadow-float); overflow: hidden; font-family: var(--ok-ui); }
+.ok-browser .chrome { height: 52px; display: flex; align-items: center; gap: 8px; padding: 0 18px; border-bottom: 1px solid var(--ok-hair); background: #FAFAFA; }
+.ok-browser .dot { width: 12px; height: 12px; border-radius: 50%; background: #E0E0E3; }
+.ok-browser .url { margin-left: 18px; flex: 1; height: 32px; border-radius: 9px; background: rgba(118,118,128,.1); display: flex; align-items: center; padding: 0 14px; font: 500 15px/1 var(--ok-ui); color: var(--ok-ink); }
+.ok-scanline { position: absolute; left: 0; right: 0; height: 2px; background: var(--ok-cobalt); box-shadow: 0 0 0 6px rgba(36,71,240,.10); }
+.ok-hl { position: absolute; border: 2px solid var(--ok-cobalt); border-radius: 8px; background: rgba(36,71,240,.06); }
+
+/* ── Brand profile card (560 wide) ────────────────────────────────────────────────────────── */
+.ok-profile { width: 560px; border-radius: 22px; background: var(--ok-surface); box-shadow: var(--ok-shadow-card); padding: 26px 28px; font-family: var(--ok-ui); }
+.ok-profile h4 { margin: 0 0 16px; font: 600 22px/1 var(--ok-display); letter-spacing: -0.02em; }
+.ok-prow { display: grid; grid-template-columns: 150px 1fr; gap: 16px; padding: 12px 0; border-top: 1px solid var(--ok-hair); font: 400 16px/1.35 var(--ok-ui); }
+.ok-prow span:first-child { color: var(--ok-muted); }
+.ok-swatch { display: inline-block; width: 28px; height: 28px; border-radius: 8px; margin-right: 6px; vertical-align: middle; box-shadow: inset 0 0 0 1px rgba(0,0,0,.08); }
+
+/* ── Month calendar (7 columns; tile 96×120 at 1×) ────────────────────────────────────────── */
+.ok-cal { display: grid; grid-template-columns: repeat(7, 96px); gap: 10px; font-family: var(--ok-ui); }
+.ok-cal .dow { font: 500 14px/1 var(--ok-ui); color: var(--ok-muted); text-align: center; padding-bottom: 6px; }
+.ok-day { position: relative; height: 120px; border-radius: 14px; background: var(--ok-surface); box-shadow: inset 0 0 0 1px var(--ok-hair); overflow: hidden; }
+.ok-day .n { position: absolute; top: 8px; left: 10px; font: 600 13px/1 var(--ok-ui); color: var(--ok-muted); z-index: 2; }
+.ok-day img { position: absolute; inset: 28px 8px 8px; width: calc(100% - 16px); height: calc(100% - 36px); border-radius: 8px; object-fit: cover; }
+.ok-day .fmt { position: absolute; right: 8px; top: 7px; font: 600 10px/1 var(--ok-ui); color: var(--ok-cobalt); z-index: 2; }
+
+/* ── Metric + chart ───────────────────────────────────────────────────────────────────────── */
+.ok-metric { font-family: var(--ok-ui); }
+.ok-metric .v { font: 650 120px/0.95 var(--ok-display); letter-spacing: -0.045em; font-variant-numeric: tabular-nums; }
+.ok-metric .l { margin-top: 10px; font: 500 24px/1.2 var(--ok-ui); color: var(--ok-muted); }
+.ok-metric .d { display: inline-block; margin-top: 12px; padding: 6px 12px; border-radius: 999px; background: rgba(27,127,75,.1); color: var(--ok-green); font: 600 20px/1 var(--ok-ui); }
+.ok-bars { display: flex; align-items: flex-end; gap: 28px; height: 420px; }
+.ok-bars .b { width: 120px; border-radius: 14px 14px 4px 4px; background: #D9DEF9; transform-origin: 50% 100%; }
+.ok-bars .b.now { background: var(--ok-cobalt); }
+.ok-bars .lbl { margin-top: 14px; font: 500 20px/1 var(--ok-ui); color: var(--ok-muted); text-align: center; }
+
+/* ── Briefing / report message (Telegram-style, 520 wide) ─────────────────────────────────── */
+.ok-brief { width: 520px; border-radius: 20px; background: var(--ok-surface); box-shadow: var(--ok-shadow-card); padding: 20px 22px; font-family: var(--ok-ui); }
+.ok-brief .from { display: flex; align-items: center; gap: 10px; font: 600 16px/1 var(--ok-ui); }
+.ok-brief .from .ok-mark { --s: 28px; }
+.ok-brief .from small { margin-left: auto; font: 400 14px/1 var(--ok-ui); color: var(--ok-muted); }
+.ok-brief p { margin: 14px 0 0; font: 400 17px/1.45 var(--ok-ui); }
+.ok-brief .kv { display: grid; grid-template-columns: 1fr auto; gap: 8px 16px; margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--ok-hair); font: 400 16px/1.2 var(--ok-ui); }
+.ok-brief .kv b { font-weight: 600; font-variant-numeric: tabular-nums; text-align: right; }
+
+/* ── Notification banner (iOS-style, 560 wide) ────────────────────────────────────────────── */
+.ok-notif { width: 560px; display: flex; gap: 14px; align-items: center; padding: 16px 18px; border-radius: 26px; background: rgba(250,250,252,.94); box-shadow: var(--ok-shadow-float); font-family: var(--ok-ui); }
+.ok-notif .ok-mark { --s: 44px; }
+.ok-notif b { display: block; font: 600 17px/1.2 var(--ok-ui); }
+.ok-notif span { display: block; margin-top: 3px; font: 400 16px/1.3 var(--ok-ui); color: var(--ok-ink); }
+.ok-notif small { margin-left: auto; align-self: flex-start; font: 400 14px/1 var(--ok-ui); color: var(--ok-muted); }
+
+/* ── Ads ──────────────────────────────────────────────────────────────────────────────────── */
+.ok-ad-meta { width: 400px; background: var(--ok-surface); border-radius: 16px; overflow: hidden; box-shadow: var(--ok-shadow-card); font-family: var(--ok-ui); }
+.ok-ad-meta .hd { display: flex; gap: 10px; align-items: center; padding: 12px 14px; font: 600 14px/1.1 var(--ok-ui); }
+.ok-ad-meta .hd small { display: block; font: 400 12px/1.2 var(--ok-ui); color: var(--ok-muted); }
+.ok-ad-meta img { display: block; width: 100%; aspect-ratio: 1 / 1; object-fit: cover; }
+.ok-ad-meta .ft { display: flex; align-items: center; justify-content: space-between; padding: 12px 14px; background: #F2F2F4; font: 600 14px/1.2 var(--ok-ui); }
+.ok-ad-meta .ft .cta { padding: 9px 14px; border-radius: 8px; background: #E4E6EB; font: 600 13px/1 var(--ok-ui); }
+.ok-ad-google { width: 640px; padding: 20px 24px; border-radius: 16px; background: var(--ok-surface); box-shadow: var(--ok-shadow-card); font-family: Arial, var(--ok-ui); }
+.ok-ad-google .spons { font: 700 13px/1 Arial, sans-serif; color: #202124; }
+.ok-ad-google .dom { margin-top: 8px; font: 400 14px/1 Arial, sans-serif; color: #202124; }
+.ok-ad-google .t { margin-top: 8px; font: 400 22px/1.3 Arial, sans-serif; color: #1a0dab; }
+.ok-ad-google .d { margin-top: 6px; font: 400 15px/1.45 Arial, sans-serif; color: #4d5156; }
+
+/* ── Night variants ───────────────────────────────────────────────────────────────────────── */
+.ok-night { background: var(--ok-night); color: var(--ok-on-night); }
+.ok-night .ok-eyebrow { color: var(--ok-on-night-muted); }
+.ok-night .ok-accent { color: var(--ok-cobalt-2); }

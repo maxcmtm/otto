@@ -20,15 +20,16 @@ import sys
 from pathlib import Path
 
 import ap
+import otto_paths as paths
 
 HERE = Path(__file__).parent
 REPO = HERE.parent
-BRANDS = REPO / "brands"
+BRANDS = ap.BRANDS                                   # OTTO_BRANDS
 MOTION = Path(os.environ.get("OTTO_MOTION_ROOT") or REPO / "motion")
 SKILLS = Path(os.environ.get("HF_SKILLS") or Path.home() / ".claude" / "skills")
 FE = SKILLS / "faceless-explainer" / "scripts"
 MEDIA = SKILLS / "media-use" / "audio" / "scripts" / "audio.mjs"
-REELS = HERE / "assets" / "reels"
+REELS = paths.ASSETS / "reels"                       # OTTO_ASSETS — the publisher resolves post.video there
 
 PRESET_BY_INDUSTRY = [("cbd", "editorial-forest"), ("wellness", "editorial-forest"), ("restaurant", "bold-poster"),
                       ("food", "bold-poster"), ("clinic", "cartesian"), ("medical", "cartesian"), ("legal", "cartesian"),
@@ -96,8 +97,7 @@ def prepare(pid, length=45, preset=None):
     industry = s.get("industry") or ""
     preset = preset or pick(PRESET_BY_INDUSTRY, industry + " " + " ".join(b.get("pillars", [])), "editorial-forest")
     angle = pick(ARC_BY_PILLAR, p.get("pillar", ""), "concept")
-    lang = (b.get("lang") or "EN").split("/")[0].split(" ")[0].lower()[:2]
-    lang = {"he": "he", "de": "de"}.get(lang, "en")
+    lang = ap.brand_lang(b)                          # "PT/EN" → pt, "IT" → it (was: he/de, else English)
     pdir = project_dir(d, p)
     if not (pdir / "hyperframes.json").exists():
         pdir.parent.mkdir(parents=True, exist_ok=True)
@@ -225,12 +225,17 @@ def tighten(src, dst, words, cap=0.30, head=0.05, tail=0.16, sil=0.12, pad_end=0
     return remap
 
 
-def transcribe(files):
+def whisper_model(lang):
+    """small.en only understands English; any other voice-over needs the multilingual model."""
+    return os.environ.get("WHISPER_MODEL") or ("small.en" if lang == "en" else "small")
+
+
+def transcribe(files, lang="en"):
     from faster_whisper import WhisperModel
-    m = WhisperModel(os.environ.get("WHISPER_MODEL", "small.en"), device="cpu", compute_type="int8")
+    m = WhisperModel(whisper_model(lang), device="cpu", compute_type="int8")
     out = {}
     for f in files:
-        segs, info = m.transcribe(str(f), word_timestamps=True, vad_filter=False)
+        segs, info = m.transcribe(str(f), word_timestamps=True, vad_filter=False, language=lang)
         out[f.name] = join_fragments([{"text": w.word.strip(), "start": round(w.start, 3), "end": round(w.end, 3)}
                                       for s in segs for w in s.words])
     return out
@@ -258,7 +263,7 @@ def voice(pid, mp3_dir):
     for i, f in enumerate(mp3s, 1):
         w = adir / f"vo-{i:02d}.wav"
         sh(["ffmpeg", "-v", "error", "-y", "-i", str(f), "-ar", "44100", "-ac", "1", str(w)]); raw.append(w)
-    words = transcribe(raw)
+    words = transcribe(raw, ap.brand_lang(ap.brand(d, p["brand"]) or {"id": p["brand"]}))
     voices = []
     for i, w in enumerate(raw, 1):
         final = adir / f"vo-{i:02d}-final.wav"
@@ -345,9 +350,7 @@ def finish(pid, render=True):
     REELS.mkdir(parents=True, exist_ok=True)
     out = REELS / f"{pid}.mp4"
     shutil.copy(pdir / "renders" / "video.mp4", out)
-    pub = getattr(ap, "publish_asset", None)
-    if pub:
-        pub(out)
+    paths.publish(out)                               # public before post.video points at it (ap has no publish_asset)
     secs = round(_dur(out), 1)
 
     def attach(dd):

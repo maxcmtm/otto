@@ -7,10 +7,13 @@ in `flock -n /tmp/otto-<job>.lock` so a slow run is never overlapped by the next
 What "safe to re-run" really means per job:
 - **Idempotent** (re-running changes nothing new): `otto_publish.py` (a post is `publishing` before the Meta call and a
   post stuck in `publishing` is never retried — it raises a P0 instead), `otto_telegram.py send-cards` / `send-recs`
-  (only items without a card), `otto_ads.py launch` (resumes from `campaign.remote`, never recreates objects),
+  (only items without a card; send-cards also claims each post in data.json before sending, so even two runs at once
+  send one card), `otto_ads.py launch` (resumes from `campaign.remote`, never recreates objects; a flight is claimed —
+  `launching_at` — before any Meta call, so a second run at the same time skips it),
   `otto_ads.py plan` and `otto_plan.py build` (refuse a month that exists), `otto_insights.py` and `otto_competitors.py`
   (no duplicate *proposed* recommendation with the same title/brand), `otto_growth.py rollup --send` (once per month:
-  `markers.growth_review_sent`), `otto_ads.py guard` (marks `ended` only after the pause succeeded).
+  `markers.growth_review_sent`, claimed with `markers.growth_review_sending` while it is on its way), `otto_ads.py guard`
+  (marks `ended` only after the pause succeeded). The `flock -n` wrappers stay: they are the first line of defence.
 - **Not idempotent**: `otto_watch.py report` and `otto_ads.py report` send a Telegram message on every run;
   `genvisuals.py` / `otto_video.py render` spend money (they only work on posts that still lack an image / video, but a
   second run while the first is still generating would pay twice — that is what the flock prevents).
@@ -76,7 +79,8 @@ generated image / ad static / reel is copied to `$OTTO_PUBLIC_ASSETS` (default `
 the moment it is written; the publisher and the ads code refuse media that is not there (clear error, no relative
 paths ever reach Meta). The cron user needs write access to that dir. `deploy.sh` still copies the whole assets tree.
 
-Brand settings Otto reads from `data.json brands[]`: `tz` (default `Asia/Jerusalem`; post slots are brand-local),
+Brand settings Otto reads from `data.json brands[]`: `tz` (default `Asia/Jerusalem`; post slots are brand-local —
+`ap.py brand-add` fills `tz` and `countries` from the url's country TLD, then the language; `--tz/--countries/--currency` override),
 `currency` (ISO; default the site scan's currency, else EUR — Meta launches refuse a plan whose currency differs from the
 ad account's), `countries`, `special_ad_categories` (Meta list), `landing` (url or `{"cold","warm","hot"}`),
 `keywords` (`{"brand": [...], "generic": [...]}` — the only keywords Google Search ever uses).
@@ -89,7 +93,8 @@ Paid credentials: `otto-secrets/meta-<brand>.json` + `ad_account_id`/`pixel_id`/
 
 Needs `otto-secrets/telegram.json` = {"bot_token": "...", "owner_chat_id": "590113904"} (a bot from @BotFather; the owner
 must /start it once; optional "owner_user_id" when the chat is not the owner's private chat). Button taps are accepted only
-from that user. `systemctl --user enable --now otto-telegram`.
+from that user. That owner chat also receives the `otto_watch` morning report and alerts (the OpenClaw CLI is only the
+fallback when there is no bot config). `systemctl --user enable --now otto-telegram`.
 
 nginx (action API + public peek for the landing). The API trusts **only** `X-Real-IP` for rate limiting, so nginx must
 set it (and must not pass the client's own `X-Forwarded-For` through as the identity); add an nginx rate limit in front of

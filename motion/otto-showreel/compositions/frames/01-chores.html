@@ -1,0 +1,346 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>01-chores · Otto brand film, frame 1 (0.0–8.0 s)</title>
+  </head>
+  <body>
+    <template>
+      <style>
+        @font-face {
+          font-family: "Inter Tight";
+          src: url("assets/fonts/InterTight-var-latin.woff2") format("woff2");
+          font-weight: 100 900;
+          font-display: block;
+        }
+        @font-face {
+          font-family: "Inter";
+          src: url("assets/fonts/Inter-var-latin.woff2") format("woff2");
+          font-weight: 100 900;
+          font-display: block;
+        }
+
+        /* zero-specificity reset, scoped to this frame only */
+        :where([id="stage"][data-composition-id="01-chores"]),
+        :where([id="stage"][data-composition-id="01-chores"] *),
+        :where([id="stage"][data-composition-id="01-chores"] *::before),
+        :where([id="stage"][data-composition-id="01-chores"] *::after) {
+          box-sizing: border-box;
+          margin: 0;
+          padding: 0;
+        }
+
+        #stage[data-composition-id="01-chores"] {
+          position: absolute;
+          left: 0;
+          top: 0;
+          width: 1920px;
+          height: 1080px;
+          overflow: hidden;
+          color: #1d1d1f;
+          font-family: "Inter", system-ui, sans-serif;
+        }
+
+        /* full-duration light ground */
+        #f01-bg {
+          position: absolute;
+          inset: 0;
+          background: #f5f5f7;
+        }
+
+        /* camera: headline + chips push in 1.00 → 1.05 about the canvas centre */
+        #f01-cam {
+          position: absolute;
+          inset: 0;
+          transform-origin: 960px 540px;
+          z-index: 1;
+        }
+
+        /* g2 — chore chips (below the headline in z so they pass behind the words) */
+        #f01-g2 {
+          position: absolute;
+          inset: 0;
+          z-index: 1;
+        }
+        .f01-slot {
+          position: absolute;
+          width: 0;
+          height: 0;
+        }
+        .f01-chip {
+          position: absolute;
+          left: 0;
+          top: 0;
+          height: 64px;
+          display: flex;
+          align-items: center;
+          gap: 14px;
+          padding: 0 28px 0 21px;
+          border-radius: 999px;
+          background: #ffffff;
+          box-shadow:
+            0 1px 2px rgba(0, 0, 0, 0.05),
+            0 18px 48px rgba(0, 0, 0, 0.1);
+          font: 500 30px/1 "Inter", system-ui, sans-serif;
+          letter-spacing: -0.01em;
+          color: #1d1d1f;
+          white-space: nowrap;
+          visibility: hidden;
+        }
+        /* 22px Otto mark (ok-mark geometry: radius 30%, inner outline inset 25%, stroke 6%, inner radius 12%) */
+        .f01-ic {
+          position: relative;
+          display: block;
+          flex: none;
+          width: 22px;
+          height: 22px;
+          border-radius: 6.6px;
+          background: #2447f0;
+        }
+        .f01-ic::after {
+          content: "";
+          position: absolute;
+          inset: 5.5px;
+          border-radius: 2.64px;
+          border: 1.32px solid #ffffff;
+          opacity: 0.95;
+        }
+
+        /* g1 — headline, centred at y 520 */
+        #f01-g1 {
+          position: absolute;
+          left: 0;
+          right: 0;
+          top: 480px;
+          height: 80px;
+          z-index: 2;
+          text-align: center;
+        }
+        .f01-hl {
+          font: 600 72px/80px "Inter Tight", "Inter", system-ui, sans-serif;
+          letter-spacing: -0.03em;
+          color: #1d1d1f;
+          white-space: nowrap;
+        }
+        .f01-mask {
+          display: inline-block;
+          overflow: hidden;
+          vertical-align: bottom;
+          padding: 0.08em 0.06em 0.1em;
+          margin: -0.08em -0.06em -0.1em;
+        }
+        .f01-w {
+          display: inline-block;
+        }
+
+        /* the Otto square — 120px, canonical centre (960, 540); never inside the camera */
+        #f01-sq {
+          position: absolute;
+          left: 900px;
+          top: 480px;
+          width: 120px;
+          height: 120px;
+          border-radius: 36px;
+          background: #2447f0;
+          z-index: 3;
+        }
+        #f01-sq::after {
+          content: "";
+          position: absolute;
+          inset: 30px;
+          border-radius: 14.4px;
+          border: 7.2px solid #ffffff;
+          opacity: 0.95;
+        }
+      </style>
+
+      <div
+        id="stage"
+        data-composition-id="01-chores"
+        data-width="1920"
+        data-height="1080"
+        data-duration="8"
+      >
+        <div id="f01-bg"></div>
+
+        <div id="f01-cam">
+          <div id="f01-g2">
+            <div class="f01-slot" style="left: 960px; top: 650px" data-rot="-1.5"><div class="f01-chip"><i class="f01-ic"></i><span>3 posts</span></div></div>
+            <div class="f01-slot" style="left: 1320px; top: 350px" data-rot="2.5"><div class="f01-chip"><i class="f01-ic"></i><span>5 stories</span></div></div>
+            <div class="f01-slot" style="left: 540px; top: 365px" data-rot="-3"><div class="f01-chip"><i class="f01-ic"></i><span>1 reel</span></div></div>
+            <div class="f01-slot" style="left: 1500px; top: 715px" data-rot="-2"><div class="f01-chip"><i class="f01-ic"></i><span>Meta ads</span></div></div>
+            <div class="f01-slot" style="left: 420px; top: 725px" data-rot="3"><div class="f01-chip"><i class="f01-ic"></i><span>Google ads</span></div></div>
+            <div class="f01-slot" style="left: 1250px; top: 175px" data-rot="-2.5"><div class="f01-chip"><i class="f01-ic"></i><span>Captions</span></div></div>
+            <div class="f01-slot" style="left: 680px; top: 190px" data-rot="2"><div class="f01-chip"><i class="f01-ic"></i><span>Replies</span></div></div>
+            <div class="f01-slot" style="left: 1630px; top: 215px" data-rot="3.5"><div class="f01-chip"><i class="f01-ic"></i><span>Visuals</span></div></div>
+            <div class="f01-slot" style="left: 300px; top: 210px" data-rot="-3.5"><div class="f01-chip"><i class="f01-ic"></i><span>Carousels</span></div></div>
+            <div class="f01-slot" style="left: 1030px; top: 870px" data-rot="1.5"><div class="f01-chip"><i class="f01-ic"></i><span>Best posting times</span></div></div>
+            <div class="f01-slot" style="left: 560px; top: 885px" data-rot="-2"><div class="f01-chip"><i class="f01-ic"></i><span>A weekly report</span></div></div>
+            <div class="f01-slot" style="left: 1500px; top: 885px" data-rot="2.5"><div class="f01-chip"><i class="f01-ic"></i><span>Competitor check</span></div></div>
+            <div class="f01-slot" style="left: 270px; top: 395px" data-rot="-4"><div class="f01-chip"><i class="f01-ic"></i><span>Budget</span></div></div>
+            <div class="f01-slot" style="left: 1650px; top: 400px" data-rot="4"><div class="f01-chip"><i class="f01-ic"></i><span>Hashtags</span></div></div>
+          </div>
+
+          <div id="f01-g1">
+            <div class="f01-hl"><span class="f01-mask"><span class="f01-w">Every</span></span> <span class="f01-mask"><span class="f01-w">week,</span></span> <span class="f01-mask"><span class="f01-w">your business</span></span> <span class="f01-mask"><span class="f01-w">needs</span></span></div>
+          </div>
+        </div>
+
+        <div id="f01-sq"></div>
+      </div>
+
+      <script>
+        (function () {
+          var ID = "01-chores";
+          var CX = 960; // canvas centre = the square's home
+          var CY = 540;
+          var UP_Y = 330; // the square's raised position during the sentence
+          var SQ = "#f01-sq";
+
+          // camera push-in (4.0 → 7.5), sampled at build time so chips leave exactly from the square
+          var CAM_T0 = 4.0;
+          var CAM_T1 = 7.5;
+          var CAM_S1 = 1.05;
+          var camEase = gsap.parseEase("power3.inOut");
+          function camScale(t) {
+            var p = Math.min(1, Math.max(0, (t - CAM_T0) / (CAM_T1 - CAM_T0)));
+            return 1 + (CAM_S1 - 1) * camEase(p);
+          }
+
+          var words = gsap.utils.toArray(".f01-w");
+          var slots = gsap.utils.toArray(".f01-slot");
+          var chips = gsap.utils.toArray(".f01-chip");
+
+          // initial state (t = 0) — set outside the timeline so every tween reverts to it cleanly
+          gsap.set("#f01-g2", { autoAlpha: 0 });
+          gsap.set("#f01-cam", { scale: 1 });
+          gsap.set(SQ, { x: 0, y: 0, scale: 0, rotation: 0 });
+          gsap.set(words, { yPercent: 120 });
+          gsap.set(slots, { x: 0, y: 0, scale: 1 });
+          gsap.set(chips, { xPercent: -50, yPercent: -50, x: 0, y: 0, scale: 1, rotation: 0, autoAlpha: 0 });
+
+          var tl = gsap.timeline({ paused: true });
+
+          // ── g1 (0.0–4.0): the square alone, then one headline line ─────────────────────────
+          // 0.0 the square scales in at (960,540), at rest by 0.5
+          tl.fromTo(SQ, { scale: 0 }, { scale: 1, duration: 0.5, ease: "expo.out" }, 0);
+          // 1.0 it glides up to (960,330)
+          tl.fromTo(
+            SQ,
+            { y: 0 },
+            { y: UP_Y - CY, duration: 0.8, ease: "power3.inOut", immediateRender: false },
+            1.0,
+          );
+          // heartbeat on the downbeats 2 / 4 / 6
+          [2.0, 4.0, 6.0].forEach(function (t) {
+            tl.fromTo(
+              SQ,
+              { scale: 1 },
+              { scale: 1.06, duration: 0.1, ease: "power2.out", immediateRender: false },
+              t,
+            );
+            tl.fromTo(
+              SQ,
+              { scale: 1.06 },
+              { scale: 1, duration: 0.4, ease: "power3.inOut", immediateRender: false },
+              t + 0.1,
+            );
+          });
+          // headline rises word by word from masks: Every 1.5 · week, 2.0 · your business 2.5 · needs 3.0
+          [1.5, 2.0, 2.5, 3.0].forEach(function (t, i) {
+            tl.fromTo(
+              words[i],
+              { yPercent: 120 },
+              { yPercent: 0, duration: 0.6, ease: "expo.out", immediateRender: false },
+              t,
+            );
+          });
+
+          // ── g2 (4.0–8.0): the square multiplies into chore chips that pile up ──────────────
+          tl.set("#f01-g2", { autoAlpha: 1 }, 4.0);
+          // the stage pushes in as the chips accumulate
+          tl.fromTo(
+            "#f01-cam",
+            { scale: 1 },
+            { scale: CAM_S1, duration: CAM_T1 - CAM_T0, ease: "power3.inOut", immediateRender: false },
+            CAM_T0,
+          );
+
+          var placed = slots.map(function (slot, i) {
+            return {
+              slot: slot,
+              chip: chips[i],
+              i: i,
+              sx: parseFloat(slot.style.left),
+              sy: parseFloat(slot.style.top),
+              rot: parseFloat(slot.getAttribute("data-rot")),
+            };
+          });
+
+          // one chip per anchor 4.00, 4.25 … 7.25, each springing out from behind the square
+          placed.forEach(function (p) {
+            var t = 4.0 + 0.25 * p.i;
+            var ox = CX; // square centre, expressed in camera space at the spawn instant
+            var oy = CY + (UP_Y - CY) / camScale(t);
+            tl.set(p.chip, { autoAlpha: 1 }, t);
+            tl.fromTo(
+              p.chip,
+              { x: ox - p.sx, y: oy - p.sy, scale: 0.3, rotation: 0 },
+              {
+                x: 0,
+                y: 0,
+                scale: 1,
+                rotation: p.rot,
+                duration: 0.7,
+                ease: "expo.out",
+                immediateRender: false,
+              },
+              t,
+            );
+          });
+
+          // 7.5: the headline exits, the square drops back to centre, every chip implodes into it
+          tl.fromTo(
+            words,
+            { yPercent: 0, opacity: 1 },
+            { yPercent: 120, opacity: 0, duration: 0.25, ease: "power2.in", immediateRender: false },
+            7.5,
+          );
+          tl.fromTo(
+            SQ,
+            { y: UP_Y - CY },
+            { y: 0, duration: 0.4, ease: "power3.inOut", immediateRender: false },
+            7.5,
+          );
+          placed
+            .slice()
+            .sort(function (a, b) {
+              var da = Math.hypot(a.sx - CX, a.sy - CY);
+              var db = Math.hypot(b.sx - CX, b.sy - CY);
+              return da - db || a.i - b.i;
+            })
+            .forEach(function (p, k) {
+              tl.fromTo(
+                p.slot,
+                { x: 0, y: 0, scale: 1 },
+                {
+                  x: CX - p.sx,
+                  y: CY - p.sy,
+                  scale: 0,
+                  duration: 0.32,
+                  ease: "power3.in",
+                  immediateRender: false,
+                },
+                7.5 + 0.01 * k,
+              );
+            });
+          // the square is at rest at (960,540), scale 1, from 7.9; last chip is swallowed by 7.95 — handoff at 8.0
+
+          window.__timelines = window.__timelines || {};
+          window.__timelines[ID] = tl;
+          tl.seek(0);
+        })();
+      </script>
+    </template>
+  </body>
+</html>

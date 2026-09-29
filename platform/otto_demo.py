@@ -18,9 +18,11 @@ import json, math, random, sys
 from datetime import date, timedelta
 from pathlib import Path
 
+import ap
+
 HERE = Path(__file__).parent
 REPO = HERE.parent
-BRANDS = REPO / "brands"
+BRANDS = ap.BRANDS                                   # OTTO_BRANDS
 
 DEFAULTS = {
     "happygarden": {"followers": 1200, "base_rate": 0.18, "follow_rate": 0.0035, "ctr_org": 0.006, "paid_start": 31,
@@ -30,6 +32,10 @@ DEFAULTS = {
              "budget": 120.0, "cpc": 1.9, "cpc_floor": 1.3, "cvr": 0.09, "aov": 0.0, "currency": "₪",
              "paid_note": "Leads (webinar sign-ups) instead of orders; CPL target from the brand's winning-ads history (₪44)."},
 }
+# any other brand: neutral assumptions, the brand's own currency, no category-specific claims
+GENERIC = {"followers": 800, "base_rate": 0.15, "follow_rate": 0.003, "ctr_org": 0.005, "paid_start": 15, "budget": 20.0,
+           "cpc": 0.8, "cpc_floor": 0.5, "cvr": 0.03, "aov": 0.0, "currency": None,
+           "paid_note": "Paid starts mid-month 1, once the first organic winners are known; every flight has a daily ceiling and a CPL guard."}
 
 
 def load(p, d):
@@ -41,18 +47,21 @@ def load(p, d):
 
 def journey(bid, days=90, seed=7, out=None):
     rnd = random.Random(seed)
-    A = dict(DEFAULTS.get(bid, DEFAULTS["happygarden"]))
     scan = load(BRANDS / bid / "scan.json", {})
     strat = load(BRANDS / bid / "strategy.json", {})
     comps = load(BRANDS / bid / "competitors.json", [])
-    data = load(HERE / "data.json", None) or {}
-    if not data:
+    data = load(ap.DATA, None) or {}                 # OTTO_DATA; the dashboard's fallback block (OTTO_HTML) when absent
+    if not data and ap.HTML.exists():
         import re
-        html = (HERE / "index.html").read_text()
-        m = re.search(r'<script id="fallback-data" type="application/json">(.*?)</script>', html, re.S)
-        data = json.loads(m.group(1)) if m else {}
+        m = re.search(r'<script id="fallback-data" type="application/json">(.*?)</script>', ap.HTML.read_text(), re.S)
+        data = json.loads(m.group(1).replace("<\\/", "</")) if m else {}
+    A = dict(DEFAULTS.get(bid) or GENERIC)
+    if not A["currency"]:
+        A["currency"] = ap.currency_symbol(ap.brand_currency(data, bid)).strip()
     brand = next((b for b in data.get("brands", []) if b["id"] == bid), {"id": bid, "name": bid})
     posts = [p for p in data.get("posts", []) if p.get("brand") == bid]
+    plans = sorted({p["plan"] for p in posts if p.get("plan")})
+    month1 = [p for p in posts if plans and p.get("plan") == plans[0]]
     start = date(2026, 10, 1)
     # posting cadence: 12 feed posts/week (4:4:2 post/carousel/reel mix ≈ what otto_plan produces) + 3 stories
     week_pattern = ["post", "carousel", "post", "reel", "carousel", "post", "post", "carousel", "post", "reel", "post", "carousel"]
@@ -95,7 +104,11 @@ def journey(bid, days=90, seed=7, out=None):
         {"day": 0, "title": "Drops the URL", "what": f"Otto reads {scan.get('final_url', brand.get('url', ''))}: {len(scan.get('pages', []))} pages, palette {', '.join(c['hex'] for c in scan.get('visual', {}).get('palette', [])[:3])}, industry {scan.get('industry', '—')}.", "real": True},
         {"day": 0, "title": "Answers the open questions", "what": " · ".join(strat.get("ask", [])[:4]) or "At most four questions.", "real": True},
         {"day": 1, "title": "Competitors mapped", "what": ", ".join(c["name"] for c in comps[:6]) or "Competitor list from the profile.", "real": True},
-        {"day": 1, "title": "The month is planned", "what": "50 feed posts, 13 stories, 8 explainer reels across 5 pillars, slotted to the audience's hours.", "real": True},
+        {"day": 1, "title": "The month is planned",
+         "what": (f"{sum(1 for p in month1 if p.get('format') not in ('story', 'reel'))} feed posts, "
+                  f"{sum(1 for p in month1 if p.get('format') == 'story')} stories, {sum(1 for p in month1 if p.get('format') == 'reel')} "
+                  f"explainer reels across {len({p.get('pillar') for p in month1})} pillars, slotted to the audience's hours.")
+         if month1 else "A month of feed posts, stories and explainer reels across the brand's pillars.", "real": bool(month1)},
         {"day": 2, "title": "First approval cards in Telegram", "what": f"{min(4, len(posts))} posts with visuals; one tap each.", "real": True},
         {"day": 3, "title": "First reel", "what": "A 57-second motion-design explainer, scripted from the brand profile and voiced.", "real": True},
         {"day": 7, "title": "First morning report", "what": "What went out, what performed, what is waiting.", "real": False},

@@ -29,7 +29,8 @@ FONT_CANDIDATES = [os.environ.get("OTTO_FONT", ""), "/usr/share/fonts/truetype/d
                    "/usr/share/fonts/truetype/liberation/LiberationSans-Bold.ttf", "/System/Library/Fonts/Supplemental/Arial Bold.ttf",
                    "/System/Library/Fonts/Supplemental/Arial.ttf", "/Library/Fonts/Arial Bold.ttf"]
 CTA = {"leads": "SIGN_UP", "traffic": "LEARN_MORE", "sales": "SHOP_NOW", "engagement": "LEARN_MORE", "awareness": "LEARN_MORE"}
-CTA_CARD = {"he": "לפרטים בלינק", "de": "Mehr erfahren", "fr": "En savoir plus", "es": "Más información", "it": "Scopri di più"}
+CTA_CARD = {"he": "לפרטים בלינק", "de": "Mehr erfahren", "fr": "En savoir plus", "es": "Más información", "it": "Scopri di più",
+            "pt": "Saiba mais", "nl": "Meer informatie", "pl": "Dowiedz się więcej", "ro": "Află mai multe", "hu": "Tudj meg többet"}
 
 
 def font_path():

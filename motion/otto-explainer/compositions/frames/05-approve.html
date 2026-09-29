@@ -1,0 +1,415 @@
+<template>
+  <!-- Frame 5 — 05-approve "Nothing goes out until you approve it" (5.36 s). Frame-local seconds.
+       Cues: Nothing 0.00 · goes 0.42 · out 0.68 · until 1.14 · you 1.62 · approve 1.82 · One 3.13 · tap 3.39 · phone 4.63
+       handoff_in:  Otto square 140px at (540, 900) on #F5F5F7, at rest.
+       handoff_out: approval card x 90→990, y 560→1480, radius 32, approved (green "Approved · Tue 18:00" bar),
+                    headline "One tap." held. -->
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+  <style>
+    @font-face {
+      font-family: "Inter Tight";
+      src: url("assets/fonts/InterTight-var-latin.woff2") format("woff2");
+      font-weight: 100 900;
+      font-display: block;
+    }
+    @font-face {
+      font-family: "Inter";
+      src: url("assets/fonts/Inter-var-latin.woff2") format("woff2");
+      font-weight: 100 900;
+      font-display: block;
+    }
+
+    #root {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 1080px;
+      height: 1920px;
+      overflow: hidden;
+      font-family: "Inter", system-ui, sans-serif;
+      color: #1d1d1f;
+      -webkit-font-smoothing: antialiased;
+    }
+    .e05-layer {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 1080px;
+      height: 1920px;
+      box-sizing: border-box;
+    }
+
+    /* ── full-bleed ground ─────────────────────────────────────────────── */
+    #e05-ground {
+      background: #f5f5f7;
+    }
+
+    /* ── headline zone y 250→520, top-centred ──────────────────────────── */
+    .e05-head {
+      position: absolute;
+      left: 60px;
+      top: 250px;
+      width: 960px;
+      height: 270px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      color: #1d1d1f;
+      white-space: nowrap;
+    }
+    #e05-head1 {
+      font: 600 84px/1.04 "Inter Tight", "Inter", system-ui, sans-serif;
+      letter-spacing: -0.03em;
+    }
+    #e05-head2 {
+      font: 650 104px/1 "Inter Tight", "Inter", system-ui, sans-serif;
+      letter-spacing: -0.04em;
+    }
+    .e05-line {
+      display: block;
+    }
+    .e05-mask {
+      display: inline-block;
+      overflow: hidden;
+      padding-bottom: 0.14em;
+      margin-bottom: -0.14em;
+      vertical-align: bottom;
+    }
+    .e05-in {
+      display: inline-block;
+      will-change: transform;
+    }
+    .e05-accent {
+      color: #2447f0;
+    }
+
+    /* ── card group (the settle on "phone" scales this about the card centre) ── */
+    #e05-cardwrap {
+      transform-origin: 540px 1020px;
+    }
+
+    /* the morphing body: Otto square (470,830 140×140) → card (90,560 900×920) */
+    #e05-shell {
+      position: absolute;
+      left: 90px;
+      top: 560px;
+      width: 900px;
+      height: 920px;
+      border-radius: 32px;
+      background: #ffffff;
+    }
+    #e05-shadow {
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      box-shadow:
+        0 1px 2px rgba(0, 0, 0, 0.05),
+        0 18px 48px rgba(0, 0, 0, 0.1);
+    }
+    /* the square's inner white outline (ok-mark: inset 25%, stroke 6%, radius 12% of 140) */
+    #e05-ring {
+      position: absolute;
+      inset: 25%;
+      border-radius: 16.8px;
+      border: 8.4px solid #ffffff;
+      opacity: 0.95;
+    }
+
+    /* card content, clipped to the growing shell during the morph */
+    #e05-card {
+      position: absolute;
+      left: 90px;
+      top: 560px;
+      width: 900px;
+      height: 920px;
+      border-radius: 32px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      font-family: "Inter", system-ui, sans-serif;
+      color: #1d1d1f;
+    }
+    .e05-hd {
+      flex: none;
+      height: 80px;
+      box-sizing: border-box;
+      padding: 0 36px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      font: 600 36px/1 "Inter", system-ui, sans-serif;
+      letter-spacing: -0.01em;
+    }
+    .e05-av {
+      position: relative;
+      flex: none;
+      width: 48px;
+      height: 48px;
+      border-radius: 14.4px;
+      background: #2447f0;
+    }
+    .e05-av::after {
+      content: "";
+      position: absolute;
+      inset: 12px;
+      border-radius: 5.76px;
+      border: 2.88px solid #ffffff;
+      opacity: 0.95;
+    }
+    .e05-ph {
+      flex: none;
+      position: relative;
+      width: 900px;
+      height: 560px;
+      overflow: hidden;
+      background: #ece8e0;
+    }
+    #e05-img {
+      display: block;
+      width: 900px;
+      height: 560px;
+      object-fit: cover;
+      object-position: 50% 50%;
+      transform-origin: 50% 50%;
+    }
+    .e05-tx {
+      flex: none;
+      height: 160px;
+      box-sizing: border-box;
+      padding: 18px 36px 0;
+    }
+    #e05-cap {
+      font: 500 38px/1.16 "Inter", system-ui, sans-serif;
+      letter-spacing: -0.012em;
+      color: #1d1d1f;
+    }
+    #e05-meta {
+      margin-top: 10px;
+      font: 400 30px/1 "Inter", system-ui, sans-serif;
+      color: #6e6e73;
+    }
+    .e05-acts {
+      flex: none;
+      position: relative;
+      width: 900px;
+      height: 120px;
+    }
+    #e05-edit {
+      position: absolute;
+      left: 600px;
+      top: 0;
+      width: 300px;
+      height: 120px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: inset 0 2px 0 rgba(60, 60, 67, 0.16);
+      font: 600 40px/1 "Inter", system-ui, sans-serif;
+      letter-spacing: -0.01em;
+      color: #1d1d1f;
+    }
+    #e05-yes {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 600px;
+      height: 120px;
+      overflow: hidden;
+      background: #2447f0;
+    }
+    #e05-yes-t {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 600px;
+      height: 120px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font: 600 40px/1 "Inter", system-ui, sans-serif;
+      letter-spacing: -0.01em;
+      color: #ffffff;
+    }
+    #e05-done {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 900px;
+      height: 120px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      font: 600 40px/1 "Inter", system-ui, sans-serif;
+      letter-spacing: -0.01em;
+      color: #ffffff;
+      white-space: nowrap;
+    }
+    #e05-done svg {
+      display: block;
+      flex: none;
+      width: 48px;
+      height: 48px;
+      fill: none;
+      stroke: #ffffff;
+      stroke-width: 5.5;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    /* ── touch indicator: 80px, centred on its x/y (margin offset, no CSS transform) ── */
+    #e05-touch {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 80px;
+      height: 80px;
+      margin-left: -40px;
+      margin-top: -40px;
+      box-sizing: border-box;
+      border-radius: 50%;
+      background: rgba(29, 29, 31, 0.18);
+      border: 3px solid #ffffff;
+      opacity: 0;
+    }
+  </style>
+
+  <div id="root" data-composition-id="05-approve" data-width="1080" data-height="1920" data-duration="5.36">
+    <div id="e05-ground" class="e05-layer clip" data-start="0" data-duration="5.36" data-track-index="0"></div>
+
+    <!-- headline A: "Nothing goes out / until you approve it." (word groups on cue) -->
+    <div id="e05-head1" class="e05-head">
+      <div class="e05-line"><span class="e05-mask" data-layout-allow-overlap><span id="e05-g1" class="e05-in" data-layout-allow-overlap>Nothing goes out</span></span></div>
+      <div class="e05-line"><span class="e05-mask" data-layout-allow-overlap><span id="e05-g2" class="e05-in" data-layout-allow-overlap>until you</span></span> <span class="e05-mask" data-layout-allow-overlap><span id="e05-g3" class="e05-in" data-layout-allow-overlap><span class="e05-accent" data-layout-allow-overlap>approve</span> it.</span></span></div>
+    </div>
+
+    <!-- headline B: "One tap." on 3.13 -->
+    <div id="e05-head2" class="e05-head">
+      <div class="e05-line"><span class="e05-mask" data-layout-allow-overlap><span id="e05-g4" class="e05-in" data-layout-allow-overlap>One tap.</span></span></div>
+    </div>
+
+    <div id="e05-cardwrap" class="e05-layer">
+      <div id="e05-shell">
+        <div id="e05-shadow"></div>
+        <div id="e05-ring"></div>
+      </div>
+
+      <div id="e05-card">
+        <div id="e05-hd" class="e05-hd">
+          <div class="e05-av"></div>
+          <span data-layout-allow-overlap>Otto</span>
+        </div>
+        <div id="e05-ph" class="e05-ph">
+          <img id="e05-img" src="assets/img/hg-spectrum.jpg" alt="" />
+        </div>
+        <div class="e05-tx">
+          <div id="e05-cap">Full, broad or isolate? Same plant, three products.</div>
+          <div id="e05-meta">Instagram · Tue 18:00</div>
+        </div>
+        <div id="e05-acts" class="e05-acts">
+          <div id="e05-edit">Edit</div>
+          <div id="e05-yes">
+            <div id="e05-yes-t">Approve</div>
+            <div id="e05-done">
+              <svg viewBox="0 0 48 48" aria-hidden="true"><path id="e05-check" d="M11 25 L20 34 L37 15"></path></svg>
+              <span data-layout-allow-overlap>Approved · Tue 18:00</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="e05-touch"></div>
+  </div>
+
+  <script>
+    (function () {
+      // Geometry (canvas px)
+      var SQ = { left: 470, top: 830, width: 140, height: 140, borderRadius: 42 }; // Otto square, centre (540, 900)
+      var CARD = { left: 90, top: 560, width: 900, height: 920, borderRadius: 32 }; // approval card
+      var CLIP_SQ = "inset(270px 380px 510px 380px round 42px)"; // square rect expressed inside the card box
+      var CLIP_CARD = "inset(0px 0px 0px 0px round 32px)";
+      var TOUCH_FROM = { x: 880, y: 1515 }; // lower right, below the Edit cell
+      var TOUCH_AT = { x: 402, y: 1424 }; // on Approve (cell centre 390, 1420)
+      var CHECK_LEN = 40;
+
+      var tl = gsap.timeline({ paused: true });
+
+      // ── t = 0: frame 4's handoff — only the Otto square, at rest ──
+      // Applied at build time (gsap.set) so the first seek to 0 already shows it, and on the
+      // timeline at 0 so every seek back to the start restores it.
+      var INIT = [
+        ["#e05-shell", { left: SQ.left, top: SQ.top, width: SQ.width, height: SQ.height, borderRadius: SQ.borderRadius, backgroundColor: "#2447F0" }],
+        ["#e05-shadow", { opacity: 0 }],
+        ["#e05-ring", { opacity: 0.95 }],
+        ["#e05-card", { clipPath: CLIP_SQ }],
+        [["#e05-hd", "#e05-ph", "#e05-cap", "#e05-meta", "#e05-acts"], { opacity: 0 }],
+        ["#e05-img", { scale: 1.08 }],
+        [["#e05-g1", "#e05-g2", "#e05-g3", "#e05-g4"], { yPercent: 112 }],
+        ["#e05-head1", { y: 0, opacity: 1 }],
+        ["#e05-cardwrap", { scale: 1 }],
+        ["#e05-yes", { width: 600, backgroundColor: "#2447F0" }],
+        ["#e05-yes-t", { opacity: 1 }],
+        ["#e05-done", { opacity: 0 }],
+        ["#e05-check", { strokeDasharray: CHECK_LEN, strokeDashoffset: CHECK_LEN }],
+        ["#e05-touch", { x: TOUCH_FROM.x, y: TOUCH_FROM.y, scale: 1, opacity: 0 }],
+      ];
+      INIT.forEach(function (p) {
+        gsap.set(p[0], p[1]);
+        tl.set(p[0], p[1], 0);
+      });
+
+      // ── Scene 1 (0.00–0.50): the square grows and opens into the approval card ──
+      tl.fromTo("#e05-shell", SQ, Object.assign({ duration: 0.5, ease: "power3.inOut", immediateRender: false }, CARD), 0);
+      tl.fromTo("#e05-card", { clipPath: CLIP_SQ }, { clipPath: CLIP_CARD, duration: 0.5, ease: "power3.inOut", immediateRender: false }, 0);
+      tl.fromTo("#e05-ring", { opacity: 0.95 }, { opacity: 0, duration: 0.22, ease: "power2.in", immediateRender: false }, 0.02);
+      tl.fromTo("#e05-shell", { backgroundColor: "#2447F0" }, { backgroundColor: "#FFFFFF", duration: 0.28, ease: "power2.inOut", immediateRender: false }, 0.08);
+      tl.fromTo("#e05-shadow", { opacity: 0 }, { opacity: 1, duration: 0.45, ease: "power2.out", immediateRender: false }, 0.05);
+      // content lands inside the opening card
+      tl.fromTo("#e05-hd", { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 0.6, ease: "expo.out", immediateRender: false }, 0.24);
+      tl.fromTo("#e05-ph", { opacity: 0 }, { opacity: 1, duration: 0.5, ease: "expo.out", immediateRender: false }, 0.26);
+      tl.fromTo("#e05-img", { scale: 1.08 }, { scale: 1, duration: 0.9, ease: "expo.out", immediateRender: false }, 0.26);
+      tl.fromTo("#e05-cap", { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.6, ease: "expo.out", immediateRender: false }, 0.34);
+      tl.fromTo("#e05-meta", { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 0.6, ease: "expo.out", immediateRender: false }, 0.4);
+      tl.fromTo("#e05-acts", { opacity: 0, y: 18 }, { opacity: 1, y: 0, duration: 0.6, ease: "expo.out", immediateRender: false }, 0.44);
+
+      // ── Scene 2 (0.00–2.40): headline rises by word group on its cues ──
+      tl.fromTo("#e05-g1", { yPercent: 112 }, { yPercent: 0, duration: 0.7, ease: "expo.out", immediateRender: false }, 0.0); // Nothing goes out
+      tl.fromTo("#e05-g2", { yPercent: 112 }, { yPercent: 0, duration: 0.7, ease: "expo.out", immediateRender: false }, 1.14); // until you
+      tl.fromTo("#e05-g3", { yPercent: 112 }, { yPercent: 0, duration: 0.7, ease: "expo.out", immediateRender: false }, 1.82); // approve it.
+
+      // ── Scene 3 (2.40–4.20): touch glides to Approve, "One tap.", press → approved ──
+      tl.fromTo("#e05-touch", { opacity: 0, scale: 1.2 }, { opacity: 1, scale: 1, duration: 0.4, ease: "expo.out", immediateRender: false }, 2.4);
+      tl.fromTo("#e05-touch", { x: TOUCH_FROM.x }, { x: TOUCH_AT.x, duration: 0.7, ease: "power3.inOut", immediateRender: false }, 2.4);
+      tl.fromTo("#e05-touch", { y: TOUCH_FROM.y }, { y: TOUCH_AT.y, duration: 0.7, ease: "power2.inOut", immediateRender: false }, 2.4);
+
+      // headline swap: A exits up (power2.in), "One tap." rises on 3.13
+      tl.fromTo("#e05-head1", { y: 0, opacity: 1 }, { y: -40, opacity: 0, duration: 0.28, ease: "power2.in", immediateRender: false }, 2.85);
+      tl.fromTo("#e05-g4", { yPercent: 112 }, { yPercent: 0, duration: 0.7, ease: "expo.out", immediateRender: false }, 3.13);
+
+      // press on "tap" (3.39): indicator compresses, button darkens
+      tl.fromTo("#e05-touch", { scale: 1 }, { scale: 0.85, duration: 0.12, ease: "power2.out", immediateRender: false }, 3.39);
+      tl.fromTo("#e05-yes", { backgroundColor: "#2447F0" }, { backgroundColor: "#1A33BC", duration: 0.12, ease: "power2.out", immediateRender: false }, 3.39);
+
+      // 3.50–3.90: the button becomes the green "Approved" bar, check draws in
+      tl.fromTo("#e05-yes-t", { opacity: 1 }, { opacity: 0, duration: 0.14, ease: "power2.in", immediateRender: false }, 3.46);
+      tl.fromTo("#e05-yes", { backgroundColor: "#1A33BC" }, { backgroundColor: "#1B7F4B", duration: 0.3, ease: "power2.inOut", immediateRender: false }, 3.51);
+      tl.fromTo("#e05-yes", { width: 600 }, { width: 900, duration: 0.4, ease: "power3.inOut", immediateRender: false }, 3.5);
+      tl.fromTo("#e05-done", { opacity: 0 }, { opacity: 1, duration: 0.4, ease: "expo.out", immediateRender: false }, 3.52);
+      tl.fromTo("#e05-check", { strokeDashoffset: CHECK_LEN }, { strokeDashoffset: 0, duration: 0.38, ease: "power2.inOut", immediateRender: false }, 3.52);
+
+      // indicator releases, then lifts away
+      tl.fromTo("#e05-touch", { scale: 0.85 }, { scale: 1, duration: 0.35, ease: "expo.out", immediateRender: false }, 3.52);
+      tl.fromTo("#e05-touch", { opacity: 1, scale: 1 }, { opacity: 0, scale: 0.9, duration: 0.3, ease: "power2.in", immediateRender: false }, 3.92);
+
+      // ── Scene 4 (4.20–5.36): hold; one subtle settle on "phone" (4.63) ──
+      tl.fromTo("#e05-cardwrap", { scale: 1 }, { scale: 1.01, duration: 0.18, ease: "sine.inOut", immediateRender: false }, 4.45);
+      tl.fromTo("#e05-cardwrap", { scale: 1.01 }, { scale: 1, duration: 0.6, ease: "power3.out", immediateRender: false }, 4.63);
+
+      window.__timelines = window.__timelines || {};
+      window.__timelines["05-approve"] = tl;
+    })();
+  </script>
+</template>

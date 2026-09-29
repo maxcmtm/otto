@@ -21,11 +21,13 @@ strategy.json (agent fills the inferred parts; owner answers the ASK items once)
   "ask":        [questions still open, max 4]
 }
 """
-import json, re, sys
+import json, os, re, sys
 from pathlib import Path
 
+import ap
+
 HERE = Path(__file__).parent
-BRANDS = HERE.parent / "brands"
+BRANDS = Path(os.environ.get("OTTO_BRANDS") or HERE.parent / "brands")
 HOOKS = HERE.parent / "skills" / "otto-creative-engine" / "hooks"
 Q = "(?)"
 
@@ -60,7 +62,14 @@ def init(bid):
     angles = load_json(bdir / "angles.json", {}).get("angles", [])
     url = (scan.get("final_url") or "").split("?")[0]
     langs = scan.get("languages") or []
-    cur = (scan.get("commerce") or {}).get("currency") or ("ILS" if "he" in langs else "EUR")
+    try:
+        d = ap.load()
+    except Exception:
+        d = {"brands": []}
+    b = ap.brand(d, bid) or {}
+    # the brand record (set at brand-add from the url / language) wins over the old he→IL, else→Berlin guess
+    cur = ap.brand_currency(d, bid) if b else (scan.get("commerce") or {}).get("currency") or ("ILS" if "he" in langs else "EUR")
+    tz = b.get("tz") or ap.COUNTRY_TZ.get(ap.brand_countries(b or {"url": url}, langs)[0], ap.DEFAULT_TZ)
     personas = []
     for i, line in enumerate(bullets(md, "Avatars")[:4], 1):
         label = line.split("—")[0].split(":")[0].strip()[:60]
@@ -75,11 +84,12 @@ def init(bid):
     offers = [{"id": f"o{i}", "name": Q, "price": p, "terms": Q, "deadline": None, "stage": "hot"} for i, p in enumerate((scan.get("commerce") or {}).get("prices", [])[:3], 1)]
     ang = [{"id": f"a{i}", "angle": a.get("angle", "")[:200], "persona": Q, "stage": Q, "source": a.get("source", "competitor"), "status": "idea"} for i, a in enumerate(angles, 1)]
     ang += [{"id": f"a{len(ang)+i}", "angle": t[:200], "persona": Q, "stage": Q, "source": "profile", "status": "idea"} for i, t in enumerate(bullets(md, "Winning angles")[:6], 1)]
-    s = {"brand": bid, "currency": cur, "language": (langs or ["en"])[0], "tz": "Asia/Jerusalem" if "he" in langs else "Europe/Berlin",
+    s = {"brand": bid, "currency": cur, "language": (langs or [ap.brand_lang(b) if b else "en"])[0], "tz": tz,
          "personas": personas, "pains": pains, "objections": objections, "offers": offers, "proof_bank": proof,
          "cta_by_stage": {"cold": Q, "warm": Q, "hot": Q}, "landing_by_stage": {"cold": url or Q, "warm": url or Q, "hot": url or Q},
          "events": [], "targets": {"cpl": None, "cpa": None, "roas": None}, "angles": ang, "ask": []}
     s["ask"] = gaps(s)[:4]
+    bdir.mkdir(parents=True, exist_ok=True)
     out = bdir / "strategy.json"
     if out.exists():
         old = load_json(out, {})

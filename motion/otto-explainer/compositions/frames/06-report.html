@@ -1,0 +1,501 @@
+<template>
+  <!-- Frame 6 — 06-report "The morning report" (6.51 s). Frame-local seconds.
+       Cues: Every 0.00 · morning 0.48 · short 1.42 · report 1.72 · If 2.63 · something 2.81 · drops 3.17 ·
+             fix 4.22 · already 5.00 · drafted 5.54
+       handoff_in:  frame 5's end state — approval card x 90→990, y 560→1480, radius 32, green
+                    "Approved · Tue 18:00" bar; headline "One tap." held (geometry copied from 05-approve).
+       handoff_out: Otto square 140px at (540, 900) on #F5F5F7, everything else gone, at rest by 6.46. -->
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+  <style>
+    @font-face {
+      font-family: "Inter Tight";
+      src: url("assets/fonts/InterTight-var-latin.woff2") format("woff2");
+      font-weight: 100 900;
+      font-display: block;
+    }
+    @font-face {
+      font-family: "Inter";
+      src: url("assets/fonts/Inter-var-latin.woff2") format("woff2");
+      font-weight: 100 900;
+      font-display: block;
+    }
+
+    #root {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 1080px;
+      height: 1920px;
+      overflow: hidden;
+      font-family: "Inter", system-ui, sans-serif;
+      color: #1d1d1f;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── full-bleed ground ─────────────────────────────────────────────── */
+    #e06-bg {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 1080px;
+      height: 1920px;
+      background: #f5f5f7;
+    }
+
+    /* ── Otto square (kit .ok-mark, namespaced) ────────────────────────── */
+    .e06-mark {
+      --s: 96px;
+      position: relative;
+      flex: none;
+      width: var(--s);
+      height: var(--s);
+      border-radius: calc(var(--s) * 0.3);
+      background: #2447f0;
+    }
+    .e06-mark::after {
+      content: "";
+      position: absolute;
+      inset: calc(var(--s) * 0.25);
+      border-radius: calc(var(--s) * 0.12);
+      border: calc(var(--s) * 0.06) solid #ffffff;
+      opacity: 0.95;
+    }
+
+    /* ── headline zone y 250→520, top-centred (same box as frames 3 and 5) ── */
+    .e06-head {
+      position: absolute;
+      left: 60px;
+      top: 250px;
+      width: 960px;
+      height: 270px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      color: #1d1d1f;
+      white-space: nowrap;
+    }
+    .e06-h-m {
+      font: 600 84px/1.04 "Inter Tight", "Inter", system-ui, sans-serif;
+      letter-spacing: -0.03em;
+    }
+    .e06-h-l {
+      font: 650 104px/1 "Inter Tight", "Inter", system-ui, sans-serif;
+      letter-spacing: -0.04em;
+    }
+    .e06-line {
+      display: block;
+    }
+    .e06-mask {
+      display: inline-block;
+      overflow: hidden;
+      padding-bottom: 0.14em;
+      margin-bottom: -0.14em;
+      vertical-align: bottom;
+    }
+    .e06-wm {
+      /* per-word mask; a little side room so tight tracking never clips a glyph */
+      padding-left: 0.05em;
+      padding-right: 0.05em;
+      margin-left: -0.05em;
+      margin-right: -0.05em;
+    }
+    .e06-in {
+      display: inline-block;
+    }
+    .e06-accent {
+      color: #2447f0;
+    }
+
+    /* ── approval card — frame 5's end state, same geometry ────────────── */
+    #e06-ap {
+      position: absolute;
+      left: 90px;
+      top: 560px;
+      width: 900px;
+      height: 920px;
+      border-radius: 32px;
+      background: #ffffff;
+      box-shadow:
+        0 1px 2px rgba(0, 0, 0, 0.05),
+        0 18px 48px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    .e06-ap-hd {
+      flex: none;
+      height: 84px;
+      box-sizing: border-box;
+      padding: 0 36px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      font: 600 36px/1 "Inter", system-ui, sans-serif;
+      letter-spacing: -0.01em;
+    }
+    .e06-ap-hd .e06-mark {
+      --s: 48px;
+    }
+    .e06-ap-ph {
+      flex: none;
+      width: 900px;
+      height: 560px;
+      overflow: hidden;
+      background: #ece8e0;
+    }
+    .e06-ap-ph img {
+      display: block;
+      width: 900px;
+      height: 560px;
+      object-fit: cover;
+      object-position: 50% 50%;
+    }
+    .e06-ap-tx {
+      flex: none;
+      height: 156px;
+      box-sizing: border-box;
+      padding: 18px 36px 0;
+    }
+    .e06-ap-cap {
+      font: 500 38px/1.18 "Inter", system-ui, sans-serif;
+      letter-spacing: -0.012em;
+      color: #1d1d1f;
+    }
+    .e06-ap-meta {
+      margin-top: 10px;
+      font: 400 30px/1 "Inter", system-ui, sans-serif;
+      color: #6e6e73;
+    }
+    .e06-ap-done {
+      flex: none;
+      width: 900px;
+      height: 120px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      background: #1b7f4b;
+      font: 600 40px/1 "Inter", system-ui, sans-serif;
+      letter-spacing: -0.01em;
+      color: #ffffff;
+      white-space: nowrap;
+    }
+    .e06-ap-done svg {
+      display: block;
+      flex: none;
+      width: 48px;
+      height: 48px;
+      fill: none;
+      stroke: #ffffff;
+      stroke-width: 5.5;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    /* ── notification banner → report card (x 90→990, y 560; 150 → 620 tall) ── */
+    #e06-rep {
+      position: absolute;
+      left: 90px;
+      top: 560px;
+      width: 900px;
+      height: 150px;
+      border-radius: 40px;
+      background: #ffffff;
+      box-shadow:
+        0 1px 2px rgba(0, 0, 0, 0.05),
+        0 18px 48px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+      transform-origin: 450px 340px; /* = canvas (540, 900): the card collapses into the square */
+    }
+    #e06-repSq {
+      position: absolute;
+      left: 39px;
+      top: 39px;
+      --s: 72px;
+    }
+    #e06-repName {
+      position: absolute;
+      left: 139px;
+      top: 32px;
+      font: 600 36px/43px "Inter", system-ui, sans-serif;
+      letter-spacing: -0.01em;
+      white-space: nowrap;
+    }
+    #e06-repSub {
+      position: absolute;
+      left: 139px;
+      top: 77px;
+      font: 400 36px/43px "Inter", system-ui, sans-serif;
+      letter-spacing: -0.01em;
+      white-space: nowrap;
+    }
+    #e06-repTitle {
+      position: absolute;
+      left: 40px;
+      top: 160px;
+      font: 600 52px/60px "Inter Tight", "Inter", system-ui, sans-serif;
+      letter-spacing: -0.02em;
+      white-space: nowrap;
+    }
+    .e06-rows {
+      position: absolute;
+      left: 40px;
+      top: 244px;
+      width: 820px;
+    }
+    .e06-row {
+      height: 112px;
+      box-sizing: border-box;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-top: 2px solid rgba(60, 60, 67, 0.16);
+    }
+    .e06-row-l {
+      font: 400 38px/1 "Inter", system-ui, sans-serif;
+      letter-spacing: -0.01em;
+      color: #6e6e73;
+    }
+    .e06-row-v {
+      font: 600 44px/1 "Inter", system-ui, sans-serif;
+      letter-spacing: -0.015em;
+      font-variant-numeric: tabular-nums;
+      color: #1d1d1f;
+    }
+
+    /* ── alert card (x 90→990, y 1220→1540) ────────────────────────────── */
+    #e06-alert {
+      position: absolute;
+      left: 90px;
+      top: 1220px;
+      width: 900px;
+      height: 320px;
+      border-radius: 32px;
+      background: #ffffff;
+      box-shadow:
+        0 1px 2px rgba(0, 0, 0, 0.05),
+        0 18px 48px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+      transform-origin: 450px -320px; /* = canvas (540, 900) */
+    }
+    #e06-chart {
+      position: absolute;
+      left: 0;
+      top: 24px;
+      width: 900px;
+      height: 150px;
+      overflow: visible;
+    }
+    .e06-al-txt {
+      position: absolute;
+      left: 40px;
+      top: 197px;
+      font: 500 38px/47px "Inter", system-ui, sans-serif;
+      letter-spacing: -0.01em;
+      color: #1d1d1f;
+      white-space: nowrap;
+    }
+    .e06-al-txt span {
+      display: block;
+    }
+    #e06-fix {
+      position: absolute;
+      right: 40px;
+      top: 194px;
+      height: 100px;
+      box-sizing: border-box;
+      padding: 0 50px;
+      border-radius: 50px;
+      background: #2447f0;
+      font: 600 40px/100px "Inter", system-ui, sans-serif;
+      letter-spacing: -0.01em;
+      color: #ffffff;
+      white-space: nowrap;
+    }
+
+    /* ── the governing square, canonical 140px centred at (540, 900) ───── */
+    #e06-mark {
+      position: absolute;
+      left: 470px;
+      top: 830px;
+      --s: 140px;
+      z-index: 10;
+    }
+  </style>
+
+  <div id="root" data-composition-id="06-report" data-width="1080" data-height="1920" data-duration="6.51">
+    <div id="e06-bg" class="clip" data-start="0" data-duration="6.51" data-track-index="0" data-layout-allow-overlap></div>
+
+    <!-- t = 0: frame 5's approved card -->
+    <div id="e06-ap">
+      <div class="e06-ap-hd">
+        <div class="e06-mark"></div>
+        <span data-layout-allow-overlap>Otto</span>
+      </div>
+      <div class="e06-ap-ph"><img src="assets/img/hg-spectrum.jpg" alt="" /></div>
+      <div class="e06-ap-tx">
+        <div class="e06-ap-cap">Full, broad or isolate? Same plant, three products.</div>
+        <div class="e06-ap-meta">Instagram · Tue 18:00</div>
+      </div>
+      <div class="e06-ap-done">
+        <svg viewBox="0 0 48 48" aria-hidden="true"><path d="M11 25 L20 34 L37 15"></path></svg>
+        <span data-layout-allow-overlap>Approved · Tue 18:00</span>
+      </div>
+    </div>
+
+    <!-- t = 0: frame 5's held headline "One tap." -->
+    <div id="e06-hTap" class="e06-head e06-h-l" data-layout-allow-overlap>
+      <div class="e06-line"><span class="e06-mask" data-layout-allow-overlap><span id="e06-tap" class="e06-in" data-layout-allow-overlap>One tap.</span></span></div>
+    </div>
+
+    <!-- headline A: "Every morning, / a short report." -->
+    <div id="e06-hA" class="e06-head e06-h-m" data-layout-allow-overlap>
+      <div class="e06-line" id="e06-hA1" data-layout-allow-overlap><span class="e06-mask e06-wm" data-layout-allow-overlap><span class="e06-in" data-layout-allow-overlap>Every</span></span> <span class="e06-mask e06-wm" data-layout-allow-overlap><span class="e06-in" data-layout-allow-overlap>morning,</span></span></div>
+      <div class="e06-line" id="e06-hA2" data-layout-allow-overlap><span class="e06-mask e06-wm" data-layout-allow-overlap><span class="e06-in" data-layout-allow-overlap>a</span></span> <span class="e06-mask e06-wm" data-layout-allow-overlap><span class="e06-in" data-layout-allow-overlap>short</span></span> <span class="e06-mask e06-wm" data-layout-allow-overlap><span class="e06-in e06-accent" data-layout-allow-overlap>report.</span></span></div>
+    </div>
+
+    <!-- headline B: "If something drops," -->
+    <div id="e06-hB" class="e06-head e06-h-m" data-layout-allow-overlap>
+      <div class="e06-line"><span class="e06-mask e06-wm" data-layout-allow-overlap><span id="e06-bIf" class="e06-in" data-layout-allow-overlap>If</span></span> <span class="e06-mask e06-wm" data-layout-allow-overlap><span id="e06-bSome" class="e06-in" data-layout-allow-overlap>something</span></span> <span class="e06-mask e06-wm" data-layout-allow-overlap><span id="e06-bDrops" class="e06-in" data-layout-allow-overlap>drops,</span></span></div>
+    </div>
+
+    <!-- headline C: "the fix is / already drafted." -->
+    <div id="e06-hC" class="e06-head e06-h-m" data-layout-allow-overlap>
+      <div class="e06-line" id="e06-hC1" data-layout-allow-overlap><span class="e06-mask e06-wm" data-layout-allow-overlap><span class="e06-in" data-layout-allow-overlap>the</span></span> <span class="e06-mask e06-wm" data-layout-allow-overlap><span class="e06-in" data-layout-allow-overlap>fix</span></span> <span class="e06-mask e06-wm" data-layout-allow-overlap><span class="e06-in" data-layout-allow-overlap>is</span></span></div>
+      <div class="e06-line"><span class="e06-mask e06-wm" data-layout-allow-overlap><span id="e06-cAlready" class="e06-in" data-layout-allow-overlap>already</span></span> <span class="e06-mask e06-wm" data-layout-allow-overlap><span id="e06-cDrafted" class="e06-in e06-accent" data-layout-allow-overlap>drafted.</span></span></div>
+    </div>
+
+    <!-- notification banner that expands into the report card -->
+    <div id="e06-rep">
+      <div id="e06-repSq" class="e06-mark"></div>
+      <div id="e06-repName">Otto · 07:35</div>
+      <div id="e06-repSub">Your morning report is ready</div>
+      <div id="e06-repTitle">Yesterday</div>
+      <div class="e06-rows">
+        <div id="e06-row1" class="e06-row"><span class="e06-row-l" data-layout-allow-overlap>Spent</span><span class="e06-row-v" data-layout-allow-overlap>€18.40</span></div>
+        <div id="e06-row2" class="e06-row"><span class="e06-row-l" data-layout-allow-overlap>Leads</span><span class="e06-row-v" data-layout-allow-overlap>7</span></div>
+        <div id="e06-row3" class="e06-row"><span class="e06-row-l" data-layout-allow-overlap>Cost per lead</span><span class="e06-row-v" data-layout-allow-overlap>€2.63</span></div>
+      </div>
+    </div>
+
+    <!-- alert card: reach line dips on "drops", the drafted fix slides in on "drafted" -->
+    <div id="e06-alert">
+      <svg id="e06-chart" viewBox="0 0 900 150" width="900" height="150" aria-hidden="true">
+        <defs>
+          <clipPath id="e06-areaClip"><rect id="e06-areaRect" x="0" y="0" width="44" height="150"></rect></clipPath>
+        </defs>
+        <line id="e06-usual" x1="44" y1="56" x2="856" y2="56" stroke="rgba(60,60,67,0.30)" stroke-width="2" stroke-dasharray="8 10"></line>
+        <path
+          id="e06-area"
+          clip-path="url(#e06-areaClip)"
+          d="M44 70 C63.3 68 121.3 59 160 58 C198.7 57 237.3 65.3 276 64 C314.7 62.7 353.3 51.3 392 50 C430.7 48.7 469.3 56.7 508 56 C546.7 55.3 585.3 46.7 624 46 C662.7 45.3 701.3 41 740 52 C778.7 63 836.7 102 856 112 L856 150 L44 150 Z"
+          fill="#EEF2FF"
+        ></path>
+        <path
+          id="e06-chartLine"
+          d="M44 70 C63.3 68 121.3 59 160 58 C198.7 57 237.3 65.3 276 64 C314.7 62.7 353.3 51.3 392 50 C430.7 48.7 469.3 56.7 508 56 C546.7 55.3 585.3 46.7 624 46 C662.7 45.3 701.3 41 740 52 C778.7 63 836.7 102 856 112"
+          pathLength="1"
+          fill="none"
+          stroke="#2447F0"
+          stroke-width="6"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-dasharray="1 1"
+          stroke-dashoffset="1"
+        ></path>
+        <circle id="e06-dip" cx="856" cy="112" r="13" fill="#2447F0" stroke="#FFFFFF" stroke-width="5"></circle>
+      </svg>
+      <div class="e06-al-txt">
+        <span id="e06-alT1" data-layout-allow-overlap>Reach fell 18%</span>
+        <span id="e06-alT2" data-layout-allow-overlap>on Tuesday.</span>
+      </div>
+      <div id="e06-fix">Approve fix</div>
+    </div>
+
+    <!-- the Otto square: takes over from the report card's 72px square at 6.00 -->
+    <div id="e06-mark" class="e06-mark"></div>
+  </div>
+
+  <script>
+    (function () {
+      window.__timelines = window.__timelines || {};
+      var tl = gsap.timeline({ paused: true });
+      var all = function (sel) {
+        return Array.prototype.slice.call(document.querySelectorAll(sel));
+      };
+
+      // a word rises up through its mask (entrance) / sinks up and out of it (exit)
+      var rise = function (els, at, stagger) {
+        tl.fromTo(els, { yPercent: 115 }, { yPercent: 0, duration: 0.7, ease: "expo.out", stagger: stagger || 0 }, at);
+      };
+      var sink = function (els, at) {
+        tl.to(els, { yPercent: -115, duration: 0.26, ease: "power2.in", stagger: 0.02 }, at);
+      };
+
+      // ── Scene 1 (0.00–0.50): approved card slides down and out; "One tap." → "Every morning, a short report." ──
+      sink("#e06-tap", 0.0);
+      tl.to("#e06-ap", { y: 860, duration: 0.45, ease: "power2.in" }, 0.0);
+      tl.to("#e06-ap", { opacity: 0, duration: 0.2, ease: "power1.in" }, 0.25);
+      rise(all("#e06-hA1 .e06-in"), 0.14, 0.08); // Every morning,
+      rise(all("#e06-hA2 .e06-in"), 0.48, 0.07); // a short report.
+
+      // ── Scene 2 (0.50–2.50): banner drops in (0.60), expands into the report card on "report" (1.72) ──
+      tl.fromTo("#e06-rep", { y: -80, opacity: 0 }, { y: 0, opacity: 1, duration: 0.8, ease: "expo.out" }, 0.6);
+      tl.fromTo("#e06-repSq", { scale: 0.6 }, { scale: 1, duration: 0.7, ease: "expo.out" }, 0.64);
+      tl.to("#e06-repSub", { opacity: 0, duration: 0.2, ease: "power2.in" }, 1.62);
+      tl.to("#e06-repName", { y: 21.5, duration: 0.5, ease: "power3.inOut" }, 1.66);
+      tl.fromTo(
+        "#e06-rep",
+        { height: 150, borderRadius: 40 },
+        { height: 620, borderRadius: 32, duration: 0.75, ease: "expo.out" },
+        1.7
+      );
+      tl.fromTo("#e06-repTitle", { y: 24, opacity: 0 }, { y: 0, opacity: 1, duration: 0.7, ease: "expo.out" }, 1.74);
+      tl.fromTo("#e06-row1", { y: 28, opacity: 0 }, { y: 0, opacity: 1, duration: 0.7, ease: "expo.out" }, 1.8);
+      tl.fromTo("#e06-row2", { y: 28, opacity: 0 }, { y: 0, opacity: 1, duration: 0.7, ease: "expo.out" }, 2.0);
+      tl.fromTo("#e06-row3", { y: 28, opacity: 0 }, { y: 0, opacity: 1, duration: 0.7, ease: "expo.out" }, 2.2);
+
+      // ── Scene 3 (2.60–6.00): "If something drops," · line dips on "drops" · "the fix is already drafted." ──
+      sink(all("#e06-hA .e06-in"), 2.42);
+      rise("#e06-bIf", 2.63);
+      rise("#e06-bSome", 2.79);
+      rise("#e06-bDrops", 3.15);
+
+      tl.fromTo("#e06-alert", { y: 80, opacity: 0 }, { y: 0, opacity: 1, duration: 0.8, ease: "expo.out" }, 2.68);
+      tl.fromTo("#e06-usual", { opacity: 0 }, { opacity: 1, duration: 0.4, ease: "power1.out" }, 2.78);
+      tl.fromTo("#e06-chartLine", { opacity: 0 }, { opacity: 1, duration: 0.06, ease: "none" }, 2.78);
+      // linear draw: the pen enters the final (dip) segment at ≈3.19 and bottoms out at 3.26
+      tl.fromTo("#e06-chartLine", { strokeDashoffset: 1 }, { strokeDashoffset: 0, duration: 0.48, ease: "none" }, 2.78);
+      tl.fromTo("#e06-areaRect", { attr: { width: 44 } }, { attr: { width: 900 }, duration: 0.48, ease: "none" }, 2.78);
+      tl.fromTo("#e06-dip", { scale: 0, transformOrigin: "50% 50%" }, { scale: 1, duration: 0.5, ease: "expo.out" }, 3.22);
+      tl.fromTo("#e06-alT1", { y: 24, opacity: 0 }, { y: 0, opacity: 1, duration: 0.7, ease: "expo.out" }, 3.3);
+      tl.fromTo("#e06-alT2", { y: 24, opacity: 0 }, { y: 0, opacity: 1, duration: 0.7, ease: "expo.out" }, 3.4);
+
+      sink(all("#e06-hB .e06-in"), 4.0);
+      rise(all("#e06-hC1 .e06-in"), 4.22, 0.07); // the fix is
+      rise("#e06-cAlready", 5.0);
+      rise("#e06-cDrafted", 5.54);
+      tl.fromTo("#e06-fix", { x: 220, opacity: 0 }, { x: 0, opacity: 1, duration: 0.7, ease: "expo.out" }, 5.54);
+
+      // ── Scene 4 (6.00–6.51): everything collapses into the square at (540, 900) ──
+      // the report card's 72px square (centre 165, 635) becomes the canonical 140px square
+      tl.fromTo(
+        "#e06-mark",
+        { x: -375, y: -265, scale: 72 / 140, opacity: 0 },
+        { opacity: 1, duration: 0.01, ease: "none" },
+        5.99
+      );
+      tl.to("#e06-repSq", { opacity: 0, duration: 0.01, ease: "none" }, 5.99);
+      tl.to("#e06-mark", { x: 0, y: 0, scale: 1, duration: 0.46, ease: "power3.inOut" }, 6.0);
+      sink(all("#e06-hC .e06-in"), 6.0);
+      tl.to("#e06-rep", { scale: 0.04, duration: 0.4, ease: "power3.in" }, 6.02);
+      tl.to("#e06-rep", { opacity: 0, duration: 0.16, ease: "power1.in" }, 6.26);
+      tl.to("#e06-alert", { scale: 0.04, duration: 0.4, ease: "power3.in" }, 6.05);
+      tl.to("#e06-alert", { opacity: 0, duration: 0.16, ease: "power1.in" }, 6.29);
+
+      window.__timelines["06-report"] = tl;
+    })();
+  </script>
+</template>

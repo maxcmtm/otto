@@ -1,0 +1,886 @@
+{
+  "total_duration_s": 39.87,
+  "width": 1080,
+  "height": 1920,
+  "groups": [
+    {
+      "id": "caption-group-0",
+      "frame": 1,
+      "start": 0,
+      "end": 0.46,
+      "text": "You run",
+      "words": [
+        {
+          "id": "caption-word-0-0",
+          "text": "You",
+          "start": 0,
+          "end": 0.22
+        },
+        {
+          "id": "caption-word-0-1",
+          "text": "run",
+          "start": 0.22,
+          "end": 0.46
+        }
+      ]
+    },
+    {
+      "id": "caption-group-1",
+      "frame": 1,
+      "start": 0.46,
+      "end": 1.22,
+      "text": "the business.",
+      "words": [
+        {
+          "id": "caption-word-1-0",
+          "text": "the",
+          "start": 0.46,
+          "end": 0.66
+        },
+        {
+          "id": "caption-word-1-1",
+          "text": "business.",
+          "start": 0.66,
+          "end": 1.1
+        }
+      ]
+    },
+    {
+      "id": "caption-group-2",
+      "frame": 1,
+      "start": 1.43,
+      "end": 1.91,
+      "text": "So who",
+      "words": [
+        {
+          "id": "caption-word-2-0",
+          "text": "So",
+          "start": 1.43,
+          "end": 1.69
+        },
+        {
+          "id": "caption-word-2-1",
+          "text": "who",
+          "start": 1.69,
+          "end": 1.91
+        }
+      ]
+    },
+    {
+      "id": "caption-group-3",
+      "frame": 1,
+      "start": 1.91,
+      "end": 2.97,
+      "text": "runs the marketing?",
+      "words": [
+        {
+          "id": "caption-word-3-0",
+          "text": "runs",
+          "start": 1.91,
+          "end": 2.29
+        },
+        {
+          "id": "caption-word-3-1",
+          "text": "the",
+          "start": 2.29,
+          "end": 2.51
+        },
+        {
+          "id": "caption-word-3-2",
+          "text": "marketing?",
+          "start": 2.51,
+          "end": 2.85
+        }
+      ]
+    },
+    {
+      "id": "caption-group-4",
+      "frame": 2,
+      "start": 3.26,
+      "end": 4.18,
+      "text": "Meet Otto,",
+      "words": [
+        {
+          "id": "caption-word-4-0",
+          "text": "Meet",
+          "start": 3.26,
+          "end": 3.56
+        },
+        {
+          "id": "caption-word-4-1",
+          "text": "Otto,",
+          "start": 3.56,
+          "end": 4.06
+        }
+      ]
+    },
+    {
+      "id": "caption-group-5",
+      "frame": 2,
+      "start": 4.39,
+      "end": 5.63,
+      "text": "your marketing department",
+      "words": [
+        {
+          "id": "caption-word-5-0",
+          "text": "your",
+          "start": 4.39,
+          "end": 4.55
+        },
+        {
+          "id": "caption-word-5-1",
+          "text": "marketing",
+          "start": 4.55,
+          "end": 4.99
+        },
+        {
+          "id": "caption-word-5-2",
+          "text": "department",
+          "start": 4.99,
+          "end": 5.63
+        }
+      ]
+    },
+    {
+      "id": "caption-group-6",
+      "frame": 2,
+      "start": 5.63,
+      "end": 6.97,
+      "text": "in your pocket.",
+      "words": [
+        {
+          "id": "caption-word-6-0",
+          "text": "in",
+          "start": 5.63,
+          "end": 6.27
+        },
+        {
+          "id": "caption-word-6-1",
+          "text": "your",
+          "start": 6.27,
+          "end": 6.47
+        },
+        {
+          "id": "caption-word-6-2",
+          "text": "pocket.",
+          "start": 6.47,
+          "end": 6.85
+        }
+      ]
+    },
+    {
+      "id": "caption-group-7",
+      "frame": 3,
+      "start": 7.26,
+      "end": 7.7,
+      "text": "Start with",
+      "words": [
+        {
+          "id": "caption-word-7-0",
+          "text": "Start",
+          "start": 7.26,
+          "end": 7.5
+        },
+        {
+          "id": "caption-word-7-1",
+          "text": "with",
+          "start": 7.5,
+          "end": 7.7
+        }
+      ]
+    },
+    {
+      "id": "caption-group-8",
+      "frame": 3,
+      "start": 7.7,
+      "end": 8.44,
+      "text": "your website.",
+      "words": [
+        {
+          "id": "caption-word-8-0",
+          "text": "your",
+          "start": 7.7,
+          "end": 7.86
+        },
+        {
+          "id": "caption-word-8-1",
+          "text": "website.",
+          "start": 7.86,
+          "end": 8.32
+        }
+      ]
+    },
+    {
+      "id": "caption-group-9",
+      "frame": 3,
+      "start": 8.65,
+      "end": 9.01,
+      "text": "Otto reads",
+      "words": [
+        {
+          "id": "caption-word-9-0",
+          "text": "Otto",
+          "start": 8.65,
+          "end": 8.67
+        },
+        {
+          "id": "caption-word-9-1",
+          "text": "reads",
+          "start": 8.67,
+          "end": 9.01
+        }
+      ]
+    },
+    {
+      "id": "caption-group-10",
+      "frame": 3,
+      "start": 9.01,
+      "end": 9.85,
+      "text": "your colours,",
+      "words": [
+        {
+          "id": "caption-word-10-0",
+          "text": "your",
+          "start": 9.01,
+          "end": 9.29
+        },
+        {
+          "id": "caption-word-10-1",
+          "text": "colours,",
+          "start": 9.29,
+          "end": 9.73
+        }
+      ]
+    },
+    {
+      "id": "caption-group-11",
+      "frame": 3,
+      "start": 10.06,
+      "end": 10.78,
+      "text": "your tone,",
+      "words": [
+        {
+          "id": "caption-word-11-0",
+          "text": "your",
+          "start": 10.06,
+          "end": 10.18
+        },
+        {
+          "id": "caption-word-11-1",
+          "text": "tone,",
+          "start": 10.18,
+          "end": 10.66
+        }
+      ]
+    },
+    {
+      "id": "caption-group-12",
+      "frame": 3,
+      "start": 10.99,
+      "end": 11.83,
+      "text": "your customers,",
+      "words": [
+        {
+          "id": "caption-word-12-0",
+          "text": "your",
+          "start": 10.99,
+          "end": 11.13
+        },
+        {
+          "id": "caption-word-12-1",
+          "text": "customers,",
+          "start": 11.13,
+          "end": 11.71
+        }
+      ]
+    },
+    {
+      "id": "caption-group-13",
+      "frame": 3,
+      "start": 12.04,
+      "end": 13.02,
+      "text": "and your competitors.",
+      "words": [
+        {
+          "id": "caption-word-13-0",
+          "text": "and",
+          "start": 12.04,
+          "end": 12.26
+        },
+        {
+          "id": "caption-word-13-1",
+          "text": "your",
+          "start": 12.26,
+          "end": 12.44
+        },
+        {
+          "id": "caption-word-13-2",
+          "text": "competitors.",
+          "start": 12.44,
+          "end": 12.9
+        }
+      ]
+    },
+    {
+      "id": "caption-group-14",
+      "frame": 4,
+      "start": 13.31,
+      "end": 13.75,
+      "text": "Then it",
+      "words": [
+        {
+          "id": "caption-word-14-0",
+          "text": "Then",
+          "start": 13.31,
+          "end": 13.59
+        },
+        {
+          "id": "caption-word-14-1",
+          "text": "it",
+          "start": 13.59,
+          "end": 13.75
+        }
+      ]
+    },
+    {
+      "id": "caption-group-15",
+      "frame": 4,
+      "start": 13.75,
+      "end": 14.37,
+      "text": "plans your",
+      "words": [
+        {
+          "id": "caption-word-15-0",
+          "text": "plans",
+          "start": 13.75,
+          "end": 14.13
+        },
+        {
+          "id": "caption-word-15-1",
+          "text": "your",
+          "start": 14.13,
+          "end": 14.37
+        }
+      ]
+    },
+    {
+      "id": "caption-group-16",
+      "frame": 4,
+      "start": 14.37,
+      "end": 15.25,
+      "text": "whole month.",
+      "words": [
+        {
+          "id": "caption-word-16-0",
+          "text": "whole",
+          "start": 14.37,
+          "end": 14.67
+        },
+        {
+          "id": "caption-word-16-1",
+          "text": "month.",
+          "start": 14.67,
+          "end": 15.13
+        }
+      ]
+    },
+    {
+      "id": "caption-group-17",
+      "frame": 4,
+      "start": 15.46,
+      "end": 15.88,
+      "text": "Posts,",
+      "words": [
+        {
+          "id": "caption-word-17-0",
+          "text": "Posts,",
+          "start": 15.46,
+          "end": 15.76
+        }
+      ]
+    },
+    {
+      "id": "caption-group-18",
+      "frame": 4,
+      "start": 16.09,
+      "end": 16.63,
+      "text": "stories,",
+      "words": [
+        {
+          "id": "caption-word-18-0",
+          "text": "stories,",
+          "start": 16.09,
+          "end": 16.51
+        }
+      ]
+    },
+    {
+      "id": "caption-group-19",
+      "frame": 4,
+      "start": 16.84,
+      "end": 17.8,
+      "text": "short reels,",
+      "words": [
+        {
+          "id": "caption-word-19-0",
+          "text": "short",
+          "start": 16.84,
+          "end": 17.04
+        },
+        {
+          "id": "caption-word-19-1",
+          "text": "reels,",
+          "start": 17.04,
+          "end": 17.68
+        }
+      ]
+    },
+    {
+      "id": "caption-group-20",
+      "frame": 4,
+      "start": 18.01,
+      "end": 18.49,
+      "text": "and ads",
+      "words": [
+        {
+          "id": "caption-word-20-0",
+          "text": "and",
+          "start": 18.01,
+          "end": 18.07
+        },
+        {
+          "id": "caption-word-20-1",
+          "text": "ads",
+          "start": 18.07,
+          "end": 18.49
+        }
+      ]
+    },
+    {
+      "id": "caption-group-21",
+      "frame": 4,
+      "start": 18.49,
+      "end": 19.09,
+      "text": "on Meta",
+      "words": [
+        {
+          "id": "caption-word-21-0",
+          "text": "on",
+          "start": 18.49,
+          "end": 18.75
+        },
+        {
+          "id": "caption-word-21-1",
+          "text": "Meta",
+          "start": 18.75,
+          "end": 19.09
+        }
+      ]
+    },
+    {
+      "id": "caption-group-22",
+      "frame": 4,
+      "start": 19.09,
+      "end": 19.83,
+      "text": "and Google.",
+      "words": [
+        {
+          "id": "caption-word-22-0",
+          "text": "and",
+          "start": 19.09,
+          "end": 19.47
+        },
+        {
+          "id": "caption-word-22-1",
+          "text": "Google.",
+          "start": 19.47,
+          "end": 19.71
+        }
+      ]
+    },
+    {
+      "id": "caption-group-23",
+      "frame": 5,
+      "start": 20.12,
+      "end": 21.26,
+      "text": "Nothing goes out",
+      "words": [
+        {
+          "id": "caption-word-23-0",
+          "text": "Nothing",
+          "start": 20.12,
+          "end": 20.54
+        },
+        {
+          "id": "caption-word-23-1",
+          "text": "goes",
+          "start": 20.54,
+          "end": 20.8
+        },
+        {
+          "id": "caption-word-23-2",
+          "text": "out",
+          "start": 20.8,
+          "end": 21.26
+        }
+      ]
+    },
+    {
+      "id": "caption-group-24",
+      "frame": 5,
+      "start": 21.26,
+      "end": 22.3,
+      "text": "until you approve",
+      "words": [
+        {
+          "id": "caption-word-24-0",
+          "text": "until",
+          "start": 21.26,
+          "end": 21.74
+        },
+        {
+          "id": "caption-word-24-1",
+          "text": "you",
+          "start": 21.74,
+          "end": 21.94
+        },
+        {
+          "id": "caption-word-24-2",
+          "text": "approve",
+          "start": 21.94,
+          "end": 22.3
+        }
+      ]
+    },
+    {
+      "id": "caption-group-25",
+      "frame": 5,
+      "start": 22.3,
+      "end": 23.04,
+      "text": "it.",
+      "words": [
+        {
+          "id": "caption-word-25-0",
+          "text": "it.",
+          "start": 22.3,
+          "end": 22.92
+        }
+      ]
+    },
+    {
+      "id": "caption-group-26",
+      "frame": 5,
+      "start": 23.25,
+      "end": 24.51,
+      "text": "One tap from",
+      "words": [
+        {
+          "id": "caption-word-26-0",
+          "text": "One",
+          "start": 23.25,
+          "end": 23.51
+        },
+        {
+          "id": "caption-word-26-1",
+          "text": "tap",
+          "start": 23.51,
+          "end": 23.95
+        },
+        {
+          "id": "caption-word-26-2",
+          "text": "from",
+          "start": 23.95,
+          "end": 24.51
+        }
+      ]
+    },
+    {
+      "id": "caption-group-27",
+      "frame": 5,
+      "start": 24.51,
+      "end": 25.19,
+      "text": "your phone.",
+      "words": [
+        {
+          "id": "caption-word-27-0",
+          "text": "your",
+          "start": 24.51,
+          "end": 24.75
+        },
+        {
+          "id": "caption-word-27-1",
+          "text": "phone.",
+          "start": 24.75,
+          "end": 25.07
+        }
+      ]
+    },
+    {
+      "id": "caption-group-28",
+      "frame": 6,
+      "start": 25.48,
+      "end": 27.2,
+      "text": "Every morning a short",
+      "words": [
+        {
+          "id": "caption-word-28-0",
+          "text": "Every",
+          "start": 25.48,
+          "end": 25.96
+        },
+        {
+          "id": "caption-word-28-1",
+          "text": "morning",
+          "start": 25.96,
+          "end": 26.48
+        },
+        {
+          "id": "caption-word-28-2",
+          "text": "a",
+          "start": 26.48,
+          "end": 26.9
+        },
+        {
+          "id": "caption-word-28-3",
+          "text": "short",
+          "start": 26.9,
+          "end": 27.2
+        }
+      ]
+    },
+    {
+      "id": "caption-group-29",
+      "frame": 6,
+      "start": 27.2,
+      "end": 27.9,
+      "text": "report.",
+      "words": [
+        {
+          "id": "caption-word-29-0",
+          "text": "report.",
+          "start": 27.2,
+          "end": 27.78
+        }
+      ]
+    },
+    {
+      "id": "caption-group-30",
+      "frame": 6,
+      "start": 28.11,
+      "end": 29.41,
+      "text": "If something drops,",
+      "words": [
+        {
+          "id": "caption-word-30-0",
+          "text": "If",
+          "start": 28.11,
+          "end": 28.29
+        },
+        {
+          "id": "caption-word-30-1",
+          "text": "something",
+          "start": 28.29,
+          "end": 28.65
+        },
+        {
+          "id": "caption-word-30-2",
+          "text": "drops,",
+          "start": 28.65,
+          "end": 29.29
+        }
+      ]
+    },
+    {
+      "id": "caption-group-31",
+      "frame": 6,
+      "start": 29.62,
+      "end": 29.98,
+      "text": "the fix",
+      "words": [
+        {
+          "id": "caption-word-31-0",
+          "text": "the",
+          "start": 29.62,
+          "end": 29.7
+        },
+        {
+          "id": "caption-word-31-1",
+          "text": "fix",
+          "start": 29.7,
+          "end": 29.98
+        }
+      ]
+    },
+    {
+      "id": "caption-group-32",
+      "frame": 6,
+      "start": 29.98,
+      "end": 31.7,
+      "text": "is already drafted.",
+      "words": [
+        {
+          "id": "caption-word-32-0",
+          "text": "is",
+          "start": 29.98,
+          "end": 30.48
+        },
+        {
+          "id": "caption-word-32-1",
+          "text": "already",
+          "start": 30.48,
+          "end": 31.02
+        },
+        {
+          "id": "caption-word-32-2",
+          "text": "drafted.",
+          "start": 31.02,
+          "end": 31.58
+        }
+      ]
+    },
+    {
+      "id": "caption-group-33",
+      "frame": 7,
+      "start": 31.99,
+      "end": 33.09,
+      "text": "And every month,",
+      "words": [
+        {
+          "id": "caption-word-33-0",
+          "text": "And",
+          "start": 31.99,
+          "end": 32.21
+        },
+        {
+          "id": "caption-word-33-1",
+          "text": "every",
+          "start": 32.21,
+          "end": 32.53
+        },
+        {
+          "id": "caption-word-33-2",
+          "text": "month,",
+          "start": 32.53,
+          "end": 32.97
+        }
+      ]
+    },
+    {
+      "id": "caption-group-34",
+      "frame": 7,
+      "start": 33.25,
+      "end": 34.25,
+      "text": "you see exactly",
+      "words": [
+        {
+          "id": "caption-word-34-0",
+          "text": "you",
+          "start": 33.25,
+          "end": 33.47
+        },
+        {
+          "id": "caption-word-34-1",
+          "text": "see",
+          "start": 33.47,
+          "end": 33.75
+        },
+        {
+          "id": "caption-word-34-2",
+          "text": "exactly",
+          "start": 33.75,
+          "end": 34.25
+        }
+      ]
+    },
+    {
+      "id": "caption-group-35",
+      "frame": 7,
+      "start": 34.25,
+      "end": 35.13,
+      "text": "what grew.",
+      "words": [
+        {
+          "id": "caption-word-35-0",
+          "text": "what",
+          "start": 34.25,
+          "end": 34.67
+        },
+        {
+          "id": "caption-word-35-1",
+          "text": "grew.",
+          "start": 34.67,
+          "end": 35.01
+        }
+      ]
+    },
+    {
+      "id": "caption-group-36",
+      "frame": 8,
+      "start": 35.42,
+      "end": 36.06,
+      "text": "Scan your",
+      "words": [
+        {
+          "id": "caption-word-36-0",
+          "text": "Scan",
+          "start": 35.42,
+          "end": 35.82
+        },
+        {
+          "id": "caption-word-36-1",
+          "text": "your",
+          "start": 35.82,
+          "end": 36.06
+        }
+      ]
+    },
+    {
+      "id": "caption-group-37",
+      "frame": 8,
+      "start": 36.06,
+      "end": 37.2,
+      "text": "site for free.",
+      "words": [
+        {
+          "id": "caption-word-37-0",
+          "text": "site",
+          "start": 36.06,
+          "end": 36.4
+        },
+        {
+          "id": "caption-word-37-1",
+          "text": "for",
+          "start": 36.4,
+          "end": 36.7
+        },
+        {
+          "id": "caption-word-37-2",
+          "text": "free.",
+          "start": 36.7,
+          "end": 37.08
+        }
+      ]
+    },
+    {
+      "id": "caption-group-38",
+      "frame": 8,
+      "start": 37.41,
+      "end": 38.03,
+      "text": "Link in bio.",
+      "words": [
+        {
+          "id": "caption-word-38-0",
+          "text": "Link in",
+          "start": 37.41,
+          "end": 37.51
+        },
+        {
+          "id": "caption-word-38-1",
+          "text": "bio.",
+          "start": 37.51,
+          "end": 37.91
+        }
+      ]
+    }
+  ]
+}

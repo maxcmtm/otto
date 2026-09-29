@@ -16,11 +16,13 @@ show:  prints the month grid.
 Slots come from brands[].slots in data.json (weekday -> ["HH:MM", ...]); defaults below.
 Stories: an Instagram story slot on brands[].story_days (default mon/wed/fri) at story_time (12:00),
 on top of the weekly feed quota. `--no-stories` turns them off.
+Slots already in the past (brand-local time — onboarding mid-month builds the current month) are not planned: they could
+only ever be "missed".
 Pure stdlib. Writes through ap.transaction() (lock + atomic save) so the dashboard fallback stays in sync.
 Post ids come from ap's persistent counters: a --replace never hands out an id that existed before.
 """
 import calendar, json, sys
-from datetime import date
+from datetime import date, datetime
 from pathlib import Path
 
 import ap
@@ -125,14 +127,27 @@ def _build(d, bid, ym, per_week, platforms, dry, replace, stories):
     pattern = mix_pattern(format_mix(b))
     story_days = b.get("story_days") if b.get("story_days") is not None else ["mon", "wed", "fri"]
     story_time = b.get("story_time") or "12:00"
+    tz = ap.brand_tz(b)
+    now = datetime.now(tz)
+    past = 0
+
+    def gone(slot):
+        return datetime.fromisoformat(slot).replace(tzinfo=tz) <= now
+
     for day in month_days(ym):
         wk = day.isocalendar()[1]
         if stories and DAYS[day.weekday()] in story_days and "ig" in platforms:
-            plan.append({"pillar": pillars[(idx + 2) % len(pillars)], "platform": "ig", "format": "story",
-                         "slot": f"{day.isoformat()}T{story_time}"})     # stories don't count against the weekly quota
+            if gone(f"{day.isoformat()}T{story_time}"):
+                past += 1
+            else:
+                plan.append({"pillar": pillars[(idx + 2) % len(pillars)], "platform": "ig", "format": "story",
+                             "slot": f"{day.isoformat()}T{story_time}"})     # stories don't count against the weekly quota
         for t in slots.get(DAYS[day.weekday()], []):
             if week_count.get(wk, 0) >= per_week:
                 break
+            if gone(f"{day.isoformat()}T{t}"):
+                past += 1
+                continue
             pillar = pillars[idx % len(pillars)]
             platform = platforms[idx % len(platforms)]
             fmt = fmt_for(pillar, idx, pattern)
@@ -145,6 +160,8 @@ def _build(d, bid, ym, per_week, platforms, dry, replace, stories):
             week_count[wk] = week_count.get(wk, 0) + 1
             idx += 1
 
+    if past:
+        print(f"note: {past} slot(s) in {ym} are already past ({tz.key}) — not planned")
     # the base package promises four explainer reels a month — top up if the mix fell short
     reels = [x for x in plan if x["format"] == "reel"]
     if len(reels) < 4:

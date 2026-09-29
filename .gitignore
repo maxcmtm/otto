@@ -47,3 +47,9 @@ motion/*/.media/
 platform/data.json.lock
 platform/publish.log
 platform/.telegram-state.json
+
+# motion: regenerable media (source scripts are committed)
+motion/*/assets/*.mp4
+motion/*/assets/bgm.mp3
+motion/otto-showreel-score/*.wav
+motion/*/harness-*.html

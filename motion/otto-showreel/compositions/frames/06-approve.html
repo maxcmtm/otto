@@ -1,0 +1,317 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <!-- Frame 6 — 06-approve (track 24.0–26.0 s). The runtime mounts only the template contents. -->
+  </head>
+  <body>
+    <template>
+      <style>
+        @font-face {
+          font-family: "Inter Tight";
+          src: url("assets/fonts/InterTight-var-latin.woff2") format("woff2");
+          font-weight: 100 900;
+          font-display: block;
+        }
+        @font-face {
+          font-family: "Inter";
+          src: url("assets/fonts/Inter-var-latin.woff2") format("woff2");
+          font-weight: 100 900;
+          font-display: block;
+        }
+
+        :where(#stage[data-composition-id="06-approve"] *),
+        :where(#stage[data-composition-id="06-approve"] *)::before,
+        :where(#stage[data-composition-id="06-approve"] *)::after {
+          box-sizing: border-box;
+          margin: 0;
+          padding: 0;
+        }
+
+        #stage[data-composition-id="06-approve"] {
+          position: absolute;
+          left: 0;
+          top: 0;
+          width: 1920px;
+          height: 1080px;
+          overflow: hidden;
+          font-family: "Inter", system-ui, sans-serif;
+          color: #1d1d1f;
+          -webkit-font-smoothing: antialiased;
+        }
+        #stage .f06-layer {
+          position: absolute;
+          left: 0;
+          top: 0;
+          width: 1920px;
+          height: 1080px;
+          box-sizing: border-box;
+        }
+
+        /* ── light ground (full duration) ─────────────────────────────── */
+        #f06-bg {
+          background: #f5f5f7;
+        }
+
+        /* ── world: headline + phone; pushes in around the Approve button ─ */
+        #f06-world {
+          transform-origin: 1060px 815px;
+        }
+
+        /* ── headline, left column x 200→860, vertically centred ───────── */
+        #f06-head {
+          position: absolute;
+          left: 200px;
+          top: 0;
+          width: 700px;
+          height: 1080px;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          font: 650 96px/1.02 "Inter Tight", "Inter", system-ui, sans-serif;
+          letter-spacing: -0.035em;
+          color: #1d1d1f;
+          white-space: nowrap;
+          -webkit-font-smoothing: antialiased;
+        }
+        #stage .f06-line {
+          display: block;
+          overflow: hidden;
+          padding-bottom: 0.14em;
+          margin-bottom: -0.14em;
+        }
+        #stage .f06-in {
+          display: block;
+          will-change: transform;
+        }
+        #stage .f06-accent {
+          color: #2447f0;
+        }
+
+        /* ── phone (ok-phone 414×868, centre 1180,560) — identical to 05-makes' handoff_out ── */
+        #f06-phone { position: absolute; left: 973px; top: 126px; width: 414px; height: 868px; border-radius: 68px; background: #111; padding: 12px;
+          box-shadow: 0 2px 6px rgba(0,0,0,.06), 0 40px 90px rgba(0,0,0,.18), inset 0 0 0 2px #2a2a2e; }
+        #f06-phone::before { content: ""; position: absolute; inset: 0; border-radius: 68px; box-shadow: inset 0 0 0 1px rgba(255,255,255,.08); pointer-events: none; }
+        #stage .f06-screen { position: relative; width: 390px; height: 844px; border-radius: 56px; overflow: hidden; background: #F5F5F7; font-family: "Inter", system-ui, sans-serif; color: #1D1D1F; }
+        #stage .f06-island { position: absolute; top: 11px; left: 135px; width: 120px; height: 35px; border-radius: 20px; background: #000; z-index: 5; }
+        #stage .f06-status { position: absolute; top: 0; left: 0; width: 390px; height: 54px; display: flex; justify-content: space-between; align-items: center;
+          padding: 0 30px 0 40px; font: 600 16px/1 "Inter", system-ui, sans-serif; background: #FFFFFF; z-index: 4; }
+        #stage .f06-icons { display: flex; align-items: center; gap: 6px; }
+        #stage .f06-icons svg { display: block; fill: #1D1D1F; }
+
+        /* Telegram-style chat header */
+        #stage .f06-chathead { position: absolute; top: 54px; left: 0; width: 390px; height: 56px; display: flex; align-items: center; gap: 10px; padding: 0 16px 0 12px;
+          background: #FFFFFF; border-bottom: 1px solid rgba(60,60,67,.16); font: 600 17px/1 "Inter", system-ui, sans-serif; letter-spacing: -0.01em; }
+        #stage .f06-back { display: block; width: 14px; height: 22px; fill: none; stroke: #2447F0; stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; margin-right: 4px; }
+        /* the Otto square (ok-mark: radius 30%, inset 25%, stroke 6%, inner radius 12%) */
+        #stage .f06-mark { --s: 36px; position: relative; flex: none; width: var(--s); height: var(--s); border-radius: calc(var(--s) * .3); background: #2447F0; }
+        #stage .f06-mark::after { content: ""; position: absolute; inset: calc(var(--s) * .25); border-radius: calc(var(--s) * .12); border: calc(var(--s) * .06) solid #fff; opacity: .95; }
+
+        /* approval bubble (ok-approve, 360 wide) — fixed row heights so the Approve button sits at
+           x 1000→1120, y 795→835 on the canvas regardless of font timing */
+        #f06-appr { position: absolute; left: 15px; top: 124px; width: 360px; border-radius: 18px; background: #FFFFFF;
+          box-shadow: 0 1px 2px rgba(0,0,0,.05), 0 18px 48px rgba(0,0,0,.10); overflow: hidden; font-family: "Inter", system-ui, sans-serif; }
+        #f06-appr img { display: block; width: 360px; height: 450px; object-fit: cover; }
+        #stage .f06-cap { height: 56px; padding: 12px 14px 0; font: 400 14px/1.4 "Inter", system-ui, sans-serif; color: #1D1D1F; overflow: hidden; }
+        #stage .f06-meta { height: 26px; padding: 2px 14px 0; font: 400 12px/1 "Inter", system-ui, sans-serif; color: #6E6E73; }
+        #stage .f06-acts { display: grid; grid-template-columns: 120px 120px 120px; height: 41px; border-top: 1px solid rgba(60,60,67,.16); }
+        #stage .f06-act { position: relative; height: 40px; display: flex; align-items: center; justify-content: center; font: 600 14px/1 "Inter", system-ui, sans-serif; color: #2447F0; }
+        #stage .f06-act + .f06-act { border-left: 1px solid rgba(60,60,67,.16); }
+        #stage #f06-yes { background: #2447F0; color: #FFFFFF; }
+
+        /* composer bar + home indicator */
+        #stage .f06-composer { position: absolute; left: 0; bottom: 0; width: 390px; height: 84px; padding: 10px 16px 0; background: #FFFFFF; border-top: 1px solid rgba(60,60,67,.16); }
+        #stage .f06-field { height: 36px; border-radius: 18px; box-shadow: inset 0 0 0 1px rgba(60,60,67,.16); background: #F5F5F7; }
+        #stage .f06-home { position: absolute; left: 128px; bottom: 8px; width: 134px; height: 5px; border-radius: 3px; background: #1D1D1F; }
+
+        /* ── night circle wipe (+ the Otto square on the night ground) ─── */
+        #f06-night {
+          background: #0b0b0d;
+          clip-path: circle(0px at 1060px 815px);
+          visibility: hidden;
+          opacity: 0;
+        }
+        #f06-sq {
+          position: absolute;
+          left: 900px;
+          top: 480px;
+          width: 120px;
+          height: 120px;
+          border-radius: 36px;
+          background: #2447f0;
+          will-change: transform;
+        }
+        #f06-sq::after {
+          content: "";
+          position: absolute;
+          inset: 30px;
+          border-radius: 14.4px;
+          border: 7.2px solid #fff;
+          opacity: 0.95;
+        }
+
+        /* ── approved state, lifted above the night (exact Approve-cell rect) ─ */
+        #f06-ok {
+          position: absolute;
+          left: 1000px;
+          top: 795px;
+          width: 120px;
+          height: 40px;
+          border-bottom-left-radius: 18px;
+          background: #1b7f4b;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          visibility: hidden;
+          opacity: 0;
+          transform-origin: 60px 20px;
+        }
+        #f06-ok svg {
+          display: block;
+          width: 22px;
+          height: 22px;
+          fill: none;
+          stroke: #ffffff;
+          stroke-width: 2.6;
+          stroke-linecap: round;
+          stroke-linejoin: round;
+        }
+
+        /* ── touch indicator (54px, centred on its left/top) ───────────── */
+        #f06-touch {
+          position: absolute;
+          left: 1033px;
+          top: 788px;
+          width: 54px;
+          height: 54px;
+          box-sizing: border-box;
+          border-radius: 50%;
+          background: rgba(29, 29, 31, 0.18);
+          border: 2px solid #ffffff;
+          visibility: hidden;
+          opacity: 0;
+          transform-origin: 27px 27px;
+        }
+      </style>
+
+      <div id="stage" data-composition-id="06-approve" data-width="1920" data-height="1080" data-duration="2">
+        <div id="f06-bg" class="f06-layer clip" data-start="0" data-duration="2" data-track-index="0"></div>
+
+        <div id="f06-world" class="f06-layer">
+          <div id="f06-head">
+            <span class="f06-line"><span id="f06-l1" class="f06-in">Nothing goes out</span></span>
+            <span class="f06-line"><span id="f06-l2" class="f06-in">until you <span class="f06-accent">tap.</span></span></span>
+          </div>
+
+          <div id="f06-phone">
+            <div class="f06-screen">
+              <div class="f06-island"></div>
+              <div class="f06-status">
+                <span>18:42</span>
+                <span class="f06-icons">
+                  <svg width="18" height="12" viewBox="0 0 18 12" aria-hidden="true"><rect x="0" y="8" width="3" height="4" rx="1"></rect><rect x="5" y="5.5" width="3" height="6.5" rx="1"></rect><rect x="10" y="3" width="3" height="9" rx="1"></rect><rect x="15" y="0" width="3" height="12" rx="1"></rect></svg>
+                  <svg width="16" height="12" viewBox="0 0 16 12" aria-hidden="true"><path d="M8 12 L5.4 9.2 A3.8 3.8 0 0 1 10.6 9.2 Z"></path><path d="M3.3 7 A6.8 6.8 0 0 1 12.7 7 L11.3 8.4 A4.8 4.8 0 0 0 4.7 8.4 Z"></path><path d="M1.1 4.8 A9.9 9.9 0 0 1 14.9 4.8 L13.5 6.2 A7.9 7.9 0 0 0 2.5 6.2 Z"></path></svg>
+                  <svg width="27" height="13" viewBox="0 0 27 13" aria-hidden="true"><rect x="0.5" y="0.5" width="23" height="12" rx="3.5" fill="none" stroke="#1D1D1F" stroke-opacity="0.4"></rect><rect x="2" y="2" width="20" height="9" rx="2"></rect><rect x="24.5" y="4.5" width="2" height="4" rx="1" fill-opacity="0.4"></rect></svg>
+                </span>
+              </div>
+              <div class="f06-chathead">
+                <svg class="f06-back" viewBox="0 0 14 22" aria-hidden="true"><path d="M11 2 L3 11 L11 20"></path></svg>
+                <div class="f06-mark"></div>
+                <span>Otto</span>
+              </div>
+              <div id="f06-appr">
+                <img src="assets/img/hg-spectrum.jpg" alt="" />
+                <div class="f06-cap">Full, broad or isolate? Same plant, three products.</div>
+                <div class="f06-meta">Instagram · Tue 18:00</div>
+                <div class="f06-acts"><span id="f06-yes" class="f06-act"><span id="f06-yes-t">Approve</span></span><span class="f06-act">Skip</span><span class="f06-act">Edit</span></div>
+              </div>
+              <div class="f06-composer">
+                <div class="f06-field"></div>
+                <div class="f06-home"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div id="f06-night" class="f06-layer">
+          <div id="f06-sq"></div>
+        </div>
+
+        <div id="f06-ok">
+          <svg viewBox="0 0 22 22" aria-hidden="true"><path id="f06-check" d="M5 11.5 L9.5 16 L17.5 7"></path></svg>
+        </div>
+
+        <div id="f06-touch"></div>
+      </div>
+
+      <script>
+        (function () {
+          // Frame-local anchors (track − 24.0): 0.0 · 0.5 · 1.0 · 1.5 · 1.75 · 2.0
+          var BX = 1060; // Approve button centre on canvas (fixed point of the push-in)
+          var BY = 815;
+          // Farthest corner is ≈1337px from the button. power2.in is cubic in GSAP, so r(59/30 s) = 0.651·R_END;
+          // R_END = 2100 makes the last rendered frame already fully night — the cut to 07 is seamless.
+          var R_END = 2100;
+          var PUSH = 1.04;
+
+          var tl = gsap.timeline({ paused: true });
+
+          // ── initial state (t = 0 matches frame 05's handoff_out: phone only) ──
+          tl.set("#f06-world", { scale: 1 }, 0);
+          tl.set(["#f06-l1", "#f06-l2"], { yPercent: 115 }, 0);
+          tl.set("#f06-yes", { backgroundColor: "#2447F0" }, 0);
+          tl.set("#f06-yes-t", { opacity: 1 }, 0);
+          tl.set("#f06-touch", { autoAlpha: 0, x: 90, y: 335, scale: 1 }, 0);
+          tl.set("#f06-night", { autoAlpha: 0, clipPath: "circle(0px at " + BX + "px " + BY + "px)" }, 0);
+          tl.set("#f06-sq", { scale: 0.6 }, 0);
+          tl.set("#f06-ok", { autoAlpha: 0, scale: PUSH }, 0);
+          tl.set("#f06-check", { strokeDasharray: 20, strokeDashoffset: 20 }, 0);
+
+          // ── 0.0 / 0.5: headline lines rise from their masks ──
+          tl.fromTo("#f06-l1", { yPercent: 115 }, { yPercent: 0, duration: 0.8, ease: "expo.out", immediateRender: false }, 0.0);
+          tl.fromTo("#f06-l2", { yPercent: 115 }, { yPercent: 0, duration: 0.8, ease: "expo.out", immediateRender: false }, 0.5);
+
+          // ── 0.0 → 1.5: slow push-in on the riser, anchored on the Approve button ──
+          tl.fromTo("#f06-world", { scale: 1 }, { scale: PUSH, duration: 1.5, ease: "power3.inOut", immediateRender: false }, 0.0);
+
+          // ── 0.6 → 1.4: touch indicator glides up from below the phone to Approve ──
+          tl.set("#f06-touch", { autoAlpha: 1 }, 0.6);
+          tl.fromTo("#f06-touch", { x: 90, y: 335 }, { x: 0, y: 0, duration: 0.8, ease: "power3.inOut", immediateRender: false }, 0.6);
+
+          // ── 1.5: press — indicator compresses, button darkens ──
+          tl.fromTo("#f06-touch", { scale: 1 }, { scale: 0.8, duration: 0.12, ease: "power3.inOut", immediateRender: false }, 1.5);
+          tl.fromTo("#f06-yes", { backgroundColor: "#2447F0" }, { backgroundColor: "#1731B8", duration: 0.12, ease: "power3.inOut", immediateRender: false }, 1.5);
+
+          // ── 1.75: approved — green + check; night circle floods from the button ──
+          tl.set("#f06-yes", { backgroundColor: "#1B7F4B" }, 1.75);
+          tl.set("#f06-yes-t", { opacity: 0 }, 1.75);
+          tl.set("#f06-ok", { autoAlpha: 1 }, 1.75);
+          tl.fromTo("#f06-check", { strokeDashoffset: 20 }, { strokeDashoffset: 0, duration: 0.18, ease: "expo.out", immediateRender: false }, 1.75);
+          tl.fromTo(
+            "#f06-touch",
+            { scale: 0.8, opacity: 1 },
+            { scale: 1.15, opacity: 0, duration: 0.12, ease: "power2.in", immediateRender: false },
+            1.75,
+          );
+
+          tl.set("#f06-night", { autoAlpha: 1 }, 1.75);
+          tl.fromTo(
+            "#f06-night",
+            { clipPath: "circle(0px at " + BX + "px " + BY + "px)" },
+            { clipPath: "circle(" + R_END + "px at " + BX + "px " + BY + "px)", duration: 0.25, ease: "power2.in", immediateRender: false },
+            1.75,
+          );
+          // the Otto square, on the night ground, lands at rest at 2.0
+          tl.fromTo("#f06-sq", { scale: 0.6 }, { scale: 1, duration: 0.25, ease: "expo.out", immediateRender: false }, 1.75);
+
+          // the lifted green check rides the flood, then leaves before the cut (gone by 59/30 s)
+          tl.fromTo("#f06-ok", { opacity: 1, scale: PUSH }, { opacity: 0, scale: 0.96, duration: 0.21, ease: "power2.in", immediateRender: false }, 1.75);
+
+          window.__timelines = window.__timelines || {};
+          window.__timelines["06-approve"] = tl;
+          tl.seek(0);
+        })();
+      </script>
+    </template>
+  </body>
+</html>

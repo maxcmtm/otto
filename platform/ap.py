@@ -8,7 +8,8 @@ Usage:
   ap.py status <post-id> <draft|pending_approval|approved|scheduled|publishing|published|skipped|failed>   # admin: no transition check
   ap.py decide <post-id> <approve|skip|later> [--via telegram|dashboard|auto]
   ap.py set <post-id> '<json-object>'          # merge fields into a post (hook, caption, image, format, brief…)
-  ap.py brand-add <id> <name> <url> <lang> [pillar,pillar,...]
+  ap.py brand-add <id> <name> <url> <lang> [pillar,pillar,...] [--tz Europe/Berlin] [--countries DE,AT] [--currency EUR]
+                                                 # tz/countries default from the url's country TLD, then the language
   ap.py recs | rec <rec-id> <proposed|approved|dismissed|done>
   ap.py rec-add <P0|P1|P2> <title> | <why> | <impact> | <cta>
   ap.py taste [brand]                            # what the owner's decisions taught us
@@ -21,7 +22,7 @@ Google, Leonardo, Telegram) happens OUTSIDE the lock; only the per-id patch runs
 Env: OTTO_DATA (default ./data.json), OTTO_HTML (default ./index.html), OTTO_BRANDS (default ../brands),
      OTTO_TZ (default brand timezone when brands[].tz is not set; default Asia/Jerusalem)
 """
-import fcntl, json, os, re, sys, tempfile, threading
+import fcntl, json, os, re, sys, tempfile, threading, urllib.parse
 from contextlib import contextmanager
 from datetime import datetime, timezone
 from pathlib import Path
@@ -371,9 +372,54 @@ def currency_symbol(code):
 
 
 def brand_currency(d, bid):
-    """ISO code: brands[].currency → site scan commerce.currency → EUR."""
+    """ISO code: brands[].currency → site scan commerce.currency → the brand's first country → EUR."""
     b = brand(d, bid) or {}
-    return currency_code(b.get("currency")) or currency_code((scan_of(bid).get("commerce") or {}).get("currency")) or "EUR"
+    return (currency_code(b.get("currency")) or currency_code((scan_of(bid).get("commerce") or {}).get("currency"))
+            or COUNTRY_CURRENCY.get(((b.get("countries") or [None])[0] or "").upper()) or "EUR")
+
+
+# Where a new brand lives, before anything is scanned: the url's country TLD, then the language (brand-add).
+COUNTRY_TZ = {"DE": "Europe/Berlin", "AT": "Europe/Vienna", "CH": "Europe/Zurich", "PT": "Europe/Lisbon", "NL": "Europe/Amsterdam",
+              "BE": "Europe/Brussels", "LU": "Europe/Luxembourg", "IT": "Europe/Rome", "FR": "Europe/Paris", "ES": "Europe/Madrid",
+              "IL": "Asia/Jerusalem", "GB": "Europe/London", "IE": "Europe/Dublin", "PL": "Europe/Warsaw", "HU": "Europe/Budapest",
+              "RO": "Europe/Bucharest", "DK": "Europe/Copenhagen", "SE": "Europe/Stockholm", "NO": "Europe/Oslo", "FI": "Europe/Helsinki",
+              "CZ": "Europe/Prague", "GR": "Europe/Athens", "US": "America/New_York"}
+COUNTRY_CURRENCY = {"IL": "ILS", "GB": "GBP", "CH": "CHF", "PL": "PLN", "HU": "HUF", "RO": "RON", "DK": "DKK", "SE": "SEK",
+                    "NO": "NOK", "CZ": "CZK", "US": "USD"}
+LANG_COUNTRY = {"de": "DE", "he": "IL", "pt": "PT", "nl": "NL", "it": "IT", "fr": "FR", "es": "ES", "pl": "PL", "hu": "HU", "ro": "RO"}
+
+
+def guess_country(url="", lang=""):
+    """ISO country from the url's TLD (.de, .co.il, .co.uk …), else from the first language code; None when unknown."""
+    url = str(url or "").strip()
+    host = (urllib.parse.urlsplit(url if "//" in url else "//" + url).hostname or "").rstrip(".")
+    tld = host.rsplit(".", 1)[-1].upper() if "." in host else ""
+    tld = "GB" if tld == "UK" else tld
+    if tld in COUNTRY_TZ:
+        return tld
+    for tok in re.findall(r"[A-Za-z]+", lang or ""):
+        if tok.lower() in LANG_COUNTRY:
+            return LANG_COUNTRY[tok.lower()]
+    return None
+
+
+def brand_countries(b, langs=()):
+    """Ad / research market: brands[].countries → the url's TLD → the site languages (he → IL, de → DACH, pt → PT …) → DE."""
+    b = b or {}
+    if b.get("countries"):
+        return list(b["countries"])
+    cc = guess_country(b.get("url") or "")
+    if cc:
+        return [cc]
+    langs = list(langs) or [brand_lang(b)]
+    if "he" in langs:
+        return ["IL"]
+    if "de" in langs:
+        return ["DE", "AT", "CH"]
+    for l in langs:
+        if l in LANG_COUNTRY:
+            return [LANG_COUNTRY[l]]
+    return ["DE"]
 
 
 def money(v, code, digits=0):
@@ -439,13 +485,27 @@ def main():
             p.update(fields)
         print(f'{pid} updated: {", ".join(fields)}')
     elif args[0] == "brand-add":
+        opts = {}
+        for k in ("--tz", "--countries", "--currency"):
+            if k in args:
+                i = args.index(k)
+                opts[k] = args[i + 1]
+                del args[i:i + 2]
         bid, name, url, lang = args[1:5]
         pillars = [s.strip() for s in args[5].split(",")] if len(args) > 5 else []
+        country = guess_country(url, lang)
+        countries = [c.strip().upper() for c in opts["--countries"].split(",")] if "--countries" in opts else ([country] if country else [])
+        tz = opts.get("--tz") or COUNTRY_TZ.get((countries or [None])[0], DEFAULT_TZ)
+        ZoneInfo(tz)                                     # a typo fails here, not at publish time
+        b = {"id": bid, "name": name, "url": url, "lang": lang, "tz": tz, "status": "onboarding", "pillars": pillars, "compliance": ""}
+        if countries:
+            b["countries"] = countries
+        if "--currency" in opts:
+            b["currency"] = currency_code(opts["--currency"])
         with transaction() as d:
             assert not brand(d, bid), f"brand {bid} exists"
-            d.setdefault("brands", []).append({"id": bid, "name": name, "url": url, "lang": lang, "tz": DEFAULT_TZ,
-                                               "status": "onboarding", "pillars": pillars, "compliance": ""})
-        print(f"added brand {bid}")
+            d.setdefault("brands", []).append(b)
+        print(f"added brand {bid} · tz {tz} · countries {','.join(countries) or '—'}")
     elif args[0] == "recs":
         for r in load().get("recommendations", []):
             print(f'{r["id"]:8} {r["priority"]:3} {r["status"]:10} {r["title"]}')

@@ -18,14 +18,15 @@ the data (months[].decisions) but are not a growth KPI and are not in the review
 Mission Control renders it as the Growth section; the 1st-of-month review goes to the owner as one message.
 """
 import json, sys
-from datetime import date, datetime, timedelta
+from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 
 import ap
 
 HERE = Path(__file__).parent
 MARKER = "growth_review_sent"
-HIST = HERE / "metrics_history.jsonl"
+SENDING = "growth_review_sending"                   # claim while the message is on its way (a parallel run stops)
+HIST = ap.DATA.parent / "metrics_history.jsonl"      # written by otto_watch next to data.json
 KEYS = ["reach", "engagement", "clicks", "posts", "followers", "spend", "results", "cpl", "decisions"]
 
 
@@ -192,6 +193,14 @@ def rollup(send=False):
         return
     if sent_for == month:
         print(f"month-in-review for {month} already sent — not sending again"); return
+    with ap.transaction() as d:                     # claim: two rollup --send at once must not both send
+        mk = d.setdefault("markers", {})
+        since = ap.parse_iso(mk.get(SENDING))
+        busy = mk.get(MARKER) == month or bool(since and since.tzinfo and datetime.now(timezone.utc) - since < timedelta(minutes=10))
+        if not busy:
+            mk[SENDING] = ap.now_iso()
+    if busy:
+        print(f"month-in-review for {month} already sent or being sent by another run — not sending"); return
     text = "\n\n".join(review_text(names.get(bid) or {"name": bid}, g, month) for bid, g in growth.items())
     try:
         import otto_ads
@@ -199,9 +208,12 @@ def rollup(send=False):
     except Exception as e:
         ok = False
         print("send failed:", e)
+    with ap.transaction() as d:
+        mk = d.setdefault("markers", {})
+        mk.pop(SENDING, None)
+        if ok:
+            mk[MARKER] = month
     if ok:
-        with ap.transaction() as d:
-            d.setdefault("markers", {})[MARKER] = month
         print(f"month-in-review for {month} sent")
 
 

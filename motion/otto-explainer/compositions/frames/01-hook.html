@@ -1,0 +1,286 @@
+<template>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+  <style>
+    @font-face {
+      font-family: "Inter Tight";
+      src: url("assets/fonts/InterTight-var-latin.woff2") format("woff2");
+      font-weight: 100 900;
+      font-display: block;
+    }
+    @font-face {
+      font-family: "Inter";
+      src: url("assets/fonts/Inter-var-latin.woff2") format("woff2");
+      font-weight: 100 900;
+      font-display: block;
+    }
+
+    #root {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 1080px;
+      height: 1920px;
+      overflow: hidden;
+      color: #1d1d1f;
+      font-family: "Inter", sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── ground: full-bleed canvas on its own clip layer ── */
+    #e01-bg {
+      position: absolute;
+      inset: 0;
+      background: #f5f5f7;
+    }
+
+    #e01-stage {
+      position: absolute;
+      inset: 0;
+    }
+
+    /* ── headline zone (y 250–520): two centred lines, masked word rises ── */
+    #e01-head {
+      position: absolute;
+      left: 60px;
+      top: 0;
+      width: 960px;
+      height: 520px;
+    }
+    .e01-line {
+      position: absolute;
+      left: 0;
+      width: 960px;
+      text-align: center;
+      white-space: nowrap;
+      font-family: "Inter Tight", "Inter", sans-serif;
+      color: #1d1d1f;
+    }
+    #e01-l1 {
+      top: 277px;
+      font-size: 96px;
+      font-weight: 650;
+      line-height: 1.1;
+      letter-spacing: -0.035em;
+    }
+    /* 84px on one line inside x 60–1020: 600 weight + tight tracking keeps it ≤ 960px wide */
+    #e01-l2 {
+      top: 397px;
+      font-size: 84px;
+      font-weight: 600;
+      line-height: 1.1;
+      letter-spacing: -0.04em;
+      word-spacing: -0.02em;
+    }
+    /* kit .ok-mask, padded so ascenders/descenders and tight tracking never clip */
+    .e01-mask {
+      display: inline-block;
+      overflow: hidden;
+      vertical-align: bottom;
+      padding: 0.08em 0.06em 0.2em;
+      margin: -0.08em -0.06em -0.2em;
+    }
+    .e01-w {
+      display: inline-block;
+    }
+    .e01-accent {
+      color: #2447f0;
+    }
+
+    /* ── chore chips: a loose stack around the square ── */
+    #e01-field {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 1080px;
+      height: 1920px;
+      transform-origin: 540px 900px;
+    }
+    /* each slot is a 0×88 anchor at the chip's resting centre (cx, cy); the chip centres on it */
+    .e01-slot {
+      position: absolute;
+      width: 0;
+      height: 88px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .e01-chip {
+      flex: none;
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      height: 88px;
+      padding: 0 40px 0 32px;
+      border-radius: 999px;
+      background: #ffffff;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05), 0 18px 48px rgba(0, 0, 0, 0.1);
+      font-family: "Inter", sans-serif;
+      font-size: 38px;
+      font-weight: 500;
+      line-height: 1;
+      letter-spacing: -0.01em;
+      color: #1d1d1f;
+      white-space: nowrap;
+    }
+    .e01-ico {
+      display: block;
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      background: #2447f0;
+      flex: none;
+    }
+    /* resting centres: left = cx, top = cy − 44 */
+    #e01-c0 { left: 300px; top: 576px; }  /* 3 posts          (300, 620) */
+    #e01-c1 { left: 765px; top: 596px; }  /* 5 stories        (765, 640) */
+    #e01-c2 { left: 210px; top: 726px; }  /* 1 reel           (210, 770) */
+    #e01-c3 { left: 810px; top: 746px; }  /* Meta ads         (810, 790) */
+    #e01-c4 { left: 250px; top: 876px; }  /* Google ads       (250, 920) */
+    #e01-c5 { left: 840px; top: 896px; }  /* Captions         (840, 940) */
+    #e01-c6 { left: 320px; top: 1046px; }  /* Replies          (320, 1090) */
+    #e01-c7 { left: 760px; top: 1066px; }  /* Visuals          (760, 1110) */
+    #e01-c8 { left: 380px; top: 1386px; }  /* A report         (380, 1430) */
+    #e01-c9 { left: 600px; top: 1221px; }  /* Competitor check (600, 1265) */
+
+    /* ── the Otto square: 140px, centred on (540, 900) — the governing device ── */
+    #e01-sq {
+      position: absolute;
+      left: 470px;
+      top: 830px;
+      width: 140px;
+      height: 140px;
+      border-radius: 42px;
+      background: #2447f0;
+      z-index: 3;
+    }
+    #e01-sq-ring {
+      position: absolute;
+      left: 35px;
+      top: 35px;
+      width: 70px;
+      height: 70px;
+      box-sizing: border-box;
+      border-radius: 16.8px;
+      border: 8.4px solid #ffffff;
+      opacity: 0.95;
+    }
+  </style>
+
+  <div
+    id="root"
+    data-composition-id="01-hook"
+    data-start="0"
+    data-duration="3.26"
+    data-width="1080"
+    data-height="1920"
+  >
+    <div id="e01-bg" class="clip" data-start="0" data-duration="3.26" data-track-index="0"></div>
+
+    <div id="e01-stage" class="clip" data-start="0" data-duration="3.26" data-track-index="1">
+      <div id="e01-field">
+        <div id="e01-c0" class="e01-slot"><div class="e01-chip" data-layout-allow-overlap><i class="e01-ico"></i><span>3 posts</span></div></div>
+        <div id="e01-c1" class="e01-slot"><div class="e01-chip" data-layout-allow-overlap><i class="e01-ico"></i><span>5 stories</span></div></div>
+        <div id="e01-c2" class="e01-slot"><div class="e01-chip" data-layout-allow-overlap><i class="e01-ico"></i><span>1 reel</span></div></div>
+        <div id="e01-c3" class="e01-slot"><div class="e01-chip" data-layout-allow-overlap><i class="e01-ico"></i><span>Meta ads</span></div></div>
+        <div id="e01-c4" class="e01-slot"><div class="e01-chip" data-layout-allow-overlap><i class="e01-ico"></i><span>Google ads</span></div></div>
+        <div id="e01-c5" class="e01-slot"><div class="e01-chip" data-layout-allow-overlap><i class="e01-ico"></i><span>Captions</span></div></div>
+        <div id="e01-c6" class="e01-slot"><div class="e01-chip" data-layout-allow-overlap><i class="e01-ico"></i><span>Replies</span></div></div>
+        <div id="e01-c7" class="e01-slot"><div class="e01-chip" data-layout-allow-overlap><i class="e01-ico"></i><span>Visuals</span></div></div>
+        <div id="e01-c8" class="e01-slot"><div class="e01-chip" data-layout-allow-overlap><i class="e01-ico"></i><span>A report</span></div></div>
+        <div id="e01-c9" class="e01-slot"><div class="e01-chip" data-layout-allow-overlap><i class="e01-ico"></i><span>Competitor check</span></div></div>
+      </div>
+
+      <div id="e01-sq" data-layout-allow-occlusion><div id="e01-sq-ring"></div></div>
+
+      <div id="e01-head">
+        <div id="e01-l1" class="e01-line"><span class="e01-mask" data-layout-allow-overflow><span id="e01-w-you" class="e01-w">You</span></span> <span class="e01-mask" data-layout-allow-overflow><span id="e01-w-run" class="e01-w">run</span></span> <span class="e01-mask" data-layout-allow-overflow><span id="e01-w-the1" class="e01-w">the</span></span> <span class="e01-mask" data-layout-allow-overflow><span id="e01-w-business" class="e01-w">business.</span></span></div>
+        <div id="e01-l2" class="e01-line"><span class="e01-mask" data-layout-allow-overflow><span id="e01-w-so" class="e01-w">So</span></span> <span class="e01-mask" data-layout-allow-overflow><span id="e01-w-who" class="e01-w">who</span></span> <span class="e01-mask" data-layout-allow-overflow><span id="e01-w-runs" class="e01-w">runs</span></span> <span class="e01-mask" data-layout-allow-overflow><span id="e01-w-the2" class="e01-w">the</span></span> <span class="e01-mask" data-layout-allow-overflow><span id="e01-w-marketing" class="e01-w e01-accent">marketing?</span></span></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      window.__timelines = window.__timelines || {};
+      var tl = gsap.timeline({ paused: true });
+
+      // Otto square centre (frame px) — chips spring out of it and are pulled back into it.
+      var SQ_X = 540;
+      var SQ_Y = 900;
+
+      // ── Scene 1 + 2: headline words rise out of their masks on the real VO onsets ──
+      var WORDS = [
+        ["#e01-w-you", 0.0],
+        ["#e01-w-run", 0.22],
+        ["#e01-w-the1", 0.46],
+        ["#e01-w-business", 0.66],
+        ["#e01-w-so", 1.43],
+        ["#e01-w-who", 1.69],
+        ["#e01-w-runs", 1.91],
+        ["#e01-w-the2", 2.29],
+        ["#e01-w-marketing", 2.51]
+      ];
+      WORDS.forEach(function (w) {
+        tl.fromTo(
+          w[0],
+          { yPercent: 130 },
+          { yPercent: 0, duration: 0.7, ease: "expo.out" },
+          w[1]
+        );
+      });
+
+      // ── Scene 1: the square scales in at (540, 900) on 0.30 ──
+      tl.fromTo(
+        "#e01-sq",
+        { scale: 0 },
+        { scale: 1, duration: 0.7, ease: "expo.out" },
+        0.3
+      );
+
+      // ── Scene 1: chore chips spring out of the square, one every 0.12s from 0.66 ──
+      // [slot id, resting centre x, resting centre y, rotation°] — rotations from a fixed ±3° list.
+      var CHIPS = [
+        ["#e01-c0", 300, 620, -3],
+        ["#e01-c1", 765, 640, 2],
+        ["#e01-c2", 210, 770, 1.5],
+        ["#e01-c3", 810, 790, -2],
+        ["#e01-c4", 250, 920, -1],
+        ["#e01-c5", 840, 940, 3],
+        ["#e01-c6", 320, 1090, 2],
+        ["#e01-c7", 760, 1110, -2.5],
+        ["#e01-c8", 380, 1430, 1],
+        ["#e01-c9", 600, 1265, -1.5]
+      ];
+      CHIPS.forEach(function (c, i) {
+        tl.fromTo(
+          c[0],
+          { x: SQ_X - c[1], y: SQ_Y - c[2], scale: 0.3, rotation: 0, opacity: 0 },
+          { x: 0, y: 0, scale: 1, rotation: c[3], opacity: 1, duration: 0.7, ease: "expo.out" },
+          0.66 + i * 0.12
+        );
+      });
+
+      // ── Scene 1→2: the chip field keeps a slow push-in (1.00 → 1.04) about the square ──
+      tl.fromTo(
+        "#e01-field",
+        { scale: 1, transformOrigin: "540px 900px" },
+        { scale: 1.04, transformOrigin: "540px 900px", duration: 2.18, ease: "none" },
+        0.66
+      );
+
+      // ── Scene 3: headline exits up; every chip is pulled back into the square ──
+      tl.to("#e01-head", { y: -70, opacity: 0, duration: 0.28, ease: "power2.in" }, 2.9);
+      for (var k = 0; k < CHIPS.length; k++) {
+        var c = CHIPS[CHIPS.length - 1 - k];
+        tl.to(
+          c[0],
+          { x: SQ_X - c[1], y: SQ_Y - c[2], scale: 0.25, rotation: 0, opacity: 0, duration: 0.18, ease: "power3.in" },
+          2.84 + k * 0.02
+        );
+      }
+      // square at rest from 3.20 → handoff to frame 2 at 3.26
+
+      window.__timelines["01-hook"] = tl;
+    })();
+  </script>
+</template>

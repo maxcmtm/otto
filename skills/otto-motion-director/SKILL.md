@@ -9,7 +9,9 @@ description: "Otto's reel director — turns one post (or a campaign concept) in
 type, a diagram or visual system that *is* the explanation, brand colours and fonts, voice-over timed to
 the word, music under it, and nothing a competitor could reuse unchanged. The reference build is
 `motion/happygarden-spectrum-guide/` (STORYBOARD.md, SCRIPT.md, frame.md, compositions/) — open it
-before your first reel and match its level.
+before your first reel and match its level. **Read `references/motion-playbook.md` first** — the rules distilled
+from a scored review of 223 Opus 5.5 motion videos (one governing object, one accent, real UI at ≥70% of frame,
+motion on the beat, no HUD chrome, always a soundtrack) and the ban list every frame worker must receive.
 
 **Engine:** HyperFrames (HTML compositions → MP4), workflow `/faceless-explainer`, run in
 **autonomous mode** (`flow: automation`, `storyboard: no`). `platform/otto_motion.py prepare <post-id>`
@@ -107,6 +109,13 @@ numbers, certificates, guarantees or results.
      to visible escapes the hidden parent clip and lingers (occluded) until the end of the film.
    - `data-layout-allow-overlap` goes on the **element** (`<span … data-layout-allow-overlap>`), never inside
      a CSS selector or a class string — a broken selector drops the whole rule and leaves unstyled text.
+   - Every frame must create the registry before registering: `window.__timelines = window.__timelines || {};`
+     then `window.__timelines["<id>"] = tl;`. Frames load in parallel; a frame that assumes a sibling already
+     created the object freezes in its raw CSS state whenever it happens to run first.
+   - A frame's script must not depend on finding its own root by id: the runtime renames the duplicate
+     `id="stage"` roots when it mounts the frames, so `document.querySelector('#stage[...]')` returns null in
+     the assembled film (it works in a standalone harness, which hides the bug). Use
+     `document.querySelector(...) || document` with frame-prefixed ids, or look elements up by their unique ids.
    - Whisper splits hyphenated and contracted words ("third" + "-party"); `voice` glues them back
      (`join_fragments`) so captions never show "third -party".
 6. Look at the contact sheet before calling it done: squint (one hero per frame), no text in the caption

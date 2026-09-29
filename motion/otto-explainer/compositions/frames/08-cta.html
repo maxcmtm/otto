@@ -1,0 +1,240 @@
+<template>
+  <!-- Frame 8 — 08-cta "Scan your site" (4.45 s, final frame). Frame-local seconds.
+       Cues: Scan 0.00 · site 0.64 · free 1.28 · Link 1.99 · bio 2.09
+       handoff_in: Otto square 140px at (540, 900) on #F5F5F7.
+       Lockup geometry = frame 2 (square centre (330, 820), 140px; wordmark 190px, left edge x 430),
+       then the whole lockup rises 180px to square centre y 640 by 0.60. Still end card from 2.60. -->
+  <style>
+    @font-face {
+      font-family: "Inter Tight";
+      src: url("assets/fonts/InterTight-var-latin.woff2") format("woff2");
+      font-weight: 100 900;
+      font-display: block;
+    }
+    @font-face {
+      font-family: "Inter";
+      src: url("assets/fonts/Inter-var-latin.woff2") format("woff2");
+      font-weight: 100 900;
+      font-display: block;
+    }
+
+    #root {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 1080px;
+      height: 1920px;
+      overflow: hidden;
+      font-family: "Inter", system-ui, sans-serif;
+      color: #1d1d1f;
+      -webkit-font-smoothing: antialiased;
+    }
+    .e08-layer {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 1080px;
+      height: 1920px;
+      box-sizing: border-box;
+    }
+
+    /* ── full-bleed ground ─────────────────────────────────────────────── */
+    #e08-ground {
+      background: #f5f5f7;
+    }
+
+    /* ── lockup (frame-2 geometry; the layer is lifted -180px by 0.60) ─── */
+    #e08-markpos {
+      position: absolute;
+      left: 260px; /* centre x 330 */
+      top: 750px; /* centre y 820 */
+      width: 140px;
+      height: 140px;
+    }
+    #e08-mark {
+      position: relative;
+      display: block;
+      width: 140px;
+      height: 140px;
+      border-radius: 42px; /* .3 × 140 */
+      background: #2447f0;
+    }
+    #e08-mark::after {
+      content: "";
+      position: absolute;
+      inset: 35px; /* .25 × 140 */
+      border-radius: 16.8px; /* .12 × 140 */
+      border: 8.4px solid #ffffff; /* .06 × 140 */
+      opacity: 0.95;
+    }
+    #e08-word {
+      position: absolute;
+      left: 430px;
+      top: 725px; /* 190px line box centred on y 820 */
+      height: 190px;
+      font: 650 190px/190px "Inter Tight", "Inter", system-ui, sans-serif;
+      letter-spacing: -0.045em;
+      color: #1d1d1f;
+      white-space: nowrap;
+    }
+
+    /* ── website field (x 90→990, y 900→1030) ─────────────────────────── */
+    #e08-field {
+      position: absolute;
+      top: 900px;
+      left: 0;
+      right: 0;
+      margin: 0 auto; /* centred on x 540 while its width grows */
+      width: 900px;
+      height: 130px;
+      border-radius: 65px;
+      background: #ffffff;
+      box-shadow:
+        0 1px 2px rgba(0, 0, 0, 0.05),
+        0 18px 48px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+    }
+    #e08-ph {
+      position: absolute;
+      left: 56px;
+      top: 0;
+      height: 130px;
+      display: flex;
+      align-items: center;
+      font: 500 44px/1 "Inter", system-ui, sans-serif;
+      letter-spacing: -0.01em;
+      color: #86868b;
+      white-space: nowrap;
+    }
+    #e08-btn {
+      position: absolute;
+      right: 14px;
+      top: 14px;
+      height: 102px;
+      padding: 0 46px;
+      border-radius: 51px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #2447f0;
+      color: #ffffff;
+      font: 600 40px/1 "Inter", system-ui, sans-serif;
+      letter-spacing: -0.01em;
+      white-space: nowrap;
+    }
+
+    /* ── lines under the field ─────────────────────────────────────────── */
+    .e08-line {
+      position: absolute;
+      left: 60px;
+      width: 960px;
+      text-align: center;
+      white-space: nowrap;
+    }
+    #e08-free {
+      top: 1086px; /* centre y 1110 */
+      height: 48px;
+      font: 500 38px/48px "Inter", system-ui, sans-serif;
+      letter-spacing: -0.01em;
+      color: #6e6e73;
+    }
+    #e08-link {
+      top: 1216px; /* centre y 1250 */
+      height: 68px;
+      font: 600 56px/68px "Inter Tight", "Inter", system-ui, sans-serif;
+      letter-spacing: -0.02em;
+      color: #2447f0;
+    }
+    #e08-legal {
+      top: 1482px; /* centre y 1500 */
+      height: 36px;
+      font: 400 30px/36px "Inter", system-ui, sans-serif;
+      color: #86868b;
+    }
+    .e08-mask {
+      display: inline-block;
+      overflow: hidden;
+      vertical-align: bottom;
+      padding-bottom: 0.12em;
+      margin-bottom: -0.12em;
+    }
+    .e08-in {
+      display: inline-block;
+    }
+  </style>
+
+  <div id="root" data-composition-id="08-cta" data-width="1080" data-height="1920" data-duration="4.45">
+    <div id="e08-ground" class="clip e08-layer" data-start="0" data-duration="4.45" data-track-index="0"></div>
+
+    <div id="e08-lockup" class="e08-layer">
+      <div id="e08-word">Otto</div>
+      <div id="e08-markpos"><div id="e08-mark"></div></div>
+    </div>
+
+    <div id="e08-cta" class="e08-layer">
+      <div id="e08-field">
+        <div id="e08-ph">yourcompany.com</div>
+        <div id="e08-btn">Scan my site</div>
+      </div>
+
+      <div id="e08-free" class="e08-line"><span class="e08-mask"><span class="e08-in" id="e08-free-a">Free.</span></span> <span class="e08-mask"><span class="e08-in" id="e08-free-b">No signup.</span></span></div>
+
+      <div id="e08-link" class="e08-line"><span class="e08-mask"><span class="e08-in" id="e08-link-a">Link</span></span> <span class="e08-mask"><span class="e08-in" id="e08-link-b">in bio</span></span></div>
+
+      <div id="e08-legal" class="e08-line">Figures shown are illustrative.</div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+  <script>
+    (function () {
+      var ID = "08-cta";
+      var $ = function (id) {
+        return document.getElementById(id);
+      };
+      var tl = gsap.timeline({ paused: true });
+
+      // ── Scene 1 (0.00–0.60): stamp + lockup forms (frame-2 geometry), then rises to y 640 ──
+      // square: from the handoff centre (540, 900) to its lockup slot (330, 820)
+      tl.fromTo($("e08-markpos"), { x: 210, y: 80 }, { x: 0, y: 0, duration: 0.3, ease: "power3.inOut" }, 0.0);
+      // stamp: 1 → 1.2 → 1 (settle on expo.out)
+      tl.fromTo($("e08-mark"), { scale: 1 }, { scale: 1.2, duration: 0.08, ease: "power2.out" }, 0.0);
+      tl.fromTo(
+        $("e08-mark"),
+        { scale: 1.2 },
+        { scale: 1, duration: 0.5, ease: "expo.out", immediateRender: false },
+        0.08
+      );
+      // wordmark wipes in to the square's right
+      tl.fromTo(
+        $("e08-word"),
+        { clipPath: "inset(-12% 100% -12% 0%)", x: -36 },
+        { clipPath: "inset(-12% 0% -12% 0%)", x: 0, duration: 0.46, ease: "expo.out" },
+        0.14
+      );
+      // the formed lockup lifts as a unit: square centre y 820 → 640
+      tl.fromTo($("e08-lockup"), { y: 0 }, { y: -180, duration: 0.4, ease: "power3.inOut" }, 0.2);
+
+      // ── Scene 2 (0.64–1.90): the field on "site", the free line on "free" ──
+      tl.fromTo(
+        $("e08-field"),
+        { width: 130, opacity: 0, y: 28 },
+        { width: 900, opacity: 1, y: 0, duration: 0.7, ease: "expo.out" },
+        0.64
+      );
+      tl.fromTo($("e08-ph"), { opacity: 0, x: -18 }, { opacity: 1, x: 0, duration: 0.55, ease: "expo.out" }, 0.78);
+      tl.fromTo($("e08-btn"), { opacity: 0, scale: 0.92 }, { opacity: 1, scale: 1, duration: 0.55, ease: "expo.out" }, 0.84);
+
+      tl.fromTo($("e08-free-a"), { yPercent: 115 }, { yPercent: 0, duration: 0.6, ease: "expo.out" }, 1.28);
+      tl.fromTo($("e08-free-b"), { yPercent: 115 }, { yPercent: 0, duration: 0.6, ease: "expo.out" }, 1.38);
+
+      // ── Scene 3 (1.99–4.45): "Link in bio" on Link / bio, legal line; still from 2.60 ──
+      tl.fromTo($("e08-link-a"), { yPercent: 115 }, { yPercent: 0, duration: 0.55, ease: "expo.out" }, 1.99);
+      tl.fromTo($("e08-link-b"), { yPercent: 115 }, { yPercent: 0, duration: 0.5, ease: "expo.out" }, 2.09);
+      tl.fromTo($("e08-legal"), { opacity: 0 }, { opacity: 1, duration: 0.45, ease: "expo.out" }, 2.12);
+
+      window.__timelines = window.__timelines || {};
+      window.__timelines[ID] = tl;
+    })();
+  </script>
+</template>

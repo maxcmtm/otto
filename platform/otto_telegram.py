@@ -11,6 +11,9 @@ send-cards: every post in pending_approval whose slot is within --hours and that
             Each card is checked against brands/<slug>/compliance.json first (otto_compliance): a violating
             card is NOT sent and a "Compliance hold" recommendation is filed instead. Photo by public URL,
             else uploaded from the local file, else the card goes out as text. Each card is saved on its own.
+            A post whose slot already passed gets no card (approving it could only produce a "missed" publish).
+            Each post is claimed (tg_claim) in data.json before it is sent, so a second send-cards running at the
+            same time skips it instead of sending a duplicate card.
 send-recs:  every proposed recommendation without a card → message + ✅ Approve · Not now
 poll:       long-polls Bot API updates. Button taps → ap.decide / rec status (taste log, approved_via=telegram),
             the card is edited in place ("✅ Approved · publishes Sat 18:00") so the phone shows the state.
@@ -23,7 +26,7 @@ poll:       long-polls Bot API updates. Button taps → ap.decide / rec status (
 Only the owner may decide: callback_query.from.id must be owner_user_id (default: owner_chat_id).
 Config: $OTTO_SECRETS/telegram.json {"bot_token": "...", "owner_chat_id": "590113904", "owner_user_id": optional}
 or env TELEGRAM_BOT_TOKEN / OTTO_OWNER_CHAT_ID.
-State: .telegram-state.json (update offset, pending edit prompts). Public image base for photos: --base.
+State: .telegram-state.json next to data.json (update offset, pending edit prompts). Public image base for photos: --base.
 Pure stdlib. Writes through ap.transaction().
 """
 import json, os, re, sys, time, urllib.error, urllib.parse, urllib.request, uuid
@@ -35,10 +38,11 @@ import otto_paths as paths
 
 HERE = Path(__file__).parent
 SECRETS = Path(os.environ.get("OTTO_SECRETS") or HERE.parent.parent / "otto-secrets")
-STATE = HERE / ".telegram-state.json"
+STATE = ap.DATA.parent / ".telegram-state.json"     # next to data.json (the workspace platform dir on the server)
 BASE = paths.BASE
 PLAT = {"fb": "Facebook", "ig": "Instagram", "li": "LinkedIn"}
 EDIT_TTL = timedelta(hours=2)
+CLAIM_TTL = timedelta(minutes=10)
 EDITABLE = ("draft", "pending_approval")
 
 
@@ -102,7 +106,8 @@ def slot_str(p, b=None):
 
 def card_caption(d, p):
     b = ap.brand(d, p["brand"]) or {}
-    why = p.get("why") or p.get("brief") or ""
+    brief = p.get("brief") or ""
+    why = p.get("why") or ("" if "TBD" in brief else brief)    # the planner's placeholder brief is not a reason
     cap = (p.get("caption") or p.get("hook") or "").strip()
     head = f"{b.get('name', p['brand'])} · {PLAT.get(p['platform'], p['platform'])} · {slot_str(p, b)} · {p.get('pillar', '')}"
     text = f"{head}\n\n{cap}"
@@ -160,6 +165,9 @@ def send_cards(bid=None, hours=72, resend=False, dry=False, base=BASE, ids=None)
         slot = ap.slot_dt(p, ap.brand(d, p["brand"]))
         if slot is None or (not ids and slot > now + timedelta(hours=hours)):
             continue
+        if not ids and slot <= now:
+            print(f"PAST    {p['id']} {slot_str(p)} — slot already passed, no card (needs a new slot)")
+            continue
         try:
             v = comp.check_post(p)
             if v:
@@ -176,12 +184,29 @@ def send_cards(bid=None, hours=72, resend=False, dry=False, base=BASE, ids=None)
             print(f"{'WOULD SEND' if dry else 'SEND'} {p['id']} {slot_str(p)} {'photo' if p.get('image') else 'text'} — {p.get('hook','')[:50]}")
             if dry:
                 continue
-            m, kind = send_card(chat, p, cap, base)
+            with ap.transaction() as d2:                # claim first: a parallel run skips a post that is being sent
+                q = ap.post(d2, p["id"])
+                claim = ap.parse_iso((q or {}).get("tg_claim"))
+                busy = (q is None or q.get("status") != "pending_approval" or (q.get("tg_message_id") and not resend)
+                        or bool(claim and claim.tzinfo and datetime.now(timezone.utc) - claim < CLAIM_TTL))
+                if not busy:
+                    q["tg_claim"] = ap.now_iso()
+            if busy:
+                print(f"  {p['id']}: already carded or being sent by another run — skipped")
+                continue
+            try:
+                m, kind = send_card(chat, p, cap, base)
+            except Exception:
+                with ap.transaction() as d2:
+                    q = ap.post(d2, p["id"])
+                    if q is not None:
+                        q.pop("tg_claim", None)
+                raise
             with ap.transaction() as d2:
                 q = ap.post(d2, p["id"])
                 if q is not None:
                     q["tg_message_id"] = m["message_id"]; q["tg_sent_at"] = ap.now_iso(); q["tg_kind"] = kind
-                    q.pop("compliance_block", None)
+                    q.pop("compliance_block", None); q.pop("tg_claim", None)
             sent += 1
         except Exception as e:
             print(f"  card {p['id']} failed: {type(e).__name__}: {e}")

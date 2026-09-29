@@ -7,7 +7,7 @@ Every test runs against a throwaway fixture: data.json built from index.html's f
 index.html, a copy of brands/, and a temp secrets / public-assets dir. No network is used (Graph / Telegram
 calls are mocked; the SSRF test runs a local http.server).
 """
-import http.server, json, os, re, shutil, subprocess, sys, tempfile, threading, time, unittest, urllib.error, urllib.request
+import http.server, json, os, re, shutil, subprocess, sys, tempfile, threading, time, unittest, urllib.error, urllib.parse, urllib.request
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
@@ -33,7 +33,8 @@ def _build_fixture():
 
 _build_fixture()
 ENV = {"OTTO_DATA": str(TMP / "data.json"), "OTTO_HTML": str(TMP / "index.html"), "OTTO_SECRETS": str(TMP / "secrets"),
-       "OTTO_BRANDS": str(TMP / "brands"), "OTTO_ASSETS": str(TMP / "assets"), "OTTO_PUBLIC_ASSETS": str(TMP / "public")}
+       "OTTO_BRANDS": str(TMP / "brands"), "OTTO_ASSETS": str(TMP / "assets"), "OTTO_PUBLIC_ASSETS": str(TMP / "public"),
+       "OTTO_MOTION_ROOT": str(TMP / "motion")}
 os.environ.update(ENV)
 sys.path.insert(0, str(PLATFORM))
 
@@ -47,6 +48,13 @@ import otto_paths            # noqa: E402
 import otto_publish          # noqa: E402
 import otto_scan             # noqa: E402
 import otto_telegram         # noqa: E402
+import otto_competitors      # noqa: E402
+import otto_demo             # noqa: E402
+import otto_motion           # noqa: E402
+import otto_plan             # noqa: E402
+import otto_strategy         # noqa: E402
+import otto_video            # noqa: E402
+import otto_watch            # noqa: E402
 
 otto_telegram.STATE = TMP / ".telegram-state.json"
 otto_publish.LOG = TMP / "publish.log"
@@ -496,6 +504,422 @@ class GrowthTest(unittest.TestCase):
             otto_ads.notify = orig
         self.assertEqual(len(sent), 1)
         self.assertNotIn("decisions", sent[0])
+
+
+# ---------------------------------------------------------------------------------------------------------------
+# launch-simulation fixes (tests/simulate.py found these; docs/LAUNCH-READINESS.md lists them)
+# ---------------------------------------------------------------------------------------------------------------
+
+def _local_slot(bid, delta):
+    """A naive slot string `delta` from now in the brand's timezone."""
+    return (datetime.now(timezone.utc) + delta).astimezone(ap.brand_tz(ap.brand(ap.load(), bid))).strftime("%Y-%m-%dT%H:%M")
+
+
+def _add_brand(**b):
+    with ap.transaction(sync=False) as d:
+        d["brands"] = [x for x in d["brands"] if x["id"] != b["id"]] + [dict({"status": "active", "pillars": ["A", "B"]}, **b)]
+
+
+class _Pages(http.server.BaseHTTPRequestHandler):
+    pages = {}
+
+    def do_GET(self):
+        body = self.pages.get(self.path.split("?")[0], "").encode()
+        self.send_response(200 if body else 404)
+        self.send_header("Content-Type", "text/html; charset=utf-8"); self.send_header("Content-Length", str(len(body)))
+        self.end_headers(); self.wfile.write(body)
+
+    def log_message(self, *a):
+        pass
+
+
+class _FakeGraph:
+    def __init__(self):
+        self.calls = []
+
+    def __call__(self, method, path, token, **params):
+        self.calls.append((method, path, params))
+        if method == "GET" and path.startswith("act_") and "/" not in path:
+            return {"currency": "EUR"}
+        if path.endswith("/adimages"):
+            return {"images": {"x": {"hash": "h1"}}}
+        return {"id": f"ID{len(self.calls)}", "success": True}
+
+
+class IsolationTest(unittest.TestCase):
+    def test_every_module_follows_the_otto_env(self):
+        code = ("import json, otto_strategy as s, otto_telegram as t, otto_watch as w, otto_growth as g, otto_demo as d, otto_motion as m\n"
+                "print(json.dumps([str(x) for x in (s.BRANDS, t.STATE, w.HIST, w.STATE, g.HIST, d.BRANDS, m.BRANDS, m.REELS, m.MOTION)]))")
+        out = subprocess.run([sys.executable, "-c", code], cwd=str(PLATFORM), env=dict(os.environ, **ENV), capture_output=True,
+                             text=True, check=True).stdout
+        for p in json.loads(out):
+            self.assertTrue(Path(p).resolve().is_relative_to(TMP.resolve()), f"{p} is outside the OTTO_* workspace")
+
+    def test_demo_reads_the_workspace_and_uses_neutral_defaults(self):
+        _add_brand(id="t-demo", name="Demo College", url="demo-college.co.il", lang="HE", countries=["IL"])
+        out = TMP / "demo" / "t-demo.json"
+        quiet(otto_demo.journey, "t-demo", 30, 7, str(out))
+        doc = json.loads(out.read_text())
+        self.assertEqual(doc["brand"]["name"], "Demo College")
+        self.assertEqual(doc["assumptions"]["currency"], "₪")
+        self.assertNotIn("CBD", doc["assumptions"]["paid_note"])
+        self.assertFalse(next(e for e in doc["events"] if e["title"] == "The month is planned")["real"])   # no plan yet → not "real"
+
+
+class OnboardingDefaultsTest(unittest.TestCase):
+    def test_brand_add_infers_timezone_and_market(self):
+        env = dict(os.environ, **ENV)
+        for bid, url, lang, tz, cc in (("t-de", "praxis-test.de", "DE", "Europe/Berlin", ["DE"]),
+                                       ("t-pt", "surf-test.com", "PT/EN", "Europe/Lisbon", ["PT"]),
+                                       ("t-il", "college-test.co.il", "HE", "Asia/Jerusalem", ["IL"])):
+            subprocess.run([sys.executable, "ap.py", "brand-add", bid, "N", url, lang, "A,B"], cwd=str(PLATFORM), env=env,
+                           check=True, capture_output=True)
+            b = ap.brand(ap.load(), bid)
+            self.assertEqual((b["tz"], b["countries"]), (tz, cc), bid)
+        subprocess.run([sys.executable, "ap.py", "brand-add", "t-us", "N", "x.com", "EN", "--tz", "America/New_York", "--countries",
+                        "US,CA", "--currency", "usd"], cwd=str(PLATFORM), env=env, check=True, capture_output=True)
+        b = ap.brand(ap.load(), "t-us")
+        self.assertEqual((b["tz"], b["countries"], b["currency"], b["pillars"]), ("America/New_York", ["US", "CA"], "USD", []))
+        self.assertEqual(ap.brand_currency(ap.load(), "t-il"), "ILS")          # no scan yet → the country's currency, not EUR
+        self.assertEqual(ap.slot_dt({"slot": "2026-10-01T09:00"}, ap.brand(ap.load(), "t-pt")).astimezone(timezone.utc).hour, 8)
+
+    def test_strategy_takes_tz_and_currency_from_the_brand(self):
+        _add_brand(id="t-lis", name="Surf", url="surf-lis.com", lang="PT/EN", tz="Europe/Lisbon", countries=["PT"])
+        _add_brand(id="t-tlv", name="College", url="college-tlv.co.il", lang="HE", tz="Asia/Jerusalem", countries=["IL"])
+        s1, s2 = quiet(otto_strategy.init, "t-lis"), quiet(otto_strategy.init, "t-tlv")
+        self.assertEqual((s1["tz"], s1["currency"]), ("Europe/Lisbon", "EUR"))
+        self.assertEqual((s2["tz"], s2["currency"]), ("Asia/Jerusalem", "ILS"))
+        self.assertTrue((TMP / "brands" / "t-lis" / "strategy.json").exists())
+
+    def test_markets_follow_the_brand(self):
+        self.assertEqual(ap.brand_countries({"url": "studio.it", "lang": "IT"}), ["IT"])
+        self.assertEqual(ap.brand_countries({"url": "x.com", "lang": "NL/EN"}, ["nl", "en"]), ["NL"])
+        self.assertEqual(ap.brand_countries({"url": "x.com", "lang": "EN/DE"}, ["en", "de"]), ["DE", "AT", "CH"])   # unchanged
+        self.assertEqual(ap.brand_countries({"countries": ["FR"], "url": "x.de"}), ["FR"])
+        _add_brand(id="t-nl", name="NL shop", url="shop-test.nl", lang="NL/EN")
+        self.assertEqual(otto_ads.profile_bits("t-nl", ap.brand(ap.load(), "t-nl"))["countries"], ["NL"])
+        self.assertEqual(otto_competitors.guess_country("t-nl"), "NL")
+        self.assertEqual(otto_competitors.guess_country("cmtm"), "IL")
+
+
+class ScanParseTest(unittest.TestCase):
+    def test_prices_with_thousands_separators(self):
+        self.assertEqual(otto_scan.prices_from("Aligner ab 2.900 € · Zahnreinigung 89 €"), ("EUR", ["2.900 €", "89 €"]))
+        self.assertEqual(otto_scan.prices_from("שכר לימוד ₪18,500 לשנה או 2,900 ₪")[1], ["₪18,500", "2,900 ₪"])
+        self.assertEqual(otto_scan.prices_from("€14,50 · €1,234.56 · Pack 150 €")[1], ["€14,50", "€1,234.56", "150 €"])
+        self.assertEqual(otto_scan.prices_from("4.800 Bewertungen, 4,9 Sterne")[1], [])
+
+    def test_localized_subpages_and_industries(self):
+        links = [(h, t, "a", "") for h, t in (("/ueber-uns", "Über uns"), ("/preise", "Preise"), ("/leistungen", "Leistungen"),
+                                               ("/chi-siamo", "Chi siamo"), ("/impressum", "Impressum"))]
+        got = [urllib.parse.urlsplit(u).path for u in otto_scan.pick_internal("https://praxis.example/", links, 5)]
+        self.assertEqual(got, ["/ueber-uns", "/preise", "/leistungen", "/chi-siamo"])
+        self.assertEqual(otto_scan.industry_guess("Zahnarztpraxis Mitte", "Ihr Zahnarzt in Berlin", ["Zahnmedizin für Patienten"], [],
+                                                  "Zahnarzt Patienten")[0], "Clinic & medical")
+        self.assertEqual(otto_scan.industry_guess("Grachten", "Koffie bestellen", [], ["Winkelwagen"],
+                                                  "winkelwagen afrekenen verzending")[0], "E-commerce & retail")
+        self.assertEqual(otto_scan.industry_guess("Onda Viva", "Escola de surf", ["Aulas de surf"], [], "aulas escola cursos")[0],
+                         "Education & courses")
+
+    def test_theme_color_must_be_a_colour(self):
+        _Pages.pages = {"/js": '<html><head><meta name="theme-color" content="javascript:alert(1)"><title>x</title></head></html>',
+                        "/ok": '<html><head><meta name="theme-color" content="#0E7C86"><title>y</title></head></html>'}
+        srv = http.server.ThreadingHTTPServer(("127.0.0.1", 0), _Pages)
+        port = srv.server_address[1]
+        threading.Thread(target=srv.serve_forever, daemon=True).start()
+        orig_ok, orig_ports = otto_scan.ip_ok, otto_scan.ALLOWED_PORTS
+        otto_scan.ip_ok = lambda ip: str(ip) == "127.0.0.1" or orig_ok(ip)
+        otto_scan.ALLOWED_PORTS = orig_ports | {port}
+        try:
+            self.assertIsNone(otto_scan.scan(f"http://127.0.0.1:{port}/js", pages=0)["visual"]["theme_color"])
+            s = otto_scan.scan(f"http://127.0.0.1:{port}/ok", pages=0)
+            self.assertEqual(s["visual"]["theme_color"], "#0E7C86")
+            self.assertEqual(s["visual"]["palette"][0]["hex"], "#0E7C86")
+        finally:
+            otto_scan.ip_ok, otto_scan.ALLOWED_PORTS = orig_ok, orig_ports
+            srv.shutdown(); srv.server_close()
+
+
+class ComplianceBaselineTest(unittest.TestCase):
+    def _brand(self, bid, industry, title):
+        bdir = TMP / "brands" / bid
+        bdir.mkdir(parents=True, exist_ok=True)
+        (bdir / "scan.json").write_text(json.dumps({"industry": industry, "identity": {"title": title}}, ensure_ascii=False))
+
+    def test_health_brand_without_rules_gets_the_baseline(self):
+        self._brand("t-clinic", "Clinic & medical", "Zahnarztpraxis Spreebogen")
+        self.assertTrue(otto_compliance.check_texts("t-clinic", ["Wir heilen Parodontitis in einer Sitzung"]))
+        self.assertTrue(otto_compliance.check_texts("t-clinic", ["Do you suffer from anxiety at the dentist?"]))
+        self.assertEqual(otto_compliance.check_texts("t-clinic", ["Zahnreinigung am Samstag, 60 Minuten, ein Ansprechpartner."]), [])
+        self._brand("t-college", "Education & courses", "מכללת אופק | לימודי טיפול באמנות")
+        self.assertTrue(otto_compliance.check_texts("t-college", ["האם אתה סובל מחרדה? בוא ללמוד"]))
+        self.assertEqual(otto_compliance.check_texts("t-college", ["בגיל 41 היא פתחה קליניקה משלה"]), [])
+        self._brand("t-coffee", "E-commerce & retail", "Grachten Koffie")          # not a health brand: nothing invented
+        self.assertEqual(otto_compliance.check_texts("t-coffee", ["This coffee cures Monday mornings"]), [])
+
+    def test_unreadable_rules_fail_closed(self):
+        bdir = TMP / "brands" / "t-broken"
+        bdir.mkdir(parents=True, exist_ok=True)
+        (bdir / "compliance.json").write_text('{"banned": ["cure"')
+        v = otto_compliance.check_texts("t-broken", ["a perfectly harmless sentence"])
+        self.assertEqual(v[0]["rule"], "compliance.json unreadable")
+
+    def test_publisher_holds_a_violating_approved_post(self):
+        p = add_post(status="approved", slot=_local_slot("cmtm", -timedelta(minutes=5)), platform="fb",
+                     hook="Do you suffer from anxiety? The course is open", caption="x")
+        g = _FakeGraph()
+        orig = otto_publish.graph
+        otto_publish.graph = g
+        try:
+            quiet(otto_publish.run)
+        finally:
+            otto_publish.graph = orig
+        q = ap.post(ap.load(), p["id"])
+        self.assertEqual(q["status"], "draft")
+        self.assertTrue(q.get("compliance_block"))
+        self.assertFalse([c for c in g.calls if "anxiety" in json.dumps(c[2])], "violating copy reached Meta")
+        self.assertTrue(any(r.get("post") == p["id"] and r["title"].startswith("Compliance hold") for r in ap.load()["recommendations"]))
+
+
+class LanguageTest(unittest.TestCase):
+    def test_non_english_brands_get_their_language(self):
+        self.assertEqual(otto_creative.cta_card_text({"name": "S", "lang": "PT/EN"}), "Saiba mais")
+        self.assertEqual(otto_creative.cta_card_text({"name": "S", "lang": "NL"}), "Meer informatie")
+        script = otto_video.plan_script({"hook": "A tua primeira onda", "caption": "Uma frase bastante longa aqui."}, {"name": "Onda", "lang": "PT"})
+        self.assertEqual(script[-1]["text"], "Onda. Link na bio.")
+        self.assertEqual(otto_ads.LANG_CONST["pt"], 1014)
+
+    def test_search_ads_never_carry_broken_phrases(self):
+        c = {"name": "S", "creative": {"headlines": ["Segurança primeiro: como escolhemos o spot", "Surf camp: uma semana que muda o verão",
+                                                     "Onde surfar em outubro perto de Lisboa"],
+                                       "descriptions": ["Escola de surf certificada perto de Lisboa. Aulas para iniciantes, famílias e grupos com material incluído."]},
+             "audience": {"languages": ["pt"]}}
+        heads, descs = otto_ads.rsa_assets(c, {"name": "Onda Viva"}, "pt")
+        self.assertIn("Segurança primeiro", heads)
+        self.assertIn("Surf camp", heads)
+        self.assertIn("Site oficial", heads)                                   # Portuguese fallbacks, not "Official Site"
+        self.assertNotIn("Onde surfar em outubro perto", heads)
+        self.assertEqual(descs[0], "Escola de surf certificada perto de Lisboa")
+        self.assertTrue(all(len(h) <= 30 for h in heads) and all(len(x) <= 90 for x in descs))
+
+    def test_plan_headlines_skip_labels_and_violating_hooks(self):
+        _add_brand(id="t-ads", name="Praxis Test", url="praxis-ads.de", lang="DE", tz="Europe/Berlin", countries=["DE"])
+        bdir = TMP / "brands" / "t-ads"
+        bdir.mkdir(parents=True, exist_ok=True)
+        (bdir / "scan.json").write_text(json.dumps({"industry": "Clinic & medical", "final_url": "https://praxis-ads.de/",
+                                                    "identity": {"description": "Zahnmedizin in Berlin."}}))
+        with ap.transaction(sync=False) as d:
+            for i, h in enumerate(["Wir heilen Parodontitis garantiert", "Zahnreinigung ohne Stress"]):
+                d["posts"].append({"id": f"ta-{900 + i}", "brand": "t-ads", "pillar": "A", "platform": "fb", "hook": h,
+                                   "status": "draft", "slot": "2031-01-01T09:00"})
+        b = ap.brand(ap.load(), "t-ads")
+        flights = quiet(otto_ads.plan_flights, ap.load(), b, "2031-03", 20, otto_ads.profile_bits("t-ads", b))
+        g = next(f for f in flights if f["network"] == "google")
+        text = json.dumps(g["creative"], ensure_ascii=False)
+        self.assertNotIn("Clinic & medical", text)
+        self.assertNotIn("heilen", text)
+        self.assertIn("Zahnreinigung ohne Stress", text)
+        self.assertEqual(g["audience"]["countries"], ["DE"])
+
+    def test_reel_brief_language_and_whisper_model(self):
+        _add_brand(id="t-it", name="Studio Test", url="studio-test.it", lang="IT", tz="Europe/Rome", countries=["IT"])
+        with ap.transaction(sync=False) as d:
+            d["posts"].append({"id": "ti-001", "brand": "t-it", "pillar": "Progetti", "platform": "ig", "hook": "Un bilocale trasformato",
+                               "status": "draft", "slot": "2031-01-01T09:00", "format": "reel"})
+        orig = otto_motion.sh
+
+        def fake_sh(cmd, cwd=None, check=True, both=False):
+            if "init" in cmd:
+                Path(cmd[4]).mkdir(parents=True, exist_ok=True)
+            return ""
+        otto_motion.sh = fake_sh
+        try:
+            pdir = quiet(otto_motion.prepare, "ti-001")
+        finally:
+            otto_motion.sh = orig
+        self.assertTrue(Path(pdir).resolve().is_relative_to(TMP.resolve()))
+        self.assertIn("language: it", (Path(pdir) / "BRIEF.md").read_text())
+        self.assertEqual((otto_motion.whisper_model("en"), otto_motion.whisper_model("he")), ("small.en", "small"))
+
+
+    def test_finished_reel_is_public_and_attached(self):
+        _add_brand(id="t-reel", name="Reel Test", url="reel-test.it", lang="IT", tz="Europe/Rome", countries=["IT"])
+        with ap.transaction(sync=False) as d:
+            d["posts"].append({"id": "tr-001", "brand": "t-reel", "pillar": "A", "platform": "ig", "hook": "h", "status": "draft",
+                               "slot": "2031-01-01T09:00", "format": "reel"})
+        pdir = otto_motion.project_dir(ap.load(), ap.post(ap.load(), "tr-001"))
+        (pdir / "compositions" / "frames").mkdir(parents=True, exist_ok=True)
+        (pdir / "compositions" / "frames" / "01.html").write_text("<div></div>")
+        (pdir / "index.html").write_text("<html></html>")
+        (pdir / "audio_engine_meta.json").write_text(json.dumps({"bgm_pending": False}))
+        (pdir / "renders").mkdir(exist_ok=True)
+        (pdir / "renders" / "video.mp4").write_bytes(b"\x00\x00\x00\x18ftypmp42 fake")
+        orig_sh, orig_dur = otto_motion.sh, otto_motion._dur
+        otto_motion.sh = lambda cmd, cwd=None, check=True, both=False: ""        # node / npx HyperFrames stubbed
+        otto_motion._dur = lambda f: 42.0
+        try:
+            quiet(otto_motion.finish, "tr-001")
+        finally:
+            otto_motion.sh, otto_motion._dur = orig_sh, orig_dur
+        q = ap.post(ap.load(), "tr-001")
+        self.assertEqual((q["video"], q["status"]), ("assets/reels/tr-001.mp4", "pending_approval"))
+        self.assertTrue((TMP / "assets" / "reels" / "tr-001.mp4").exists(), "not written under OTTO_ASSETS")
+        self.assertTrue((TMP / "public" / "reels" / "tr-001.mp4").exists(), "rendered reel never copied to the public dir")
+
+
+class SchedulingTest(unittest.TestCase):
+    def test_plan_skips_slots_in_the_past(self):
+        _add_brand(id="t-plan", name="Plan Test", url="plan-test.it", lang="IT", tz="Europe/Rome", countries=["IT"])
+        tz = ap.brand_tz(ap.brand(ap.load(), "t-plan"))
+        now = datetime.now(tz)
+        created = quiet(otto_plan.build, "t-plan", now.strftime("%Y-%m"))
+        self.assertTrue(all(datetime.fromisoformat(p["slot"]).replace(tzinfo=tz) > now for p in created))
+        self.assertEqual(quiet(otto_plan.build, "t-plan", "2020-01"), [])
+
+    def test_no_card_for_a_past_slot_and_claimed_posts_are_skipped(self):
+        past = add_post(status="pending_approval", slot=_local_slot("cmtm", -timedelta(hours=2)), hook="past slot card")
+        claimed = add_post(status="pending_approval", slot=_local_slot("cmtm", timedelta(hours=3)), hook="claimed elsewhere")
+        ok = add_post(status="pending_approval", slot=_local_slot("cmtm", timedelta(hours=4)), hook="a fine card")
+        with ap.transaction(sync=False) as d:
+            ap.post(d, claimed["id"])["tg_claim"] = ap.now_iso()
+        sent = []
+        orig = otto_telegram.api
+        otto_telegram.api = lambda method, files=None, **kw: sent.append(kw.get("caption") or kw.get("text")) or {"message_id": 9}
+        try:
+            quiet(otto_telegram.send_cards, "cmtm")
+        finally:
+            otto_telegram.api = orig
+        d = ap.load()
+        self.assertFalse(ap.post(d, past["id"]).get("tg_message_id"))
+        self.assertFalse(ap.post(d, claimed["id"]).get("tg_message_id"))
+        q = ap.post(d, ok["id"])
+        self.assertTrue(q.get("tg_message_id"))
+        self.assertNotIn("tg_claim", q)
+        self.assertFalse([t for t in sent if "past slot card" in (t or "") or "claimed elsewhere" in (t or "")])
+
+    def test_card_hides_the_planner_placeholder(self):
+        p = {"id": "x", "brand": "cmtm", "platform": "ig", "slot": "2026-10-01T09:00", "pillar": "P", "caption": "cap",
+             "brief": "P · post · angle TBD by Quill · visual on-brand per brand-profile.md"}
+        self.assertNotIn("TBD", otto_telegram.card_caption(ap.load(), p))
+        p["why"] = "Your best pillar last week"
+        self.assertIn("Your best pillar last week", otto_telegram.card_caption(ap.load(), p))
+
+
+class PaidLaunchTest(unittest.TestCase):
+    def _campaign(self, **c):
+        base = {"network": "meta", "objective": "traffic", "start": "2000-01-01", "end": "2999-01-01", "daily_budget": 5, "status": "approved",
+                "currency_code": "EUR", "audience": {"countries": ["IT"]}, "creative": {}, "remote": {}, "landing_url": "https://x.example/"}
+        base.update(c)
+        with ap.transaction(sync=False) as d:
+            d.setdefault("campaigns", []).append(base)
+
+    def test_approved_flight_without_credentials_files_one_connect_card(self):
+        _add_brand(id="t-nocreds", name="No Creds", url="nocreds.it", lang="IT")
+        self._campaign(id="cp-nc1", brand="t-nocreds", name="NC")
+        quiet(otto_ads.launch, "t-nocreds")
+        quiet(otto_ads.launch, "t-nocreds")
+        recs = [r for r in ap.load()["recommendations"] if r.get("brand") == "t-nocreds" and r["title"].startswith("Connect Meta ads")]
+        self.assertEqual(len(recs), 1)
+
+    def _meta_brand(self, bid):
+        _add_brand(id=bid, name=bid, url=f"{bid}.it", lang="IT", countries=["IT"])
+        (TMP / "secrets" / f"meta-{bid}.json").write_text(json.dumps({"access_token": "T", "page_id": "PG", "ad_account_id": f"act_{bid}"}))
+
+    def test_boost_uses_a_live_facebook_post(self):
+        self._meta_brand("t-boost")
+        with ap.transaction(sync=False) as d:
+            d["posts"] += [{"id": "tb-001", "brand": "t-boost", "pillar": "A", "platform": "ig", "hook": "planned", "status": "published",
+                            "remote_id": "IGM1", "image": "assets/posts/hg-001.png", "slot": "2026-09-01T09:00"},
+                           {"id": "tb-002", "brand": "t-boost", "pillar": "A", "platform": "fb", "hook": "live on fb", "status": "published",
+                            "remote_id": "PG_55", "image": "assets/posts/hg-001.png", "slot": "2026-09-02T09:00"}]
+        self._campaign(id="cp-b1", brand="t-boost", name="Boost", objective="engagement", creative={"post": "tb-001"})
+        g = _FakeGraph()
+        orig = otto_publish.graph
+        otto_publish.graph = g
+        otto_ads._acct.clear()
+        try:
+            quiet(otto_ads.launch, "t-boost")
+        finally:
+            otto_publish.graph = orig
+        c = ap.campaign(ap.load(), "cp-b1")
+        self.assertEqual((c["status"], c["creative"]["post"]), ("live", "tb-002"))
+        self.assertTrue(any(p.get("object_story_id") == "PG_55" for m, path, p in g.calls if path.endswith("/adcreatives")))
+
+    def test_a_claimed_flight_is_not_launched_twice(self):
+        self._meta_brand("t-claim")
+        self._campaign(id="cp-cl1", brand="t-claim", name="Claimed", launching_at=ap.now_iso())
+        g = _FakeGraph()
+        orig = otto_publish.graph
+        otto_publish.graph = g
+        otto_ads._acct.clear()
+        try:
+            quiet(otto_ads.launch, "t-claim")
+            self.assertFalse([c for c in g.calls if c[1].endswith("/campaigns")], "a flight claimed by another run was launched")
+            with ap.transaction(sync=False) as d:                     # a crashed run's claim goes stale → taken over
+                ap.campaign(d, "cp-cl1")["launching_at"] = (datetime.now(timezone.utc) - timedelta(hours=3)).strftime("%Y-%m-%dT%H:%M:%SZ")
+            quiet(otto_ads.launch, "t-claim")
+        finally:
+            otto_publish.graph = orig
+        c = ap.campaign(ap.load(), "cp-cl1")
+        self.assertEqual(c["status"], "live")
+        self.assertFalse(c.get("launching_at"))
+        self.assertEqual(len([x for x in g.calls if x[1].endswith("/campaigns")]), 1)
+
+    def test_plan_card_says_which_flights_are_on_hold(self):
+        _add_brand(id="t-held", name="Held College", url="held-college.co.il", lang="HE", countries=["IL"])
+        bdir = TMP / "brands" / "t-held"
+        bdir.mkdir(parents=True, exist_ok=True)
+        (bdir / "scan.json").write_text(json.dumps({"industry": "Education & courses", "languages": ["he"],
+                                                    "identity": {"description": "לימודי טיפול באמנות"}}, ensure_ascii=False))
+        (bdir / "brand-profile.md").write_text("# Strategic Profile — Held College\n- Industry: Education & courses · art therapy training\n")
+        quiet(otto_ads.plan, "t-held", "2031-02")
+        r = next(r for r in ap.load()["recommendations"] if r.get("brand") == "t-held" and r.get("action") == "approve_plan")
+        self.assertIn("compliance hold", r["why"])
+
+
+class WatchAndGrowthTest(unittest.TestCase):
+    def test_missed_publish_alert_for_a_brand_with_credentials(self):
+        p = add_post(status="approved", slot=_local_slot("cmtm", -timedelta(hours=3)), hook="watch missed test")
+        alerts = []
+        orig = otto_watch.send
+        otto_watch.send = lambda text: alerts.append(text) or True
+        try:
+            quiet(otto_watch.watch)
+        finally:
+            otto_watch.send = orig
+        self.assertTrue(any("watch missed test" in a for a in alerts), "no connections[] entry → the guard stayed silent")
+        self.assertTrue(otto_watch.STATE.resolve().is_relative_to(TMP.resolve()))
+
+    def test_reports_go_to_the_owner_bot(self):
+        calls = []
+        orig = otto_telegram.api
+        otto_telegram.api = lambda method, files=None, **kw: calls.append((method, kw)) or {"message_id": 1}
+        try:
+            self.assertTrue(otto_watch.send("*Otto daily* · all quiet"))
+        finally:
+            otto_telegram.api = orig
+        self.assertEqual(calls[0][0], "sendMessage")
+        self.assertEqual((calls[0][1]["chat_id"], calls[0][1]["text"]), ("42", "Otto daily · all quiet"))
+
+    def test_review_not_sent_while_another_run_is_sending(self):
+        sent = []
+        orig = otto_ads.notify
+        otto_ads.notify = lambda text: sent.append(text) or True
+        try:
+            with ap.transaction(sync=False) as d:
+                mk = d.setdefault("markers", {})
+                mk.pop(otto_growth.MARKER, None)
+                mk[otto_growth.SENDING] = ap.now_iso()
+            quiet(otto_growth.rollup, send=True)
+            self.assertEqual(sent, [])
+            with ap.transaction(sync=False) as d:                     # stale claim (crashed run) → sent once
+                d["markers"][otto_growth.SENDING] = "2020-01-01T00:00:00Z"
+            quiet(otto_growth.rollup, send=True)
+            quiet(otto_growth.rollup, send=True)
+        finally:
+            otto_ads.notify = orig
+        self.assertEqual(len(sent), 1)
+        self.assertNotIn(otto_growth.SENDING, ap.load()["markers"])
 
 
 def tearDownModule():

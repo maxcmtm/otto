@@ -1,0 +1,321 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>07-works</title>
+  </head>
+  <body>
+    <template>
+      <style>
+        @font-face { font-family: "Inter Tight"; src: url("assets/fonts/InterTight-var-latin.woff2") format("woff2"); font-weight: 100 900; font-display: block; }
+        @font-face { font-family: "Inter"; src: url("assets/fonts/Inter-var-latin.woff2") format("woff2"); font-weight: 100 900; font-display: block; }
+
+        #stage[data-composition-id="07-works"] { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; overflow: hidden; }
+        #f07-bg { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; background: #0B0B0D; }
+        #f07-g1 { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; }
+        :where(#f07-g1) :where(div, span, p, img, b, small) { box-sizing: border-box; margin: 0; }
+
+        /* ── Otto square (kit .ok-mark geometry; --s is tweened so both ends are native sizes) ── */
+        #f07-sq { position: absolute; left: 0; top: 0; width: 0; height: 0; z-index: 6; }
+        .f07-mark { --s: 120px; position: absolute; left: calc(var(--s) * -0.5); top: calc(var(--s) * -0.5); width: var(--s); height: var(--s); border-radius: calc(var(--s) * .3); background: #2447F0; }
+        .f07-mark::after { content: ""; position: absolute; inset: calc(var(--s) * .25); border-radius: calc(var(--s) * .12); border: calc(var(--s) * .06) solid #fff; opacity: .95; }
+        .f07-m { position: relative; width: var(--s); height: var(--s); border-radius: calc(var(--s) * .3); background: #2447F0; flex: none; }
+        .f07-m::after { content: ""; position: absolute; inset: calc(var(--s) * .25); border-radius: calc(var(--s) * .12); border: calc(var(--s) * .06) solid #fff; opacity: .95; }
+
+        /* ── Verb slot: left edge x=300, alphabetic baseline y=560 ── */
+        .f07-vrow { position: absolute; left: 280px; width: 900px; overflow: hidden; z-index: 4; }
+        .f07-verb { position: absolute; left: 20px; display: block; white-space: nowrap; font-family: "Inter Tight", "Inter", system-ui, sans-serif; font-weight: 650; letter-spacing: -0.045em; color: #F5F5F7; }
+        .f07-xl { top: 380px; height: 233px; }
+        .f07-xl .f07-verb { top: 35px; font-size: 168px; line-height: 168px; }
+        .f07-l1 { top: 415px; height: 196px; }
+        .f07-l2 { top: 545px; height: 196px; }
+        .f07-l1 .f07-verb, .f07-l2 .f07-verb { top: 28px; font-size: 136px; line-height: 136px; }
+
+        /* ── Bar 1: feed column of Instagram posts (kit .ok-post at 400, column scaled 1.12) ── */
+        #f07-feedvp { position: absolute; left: 1000px; top: 165px; width: 760px; height: 800px; overflow: hidden; z-index: 2;
+          -webkit-mask-image: linear-gradient(to bottom, transparent 0px, #000 56px, #000 744px, transparent 800px);
+          mask-image: linear-gradient(to bottom, transparent 0px, #000 56px, #000 744px, transparent 800px); }
+        #f07-feed { position: absolute; left: 180px; top: 0; width: 400px; }
+        .f07-post { position: relative; width: 400px; height: 604px; margin-bottom: 24px; background: #FFFFFF; border-radius: 16px; overflow: hidden; font-family: "Inter", system-ui, sans-serif; color: #1D1D1F; }
+        .f07-post .f07-hd { display: flex; align-items: center; gap: 10px; height: 56px; padding: 0 14px; font: 600 14px/1 "Inter", system-ui, sans-serif; letter-spacing: -0.01em; }
+        .f07-av { width: 32px; height: 32px; border-radius: 50%; background: #F5F5F7; display: grid; place-items: center; font: 600 13px/1 "Inter", system-ui, sans-serif; color: #6E6E73; flex: none; }
+        .f07-more { margin-left: auto; width: 22px; height: 6px; fill: #1D1D1F; flex: none; }
+        .f07-post img { display: block; width: 400px; height: 500px; object-fit: cover; }
+        .f07-act { display: flex; align-items: center; gap: 16px; height: 48px; padding: 0 14px; }
+        .f07-act svg { width: 24px; height: 24px; fill: none; stroke: #1D1D1F; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+        .f07-act .f07-bm { margin-left: auto; }
+        .f07-toastrow { position: absolute; left: 0; right: 0; top: 76px; display: flex; justify-content: center; }
+        .f07-toast { display: flex; align-items: center; gap: 10px; height: 50px; padding: 0 20px 0 16px; border-radius: 999px; background: #1B7F4B; color: #FFFFFF; font: 600 21px/1 "Inter", system-ui, sans-serif; letter-spacing: -0.01em; white-space: nowrap; box-shadow: 0 8px 24px rgba(0,0,0,.18); }
+        .f07-toast svg { width: 22px; height: 22px; fill: none; stroke: #FFFFFF; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+
+        /* ── Bar 2: ads (kit .ok-ad-meta / .ok-ad-google), budget slider, live pill ── */
+        #f07-ads { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; z-index: 2; }
+        #f07-meta { position: absolute; left: 1000px; top: 187px; width: 400px; background: #FFFFFF; border-radius: 16px; overflow: hidden; font-family: "Inter", system-ui, sans-serif; color: #1D1D1F; }
+        #f07-meta .f07-hd { display: flex; gap: 10px; align-items: center; height: 60px; padding: 0 14px; font: 600 14px/1.1 "Inter", system-ui, sans-serif; }
+        #f07-meta .f07-av { width: 36px; height: 36px; font-size: 14px; }
+        #f07-meta .f07-hd small { display: block; margin-top: 3px; font: 400 12px/1.2 "Inter", system-ui, sans-serif; color: #6E6E73; }
+        #f07-meta img { display: block; width: 400px; height: 400px; object-fit: cover; }
+        #f07-meta .f07-ft { display: flex; align-items: center; justify-content: space-between; gap: 12px; height: 56px; padding: 0 14px; background: #F2F2F4; font: 600 14px/1.2 "Inter", system-ui, sans-serif; }
+        #f07-meta .f07-cta { padding: 9px 14px; border-radius: 8px; background: #E4E6EB; font: 600 13px/1 "Inter", system-ui, sans-serif; white-space: nowrap; }
+        #f07-gwrap { position: absolute; left: 1000px; top: 779px; width: 760px; }
+        .f07-google { width: 640px; padding: 20px 24px; border-radius: 16px; background: #FFFFFF; font-family: Arial, "Inter", sans-serif; transform: scale(1.1875); transform-origin: 0 0; }
+        .f07-google .f07-spons { font: 700 13px/1 Arial, "Inter", sans-serif; color: #202124; }
+        .f07-google .f07-dom { margin-top: 8px; font: 400 14px/1 Arial, "Inter", sans-serif; color: #202124; }
+        .f07-google .f07-gt { margin-top: 8px; font: 400 22px/1.3 Arial, "Inter", sans-serif; color: #1a0dab; white-space: nowrap; }
+        .f07-google .f07-gd { margin-top: 6px; font: 400 15px/1.45 Arial, "Inter", sans-serif; color: #4d5156; }
+        #f07-budget { position: absolute; left: 1472px; top: 354px; width: 288px; height: 150px; padding: 28px 28px 0; border-radius: 28px; background: #17171B; box-shadow: inset 0 0 0 1px rgba(255,255,255,.08); }
+        #f07-bval { display: block; font: 600 48px/1 "Inter Tight", "Inter", sans-serif; letter-spacing: -0.03em; color: #F5F5F7; font-variant-numeric: tabular-nums; white-space: nowrap; }
+        .f07-trk { position: relative; margin-top: 32px; width: 232px; height: 10px; border-radius: 5px; background: rgba(255,255,255,.12); }
+        #f07-fill { position: absolute; left: 0; top: 0; width: 148px; height: 10px; border-radius: 5px; background: #5B75FF; transform-origin: 0 50%; }
+        #f07-knob { position: absolute; left: 134px; top: -9px; width: 28px; height: 28px; border-radius: 50%; background: #FFFFFF; box-shadow: 0 2px 8px rgba(0,0,0,.4); }
+        #f07-live { position: absolute; left: 1472px; top: 526px; height: 60px; display: flex; align-items: center; gap: 12px; padding: 0 26px 0 22px; border-radius: 999px; background: rgba(52,199,123,.14); box-shadow: inset 0 0 0 1px rgba(52,199,123,.38); color: #34C77B; font: 600 26px/1 "Inter", system-ui, sans-serif; letter-spacing: -0.01em; white-space: nowrap; transform-origin: 0 50%; }
+        #f07-live i { display: block; width: 12px; height: 12px; border-radius: 50%; background: #34C77B; }
+
+        /* ── Bar 3: morning briefing (kit .ok-brief, scaled 1.5) ── */
+        #f07-briefwrap { position: absolute; left: 980px; top: 388px; width: 780px; z-index: 2; }
+        .f07-brief { width: 520px; padding: 20px 22px; border-radius: 20px; background: #FFFFFF; font-family: "Inter", system-ui, sans-serif; color: #1D1D1F; transform: scale(1.5); transform-origin: 0 0; }
+        .f07-from { display: flex; align-items: center; gap: 10px; font: 600 16px/1 "Inter", system-ui, sans-serif; }
+        .f07-from small { margin-left: auto; font: 400 14px/1 "Inter", system-ui, sans-serif; color: #6E6E73; }
+        .f07-brief p { margin: 14px 0 0; font: 400 17px/1.45 "Inter", system-ui, sans-serif; }
+        .f07-kv { display: grid; grid-template-columns: 1fr auto; gap: 8px 16px; margin-top: 14px; padding-top: 14px; border-top: 1px solid rgba(60,60,67,.16); font: 400 16px/1.2 "Inter", system-ui, sans-serif; }
+        .f07-kv b { font-weight: 600; font-variant-numeric: tabular-nums; text-align: right; }
+        .f07-kv span, .f07-kv b { display: block; }
+
+        /* ── Bar 4: watch alert card ── */
+        #f07-alertwrap { position: absolute; left: 1052px; top: 318px; width: 700px; z-index: 2; }
+        .f07-alert { width: 700px; padding: 32px 36px 34px; border-radius: 24px; background: #FFFFFF; font-family: "Inter", system-ui, sans-serif; color: #1D1D1F; }
+        .f07-alert .f07-from { height: 28px; font-size: 18px; }
+        .f07-chart { display: block; margin-top: 22px; width: 628px; height: 190px; overflow: visible; }
+        .f07-at1 { margin-top: 24px; font: 600 30px/1.2 "Inter", system-ui, sans-serif; letter-spacing: -0.015em; }
+        .f07-at2 { margin-top: 6px; font: 400 26px/1.3 "Inter", system-ui, sans-serif; color: #6E6E73; }
+        #f07-btnwrap { display: flex; margin-top: 24px; }
+        #f07-btn { display: flex; align-items: center; height: 64px; padding: 0 32px; border-radius: 999px; background: #2447F0; color: #FFFFFF; font: 600 24px/1 "Inter", system-ui, sans-serif; letter-spacing: -0.01em; white-space: nowrap; }
+        #f07-ck { display: block; width: 0; height: 26px; overflow: hidden; flex: none; }
+        #f07-ck svg { display: block; width: 26px; height: 26px; fill: none; stroke: #FFFFFF; stroke-width: 3.2; stroke-linecap: round; stroke-linejoin: round; }
+      </style>
+
+      <div id="stage" data-composition-id="07-works" data-width="1920" data-height="1080" data-duration="8">
+        <div id="f07-bg" class="clip" data-start="0" data-duration="8" data-track-index="0"></div>
+
+        <div id="f07-g1">
+          <!-- Bar 1 (26.0–28.0): Publishes. -->
+          <div id="f07-feedvp" data-layout-allow-overflow="true">
+            <div id="f07-feed">
+              <div class="f07-post">
+                <div class="f07-hd"><span class="f07-av">K</span><span>Kiln Coffee</span><svg class="f07-more" viewBox="0 0 22 6"><circle cx="3" cy="3" r="2.2"/><circle cx="11" cy="3" r="2.2"/><circle cx="19" cy="3" r="2.2"/></svg></div>
+                <img src="assets/img/coffee-pour.jpg" alt="" />
+                <div class="f07-act"><svg viewBox="0 0 24 24"><path d="M12 20.3s-7.6-4.6-7.6-10.2A4.4 4.4 0 0 1 12 7.4a4.4 4.4 0 0 1 7.6 2.7c0 5.6-7.6 10.2-7.6 10.2z"/></svg><svg viewBox="0 0 24 24"><path d="M20.4 11.6a8.4 8.4 0 0 1-12.1 7.5l-4.8 1.4 1.4-4.6A8.4 8.4 0 1 1 20.4 11.6z"/></svg><svg viewBox="0 0 24 24"><path d="M21 3.5 10.3 13.3M21 3.5l-6.5 17-4.2-7.2L3.2 9.9z"/></svg><svg class="f07-bm" viewBox="0 0 24 24"><path d="M18.5 20.8 12 16.4l-6.5 4.4V4.6a1 1 0 0 1 1-1h11a1 1 0 0 1 1 1z"/></svg></div>
+                <div class="f07-toastrow"><div class="f07-toast"><svg viewBox="0 0 24 24"><polyline points="5 12.5 10 17.5 19 7"/></svg><span>Published · 18:00</span></div></div>
+              </div>
+              <div class="f07-post">
+                <div class="f07-hd"><span class="f07-av">S</span><span>Salt Line Surf</span><svg class="f07-more" viewBox="0 0 22 6"><circle cx="3" cy="3" r="2.2"/><circle cx="11" cy="3" r="2.2"/><circle cx="19" cy="3" r="2.2"/></svg></div>
+                <img src="assets/img/surf-boards.jpg" alt="" />
+                <div class="f07-act"><svg viewBox="0 0 24 24"><path d="M12 20.3s-7.6-4.6-7.6-10.2A4.4 4.4 0 0 1 12 7.4a4.4 4.4 0 0 1 7.6 2.7c0 5.6-7.6 10.2-7.6 10.2z"/></svg><svg viewBox="0 0 24 24"><path d="M20.4 11.6a8.4 8.4 0 0 1-12.1 7.5l-4.8 1.4 1.4-4.6A8.4 8.4 0 1 1 20.4 11.6z"/></svg><svg viewBox="0 0 24 24"><path d="M21 3.5 10.3 13.3M21 3.5l-6.5 17-4.2-7.2L3.2 9.9z"/></svg><svg class="f07-bm" viewBox="0 0 24 24"><path d="M18.5 20.8 12 16.4l-6.5 4.4V4.6a1 1 0 0 1 1-1h11a1 1 0 0 1 1 1z"/></svg></div>
+                <div class="f07-toastrow"><div class="f07-toast"><svg viewBox="0 0 24 24"><polyline points="5 12.5 10 17.5 19 7"/></svg><span>Published · 18:00</span></div></div>
+              </div>
+              <div class="f07-post">
+                <div class="f07-hd"><span class="f07-av">R</span><span>Rue Florist</span><svg class="f07-more" viewBox="0 0 22 6"><circle cx="3" cy="3" r="2.2"/><circle cx="11" cy="3" r="2.2"/><circle cx="19" cy="3" r="2.2"/></svg></div>
+                <img src="assets/img/florist.jpg" alt="" />
+                <div class="f07-act"><svg viewBox="0 0 24 24"><path d="M12 20.3s-7.6-4.6-7.6-10.2A4.4 4.4 0 0 1 12 7.4a4.4 4.4 0 0 1 7.6 2.7c0 5.6-7.6 10.2-7.6 10.2z"/></svg><svg viewBox="0 0 24 24"><path d="M20.4 11.6a8.4 8.4 0 0 1-12.1 7.5l-4.8 1.4 1.4-4.6A8.4 8.4 0 1 1 20.4 11.6z"/></svg><svg viewBox="0 0 24 24"><path d="M21 3.5 10.3 13.3M21 3.5l-6.5 17-4.2-7.2L3.2 9.9z"/></svg><svg class="f07-bm" viewBox="0 0 24 24"><path d="M18.5 20.8 12 16.4l-6.5 4.4V4.6a1 1 0 0 1 1-1h11a1 1 0 0 1 1 1z"/></svg></div>
+                <div class="f07-toastrow"><div class="f07-toast"><svg viewBox="0 0 24 24"><polyline points="5 12.5 10 17.5 19 7"/></svg><span>Published · 18:00</span></div></div>
+              </div>
+              <div class="f07-post">
+                <div class="f07-hd"><span class="f07-av">H</span><span>Happy Garden</span><svg class="f07-more" viewBox="0 0 22 6"><circle cx="3" cy="3" r="2.2"/><circle cx="11" cy="3" r="2.2"/><circle cx="19" cy="3" r="2.2"/></svg></div>
+                <img src="assets/img/hg-spectrum.jpg" alt="" />
+                <div class="f07-act"><svg viewBox="0 0 24 24"><path d="M12 20.3s-7.6-4.6-7.6-10.2A4.4 4.4 0 0 1 12 7.4a4.4 4.4 0 0 1 7.6 2.7c0 5.6-7.6 10.2-7.6 10.2z"/></svg><svg viewBox="0 0 24 24"><path d="M20.4 11.6a8.4 8.4 0 0 1-12.1 7.5l-4.8 1.4 1.4-4.6A8.4 8.4 0 1 1 20.4 11.6z"/></svg><svg viewBox="0 0 24 24"><path d="M21 3.5 10.3 13.3M21 3.5l-6.5 17-4.2-7.2L3.2 9.9z"/></svg><svg class="f07-bm" viewBox="0 0 24 24"><path d="M18.5 20.8 12 16.4l-6.5 4.4V4.6a1 1 0 0 1 1-1h11a1 1 0 0 1 1 1z"/></svg></div>
+                <div class="f07-toastrow"><div class="f07-toast"><svg viewBox="0 0 24 24"><polyline points="5 12.5 10 17.5 19 7"/></svg><span>Published · 18:00</span></div></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Bar 2 (28.0–30.0): Runs your ads. -->
+          <div id="f07-ads">
+            <div id="f07-meta">
+              <div class="f07-hd"><span class="f07-av">S</span><div><span>Salt Line Surf</span><small>Sponsored</small></div></div>
+              <img src="assets/img/surf-lesson.jpg" alt="" />
+              <div class="f07-ft"><span>Surf lessons in Lisbon, from €35</span><span class="f07-cta">Book now</span></div>
+            </div>
+            <div id="f07-gwrap">
+              <div class="f07-google">
+                <div class="f07-spons">Sponsored</div>
+                <div class="f07-dom">saltlinesurf.pt</div>
+                <div class="f07-gt">Surf Lessons Lisbon — Beginners Welcome</div>
+                <div class="f07-gd">Small groups, boards and wetsuits included. Book online in 2 minutes.</div>
+              </div>
+            </div>
+            <div id="f07-budget">
+              <span id="f07-bval">€0 a day</span>
+              <div class="f07-trk"><div id="f07-fill"></div><div id="f07-knob"></div></div>
+            </div>
+            <div id="f07-live"><i></i><span>Campaign live</span></div>
+          </div>
+
+          <!-- Bar 3 (30.0–32.0): Reports. -->
+          <div id="f07-briefwrap">
+            <div class="f07-brief">
+              <div class="f07-from"><span class="f07-m" style="--s: 28px"></span><span>Otto</span><small>07:35</small></div>
+              <p>Good morning. Here is yesterday.</p>
+              <div class="f07-kv">
+                <span class="f07-r1">Spent</span><b class="f07-r1" id="f07-spent">€0.00</b>
+                <span class="f07-r2">Leads</span><b class="f07-r2" id="f07-leads">0</b>
+                <span class="f07-r3">Cost per lead</span><b class="f07-r3" id="f07-cpl">€0.00</b>
+                <span class="f07-r4">Best ad</span><b class="f07-r4">Surf lessons in Lisbon</b>
+              </div>
+            </div>
+          </div>
+
+          <!-- Bar 4 (32.0–34.0): Watches. -->
+          <div id="f07-alertwrap">
+            <div class="f07-alert">
+              <div class="f07-from"><span class="f07-m" style="--s: 28px"></span><span>Otto</span></div>
+              <svg class="f07-chart" viewBox="0 0 628 190">
+                <line x1="0" y1="20" x2="628" y2="20" stroke="rgba(60,60,67,.14)" stroke-width="1.5" />
+                <line x1="0" y1="96" x2="628" y2="96" stroke="rgba(60,60,67,.14)" stroke-width="1.5" />
+                <line x1="0" y1="172" x2="628" y2="172" stroke="rgba(60,60,67,.22)" stroke-width="1.5" />
+                <path id="f07-line" d="" fill="none" stroke="#2447F0" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" />
+                <circle id="f07-dip" cx="0" cy="0" r="10" fill="#FFFFFF" stroke="#2447F0" stroke-width="4" />
+                <circle id="f07-end" cx="0" cy="0" r="8" fill="#2447F0" />
+              </svg>
+              <div class="f07-at1 f07-at">Reach dropped 18% on Tuesday.</div>
+              <div class="f07-at2 f07-at">The fix is drafted.</div>
+              <div id="f07-btnwrap"><div id="f07-btn"><span id="f07-ck"><svg viewBox="0 0 26 26"><polyline points="3 13.5 9.5 20 23 6.5" /></svg></span><span>Approve fix</span></div></div>
+            </div>
+          </div>
+
+          <!-- Verb slot -->
+          <div class="f07-vrow f07-xl"><span class="f07-verb" id="f07-v1">Publishes.</span></div>
+          <div class="f07-vrow f07-l1"><span class="f07-verb" id="f07-v2a">Runs your</span></div>
+          <div class="f07-vrow f07-l2"><span class="f07-verb" id="f07-v2b">ads.</span></div>
+          <div class="f07-vrow f07-xl"><span class="f07-verb" id="f07-v3">Reports.</span></div>
+          <div class="f07-vrow f07-xl"><span class="f07-verb" id="f07-v4">Watches.</span></div>
+
+          <!-- The Otto square: centre (960,540) 120px -> bullet (200,530) 64px -->
+          <div id="f07-sq"><div class="f07-mark" id="f07-mark"></div></div>
+        </div>
+      </div>
+
+      <script>
+        (function () {
+          window.__timelines = window.__timelines || {};
+          var ROOT = document.querySelector('#stage[data-composition-id="07-works"]') || document;
+          var q = function (s) { return ROOT.querySelector(s); };
+          var qa = function (s) { return Array.prototype.slice.call(ROOT.querySelectorAll(s)); };
+
+          var tl = gsap.timeline({ paused: true });
+          var IN = "expo.out", MOVE = "power3.inOut", OUT = "power2.in";
+          var FPS = 30;
+
+          // Seek-safe counter: discrete text swaps on frame boundaries (no callbacks).
+          function counter(el, from, to, t0, dur, fmt, ease) {
+            var e = gsap.parseEase(ease || IN), n = Math.round(dur * FPS), last = fmt(from);
+            el.textContent = last;
+            for (var i = 1; i <= n; i++) {
+              var s = fmt(from + (to - from) * e(i / n));
+              if (s !== last) { tl.set(el, { textContent: s }, t0 + i / FPS); last = s; }
+            }
+          }
+          var eur2 = function (v) { return "€" + v.toFixed(2); };
+
+          // ── The Otto square: travels to the bullet slot on the crash, pulses on every downbeat ──
+          var sq = q("#f07-sq"), mark = q("#f07-mark");
+          gsap.set(sq, { x: 960, y: 540 });
+          tl.fromTo(sq, { x: 960, y: 540 }, { x: 200, y: 530, duration: 0.45, ease: MOVE }, 0);
+          tl.fromTo(mark, { "--s": "120px" }, { "--s": "64px", duration: 0.45, ease: MOVE }, 0);
+          [0, 2, 4, 6].forEach(function (t) {
+            tl.fromTo(mark, { scale: 1 }, { scale: 1.12, duration: 0.1, ease: IN, immediateRender: false }, t);
+            tl.to(mark, { scale: 1, duration: 0.35, ease: MOVE }, t + 0.1);
+          });
+
+          // ── Verbs ──
+          var v1 = q("#f07-v1"), v2 = [q("#f07-v2a"), q("#f07-v2b")], v3 = q("#f07-v3"), v4 = q("#f07-v4");
+          function verbIn(els, t) { tl.fromTo(els, { y: 240 }, { y: 0, duration: 0.6, ease: IN, stagger: 0.06 }, t); }
+          function verbOut(els, t) { tl.fromTo(els, { y: 0 }, { y: -240, duration: 0.2, ease: OUT, immediateRender: false }, t); }
+          // "Publishes." is uncovered by the square's right edge as it travels (same ease, linear map).
+          tl.fromTo(v1, { clipPath: "inset(-40px -40px -40px 744px)" }, { clipPath: "inset(-40px -40px -40px -44px)", duration: 0.45, ease: MOVE }, 0);
+          verbOut([v1], 1.8);
+          verbIn(v2, 2.0);
+          verbOut(v2, 3.8);
+          verbIn([v3], 4.0);
+          verbOut([v3], 5.8);
+          verbIn([v4], 6.0);
+
+          // ── Bar 1: the feed steps up one post per beat, a toast on the newest ──
+          var feedvp = q("#f07-feedvp"), feed = q("#f07-feed");
+          var S = 1.12, PITCH = 628;
+          var Yk = function (k) { return 400 - S * (PITCH * k + 302); };
+          gsap.set(feed, { scale: S, transformOrigin: "50% 0%", y: Yk(0) });
+          tl.fromTo(feedvp, { y: 140, opacity: 0 }, { y: 0, opacity: 1, duration: 0.6, ease: IN }, 0);
+          [1, 2, 3].forEach(function (k) {
+            tl.fromTo(feed, { y: Yk(k - 1) }, { y: Yk(k), duration: 0.3, ease: MOVE, immediateRender: false }, k * 0.5);
+          });
+          qa(".f07-toast").forEach(function (el, i) {
+            tl.fromTo(el, { opacity: 0, scale: 0.8, y: -8 }, { opacity: 1, scale: 1, y: 0, duration: 0.45, ease: IN }, i * 0.5);
+          });
+          tl.to(feedvp, { y: -40, opacity: 0, duration: 0.2, ease: OUT }, 1.8);
+
+          // ── Bar 2: Meta ad, Google ad, budget, live ──
+          var ads = q("#f07-ads");
+          gsap.set(q("#f07-meta"), { scale: 1.1, transformOrigin: "0% 0%" });
+          tl.fromTo(q("#f07-meta"), { y: 70, opacity: 0 }, { y: 0, opacity: 1, duration: 0.7, ease: IN }, 2.0);
+          tl.fromTo(q("#f07-gwrap"), { y: 70, opacity: 0 }, { y: 0, opacity: 1, duration: 0.7, ease: IN }, 2.5);
+          tl.fromTo(q("#f07-budget"), { y: 30, opacity: 0 }, { y: 0, opacity: 1, duration: 0.5, ease: IN }, 3.0);
+          tl.fromTo(q("#f07-fill"), { scaleX: 0 }, { scaleX: 1, duration: 0.5, ease: MOVE }, 3.0);
+          tl.fromTo(q("#f07-knob"), { x: -134 }, { x: 0, duration: 0.5, ease: MOVE }, 3.0);
+          counter(q("#f07-bval"), 0, 20, 3.0, 0.5, function (v) { return "€" + Math.round(v) + " a day"; }, MOVE);
+          tl.fromTo(q("#f07-live"), { scale: 0.86, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.5, ease: IN }, 3.5);
+          tl.to(ads, { y: -40, opacity: 0, duration: 0.2, ease: OUT }, 3.8);
+
+          // ── Bar 3: the morning briefing arrives, rows land on the beats ──
+          var bw = q("#f07-briefwrap");
+          tl.fromTo(bw, { y: -60, opacity: 0 }, { y: 0, opacity: 1, duration: 0.7, ease: IN }, 4.0);
+          tl.fromTo(qa(".f07-r1"), { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 0.5, ease: IN }, 4.5);
+          tl.fromTo(qa(".f07-r2"), { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 0.5, ease: IN }, 5.0);
+          tl.fromTo(qa(".f07-r3"), { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 0.5, ease: IN }, 5.5);
+          tl.fromTo(qa(".f07-r4"), { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 0.5, ease: IN }, 5.56);
+          counter(q("#f07-spent"), 0, 18.4, 4.5, 0.5, eur2, IN);
+          counter(q("#f07-leads"), 0, 7, 5.0, 0.45, function (v) { return String(Math.round(v)); }, IN);
+          counter(q("#f07-cpl"), 0, 2.63, 5.5, 0.27, eur2, IN);
+          tl.to(bw, { y: -40, opacity: 0, duration: 0.2, ease: OUT }, 5.8);
+
+          // ── Bar 4: the watch alert — chart with a dip, the fix, the line redrawn upward ──
+          var aw = q("#f07-alertwrap"), line = q("#f07-line"), dip = q("#f07-dip"), endDot = q("#f07-end");
+          var X0 = 16, DX = 596 / 7, YB = 172, YH = 152;
+          var VA = [0.52, 0.6, 0.56, 0.66, 0.72, 0.4, 0.37, 0.34];
+          var VB = [0.52, 0.6, 0.56, 0.66, 0.72, 0.4, 0.64, 0.88];
+          var px = function (i) { return X0 + DX * i; };
+          var py = function (v) { return YB - YH * v; };
+          var dOf = function (V) {
+            return V.map(function (v, i) { return (i ? "L" : "M") + px(i).toFixed(1) + "," + py(v).toFixed(1); }).join(" ");
+          };
+          var LA = 0;
+          for (var i = 1; i < VA.length; i++) LA += Math.hypot(px(i) - px(i - 1), py(VA[i]) - py(VA[i - 1]));
+          LA = Math.ceil(LA) + 2;
+          line.setAttribute("d", dOf(VA));
+          line.style.strokeDasharray = LA + "px " + LA + "px";
+          dip.setAttribute("cx", px(5).toFixed(1)); dip.setAttribute("cy", py(VA[5]).toFixed(1));
+          endDot.setAttribute("cx", px(7).toFixed(1)); endDot.setAttribute("cy", py(VA[7]).toFixed(1));
+
+          tl.fromTo(aw, { y: 60, opacity: 0 }, { y: 0, opacity: 1, duration: 0.7, ease: IN }, 6.0);
+          tl.fromTo(line, { strokeDashoffset: LA }, { strokeDashoffset: 0, duration: 0.5, ease: MOVE }, 6.0);
+          tl.fromTo([dip, endDot], { scale: 0, transformOrigin: "50% 50%" }, { scale: 1, duration: 0.4, ease: IN }, 6.5);
+          tl.fromTo(qa(".f07-at"), { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 0.5, ease: IN, stagger: 0.06 }, 6.5);
+          tl.fromTo(q("#f07-btnwrap"), { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 0.5, ease: IN }, 7.0);
+          // 7.5: the fix is approved — button turns green with a check, the line redraws upward
+          var btn = q("#f07-btn");
+          tl.set(line, { strokeDasharray: "none" }, 7.5);
+          tl.fromTo(line, { attr: { d: dOf(VA) } }, { attr: { d: dOf(VB) }, duration: 0.4, ease: IN, immediateRender: false }, 7.5);
+          tl.fromTo(endDot, { attr: { cy: py(VA[7]).toFixed(1) } }, { attr: { cy: py(VB[7]).toFixed(1) }, duration: 0.4, ease: IN, immediateRender: false }, 7.5);
+          tl.fromTo(btn, { backgroundColor: "#2447F0" }, { backgroundColor: "#1B7F4B", duration: 0.2, ease: IN, immediateRender: false }, 7.5);
+          tl.fromTo(btn, { scale: 1 }, { scale: 0.94, duration: 0.08, ease: OUT, immediateRender: false }, 7.5);
+          tl.to(btn, { scale: 1, duration: 0.2, ease: IN }, 7.58);
+          tl.fromTo(q("#f07-ck"), { width: 0, marginRight: 0 }, { width: 26, marginRight: 10, duration: 0.25, ease: IN, immediateRender: false }, 7.5);
+          // 7.75 → 7.9: the right panel empties before the seam (handoff: panel empty at 34.0)
+          tl.to(aw, { y: -40, opacity: 0, duration: 0.15, ease: OUT }, 7.75);
+
+          window.__timelines["07-works"] = tl;
+          tl.seek(0);
+        })();
+      </script>
+    </template>
+  </body>
+</html>

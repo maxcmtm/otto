@@ -1,0 +1,281 @@
+<template>
+  <style>
+    @font-face { font-family: "Inter Tight"; src: url("assets/fonts/InterTight-var-latin.woff2") format("woff2"); font-weight: 100 900; font-display: block; }
+    @font-face { font-family: "Inter"; src: url("assets/fonts/Inter-var-latin.woff2") format("woff2"); font-weight: 100 900; font-display: block; }
+
+    #root {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      font-family: "Inter", sans-serif;
+      color: #1D1D1F;
+    }
+    #e04-ground { position: absolute; inset: 0; background: #F5F5F7; z-index: 0; }
+
+    /* full-canvas collapse layers: scaling about (540, 900) pulls everything into the Otto square */
+    .e04-layer { position: absolute; left: 0; top: 0; width: 1080px; height: 1920px; transform-origin: 540px 900px; }
+    #e04-g-cal { z-index: 1; }
+    #e04-g-hl { z-index: 2; }
+    #e04-g-low { z-index: 2; }
+
+    /* ── panel: brand-profile card (in) morphing into the calendar ─────────────────────────── */
+    #e04-panel {
+      position: absolute; left: 60px; top: 560px; width: 960px; height: 500px;
+      border-radius: 32px; background: #FFFFFF; overflow: hidden;
+      box-shadow: 0 1px 2px rgba(0,0,0,.05), 0 18px 48px rgba(0,0,0,.10);
+    }
+    #e04-prof { position: absolute; left: 0; top: 0; width: 900px; padding: 52px 56px 0; }
+    #e04-prof-h { font: 600 48px/1.1 "Inter Tight", sans-serif; letter-spacing: -0.02em; color: #1D1D1F; }
+    #e04-prof-n { margin-top: 10px; font: 500 30px/1.2 "Inter", sans-serif; color: #6E6E73; }
+    #e04-prows { margin-top: 28px; }
+    .e04-prow { padding: 24px 0; border-top: 1px solid rgba(60,60,67,.16); }
+    .e04-plab { font: 500 30px/1.2 "Inter", sans-serif; color: #6E6E73; }
+    .e04-pval { margin-top: 10px; font: 500 40px/1.3 "Inter", sans-serif; letter-spacing: -0.01em; color: #1D1D1F; }
+    .e04-sw { display: flex; gap: 14px; }
+    .e04-sw span { display: block; width: 56px; height: 56px; border-radius: 14px; box-shadow: inset 0 0 0 1px rgba(0,0,0,.10); }
+    .e04-chips { display: flex; gap: 12px; }
+    .e04-chip { display: flex; align-items: center; height: 64px; padding: 0 26px; border-radius: 32px; background: #F5F5F7; font: 500 36px/1 "Inter", sans-serif; color: #1D1D1F; }
+
+    #e04-cal { position: absolute; left: 0; top: 0; width: 960px; height: 500px; }
+    #e04-cal-h { position: absolute; left: 29px; top: 28px; font: 600 44px/48px "Inter Tight", sans-serif; letter-spacing: -0.02em; color: #1D1D1F; white-space: nowrap; }
+    .e04-tile { position: absolute; width: 122px; height: 68px; border-radius: 12px; background: #F5F5F7; overflow: hidden; }
+    .e04-tile.e04-out { background: #F5F5F7; box-shadow: inset 0 0 0 1px rgba(60,60,67,.10); }
+    .e04-ph { position: absolute; left: 0; top: 0; display: block; width: 122px; height: 68px; object-fit: cover; border-radius: 12px; }
+    #e04-today { position: absolute; left: 289px; top: 172px; width: 122px; height: 68px; border-radius: 12px; box-shadow: inset 0 0 0 4px #2447F0; }
+
+    /* ── headline ──────────────────────────────────────────────────────────────────────────── */
+    #e04-hl {
+      position: absolute; left: 60px; top: 298px; width: 960px; text-align: center;
+      font: 600 84px/1.04 "Inter Tight", sans-serif; letter-spacing: -0.03em; color: #1D1D1F;
+    }
+    .e04-line { display: block; white-space: nowrap; }
+    .e04-m { display: inline-block; overflow: hidden; padding-bottom: .12em; margin-bottom: -.12em; vertical-align: bottom; }
+    .e04-w { display: inline-block; }
+    .e04-acc { color: #2447F0; }
+
+    /* ── format cards (2 x 2) ──────────────────────────────────────────────────────────────── */
+    .e04-fc {
+      position: absolute; width: 470px; height: 166px; border-radius: 24px; background: #FFFFFF; overflow: hidden;
+      box-shadow: 0 1px 2px rgba(0,0,0,.05), 0 18px 48px rgba(0,0,0,.10);
+    }
+    .e04-fc-ph { position: absolute; left: 0; top: 0; width: 180px; height: 166px; overflow: hidden; background: #E8E8ED; }
+    .e04-fc-ph img { display: block; width: 180px; height: 166px; object-fit: cover; }
+    .e04-fc-lb {
+      position: absolute; left: 216px; top: 0; height: 166px; display: flex; align-items: center;
+      font: 600 48px/1 "Inter Tight", sans-serif; letter-spacing: -0.02em; color: #1D1D1F; white-space: nowrap;
+    }
+
+    /* the reel: a muted video, direct child of the root, laid over the Reels card's photo slot */
+    #e04-reel {
+      position: absolute; left: 60px; top: 1270px; width: 180px; height: 166px; z-index: 3;
+      object-fit: cover; object-position: 50% 20%; border-radius: 24px 0 0 24px; background: #0E252C;
+      transform-origin: 480px -370px;
+    }
+
+    /* ── channel pills ─────────────────────────────────────────────────────────────────────── */
+    #e04-pills { position: absolute; left: 60px; top: 1456px; width: 960px; height: 96px; display: flex; justify-content: center; gap: 24px; }
+    .e04-pill {
+      position: relative; min-width: 260px; height: 96px; padding: 0 56px; border-radius: 48px; background: #FFFFFF;
+      box-shadow: 0 1px 2px rgba(0,0,0,.05), 0 18px 48px rgba(0,0,0,.10);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .e04-pill-t { display: block; font: 600 40px/1 "Inter", sans-serif; letter-spacing: -0.01em; color: #1D1D1F; }
+    .e04-ring { position: absolute; left: 0; top: 0; width: 100%; height: 100%; border-radius: 48px; box-shadow: 0 0 0 4px #2447F0; }
+
+    /* ── the Otto square (rests at its canonical 140px at (540, 900); scaled to 40px as today's marker) */
+    #e04-sq {
+      position: absolute; left: 470px; top: 830px; width: 140px; height: 140px; z-index: 10;
+      border-radius: 42px; background: #2447F0;
+    }
+    #e04-sq::after {
+      content: ""; position: absolute; left: 35px; top: 35px; right: 35px; bottom: 35px;
+      border-radius: 16.8px; border: 8.4px solid #FFFFFF; opacity: .95;
+    }
+  </style>
+
+  <div id="root" data-composition-id="04-plans" data-width="1080" data-height="1920" data-duration="6.81">
+    <div id="e04-ground" class="clip" data-start="0" data-duration="6.81" data-track-index="0"></div>
+
+    <div id="e04-g-cal" class="e04-layer">
+      <div id="e04-panel">
+        <div id="e04-prof">
+          <div id="e04-prof-head">
+            <div id="e04-prof-h">Brand profile</div>
+            <div id="e04-prof-n">Filled in by Otto</div>
+          </div>
+          <div id="e04-prows">
+            <div class="e04-prow">
+              <div class="e04-plab">Colours</div>
+              <div class="e04-pval e04-sw"><span style="background:#FFBC00"></span><span style="background:#0E252C"></span><span style="background:#31856C"></span><span style="background:#FFFFFF"></span></div>
+            </div>
+            <div class="e04-prow">
+              <div class="e04-plab">Tone</div>
+              <div class="e04-pval">Educational, trust-first.</div>
+            </div>
+            <div class="e04-prow">
+              <div class="e04-plab">Customers</div>
+              <div class="e04-pval">Petra, 52: “I haven’t slept well in years.”</div>
+            </div>
+            <div class="e04-prow">
+              <div class="e04-plab">Competitors</div>
+              <div class="e04-pval e04-chips"><span class="e04-chip">Nordic Oil</span><span class="e04-chip">Naturecan</span><span class="e04-chip">CBD Vital</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div id="e04-cal">
+          <div id="e04-cal-h">October 2026</div>
+          <div id="e04-tiles">
+          <div class="e04-tile e04-out" style="left:29px;top:96px"></div>
+          <div class="e04-tile e04-out" style="left:159px;top:96px"></div>
+          <div class="e04-tile e04-out" style="left:289px;top:96px"></div>
+          <div class="e04-tile" style="left:419px;top:96px"><img class="e04-ph" data-r="0" data-c="3" src="assets/img/bakery.jpg" alt="" /></div>
+          <div class="e04-tile" style="left:549px;top:96px"><img class="e04-ph" data-r="0" data-c="4" src="assets/img/surf-boards.jpg" alt="" /></div>
+          <div class="e04-tile" style="left:679px;top:96px"><img class="e04-ph" data-r="0" data-c="5" src="assets/img/hg-spectrum.jpg" alt="" /></div>
+          <div class="e04-tile" style="left:809px;top:96px"><img class="e04-ph" data-r="0" data-c="6" src="assets/img/salon.jpg" alt="" /></div>
+          <div class="e04-tile" style="left:29px;top:172px"><img class="e04-ph" data-r="1" data-c="0" src="assets/img/coffee-pour.jpg" alt="" /></div>
+          <div class="e04-tile" style="left:159px;top:172px"><img class="e04-ph" data-r="1" data-c="1" src="assets/img/cm-001.jpg" alt="" /></div>
+          <div class="e04-tile" style="left:289px;top:172px"><img class="e04-ph" data-r="1" data-c="2" src="assets/img/florist.jpg" alt="" /></div>
+          <div class="e04-tile" style="left:419px;top:172px"><img class="e04-ph" data-r="1" data-c="3" src="assets/img/interior-room.jpg" alt="" /></div>
+          <div class="e04-tile" style="left:549px;top:172px"><img class="e04-ph" data-r="1" data-c="4" src="assets/img/hg-yellow.jpg" alt="" /></div>
+          <div class="e04-tile" style="left:679px;top:172px"><img class="e04-ph" data-r="1" data-c="5" src="assets/img/pilates.jpg" alt="" /></div>
+          <div class="e04-tile" style="left:809px;top:172px"><img class="e04-ph" data-r="1" data-c="6" src="assets/img/dental.jpg" alt="" /></div>
+          <div class="e04-tile" style="left:29px;top:248px"><img class="e04-ph" data-r="2" data-c="0" src="assets/img/coffee-bag.jpg" alt="" /></div>
+          <div class="e04-tile" style="left:159px;top:248px"><img class="e04-ph" data-r="2" data-c="1" src="assets/img/surf-lesson.jpg" alt="" /></div>
+          <div class="e04-tile" style="left:289px;top:248px"><img class="e04-ph" data-r="2" data-c="2" src="assets/img/hg-evening.jpg" alt="" /></div>
+          <div class="e04-tile" style="left:419px;top:248px"><img class="e04-ph" data-r="2" data-c="3" src="assets/img/cm-002.jpg" alt="" /></div>
+          <div class="e04-tile" style="left:549px;top:248px"><img class="e04-ph" data-r="2" data-c="4" src="assets/img/interior-desk.jpg" alt="" /></div>
+          <div class="e04-tile" style="left:679px;top:248px"><img class="e04-ph" data-r="2" data-c="5" src="assets/img/skincare.jpg" alt="" /></div>
+          <div class="e04-tile" style="left:809px;top:248px"><img class="e04-ph" data-r="2" data-c="6" src="assets/img/hg-001.jpg" alt="" /></div>
+          <div class="e04-tile" style="left:29px;top:324px"><img class="e04-ph" data-r="3" data-c="0" src="assets/img/cm-007.jpg" alt="" /></div>
+          <div class="e04-tile" style="left:159px;top:324px"><img class="e04-ph" data-r="3" data-c="1" src="assets/img/hg-lab.jpg" alt="" /></div>
+          <div class="e04-tile" style="left:289px;top:324px"><img class="e04-ph" data-r="3" data-c="2" src="assets/img/bakery.jpg" alt="" /></div>
+          <div class="e04-tile" style="left:419px;top:324px"><img class="e04-ph" data-r="3" data-c="3" src="assets/img/surf-boards.jpg" alt="" /></div>
+          <div class="e04-tile" style="left:549px;top:324px"><img class="e04-ph" data-r="3" data-c="4" src="assets/img/hg-spectrum.jpg" alt="" /></div>
+          <div class="e04-tile" style="left:679px;top:324px"><img class="e04-ph" data-r="3" data-c="5" src="assets/img/salon.jpg" alt="" /></div>
+          <div class="e04-tile" style="left:809px;top:324px"><img class="e04-ph" data-r="3" data-c="6" src="assets/img/coffee-pour.jpg" alt="" /></div>
+          <div class="e04-tile" style="left:29px;top:400px"><img class="e04-ph" data-r="4" data-c="0" src="assets/img/cm-001.jpg" alt="" /></div>
+          <div class="e04-tile" style="left:159px;top:400px"><img class="e04-ph" data-r="4" data-c="1" src="assets/img/florist.jpg" alt="" /></div>
+          <div class="e04-tile" style="left:289px;top:400px"><img class="e04-ph" data-r="4" data-c="2" src="assets/img/interior-room.jpg" alt="" /></div>
+          <div class="e04-tile" style="left:419px;top:400px"><img class="e04-ph" data-r="4" data-c="3" src="assets/img/hg-yellow.jpg" alt="" /></div>
+          <div class="e04-tile" style="left:549px;top:400px"><img class="e04-ph" data-r="4" data-c="4" src="assets/img/pilates.jpg" alt="" /></div>
+          <div class="e04-tile" style="left:679px;top:400px"><img class="e04-ph" data-r="4" data-c="5" src="assets/img/dental.jpg" alt="" /></div>
+          <div class="e04-tile e04-out" style="left:809px;top:400px"></div>
+          </div>
+          <div id="e04-today"></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="e04-g-hl" class="e04-layer">
+      <div id="e04-hl">
+        <div class="e04-line"><span class="e04-m"><span class="e04-w" id="e04-w1">It plans</span></span> <span class="e04-m"><span class="e04-w" id="e04-w2">your</span></span></div>
+        <div class="e04-line"><span class="e04-m"><span class="e04-w" id="e04-w3">whole</span></span> <span class="e04-m"><span class="e04-w e04-acc" id="e04-w4">month.</span></span></div>
+      </div>
+    </div>
+
+    <div id="e04-g-low" class="e04-layer">
+      <div class="e04-fc" id="e04-fc-posts" style="left:60px;top:1084px">
+        <div class="e04-fc-ph"><img id="e04-img-posts" src="assets/img/hg-spectrum.jpg" alt="" /></div>
+        <div class="e04-fc-lb">Posts</div>
+      </div>
+      <div class="e04-fc" id="e04-fc-stories" style="left:550px;top:1084px">
+        <div class="e04-fc-ph"><img id="e04-img-stories" src="assets/img/coffee-pour.jpg" alt="" /></div>
+        <div class="e04-fc-lb">Stories</div>
+      </div>
+      <div class="e04-fc" id="e04-fc-reels" style="left:60px;top:1270px">
+        <div class="e04-fc-ph"></div>
+        <div class="e04-fc-lb">Reels</div>
+      </div>
+      <div class="e04-fc" id="e04-fc-ads" style="left:550px;top:1270px">
+        <div class="e04-fc-ph"><img id="e04-img-ads" src="assets/img/surf-lesson.jpg" alt="" /></div>
+        <div class="e04-fc-lb">Ads</div>
+      </div>
+
+      <div id="e04-pills">
+        <div class="e04-pill" id="e04-pm"><span class="e04-ring" id="e04-pm-r"></span><span class="e04-pill-t" id="e04-pm-t">Meta</span></div>
+        <div class="e04-pill" id="e04-pg"><span class="e04-ring" id="e04-pg-r"></span><span class="e04-pill-t" id="e04-pg-t">Google</span></div>
+      </div>
+    </div>
+
+    <video
+      id="e04-reel"
+      class="clip"
+      src="assets/hg-reel.mp4"
+      muted
+      playsinline
+      data-start="3.73"
+      data-duration="3.08"
+      data-track-index="1"
+      data-media-start="6"
+    ></video>
+
+    <div id="e04-sq"></div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+  <script>
+    (function () {
+      var tl = gsap.timeline({ paused: true });
+
+      // ── Scene 1 (0.00–1.90): the brand-profile card empties and morphs into the calendar ──────────
+      // the card content fades first, rows top to bottom
+      tl.fromTo("#e04-prof-head", { opacity: 1, y: 0 }, { opacity: 0, y: -14, duration: 0.24, ease: "power2.in" }, 0.02);
+      tl.fromTo(".e04-prow", { opacity: 1, y: 0 }, { opacity: 0, y: -14, duration: 0.22, ease: "power2.in", stagger: 0.035 }, 0.0);
+      // card (x 90→990, y 600→1500) → calendar panel (x 60→1020, y 560→1060)
+      tl.fromTo("#e04-panel",
+        { x: 30, y: 40, width: 900, height: 900 },
+        { x: 0, y: 0, width: 960, height: 500, duration: 0.6, ease: "power3.inOut" }, 0.06);
+      // panel header
+      tl.fromTo("#e04-cal-h", { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.6, ease: "expo.out" }, 0.36);
+      // headline builds on the cues: "It plans" 0.44 · "your whole" 1.06 · "month." 1.36
+      tl.fromTo("#e04-w1", { yPercent: 110 }, { yPercent: 0, duration: 0.7, ease: "expo.out" }, 0.44);
+      tl.fromTo(["#e04-w2", "#e04-w3"], { yPercent: 110 }, { yPercent: 0, duration: 0.7, ease: "expo.out", stagger: 0.06 }, 1.06);
+      tl.fromTo("#e04-w4", { yPercent: 110 }, { yPercent: 0, duration: 0.7, ease: "expo.out" }, 1.36);
+      // empty month grid settles in, then the day tiles fill row by row with real posts (0.60→1.60)
+      tl.fromTo(".e04-tile", { opacity: 0 }, { opacity: 1, duration: 0.4, ease: "expo.out" }, 0.42);
+      var photos = document.querySelectorAll("#e04-tiles .e04-ph");
+      for (var i = 0; i < photos.length; i++) {
+        var el = photos[i];
+        var r = Number(el.getAttribute("data-r"));
+        var c = Number(el.getAttribute("data-c"));
+        tl.fromTo(el, { opacity: 0, scale: 0.78 }, { opacity: 1, scale: 1, duration: 0.55, ease: "expo.out" }, 0.6 + r * 0.2 + c * 0.03);
+      }
+      // the Otto square stamps onto today (Oct 7) on "month"
+      tl.fromTo("#e04-sq",
+        { opacity: 0, x: -163, y: -140, scale: 0.342857 },
+        { opacity: 1, x: -163, y: -140, scale: 0.285714, duration: 0.5, ease: "expo.out" }, 1.36);
+      tl.fromTo("#e04-today", { opacity: 0 }, { opacity: 1, duration: 0.5, ease: "expo.out" }, 1.36);
+
+      // ── Scene 2 (2.10–5.20): format cards land on their words ────────────────────────────────────
+      tl.fromTo("#e04-fc-posts", { opacity: 0, y: 48 }, { opacity: 1, y: 0, duration: 0.7, ease: "expo.out" }, 2.15);
+      tl.fromTo("#e04-img-posts", { scale: 1.14 }, { scale: 1, duration: 1.1, ease: "expo.out" }, 2.15);
+      tl.fromTo("#e04-fc-stories", { opacity: 0, y: 48 }, { opacity: 1, y: 0, duration: 0.7, ease: "expo.out" }, 2.78);
+      tl.fromTo("#e04-img-stories", { scale: 1.14 }, { scale: 1, duration: 1.1, ease: "expo.out" }, 2.78);
+      // Reels: the card and its video (a root-level clip) enter as one
+      tl.fromTo("#e04-fc-reels", { opacity: 0, y: 48 }, { opacity: 1, y: 0, duration: 0.7, ease: "expo.out" }, 3.73);
+      tl.fromTo("#e04-reel", { opacity: 0, y: 48 }, { opacity: 1, y: 0, duration: 0.7, ease: "expo.out" }, 3.73);
+      tl.fromTo("#e04-fc-ads", { opacity: 0, y: 48 }, { opacity: 1, y: 0, duration: 0.7, ease: "expo.out" }, 4.76);
+      tl.fromTo("#e04-img-ads", { scale: 1.14 }, { scale: 1, duration: 1.1, ease: "expo.out" }, 4.76);
+
+      // ── Scene 3 (5.20–6.40): channel pills; each lights on its word ─────────────────────────────
+      tl.fromTo(["#e04-pm", "#e04-pg"], { opacity: 0, y: 28 }, { opacity: 1, y: 0, duration: 0.6, ease: "expo.out", stagger: 0.08 }, 5.2);
+      tl.fromTo("#e04-pm-t", { color: "#86868B" }, { color: "#1D1D1F", duration: 0.3, ease: "power2.out" }, 5.44);
+      tl.fromTo("#e04-pm-r", { opacity: 0, scale: 1.04 }, { opacity: 1, scale: 1, duration: 0.5, ease: "expo.out" }, 5.44);
+      tl.fromTo("#e04-pg-t", { color: "#86868B" }, { color: "#1D1D1F", duration: 0.3, ease: "power2.out" }, 6.16);
+      tl.fromTo("#e04-pg-r", { opacity: 0, scale: 1.04 }, { opacity: 1, scale: 1, duration: 0.5, ease: "expo.out" }, 6.16);
+
+      // ── Scene 4 (6.40–6.81): everything collapses into the square; square at rest at (540, 900), 140px
+      tl.to("#e04-sq", { x: 0, y: 0, scale: 1, duration: 0.36, ease: "power3.inOut" }, 6.38);
+      tl.to("#e04-g-hl", { scale: 0.02, opacity: 0, duration: 0.32, ease: "power3.in" }, 6.4);
+      tl.to("#e04-g-low", { scale: 0.02, opacity: 0, duration: 0.32, ease: "power3.in" }, 6.42);
+      tl.to("#e04-reel", { scale: 0.02, opacity: 0, duration: 0.32, ease: "power3.in" }, 6.42);
+      tl.to("#e04-g-cal", { scale: 0.02, opacity: 0, duration: 0.32, ease: "power3.in" }, 6.44);
+
+      window.__timelines = window.__timelines || {};
+      window.__timelines["04-plans"] = tl;
+    })();
+  </script>
+</template>

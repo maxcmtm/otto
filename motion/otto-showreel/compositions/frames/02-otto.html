@@ -1,0 +1,281 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <title>Otto — 02 otto</title>
+  </head>
+  <body>
+    <template>
+      <style>
+        @font-face {
+          font-family: "Inter Tight";
+          src: url("assets/fonts/InterTight-var-latin.woff2") format("woff2");
+          font-weight: 100 900;
+          font-display: block;
+        }
+        @font-face {
+          font-family: "Inter";
+          src: url("assets/fonts/Inter-var-latin.woff2") format("woff2");
+          font-weight: 100 900;
+          font-display: block;
+        }
+        #stage {
+          position: relative;
+          width: 1920px;
+          height: 1080px;
+          overflow: hidden;
+        }
+        /* Full-bleed light ground, its own full-duration layer. */
+        #f02-bg {
+          position: absolute;
+          inset: 0;
+          background: #f5f5f7;
+        }
+
+        /* ── g1 · lockup ─────────────────────────────────────────────────────────── */
+        /* Wordmark: Inter Tight 650, 150px, −0.045em, ink. Left edge x=873; cap-height centred on the
+           square's centre line (y=500). The wrapper is the mask: its box starts at the square's resting
+           right edge (x=837); its clip-path left edge rides the square's right edge during the slide, so
+           the word slides out from behind the square; the box's top edge is the mask for the exit up. */
+        #f02-wm {
+          position: absolute;
+          left: 837px;
+          top: 425px;
+          width: 420px;
+          height: 150px;
+          clip-path: inset(0px 0px 0px 0px);
+          z-index: 1;
+        }
+        #f02-wm-t {
+          position: absolute;
+          left: 36px;
+          top: 0;
+          display: block;
+          font: 650 150px/150px "Inter Tight", "Inter", sans-serif;
+          letter-spacing: -0.045em;
+          color: #1d1d1f;
+          white-space: nowrap;
+        }
+        /* Tagline: Inter Tight 600, 52px, centred at y≈690; muted with the second half in ink. */
+        #f02-tag {
+          position: absolute;
+          left: 0;
+          width: 1920px;
+          top: 658px;
+          text-align: center;
+          font: 600 52px/64px "Inter Tight", "Inter", sans-serif;
+          letter-spacing: -0.02em;
+          white-space: nowrap;
+          z-index: 1;
+        }
+        #f02-tag-a {
+          color: #6e6e73;
+        }
+        #f02-tag-b {
+          color: #1d1d1f;
+        }
+
+        /* shared mask (ok-mask) */
+        .f02-m {
+          display: inline-block;
+          overflow: hidden;
+          padding-bottom: 0.12em;
+          margin-bottom: -0.12em;
+          vertical-align: bottom;
+        }
+        .f02-mi {
+          display: inline-block;
+        }
+
+        /* ── g2 · website field ──────────────────────────────────────────────────── */
+        /* Headline: Inter Tight 600, 64px, centred, cap centre at y≈380. */
+        #f02-hl {
+          position: absolute;
+          left: 0;
+          width: 1920px;
+          top: 348px;
+          text-align: center;
+          font: 600 64px/64px "Inter Tight", "Inter", sans-serif;
+          letter-spacing: -0.03em;
+          color: #1d1d1f;
+          white-space: nowrap;
+          z-index: 1;
+        }
+        /* Field — resting CSS geometry IS the handoff: x 510→1410, y 485→595, radius 55, white, card shadow. */
+        #f02-field {
+          position: absolute;
+          left: 510px;
+          top: 485px;
+          width: 900px;
+          height: 110px;
+          border-radius: 55px;
+          background: #ffffff;
+          box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05), 0 18px 48px rgba(0, 0, 0, 0.1);
+          overflow: hidden;
+          z-index: 2;
+        }
+        /* URL: Inter 500 44px ink, left edge x=625 (field-local 115), vertically centred on y=540. */
+        #f02-url {
+          position: absolute;
+          left: 115px;
+          top: 0;
+          height: 110px;
+          display: flex;
+          align-items: center;
+          font: 500 44px/1 "Inter", sans-serif;
+          color: #1d1d1f;
+          white-space: nowrap;
+        }
+        .f02-ch {
+          opacity: 0;
+        }
+        /* Read button: cobalt pill 150×70, centre (1330, 540) → field-local right 5, vertically centred. */
+        #f02-btn {
+          position: absolute;
+          right: 5px;
+          top: 50%;
+          margin-top: -35px;
+          width: 150px;
+          height: 70px;
+          border-radius: 35px;
+          background: #2447f0;
+          color: #ffffff;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font: 600 30px/1 "Inter", sans-serif;
+          letter-spacing: -0.01em;
+          opacity: 0;
+        }
+
+        /* ── The Otto square (.ok-mark: radius 30%, inner outline inset 25%, stroke 6%, radius 12%) ── */
+        /* Resting CSS = handoff_out: 56px centred at (575, 540). GSAP xPercent/yPercent −50 centres it;
+           x/y are offsets from (575, 540); --s is its native size. */
+        #f02-sq {
+          --s: 56px;
+          position: absolute;
+          left: 575px;
+          top: 540px;
+          width: var(--s);
+          height: var(--s);
+          border-radius: calc(var(--s) * 0.3);
+          background: #2447f0;
+          transform-origin: 50% 50%;
+          z-index: 3;
+        }
+        #f02-sq::after {
+          content: "";
+          position: absolute;
+          inset: calc(var(--s) * 0.25);
+          border-radius: calc(var(--s) * 0.12);
+          border: calc(var(--s) * 0.06) solid #ffffff;
+          opacity: 0.95;
+        }
+      </style>
+
+      <div id="stage" data-composition-id="02-otto" data-width="1920" data-height="1080" data-duration="4">
+        <div id="f02-bg"></div>
+
+        <div id="f02-wm"><span id="f02-wm-t">Otto</span></div>
+
+        <div id="f02-tag"><span class="f02-m"><span id="f02-tag-a" class="f02-mi">Your marketing department,</span></span> <span class="f02-m"><span id="f02-tag-b" class="f02-mi">in your pocket.</span></span></div>
+
+        <div id="f02-hl"><span class="f02-m"><span class="f02-mi f02-hw">It</span></span> <span class="f02-m"><span class="f02-mi f02-hw">starts</span></span> <span class="f02-m"><span class="f02-mi f02-hw">with</span></span> <span class="f02-m"><span class="f02-mi f02-hw">your</span></span> <span class="f02-m"><span class="f02-mi f02-hw">website.</span></span></div>
+
+        <div id="f02-field">
+          <div id="f02-url"><span class="f02-ch">h</span><span class="f02-ch">a</span><span class="f02-ch">p</span><span class="f02-ch">p</span><span class="f02-ch">y</span><span class="f02-ch">g</span><span class="f02-ch">a</span><span class="f02-ch">r</span><span class="f02-ch">d</span><span class="f02-ch">e</span><span class="f02-ch">n</span><span class="f02-ch">e</span><span class="f02-ch">u</span><span class="f02-ch">.</span><span class="f02-ch">c</span><span class="f02-ch">o</span><span class="f02-ch">m</span></div>
+          <div id="f02-btn">Read</div>
+        </div>
+
+        <div id="f02-sq"></div>
+      </div>
+
+      <script>
+        (function () {
+          // Frame-local seconds (track second − 8.0).
+          // g1 [0, 2): 0.0 impact — square stamps 1.18→1 and slides to (777,500), wordmark wipes out of it
+          //            0.5 "Your marketing department," · 1.5 "in your pocket."
+          // g2 [2, 4): 2.0 lockup exits, square shrinks to 56px at (575,540) as the field grows out of it
+          //            2.25 headline + Read button · 2.5→3.4 URL types · 3.5 Read presses (back to 1 by 3.75)
+          //            3.75 headline exits (gone by 3.95); field held at the handoff geometry to 4.0
+          const tl = gsap.timeline({ paused: true });
+
+          // Initial states (outside the timeline). The square is centred on its (left, top) point by
+          // xPercent/yPercent −50, so x/y are offsets from (575, 540).
+          // t=0 handoff_in: square 120px at (960, 540), scale 1; the field starts hidden under it.
+          gsap.set("#f02-sq", { xPercent: -50, yPercent: -50, x: 385, y: 0, scale: 1, "--s": "120px" });
+          gsap.set("#f02-field", { x: 227, y: -25, width: 80, height: 80, borderRadius: 24, opacity: 0 });
+
+          // ── g1 · 0.0 impact: stamp (1→1.18 in 3 frames, then 1.18→1 expo.out 0.6s) ──
+          tl.to("#f02-sq", { scale: 1.18, duration: 0.1, ease: "power2.out", force3D: false }, 0);
+          tl.to("#f02-sq", { scale: 1, duration: 0.6, ease: "expo.out", force3D: false }, 0.1);
+          // …while it slides left/up to the lockup centre (777, 500)
+          tl.to("#f02-sq", { x: 202, y: -40, duration: 0.6, ease: "expo.out", force3D: false }, 0);
+
+          // wordmark wipes in to the right of the square: the mask edge tracks the square's right edge
+          // (1020 → 837, same ease/duration as the slide) while the word slides out from behind it
+          tl.fromTo(
+            "#f02-wm",
+            { clipPath: "inset(0px 0px 0px 183px)" },
+            { clipPath: "inset(0px 0px 0px 0px)", duration: 0.6, ease: "expo.out" },
+            0,
+          );
+          tl.fromTo("#f02-wm-t", { x: -300, yPercent: 0 }, { x: 0, yPercent: 0, duration: 0.8, ease: "expo.out" }, 0);
+
+          // tagline: 0.5 first half (muted), 1.5 second half (ink)
+          tl.fromTo("#f02-tag-a", { yPercent: 110 }, { yPercent: 0, duration: 0.6, ease: "expo.out" }, 0.5);
+          tl.fromTo("#f02-tag-b", { yPercent: 110 }, { yPercent: 0, duration: 0.5, ease: "expo.out" }, 1.5);
+
+          // ── g2 · 2.0: lockup exits up ──
+          tl.to("#f02-wm-t", { yPercent: -110, duration: 0.3, ease: "power2.in" }, 2.0);
+          tl.to(["#f02-tag-a", "#f02-tag-b"], { yPercent: -110, duration: 0.3, ease: "power2.in" }, 2.0);
+
+          // square shrinks to 56px and travels to (575, 540) — becomes the field's caret
+          tl.to("#f02-sq", { x: 0, y: 0, "--s": "56px", duration: 0.5, ease: "power3.inOut" }, 2.0);
+
+          // the white pill field grows out of the square to the right (starts hidden under it, centred on 777,500)
+          tl.to(
+            "#f02-field",
+            { x: 0, y: 0, width: 900, height: 110, borderRadius: 55, duration: 0.5, ease: "power3.inOut" },
+            2.0,
+          );
+          tl.to("#f02-field", { opacity: 1, duration: 0.15, ease: "power1.out" }, 2.0);
+
+          // ── 2.25: headline rises word by word; Read button arrives on the field's growing end ──
+          tl.fromTo(
+            ".f02-hw",
+            { yPercent: 110 },
+            { yPercent: 0, duration: 0.7, ease: "expo.out", stagger: 0.05 },
+            2.25,
+          );
+          tl.fromTo(
+            "#f02-btn",
+            { opacity: 0, scale: 0.9 },
+            { opacity: 1, scale: 1, duration: 0.5, ease: "expo.out", force3D: false },
+            2.25,
+          );
+
+          // ── 2.5 → 3.4: "happygardeneu.com" types, one character per step, last character on 3.4 ──
+          const chars = gsap.utils.toArray("#f02-url .f02-ch");
+          const typeStart = 2.5;
+          const typeStep = 0.9 / (chars.length - 1);
+          chars.forEach((ch, i) => {
+            tl.set(ch, { opacity: 1 }, typeStart + i * typeStep);
+          });
+
+          // ── 3.5: Read presses (0.94, a touch darker), back to 1 and cobalt by 3.75 ──
+          tl.to("#f02-btn", { scale: 0.94, backgroundColor: "#1b38cc", duration: 0.08, ease: "power2.out", force3D: false }, 3.5);
+          tl.to("#f02-btn", { scale: 1, backgroundColor: "#2447f0", duration: 0.17, ease: "expo.out", force3D: false }, 3.58);
+
+          // ── 3.75: headline exits up, fully gone by 3.95 — the field holds the handoff geometry ──
+          tl.to(".f02-hw", { yPercent: -110, duration: 0.2, ease: "power2.in" }, 3.75);
+
+          window.__timelines = window.__timelines || {};
+          window.__timelines["02-otto"] = tl;
+          tl.seek(0);
+        })();
+      </script>
+    </template>
+  </body>
+</html>

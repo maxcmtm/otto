@@ -66,13 +66,24 @@ GEO = {"DE": 2276, "AT": 2040, "CH": 2756, "IL": 2376, "FR": 2250, "IT": 2380, "
        "LU": 2442, "PL": 2616, "PT": 2620, "IE": 2372, "DK": 2208, "SE": 2752, "NO": 2578, "FI": 2246, "CZ": 2203,
        "SK": 2703, "HU": 2348, "RO": 2642, "BG": 2100, "GR": 2300, "HR": 2191, "SI": 2705, "EE": 2233, "LV": 2428,
        "LT": 2440, "GB": 2826, "US": 2840}
-LANG_CONST = {"en": 1000, "de": 1001, "fr": 1002, "es": 1003, "it": 1004, "nl": 1010, "he": 1027}
+LANG_CONST = {"en": 1000, "de": 1001, "fr": 1002, "es": 1003, "it": 1004, "nl": 1010, "pt": 1014, "ar": 1019, "hu": 1024,
+              "he": 1027, "pl": 1030, "ru": 1031, "ro": 1032}
 FALLBACK_HEADLINES = {"en": ["Official Site", "Learn More Today", "Get in Touch"],
                       "de": ["Offizielle Website", "Jetzt mehr erfahren", "Kontakt aufnehmen"],
-                      "he": ["האתר הרשמי", "לפרטים נוספים", "דברו איתנו היום"]}
+                      "he": ["האתר הרשמי", "לפרטים נוספים", "דברו איתנו היום"],
+                      "pt": ["Site oficial", "Saiba mais hoje", "Fale connosco"],
+                      "nl": ["Officiële website", "Meer informatie", "Neem contact op"],
+                      "it": ["Sito ufficiale", "Scopri di più", "Contattaci oggi"],
+                      "fr": ["Site officiel", "En savoir plus", "Contactez-nous"],
+                      "es": ["Sitio oficial", "Más información", "Contáctanos hoy"]}
 FALLBACK_DESCRIPTIONS = {"en": ["Find out more on our official site.", "Talk to our team today."],
                          "de": ["Mehr erfahren auf unserer offiziellen Website.", "Sprechen Sie noch heute mit uns."],
-                         "he": ["כל הפרטים באתר הרשמי.", "השאירו פרטים ונחזור אליכם."]}
+                         "he": ["כל הפרטים באתר הרשמי.", "השאירו פרטים ונחזור אליכם."],
+                         "pt": ["Saiba mais no nosso site oficial.", "Fale hoje com a nossa equipa."],
+                         "nl": ["Lees meer op onze officiële website.", "Neem vandaag contact op met ons team."],
+                         "it": ["Scopri di più sul nostro sito ufficiale.", "Parla oggi con il nostro team."],
+                         "fr": ["Découvrez-en plus sur notre site officiel.", "Parlez à notre équipe dès aujourd'hui."],
+                         "es": ["Descubre más en nuestro sitio oficial.", "Habla hoy con nuestro equipo."]}
 
 
 class LaunchError(Exception):
@@ -361,7 +372,7 @@ def profile_bits(bid, b=None):
     im = re.search(r"Industry:\*?\*?\s*(.+)", t)
     industry = s.get("industry", "") or (im.group(1) if im else "")
     langs = s.get("languages") or []
-    countries = (b or {}).get("countries") or (["IL"] if "he" in langs else ["DE", "AT", "CH"] if "de" in langs else ["DE"])
+    countries = ap.brand_countries(b or {"id": bid}, langs)       # brands[].countries → url TLD → site language
     return {"industry": industry, "countries": countries, "restricted": bool(RESTRICTED.search(industry + " " + t[:3000])),
             "url": clean_landing(s.get("final_url") or ""), "description": s.get("identity", {}).get("description", ""),
             "lang": ap.brand_lang(b or {"id": bid})}
@@ -423,8 +434,16 @@ def new_campaign_id(d):
 def plan_flights(d, b, ym, budget, bits):
     y, m = [int(x) for x in ym.split("-")]
     last = calendar.monthrange(y, m)[1]
+    import otto_compliance as comp
     creatives = best_creative_posts(d, b["id"])
-    hooks = [p.get("hook", "") for p in d["posts"] if p["brand"] == b["id"] and p.get("hook")][:8]
+    # Google headlines come from post hooks: never a hook that is compliance-blocked or trips the brand's rules (one bad hook
+    # would put the whole Search campaign on hold at launch)
+    hooks = []
+    for p in d["posts"]:
+        if len(hooks) >= 8:
+            break
+        if p["brand"] == b["id"] and p.get("hook") and not p.get("compliance_block") and not comp.check_texts(b["id"], [p["hook"]], "hooks"):
+            hooks.append(p["hook"])
     langs = [bits["lang"]]
     flights = []
     # 1. always-on leads/traffic on Meta, whole month
@@ -452,8 +471,9 @@ def plan_flights(d, b, ym, budget, bits):
         flights.append({"network": "google", "name": f"{b['name']} · Search · {ym}", "objective": "leads", "stage": "hot",
                         "start": f"{ym}-01", "end": f"{ym}-{last:02d}",
                         "daily_budget": round(budget / 2, 2), "audience": {"countries": bits["countries"], "languages": langs},
-                        "creative": {"headlines": [b["name"]] + [h for h in hooks[:5]] + ([bits["industry"]] if bits["industry"] else []),
-                                     "descriptions": ([bits["description"]] if bits["description"] else []) + [f"{b['name']} — {bits['industry']}"],
+                        # never the scan's English industry label ("Clinic & medical", "Unknown (?)") as ad copy
+                        "creative": {"headlines": [b["name"]] + [h for h in hooks[:5]],
+                                     "descriptions": [bits["description"]] if bits["description"] else [],
                                      "keywords": kw}, "compliance_hold": False})
         if not kw["generic"]:
             print(f"note: {b['id']} has no generic keyword list (brands[].keywords or brands/{b['id']}/keywords.json) — "
@@ -495,9 +515,12 @@ def plan(bid, ym, budget=20.0, dry=False):
             except Exception as e:
                 c["creatives"] = {"error": str(e)[:120]}
             d.setdefault("campaigns", []).append(c); created.append(c)
+        held = [c for c in created if c.get("compliance_hold")]
         ap.add_rec_once(d, "P1", f"Approve the {ym} paid plan: {len(created)} campaigns, ≈{sym}{total:,.0f}",
                         "Evergreen on Meta all month, two 5-day boosts of your best organic posts" + (", one Google Search campaign on brand + category intent" if not bits["restricted"] else "") +
-                        ". Nothing spends until you approve; every campaign has a daily ceiling and a CPL guard.",
+                        ". Nothing spends until you approve; every campaign has a daily ceiling and a CPL guard." +
+                        (f" {len(held)} of them are on compliance hold (restricted category): approving does not start them — they run only "
+                         "after a review and `otto_ads.py release <id>`." if held else ""),
                         "Paid runs on the same calendar as organic", "Approve plan", brand=bid, source="otto_ads",
                         action="approve_plan", plan=ym)
     write_plan_md(b, ym, created, sym, total)
@@ -794,11 +817,28 @@ def _clean_ad_text(t, n):
     return t.strip(" -—–·|,.:;")
 
 
+def _fit(t, n):
+    """Ad text that fits n chars without a broken phrase: the text itself, else its leading whole sentences, else its first
+    clause (before ':', ' — ', '?', '. '); '' when nothing clean fits (a hook cut to "Surf camp: uma semana que" is dropped)."""
+    t = _clean_ad_text(t, 10 ** 6)
+    if len(t) <= n:
+        return t
+    out = ""
+    for s in re.split(r"(?<=[.!?])\s+", t):
+        if len((out + " " + s).strip()) > n:
+            break
+        out = (out + " " + s).strip()
+    if len(out) >= min(15, n // 2):
+        return out.strip(" -—–·|,.:;")
+    clause = re.split(r"\s*(?::|—|–|\||\?|!|\.\s)\s*", t, maxsplit=1)[0].strip(" -—–·|,.:;")
+    return clause if 3 <= len(clause) <= n else ""
+
+
 def uniq_trunc(cands, n, limit):
-    """Truncate first, then dedupe (two hooks that share their first 30 chars are ONE headline)."""
+    """Fit first, then dedupe (two hooks that share a first clause are ONE headline)."""
     out, seen = [], set()
     for c in cands:
-        t = _clean_ad_text(c, n)
+        t = _fit(c, n)
         if t and t.lower() not in seen:
             seen.add(t.lower()); out.append(t)
     return out[:limit]
@@ -905,6 +945,38 @@ def launch_google(d, c, g, dry=False):
             "warning": warning, "done": True}
 
 
+LAUNCH_CLAIM_MIN = 60
+
+
+def _live_fb(p):
+    return bool(p) and p.get("status") == "published" and p.get("platform") == "fb" and bool(p.get("remote_id"))
+
+
+def boost_post(d, c):
+    """The post a boost promotes: the planned one if it is live on Facebook, else the brand's best live Facebook post (plans
+    are made before the month, when a new brand has nothing live yet). None when nothing is live."""
+    p = ap.post(d, (c.get("creative") or {}).get("post") or "")
+    if _live_fb(p):
+        return p["id"]
+    alt = next((q for q in best_creative_posts(d, c["brand"], n=10) if _live_fb(q)), None)
+    return alt["id"] if alt else None
+
+
+def _claim(cid):
+    """Mark a campaign as being launched by this run. None when another run holds a fresh claim (two launch runs at once
+    would each create a Meta campaign = double spend) or the campaign changed meanwhile. A stale claim (a crashed run) is
+    taken over — launch_meta resumes from the ids saved in campaign.remote. Returns the fresh campaign."""
+    with ap.transaction() as d:
+        c = ap.campaign(d, cid)
+        if c is None or c.get("status") != "approved" or c.get("compliance_hold") or (c.get("remote") or {}).get("done"):
+            return None
+        held = ap.parse_iso(c.get("launching_at"))
+        if held and held.tzinfo and datetime.now(timezone.utc) - held < timedelta(minutes=LAUNCH_CLAIM_MIN):
+            return None
+        c["launching_at"] = ap.now_iso()
+        return json.loads(json.dumps(c))
+
+
 def _persist(cid, **fields):
     with ap.transaction() as d:
         c = ap.campaign(d, cid)
@@ -923,6 +995,13 @@ def launch(bid=None, dry=False, base=pub.BASE):
             continue
         tag = f'{c["id"]} {c["network"]} {c["name"]} ({c["start"]}→{c["end"]}, {c.get("currency", "")}{c["daily_budget"]}/day)'
         try:
+            if c.get("objective") == "engagement" and (c.get("creative") or {}).get("post"):
+                src = boost_post(snap, c)
+                if src and src != c["creative"]["post"]:
+                    print(f"  boost source {c['creative']['post']} is not live on Facebook — boosting {src} instead")
+                    c = dict(c, creative=dict(c["creative"], post=src))
+                    if not dry:
+                        _persist(c["id"], creative=c["creative"])
             v = comp.check_campaign(c, _boost_texts(snap, c))
             if v:
                 print(f"{'WOULD BLOCK' if dry else 'BLOCKED'} {tag} — compliance: {comp.describe(v)}")
@@ -934,7 +1013,20 @@ def launch(bid=None, dry=False, base=pub.BASE):
                 continue
             creds = meta_creds(c["brand"]) if c["network"] == "meta" else google_creds(c["brand"])
             if not creds:
-                print(f"NO-CREDS {tag}"); continue
+                print(f"NO-CREDS {tag}")
+                if not dry:                          # the owner approved spend that can never start — say so once
+                    net = "Meta ads" if c["network"] == "meta" else "Google Ads"
+                    what = f"meta-{c['brand']}.json with an ad_account_id" if c["network"] == "meta" else f"google-{c['brand']}.json"
+                    with ap.transaction() as d:
+                        ap.add_rec_once(d, "P1", f"Connect {net} for {(ap.brand(d, c['brand']) or {}).get('name', c['brand'])} — approved flights are waiting",
+                                        f"{c['id']} “{c['name'][:50]}” is approved and due since {c['start']}, but Otto has no {what}, so nothing launches.",
+                                        "The approved budget starts working", "Connect", brand=c["brand"], source="otto_ads", campaign_id=c["id"])
+                continue
+            if not dry:
+                fresh = _claim(c["id"])
+                if fresh is None:
+                    print(f"  skipped: {c['id']} is being launched by another run (or changed since the snapshot)"); continue
+                c = fresh
             resume = " (resuming)" if c.get("remote") else ""
             print(f"{'WOULD LAUNCH' if dry else 'LAUNCH'} {tag}{resume}")
             if dry:
@@ -948,12 +1040,12 @@ def launch(bid=None, dry=False, base=pub.BASE):
                 remote = launch_meta(snap, c, creds, base, persist=lambda **kw: _persist(c["id"], **kw))
             else:
                 remote = launch_google(snap, c, creds)
-            _persist(c["id"], remote=remote, status="live", launched_at=ap.now_iso(), error=None)
+            _persist(c["id"], remote=remote, status="live", launched_at=ap.now_iso(), error=None, launching_at=None)
             print(f"  live: {c['id']}")
         except Skipped as e:
             print(f"  skipped: {e}")
             if not dry:
-                _persist(c["id"], status="skipped", error=str(e))
+                _persist(c["id"], status="skipped", error=str(e), launching_at=None)
         except Exception as e:
             msg = f"{type(e).__name__}: {e}" if not isinstance(e, (pub.GraphError, LaunchError)) else str(e)
             print(f"  failed: {msg}")
@@ -962,7 +1054,7 @@ def launch(bid=None, dry=False, base=pub.BASE):
             with ap.transaction() as d:
                 c2 = ap.campaign(d, c["id"])
                 if c2 is not None:
-                    c2["status"] = "failed"; c2["error"] = msg[:500]
+                    c2["status"] = "failed"; c2["error"] = msg[:500]; c2.pop("launching_at", None)
                     ap.add_rec_once(d, "P0", f"Campaign launch failed: {c['name'][:50]}", msg[:300] +
                                     (f" — objects already created are saved; `otto_ads.py retry {c['id']}` resumes." if c2.get("remote") else ""),
                                     "Budget is not spending", "Open campaign", brand=c["brand"], source="otto_ads", campaign_id=c["id"])

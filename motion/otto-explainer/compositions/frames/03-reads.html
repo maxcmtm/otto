@@ -1,0 +1,429 @@
+<template>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+  <style>
+    @font-face {
+      font-family: "Inter Tight";
+      src: url("assets/fonts/InterTight-var-latin.woff2") format("woff2");
+      font-weight: 100 900;
+      font-display: block;
+    }
+    @font-face {
+      font-family: "Inter";
+      src: url("assets/fonts/Inter-var-latin.woff2") format("woff2");
+      font-weight: 100 900;
+      font-display: block;
+    }
+
+    #root {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 1080px;
+      height: 1920px;
+      overflow: hidden;
+      color: #1d1d1f;
+      font-family: "Inter", sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── ground: full-bleed canvas on its own full-duration clip layer ── */
+    #e03-bg {
+      position: absolute;
+      inset: 0;
+      background: #f5f5f7;
+    }
+
+    /* ── headline zone y 250–510, centred on y≈380; two headlines share the box ── */
+    #e03-hl-box {
+      position: absolute;
+      left: 60px;
+      top: 250px;
+      width: 960px;
+      height: 260px;
+      z-index: 4;
+    }
+    .e03-hl {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+    .e03-hl-t {
+      display: block;
+      max-width: 960px;
+      font: 600 84px/1.04 "Inter Tight", "Inter", sans-serif;
+      letter-spacing: -0.03em;
+      color: #1d1d1f;
+    }
+    /* per-word mask (kit .ok-mask) */
+    .e03-m {
+      display: inline-block;
+      overflow: hidden;
+      padding-bottom: 0.12em;
+      margin-bottom: -0.12em;
+      vertical-align: bottom;
+    }
+    .e03-w {
+      display: inline-block;
+    }
+    .e03-accent {
+      color: #2447f0;
+    }
+
+    /* ── website field: handoff geometry x 90→990, y 700→830, radius 65 ── */
+    #e03-field {
+      position: absolute;
+      left: 90px;
+      top: 700px;
+      width: 900px;
+      height: 130px;
+      border-radius: 65px;
+      background: #ffffff;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05), 0 18px 48px rgba(0, 0, 0, 0.1);
+      display: flex;
+      align-items: center;
+      padding-left: 34px;
+      box-sizing: border-box;
+      overflow: hidden;
+      z-index: 3;
+    }
+    /* read wash that trails the scan line */
+    #e03-wash {
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 900px;
+      background: rgba(36, 71, 240, 0.07);
+      transform-origin: 0% 50%;
+      z-index: 0;
+    }
+    #e03-url {
+      position: relative;
+      display: flex;
+      align-items: center;
+      margin-right: 10px;
+      font: 500 44px/1.2 "Inter", sans-serif;
+      letter-spacing: -0.01em;
+      color: #1d1d1f;
+      white-space: nowrap;
+      z-index: 1;
+    }
+    .e03-ch {
+      display: none;
+    }
+    /* the Otto square, now the field's caret: 44px layout box; scaled to 72px at t=0 so it sits at (170, 765) */
+    #e03-sq {
+      --s: 44px;
+      position: relative;
+      flex: none;
+      width: var(--s);
+      height: var(--s);
+      border-radius: calc(var(--s) * 0.3);
+      background: #2447f0;
+      transform-origin: 0% 50%;
+      z-index: 1;
+    }
+    #e03-sq::after {
+      content: "";
+      position: absolute;
+      inset: calc(var(--s) * 0.25);
+      border-radius: calc(var(--s) * 0.12);
+      border: calc(var(--s) * 0.06) solid #ffffff;
+      opacity: 0.95;
+    }
+    #e03-btn {
+      position: absolute;
+      right: 16px;
+      top: 16px;
+      width: 184px;
+      height: 98px;
+      border-radius: 49px;
+      background: #2447f0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      z-index: 2;
+    }
+    #e03-btn-t {
+      position: relative;
+      font: 600 40px/1 "Inter", sans-serif;
+      letter-spacing: -0.01em;
+      color: #ffffff;
+      z-index: 1;
+    }
+    #e03-btn-shade {
+      position: absolute;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.18);
+      opacity: 0;
+    }
+    #e03-scan {
+      position: absolute;
+      left: -2px;
+      top: 0;
+      bottom: 0;
+      width: 4px;
+      background: #2447f0;
+      box-shadow: 0 0 0 6px rgba(36, 71, 240, 0.1);
+      opacity: 0;
+      z-index: 4;
+    }
+
+    /* ── brand profile card: x 90→990, y 720→1500 (glides to y 600→1500 at the end) ── */
+    #e03-card {
+      position: absolute;
+      left: 90px;
+      top: 720px;
+      width: 900px;
+      height: 780px;
+      border-radius: 32px;
+      background: #ffffff;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05), 0 18px 48px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      padding: 40px 48px 36px;
+      box-sizing: border-box;
+      z-index: 2;
+    }
+    #e03-card-hd {
+      flex: none;
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      margin-bottom: 14px;
+    }
+    #e03-title {
+      font: 600 48px/1.1 "Inter Tight", "Inter", sans-serif;
+      letter-spacing: -0.02em;
+      color: #1d1d1f;
+    }
+    #e03-note {
+      font: 500 30px/1.2 "Inter", sans-serif;
+      color: #6e6e73;
+    }
+    .e03-row {
+      position: relative;
+      flex: 1 0 auto;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 16px 0;
+    }
+    .e03-rule {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 0;
+      height: 2px;
+      background: rgba(60, 60, 67, 0.16);
+      transform-origin: 0% 50%;
+    }
+    .e03-lbl {
+      font: 500 30px/1.2 "Inter", sans-serif;
+      color: #6e6e73;
+    }
+    .e03-val {
+      margin-top: 10px;
+      font: 500 40px/1.25 "Inter", sans-serif;
+      letter-spacing: -0.01em;
+      color: #1d1d1f;
+    }
+    .e03-vl {
+      display: block;
+    }
+    .e03-swatches {
+      display: flex;
+      gap: 16px;
+    }
+    .e03-sw {
+      display: block;
+      width: 56px;
+      height: 56px;
+      border-radius: 14px;
+      box-shadow: inset 0 0 0 2px rgba(0, 0, 0, 0.14);
+    }
+    .e03-chips {
+      display: flex;
+      gap: 14px;
+    }
+    .e03-chip {
+      display: flex;
+      align-items: center;
+      height: 68px;
+      padding: 0 28px;
+      border-radius: 999px;
+      background: #f5f5f7;
+      font: 500 36px/1 "Inter", sans-serif;
+      letter-spacing: -0.01em;
+      color: #1d1d1f;
+      white-space: nowrap;
+    }
+  </style>
+
+  <div id="root" data-composition-id="03-reads" data-width="1080" data-height="1920" data-duration="6.05">
+    <div id="e03-bg" class="clip" data-start="0" data-duration="6.05" data-track-index="0"></div>
+
+    <div id="e03-card">
+      <div id="e03-card-hd">
+        <div id="e03-title">Brand profile</div>
+        <div id="e03-note">Filled in by Otto</div>
+      </div>
+      <div class="e03-row" id="e03-row-col">
+        <div class="e03-rule"></div>
+        <div class="e03-lbl">Colours</div>
+        <div class="e03-val e03-swatches">
+          <span class="e03-sw" style="background: #ffbc00" data-layout-allow-overlap></span>
+          <span class="e03-sw" style="background: #0e252c" data-layout-allow-overlap></span>
+          <span class="e03-sw" style="background: #31856c" data-layout-allow-overlap></span>
+          <span class="e03-sw" style="background: #ffffff" data-layout-allow-overlap></span>
+        </div>
+      </div>
+      <div class="e03-row" id="e03-row-tone">
+        <div class="e03-rule"></div>
+        <div class="e03-lbl">Tone</div>
+        <div class="e03-val"><span class="e03-vl" data-layout-allow-overlap>Educational, trust-first.</span></div>
+      </div>
+      <div class="e03-row" id="e03-row-cust">
+        <div class="e03-rule"></div>
+        <div class="e03-lbl">Customers</div>
+        <div class="e03-val">
+          <span class="e03-vl" data-layout-allow-overlap>Petra, 52:</span>
+          <span class="e03-vl" data-layout-allow-overlap>“I haven’t slept well in years.”</span>
+        </div>
+      </div>
+      <div class="e03-row" id="e03-row-comp">
+        <div class="e03-rule"></div>
+        <div class="e03-lbl">Competitors</div>
+        <div class="e03-val e03-chips">
+          <span class="e03-chip" data-layout-allow-overlap>Nordic Oil</span>
+          <span class="e03-chip" data-layout-allow-overlap>Naturecan</span>
+          <span class="e03-chip" data-layout-allow-overlap>CBD Vital</span>
+        </div>
+      </div>
+    </div>
+
+    <div id="e03-field">
+      <div id="e03-wash"></div>
+      <div id="e03-url"><span class="e03-ch" data-layout-allow-overlap>h</span><span class="e03-ch" data-layout-allow-overlap>a</span><span class="e03-ch" data-layout-allow-overlap>p</span><span class="e03-ch" data-layout-allow-overlap>p</span><span class="e03-ch" data-layout-allow-overlap>y</span><span class="e03-ch" data-layout-allow-overlap>g</span><span class="e03-ch" data-layout-allow-overlap>a</span><span class="e03-ch" data-layout-allow-overlap>r</span><span class="e03-ch" data-layout-allow-overlap>d</span><span class="e03-ch" data-layout-allow-overlap>e</span><span class="e03-ch" data-layout-allow-overlap>n</span><span class="e03-ch" data-layout-allow-overlap>e</span><span class="e03-ch" data-layout-allow-overlap>u</span><span class="e03-ch" data-layout-allow-overlap>.</span><span class="e03-ch" data-layout-allow-overlap>c</span><span class="e03-ch" data-layout-allow-overlap>o</span><span class="e03-ch" data-layout-allow-overlap>m</span></div>
+      <div id="e03-sq"></div>
+      <div id="e03-btn"><div id="e03-btn-shade"></div><span id="e03-btn-t" data-layout-allow-overlap>Read</span></div>
+      <div id="e03-scan"></div>
+    </div>
+
+    <div id="e03-hl-box" data-layout-allow-overlap>
+      <div class="e03-hl" id="e03-hl-a" data-layout-allow-overlap>
+        <span class="e03-hl-t" data-layout-allow-overlap><span class="e03-m" data-layout-allow-overlap><span class="e03-w e03-wa" data-layout-allow-overlap>Start</span></span> <span class="e03-m" data-layout-allow-overlap><span class="e03-w e03-wa" data-layout-allow-overlap>with</span></span> <span class="e03-m" data-layout-allow-overlap><span class="e03-w e03-wa" data-layout-allow-overlap>your</span></span> <span class="e03-m" data-layout-allow-overlap><span class="e03-w e03-wa" data-layout-allow-overlap>website.</span></span></span>
+      </div>
+      <div class="e03-hl" id="e03-hl-b" data-layout-allow-overlap>
+        <span class="e03-hl-t" data-layout-allow-overlap><span class="e03-m" data-layout-allow-overlap><span class="e03-w e03-wb" data-layout-allow-overlap>Otto</span></span> <span class="e03-m" data-layout-allow-overlap><span class="e03-w e03-wb e03-accent" data-layout-allow-overlap>reads</span></span> <span class="e03-m" data-layout-allow-overlap><span class="e03-w e03-wb" data-layout-allow-overlap>your</span></span> <span class="e03-m" data-layout-allow-overlap><span class="e03-w e03-wb" data-layout-allow-overlap>business.</span></span></span>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      // Frame-local seconds from the real voice:
+      // Start 0.00 · website 0.60 · Otto 1.39 · reads 1.41 · colours 2.03 · tone 2.92 · customers 3.87 · competitors 5.18
+      // S1 0.00–1.35  headline A rises; the Otto square (72px at 170,765) shrinks into the field's caret;
+      //               URL types 0.14→0.90; Read pill arrives 0.60, presses 1.10
+      // S2 1.35–2.00  headline swaps to B on "Otto reads"; field lifts to y 560–690; card opens beneath (y 720→1500);
+      //               one cobalt scan sweep across the field
+      // S3 2.00–5.60  rows land on colours / tone / customers / competitors
+      // S4 5.58–6.00  field + headline exit up; card glides to the handoff rect x 90→990, y 600→1500 (held at 6.05)
+      const ID = "03-reads";
+      const R = document.querySelector('[data-composition-id="' + ID + '"]');
+      const q = (s) => R.querySelector(s);
+      const qa = (s) => Array.from(R.querySelectorAll(s));
+
+      const tl = gsap.timeline({ paused: true });
+
+      const field = q("#e03-field");
+      const sq = q("#e03-sq");
+      const btn = q("#e03-btn");
+      const card = q("#e03-card");
+
+      // ── S1 · headline A, per word; "website." lands on its cue (0.60) ──
+      const wa = qa(".e03-wa");
+      [0.0, 0.07, 0.14, 0.52].forEach((t, i) => {
+        tl.fromTo(wa[i], { yPercent: 112 }, { yPercent: 0, duration: 0.7, ease: "expo.out" }, t);
+      });
+      // ── S1 · the square becomes the caret: 72px → 44px, left edge fixed at x 134 ──
+      tl.fromTo(sq, { scale: 72 / 44 }, { scale: 1, duration: 0.2, ease: "power3.inOut", force3D: false }, 0);
+
+      // URL types one character per step, 0.14 → 0.90; the caret-square rides after the last character
+      const chars = qa(".e03-ch");
+      const t0 = 0.14;
+      const step = (0.9 - t0) / (chars.length - 1);
+      chars.forEach((ch, i) => {
+        tl.set(ch, { display: "block", immediateRender: false }, t0 + i * step);
+      });
+
+      // Read pill arrives at the field's right end on "website"
+      tl.fromTo(btn, { opacity: 0, scale: 0.9 }, { opacity: 1, scale: 1, duration: 0.5, ease: "expo.out", force3D: false }, 0.6);
+      // press on 1.10
+      tl.to(btn, { scale: 0.94, duration: 0.08, ease: "power2.out", force3D: false }, 1.1);
+      tl.fromTo(q("#e03-btn-shade"), { opacity: 0 }, { opacity: 1, duration: 0.08, ease: "power2.out" }, 1.1);
+      tl.to(btn, { scale: 1, duration: 0.35, ease: "expo.out", force3D: false }, 1.18);
+      tl.to(q("#e03-btn-shade"), { opacity: 0, duration: 0.3, ease: "power2.out" }, 1.18);
+
+      // ── S2 · headline swap on "Otto reads": A exits up through its masks, B rises in ──
+      tl.to(wa, { yPercent: -112, duration: 0.22, ease: "power2.in", stagger: 0.02 }, 1.15);
+      const wb = qa(".e03-wb");
+      [1.39, 1.45, 1.51, 1.57].forEach((t, i) => {
+        tl.fromTo(wb[i], { yPercent: 112 }, { yPercent: 0, duration: 0.7, ease: "expo.out" }, t);
+      });
+
+      // field lifts to the top of the content zone (y 700→560)
+      tl.fromTo(field, { y: 0 }, { y: -140, duration: 0.6, ease: "power3.inOut" }, 1.39);
+
+      // one cobalt scan sweep across the field, a faint read-wash trailing it
+      const scan = q("#e03-scan");
+      const wash = q("#e03-wash");
+      tl.fromTo(scan, { opacity: 0 }, { opacity: 1, duration: 0.08, ease: "none" }, 1.42);
+      tl.fromTo(scan, { x: 0 }, { x: 900, duration: 0.62, ease: "power3.inOut" }, 1.42);
+      tl.fromTo(wash, { scaleX: 0, opacity: 1 }, { scaleX: 1, opacity: 1, duration: 0.62, ease: "power3.inOut" }, 1.42);
+      tl.to(scan, { opacity: 0, duration: 0.12, ease: "power2.in" }, 2.0);
+      tl.to(wash, { opacity: 0, duration: 0.3, ease: "power2.out" }, 2.04);
+
+      // the brand-profile card opens beneath the field (unfolds from behind it)
+      tl.fromTo(card, { height: 100 }, { height: 780, duration: 0.9, ease: "expo.out" }, 1.46);
+      tl.fromTo(card, { opacity: 0 }, { opacity: 1, duration: 0.16, ease: "none" }, 1.46);
+      tl.fromTo(
+        [q("#e03-title"), q("#e03-note")],
+        { opacity: 0, y: 18 },
+        { opacity: 1, y: 0, duration: 0.6, ease: "expo.out", stagger: 0.06 },
+        1.7,
+      );
+
+      // ── S3 · rows land on their words ──
+      function row(sel, cue, valueTargets, valueFrom, stagger) {
+        const r = q(sel);
+        tl.fromTo(r.querySelector(".e03-rule"), { scaleX: 0 }, { scaleX: 1, duration: 0.8, ease: "expo.out" }, cue);
+        tl.fromTo(r.querySelector(".e03-lbl"), { opacity: 0, y: 18 }, { opacity: 1, y: 0, duration: 0.6, ease: "expo.out" }, cue);
+        tl.fromTo(
+          valueTargets,
+          Object.assign({ opacity: 0 }, valueFrom),
+          { opacity: 1, y: 0, scale: 1, duration: 0.7, ease: "expo.out", stagger: stagger, force3D: false },
+          cue + 0.06,
+        );
+      }
+      row("#e03-row-col", 2.03, qa("#e03-row-col .e03-sw"), { scale: 0.6, y: 0 }, 0.07);
+      row("#e03-row-tone", 2.92, qa("#e03-row-tone .e03-vl"), { y: 24, scale: 1 }, 0);
+      row("#e03-row-cust", 3.87, qa("#e03-row-cust .e03-vl"), { y: 24, scale: 1 }, 0.12);
+      row("#e03-row-comp", 5.18, qa("#e03-row-comp .e03-chip"), { y: 24, scale: 1 }, 0.07);
+
+      // ── S4 · field and headline exit up; card glides to the handoff rect (y 600→1500) ──
+      tl.to(field, { y: -220, opacity: 0, duration: 0.3, ease: "power2.in" }, 5.58);
+      tl.to(q("#e03-hl-box"), { y: -60, opacity: 0, duration: 0.3, ease: "power2.in" }, 5.58);
+      tl.to(card, { y: -120, height: 900, duration: 0.45, ease: "power3.inOut" }, 5.55);
+
+      window.__timelines = window.__timelines || {};
+      window.__timelines[ID] = tl;
+    })();
+  </script>
+</template>

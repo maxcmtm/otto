@@ -21,6 +21,9 @@ No double posts (state transitions, each saved in its own short ap.transaction):
   a definite Graph error (Meta answered with an error) → back to approved, attempts+1; 3 attempts → failed + P0
   an ambiguous error after "publishing" (timeout, dropped connection) → stays publishing + P0 "check if it went out".
   A post found in "publishing" is NEVER retried automatically — a human checks the page first.
+Compliance is checked again right before publishing (a post approved from the dashboard deck never passed the Telegram
+card check, and copy can change after approval): a violating post goes back to draft with compliance_block + a
+"Compliance hold" recommendation — never to Meta.
 Posts older than --grace minutes past their slot are marked failed ("missed slot") so the
 owner hears about it (otto_watch also alerts) instead of publishing at a random hour.
 Every post is handled in its own try/except and saved on its own. Dry run prints what would go out and touches nothing.
@@ -263,6 +266,19 @@ def publish_one(p, slot, missed, dry, grace, base):
         return
     if p["platform"] not in ("fb", "ig"):
         print(f"SKIP    {tag} — unknown platform {p['platform']}")
+        return
+    import otto_compliance as comp
+    v = comp.check_post(p)
+    if v:
+        print(f"{'WOULD HOLD' if dry else 'HELD'}    {tag} — compliance: {comp.describe(v)}")
+        if not dry:
+            def fn(d, q):
+                if q["status"] in ("approved", "scheduled"):
+                    q["status"] = "draft"
+                    q["compliance_block"] = {"rules": [x["rule"] for x in v][:6], "at": ap.now_iso()}
+                    comp.file_block(d, q["brand"], f"{pid} “{q.get('hook', '')[:50]}”", v, "otto_publish", post=pid)
+            _mark(pid, fn)
+            log(f"HELD {tag}: {comp.describe(v)}")
         return
     c = creds(p["brand"])
     if not c:

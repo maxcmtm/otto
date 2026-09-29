@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js" integrity="sha384-sG0Hv1tP1lZCk9KQmrIbY/XNwi+OY84GQqhMscbnsoBFqAz8KNCil1kvfL3Hbbk2" crossorigin="anonymous"></script>
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 1920px; height: 1080px; overflow: hidden; background: #000; }
+      #root { position: relative; width: 1920px; height: 1080px; overflow: hidden; }
+      .frame { position: absolute; inset: 0; width: 100%; height: 100%; }
+    </style>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="main"
+      data-start="0"
+      data-duration="60"
+      data-width="1920"
+      data-height="1080"
+    >
+      <div
+        id="el-01-chores"
+        class="frame"
+        data-composition-id="01-chores"
+        data-composition-src="compositions/frames/01-chores.html"
+        data-start="0"
+        data-duration="8"
+        data-track-index="1"
+      ></div>
+
+      <div
+        id="el-02-otto"
+        class="frame"
+        data-composition-id="02-otto"
+        data-composition-src="compositions/frames/02-otto.html"
+        data-start="8"
+        data-duration="4"
+        data-track-index="1"
+      ></div>
+
+      <div
+        id="el-03-reads"
+        class="frame"
+        data-composition-id="03-reads"
+        data-composition-src="compositions/frames/03-reads.html"
+        data-start="12"
+        data-duration="4"
+        data-track-index="1"
+      ></div>
+
+      <div
+        id="el-04-plans"
+        class="frame"
+        data-composition-id="04-plans"
+        data-composition-src="compositions/frames/04-plans.html"
+        data-start="16"
+        data-duration="4"
+        data-track-index="1"
+      ></div>
+
+      <div
+        id="el-05-makes"
+        class="frame"
+        data-composition-id="05-makes"
+        data-composition-src="compositions/frames/05-makes.html"
+        data-start="20"
+        data-duration="4"
+        data-track-index="1"
+      ></div>
+
+      <div
+        id="el-06-approve"
+        class="frame"
+        data-composition-id="06-approve"
+        data-composition-src="compositions/frames/06-approve.html"
+        data-start="24"
+        data-duration="2"
+        data-track-index="1"
+      ></div>
+
+      <div
+        id="el-07-works"
+        class="frame"
+        data-composition-id="07-works"
+        data-composition-src="compositions/frames/07-works.html"
+        data-start="26"
+        data-duration="8"
+        data-track-index="1"
+      ></div>
+
+      <div
+        id="el-08-nightshift"
+        class="frame"
+        data-composition-id="08-nightshift"
+        data-composition-src="compositions/frames/08-nightshift.html"
+        data-start="34"
+        data-duration="8"
+        data-track-index="1"
+      ></div>
+
+      <div
+        id="el-09-grows"
+        class="frame"
+        data-composition-id="09-grows"
+        data-composition-src="compositions/frames/09-grows.html"
+        data-start="42"
+        data-duration="8"
+        data-track-index="1"
+      ></div>
+
+      <div
+        id="el-10-finale"
+        class="frame"
+        data-composition-id="10-finale"
+        data-composition-src="compositions/frames/10-finale.html"
+        data-start="50"
+        data-duration="10"
+        data-track-index="1"
+      ></div>
+
+      <!-- BGM -->
+      <audio id="el-bgm" src="assets/bgm.mp3" data-start="0" data-duration="60"
+        data-track-index="11" data-volume="0.9"></audio>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      window.__timelines["main"] = gsap.timeline({ paused: true });
+    </script>
+  </body>
+</html>

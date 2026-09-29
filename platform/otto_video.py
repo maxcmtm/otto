@@ -45,12 +45,16 @@ def duration(path):
 
 # ---------------- script ----------------
 
+LINK_IN_BIO = {"en": "Link in bio.", "he": "הקישור בביו.", "de": "Link in der Bio.", "pt": "Link na bio.", "nl": "Link in de bio.",
+               "it": "Trovi il link nella bio.", "fr": "Lien en bio.", "es": "Enlace en la bio."}
+
+
 def plan_script(p, b, seconds=45):
     sents = [s.strip() for s in re.split(r"(?<=[.!?])\s+|\n+", (p.get("caption") or "")) if 12 <= len(s.strip()) <= 140]
     sents = [s for s in sents if not s.startswith("#")]
     hook = p.get("hook") or (sents[0] if sents else b.get("name", ""))
     body = [s for s in sents if s != hook][:4]
-    lines = [hook] + body + [f"{b.get('name', '')}. Link in bio."]
+    lines = [hook] + body + [f"{b.get('name', '')}. {LINK_IN_BIO.get(ap.brand_lang(b), LINK_IN_BIO['en'])}"]
     per = max(5, min(9, seconds // len(lines)))
     return [{"text": t, "seconds": per, "visual": f"{p.get('pillar', '')} — {t}"} for t in lines][:7]
 

@@ -193,11 +193,14 @@ def sweep(bid, country=None, dry=False):
 
 
 def guess_country(bid):
+    """The market whose ad libraries we read: brands[].countries → url TLD → site language (was: IL / DE / US only, so a
+    Portuguese, Dutch or Italian brand got German Ad Library links)."""
     try:
         import ap
-        b = ap.brand(ap.load(), bid) or {}
-        lang = (b.get("lang") or "").upper()
-        return "IL" if "HE" in lang else "DE" if "DE" in lang else "US" if "US" in lang else "DE"
+        b = ap.brand(ap.load(), bid) or {"id": bid}
+        if "US" in re.findall(r"[A-Z]+", (b.get("lang") or "").upper()) and not b.get("countries"):
+            return "US"
+        return ap.brand_countries(b, ap.scan_of(bid).get("languages") or [])[0]
     except Exception:
         return "DE"
 

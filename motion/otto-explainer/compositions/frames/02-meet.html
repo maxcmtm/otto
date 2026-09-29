@@ -1,0 +1,239 @@
+<template>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+  <style>
+    @font-face {
+      font-family: "Inter Tight";
+      src: url("assets/fonts/InterTight-var-latin.woff2") format("woff2");
+      font-weight: 100 900;
+      font-display: block;
+    }
+    @font-face {
+      font-family: "Inter";
+      src: url("assets/fonts/Inter-var-latin.woff2") format("woff2");
+      font-weight: 100 900;
+      font-display: block;
+    }
+
+    #root {
+      position: absolute;
+      inset: 0;
+      width: 1080px;
+      height: 1920px;
+      overflow: hidden;
+      color: #1D1D1F;
+      font-family: "Inter Tight", "Inter", sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* full-bleed light ground: its own clip, never painted on #root */
+    #m02-ground {
+      position: absolute;
+      inset: 0;
+      width: 1080px;
+      height: 1920px;
+      background: #F5F5F7;
+    }
+
+    /* ── website field (handoff_out): x 90→990, y 700→830, radius 65, white, card shadow ── */
+    #m02-field {
+      position: absolute;
+      left: 90px;
+      top: 700px;
+      width: 900px;
+      height: 130px;
+      border-radius: 65px;
+      background: #FFFFFF;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05), 0 18px 48px rgba(0, 0, 0, 0.1);
+      z-index: 1;
+    }
+
+    /* ── wordmark: Inter Tight 650 190px, −0.045em; box 190 tall centred on y 820, left edge x 430 ── */
+    #m02-word {
+      position: absolute;
+      left: 430px;
+      top: 725px;
+      height: 190px;
+      padding-right: 24px; /* room for the last "o" ink past the negative trailing tracking */
+      font-family: "Inter Tight", "Inter", sans-serif;
+      font-weight: 650;
+      font-size: 190px;
+      line-height: 1;
+      letter-spacing: -0.045em;
+      color: #1D1D1F;
+      white-space: nowrap;
+      z-index: 2;
+    }
+
+    /* ── tagline: Inter Tight 600 64px, centred on the lockup's own axis (ink x 260→782 ⇒ 521) ── */
+    #m02-tag {
+      position: absolute;
+      left: 81px;
+      top: 968px;
+      width: 880px;
+      text-align: center;
+      font-family: "Inter Tight", "Inter", sans-serif;
+      font-weight: 600;
+      font-size: 64px;
+      line-height: 1.12;
+      letter-spacing: -0.03em;
+      z-index: 2;
+    }
+    .m02-line {
+      display: block;
+      overflow: hidden;
+      padding-bottom: 0.16em; /* descenders of y / p / comma stay inside the rise mask */
+      margin-bottom: -0.16em;
+      white-space: nowrap;
+    }
+    .m02-w {
+      display: inline-block;
+    }
+    #m02-l1 {
+      color: #6E6E73;
+    }
+    #m02-l2 {
+      color: #1D1D1F;
+    }
+    .m02-accent {
+      color: #2447F0;
+    }
+
+    /* ── the Otto square (.ok-mark geometry at 140px): canonical centre (540, 900) ── */
+    #m02-square {
+      position: absolute;
+      left: 470px;
+      top: 830px;
+      width: 140px;
+      height: 140px;
+      border-radius: 42px;
+      background: #2447F0;
+      z-index: 3;
+    }
+    #m02-square::after {
+      content: "";
+      position: absolute;
+      inset: 35px;
+      border-radius: 16.8px;
+      border: 8.4px solid #FFFFFF;
+      opacity: 0.95;
+    }
+  </style>
+
+  <div id="root" data-composition-id="02-meet" data-width="1080" data-height="1920" data-duration="4">
+    <div id="m02-ground" class="clip" data-start="0" data-duration="4" data-track-index="0"></div>
+
+    <div id="m02-field"></div>
+
+    <div id="m02-word">Otto</div>
+
+    <div id="m02-tag">
+      <span id="m02-l1" class="m02-line"
+        ><span id="m02-w1" class="m02-w">Your</span> <span id="m02-w2" class="m02-w">marketing</span>
+        <span id="m02-w3" class="m02-w">department,</span></span
+      >
+      <span id="m02-l2" class="m02-line"
+        ><span id="m02-w4" class="m02-w">in</span> <span id="m02-w5" class="m02-w">your</span>
+        <span id="m02-w6" class="m02-w m02-accent">pocket.</span></span
+      >
+    </div>
+
+    <div id="m02-square"></div>
+  </div>
+
+  <script>
+    (function () {
+      var FRAME_ID = "02-meet";
+      var byId = function (id) {
+        return document.getElementById("m02-" + id);
+      };
+      var sq = byId("square");
+      var word = byId("word");
+      var field = byId("field");
+
+      var tl = gsap.timeline({ paused: true });
+
+      // Geometry (px). Square is laid out at its canonical centre (540, 900); moves are x/y offsets.
+      var LOCK_X = 330 - 540, LOCK_Y = 820 - 900;      // lockup position: centre (330, 820)
+      var CARET_X = 170 - 540, CARET_Y = 765 - 900;    // handoff_out: centre (170, 765)
+      var CARET_SCALE = 72 / 140;                      // 140px -> 72px
+
+      // ── Scene 1 (0.00–1.10s): on "Otto" (0.30) the square stamps 1.2 -> 1 while sliding to the
+      //    lockup position; the wordmark wipes in to its right, emerging from behind the square ──
+      tl.fromTo(sq, { scale: 1 }, { scale: 1.2, duration: 0.08, ease: "power2.in" }, 0.22);
+      tl.fromTo(
+        sq,
+        { scale: 1.2 },
+        { scale: 1, duration: 0.75, ease: "expo.out", immediateRender: false },
+        0.3
+      );
+      tl.fromTo(
+        sq,
+        { x: 0, y: 0 },
+        { x: LOCK_X, y: LOCK_Y, duration: 0.7, ease: "power3.inOut" },
+        0.3
+      );
+      tl.fromTo(
+        word,
+        { x: -50, clipPath: "inset(0% 100% 0% 0%)" },
+        { x: 0, clipPath: "inset(0% 0% 0% 0%)", duration: 0.75, ease: "expo.out" },
+        0.66
+      );
+
+      // ── Scene 2 (1.10–3.40s): tagline rises word by word on the voice, then holds ──
+      var rise = function (id, at) {
+        tl.fromTo(
+          byId(id),
+          { yPercent: 115, opacity: 0 },
+          { yPercent: 0, opacity: 1, duration: 0.6, ease: "expo.out" },
+          at
+        );
+      };
+      rise("w1", 1.13); // Your
+      rise("w2", 1.29); // marketing
+      rise("w3", 1.73); // department,
+      rise("w4", 2.37); // in
+      rise("w5", 2.44); // your
+      rise("w6", 2.51); // pocket.
+
+      // ── Scene 3 (3.40–4.00s): wordmark wipes back, tagline exits up; the square shrinks to 72px
+      //    and slides to (170, 765); the white website field grows out of it to the right ──
+      // wordmark is fully wiped back by 3.60, before the growing field sweeps through its row
+      tl.fromTo(
+        word,
+        { x: 0, clipPath: "inset(0% 0% 0% 0%)" },
+        { x: -60, clipPath: "inset(0% 100% 0% 0%)", duration: 0.26, ease: "power2.in", immediateRender: false },
+        3.34
+      );
+      tl.fromTo(
+        byId("l1"),
+        { y: 0, opacity: 1 },
+        { y: -36, opacity: 0, duration: 0.28, ease: "power2.in" },
+        3.36
+      );
+      tl.fromTo(
+        byId("l2"),
+        { y: 0, opacity: 1 },
+        { y: -36, opacity: 0, duration: 0.28, ease: "power2.in" },
+        3.4
+      );
+      tl.fromTo(
+        sq,
+        { x: LOCK_X, y: LOCK_Y, scale: 1 },
+        { x: CARET_X, y: CARET_Y, scale: CARET_SCALE, duration: 0.34, ease: "power3.inOut", immediateRender: false },
+        3.4
+      );
+      // field starts as an 80px rounded square hidden under the moving square (centre ≈ (215, 780) at 3.60)
+      // and opens to the handoff rect x 90→990, y 700→830, radius 65 — settled at 4.00
+      tl.fromTo(
+        field,
+        { x: 85, y: 40, width: 80, height: 80, borderRadius: 24 },
+        { x: 0, y: 0, width: 900, height: 130, borderRadius: 65, duration: 0.4, ease: "expo.out" },
+        3.6
+      );
+      tl.fromTo(field, { opacity: 0 }, { opacity: 1, duration: 0.1, ease: "power1.out" }, 3.6);
+
+      window.__timelines = window.__timelines || {};
+      window.__timelines[FRAME_ID] = tl;
+    })();
+  </script>
+</template>

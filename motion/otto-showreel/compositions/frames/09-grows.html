@@ -1,0 +1,619 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>09-grows</title>
+  </head>
+  <body>
+    <template>
+      <style>
+        @font-face {
+          font-family: "Inter Tight";
+          src: url("assets/fonts/InterTight-var-latin.woff2") format("woff2");
+          font-weight: 100 900;
+          font-display: block;
+        }
+        @font-face {
+          font-family: "Inter";
+          src: url("assets/fonts/Inter-var-latin.woff2") format("woff2");
+          font-weight: 100 900;
+          font-display: block;
+        }
+
+        #stage[data-composition-id="09-grows"] {
+          position: relative;
+          width: 1920px;
+          height: 1080px;
+          overflow: hidden;
+          font-family: "Inter", system-ui, sans-serif;
+          color: #1d1d1f;
+        }
+        #stage[data-composition-id="09-grows"] *,
+        #stage[data-composition-id="09-grows"] *::before,
+        #stage[data-composition-id="09-grows"] *::after {
+          box-sizing: border-box;
+        }
+
+        /* full-bleed light ground — its own full-duration layer */
+        #f09-ground {
+          position: absolute;
+          inset: 0;
+          background: #f5f5f7;
+        }
+
+        .f09-group {
+          position: absolute;
+          inset: 0;
+        }
+        #f09-g2 {
+          visibility: hidden;
+          opacity: 0;
+        }
+        .f09-layer {
+          position: absolute;
+          inset: 0;
+        }
+
+        /* headline zone: centred at y 150 */
+        .f09-head {
+          position: absolute;
+          left: 0;
+          right: 0;
+          top: 110px;
+          height: 80px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+        .f09-line {
+          font: 600 64px/1 "Inter Tight", "Inter", sans-serif;
+          letter-spacing: -0.03em;
+          color: #1d1d1f;
+          white-space: nowrap;
+        }
+        .f09-mask {
+          display: inline-block;
+          overflow: hidden;
+          padding-bottom: 0.12em;
+          margin-bottom: -0.12em;
+          vertical-align: bottom;
+        }
+        .f09-w {
+          display: inline-block;
+        }
+        .f09-accent {
+          color: #2447f0;
+        }
+
+        /* ── g1: chart (bars 120 wide, baseline y 860, max 520) ── */
+        #f09-base {
+          position: absolute;
+          left: 330px;
+          top: 860px;
+          width: 760px;
+          height: 2px;
+          background: rgba(60, 60, 67, 0.16);
+          transform-origin: 0 50%;
+          transform: scaleX(0);
+        }
+        .f09-bar {
+          position: absolute;
+          bottom: 220px;
+          width: 120px;
+          background: #2447f0;
+          border-radius: 14px 14px 4px 4px;
+        }
+        #f09-bar1 {
+          left: 360px;
+          height: 120px;
+          border-radius: 36px;
+        }
+        #f09-bar2 {
+          left: 553.333px;
+          height: 327.6px;
+          visibility: hidden;
+          opacity: 0;
+        }
+        #f09-bar3 {
+          left: 746.667px;
+          height: 421.2px;
+          visibility: hidden;
+          opacity: 0;
+        }
+        #f09-bar4 {
+          left: 940px;
+          height: 520px;
+          visibility: hidden;
+          opacity: 0;
+        }
+        /* the Otto square's inner outline (kit .ok-mark::after at 120px) */
+        .f09-ring {
+          position: absolute;
+          inset: 25%;
+          border-radius: 14.4px;
+          border: 7.2px solid #fff;
+          opacity: 0.95;
+        }
+        .f09-lbl {
+          position: absolute;
+          top: 874px;
+          width: 120px;
+          text-align: center;
+          font: 500 20px/1 "Inter", sans-serif;
+          color: #6e6e73;
+          opacity: 0;
+        }
+        #f09-lbl1 {
+          left: 360px;
+        }
+        #f09-lbl2 {
+          left: 553.333px;
+        }
+        #f09-lbl3 {
+          left: 746.667px;
+        }
+        #f09-lbl4 {
+          left: 940px;
+          color: #1d1d1f;
+          font-weight: 600;
+        }
+        #f09-foot {
+          position: absolute;
+          left: 360px;
+          top: 926px;
+          font: 400 20px/1.2 "Inter", sans-serif;
+          color: #86868b;
+          opacity: 0;
+        }
+
+        /* ── g1: metrics column x 1200→1700 ── */
+        .f09-met {
+          position: absolute;
+          left: 1200px;
+          width: 500px;
+          opacity: 0;
+        }
+        #f09-m1 {
+          top: 340px;
+        }
+        #f09-m2 {
+          top: 532px;
+        }
+        #f09-m3 {
+          top: 724px;
+        }
+        .f09-v {
+          font: 650 96px/0.95 "Inter Tight", "Inter", sans-serif;
+          letter-spacing: -0.04em;
+          font-variant-numeric: tabular-nums;
+          color: #1d1d1f;
+          white-space: nowrap;
+        }
+        .f09-lrow {
+          display: flex;
+          align-items: center;
+          gap: 14px;
+          margin-top: 12px;
+        }
+        .f09-l {
+          font: 500 24px/1.2 "Inter", sans-serif;
+          color: #6e6e73;
+        }
+        .f09-pill {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          width: 58px;
+          height: 36px;
+          border-radius: 999px;
+          background: rgba(27, 127, 75, 0.1);
+          opacity: 0;
+        }
+        .f09-pill svg {
+          width: 22px;
+          height: 22px;
+          fill: none;
+          stroke: #1b7f4b;
+          stroke-width: 2.4;
+          stroke-linecap: round;
+          stroke-linejoin: round;
+        }
+
+        /* ── g2: cost cards 1000×120 centred at y 400 / 540 / 680 ── */
+        .f09-card {
+          position: absolute;
+          left: 460px;
+          width: 1000px;
+          height: 120px;
+          border-radius: 22px;
+          background: #fff;
+          box-shadow:
+            0 1px 2px rgba(0, 0, 0, 0.05),
+            0 18px 48px rgba(0, 0, 0, 0.1);
+          overflow: hidden;
+          opacity: 0;
+        }
+        /* top→bottom stacking so each card covers the shadow of the one above; card 2 lifts to the top at the fold */
+        #f09-c1 {
+          top: 340px;
+          z-index: 1;
+        }
+        #f09-c2 {
+          top: 480px;
+          z-index: 2;
+        }
+        #f09-c3 {
+          top: 620px;
+          z-index: 3;
+        }
+        .f09-cin {
+          position: absolute;
+          inset: 0;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding: 0 40px;
+        }
+        .f09-clabel {
+          font: 600 36px/1.2 "Inter", sans-serif;
+          letter-spacing: -0.015em;
+          color: #1d1d1f;
+          white-space: nowrap;
+        }
+        .f09-cprice {
+          font: 500 32px/1.2 "Inter", sans-serif;
+          letter-spacing: -0.01em;
+          color: #6e6e73;
+          text-align: right;
+          white-space: nowrap;
+        }
+        .f09-pl {
+          display: block;
+        }
+        .f09-strike {
+          position: absolute;
+          left: 36px;
+          right: 36px;
+          top: 58px;
+          height: 4px;
+          border-radius: 2px;
+          background: #2447f0;
+          transform-origin: 0 50%;
+          transform: scaleX(0);
+        }
+        /* Otto card content (card 2 grows into it) */
+        #f09-otto {
+          position: absolute;
+          left: 148px;
+          top: 0;
+          bottom: 0;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          opacity: 0;
+        }
+        .f09-ow {
+          font: 650 64px/1 "Inter Tight", "Inter", sans-serif;
+          letter-spacing: -0.03em;
+          color: #1d1d1f;
+        }
+        .f09-ol {
+          margin-top: 10px;
+          font: 500 32px/1.2 "Inter", sans-serif;
+          letter-spacing: -0.01em;
+          color: #6e6e73;
+          white-space: nowrap;
+        }
+        /* the Otto square, 120px at (960,540); shown at 0.6 (72px) inside the Otto card */
+        #f09-mark {
+          position: absolute;
+          left: 900px;
+          top: 480px;
+          width: 120px;
+          height: 120px;
+          border-radius: 36px;
+          background: #2447f0;
+          opacity: 0;
+          z-index: 10;
+        }
+      </style>
+
+      <div
+        id="stage"
+        data-composition-id="09-grows"
+        data-width="1920"
+        data-height="1080"
+        data-duration="8"
+      >
+        <div id="f09-ground"></div>
+
+        <!-- g1 · 0.0–4.0 · the square becomes the chart -->
+        <div id="f09-g1" class="f09-group">
+          <div id="f09-h1" class="f09-head">
+            <div class="f09-line">
+              <span class="f09-mask"><span class="f09-w">Every</span></span>
+              <span class="f09-mask"><span class="f09-w">month,</span></span>
+              <span class="f09-mask"><span class="f09-w">you</span></span>
+              <span class="f09-mask"><span class="f09-w">see</span></span>
+              <span class="f09-mask"><span class="f09-w">what</span></span>
+              <span class="f09-mask"><span class="f09-w f09-accent">grew.</span></span>
+            </div>
+          </div>
+
+          <div id="f09-chart" class="f09-layer">
+            <div id="f09-base"></div>
+            <div id="f09-bar1" class="f09-bar"><div id="f09-ring" class="f09-ring"></div></div>
+            <div id="f09-bar2" class="f09-bar"></div>
+            <div id="f09-bar3" class="f09-bar"></div>
+            <div id="f09-bar4" class="f09-bar"></div>
+            <div id="f09-lbl1" class="f09-lbl">Aug</div>
+            <div id="f09-lbl2" class="f09-lbl">Sep</div>
+            <div id="f09-lbl3" class="f09-lbl">Oct</div>
+            <div id="f09-lbl4" class="f09-lbl">Nov</div>
+            <div id="f09-foot">Example month</div>
+          </div>
+
+          <div id="f09-metrics" class="f09-layer">
+            <div id="f09-m1" class="f09-met">
+              <div class="f09-v"><span>+</span><span id="f09-n1">0</span><span>%</span></div>
+              <div class="f09-lrow">
+                <span class="f09-l">Reach</span>
+                <span id="f09-p1" class="f09-pill"
+                  ><svg viewBox="0 0 20 20"><path d="M10 15.5V4.5M5 9.5l5-5 5 5" /></svg
+                ></span>
+              </div>
+            </div>
+            <div id="f09-m2" class="f09-met">
+              <div class="f09-v"><span>+</span><span id="f09-n2">0</span></div>
+              <div class="f09-lrow">
+                <span class="f09-l">Followers</span>
+                <span id="f09-p2" class="f09-pill"
+                  ><svg viewBox="0 0 20 20"><path d="M10 15.5V4.5M5 9.5l5-5 5 5" /></svg
+                ></span>
+              </div>
+            </div>
+            <div id="f09-m3" class="f09-met">
+              <div class="f09-v"><span id="f09-n3">0</span></div>
+              <div class="f09-lrow">
+                <span class="f09-l">Leads</span>
+                <span id="f09-p3" class="f09-pill"
+                  ><svg viewBox="0 0 20 20"><path d="M10 15.5V4.5M5 9.5l5-5 5 5" /></svg
+                ></span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- g2 · 4.0–8.0 · the costs stack, get struck through, fold into one Otto card -->
+        <div id="f09-g2" class="f09-group">
+          <div id="f09-h2" class="f09-head">
+            <div class="f09-line">
+              <span class="f09-mask"><span class="f09-w">What</span></span>
+              <span class="f09-mask"><span class="f09-w">it</span></span>
+              <span class="f09-mask"><span class="f09-w">replaces.</span></span>
+            </div>
+          </div>
+
+          <div id="f09-c1" class="f09-card">
+            <div id="f09-ci1" class="f09-cin">
+              <span class="f09-clabel f09-ct">An agency</span>
+              <span class="f09-cprice f09-ct">€1,500–5,000 a month</span>
+            </div>
+            <div id="f09-s1" class="f09-strike"></div>
+          </div>
+          <div id="f09-c3" class="f09-card">
+            <div id="f09-ci3" class="f09-cin">
+              <span class="f09-clabel f09-ct">Tools and your evenings</span>
+              <span class="f09-cprice f09-ct"
+                ><span class="f09-pl">€60–100 a month</span
+                ><span class="f09-pl">+ 8–10 hours a week</span></span
+              >
+            </div>
+            <div id="f09-s3" class="f09-strike"></div>
+          </div>
+          <div id="f09-c2" class="f09-card">
+            <div id="f09-ci2" class="f09-cin">
+              <span class="f09-clabel f09-ct">An in-house hire</span>
+              <span class="f09-cprice f09-ct">€4,000–6,000 a month</span>
+            </div>
+            <div id="f09-s2" class="f09-strike"></div>
+            <div id="f09-otto">
+              <div class="f09-ow">Otto</div>
+              <div class="f09-ol">You approve. Otto does the work.</div>
+            </div>
+          </div>
+
+          <div id="f09-mark"><div class="f09-ring"></div></div>
+        </div>
+      </div>
+
+      <script>
+        (function () {
+          window.__timelines = window.__timelines || {};
+          var tl = gsap.timeline({ paused: true });
+
+          var PALE = "#D9DEF9";
+          var FAINT = "#86868B";
+          var L = [360, 553.333, 746.667, 940]; // bar left edges (zone x 360→1060)
+          var H = [0.46, 0.63, 0.81, 1.0].map(function (v) {
+            return v * 520; // max bar height 520 on baseline y 860
+          });
+          function radius(tl_, tgt, tlv, trv, brv, blv, dur, ease, at) {
+            tl_.to(
+              tgt,
+              {
+                borderTopLeftRadius: tlv,
+                borderTopRightRadius: trv,
+                borderBottomRightRadius: brv,
+                borderBottomLeftRadius: blv,
+                duration: dur,
+                ease: ease,
+              },
+              at,
+            );
+          }
+
+          /* ── group windows (0 ms swaps; g1 held to 4.35 so its 0.25 s exit can play) ── */
+          tl.set("#f09-g2", { autoAlpha: 1 }, 4.0);
+          tl.set("#f09-g1", { autoAlpha: 0 }, 4.35);
+
+          /* ════════ g1 · 0.0–4.0 ════════ */
+
+          // 0.0 headline rises word by word from masks
+          tl.fromTo(
+            "#f09-h1 .f09-w",
+            { yPercent: 120 },
+            { yPercent: 0, duration: 0.8, ease: "expo.out", stagger: 0.05 },
+            0,
+          );
+
+          // 0.0 the square (120px at 960,540) travels to the chart baseline and becomes the Aug bar
+          tl.fromTo(
+            "#f09-bar1",
+            { x: 540, y: -260 },
+            { x: 0, y: 0, duration: 0.65, ease: "power3.inOut" },
+            0,
+          );
+          radius(tl, "#f09-bar1", 14, 14, 4, 4, 0.65, "power3.inOut", 0);
+          tl.fromTo("#f09-ring", { opacity: 0.95 }, { opacity: 0, duration: 0.3, ease: "power2.in" }, 0.15);
+          tl.fromTo(
+            "#f09-bar1",
+            { height: 120 },
+            { height: H[0], duration: 0.5, ease: "expo.out" },
+            0.5,
+          );
+          tl.fromTo("#f09-base", { scaleX: 0 }, { scaleX: 1, duration: 1.0, ease: "expo.out" }, 0.5);
+          tl.fromTo(
+            "#f09-lbl1",
+            { opacity: 0, y: 10 },
+            { opacity: 1, y: 0, duration: 0.6, ease: "expo.out" },
+            0.55,
+          );
+
+          // 1.0 / 2.0 / 3.0 — each new month splits off the previous bar and rises;
+          // the cobalt (the square) always sits on the newest month, past months go pale
+          for (var i = 1; i < 4; i++) {
+            var at = i;
+            var bar = "#f09-bar" + (i + 1);
+            tl.set(bar, { autoAlpha: 1 }, at);
+            tl.fromTo(
+              bar,
+              { x: L[i - 1] - L[i], height: H[i - 1] },
+              { x: 0, height: H[i], duration: 0.8, ease: "expo.out", immediateRender: false },
+              at,
+            );
+            tl.to("#f09-bar" + i, { backgroundColor: PALE, duration: 0.5, ease: "power2.inOut" }, at);
+            tl.fromTo(
+              "#f09-lbl" + (i + 1),
+              { opacity: 0, y: 10 },
+              { opacity: 1, y: 0, duration: 0.6, ease: "expo.out" },
+              at + 0.15,
+            );
+          }
+
+          // 1.0 / 2.0 / 3.0 — metrics count up
+          var MET = [22, 180, 31];
+          for (var k = 0; k < 3; k++) {
+            var t0 = 1 + k;
+            tl.fromTo(
+              "#f09-m" + (k + 1),
+              { opacity: 0, y: 24 },
+              { opacity: 1, y: 0, duration: 0.7, ease: "expo.out" },
+              t0,
+            );
+            tl.fromTo(
+              "#f09-n" + (k + 1),
+              { innerText: 0 },
+              { innerText: MET[k], snap: { innerText: 1 }, duration: 1.0, ease: "power3.out" },
+              t0,
+            );
+            tl.fromTo(
+              "#f09-p" + (k + 1),
+              { opacity: 0, scale: 0.6 },
+              { opacity: 1, scale: 1, duration: 0.6, ease: "expo.out" },
+              t0 + 0.25,
+            );
+          }
+          tl.fromTo("#f09-foot", { opacity: 0 }, { opacity: 1, duration: 0.6, ease: "expo.out" }, 1.0);
+
+          // 4.0 chart, metrics and headline exit
+          tl.to("#f09-h1", { y: -30, opacity: 0, duration: 0.25, ease: "power2.in" }, 4.0);
+          tl.to(["#f09-chart", "#f09-metrics"], { y: -40, opacity: 0, duration: 0.25, ease: "power2.in" }, 4.0);
+
+          /* ════════ g2 · 4.0–8.0 ════════ */
+
+          // headline swap
+          tl.fromTo(
+            "#f09-h2 .f09-w",
+            { yPercent: 120 },
+            { yPercent: 0, duration: 0.8, ease: "expo.out", stagger: 0.05 },
+            4.2,
+          );
+
+          // 4.0 / 4.5 / 5.0 cost cards stack in (the first one waits 0.2 s for the chart to clear)
+          var CARDS = ["#f09-c1", "#f09-c2", "#f09-c3"];
+          var CARD_AT = [4.2, 4.5, 5.0];
+          for (var c = 0; c < 3; c++) {
+            tl.fromTo(
+              CARDS[c],
+              { opacity: 0, y: 60 },
+              { opacity: 1, y: 0, duration: 0.8, ease: "expo.out" },
+              CARD_AT[c],
+            );
+          }
+
+          // 6.0 cobalt strike-through draws across all three (0.4 s, stagger 0.08 s)
+          for (var s = 0; s < 3; s++) {
+            var ts = 6.0 + 0.08 * s;
+            tl.fromTo(
+              "#f09-s" + (s + 1),
+              { scaleX: 0 },
+              { scaleX: 1, duration: 0.4, ease: "expo.out" },
+              ts,
+            );
+            tl.to("#f09-c" + (s + 1) + " .f09-ct", { color: FAINT, duration: 0.3, ease: "power2.out" }, ts);
+          }
+
+          // 6.5 fold: outer cards slide into the middle one, which grows into the Otto card (settled 7.0)
+          tl.to(
+            ["#f09-ci1", "#f09-ci2", "#f09-ci3", "#f09-s1", "#f09-s2", "#f09-s3"],
+            { opacity: 0, duration: 0.22, ease: "power2.in" },
+            6.5,
+          );
+          tl.set("#f09-c2", { zIndex: 4 }, 6.5);
+          tl.to("#f09-c1", { y: 140, scaleX: 0.94, duration: 0.5, ease: "power3.inOut" }, 6.5);
+          tl.to("#f09-c3", { y: -140, scaleX: 0.94, duration: 0.5, ease: "power3.inOut" }, 6.5);
+          tl.to(["#f09-c1", "#f09-c3"], { opacity: 0, duration: 0.15, ease: "power2.in" }, 6.85);
+          tl.to("#f09-c2", { top: 430, height: 220, duration: 0.5, ease: "power3.inOut" }, 6.5);
+          tl.fromTo(
+            "#f09-mark",
+            { x: -420, scale: 0, opacity: 0 },
+            { x: -420, scale: 0.6, opacity: 1, duration: 0.5, ease: "expo.out" },
+            6.6,
+          );
+          tl.fromTo(
+            "#f09-otto",
+            { opacity: 0, y: 16 },
+            { opacity: 1, y: 0, duration: 0.5, ease: "expo.out" },
+            6.65,
+          );
+
+          // 7.5 the Otto card collapses into the square at centre; headline exits; square at rest by 7.93
+          tl.to("#f09-h2", { y: -30, opacity: 0, duration: 0.25, ease: "power2.in" }, 7.5);
+          tl.to("#f09-otto", { opacity: 0, duration: 0.2, ease: "power2.in" }, 7.5);
+          tl.to(
+            "#f09-c2",
+            { left: 900, width: 120, top: 480, height: 120, duration: 0.4, ease: "power3.in" },
+            7.5,
+          );
+          radius(tl, "#f09-c2", 36, 36, 36, 36, 0.4, "power3.in", 7.5);
+          tl.to("#f09-c2", { opacity: 0, duration: 0.15, ease: "power2.in" }, 7.75);
+          tl.to("#f09-mark", { x: 0, scale: 1, duration: 0.43, ease: "power3.inOut" }, 7.5);
+
+          window.__timelines["09-grows"] = tl;
+          tl.seek(0);
+        })();
+      </script>
+    </template>
+  </body>
+</html>
