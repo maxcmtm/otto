@@ -207,7 +207,8 @@ def fill(bid, ym, copy_file, pending=False):
             p = ap.post(d, it["id"])
             if not p or p["brand"] != bid:
                 sys.exit(f"unknown post {it.get('id')} for {bid}")          # aborts the transaction: nothing saved
-            for k in ("hook", "caption", "visual_brief", "hashtags", "image", "format", "slides", "script"):
+            for k in ("hook", "caption", "visual_brief", "hashtags", "image", "format", "slides", "script",
+                      "template", "photo", "story", "angle_id", "persona_id", "stage", "theme", "render"):   # the render + sticker hints too
                 if k in it:
                     p[k] = it[k]
             if pending and p.get("hook") and p.get("caption") and p["status"] == "draft":

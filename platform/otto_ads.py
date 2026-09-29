@@ -41,7 +41,7 @@ SECRETS = pub.SECRETS
 GADS = "https://googleads.googleapis.com/v21"
 # categories where paid needs a human first (Meta special/restricted categories, policy-sensitive verticals)
 RESTRICTED = re.compile(r"cbd|hemp|cannab|weight loss|crypto|bitcoin|forex|gambling|casino|betting|pharma|prescription|"
-                        r"supplement|therap|mental health|psychotherap|psycholog|counsel+ing|employment|job (ad|opening|offer)s?|"
+                        r"therap|mental health|psychotherap|psycholog|counsel+ing|employment|job (ad|opening|offer)s?|"
                         r"recruit|hiring|vacanc|housing|rental|mortgage|\bcredit\b|\bloans?\b|lending|"
                         r"טיפול רגשי|בריאות נפשית|פסיכותרפ|תרפי", re.I)
 # Meta results by campaign objective, first match wins (the lists overlap, never sum them)
@@ -76,6 +76,23 @@ FALLBACK_HEADLINES = {"en": ["Official Site", "Learn More Today", "Get in Touch"
                       "it": ["Sito ufficiale", "Scopri di più", "Contattaci oggi"],
                       "fr": ["Site officiel", "En savoir plus", "Contactez-nous"],
                       "es": ["Sitio oficial", "Más información", "Contáctanos hoy"]}
+# a shop's Search ad sells: "Get in Touch" / "Talk to our team" are lead-gen lines
+SHOP_HEADLINES = {"en": ["Official Store", "Shop Online Today", "Order Online"],
+                  "de": ["Offizieller Shop", "Jetzt online bestellen", "Online bestellen"],
+                  "he": ["החנות הרשמית", "הזמינו אונליין", "קנו עכשיו באתר"],
+                  "pt": ["Loja oficial", "Compre online hoje", "Encomende online"],
+                  "nl": ["Officiële webshop", "Bestel vandaag online", "Online bestellen"],
+                  "it": ["Negozio ufficiale", "Acquista online oggi", "Ordina online"],
+                  "fr": ["Boutique officielle", "Commandez en ligne", "Achetez en ligne"],
+                  "es": ["Tienda oficial", "Compra online hoy", "Pide online"]}
+SHOP_DESCRIPTIONS = {"en": ["Order online from the official store.", "See the full range on the official site."],
+                     "de": ["Jetzt im offiziellen Shop bestellen.", "Das ganze Sortiment auf der offiziellen Website."],
+                     "he": ["הזמינו אונליין מהחנות הרשמית.", "כל המוצרים באתר הרשמי."],
+                     "pt": ["Encomende online na loja oficial.", "Veja toda a gama no site oficial."],
+                     "nl": ["Bestel online in de officiële webshop.", "Bekijk het hele assortiment op de officiële site."],
+                     "it": ["Ordina online dal negozio ufficiale.", "Scopri tutta la gamma sul sito ufficiale."],
+                     "fr": ["Commandez sur la boutique officielle.", "Toute la gamme sur le site officiel."],
+                     "es": ["Pide online en la tienda oficial.", "Descubre toda la gama en el sitio oficial."]}
 FALLBACK_DESCRIPTIONS = {"en": ["Find out more on our official site.", "Talk to our team today."],
                          "de": ["Mehr erfahren auf unserer offiziellen Website.", "Sprechen Sie noch heute mit uns."],
                          "he": ["כל הפרטים באתר הרשמי.", "השאירו פרטים ונחזור אליכם."],
@@ -373,9 +390,24 @@ def profile_bits(bid, b=None):
     industry = s.get("industry", "") or (im.group(1) if im else "")
     langs = s.get("languages") or []
     countries = ap.brand_countries(b or {"id": bid}, langs)       # brands[].countries → url TLD → site language
-    return {"industry": industry, "countries": countries, "restricted": bool(RESTRICTED.search(industry + " " + t[:3000])),
+    # restricted = what the business IS (scan industry, the profile's explicit Industry line, declared Meta special
+    # categories) — never any word anywhere in the profile ("referral credit", "no weight-loss claims" are not a category)
+    basis = " ".join([industry, im.group(1) if im else "", " ".join((b or {}).get("special_ad_categories") or [])])
+    return {"industry": industry, "countries": countries, "restricted": bool(RESTRICTED.search(basis)),
+            "shop": is_shop(s, industry),
             "url": clean_landing(s.get("final_url") or ""), "description": s.get("identity", {}).get("description", ""),
             "lang": ap.brand_lang(b or {"id": bid})}
+
+
+SHOP_PLATFORMS = re.compile(r"shopify|woocommerce|magento|bigcommerce|shopware|prestashop|wix stores|squarespace commerce", re.I)
+SHOP_INDUSTRIES = re.compile(r"e-commerce|retail|supplement|nutrition|cbd|beauty products|fashion|apparel", re.I)
+
+
+def is_shop(scan, industry):
+    """An online shop sells at checkout: its paid objective is purchases (pixel PURCHASE), not leads."""
+    plat = str((scan or {}).get("platform") or "")
+    has_prices = bool(((scan or {}).get("commerce") or {}).get("prices"))
+    return bool(SHOP_PLATFORMS.search(plat) or (SHOP_INDUSTRIES.search(industry or "") and has_prices))
 
 
 def clean_landing(u):
@@ -431,6 +463,27 @@ def new_campaign_id(d):
     return ap.next_id(d, "cp", d.get("campaigns", []))
 
 
+def angle_ads(bid):
+    """Ad copy written per angle (angles.json → angles[].ad = {headline, primary, description, proof}), best angle first."""
+    f = BRANDS / bid / "angles.json"
+    try:
+        angles = json.loads(f.read_text()).get("angles", []) if f.exists() else []
+    except (OSError, ValueError):
+        return []
+    return [a["ad"] for a in angles if isinstance(a, dict) and isinstance(a.get("ad"), dict)]
+
+
+def _sentences_fit(text, n):
+    """The longest run of whole leading sentences that fits n chars ('' when even the first does not)."""
+    out = ""
+    for sent in re.split(r"(?<=[.!?])\s+", (text or "").strip()):
+        cand = (out + " " + sent).strip()
+        if len(cand) > n:
+            break
+        out = cand
+    return out
+
+
 def plan_flights(d, b, ym, budget, bits):
     y, m = [int(x) for x in ym.split("-")]
     last = calendar.monthrange(y, m)[1]
@@ -444,11 +497,26 @@ def plan_flights(d, b, ym, budget, bits):
             break
         if p["brand"] == b["id"] and p.get("hook") and not p.get("compliance_block") and not comp.check_texts(b["id"], [p["hook"]], "hooks"):
             hooks.append(p["hook"])
+    # the angles' written ad copy (angles.json "ad") is the best Search copy there is: headlines that fit 30 chars,
+    # descriptions cut at a sentence to 90 — each line checked against the brand's rules, like the hooks
+    search_heads, search_descs = [], []
+    for ad in angle_ads(b["id"]):
+        for k in ("headline", "proof", "description"):
+            t = _sentences_fit(ad.get(k) or "", 30).rstrip(".")      # "6 grams of fiber. One snack pack." → "6 grams of fiber"
+            if t:
+                search_heads.append(t)
+        t = _sentences_fit(ad.get("primary") or "", 90)
+        if t:
+            search_descs.append(t)
+    search_heads = [h for h in dict.fromkeys(search_heads) if not comp.check_texts(b["id"], [h], "ads")]
+    search_descs = [t for t in dict.fromkeys(search_descs) if not comp.check_texts(b["id"], [t], "ads")]
+    site_desc = bits["description"] if bits["description"] and not comp.check_texts(b["id"], [bits["description"]], "ads") else ""
     langs = [bits["lang"]]
     flights = []
     # 1. always-on leads/traffic on Meta, whole month
-    flights.append({"network": "meta", "name": f"{b['name']} · Evergreen {'leads' if not bits['restricted'] else 'traffic'} · {ym}",
-                    "objective": "traffic" if bits["restricted"] else "leads", "stage": "cold", "start": f"{ym}-01", "end": f"{ym}-{last:02d}",
+    goal = "traffic" if bits["restricted"] else ("sales" if bits.get("shop") else "leads")
+    flights.append({"network": "meta", "name": f"{b['name']} · Evergreen {goal} · {ym}",
+                    "objective": goal, "stage": "cold", "start": f"{ym}-01", "end": f"{ym}-{last:02d}",
                     "daily_budget": budget, "audience": {"countries": bits["countries"], "age": [25, 60], "interests": b.get("pillars", [])[:4],
                                                          "languages": langs},
                     "creative": {"post": creatives[0]["id"]} if creatives else {"post": None}, "compliance_hold": bits["restricted"]})
@@ -468,12 +536,12 @@ def plan_flights(d, b, ym, budget, bits):
     # 3. Google Search — brand + category intent from the explicit keyword list, whole month (skipped for restricted categories)
     if not bits["restricted"]:
         kw = explicit_keywords(b)
-        flights.append({"network": "google", "name": f"{b['name']} · Search · {ym}", "objective": "leads", "stage": "hot",
+        flights.append({"network": "google", "name": f"{b['name']} · Search · {ym}", "objective": "sales" if bits.get("shop") else "leads", "stage": "hot",
                         "start": f"{ym}-01", "end": f"{ym}-{last:02d}",
                         "daily_budget": round(budget / 2, 2), "audience": {"countries": bits["countries"], "languages": langs},
                         # never the scan's English industry label ("Clinic & medical", "Unknown (?)") as ad copy
-                        "creative": {"headlines": [b["name"]] + [h for h in hooks[:5]],
-                                     "descriptions": [bits["description"]] if bits["description"] else [],
+                        "creative": {"headlines": [b["name"]] + search_heads[:9] + [h for h in hooks[:5]],
+                                     "descriptions": search_descs[:3] + ([site_desc] if site_desc else []),
                                      "keywords": kw}, "compliance_hold": False})
         if not kw["generic"]:
             print(f"note: {b['id']} has no generic keyword list (brands[].keywords or brands/{b['id']}/keywords.json) — "
@@ -844,11 +912,20 @@ def uniq_trunc(cands, n, limit):
     return out[:limit]
 
 
+def _g_text(t):
+    """Google Ads editorial: no decorative symbols ('4.8★' is disapproved as non-standard use of symbols)."""
+    t = re.sub(r"\s*★\s*", " stars ", str(t or ""))
+    t = re.sub(r"[☆✓✔✨•→←]+", " ", t)
+    return re.sub(r"\s{2,}", " ", t).strip()
+
+
 def rsa_assets(c, b, lang):
     cr = c.get("creative") or {}
-    heads = uniq_trunc(list(cr.get("headlines") or []) + [b.get("name", "")] +
-                       FALLBACK_HEADLINES.get(lang, FALLBACK_HEADLINES["en"]), 30, 15)
-    descs = uniq_trunc(list(cr.get("descriptions") or []) + FALLBACK_DESCRIPTIONS.get(lang, FALLBACK_DESCRIPTIONS["en"]), 90, 4)
+    shop = c.get("objective") == "sales"
+    fh = (SHOP_HEADLINES if shop else FALLBACK_HEADLINES)
+    fd = (SHOP_DESCRIPTIONS if shop else FALLBACK_DESCRIPTIONS)
+    heads = uniq_trunc([_g_text(t) for t in list(cr.get("headlines") or []) + [b.get("name", "")] + fh.get(lang, fh["en"])], 30, 15)
+    descs = uniq_trunc([_g_text(t) for t in list(cr.get("descriptions") or []) + fd.get(lang, fd["en"])], 90, 4)
     if len(heads) < 3:
         raise LaunchError(f"responsive search ad needs 3+ unique headlines, have {len(heads)}")
     if len(descs) < 2:

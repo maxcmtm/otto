@@ -1,0 +1,2997 @@
+[
+ {
+  "id": "gr-001",
+  "slot": "2026-10-01 09:00",
+  "platform": "fb",
+  "format": "post",
+  "pillar": "Education",
+  "theme": "pack-vs-powder",
+  "hook_type": "comparison",
+  "hook": "A pack you eat. Not a pack you mix.",
+  "caption": "Greens are moving into packs this fall. Love that for everyone.\n\nQuick reminder of what ours asks from you: one hand.\nNo water. No bottle. No shake. No rinse.\n\nRip the pack, tip the gummies into your palm, and your daily basics are handled: 60+ ingredients, 21 vitamins & minerals and 6 g of fiber.\n\nSee what's in one pack → gruns.co/pages/reviews\n\n*These statements have not been evaluated by the Food and Drug Administration. This product is not intended to diagnose, treat, cure, or prevent any disease.",
+  "hashtags": [
+   "#gruns",
+   "#greensgummies",
+   "#riptipenjoy",
+   "#nomoreshaker"
+  ],
+  "visual_brief": "4:5 comparison card, drawn from the render spec: headline 'A pack you *eat*, not mix.', photo strip lifestyle-focused-hmpg-hero.png (a pack mid-rip, a gummy tipping out), table 'Mix-it pack' vs 'Grüns pack' (highlighted): prep, cleanup, format, works one-handed. Grüns green on paper, one yellow accent. No competitor names, logos or look-alike packaging.",
+  "template": "comparison",
+  "photo": "lifestyle-focused-hmpg-hero.png",
+  "angle_id": "a1",
+  "persona_id": "p1",
+  "stage": "cold",
+  "render": [
+   {
+    "template": "comparison",
+    "data": {
+     "kicker": "Pack vs powder",
+     "title": "A pack you *eat*, not mix.",
+     "columns": [
+      {
+       "name": "Mix-it pack"
+      },
+      {
+       "name": "Grüns pack",
+       "highlight": true
+      }
+     ],
+     "rows": [
+      {
+       "label": "Prep",
+       "values": [
+        "Tear, pour, add water, shake",
+        "Rip, tip, enjoy"
+       ]
+      },
+      {
+       "label": "Cleanup",
+       "values": [
+        "Rinse the shaker",
+        "One wrapper"
+       ]
+      },
+      {
+       "label": "Format",
+       "values": [
+        "Powder you drink",
+        "Gummies you eat"
+       ]
+      },
+      {
+       "label": "Works one-handed",
+       "values": [
+        "no",
+        "yes"
+       ]
+      }
+     ],
+     "footnote": "Every Grüns pack: 60+ ingredients, 21 vitamins & minerals and 6 g of fiber.",
+     "cta": "See what's in one pack",
+     "photo": "assets/site/lifestyle-focused-hmpg-hero.png",
+     "photo_pos": "60% 38%"
+    },
+    "size": [
+     1080,
+     1350
+    ]
+   }
+  ]
+ },
+ {
+  "id": "gr-002",
+  "slot": "2026-10-01 18:00",
+  "platform": "ig",
+  "format": "carousel",
+  "pillar": "Proof",
+  "theme": "reviews-ugc",
+  "hook_type": "review",
+  "hook": "“Grüns literally tastes like fruit snacks I ate as a kid.”",
+  "caption": "We could tell you Grüns is easy. Our reviewers said it better.\n\nFour real reviews from people who quit the shaker, the pill pile or the 'I'll start Monday' plan, in their own words. Swipe, then go read the rest: there are about 100,000 of them.\n\nTry it for 30 days, money back on your first order. Link in bio.\n\n*These statements have not been evaluated by the Food and Drug Administration. This product is not intended to diagnose, treat, cure, or prevent any disease.",
+  "hashtags": [
+   "#gruns",
+   "#grunsreviews",
+   "#realreviews",
+   "#grunsinthewild"
+  ],
+  "visual_brief": "Cover: valueprop-image1.png (man laughing, pack in hand) with the Bradley O. quote set large in DM Sans on a deep-green #00572C bottom band, yellow curly quotes. Slides 2-4: one quote per card on mint #DAECE3, first name + initial only. Slide 5: big '4.8★' in Grüns green with the self-reported note. Carousel_inner for 2-5, carousel_cta to close. Reviews verbatim from gruns.co; confirm reuse consent before any boost.",
+  "template": "carousel_cover",
+  "photo": "valueprop-image1.png",
+  "angle_id": "a1",
+  "persona_id": "p1",
+  "stage": "warm",
+  "slides": [
+   {
+    "title": "“Grüns literally tastes like fruit snacks I ate as a kid.”",
+    "body": "— Bradley O., on gruns.co"
+   },
+   {
+    "title": "“not having to clean a shaker bottle or extra dishes for greens stuff in powder form, is absolutely excellent!”",
+    "body": "— Dustin O."
+   },
+   {
+    "title": "“Grüns has been the one thing I've been able to stick to because they are so easy to consume and taste wonderful (just like gummy bears).”",
+    "body": "— Samuel L."
+   },
+   {
+    "title": "“It's wild I WANT to take Grüns and don't forget.”",
+    "body": "— Brittany A."
+   },
+   {
+    "title": "4.8★ from 100,000 reviews",
+    "body": "Self-reported by Grüns, from 1,000,000+ customers. Read them at gruns.co/pages/reviews."
+   }
+  ]
+ },
+ {
+  "id": "gr-003",
+  "slot": "2026-10-02 12:00",
+  "platform": "ig",
+  "format": "story",
+  "pillar": "Community",
+  "theme": "shrek-berry-far-far-away",
+  "hook_type": "comparison",
+  "hook": "Berry Far Far Away is here. Which pack is yours?",
+  "caption": "A limited berry flavor for grown-ups and kids, in Shrek packs. No restocks planned. Vote, then tap to shop.\n\n*These statements have not been evaluated by the Food and Drug Administration. This product is not intended to diagnose, treat, cure, or prevent any disease.",
+  "hashtags": [
+   "#gruns",
+   "#berryfarfaraway",
+   "#shrek",
+   "#limitededition"
+  ],
+  "visual_brief": "9:16. Pouch_w_Gummies_3.png centered on a deep swamp-green ground (#00572C), gummies tumbling toward the poll sticker, link sticker 'shop the drop' in the lower third. Licensed pack artwork only, no new Shrek character art. Confirm the DreamWorks licence covers organic stories.",
+  "template": "story-photo",
+  "photo": "Pouch_w_Gummies_3.png",
+  "angle_id": "a8",
+  "persona_id": "p2",
+  "stage": "warm",
+  "story": {
+   "type": "poll",
+   "question": "Which pack are you grabbing?",
+   "options": [
+    "adults",
+    "kids",
+    "both, obviously"
+   ]
+  }
+ },
+ {
+  "id": "gr-004",
+  "slot": "2026-10-02 09:00",
+  "platform": "ig",
+  "format": "reel",
+  "pillar": "Routine",
+  "theme": "pack-vs-powder",
+  "hook_type": "comparison",
+  "hook": "Mix. Shake. Rinse. Or rip, tip and go?",
+  "caption": "Powder had a good run.\n\nMix, shake, rinse, repeat. Or: rip the pack, tip it into your hand and get on with your morning.\n\nYour daily basics, zero dishes. 60+ ingredients, 21 vitamins & minerals and 6 g of fiber in every pack.\n\nSee what's in one pack. Link in bio.\n\n*These statements have not been evaluated by the Food and Drug Administration. This product is not intended to diagnose, treat, cure, or prevent any disease.",
+  "hashtags": [
+   "#gruns",
+   "#greensgummies",
+   "#riptipenjoy",
+   "#nomoreshaker"
+  ],
+  "visual_brief": "9:16 reel, continuous morph, no hard cuts. Protagonist: one Grüns sachet (sachet-front.png) centered at 70% frame height. Behind it, four grey line icons (scoop, water, shaker, sink) strike through on the beat. The sachet rips along the sachet-rip.png edge, gummies (gummy_49ae5bc4-1a92-4aaf-8f02-bd9fd6f13100.png) tip into an open palm, the sachet folds into the end card. Grüns green ground, one yellow accent, DM Sans. Upbeat 110 bpm bed + VO.",
+  "template": "reel",
+  "photo": "sachet-front.png",
+  "angle_id": "a1",
+  "persona_id": "p1",
+  "stage": "cold",
+  "reel": {
+   "concept": "Governing object: a single Grüns sachet, centered and never cut. A ghosted powder routine (scoop, water, shake, rinse) plays behind it as four grey icons that strike through on the beat, while the sachet rips, tips gummies into a palm and becomes the end card.",
+   "script_lines": [
+    "Mix. Shake. Rinse. Or rip, tip and go?",
+    "Greens are moving into packs. Most still want water, a bottle and a good shake.",
+    "Ours asks for one hand.",
+    "Rip it open. Tip the gummies into your palm. That's the whole routine.",
+    "Inside every pack: 60+ ingredients, 21 vitamins and minerals and 6 grams of fiber.",
+    "No shaker in the sink. No chalky last sip.",
+    "See what's in one pack. Link in bio."
+   ],
+   "on_screen": [
+    "Mix. Shake. Rinse.",
+    "or rip, tip, go",
+    "water + bottle + shake",
+    "one hand",
+    "60+ ingredients · 21 vitamins & minerals · 6 g fiber",
+    "no shaker. no chalk.",
+    "see what's in one pack"
+   ]
+  },
+  "script": [
+   {
+    "text": "Mix. Shake. Rinse. Or rip, tip and go?",
+    "seconds": 4,
+    "visual": "Mix. Shake. Rinse."
+   },
+   {
+    "text": "Greens are moving into packs. Most still want water, a bottle and a good shake.",
+    "seconds": 7,
+    "visual": "or rip, tip, go"
+   },
+   {
+    "text": "Ours asks for one hand.",
+    "seconds": 3,
+    "visual": "water + bottle + shake"
+   },
+   {
+    "text": "Rip it open. Tip the gummies into your palm. That's the whole routine.",
+    "seconds": 6,
+    "visual": "one hand"
+   },
+   {
+    "text": "Inside every pack: 60+ ingredients, 21 vitamins and minerals and 6 grams of fiber.",
+    "seconds": 6,
+    "visual": "60+ ingredients · 21 vitamins & minerals · 6 g fiber"
+   },
+   {
+    "text": "No shaker in the sink. No chalky last sip.",
+    "seconds": 4,
+    "visual": "no shaker. no chalk."
+   },
+   {
+    "text": "See what's in one pack. Link in bio.",
+    "seconds": 4,
+    "visual": "see what's in one pack"
+   }
+  ]
+ },
+ {
+  "id": "gr-005",
+  "slot": "2026-10-02 18:00",
+  "platform": "ig",
+  "format": "post",
+  "pillar": "Product",
+  "theme": "shrek-berry-far-far-away",
+  "hook_type": "offer_deadline",
+  "hook": "Get it before it's far, far gone.",
+  "caption": "Berry Far Far Away has left the swamp and landed in the shop.\n\nIt's a limited berry flavor of Grüns in Shrek packs, for grown-ups and for kids ages 2-13. One pack a day, same rip-tip-enjoy routine.\n\nGoing fast. No restocks planned.\n\nSubscribing? Your first month ships Berry Far Far Away, then it switches back to Original. Pause or cancel anytime.\n\nGrab it before it's far, far gone. Link in bio.\n\n*These statements have not been evaluated by the Food and Drug Administration. This product is not intended to diagnose, treat, cure, or prevent any disease.",
+  "hashtags": [
+   "#gruns",
+   "#berryfarfaraway",
+   "#shrek",
+   "#limitededition"
+  ],
+  "visual_brief": "4:5 editorial. LTO-Shrek-Adults-SF-1Prod-NoBG.png and LTO-Shrek-Kids-SF-1Prod-NoBG.png side by side on a gradient from #00572C to #007E40, headline 'Get it before it's far, far gone.' in DM Sans bold white, yellow #E8B411 tag 'limited · no restocks planned'. Licensed pack art only; Shrek Display font only if the licence allows it. Scarcity is the site's own wording, no invented date.",
+  "template": "editorial",
+  "photo": "LTO-Shrek-Adults-SF-1Prod-NoBG.png",
+  "angle_id": "a8",
+  "persona_id": "p2",
+  "stage": "hot"
+ },
+ {
+  "id": "gr-006",
+  "slot": "2026-10-03 10:00",
+  "platform": "fb",
+  "format": "post",
+  "pillar": "Community",
+  "theme": "habit-routine",
+  "hook_type": "pov",
+  "hook": "POV: there's a Grüns pack in every bag you own.",
+  "caption": "The trick to a habit that sticks? Put it where you already are.\n\nThe car console. The desk drawer. The gym bag. The diaper bag. The jacket you'll wear all October.\n\nOne pack a day, wherever your day starts.\n\nWhere does your pack live? Tell us in the comments.\n\n*These statements have not been evaluated by the Food and Drug Administration. This product is not intended to diagnose, treat, cure, or prevent any disease.",
+  "hashtags": [
+   "#gruns",
+   "#dailyhabit",
+   "#morningroutine",
+   "#habitstacking"
+  ],
+  "visual_brief": "4:5 photo post: valueprop-cardimg1.png (pack in an open gym bag next to a yellow dumbbell), warm crop, small yellow sticker 'every bag you own' bottom-left, Grüns wordmark bottom-right.",
+  "template": "editorial",
+  "photo": "valueprop-cardimg1.png",
+  "angle_id": "r5",
+  "persona_id": "p3",
+  "stage": "cold"
+ },
+ {
+  "id": "gr-007",
+  "slot": "2026-10-04 09:00",
+  "platform": "ig",
+  "format": "carousel",
+  "pillar": "Education",
+  "theme": "evergreen-proof",
+  "hook_type": "number",
+  "hook": "One pack, by the numbers.",
+  "caption": "Save this for the next time someone asks what's actually in those green gummies.\n\n60+ ingredients. 21 vitamins & minerals, with 12 vitamins at 100% DV. Minerals dosed at about 25% DV, on purpose. 6 g of prebiotic fiber. Methylated folate and B12.\n\nAll of it in one grab-and-go pack, zero measuring.\n\nSee what's in one pack. Link in bio.\n\n*These statements have not been evaluated by the Food and Drug Administration. This product is not intended to diagnose, treat, cure, or prevent any disease.",
+  "hashtags": [
+   "#gruns",
+   "#greensgummies",
+   "#dailynutrition",
+   "#supplementfacts"
+  ],
+  "visual_brief": "Cover: the single gummy bear (gummy_49ae5bc4-1a92-4aaf-8f02-bd9fd6f13100.png) huge on mint #DAECE3, headline in Grüns green. Inner slides: one giant number per slide in DM Sans 800 (#007E40) with a one-line label; last inner slide has the sachet-rip.png torn edge across the top. Close on carousel_cta.",
+  "template": "carousel_cover",
+  "photo": "gummy_49ae5bc4-1a92-4aaf-8f02-bd9fd6f13100.png",
+  "angle_id": "r5",
+  "persona_id": "p3",
+  "stage": "cold",
+  "slides": [
+   {
+    "title": "One pack, by the numbers.",
+    "body": "Save this for the next 'what's actually in those?'"
+   },
+   {
+    "title": "60+",
+    "body": "ingredients in every snack pack of green gummy bears."
+   },
+   {
+    "title": "21",
+    "body": "vitamins & minerals: 12 vitamins at 100% DV (vitamin C at 103%) plus vitamin K2, and 8 minerals."
+   },
+   {
+    "title": "~25% DV",
+    "body": "That's where the minerals sit, on purpose."
+   },
+   {
+    "title": "6 g",
+    "body": "of prebiotic fiber (FiberSMART®), plus methylated folate and B12."
+   },
+   {
+    "title": "0 shakers",
+    "body": "Rip. Tip. Enjoy."
+   }
+  ]
+ },
+ {
+  "id": "gr-008",
+  "slot": "2026-10-05 12:00",
+  "platform": "ig",
+  "format": "story",
+  "pillar": "Product",
+  "theme": "shrek-berry-far-far-away",
+  "hook_type": "question",
+  "hook": "Quiz: who gets Berry Far Far Away?",
+  "caption": "Hint: nobody in the house gets left out. No restocks planned, so tap the link while it lasts.\n\n*These statements have not been evaluated by the Food and Drug Administration. This product is not intended to diagnose, treat, cure, or prevent any disease.",
+  "hashtags": [
+   "#gruns",
+   "#berryfarfaraway",
+   "#shrek",
+   "#limitededition"
+  ],
+  "visual_brief": "9:16: LTO-Shrek-Kids-SF-1Prod-NoBG.png and the Adults cut-out angled together on a lime-to-green gradient, quiz sticker center (correct answer: Adults + Kids), link sticker bottom. Parent-facing; keep out of child-directed placements (CARU).",
+  "template": "story-photo",
+  "photo": "LTO-Shrek-Kids-SF-1Prod-NoBG.png",
+  "angle_id": "a8",
+  "persona_id": "p2",
+  "stage": "hot",
+  "story": {
+   "type": "quiz",
+   "question": "Berry Far Far Away comes in…",
+   "options": [
+    "Adults only",
+    "Kids only",
+    "Adults + Kids"
+   ]
+  }
+ },
+ {
+  "id": "gr-009",
+  "slot": "2026-10-05 09:00",
+  "platform": "fb",
+  "format": "post",
+  "pillar": "Proof",
+  "theme": "evergreen-proof",
+  "hook_type": "objection_first",
+  "hook": "“Do gummy vitamins even absorb?” Fair question.",
+  "caption": "“Do gummy vitamins even absorb?” Fair question. Here's what the study found.\n\n12 weeks. 120 healthy adults aged 23-59. Double-blind, randomized, placebo-controlled.\n\nBlood folate: +20.5% (2.9x placebo).\nBlood vitamin C: +40.1% (2.7x placebo).\n\nThat's an absorption result, and that's all we'll call it: the folate and vitamin C from the gummies showed up in the blood.\n\nTry it for 30 days, money back on your first order → gruns.co/pages/science\n\n*These statements have not been evaluated by the Food and Drug Administration. This product is not intended to diagnose, treat, cure, or prevent any disease.",
+  "hashtags": [
+   "#gruns",
+   "#greensgummies",
+   "#dailynutrition",
+   "#supplementfacts"
+  ],
+  "visual_brief": "4:5 big-number card on mint #DAECE3: '+40.1%' in Grüns green DM Sans 800, label 'vitamin C in blood after 12 weeks (2.7x placebo)', second row '+20.5% folate (2.9x placebo)', source line 'Double-blind, placebo-controlled RCT, 120 healthy adults aged 23-59 (gruns.co/pages/science)'. No lab coats, no pills.",
+  "template": "big_number",
+  "photo": "none",
+  "angle_id": "a6",
+  "persona_id": "p1",
+  "stage": "warm",
+  "render": [
+   {
+    "template": "big_number",
+    "data": {
+     "kicker": "Do gummies absorb?",
+     "number": "+40.1%",
+     "suffix": "vitamin C in blood",
+     "label": "After *12 weeks* on Grüns, 2.7x placebo. Blood folate rose 20.5%, 2.9x placebo.",
+     "body": "An absorption result, and only that.",
+     "source": "12-week double-blind, randomized, placebo-controlled study, 120 healthy adults aged 23-59 (gruns.co/pages/science).",
+     "cta": "See the study"
+    },
+    "size": [
+     1080,
+     1350
+    ]
+   }
+  ]
+ },
+ {
+  "id": "gr-010",
+  "slot": "2026-10-05 18:00",
+  "platform": "ig",
+  "format": "reel",
+  "pillar": "Routine",
+  "theme": "habit-routine",
+  "hook_type": "contrarian",
+  "hook": "Don't build a new habit. Clip it to an old one.",
+  "caption": "New habits are hard. Old habits are already doing the heavy lifting.\n\nSo don't give your daily pack its own time slot. Park it next to the coffee maker, the key bowl, the toothbrush: something you'd never skip.\n\nIn a post-purchase survey of 3k+ customers, 80% said they take Grüns daily.\n\nSee what's in one pack. Link in bio.\n\n*These statements have not been evaluated by the Food and Drug Administration. This product is not intended to diagnose, treat, cure, or prevent any disease.",
+  "hashtags": [
+   "#gruns",
+   "#dailyhabit",
+   "#morningroutine",
+   "#habitstacking"
+  ],
+  "visual_brief": "9:16 reel. Protagonist: one morning checklist card (Grüns green #007E40, 900 px wide, white DM Sans rows) that never cuts. Rows 'coffee' and 'keys' are already ticked; a pack (from lifestyle-focused-hmpg-hero.png, cut out) slides in as row three and ticks itself on the beat. The card flips to the survey stat, then folds into the pack for the end card. Survey label stays on screen with the number.",
+  "template": "reel",
+  "photo": "lifestyle-focused-hmpg-hero.png",
+  "angle_id": "r5",
+  "persona_id": "p3",
+  "stage": "cold",
+  "reel": {
+   "concept": "Governing object: one morning checklist card that never cuts. Coffee and keys are ticked; the pack slides in as row three and ticks on the beat; the card flips to the survey stat and folds into the pack for the end card.",
+   "script_lines": [
+    "Don't build a new habit. Clip it to an old one.",
+    "You already make coffee every morning. You already grab your keys.",
+    "So park the pack right next to them.",
+    "Rip. Tip. Enjoy. Done before the coffee's cool enough to sip.",
+    "In a post-purchase survey of 3k+ customers, 80% said they take Grüns daily.",
+    "Turns out the easy habits are the ones that stay.",
+    "See what's in one pack. Link in bio."
+   ],
+   "on_screen": [
+    "clip it to an old one",
+    "coffee · keys",
+    "+ pack",
+    "rip. tip. enjoy.",
+    "80% take it daily (post-purchase survey, 3k+ customers)",
+    "easy habits stay",
+    "see what's in one pack"
+   ]
+  },
+  "script": [
+   {
+    "text": "Don't build a new habit. Clip it to an old one.",
+    "seconds": 5,
+    "visual": "clip it to an old one"
+   },
+   {
+    "text": "You already make coffee every morning. You already grab your keys.",
+    "seconds": 5,
+    "visual": "coffee · keys"
+   },
+   {
+    "text": "So park the pack right next to them.",
+    "seconds": 4,
+    "visual": "+ pack"
+   },
+   {
+    "text": "Rip. Tip. Enjoy. Done before the coffee's cool enough to sip.",
+    "seconds": 5,
+    "visual": "rip. tip. enjoy."
+   },
+   {
+    "text": "In a post-purchase survey of 3k+ customers, 80% said they take Grüns daily.",
+    "seconds": 6,
+    "visual": "80% take it daily (post-purchase survey, 3k+ customers)"
+   },
+   {
+    "text": "Turns out the easy habits are the ones that stay.",
+    "seconds": 5,
+    "visual": "easy habits stay"
+   },
+   {
+    "text": "See what's in one pack. Link in bio.",
+    "seconds": 4,
+    "visual": "see what's in one pack"
+   }
+  ]
+ },
+ {
+  "id": "gr-011",
+  "slot": "2026-10-06 09:00",
+  "platform": "ig",
+  "format": "carousel",
+  "pillar": "Product",
+  "theme": "kids",
+  "hook_type": "number",
+  "hook": "Grüns Kids, explained in 5 slides (for the grown-ups).",
+  "caption": "Veggie negotiations: ongoing. The daily pack: easy.\n\nGrüns Kids is a 15 g pack of gummies made for ages 2-13. One pack a day, handed out by you, done at breakfast. No pills to swallow, no powder to sneak into a smoothie.\n\nSwipe for the details, plus what one parent (and her veggie-skeptic daughter) thought.\n\nSee what's in one pack. Link in bio.\n\n*These statements have not been evaluated by the Food and Drug Administration. This product is not intended to diagnose, treat, cure, or prevent any disease.",
+  "hashtags": [
+   "#grunskids",
+   "#pickyeaters",
+   "#parentlife",
+   "#gruns"
+  ],
+  "visual_brief": "Cover: ShopTile-OG-Kids.png (yellow Kids pouch on its pink-yellow gradient). Inner slides: Kids yellow #FFCC2F cards with deep-green #002613 text; slide 4 is a quote card. Grown-up styling: no cartoon kid characters, no candy aesthetic. Close on carousel_cta.",
+  "template": "carousel_cover",
+  "photo": "ShopTile-OG-Kids.png",
+  "angle_id": "a5",
+  "persona_id": "p2",
+  "stage": "cold",
+  "slides": [
+   {
+    "title": "Grüns Kids, explained for the grown-ups.",
+    "body": ""
+   },
+   {
+    "title": "Made for ages 2-13",
+    "body": "A smaller 15 g pack. One pack a day, handed out by a grown-up."
+   },
+   {
+    "title": "Rip. Tip. Done.",
+    "body": "No pills to swallow. No powder to hide in a smoothie."
+   },
+   {
+    "title": "Parents said it first",
+    "body": "“My daughter who will barely touch a veggie ate all of these immediately.” — Macall"
+   },
+   {
+    "title": "$1.42 a day",
+    "body": "Kids Subscribe & Save: $39.99 per 28 packs, free shipping. Pause or cancel anytime."
+   }
+  ]
+ },
+ {
+  "id": "gr-012",
+  "slot": "2026-10-06 18:00",
+  "platform": "ig",
+  "format": "post",
+  "pillar": "Community",
+  "theme": "reviews-ugc",
+  "hook_type": "callout",
+  "hook": "Your pack, in the wild. We want to see it.",
+  "caption": "Desk drawers. Cup holders. Stroller baskets. Beach bags that never got unpacked.\n\nGrüns packs end up in some very good places, and we want to see yours. Snap your pack in the wild, tag @grunsdaily and add #grunsinthewild. We'll ask before we share, and our favorites go up in stories this month.\n\nTag us with your pack in the wild.\n\n*These statements have not been evaluated by the Food and Drug Administration. This product is not intended to diagnose, treat, cure, or prevent any disease.",
+  "hashtags": [
+   "#gruns",
+   "#grunsreviews",
+   "#realreviews",
+   "#grunsinthewild"
+  ],
+  "visual_brief": "4:5: Gruns-Social-Images-12.png (a crowd at a barricade holding packs up), yellow sticker '#grunsinthewild' top-left, nothing else on the photo. Reposts later only with each person's written OK via DM, handle credited; anyone with a paid relationship gets Paid partnership + #ad.",
+  "template": "ugc-photo",
+  "photo": "Gruns-Social-Images-12.png",
+  "angle_id": "r5",
+  "persona_id": "p3",
+  "stage": "warm"
+ },
+ {
+  "id": "gr-013",
+  "slot": "2026-10-07 12:00",
+  "platform": "ig",
+  "format": "story",
+  "pillar": "Routine",
+  "theme": "habit-routine",
+  "hook_type": "question",
+  "hook": "When does your daily pack happen?",
+  "caption": "No wrong answers, just the one you'll stick to. Vote, then see when the crü does it.\n\n*These statements have not been evaluated by the Food and Drug Administration. This product is not intended to diagnose, treat, cure, or prevent any disease.",
+  "hashtags": [
+   "#gruns",
+   "#dailyhabit",
+   "#morningroutine",
+   "#habitstacking"
+  ],
+  "visual_brief": "9:16: lifestyle-focused-hmpg-hero.png cropped to the hand catching gummies, 4-option poll sticker in the middle third, Grüns green band at the top with the question in DM Sans.",
+  "template": "story-photo",
+  "photo": "lifestyle-focused-hmpg-hero.png",
+  "angle_id": "r5",
+  "persona_id": "p3",
+  "stage": "cold",
+  "story": {
+   "type": "poll",
+   "question": "When does your pack happen?",
+   "options": [
+    "with coffee",
+    "at my desk",
+    "in the car",
+    "school run"
+   ]
+  }
+ },
+ {
+  "id": "gr-014",
+  "slot": "2026-10-07 09:00",
+  "platform": "fb",
+  "format": "post",
+  "pillar": "Education",
+  "theme": "pack-vs-powder",
+  "hook_type": "myth_fact",
+  "hook": "Myth: daily greens have to taste like a lawn.",
+  "caption": "Myth: daily greens have to taste like a lawn.\n\nFact: they can taste like mixed berries. Not our words: “The convenience and taste are huge! Like mixed berries!” (Dustin O.)\n\nGrüns puts greens, 21 vitamins & minerals and 6 g of fiber into gummies you'll actually look forward to. No grit, no gag, no shaker.\n\nSee what's in one pack → gruns.co/pages/reviews\n\n*These statements have not been evaluated by the Food and Drug Administration. This product is not intended to diagnose, treat, cure, or prevent any disease.",
+  "hashtags": [
+   "#gruns",
+   "#greensgummies",
+   "#riptipenjoy",
+   "#nomoreshaker"
+  ],
+  "visual_brief": "4:5 myth vs fact card. Top: 'Myth' in grey-green over a thin lawn-grass texture strip, struck through. Bottom on Grüns green: the gummy bear cut-out (gummy_49ae5bc4-1a92-4aaf-8f02-bd9fd6f13100.png) and 'Fact: they can taste like mixed berries' with Dustin O.'s quote in yellow.",
+  "template": "myth_fact",
+  "photo": "gummy_49ae5bc4-1a92-4aaf-8f02-bd9fd6f13100.png",
+  "angle_id": "a1",
+  "persona_id": "p1",
+  "stage": "cold",
+  "render": [
+   {
+    "template": "myth_fact",
+    "data": {
+     "kicker": "Greens, honestly",
+     "myth": "Daily greens have to taste like a lawn.",
+     "fact": "They can taste like *mixed berries*. A customer said it, not us.",
+     "source": "“Like mixed berries!” Dustin O., review on gruns.co",
+     "cta": "See what's in one pack"
+    },
+    "size": [
+     1080,
+     1350
+    ]
+   }
+  ]
+ },
+ {
+  "id": "gr-015",
+  "slot": "2026-10-07 18:00",
+  "platform": "ig",
+  "format": "carousel",
+  "pillar": "Proof",
+  "theme": "pack-vs-powder",
+  "hook_type": "comparison",
+  "hook": "Powder vs pack: the side-by-side, taste row by a customer.",
+  "caption": "We made a comparison chart. We're a little biased, so a customer wrote the taste row.\n\nPrep, cleanup, taste, price per day and what's inside: swipe and judge for yourself.\n\nSpoiler: only one of these works without a shaker.\n\nTry it for 30 days, money back on your first order. Link in bio.\n\n*These statements have not been evaluated by the Food and Drug Administration. This product is not intended to diagnose, treat, cure, or prevent any disease.",
+  "hashtags": [
+   "#gruns",
+   "#greensgummies",
+   "#riptipenjoy",
+   "#nomoreshaker"
+  ],
+  "visual_brief": "Showdown carousel (Hiya's format, our facts): every slide is two columns, 'powder' in muted grey with a generic unbranded tub and scoop, 'Grüns' in green with sachet-front.png. Row title top in DM Sans bold; a yellow tick on the Grüns side only where the fact supports it. Never a real competitor's pack or name.",
+  "template": "carousel_cover",
+  "photo": "sachet-front.png",
+  "angle_id": "a1",
+  "persona_id": "p1",
+  "stage": "warm",
+  "slides": [
+   {
+    "title": "Powder vs pack. The honest side-by-side.",
+    "body": ""
+   },
+   {
+    "title": "The prep",
+    "body": "Powder: scoop or tear, add water, shake. Grüns: rip, tip, enjoy."
+   },
+   {
+    "title": "The cleanup",
+    "body": "Powder: a shaker bottle in the sink. Grüns: one wrapper."
+   },
+   {
+    "title": "The taste",
+    "body": "A customer who tried both: “the drink was definitely gritty/chalky.” And: “Grüns literally tastes like fruit snacks I ate as a kid.” — Bradley O."
+   },
+   {
+    "title": "The daily price",
+    "body": "Grüns Subscribe & Save: $49.99 per 28 packs, which is $1.78 a day. Pause or cancel anytime."
+   },
+   {
+    "title": "What's inside",
+    "body": "60+ ingredients, 21 vitamins & minerals and 6 g of fiber in every pack."
+   }
+  ]
+ },
+ {
+  "id": "gr-016",
+  "slot": "2026-10-08 09:00",
+  "platform": "ig",
+  "format": "reel",
+  "pillar": "Routine",
+  "theme": "kids",
+  "hook_type": "pov",
+  "hook": "POV: the school run, but one thing's already handled.",
+  "caption": "School mornings are a speed round. The daily pack shouldn't add a round.\n\nGrüns Kids comes in a small 15 g pack for ages 2-13: one a day, handed over by a grown-up, done at breakfast.\n\nTara, a parent, put it this way: “My kids are picky eaters! I have a really hard time getting them to eat any greens. So glad we found these!!”\n\nSee what's in one pack. Link in bio.\n\n*These statements have not been evaluated by the Food and Drug Administration. This product is not intended to diagnose, treat, cure, or prevent any disease.",
+  "hashtags": [
+   "#grunskids",
+   "#pickyeaters",
+   "#parentlife",
+   "#gruns"
+  ],
+  "visual_brief": "9:16 reel. Protagonist: one flat-illustrated backpack front pocket (Kids yellow #FFCC2F, 820 px wide) that never cuts. Shoes, water bottle and a lunch box drop in on the beat; the Grüns Kids pack (OG-Kids-SF-1Prod-NoBG.png) is handed in last by a grown-up hand, the pocket zips shut and becomes the end card. No child actors needed; if kids appear, parent-consented and never addressed by the copy.",
+  "template": "reel",
+  "photo": "OG-Kids-SF-1Prod-NoBG.png",
+  "angle_id": "a5",
+  "persona_id": "p2",
+  "stage": "cold",
+  "reel": {
+   "concept": "Governing object: a backpack front pocket that fills on the beat (shoes, bottle, lunch box), the Kids pack goes in last from a grown-up's hand, and the zipped pocket becomes the end card.",
+   "script_lines": [
+    "POV: the school run, but one thing's already handled.",
+    "Shoes found. Backpack zipped. Water bottle, somehow, located.",
+    "And the daily pack? A grown-up hands it over at breakfast.",
+    "Grüns Kids is a 15 gram pack made for ages 2 to 13. One a day.",
+    "One parent put it this way: “My kids are picky eaters! I have a really hard time getting them to eat any greens. So glad we found these!!”",
+    "See what's in one pack. Link in bio."
+   ],
+   "on_screen": [
+    "the school run",
+    "shoes · backpack · bottle",
+    "+ one pack at breakfast",
+    "ages 2-13 · 15 g · one a day",
+    "“So glad we found these!!” — Tara",
+    "see what's in one pack"
+   ]
+  },
+  "script": [
+   {
+    "text": "POV: the school run, but one thing's already handled.",
+    "seconds": 4,
+    "visual": "the school run"
+   },
+   {
+    "text": "Shoes found. Backpack zipped. Water bottle, somehow, located.",
+    "seconds": 4,
+    "visual": "shoes · backpack · bottle"
+   },
+   {
+    "text": "And the daily pack? A grown-up hands it over at breakfast.",
+    "seconds": 5,
+    "visual": "+ one pack at breakfast"
+   },
+   {
+    "text": "Grüns Kids is a 15 gram pack made for ages 2 to 13. One a day.",
+    "seconds": 7,
+    "visual": "ages 2-13 · 15 g · one a day"
+   },
+   {
+    "text": "One parent put it this way: “My kids are picky eaters! I have a really hard time getting them to eat any greens. So glad we found these!!”",
+    "seconds": 12,
+    "visual": "“So glad we found these!!” — Tara"
+   },
+   {
+    "text": "See what's in one pack. Link in bio.",
+    "seconds": 4,
+    "visual": "see what's in one pack"
+   }
+  ]
+ },
+ {
+  "id": "gr-017",
+  "slot": "2026-10-08 18:00",
+  "platform": "ig",
+  "format": "post",
+  "pillar": "Product",
+  "theme": "habit-routine",
+  "hook_type": "comparison",
+  "hook": "Five bottles on the shelf. One pack in your bag.",
+  "caption": "Multi. B12. A fiber tub. Greens powder. That one bottle you forgot you bought.\n\nJamie W. cleared the shelf: “I also stopped buying separate probiotic gummies, b12 gummies, and multivitamin gummies. I just take these now and it's easier for me to manage.”\n\nOne Grüns pack: 60+ ingredients, 21 vitamins & minerals, 6 g of fiber. $1.78 a day on Subscribe & Save, pause or cancel anytime.\n\nTry it for 30 days, money back on your first order. Link in bio.\n\n*These statements have not been evaluated by the Food and Drug Administration. This product is not intended to diagnose, treat, cure, or prevent any disease.",
+  "hashtags": [
+   "#gruns",
+   "#dailyhabit",
+   "#morningroutine",
+   "#habitstacking"
+  ],
+  "visual_brief": "Split template, objects only: left panel 'the shelf' with five generic unbranded bottles and tubs in grey; right panel 'the pack' with GRUNS_Pouch_28ct_LS_Render_Front_3.png and one sachet on Grüns green. No people, no bodies. Panel labels are 'the shelf' and 'the pack'.",
+  "template": "before_after",
+  "photo": "GRUNS_Pouch_28ct_LS_Render_Front_3.png",
+  "angle_id": "a4",
+  "persona_id": "p3",
+  "stage": "warm",
+  "render": [
+   {
+    "template": "before_after",
+    "data": {
+     "kicker": "Replace the stack",
+     "before_label": "The shelf",
+     "after_label": "The pack",
+     "before": "A multi, B12, a fiber tub, a greens powder. Five caps to remember.",
+     "after": "One pack a day: *60+ ingredients*, 21 vitamins & minerals and 6 g of fiber.",
+     "photo_after": "assets/site/GRUNS_Pouch_28ct_LS_Render_Front_3.png",
+     "photo_after_pos": "50% 50%",
+     "cta": "Try it, money back for 30 days"
+    },
+    "size": [
+     1080,
+     1350
+    ]
+   }
+  ]
+ },
+ {
+  "id": "gr-018",
+  "slot": "2026-10-09 12:00",
+  "platform": "ig",
+  "format": "story",
+  "pillar": "Proof",
+  "theme": "reviews-ugc",
+  "hook_type": "review",
+  "hook": "“Grüns has been the one thing I've been able to stick to”",
+  "caption": "Samuel L. said it. Got a pack-in-the-wild photo? Tag @grunsdaily with #grunsinthewild and we might share it here.\n\n*These statements have not been evaluated by the Food and Drug Administration. This product is not intended to diagnose, treat, cure, or prevent any disease.",
+  "hashtags": [
+   "#gruns",
+   "#grunsreviews",
+   "#realreviews",
+   "#grunsinthewild"
+  ],
+  "visual_brief": "9:16 quote story: Gruns-Social-Images-13.png (woman on a tennis court snacking from a pack) with Samuel L.'s quote on a deep-green card, 'review from gruns.co' micro-line, mention sticker @grunsdaily.",
+  "template": "quote",
+  "photo": "Gruns-Social-Images-13.png",
+  "angle_id": "r5",
+  "persona_id": "p3",
+  "stage": "warm",
+  "story": {
+   "type": "photo",
+   "question": "",
+   "options": []
+  },
+  "render": [
+   {
+    "template": "quote",
+    "data": {
+     "quote": "Grüns has been *the one thing* I've been able to stick to because they are so easy to consume and taste wonderful (just like gummy bears).",
+     "name": "Samuel L.",
+     "detail": "Review on gruns.co",
+     "note": "",
+     "theme": "dark",
+     "photo": "assets/site/Gruns-Social-Images-13.png",
+     "photo_pos": "50% 35%",
+     "cta": "Tag @grunsdaily"
+    },
+    "size": [
+     1080,
+     1920
+    ]
+   }
+  ]
+ },
+ {
+  "id": "gr-019",
+  "slot": "2026-10-09 09:00",
+  "platform": "fb",
+  "format": "post",
+  "pillar": "Community",
+  "theme": "kids",
+  "hook_type": "callout",
+  "hook": "Parents, settle this: which vegetable gets the hardest “no”?",
+  "caption": "Parents, settle this: which vegetable gets the hardest “no” at your table?\n\nOur guess is Brussels sprouts, but the comments always surprise us.\n\nWhile the veggie negotiations continue, Grüns Kids keeps one part of the day simple: one 15 g pack of gummies a day for ages 2-13, handed out by a grown-up.\n\nDrop your family's toughest veggie in the comments.\n\n*These statements have not been evaluated by the Food and Drug Administration. This product is not intended to diagnose, treat, cure, or prevent any disease.",
+  "hashtags": [
+   "#grunskids",
+   "#pickyeaters",
+   "#parentlife",
+   "#gruns"
+  ],
+  "visual_brief": "4:5: ShopTile-OG-Kids.png pouch on its pink-yellow gradient, a row of five flat veggie icons (broccoli, sprouts, peas, spinach, carrot) along the top with a tally-mark sticker. Parent-directed; no kid characters, no candy styling.",
+  "template": "editorial",
+  "photo": "ShopTile-OG-Kids.png",
+  "angle_id": "a5",
+  "persona_id": "p2",
+  "stage": "cold"
+ },
+ {
+  "id": "gr-020",
+  "slot": "2026-10-09 18:00",
+  "platform": "ig",
+  "format": "carousel",
+  "pillar": "Education",
+  "theme": "pack-vs-powder",
+  "hook_type": "checklist",
+  "hook": "5 things to check before you switch from powder.",
+  "caption": "Switching from powder? Do it with your eyes open.\n\nFive things worth checking on any greens product: what's in one serving, the %DV, the sugar, the testing and the real price per day. We put our own numbers on every slide, sugar included.\n\nTry it for 30 days, money back on your first order. Link in bio.\n\n*These statements have not been evaluated by the Food and Drug Administration. This product is not intended to diagnose, treat, cure, or prevent any disease.",
+  "hashtags": [
+   "#gruns",
+   "#greensgummies",
+   "#riptipenjoy",
+   "#nomoreshaker"
+  ],
+  "visual_brief": "Checklist carousel: cover with GRUNS_Pouch_28ct_LS_Render_Front_3.png and a yellow clipboard motif; each inner slide is one checklist row with a big green tick and Grüns' own number. Never show another brand's label.",
+  "template": "carousel_cover",
+  "photo": "GRUNS_Pouch_28ct_LS_Render_Front_3.png",
+  "angle_id": "a1",
+  "persona_id": "p1",
+  "stage": "warm",
+  "slides": [
+   {
+    "title": "5 things to check before you switch from powder.",
+    "body": ""
+   },
+   {
+    "title": "1. What's in one serving",
+    "body": "Count the ingredients, vitamins & minerals and grams of fiber. Grüns: 60+, 21 and 6 g per pack."
+   },
+   {
+    "title": "2. The %DV",
+    "body": "Grüns: 12 vitamins at 100% DV, minerals at about 25% DV on purpose."
+   },
+   {
+    "title": "3. The sugar",
+    "body": "Grüns Sugar-Free: <0.5 g total sugars, 20 calories. Low Sugar: 8 g added sugars, 50 calories. We say it plainly."
+   },
+   {
+    "title": "4. The testing",
+    "body": "Every Grüns lot is third-party tested for 70 pesticides, 4 heavy metals, 16 contaminants and 9 microbial contaminants."
+   },
+   {
+    "title": "5. The price per day",
+    "body": "$49.99 per 28 packs on Subscribe & Save = $1.78 a day. Pause or cancel anytime."
+   }
+  ]
+ },
+ {
+  "id": "gr-021",
+  "slot": "2026-10-10 10:00",
+  "platform": "fb",
+  "format": "post",
+  "pillar": "Proof",
+  "theme": "reviews-ugc",
+  "hook_type": "review",
+  "hook": "“I hate subscriptions because I feel like they are a trap”",
+  "caption": "“I hate subscriptions because I feel like they are a trap so I canceled it before the gummies even arrived. We quickly decided to resubscribe because we love Grüns so much!” (Kate S.)\n\nFair. So here's the deal, plainly: Subscribe & Save is $49.99 per 28 packs, ships every 4 weeks with free shipping, and you can pause or cancel anytime. Your first order has a 30-day money-back guarantee.\n\nStart your subscription → gruns.co/products/gruns\n\n*These statements have not been evaluated by the Food and Drug Administration. This product is not intended to diagnose, treat, cure, or prevent any disease.",
+  "hashtags": [
+   "#gruns",
+   "#grunsreviews",
+   "#realreviews",
+   "#grunsinthewild"
+  ],
+  "visual_brief": "Quote card 4:5, dark theme: near-black green #002613 ground, Kate S.'s quote in large DM Sans with yellow curly quotes, 'review from gruns.co'. Footer strip: '$49.99 / 28 packs · pause or cancel anytime · 30-day money-back on first order'.",
+  "template": "quote",
+  "photo": "none",
+  "angle_id": "a7",
+  "persona_id": "p3",
+  "stage": "hot",
+  "render": [
+   {
+    "template": "quote",
+    "data": {
+     "quote": "I hate subscriptions because I feel like they are a trap so I canceled it before the gummies even arrived. We quickly decided to *resubscribe* because we love Grüns so much!",
+     "name": "Kate S.",
+     "detail": "Review on gruns.co",
+     "note": "",
+     "theme": "dark",
+     "cta": "Subscribe · pause or cancel anytime"
+    },
+    "size": [
+     1080,
+     1350
+    ]
+   }
+  ]
+ },
+ {
+  "id": "gr-022",
+  "slot": "2026-10-11 09:00",
+  "platform": "ig",
+  "format": "reel",
+  "pillar": "Routine",
+  "theme": "pack-vs-powder",
+  "hook_type": "pov",
+  "hook": "POV: your greens live in your desk drawer now.",
+  "caption": "Your desk drawer called. It wants the shaker bottle gone.\n\nSwap the tub, the scoop and the Friday-afternoon mystery shaker for a row of packs. Rip. Tip. Enjoy. Back to work.\n\n60+ ingredients, 21 vitamins & minerals and 6 g of fiber in every pack, and nothing to wash.\n\nSee what's in one pack. Link in bio.\n\n*These statements have not been evaluated by the Food and Drug Administration. This product is not intended to diagnose, treat, cure, or prevent any disease.",
+  "hashtags": [
+   "#gruns",
+   "#greensgummies",
+   "#riptipenjoy",
+   "#nomoreshaker"
+  ],
+  "visual_brief": "9:16 reel, top-down, fixed camera. Protagonist: one desk drawer that never cuts. It slides open on each beat: first a tub, scoop and shaker jammed in (greyed out), then it resets holding a neat row of five sachets (sachet-front.png). A hand takes one, rips, tips, and the drawer closes into the end card. Grüns green drawer liner, yellow accent on the sachet row only.",
+  "template": "reel",
+  "photo": "sachet-front.png",
+  "angle_id": "a1",
+  "persona_id": "p1",
+  "stage": "cold",
+  "reel": {
+   "concept": "Governing object: one desk drawer, top-down. The powder kit that barely fits is swapped for a row of packs; a hand takes one, rips, tips, and the drawer shuts into the end card.",
+   "script_lines": [
+    "POV: your greens live in your desk drawer now.",
+    "Not a tub. Not a scoop. Not a shaker you forgot to rinse on Friday.",
+    "Just a neat row of packs, one for every workday this week.",
+    "Rip. Tip. Enjoy. Back to the spreadsheet.",
+    "Each pack has 60+ ingredients, 21 vitamins and minerals and 6 grams of fiber.",
+    "And nothing to wash before Monday.",
+    "See what's in one pack. Link in bio."
+   ],
+   "on_screen": [
+    "greens: desk drawer edition",
+    "no tub. no scoop. no shaker.",
+    "one pack per workday",
+    "rip. tip. enjoy.",
+    "60+ ingredients · 21 vitamins & minerals · 6 g fiber",
+    "nothing to wash",
+    "see what's in one pack"
+   ]
+  },
+  "script": [
+   {
+    "text": "POV: your greens live in your desk drawer now.",
+    "seconds": 4,
+    "visual": "greens: desk drawer edition"
+   },
+   {
+    "text": "Not a tub. Not a scoop. Not a shaker you forgot to rinse on Friday.",
+    "seconds": 7,
+    "visual": "no tub. no scoop. no shaker."
+   },
+   {
+    "text": "Just a neat row of packs, one for every workday this week.",
+    "seconds": 6,
+    "visual": "one pack per workday"
+   },
+   {
+    "text": "Rip. Tip. Enjoy. Back to the spreadsheet.",
+    "seconds": 4,
+    "visual": "rip. tip. enjoy."
+   },
+   {
+    "text": "Each pack has 60+ ingredients, 21 vitamins and minerals and 6 grams of fiber.",
+    "seconds": 6,
+    "visual": "60+ ingredients · 21 vitamins & minerals · 6 g fiber"
+   },
+   {
+    "text": "And nothing to wash before Monday.",
+    "seconds": 3,
+    "visual": "nothing to wash"
+   },
+   {
+    "text": "See what's in one pack. Link in bio.",
+    "seconds": 4,
+    "visual": "see what's in one pack"
+   }
+  ]
+ },
+ {
+  "id": "gr-023",
+  "slot": "2026-10-12 12:00",
+  "platform": "ig",
+  "format": "story",
+  "pillar": "Education",
+  "theme": "evergreen-proof",
+  "hook_type": "question",
+  "hook": "Quiz: how much fiber is in one pack?",
+  "caption": "Guess first. The answer is in the next story, along with what else is inside one pack.\n\n*These statements have not been evaluated by the Food and Drug Administration. This product is not intended to diagnose, treat, cure, or prevent any disease.",
+  "hashtags": [
+   "#gruns",
+   "#greensgummies",
+   "#dailynutrition",
+   "#supplementfacts"
+  ],
+  "visual_brief": "9:16: sachet-front.png large on mint #DAECE3, quiz sticker middle (correct: 6 g). Next frame (big_number, story size): '6 g prebiotic fiber' with '60+ ingredients · 21 vitamins & minerals' underneath and a link sticker.",
+  "template": "story-photo",
+  "photo": "sachet-front.png",
+  "angle_id": "a3",
+  "persona_id": "p3",
+  "stage": "cold",
+  "story": {
+   "type": "quiz",
+   "question": "Grams of fiber in one Grüns pack?",
+   "options": [
+    "1 g",
+    "3 g",
+    "6 g"
+   ]
+  }
+ },
+ {
+  "id": "gr-024",
+  "slot": "2026-10-12 09:00",
+  "platform": "ig",
+  "format": "carousel",
+  "pillar": "Product",
+  "theme": "shrek-berry-far-far-away",
+  "hook_type": "objection_first",
+  "hook": "Berry Far Far Away, answered: 5 questions before it's gone.",
+  "caption": "You asked, we answered, while there's still some left.\n\nBerry Far Far Away is a limited Grüns flavor in Shrek packs, for adults and for kids. No restocks planned. Subscriptions ship it in month one, then switch to Original. One pack a day. Swipe for the details.\n\nGrab it before it's far, far gone. Link in bio.\n\n*These statements have not been evaluated by the Food and Drug Administration. This product is not intended to diagnose, treat, cure, or prevent any disease.",
+  "hashtags": [
+   "#gruns",
+   "#berryfarfaraway",
+   "#shrek",
+   "#limitededition"
+  ],
+  "visual_brief": "Cover: Adult-Shrek-Gallery-Image-7.png (three friends holding Shrek packs). Inner FAQ slides on a swamp-to-Grüns green gradient, question in yellow, answer in white, small pack cut-outs (LTO-Shrek-Adults-SF-1Prod-NoBG.png / LTO-Shrek-Kids-SF-1Prod-NoBG.png). Licensed art only; confirm licence scope.",
+  "template": "carousel_cover",
+  "photo": "Adult-Shrek-Gallery-Image-7.png",
+  "angle_id": "a8",
+  "persona_id": "p2",
+  "stage": "hot",
+  "slides": [
+   {
+    "title": "Berry Far Far Away: 5 quick answers.",
+    "body": ""
+   },
+   {
+    "title": "Is it limited?",
+    "body": "Yes. It's a limited flavor and there are no restocks planned."
+   },
+   {
+    "title": "Who's it for?",
+    "body": "Grown-ups and kids. There's an Adults pack and a Kids pack (ages 2-13)."
+   },
+   {
+    "title": "What if I subscribe?",
+    "body": "Your first month ships Berry Far Far Away, then your subscription switches back to Original. Pause or cancel anytime."
+   },
+   {
+    "title": "How many a day?",
+    "body": "One pack a day, same as always. Kids packs are handed out by a grown-up."
+   },
+   {
+    "title": "When does it run out?",
+    "body": "We don't have an exact day. We just know it's going fast."
+   }
+  ]
+ },
+ {
+  "id": "gr-025",
+  "slot": "2026-10-12 18:00",
+  "platform": "ig",
+  "format": "post",
+  "pillar": "Community",
+  "theme": "habit-routine",
+  "hook_type": "callout",
+  "hook": "Tag the guy who won't take vitamins.",
+  "caption": "Every group chat has one. Says pills are 'a whole thing.' Owns a shaker bottle he's never opened.\n\nGrüns is for him: one pack of gummies a day, no pills, no powder, no speech required. Rip. Tip. Enjoy. 60+ ingredients and 6 g of fiber, zero effort.\n\nTag the guy who won't take vitamins.\n\n*These statements have not been evaluated by the Food and Drug Administration. This product is not intended to diagnose, treat, cure, or prevent any disease.",
+  "hashtags": [
+   "#gruns",
+   "#dailyhabit",
+   "#morningroutine",
+   "#habitstacking"
+  ],
+  "visual_brief": "4:5: Gruns-Social-Images-22.png (grinning guy in a cap hugging giant gummy-bear balloons), headline 'for the guy who won't take vitamins' in yellow DM Sans across the top third.",
+  "template": "editorial",
+  "photo": "Gruns-Social-Images-22.png",
+  "angle_id": "r6",
+  "persona_id": "p3",
+  "stage": "cold"
+ },
+ {
+  "id": "gr-026",
+  "slot": "2026-10-13 09:00",
+  "platform": "fb",
+  "format": "post",
+  "pillar": "Education",
+  "theme": "evergreen-proof",
+  "hook_type": "number",
+  "hook": "Vitamins D and E: the NHANES number that surprised us.",
+  "caption": "Here's a stat worth knowing: almost 90% of US adults take in less than the estimated average requirement of vitamins D and E (NHANES data).\n\nFood first, always. But real life has school runs, late meetings and whatever lunch was today.\n\nGrüns packs 21 vitamins & minerals and 6 g of fiber into one daily pack of gummies you'll actually remember to eat.\n\nSee what's in one pack → gruns.co/pages/reviews\n\n*These statements have not been evaluated by the Food and Drug Administration. This product is not intended to diagnose, treat, cure, or prevent any disease.",
+  "hashtags": [
+   "#gruns",
+   "#greensgummies",
+   "#dailynutrition",
+   "#supplementfacts"
+  ],
+  "visual_brief": "4:5 big-number card: 'almost 90%' in Grüns green on mint #DAECE3, label 'of US adults take in less than the estimated average requirement of vitamins D and E', source line 'NHANES data, PMC9710417'. Before publishing, confirm vitamins D and E are on the Grüns Supplement Facts panel.",
+  "template": "big_number",
+  "photo": "none",
+  "angle_id": "r5",
+  "persona_id": "p3",
+  "stage": "cold",
+  "render": [
+   {
+    "template": "big_number",
+    "data": {
+     "kicker": "NHANES data",
+     "number": "Almost 90%",
+     "label": "of US adults take in less than the estimated average requirement of vitamins *D and E*.",
+     "body": "Food first, always. A daily pack is an easy backup.",
+     "source": "NHANES data, PMC9710417.",
+     "cta": "See what's in one pack"
+    },
+    "size": [
+     1080,
+     1350
+    ]
+   }
+  ]
+ },
+ {
+  "id": "gr-027",
+  "slot": "2026-10-13 18:00",
+  "platform": "ig",
+  "format": "carousel",
+  "pillar": "Proof",
+  "theme": "reviews-ugc",
+  "hook_type": "review",
+  "hook": "“I used to pay so much for multiple supplements”",
+  "caption": "Some people have a supplement shelf. Some people have a supplement situation.\n\nJeremy H. and Jamie W. both had the second one, and both traded it for a single daily pack. Their words are on the slides, unedited.\n\n$1.78 a day on Subscribe & Save, pause or cancel anytime.\n\nTry it for 30 days, money back on your first order. Link in bio.\n\n*These statements have not been evaluated by the Food and Drug Administration. This product is not intended to diagnose, treat, cure, or prevent any disease.",
+  "hashtags": [
+   "#gruns",
+   "#grunsreviews",
+   "#realreviews",
+   "#grunsinthewild"
+  ],
+  "visual_brief": "Cover: GRUNS_Pouch_28ct_LS_Render_Front_3.png standing in front of a blurred shelf of generic unbranded bottles. Quote slides on mint; maths slide as a big '$1.78/day' in green. Reviews verbatim from gruns.co.",
+  "template": "carousel_cover",
+  "photo": "GRUNS_Pouch_28ct_LS_Render_Front_3.png",
+  "angle_id": "a4",
+  "persona_id": "p3",
+  "stage": "warm",
+  "slides": [
+   {
+    "title": "The shelf-clearers, in their own words.",
+    "body": ""
+   },
+   {
+    "title": "“I used to pay so much for multiple supplements to get all of the same benefits that Grüns gives me in a simple snack pack.”",
+    "body": "— Jeremy H."
+   },
+   {
+    "title": "“I also stopped buying separate probiotic gummies, b12 gummies, and multivitamin gummies. I just take these now and it's easier for me to manage.”",
+    "body": "— Jamie W."
+   },
+   {
+    "title": "The maths",
+    "body": "Grüns Subscribe & Save: $49.99 per 28 packs = $1.78 a day. One-time: $66.65 = $2.38 a day."
+   },
+   {
+    "title": "The safety net",
+    "body": "30-day money-back guarantee on your first order. Pause or cancel anytime."
+   }
+  ]
+ },
+ {
+  "id": "gr-028",
+  "slot": "2026-10-14 12:00",
+  "platform": "ig",
+  "format": "story",
+  "pillar": "Community",
+  "theme": "halloween",
+  "hook_type": "question",
+  "hook": "Couples costume showdown: pick the swamp duo.",
+  "caption": "Asking for October reasons. Whoever wins, the snack is Berry Far Far Away, while it lasts.\n\n*These statements have not been evaluated by the Food and Drug Administration. This product is not intended to diagnose, treat, cure, or prevent any disease.",
+  "hashtags": [
+   "#gruns",
+   "#halloweencostume",
+   "#berryfarfaraway",
+   "#couplescostume"
+  ],
+  "visual_brief": "9:16: Adult-Shrek-Gallery-Image-7.png (three friends with Shrek packs), poll sticker center. Character names in text only; no costume photos of licensed characters unless the licence covers it.",
+  "template": "story-photo",
+  "photo": "Adult-Shrek-Gallery-Image-7.png",
+  "angle_id": "a8",
+  "persona_id": "p3",
+  "stage": "warm",
+  "story": {
+   "type": "poll",
+   "question": "Best couples costume?",
+   "options": [
+    "Shrek + Fiona",
+    "Shrek + Donkey"
+   ]
+  }
+ },
+ {
+  "id": "gr-029",
+  "slot": "2026-10-14 09:00",
+  "platform": "ig",
+  "format": "reel",
+  "pillar": "Routine",
+  "theme": "habit-routine",
+  "hook_type": "number",
+  "hook": "Five bottles, five caps, five chances to forget. Or one pack.",
+  "caption": "The multi. The B12. The fiber tub. The greens from January's reset. That's a lot of caps.\n\nGrüns folds your daily basics into one pack: 60+ ingredients, 21 vitamins & minerals and 6 g of fiber. $1.78 a day on Subscribe & Save, pause or cancel anytime.\n\nOne pack to rip. Zero lids to lose.\n\nTry it for 30 days, money back on your first order. Link in bio.\n\n*These statements have not been evaluated by the Food and Drug Administration. This product is not intended to diagnose, treat, cure, or prevent any disease.",
+  "hashtags": [
+   "#gruns",
+   "#dailyhabit",
+   "#morningroutine",
+   "#habitstacking"
+  ],
+  "visual_brief": "9:16 reel. Protagonist: a row of five generic unbranded supplement bottles on one shelf line (grey, 180 px each) that never cuts. On each beat one bottle strikes through and slides into the next until they collapse into a single Grüns sachet (sachet-front.png), which tips gummies into a hand and settles as the end card. Tool-sprawl-collapse move; one yellow accent.",
+  "template": "reel",
+  "photo": "sachet-front.png",
+  "angle_id": "a4",
+  "persona_id": "p3",
+  "stage": "warm",
+  "reel": {
+   "concept": "Governing object: five bottles on one shelf line that strike through and collapse, beat by beat, into one Grüns sachet, which rips, tips and becomes the end card.",
+   "script_lines": [
+    "Five bottles, five caps, five chances to forget. Or one pack.",
+    "The multi. The B12. The fiber. The greens you bought in January.",
+    "Jeremy put it simply: I used to pay so much for multiple supplements.",
+    "Grüns folds the daily basics into one pack: 60+ ingredients, 21 vitamins and minerals, 6 grams of fiber.",
+    "On Subscribe and Save that's $1.78 a day. Pause or cancel anytime.",
+    "One cap to open. Well, one pack to rip.",
+    "Try it for 30 days, money back on your first order."
+   ],
+   "on_screen": [
+    "5 bottles → 1 pack",
+    "multi · B12 · fiber · greens",
+    "“I used to pay so much for multiple supplements” — Jeremy H.",
+    "60+ · 21 · 6 g",
+    "$1.78/day · pause or cancel anytime",
+    "one pack to rip",
+    "30-day money-back, first order"
+   ]
+  },
+  "script": [
+   {
+    "text": "Five bottles, five caps, five chances to forget. Or one pack.",
+    "seconds": 5,
+    "visual": "5 bottles → 1 pack"
+   },
+   {
+    "text": "The multi. The B12. The fiber. The greens you bought in January.",
+    "seconds": 6,
+    "visual": "multi · B12 · fiber · greens"
+   },
+   {
+    "text": "Jeremy put it simply: I used to pay so much for multiple supplements.",
+    "seconds": 6,
+    "visual": "“I used to pay so much for multiple supplements” — Jeremy H."
+   },
+   {
+    "text": "Grüns folds the daily basics into one pack: 60+ ingredients, 21 vitamins and minerals, 6 grams of fiber.",
+    "seconds": 8,
+    "visual": "60+ · 21 · 6 g"
+   },
+   {
+    "text": "On Subscribe and Save that's $1.78 a day. Pause or cancel anytime.",
+    "seconds": 6,
+    "visual": "$1.78/day · pause or cancel anytime"
+   },
+   {
+    "text": "One cap to open. Well, one pack to rip.",
+    "seconds": 4,
+    "visual": "one pack to rip"
+   },
+   {
+    "text": "Try it for 30 days, money back on your first order.",
+    "seconds": 5,
+    "visual": "30-day money-back, first order"
+   }
+  ]
+ },
+ {
+  "id": "gr-030",
+  "slot": "2026-10-14 18:00",
+  "platform": "ig",
+  "format": "post",
+  "pillar": "Product",
+  "theme": "shrek-berry-far-far-away",
+  "hook_type": "contrarian",
+  "hook": "Ogres have layers. This flavor has berries.",
+  "caption": "Ogres have layers. This flavor has berries.\n\nBerry Far Far Away is the limited Grüns flavor in Shrek packs, for adults and for kids ages 2-13. Same one-pack-a-day routine, new berry swamp vibes.\n\nNo restocks planned, so this one really is a while-it-lasts situation.\n\nGrab it before it's far, far gone. Link in bio.\n\n*These statements have not been evaluated by the Food and Drug Administration. This product is not intended to diagnose, treat, cure, or prevent any disease.",
+  "hashtags": [
+   "#gruns",
+   "#berryfarfaraway",
+   "#shrek",
+   "#limitededition"
+  ],
+  "visual_brief": "4:5: Pouch_w_Gummies_3.png on a literally layered green background (#002613 → #00572C → #007E40 bands), headline 'Ogres have layers. This flavor has berries.' in DM Sans (Shrek Display only if licensed).",
+  "template": "editorial",
+  "photo": "Pouch_w_Gummies_3.png",
+  "angle_id": "a8",
+  "persona_id": "p2",
+  "stage": "hot"
+ },
+ {
+  "id": "gr-031",
+  "slot": "2026-10-15 09:00",
+  "platform": "fb",
+  "format": "post",
+  "pillar": "Community",
+  "theme": "kids",
+  "hook_type": "callout",
+  "hook": "To the grown-ups of picky eaters: we see you.",
+  "caption": "To the grown-ups of picky eaters: we see you. The hidden spinach. The 'just one bite.' The dinosaur-shaped everything.\n\nMacall, a parent, told us: “My daughter who will barely touch a veggie ate all of these immediately.”\n\nGrüns Kids: one 15 g pack a day for ages 2-13, handed out by a grown-up.\n\nWhat's your best picky-eater trick? Share it in the comments.\n\n*These statements have not been evaluated by the Food and Drug Administration. This product is not intended to diagnose, treat, cure, or prevent any disease.",
+  "hashtags": [
+   "#grunskids",
+   "#pickyeaters",
+   "#parentlife",
+   "#gruns"
+  ],
+  "visual_brief": "4:5 quote card: Kids yellow #FFCC2F ground, Macall's quote in deep-green DM Sans, OG-Kids-SF-1Prod-NoBG.png bottom-right. Parent-directed, no cartoon kid characters, no candy styling.",
+  "template": "quote",
+  "photo": "OG-Kids-SF-1Prod-NoBG.png",
+  "angle_id": "a5",
+  "persona_id": "p2",
+  "stage": "cold",
+  "render": [
+   {
+    "template": "quote",
+    "data": {
+     "quote": "My daughter who will barely touch a veggie ate all of these *immediately*.",
+     "name": "Macall",
+     "detail": "Grüns Kids review on gruns.co",
+     "note": "",
+     "cta": "See what's in one pack"
+    },
+    "size": [
+     1080,
+     1350
+    ]
+   }
+  ]
+ },
+ {
+  "id": "gr-032",
+  "slot": "2026-10-15 18:00",
+  "platform": "ig",
+  "format": "carousel",
+  "pillar": "Education",
+  "theme": "evergreen-proof",
+  "hook_type": "mistake",
+  "hook": "3 mistakes people make reading a supplement label.",
+  "caption": "Supplement labels are small print with big opinions. Here's how to read one fast.\n\nCheck the %DV, not just the ingredient count. Notice where the minerals sit. Read the sugar line. Then look at how it's tested.\n\nWe used our own label for every example, sugar line included.\n\nSee what's in one pack. Link in bio.\n\n*These statements have not been evaluated by the Food and Drug Administration. This product is not intended to diagnose, treat, cure, or prevent any disease.",
+  "hashtags": [
+   "#gruns",
+   "#greensgummies",
+   "#dailynutrition",
+   "#supplementfacts"
+  ],
+  "visual_brief": "Cover: GRUNS_Pouch_28ct_LS_Render_Front_3.png with a magnifier circle over a simplified facts-panel graphic. Inner slides: one facts-panel row drawn large, highlighted in yellow #E8B411. Real Grüns Supplement Facts values only.",
+  "template": "carousel_cover",
+  "photo": "GRUNS_Pouch_28ct_LS_Render_Front_3.png",
+  "angle_id": "r5",
+  "persona_id": "p3",
+  "stage": "cold",
+  "slides": [
+   {
+    "title": "3 mistakes people make reading a supplement label.",
+    "body": ""
+   },
+   {
+    "title": "1. Counting ingredients, not amounts",
+    "body": "Look for the %DV next to each vitamin. Grüns lists 12 vitamins at 100% DV."
+   },
+   {
+    "title": "2. Assuming more is always better",
+    "body": "Grüns doses its 8 minerals at about 25% DV, on purpose."
+   },
+   {
+    "title": "3. Skipping the sugar line",
+    "body": "Sugar-Free Grüns: <0.5 g total sugars, 20 calories. Low Sugar: 8 g added sugars, 50 calories."
+   },
+   {
+    "title": "Bonus: check the testing",
+    "body": "Every Grüns lot is third-party tested, made in NSF, GMP and FDA-registered facilities in the U.S. & Canada."
+   }
+  ]
+ },
+ {
+  "id": "gr-033",
+  "slot": "2026-10-16 12:00",
+  "platform": "ig",
+  "format": "story",
+  "pillar": "Product",
+  "theme": "kids",
+  "hook_type": "question",
+  "hook": "Who gets a pack in your house?",
+  "caption": "Adults pack, Kids pack (ages 2-13), or a full crü situation? Vote, then tap to see both.\n\n*These statements have not been evaluated by the Food and Drug Administration. This product is not intended to diagnose, treat, cure, or prevent any disease.",
+  "hashtags": [
+   "#grunskids",
+   "#pickyeaters",
+   "#parentlife",
+   "#gruns"
+  ],
+  "visual_brief": "9:16: ShopTile-OG-Adults.png and ShopTile-OG-Kids.png side by side, each on its own gradient, poll sticker across the seam, link sticker bottom.",
+  "template": "story-photo",
+  "photo": "ShopTile-OG-Adults.png",
+  "angle_id": "a5",
+  "persona_id": "p2",
+  "stage": "cold",
+  "story": {
+   "type": "poll",
+   "question": "Who gets a pack in your house?",
+   "options": [
+    "just me",
+    "the kids",
+    "everybody"
+   ]
+  }
+ },
+ {
+  "id": "gr-034",
+  "slot": "2026-10-16 09:00",
+  "platform": "fb",
+  "format": "post",
+  "pillar": "Proof",
+  "theme": "evergreen-proof",
+  "hook_type": "number",
+  "hook": "70 pesticides. 4 heavy metals. Tested for, every single lot.",
+  "caption": "What happens before a pack gets to you:\n\nEvery lot of Grüns is third-party tested for 70 pesticides, 4 heavy metals, 16 contaminants and 9 microbial contaminants. It's made in NSF, GMP and FDA-registered facilities in the U.S. & Canada.\n\nNot the fun part of gummies. Still the part we'd want to know.\n\nTry it for 30 days, money back on your first order → gruns.co/pages/science\n\n*These statements have not been evaluated by the Food and Drug Administration. This product is not intended to diagnose, treat, cure, or prevent any disease.",
+  "hashtags": [
+   "#gruns",
+   "#greensgummies",
+   "#dailynutrition",
+   "#supplementfacts"
+  ],
+  "visual_brief": "Checklist card 4:5 on near-black green #002613: four rows with yellow ticks, '70 pesticides', '4 heavy metals', '16 contaminants', '9 microbial contaminants', header 'tested for, every lot'. Footer: 'NSF, GMP & FDA-registered facilities, U.S. & Canada'. Say 'tested for', never an absence claim.",
+  "template": "checklist",
+  "photo": "none",
+  "angle_id": "r12",
+  "persona_id": "p1",
+  "stage": "warm",
+  "render": [
+   {
+    "template": "checklist",
+    "data": {
+     "kicker": "Every lot, third-party tested",
+     "title": "What every Grüns lot is *tested for*",
+     "items": [
+      {
+       "text": "70 pesticides",
+       "note": "Third-party tested, every lot."
+      },
+      {
+       "text": "4 heavy metals",
+       "note": "Tested for, lot by lot."
+      },
+      {
+       "text": "16 contaminants",
+       "note": "Plus 9 microbial contaminants."
+      },
+      {
+       "text": "NSF, GMP and FDA-registered facilities",
+       "note": "Located in the U.S. & Canada."
+      }
+     ],
+     "footnote": "Not the fun part of gummies. Still the part worth knowing.",
+     "cta": "See the science"
+    },
+    "size": [
+     1080,
+     1350
+    ]
+   }
+  ]
+ },
+ {
+  "id": "gr-035",
+  "slot": "2026-10-16 18:00",
+  "platform": "ig",
+  "format": "reel",
+  "pillar": "Routine",
+  "theme": "reviews-ugc",
+  "hook_type": "review",
+  "hook": "“It's wild I WANT to take Grüns and don't forget.”",
+  "caption": "“It's wild I WANT to take Grüns and don't forget.” (Brittany A.)\n\nWe didn't write that, but we did frame it. Easy to grab, easy to stick to, easy to actually like: that's the whole idea behind a daily pack of gummies.\n\n4.8★ from 100,000 reviews (self-reported).\n\nTry it for 30 days, money back on your first order. Link in bio.\n\n*These statements have not been evaluated by the Food and Drug Administration. This product is not intended to diagnose, treat, cure, or prevent any disease.",
+  "hashtags": [
+   "#gruns",
+   "#grunsreviews",
+   "#realreviews",
+   "#grunsinthewild"
+  ],
+  "visual_brief": "9:16 reel. Protagonist: one Grüns sachet held in frame the whole time (Gruns-Social-Images-13.png styling, cut-out hand). On each beat it flips and its back shows the next verbatim review typed in DM Sans. After the last flip it rips, tips, and becomes the end card with the 4.8★ line. Reviews verbatim from gruns.co; consent check before any boost.",
+  "template": "reel",
+  "photo": "Gruns-Social-Images-13.png",
+  "angle_id": "r5",
+  "persona_id": "p3",
+  "stage": "warm",
+  "reel": {
+   "concept": "Governing object: one sachet that flips on each beat to show the next verbatim review on its back, then rips, tips and lands as the end card with the 4.8★ line.",
+   "script_lines": [
+    "“It's wild I WANT to take Grüns and don't forget.”",
+    "That's Brittany. Wanting to take your vitamins is not a sentence people usually say.",
+    "Samuel said: “Grüns has been the one thing I've been able to stick to.”",
+    "Kelli said it's “so easy to grab and eat on my way to the billion things I have to do as a mom.”",
+    "4.8 stars from 100,000 reviews, as counted by Grüns.",
+    "Try it for 30 days, money back on your first order."
+   ],
+   "on_screen": [
+    "“I WANT to take Grüns”",
+    "said nobody about vitamins, ever",
+    "“the one thing I've been able to stick to”",
+    "“so easy to grab and eat”",
+    "4.8★ · 100,000 reviews (self-reported)",
+    "30-day money-back, first order"
+   ]
+  },
+  "script": [
+   {
+    "text": "“It's wild I WANT to take Grüns and don't forget.”",
+    "seconds": 5,
+    "visual": "“I WANT to take Grüns”"
+   },
+   {
+    "text": "That's Brittany. Wanting to take your vitamins is not a sentence people usually say.",
+    "seconds": 6,
+    "visual": "said nobody about vitamins, ever"
+   },
+   {
+    "text": "Samuel said: “Grüns has been the one thing I've been able to stick to.”",
+    "seconds": 6,
+    "visual": "“the one thing I've been able to stick to”"
+   },
+   {
+    "text": "Kelli said it's “so easy to grab and eat on my way to the billion things I have to do as a mom.”",
+    "seconds": 10,
+    "visual": "“so easy to grab and eat”"
+   },
+   {
+    "text": "4.8 stars from 100,000 reviews, as counted by Grüns.",
+    "seconds": 4,
+    "visual": "4.8★ · 100,000 reviews (self-reported)"
+   },
+   {
+    "text": "Try it for 30 days, money back on your first order.",
+    "seconds": 5,
+    "visual": "30-day money-back, first order"
+   }
+  ]
+ },
+ {
+  "id": "gr-036",
+  "slot": "2026-10-17 10:00",
+  "platform": "ig",
+  "format": "carousel",
+  "pillar": "Product",
+  "theme": "evergreen-proof",
+  "hook_type": "objection_first",
+  "hook": "“Subscriptions are a trap.” Here's how ours actually works.",
+  "caption": "Fair: a lot of subscriptions are built to be forgotten. Ours is built so you know exactly what happens next.\n\nClear price per day, free shipping every 4 weeks, pause or cancel anytime, and a 30-day money-back guarantee on your first order. Swipe for the fine print, in normal-size print.\n\nStart your subscription. Link in bio.\n\n*These statements have not been evaluated by the Food and Drug Administration. This product is not intended to diagnose, treat, cure, or prevent any disease.",
+  "hashtags": [
+   "#gruns",
+   "#greensgummies",
+   "#dailynutrition",
+   "#supplementfacts"
+  ],
+  "visual_brief": "Cover: GRUNS_Pouch_28ct_LS_Render_Front_3.png on Grüns green with a yellow 'no trap' stamp. Inner slides: one term per slide in big DM Sans; slide 6 is the Kate S. quote card. Close on carousel_cta.",
+  "template": "carousel_cover",
+  "photo": "GRUNS_Pouch_28ct_LS_Render_Front_3.png",
+  "angle_id": "a7",
+  "persona_id": "p3",
+  "stage": "hot",
+  "slides": [
+   {
+    "title": "“Subscriptions are a trap.” Here's how ours works.",
+    "body": ""
+   },
+   {
+    "title": "The price",
+    "body": "Adults Subscribe & Save: $49.99 per 28 packs ($1.78 a day). Kids: $39.99 per 28 packs ($1.42 a day)."
+   },
+   {
+    "title": "The rhythm",
+    "body": "Ships every 4 weeks with free shipping. Orders typically ship within 24 hours and arrive in 3-5 days."
+   },
+   {
+    "title": "The exit",
+    "body": "Pause or cancel anytime."
+   },
+   {
+    "title": "The safety net",
+    "body": "30-day money-back guarantee on your first order. Less than 1% of customers use it."
+   },
+   {
+    "title": "The proof",
+    "body": "“We quickly decided to resubscribe because we love Grüns so much!” — Kate S., who canceled first"
+   }
+  ]
+ },
+ {
+  "id": "gr-037",
+  "slot": "2026-10-18 09:00",
+  "platform": "ig",
+  "format": "post",
+  "pillar": "Community",
+  "theme": "halloween",
+  "hook_type": "pov",
+  "hook": "Costume idea: dress like the pack. Commit fully.",
+  "caption": "Exhibit A: a full Grüns-print look, accessorized correctly.\n\nIf you're dressing as a gummy bear, a snack pack or 'someone who has their life together' this Halloween, we want to see it. Post your costume, tag @grunsdaily and add #grunsween. We'll ask before we share.\n\nTag us in your costume.\n\n*These statements have not been evaluated by the Food and Drug Administration. This product is not intended to diagnose, treat, cure, or prevent any disease.",
+  "hashtags": [
+   "#gruns",
+   "#halloween",
+   "#grunsween",
+   "#halloweencostume"
+  ],
+  "visual_brief": "4:5: Gruns-Social-Images-10.png (woman in a green Grüns bear-print outfit holding a pack against a white wall), small yellow sticker '#grunsween'. Confirm the model release covers this reuse.",
+  "template": "ugc-photo",
+  "photo": "Gruns-Social-Images-10.png",
+  "angle_id": "r5",
+  "persona_id": "p3",
+  "stage": "cold"
+ },
+ {
+  "id": "gr-038",
+  "slot": "2026-10-19 12:00",
+  "platform": "ig",
+  "format": "story",
+  "pillar": "Routine",
+  "theme": "habit-routine",
+  "hook_type": "question",
+  "hook": "How many days did the pack make it this week?",
+  "caption": "Honest answers only. Low number? Try parking the pack next to your coffee maker.\n\n*These statements have not been evaluated by the Food and Drug Administration. This product is not intended to diagnose, treat, cure, or prevent any disease.",
+  "hashtags": [
+   "#gruns",
+   "#dailyhabit",
+   "#morningroutine",
+   "#habitstacking"
+  ],
+  "visual_brief": "9:16: valueprop-cardimg1.png (pack in a gym bag), slider sticker in the middle third, question in DM Sans on a green band.",
+  "template": "story-photo",
+  "photo": "valueprop-cardimg1.png",
+  "angle_id": "r5",
+  "persona_id": "p3",
+  "stage": "warm",
+  "story": {
+   "type": "slider",
+   "question": "Days with my pack this week",
+   "options": [
+    "0 days",
+    "7 days"
+   ]
+  }
+ },
+ {
+  "id": "gr-039",
+  "slot": "2026-10-19 09:00",
+  "platform": "fb",
+  "format": "post",
+  "pillar": "Education",
+  "theme": "pack-vs-powder",
+  "hook_type": "contrarian",
+  "hook": "Pocket-sized isn't the point. Mix-free is.",
+  "caption": "Lots of greens come in single-serve packs now. Cool. Here's the question we'd ask: what do you still need to use it?\n\nIf the answer is water, a bottle and a shake, it's still a powder routine, just smaller.\n\nA Grüns pack is gummies. Rip. Tip. Enjoy. 60+ ingredients, 21 vitamins & minerals and 6 g of fiber, zero mixing.\n\nSee what's in one pack → gruns.co/pages/reviews\n\n*These statements have not been evaluated by the Food and Drug Administration. This product is not intended to diagnose, treat, cure, or prevent any disease.",
+  "hashtags": [
+   "#gruns",
+   "#greensgummies",
+   "#riptipenjoy",
+   "#nomoreshaker"
+  ],
+  "visual_brief": "4:5 editorial: lifestyle-focused-hmpg-hero.png (gummies tipping from a pack into a palm), headline 'Pocket-sized isn't the point. Mix-free is.' in white DM Sans on a green band at the top, sachet-rip.png torn edge between band and photo. No competitor names or packs.",
+  "template": "editorial",
+  "photo": "lifestyle-focused-hmpg-hero.png",
+  "angle_id": "a1",
+  "persona_id": "p1",
+  "stage": "cold"
+ },
+ {
+  "id": "gr-040",
+  "slot": "2026-10-19 18:00",
+  "platform": "ig",
+  "format": "carousel",
+  "pillar": "Proof",
+  "theme": "kids",
+  "hook_type": "review",
+  "hook": "“My kids are picky eaters!” Parents on Grüns Kids.",
+  "caption": "We could describe Grüns Kids. Parents do it better.\n\nTwo picky-eater households and one very busy mom, in their own words. Swipe through.\n\nGrüns Kids is one 15 g pack a day for ages 2-13, handed out by a grown-up.\n\nTry it for 30 days, money back on your first order. Link in bio.\n\n*These statements have not been evaluated by the Food and Drug Administration. This product is not intended to diagnose, treat, cure, or prevent any disease.",
+  "hashtags": [
+   "#grunskids",
+   "#pickyeaters",
+   "#parentlife",
+   "#gruns"
+  ],
+  "visual_brief": "Cover: ShopTile-OG-Kids.png. Quote slides on Kids yellow #FFCC2F with deep-green text; the fine-print slide on mint. Parent-directed, no cartoon kid characters, no candy styling. Reviews verbatim from gruns.co.",
+  "template": "carousel_cover",
+  "photo": "ShopTile-OG-Kids.png",
+  "angle_id": "a5",
+  "persona_id": "p2",
+  "stage": "warm",
+  "slides": [
+   {
+    "title": "Parents on Grüns Kids, unedited.",
+    "body": ""
+   },
+   {
+    "title": "“My kids are picky eaters! I have a really hard time getting them to eat any greens. So glad we found these!!”",
+    "body": "— Tara"
+   },
+   {
+    "title": "“My daughter who will barely touch a veggie ate all of these immediately.”",
+    "body": "— Macall"
+   },
+   {
+    "title": "“Love the flavor and it's so easy to grab and eat on my way to the billion things I have to do as a mom.”",
+    "body": "— Kelli L. (Grüns Adults review)"
+   },
+   {
+    "title": "The fine print",
+    "body": "Grüns Kids: ages 2-13, one 15 g pack a day, handed out by a grown-up. $39.99 per 28 packs on Subscribe & Save. Pause or cancel anytime."
+   }
+  ]
+ },
+ {
+  "id": "gr-041",
+  "slot": "2026-10-20 09:00",
+  "platform": "ig",
+  "format": "reel",
+  "pillar": "Routine",
+  "theme": "habit-routine",
+  "hook_type": "callout",
+  "hook": "For the guy who won't take vitamins. Yes, him.",
+  "caption": "You know him. The pills are 'too big.' The powder is 'a whole thing.' The shaker bottle is a shelf decoration.\n\nHe's why Grüns is a pack of gummies: one a day, rip, tip, done. 60+ ingredients, 21 vitamins & minerals and 6 g of fiber, zero speeches required.\n\nSee what's in one pack. Link in bio.\n\n*These statements have not been evaluated by the Food and Drug Administration. This product is not intended to diagnose, treat, cure, or prevent any disease.",
+  "hashtags": [
+   "#gruns",
+   "#dailyhabit",
+   "#morningroutine",
+   "#habitstacking"
+  ],
+  "visual_brief": "9:16 reel, fixed camera. Protagonist: one closed kitchen cabinet door that never cuts. Each time it swings open on the beat it reveals his graveyard: an unopened pill bottle, a dusty shaker, a tub with the scoop still sealed (all generic, unbranded). On the last open the shelf holds only GRUNS_Pouch_28ct_LS_Render_Front_3.png; a hand grabs a pack, rips, tips, and the door closes into the end card.",
+  "template": "reel",
+  "photo": "GRUNS_Pouch_28ct_LS_Render_Front_3.png",
+  "angle_id": "r6",
+  "persona_id": "p3",
+  "stage": "cold",
+  "reel": {
+   "concept": "Governing object: one kitchen cabinet door that opens on the beat to reveal the abandoned pills, shaker and tub, then finally only the Grüns pouch; a pack is grabbed, ripped and tipped, and the door closes into the end card.",
+   "script_lines": [
+    "For the guy who won't take vitamins. Yes, him.",
+    "The pills? Too big. The powder? Tastes like a hay bale.",
+    "The shaker? Still in the cabinet, still in the box.",
+    "So we made it a pack of gummies he'll actually eat.",
+    "60+ ingredients, 21 vitamins and minerals and 6 grams of fiber. One pack a day.",
+    "No swallowing. No mixing. No speech about vitamins.",
+    "See what's in one pack. Link in bio."
+   ],
+   "on_screen": [
+    "for the guy who won't take vitamins",
+    "pills: too big",
+    "shaker: still in the box",
+    "a pack he'll actually eat",
+    "60+ · 21 · 6 g",
+    "no swallowing. no mixing.",
+    "see what's in one pack"
+   ]
+  },
+  "script": [
+   {
+    "text": "For the guy who won't take vitamins. Yes, him.",
+    "seconds": 4,
+    "visual": "for the guy who won't take vitamins"
+   },
+   {
+    "text": "The pills? Too big. The powder? Tastes like a hay bale.",
+    "seconds": 5,
+    "visual": "pills: too big"
+   },
+   {
+    "text": "The shaker? Still in the cabinet, still in the box.",
+    "seconds": 5,
+    "visual": "shaker: still in the box"
+   },
+   {
+    "text": "So we made it a pack of gummies he'll actually eat.",
+    "seconds": 5,
+    "visual": "a pack he'll actually eat"
+   },
+   {
+    "text": "60+ ingredients, 21 vitamins and minerals and 6 grams of fiber. One pack a day.",
+    "seconds": 7,
+    "visual": "60+ · 21 · 6 g"
+   },
+   {
+    "text": "No swallowing. No mixing. No speech about vitamins.",
+    "seconds": 4,
+    "visual": "no swallowing. no mixing."
+   },
+   {
+    "text": "See what's in one pack. Link in bio.",
+    "seconds": 4,
+    "visual": "see what's in one pack"
+   }
+  ]
+ },
+ {
+  "id": "gr-042",
+  "slot": "2026-10-20 18:00",
+  "platform": "ig",
+  "format": "post",
+  "pillar": "Product",
+  "theme": "shrek-berry-far-far-away",
+  "hook_type": "pov",
+  "hook": "Going as Shrek? The snack is already in character.",
+  "caption": "Green face paint: check. Ears: check. Swamp attitude: natural.\n\nComplete the look with the limited Berry Far Far Away Adults pack, the Grüns flavor in Shrek packs. One pack a day, same rip-tip-enjoy routine. No restocks planned, so this accessory won't be around next Halloween.\n\nGrab it before it's far, far gone. Link in bio.\n\n*These statements have not been evaluated by the Food and Drug Administration. This product is not intended to diagnose, treat, cure, or prevent any disease.",
+  "hashtags": [
+   "#gruns",
+   "#berryfarfaraway",
+   "#shrekcostume",
+   "#halloweencostume"
+  ],
+  "visual_brief": "4:5: LTO-Shrek-Adults-SF-1Prod-NoBG.png next to a flat-lay of costume bits (green face paint, headband ears, a brown vest) on Grüns green. Adults pack only in costume content. No Shrek character art beyond the licensed pack; confirm licence scope for costume content.",
+  "template": "editorial",
+  "photo": "LTO-Shrek-Adults-SF-1Prod-NoBG.png",
+  "angle_id": "a8",
+  "persona_id": "p3",
+  "stage": "hot"
+ },
+ {
+  "id": "gr-043",
+  "slot": "2026-10-21 12:00",
+  "platform": "ig",
+  "format": "story",
+  "pillar": "Proof",
+  "theme": "reviews-ugc",
+  "hook_type": "review",
+  "hook": "“10/10 would recommend.” Dustin O., on quitting the shaker.",
+  "caption": "His full review: no shaker bottle, no extra dishes, and a taste he called “Like mixed berries!” More reviews at the link.\n\n*These statements have not been evaluated by the Food and Drug Administration. This product is not intended to diagnose, treat, cure, or prevent any disease.",
+  "hashtags": [
+   "#gruns",
+   "#grunsreviews",
+   "#realreviews",
+   "#grunsinthewild"
+  ],
+  "visual_brief": "9:16 quote story: valueprop-image1.png (man smiling with a pack) under a deep-green quote card with '10/10 would recommend.', 'review from gruns.co', link sticker to the reviews page.",
+  "template": "quote",
+  "photo": "valueprop-image1.png",
+  "angle_id": "a1",
+  "persona_id": "p1",
+  "stage": "warm",
+  "story": {
+   "type": "photo",
+   "question": "",
+   "options": []
+  },
+  "render": [
+   {
+    "template": "quote",
+    "data": {
+     "quote": "*10/10* would recommend. The convenience and taste are huge! Like mixed berries!",
+     "name": "Dustin O.",
+     "detail": "Review on gruns.co",
+     "note": "",
+     "theme": "dark",
+     "photo": "assets/site/valueprop-image1.png",
+     "photo_pos": "50% 40%",
+     "cta": "Read the reviews"
+    },
+    "size": [
+     1080,
+     1920
+    ]
+   }
+  ]
+ },
+ {
+  "id": "gr-044",
+  "slot": "2026-10-21 09:00",
+  "platform": "fb",
+  "format": "post",
+  "pillar": "Community",
+  "theme": "halloween",
+  "hook_type": "callout",
+  "hook": "Parents, Halloween house rules: what's yours?",
+  "caption": "Parents, Halloween house rules: what's yours? Two pieces a night? Trade-in for a toy? The 'switch witch'?\n\nHere's one rule that doesn't change in October: Grüns Kids is one pack a day, handed out by a grown-up, and it lives with the grown-up stuff, not in the treat bowl. It's not candy, so we don't store it like candy.\n\nShare your house rule in the comments.\n\n*These statements have not been evaluated by the Food and Drug Administration. This product is not intended to diagnose, treat, cure, or prevent any disease.",
+  "hashtags": [
+   "#grunskids",
+   "#halloween",
+   "#parentlife",
+   "#gruns"
+  ],
+  "visual_brief": "4:5: a kitchen shelf split in two. Top shelf 'grown-up stuff': OG-Kids-SF-1Prod-NoBG.png next to a coffee mug and keys. Bottom: a Halloween bowl, clearly separate. Headline 'one pack a day, from a grown-up'. No kids handling packs, no candy styling on the Grüns side.",
+  "template": "editorial",
+  "photo": "OG-Kids-SF-1Prod-NoBG.png",
+  "angle_id": "a5",
+  "persona_id": "p2",
+  "stage": "warm"
+ },
+ {
+  "id": "gr-045",
+  "slot": "2026-10-21 18:00",
+  "platform": "ig",
+  "format": "carousel",
+  "pillar": "Education",
+  "theme": "kids",
+  "hook_type": "objection_first",
+  "hook": "“Will my kid actually eat it?” And 4 more parent questions.",
+  "caption": "Parents ask good questions. Here are five, answered straight.\n\nShort version: ages 2-13, one 15 g pack a day handed out by a grown-up, and no, it doesn't replace vegetables. Food first, always.\n\nTry it for 30 days, money back on your first order. Link in bio.\n\n*These statements have not been evaluated by the Food and Drug Administration. This product is not intended to diagnose, treat, cure, or prevent any disease.",
+  "hashtags": [
+   "#grunskids",
+   "#pickyeaters",
+   "#parentlife",
+   "#gruns"
+  ],
+  "visual_brief": "Cover: ShopTile-OG-Kids.png. Inner slides: question in deep green on Kids yellow #FFCC2F, answer below in DM Sans. Parent-directed, no candy styling.",
+  "template": "carousel_cover",
+  "photo": "ShopTile-OG-Kids.png",
+  "angle_id": "a5",
+  "persona_id": "p2",
+  "stage": "warm",
+  "slides": [
+   {
+    "title": "Grüns Kids: 5 parent questions, answered.",
+    "body": ""
+   },
+   {
+    "title": "Will my kid actually eat it?",
+    "body": "Parents like Tara and Macall say yes; their reviews are on gruns.co. Every kid is different, so your first order has a 30-day money-back guarantee."
+   },
+   {
+    "title": "What ages is it for?",
+    "body": "Ages 2-13."
+   },
+   {
+    "title": "How much?",
+    "body": "One 15 g pack a day. Not more. Keep packs where grown-ups hand them out."
+   },
+   {
+    "title": "Does it replace vegetables?",
+    "body": "No. Food first, always. It's a daily pack on top of whatever broccoli diplomacy happens at dinner."
+   },
+   {
+    "title": "What does it cost?",
+    "body": "$39.99 per 28 packs on Subscribe & Save ($1.42 a day), free shipping. Pause or cancel anytime."
+   }
+  ]
+ },
+ {
+  "id": "gr-046",
+  "slot": "2026-10-22 09:00",
+  "platform": "fb",
+  "format": "post",
+  "pillar": "Proof",
+  "theme": "evergreen-proof",
+  "hook_type": "number",
+  "hook": "Less than 1% of customers use our money-back guarantee.",
+  "caption": "Less than 1% of customers use our money-back guarantee. We'd still like you to know it's there.\n\nYour first order comes with a 30-day money-back guarantee. Subscribe & Save is $49.99 per 28 packs, which is $1.78 a day, with free shipping every 4 weeks. Pause or cancel anytime.\n\nStart your subscription → gruns.co/products/gruns\n\n*These statements have not been evaluated by the Food and Drug Administration. This product is not intended to diagnose, treat, cure, or prevent any disease.",
+  "hashtags": [
+   "#gruns",
+   "#greensgummies",
+   "#dailynutrition",
+   "#supplementfacts"
+  ],
+  "visual_brief": "Offer card 4:5: '<1%' big in Grüns green on mint, label 'of customers use our money-back guarantee', price row '$49.99 / 28 packs · $1.78 a day', footer '30 days on your first order · pause or cancel anytime'.",
+  "template": "offer",
+  "photo": "none",
+  "angle_id": "a7",
+  "persona_id": "p3",
+  "stage": "hot",
+  "render": [
+   {
+    "template": "offer",
+    "data": {
+     "theme": "accent",
+     "kicker": "Subscribe & Save",
+     "name": "Grüns Adults, *28 packs*",
+     "price": "$49.99",
+     "price_note": "per 28 packs · $1.78 a day",
+     "features": [
+      "Free shipping every 4 weeks",
+      "Pause or cancel anytime",
+      "30-day money-back guarantee on your first order",
+      "Less than 1% of customers use it"
+     ],
+     "cta": "Start your subscription",
+     "terms": "Original Low Sugar, 1 adult. Money-back guarantee on the first order only. Sugar-Free: $54.99 per 28 packs.",
+     "photo": "assets/site/GRUNS_Pouch_28ct_LS_Render_Front_3.png",
+     "photo_pos": "50% 50%"
+    },
+    "size": [
+     1080,
+     1350
+    ]
+   }
+  ]
+ },
+ {
+  "id": "gr-047",
+  "slot": "2026-10-22 18:00",
+  "platform": "ig",
+  "format": "reel",
+  "pillar": "Routine",
+  "theme": "pack-vs-powder",
+  "hook_type": "pov",
+  "hook": "POV: packing for a trip without a shaker bottle.",
+  "caption": "Travel rule: if it needs a scoop, it stays home.\n\nGrüns packs slide into the side pocket, one per day of the trip. No water, no bottle, no hotel-sink rinse. Rip. Tip. Enjoy. Board.\n\n60+ ingredients, 21 vitamins & minerals and 6 g of fiber per pack.\n\nSee what's in one pack. Link in bio.\n\n*These statements have not been evaluated by the Food and Drug Administration. This product is not intended to diagnose, treat, cure, or prevent any disease.",
+  "hashtags": [
+   "#gruns",
+   "#greensgummies",
+   "#riptipenjoy",
+   "#nomoreshaker"
+  ],
+  "visual_brief": "9:16 reel, top-down. Protagonist: one open carry-on that never cuts. On each beat an item packs itself in (charger, shoes, jacket); a generic tub, scoop and shaker try to squeeze in, don't fit, and slide out of frame. A strip of sachets drops into the side pocket, the case zips shut, and the zipper pull lands on the end card. Styling cue from Gruns-Social-Images-02.png (yellow Grüns totes).",
+  "template": "reel",
+  "photo": "Gruns-Social-Images-02.png",
+  "angle_id": "a1",
+  "persona_id": "p1",
+  "stage": "cold",
+  "reel": {
+   "concept": "Governing object: one open carry-on, top-down. Travel items pack in on the beat, the powder kit doesn't fit and slides out, a strip of Grüns packs drops into the side pocket and the zipped case becomes the end card.",
+   "script_lines": [
+    "POV: packing for a trip without a shaker bottle.",
+    "Charger, shoes, the jacket you'll definitely need.",
+    "The tub, the scoop and the shaker? They don't make the cut.",
+    "One pack a day slides into the side pocket instead.",
+    "No water, no bottle, no sticky sink in a hotel bathroom.",
+    "Just 60+ ingredients, 21 vitamins and minerals and 6 grams of fiber, rip and tip.",
+    "See what's in one pack. Link in bio."
+   ],
+   "on_screen": [
+    "packing: no-shaker edition",
+    "charger · shoes · jacket",
+    "tub + scoop + shaker: nope",
+    "one pack per day",
+    "no water. no sink.",
+    "60+ · 21 · 6 g",
+    "see what's in one pack"
+   ]
+  },
+  "script": [
+   {
+    "text": "POV: packing for a trip without a shaker bottle.",
+    "seconds": 4,
+    "visual": "packing: no-shaker edition"
+   },
+   {
+    "text": "Charger, shoes, the jacket you'll definitely need.",
+    "seconds": 4,
+    "visual": "charger · shoes · jacket"
+   },
+   {
+    "text": "The tub, the scoop and the shaker? They don't make the cut.",
+    "seconds": 6,
+    "visual": "tub + scoop + shaker: nope"
+   },
+   {
+    "text": "One pack a day slides into the side pocket instead.",
+    "seconds": 5,
+    "visual": "one pack per day"
+   },
+   {
+    "text": "No water, no bottle, no sticky sink in a hotel bathroom.",
+    "seconds": 5,
+    "visual": "no water. no sink."
+   },
+   {
+    "text": "Just 60+ ingredients, 21 vitamins and minerals and 6 grams of fiber, rip and tip.",
+    "seconds": 7,
+    "visual": "60+ · 21 · 6 g"
+   },
+   {
+    "text": "See what's in one pack. Link in bio.",
+    "seconds": 4,
+    "visual": "see what's in one pack"
+   }
+  ]
+ },
+ {
+  "id": "gr-048",
+  "slot": "2026-10-23 12:00",
+  "platform": "ig",
+  "format": "story",
+  "pillar": "Education",
+  "theme": "kids",
+  "hook_type": "question",
+  "hook": "Quiz: Grüns Kids is made for which ages?",
+  "caption": "Guess, then check the next story for the answer and the one-pack-a-day rule.\n\n*These statements have not been evaluated by the Food and Drug Administration. This product is not intended to diagnose, treat, cure, or prevent any disease.",
+  "hashtags": [
+   "#grunskids",
+   "#pickyeaters",
+   "#parentlife",
+   "#gruns"
+  ],
+  "visual_brief": "9:16: OG-Kids-SF-1Prod-NoBG.png on Kids yellow, quiz sticker (correct: 2-13). Next frame: 'ages 2-13 · one 15 g pack a day · handed out by a grown-up' with a link sticker. Parent-facing.",
+  "template": "story-photo",
+  "photo": "OG-Kids-SF-1Prod-NoBG.png",
+  "angle_id": "a5",
+  "persona_id": "p2",
+  "stage": "cold",
+  "story": {
+   "type": "quiz",
+   "question": "Grüns Kids is made for ages…",
+   "options": [
+    "2-13",
+    "5-10",
+    "teens only"
+   ]
+  }
+ },
+ {
+  "id": "gr-049",
+  "slot": "2026-10-23 09:00",
+  "platform": "ig",
+  "format": "carousel",
+  "pillar": "Product",
+  "theme": "evergreen-proof",
+  "hook_type": "comparison",
+  "hook": "Exclüsives, explained: Green vs Gold, in 5 slides.",
+  "caption": "The Grüns crü has levels. Welcome to Exclüsives.\n\nGreen (4-week) gets 25% off for life. Gold (12-week) gets 30% off for life, plus limited flavors for a year, VIP partner discounts, 25% off merch and free shipping on your first order.\n\nIf limited drops are your thing, Gold is the one to look at. Membership terms, including how to pause or cancel, are on the Exclüsives page.\n\nTry it for 30 days, money back on your first order. Link in bio.\n\n*These statements have not been evaluated by the Food and Drug Administration. This product is not intended to diagnose, treat, cure, or prevent any disease.",
+  "hashtags": [
+   "#gruns",
+   "#greensgummies",
+   "#dailynutrition",
+   "#supplementfacts"
+  ],
+  "visual_brief": "Cover: Gruns-Social-Images-05.png (crew in Grüns tees under a yellow umbrella). Inner: a green card and a gold (#E8B411) card side by side, perks as ticks. Terms and cancellation details linked from the bio page.",
+  "template": "carousel_cover",
+  "photo": "Gruns-Social-Images-05.png",
+  "angle_id": "a7",
+  "persona_id": "p3",
+  "stage": "warm",
+  "slides": [
+   {
+    "title": "Exclüsives, explained.",
+    "body": "Green vs Gold, in 5 slides."
+   },
+   {
+    "title": "Green (4-week)",
+    "body": "25% off for life."
+   },
+   {
+    "title": "Gold (12-week)",
+    "body": "30% off for life, plus limited flavors for a year."
+   },
+   {
+    "title": "Gold also gets",
+    "body": "VIP partner discounts, 25% off merch and free shipping on your first order."
+   },
+   {
+    "title": "Why it matters this month",
+    "body": "Limited drops like Berry Far Far Away have no restocks planned. Gold adds limited flavors for a year. Terms: gruns.co/pages/exclusives."
+   }
+  ]
+ },
+ {
+  "id": "gr-050",
+  "slot": "2026-10-23 18:00",
+  "platform": "ig",
+  "format": "post",
+  "pillar": "Community",
+  "theme": "halloween",
+  "hook_type": "callout",
+  "hook": "Tag the friend who was born to be Shrek this Halloween.",
+  "caption": "Every friend group has one: the one who'd nail the ogre voice, the swamp attitude and the layers, first try.\n\nIt's Halloween season and Berry Far Far Away is only around while it lasts. Coincidence? We think not. No restocks planned, so they'd better commit to the bit.\n\nTag your Shrek below.\n\n*These statements have not been evaluated by the Food and Drug Administration. This product is not intended to diagnose, treat, cure, or prevent any disease.",
+  "hashtags": [
+   "#gruns",
+   "#berryfarfaraway",
+   "#halloweencostume",
+   "#shrek"
+  ],
+  "visual_brief": "4:5: Adult-Shrek-Gallery-Image-7.png (three friends mugging with Shrek packs), yellow sticker 'tag your Shrek'. Licensed pack art only.",
+  "template": "editorial",
+  "photo": "Adult-Shrek-Gallery-Image-7.png",
+  "angle_id": "a8",
+  "persona_id": "p3",
+  "stage": "cold"
+ },
+ {
+  "id": "gr-051",
+  "slot": "2026-10-24 10:00",
+  "platform": "fb",
+  "format": "post",
+  "pillar": "Education",
+  "theme": "kids",
+  "hook_type": "myth_fact",
+  "hook": "Myth: a kids' daily pack means kids can skip vegetables.",
+  "caption": "Myth: a kids' daily pack means kids can skip vegetables.\n\nFact: food comes first, always. Grüns Kids is a small add-on, not a swap: one 15 g pack a day for ages 2-13, handed out by a grown-up, on top of whatever the dinner-table negotiations bring.\n\nIt just makes one part of the day easy.\n\nSee what's in one pack → gruns.co/products/gruns-kids\n\n*These statements have not been evaluated by the Food and Drug Administration. This product is not intended to diagnose, treat, cure, or prevent any disease.",
+  "hashtags": [
+   "#grunskids",
+   "#pickyeaters",
+   "#parentlife",
+   "#gruns"
+  ],
+  "visual_brief": "4:5 myth vs fact card: 'Myth' struck through on grey-green, 'Fact' on Kids yellow with OG-Kids-SF-1Prod-NoBG.png and a small plate of vegetables beside it (the pack is next to the plate, not on it).",
+  "template": "myth_fact",
+  "photo": "OG-Kids-SF-1Prod-NoBG.png",
+  "angle_id": "a5",
+  "persona_id": "p2",
+  "stage": "cold",
+  "render": [
+   {
+    "template": "myth_fact",
+    "data": {
+     "kicker": "For the grown-ups",
+     "myth": "A kids' daily pack means skipping vegetables.",
+     "fact": "Food first, always. Grüns Kids is one *15 g pack* a day, ages 2-13, handed out by a grown-up.",
+     "source": "Grüns Kids: recommended for ages 2-13, one 15 g pack per day.",
+     "cta": "See what's in one pack"
+    },
+    "size": [
+     1080,
+     1350
+    ]
+   }
+  ]
+ },
+ {
+  "id": "gr-052",
+  "slot": "2026-10-25 09:00",
+  "platform": "ig",
+  "format": "carousel",
+  "pillar": "Proof",
+  "theme": "reviews-ugc",
+  "hook_type": "review",
+  "hook": "“Grüns has been the one thing I've been able to stick to”",
+  "caption": "The hardest part of any daily habit is the daily part.\n\nThese reviewers cracked it, and in a post-purchase survey of 3k+ customers, 80% said they take Grüns daily. The secret isn't willpower. It's a pack that's easy to grab and tastes good enough to want.\n\nTry it for 30 days, money back on your first order. Link in bio.\n\n*These statements have not been evaluated by the Food and Drug Administration. This product is not intended to diagnose, treat, cure, or prevent any disease.",
+  "hashtags": [
+   "#gruns",
+   "#grunsreviews",
+   "#realreviews",
+   "#grunsinthewild"
+  ],
+  "visual_brief": "Cover: lifestyle-focused-hmpg-hero.png (gummies tipping into a palm) with Samuel L.'s line. Quote slides on mint; stat slide '80%' in Grüns green with the survey label; last slide a simple 'coffee · keys · pack' row.",
+  "template": "carousel_cover",
+  "photo": "lifestyle-focused-hmpg-hero.png",
+  "angle_id": "r5",
+  "persona_id": "p3",
+  "stage": "warm",
+  "slides": [
+   {
+    "title": "Reviews about the hard part: showing up daily.",
+    "body": ""
+   },
+   {
+    "title": "“Grüns has been the one thing I've been able to stick to because they are so easy to consume and taste wonderful (just like gummy bears).”",
+    "body": "— Samuel L."
+   },
+   {
+    "title": "“It's wild I WANT to take Grüns and don't forget.”",
+    "body": "— Brittany A."
+   },
+   {
+    "title": "80% take it daily",
+    "body": "In a post-purchase survey of 3k+ customers, 80% said they take Grüns daily."
+   },
+   {
+    "title": "Make it stick",
+    "body": "Keep the pack next to something you never skip: the coffee maker, your keys, your desk."
+   }
+  ]
+ },
+ {
+  "id": "gr-053",
+  "slot": "2026-10-26 12:00",
+  "platform": "ig",
+  "format": "story",
+  "pillar": "Community",
+  "theme": "halloween",
+  "hook_type": "question",
+  "hook": "Candy corn: delicacy or crime?",
+  "caption": "The crü needs this settled before the 31st. Vote, then defend your answer in our DMs.\n\n*These statements have not been evaluated by the Food and Drug Administration. This product is not intended to diagnose, treat, cure, or prevent any disease.",
+  "hashtags": [
+   "#gruns",
+   "#halloween",
+   "#grunsween",
+   "#halloweencostume"
+  ],
+  "visual_brief": "9:16: the single gummy bear (gummy_49ae5bc4-1a92-4aaf-8f02-bd9fd6f13100.png) wearing a tiny witch hat on a dark-green ground, a candy-corn stripe along the top, poll sticker middle. No Grüns packs shown next to candy.",
+  "template": "story-photo",
+  "photo": "gummy_49ae5bc4-1a92-4aaf-8f02-bd9fd6f13100.png",
+  "angle_id": "r5",
+  "persona_id": "p3",
+  "stage": "cold",
+  "story": {
+   "type": "poll",
+   "question": "Candy corn is…",
+   "options": [
+    "a delicacy",
+    "a crime"
+   ]
+  }
+ },
+ {
+  "id": "gr-054",
+  "slot": "2026-10-26 09:00",
+  "platform": "ig",
+  "format": "reel",
+  "pillar": "Routine",
+  "theme": "shrek-berry-far-far-away",
+  "hook_type": "offer_deadline",
+  "hook": "No restocks planned. So, about that Berry Far Far Away pack.",
+  "caption": "Your morning routine, now in limited edition.\n\nBerry Far Far Away is the Grüns flavor in Shrek packs, for adults and for kids ages 2-13. Same one-pack-a-day habit, berrier start. No restocks planned.\n\nOn a subscription, month one ships Berry Far Far Away, then it's back to Original. Pause or cancel anytime.\n\nGrab it before it's far, far gone. Link in bio.\n\n*These statements have not been evaluated by the Food and Drug Administration. This product is not intended to diagnose, treat, cure, or prevent any disease.",
+  "hashtags": [
+   "#gruns",
+   "#berryfarfaraway",
+   "#shrek",
+   "#limitededition"
+  ],
+  "visual_brief": "9:16 reel. Protagonist: one Shrek pouch (Pouch_w_Gummies_3.png) on a shelf line that never cuts; neighbouring pouches disappear one per beat (no fake stock counter). The last pouch tips gummies into a hand beside a coffee mug and keys, then settles into the end card with 'no restocks planned'. Licensed pack art only.",
+  "template": "reel",
+  "photo": "Pouch_w_Gummies_3.png",
+  "angle_id": "a8",
+  "persona_id": "p2",
+  "stage": "hot",
+  "reel": {
+   "concept": "Governing object: one Shrek pouch on a shelf whose neighbours vanish beat by beat; it tips into the morning routine (coffee, keys) and lands as the end card with the no-restocks line.",
+   "script_lines": [
+    "No restocks planned. So, about that Berry Far Far Away pack.",
+    "It's the limited Grüns flavor in Shrek packs, for adults and for kids ages 2 to 13.",
+    "Same morning routine: coffee, keys, rip, tip.",
+    "Just a berrier start to the day, for as long as it lasts.",
+    "Subscribing? Your first month ships Berry Far Far Away, then switches back to Original. Pause or cancel anytime.",
+    "Grab it before it's far, far gone. Link in bio."
+   ],
+   "on_screen": [
+    "no restocks planned",
+    "Berry Far Far Away · adults + kids",
+    "coffee · keys · rip · tip",
+    "while it lasts",
+    "month 1: Berry Far Far Away, then Original",
+    "before it's far, far gone"
+   ]
+  },
+  "script": [
+   {
+    "text": "No restocks planned. So, about that Berry Far Far Away pack.",
+    "seconds": 5,
+    "visual": "no restocks planned"
+   },
+   {
+    "text": "It's the limited Grüns flavor in Shrek packs, for adults and for kids ages 2 to 13.",
+    "seconds": 8,
+    "visual": "Berry Far Far Away · adults + kids"
+   },
+   {
+    "text": "Same morning routine: coffee, keys, rip, tip.",
+    "seconds": 4,
+    "visual": "coffee · keys · rip · tip"
+   },
+   {
+    "text": "Just a berrier start to the day, for as long as it lasts.",
+    "seconds": 6,
+    "visual": "while it lasts"
+   },
+   {
+    "text": "Subscribing? Your first month ships Berry Far Far Away, then switches back to Original. Pause or cancel anytime.",
+    "seconds": 8,
+    "visual": "month 1: Berry Far Far Away, then Original"
+   },
+   {
+    "text": "Grab it before it's far, far gone. Link in bio.",
+    "seconds": 5,
+    "visual": "before it's far, far gone"
+   }
+  ]
+ },
+ {
+  "id": "gr-055",
+  "slot": "2026-10-26 18:00",
+  "platform": "ig",
+  "format": "post",
+  "pillar": "Product",
+  "theme": "shrek-berry-far-far-away",
+  "hook_type": "offer_deadline",
+  "hook": "Berry Far Far Away: going fast, no restocks planned.",
+  "caption": "Friendly swamp reminder: the limited Berry Far Far Away flavor is going fast and there are no restocks planned.\n\nAdults pack or Kids pack (ages 2-13), one a day, same rip-tip-enjoy routine. On a subscription, your first month ships the limited flavor, then switches to Original. Pause or cancel anytime.\n\nGrab it before it's far, far gone. Link in bio.\n\n*These statements have not been evaluated by the Food and Drug Administration. This product is not intended to diagnose, treat, cure, or prevent any disease.",
+  "hashtags": [
+   "#gruns",
+   "#berryfarfaraway",
+   "#shrek",
+   "#limitededition"
+  ],
+  "visual_brief": "4:5 event card: LTO-Shrek-Kids-SF-1Prod-NoBG.png and the Adults cut-out on swamp green, event strip 'limited drop · no restocks planned' in yellow, no date (none is confirmed).",
+  "template": "event",
+  "photo": "LTO-Shrek-Kids-SF-1Prod-NoBG.png",
+  "angle_id": "a8",
+  "persona_id": "p2",
+  "stage": "hot",
+  "render": [
+   {
+    "template": "event",
+    "data": {
+     "kicker": "Limited flavor",
+     "title": "Berry Far Far Away is *going fast*.",
+     "date": "While it lasts",
+     "time": "No restocks planned",
+     "details": [
+      "Adults and Kids (ages 2-13) packs",
+      "One pack a day",
+      "Subscriptions: month one limited, then Original"
+     ],
+     "cta": "Grab it before it's gone",
+     "photo": "assets/site/Adult-Shrek-Gallery-Image-7.png",
+     "photo_pos": "50% 30%"
+    },
+    "size": [
+     1080,
+     1350
+    ]
+   }
+  ]
+ },
+ {
+  "id": "gr-056",
+  "slot": "2026-10-27 09:00",
+  "platform": "fb",
+  "format": "post",
+  "pillar": "Community",
+  "theme": "habit-routine",
+  "hook_type": "pov",
+  "hook": "Clocks fall back Sunday. Your pack stays put.",
+  "caption": "Daylight saving time ends this Sunday, Nov 1. Darker mornings, same routine.\n\nHere's the move: keep your daily pack exactly where it lives now, next to the coffee maker, the keys or the laptop. A routine tied to a place doesn't care what the clock says.\n\nWhat's the one habit you never skip, even in the dark? Tell us in the comments.\n\n*These statements have not been evaluated by the Food and Drug Administration. This product is not intended to diagnose, treat, cure, or prevent any disease.",
+  "hashtags": [
+   "#gruns",
+   "#dailyhabit",
+   "#morningroutine",
+   "#habitstacking"
+  ],
+  "visual_brief": "4:5 editorial: GRUNS_Pouch_28ct_LS_Render_Front_3.png beside a simple flat clock whose hands roll back an hour, deep-green dawn gradient behind, headline 'clocks fall back. the pack stays put.'",
+  "template": "editorial",
+  "photo": "GRUNS_Pouch_28ct_LS_Render_Front_3.png",
+  "angle_id": "r5",
+  "persona_id": "p3",
+  "stage": "cold"
+ },
+ {
+  "id": "gr-057",
+  "slot": "2026-10-27 18:00",
+  "platform": "ig",
+  "format": "carousel",
+  "pillar": "Education",
+  "theme": "halloween",
+  "hook_type": "number",
+  "hook": "5 ways to keep your routine through Halloween week.",
+  "caption": "Halloween week has a way of eating routines. Here's how to keep yours.\n\nPack it before the party. Anchor it to breakfast. Keep the kids' packs with the grown-up stuff. Remember the basics still do the heavy lifting. And enjoy the candy corn, or don't: no judgment either way.\n\nSee what's in one pack. Link in bio.\n\n*These statements have not been evaluated by the Food and Drug Administration. This product is not intended to diagnose, treat, cure, or prevent any disease.",
+  "hashtags": [
+   "#gruns",
+   "#halloween",
+   "#grunsween",
+   "#halloweencostume"
+  ],
+  "visual_brief": "Cover: Gruns-Social-Images-21.png (the giant dark gummy-bear statue in the city) with an orange-violet dusk grade. Inner slides: one tip per slide, numbered in yellow on near-black green #002613.",
+  "template": "carousel_cover",
+  "photo": "Gruns-Social-Images-21.png",
+  "angle_id": "r5",
+  "persona_id": "p3",
+  "stage": "cold",
+  "slides": [
+   {
+    "title": "5 ways to keep your routine through Halloween week.",
+    "body": ""
+   },
+   {
+    "title": "1. Pack it before the party",
+    "body": "Your daily pack goes in the costume bag, right next to the face paint."
+   },
+   {
+    "title": "2. Anchor it to breakfast",
+    "body": "Late night? The pack still happens with the morning coffee."
+   },
+   {
+    "title": "3. Kids' packs stay with the grown-up stuff",
+    "body": "Grüns Kids is one pack a day, handed out by a grown-up. It's not candy, so it doesn't go in the bowl."
+   },
+   {
+    "title": "4. Water, sleep, vegetables",
+    "body": "The boring basics still do the heavy lifting. A pack is a backup, not a replacement."
+   },
+   {
+    "title": "5. Enjoy the candy corn (or don't)",
+    "body": "No guilt speech here. One daily pack, whatever the rest of the day looks like."
+   }
+  ]
+ },
+ {
+  "id": "gr-058",
+  "slot": "2026-10-28 12:00",
+  "platform": "ig",
+  "format": "story",
+  "pillar": "Product",
+  "theme": "shrek-berry-far-far-away",
+  "hook_type": "question",
+  "hook": "How far, far into Berry Far Far Away are you?",
+  "caption": "Slide to rate. Haven't tried it yet? No restocks planned, so tap the link while it lasts.\n\n*These statements have not been evaluated by the Food and Drug Administration. This product is not intended to diagnose, treat, cure, or prevent any disease.",
+  "hashtags": [
+   "#gruns",
+   "#berryfarfaraway",
+   "#shrek",
+   "#limitededition"
+  ],
+  "visual_brief": "9:16: Pouch_w_Gummies_3.png on swamp green, slider sticker with text endpoints (no emoji), link sticker bottom.",
+  "template": "story-photo",
+  "photo": "Pouch_w_Gummies_3.png",
+  "angle_id": "a8",
+  "persona_id": "p2",
+  "stage": "hot",
+  "story": {
+   "type": "slider",
+   "question": "Berry Far Far Away, rated",
+   "options": [
+    "meh",
+    "far, far into it"
+   ]
+  }
+ },
+ {
+  "id": "gr-059",
+  "slot": "2026-10-28 09:00",
+  "platform": "fb",
+  "format": "post",
+  "pillar": "Proof",
+  "theme": "reviews-ugc",
+  "hook_type": "review",
+  "hook": "“it was still $94 a month”",
+  "caption": "“even with their monthly subscription discount it was still $94 a month and the drink was definitely gritty/chalky. Grüns literally tastes like fruit snacks I ate as a kid.” (Bradley O., on the powder he used to take)\n\nFor the record: Grüns Subscribe & Save is $49.99 per 28 packs, or $1.78 a day. Pause or cancel anytime.\n\nTry it for 30 days, money back on your first order → gruns.co/pages/science\n\n*These statements have not been evaluated by the Food and Drug Administration. This product is not intended to diagnose, treat, cure, or prevent any disease.",
+  "hashtags": [
+   "#gruns",
+   "#grunsreviews",
+   "#realreviews",
+   "#grunsinthewild"
+  ],
+  "visual_brief": "Quote card 4:5: valueprop-image1.png cropped right, Bradley O.'s quote on a deep-green panel left with yellow quotes, small price footer '$49.99 / 28 packs · $1.78 a day · pause or cancel anytime'. The competitor is never named or shown.",
+  "template": "quote",
+  "photo": "valueprop-image1.png",
+  "angle_id": "a4",
+  "persona_id": "p1",
+  "stage": "warm",
+  "render": [
+   {
+    "template": "quote",
+    "data": {
+     "quote": "…even with their monthly subscription discount it was still $94 a month and the drink was definitely gritty/chalky. Grüns literally tastes like *fruit snacks* I ate as a kid.",
+     "name": "Bradley O.",
+     "detail": "Review on gruns.co, about the powder he used to take",
+     "note": "",
+     "cta": "Try it, money back for 30 days"
+    },
+    "size": [
+     1080,
+     1350
+    ]
+   }
+  ]
+ },
+ {
+  "id": "gr-060",
+  "slot": "2026-10-28 18:00",
+  "platform": "ig",
+  "format": "reel",
+  "pillar": "Routine",
+  "theme": "halloween",
+  "hook_type": "pov",
+  "hook": "POV: Halloween morning. Costume on. One thing's still routine.",
+  "caption": "Halloween morning checklist: cape, ears, bucket, face paint that will absolutely end up on the couch.\n\nAnd the daily pack? Same as any other day. Grüns Kids is one 15 g pack for ages 2-13, handed out by a grown-up, and it stays on the grown-up side of the counter, far from the treat bucket.\n\nTry it for 30 days, money back on your first order. Link in bio.\n\n*These statements have not been evaluated by the Food and Drug Administration. This product is not intended to diagnose, treat, cure, or prevent any disease.",
+  "hashtags": [
+   "#grunskids",
+   "#halloween",
+   "#parentlife",
+   "#gruns"
+  ],
+  "visual_brief": "9:16 reel, fixed camera. Protagonist: one kitchen counter that never cuts. On each beat a costume piece lands (cat ears, a cape, a pumpkin bucket, face paint); OG-Kids-SF-1Prod-NoBG.png sits apart on the grown-up side next to the coffee mug. A grown-up hand picks it up and hands it off frame; the counter clears into the end card. No child faces needed; nothing child-directed.",
+  "template": "reel",
+  "photo": "OG-Kids-SF-1Prod-NoBG.png",
+  "angle_id": "a5",
+  "persona_id": "p2",
+  "stage": "warm",
+  "reel": {
+   "concept": "Governing object: one kitchen counter that fills with costume pieces on the beat while the Kids pack stays on the grown-up side; a grown-up hand hands it off and the counter clears into the end card.",
+   "script_lines": [
+    "POV: Halloween morning. Costume on. One thing's still routine.",
+    "Cape found. Ears on. The pumpkin bucket is ready and waiting.",
+    "The daily pack stays on the grown-up side of the counter.",
+    "Grüns Kids is one 15 gram pack a day for ages 2 to 13, handed out by a grown-up.",
+    "It's not candy, so it doesn't go in the bucket.",
+    "Everything else tonight? That's between you and the neighborhood.",
+    "Try it for 30 days, money back on your first order."
+   ],
+   "on_screen": [
+    "Halloween morning",
+    "cape · ears · bucket",
+    "grown-up side of the counter",
+    "ages 2-13 · one 15 g pack a day",
+    "not candy. not in the bucket.",
+    "the rest is up to the neighborhood",
+    "30-day money-back, first order"
+   ]
+  },
+  "script": [
+   {
+    "text": "POV: Halloween morning. Costume on. One thing's still routine.",
+    "seconds": 4,
+    "visual": "Halloween morning"
+   },
+   {
+    "text": "Cape found. Ears on. The pumpkin bucket is ready and waiting.",
+    "seconds": 5,
+    "visual": "cape · ears · bucket"
+   },
+   {
+    "text": "The daily pack stays on the grown-up side of the counter.",
+    "seconds": 5,
+    "visual": "grown-up side of the counter"
+   },
+   {
+    "text": "Grüns Kids is one 15 gram pack a day for ages 2 to 13, handed out by a grown-up.",
+    "seconds": 8,
+    "visual": "ages 2-13 · one 15 g pack a day"
+   },
+   {
+    "text": "It's not candy, so it doesn't go in the bucket.",
+    "seconds": 5,
+    "visual": "not candy. not in the bucket."
+   },
+   {
+    "text": "Everything else tonight? That's between you and the neighborhood.",
+    "seconds": 4,
+    "visual": "the rest is up to the neighborhood"
+   },
+   {
+    "text": "Try it for 30 days, money back on your first order.",
+    "seconds": 5,
+    "visual": "30-day money-back, first order"
+   }
+  ]
+ },
+ {
+  "id": "gr-061",
+  "slot": "2026-10-29 09:00",
+  "platform": "ig",
+  "format": "carousel",
+  "pillar": "Product",
+  "theme": "evergreen-proof",
+  "hook_type": "comparison",
+  "hook": "Which Grüns is yours? A 30-second guide.",
+  "caption": "Low Sugar or Sugar-Free? Grown-up pack or Kids pack? Limited berry or the Original?\n\nHere's the whole lineup in one swipe, with the sugar, the calories and the price, nothing hidden. Every option is one pack a day.\n\nStart your subscription. Link in bio.\n\n*These statements have not been evaluated by the Food and Drug Administration. This product is not intended to diagnose, treat, cure, or prevent any disease.",
+  "hashtags": [
+   "#gruns",
+   "#greensgummies",
+   "#dailynutrition",
+   "#supplementfacts"
+  ],
+  "visual_brief": "Cover: ShopTile-OG-Adults.png. Inner slides: one product per slide with its pack cut-out (GRUNS_Pouch_28ct_LS_Render_Front_3.png, OG-Kids-SF-1Prod-NoBG.png, LTO-Shrek-Adults-SF-1Prod-NoBG.png), facts in a two-row table. Recurring prices only, no intro price.",
+  "template": "carousel_cover",
+  "photo": "ShopTile-OG-Adults.png",
+  "angle_id": "r5",
+  "persona_id": "p3",
+  "stage": "hot",
+  "slides": [
+   {
+    "title": "Which Grüns is yours?",
+    "body": "A quick guide."
+   },
+   {
+    "title": "Original, Low Sugar",
+    "body": "8 g added sugars, 50 calories per pack. $49.99 per 28 packs on Subscribe & Save ($1.78 a day)."
+   },
+   {
+    "title": "Original, Sugar-Free",
+    "body": "<0.5 g total sugars, 20 calories per pack. $54.99 per 28 packs on Subscribe & Save."
+   },
+   {
+    "title": "Grüns Kids",
+    "body": "For ages 2-13. A 15 g pack, one a day. $39.99 per 28 packs on Subscribe & Save ($1.42 a day)."
+   },
+   {
+    "title": "Berry Far Far Away",
+    "body": "The limited flavor in Shrek packs, Adults and Kids. No restocks planned."
+   },
+   {
+    "title": "All of them",
+    "body": "Pause or cancel anytime. 30-day money-back guarantee on your first order."
+   }
+  ]
+ },
+ {
+  "id": "gr-062",
+  "slot": "2026-10-29 18:00",
+  "platform": "ig",
+  "format": "post",
+  "pillar": "Community",
+  "theme": "halloween",
+  "hook_type": "callout",
+  "hook": "Halloween costume with a Grüns pack? We need to see it.",
+  "caption": "Reminder for the 31st: if your costume involves a gummy bear, a green face or a Grüns pack as a prop, we want in.\n\nPost it, tag @grunsdaily and add #grunsween. We'll ask before we share, and our favorites get a repost.\n\nTag us in your costume.\n\n*These statements have not been evaluated by the Food and Drug Administration. This product is not intended to diagnose, treat, cure, or prevent any disease.",
+  "hashtags": [
+   "#gruns",
+   "#halloween",
+   "#grunsween",
+   "#halloweencostume"
+  ],
+  "visual_brief": "4:5: Gruns-Social-Images-16.png (the big bear mascot in a #25 jersey at a stadium) as costume inspiration, yellow sticker '#grunsween'.",
+  "template": "ugc-photo",
+  "photo": "Gruns-Social-Images-16.png",
+  "angle_id": "r5",
+  "persona_id": "p3",
+  "stage": "cold"
+ },
+ {
+  "id": "gr-063",
+  "slot": "2026-10-30 12:00",
+  "platform": "ig",
+  "format": "story",
+  "pillar": "Routine",
+  "theme": "halloween",
+  "hook_type": "question",
+  "hook": "Halloween eve check: pack done today?",
+  "caption": "Tomorrow gets loud. Today's pack takes one hand. Tap when it's done.\n\n*These statements have not been evaluated by the Food and Drug Administration. This product is not intended to diagnose, treat, cure, or prevent any disease.",
+  "hashtags": [
+   "#gruns",
+   "#halloween",
+   "#grunsween",
+   "#halloweencostume"
+  ],
+  "visual_brief": "9:16: sachet-front.png mid-rip (sachet-rip.png edge) on a dusk-orange to Grüns-green gradient, poll sticker middle.",
+  "template": "story-photo",
+  "photo": "sachet-front.png",
+  "angle_id": "r5",
+  "persona_id": "p3",
+  "stage": "cold",
+  "story": {
+   "type": "poll",
+   "question": "Pack done today?",
+   "options": [
+    "done",
+    "doing it now"
+   ]
+  }
+ },
+ {
+  "id": "gr-064",
+  "slot": "2026-10-30 09:00",
+  "platform": "fb",
+  "format": "post",
+  "pillar": "Education",
+  "theme": "pack-vs-powder",
+  "hook_type": "contrarian",
+  "hook": "Not all “one pack a day” routines are one step.",
+  "caption": "Not all “one pack a day” routines are one step.\n\nSome packs are the start of a process: tear, pour, add water, shake, drink, rinse. Ours is the whole process: rip, tip, enjoy.\n\nThat's the point of gummies. 60+ ingredients, 21 vitamins & minerals and 6 g of fiber, in a format you can eat at your desk, on the sideline or at the airport gate.\n\nSee what's in one pack → gruns.co/pages/reviews\n\n*These statements have not been evaluated by the Food and Drug Administration. This product is not intended to diagnose, treat, cure, or prevent any disease.",
+  "hashtags": [
+   "#gruns",
+   "#greensgummies",
+   "#riptipenjoy",
+   "#nomoreshaker"
+  ],
+  "visual_brief": "4:5 comparison card, drawn from the render spec: headline 'Six steps or *three*?', photo strip valueprop-cardimg1.png (pack in a gym bag), table 'Powder pack' vs 'Grüns pack' (highlighted): open, prepare, finish, steps 6 vs 3. No competitor names or packs.",
+  "template": "comparison",
+  "photo": "valueprop-cardimg1.png",
+  "angle_id": "a1",
+  "persona_id": "p1",
+  "stage": "cold",
+  "render": [
+   {
+    "template": "comparison",
+    "data": {
+     "kicker": "One pack a day",
+     "title": "Six steps or *three*?",
+     "columns": [
+      {
+       "name": "Powder pack"
+      },
+      {
+       "name": "Grüns pack",
+       "highlight": true
+      }
+     ],
+     "rows": [
+      {
+       "label": "Open",
+       "values": [
+        "Tear",
+        "Rip"
+       ]
+      },
+      {
+       "label": "Prepare",
+       "values": [
+        "Pour, add water, shake",
+        "Tip into your palm"
+       ]
+      },
+      {
+       "label": "Finish",
+       "values": [
+        "Drink, then rinse",
+        "Enjoy"
+       ]
+      },
+      {
+       "label": "Steps",
+       "values": [
+        "6",
+        "3"
+       ]
+      }
+     ],
+     "footnote": "60+ ingredients, 21 vitamins & minerals and 6 g of fiber in every Grüns pack.",
+     "cta": "See what's in one pack",
+     "photo": "assets/site/valueprop-cardimg1.png",
+     "photo_pos": "50% 40%"
+    },
+    "size": [
+     1080,
+     1350
+    ]
+   }
+  ]
+ },
+ {
+  "id": "gr-065",
+  "slot": "2026-10-30 18:00",
+  "platform": "ig",
+  "format": "carousel",
+  "pillar": "Proof",
+  "theme": "reviews-ugc",
+  "hook_type": "review",
+  "hook": "Find your reviewer: 5 Grüns reviews, sorted by situation.",
+  "caption": "October wrap-up: 100,000 reviews is a lot to read, so we sorted a few by situation.\n\nThe busy parent, the ex-powder person, the shelf-clearer, the subscription skeptic and the recovering forgetter. Swipe until you find yourself.\n\nTry it for 30 days, money back on your first order. Link in bio.\n\n*These statements have not been evaluated by the Food and Drug Administration. This product is not intended to diagnose, treat, cure, or prevent any disease.",
+  "hashtags": [
+   "#gruns",
+   "#grunsreviews",
+   "#realreviews",
+   "#grunsinthewild"
+  ],
+  "visual_brief": "Cover: Gruns-Social-Images-12.png (crowd holding packs up). Each inner slide: the situation label as a yellow tag, the verbatim review in DM Sans on mint, first name + initial. Reviews verbatim from gruns.co.",
+  "template": "carousel_cover",
+  "photo": "Gruns-Social-Images-12.png",
+  "angle_id": "r5",
+  "persona_id": "p3",
+  "stage": "warm",
+  "slides": [
+   {
+    "title": "Find your reviewer.",
+    "body": "5 real reviews, sorted by situation."
+   },
+   {
+    "title": "The busy parent",
+    "body": "“so easy to grab and eat on my way to the billion things I have to do as a mom.” — Kelli L."
+   },
+   {
+    "title": "The ex-powder person",
+    "body": "“not having to clean a shaker bottle or extra dishes for greens stuff in powder form, is absolutely excellent!” — Dustin O."
+   },
+   {
+    "title": "The shelf-clearer",
+    "body": "“I also stopped buying separate probiotic gummies, b12 gummies, and multivitamin gummies. I just take these now and it's easier for me to manage.” — Jamie W."
+   },
+   {
+    "title": "The subscription skeptic",
+    "body": "“I hate subscriptions because I feel like they are a trap so I canceled it before the gummies even arrived. We quickly decided to resubscribe because we love Grüns so much!” — Kate S."
+   },
+   {
+    "title": "The recovering forgetter",
+    "body": "“It's wild I WANT to take Grüns and don't forget.” — Brittany A."
+   }
+  ]
+ },
+ {
+  "id": "gr-066",
+  "slot": "2026-10-31 10:00",
+  "platform": "ig",
+  "format": "reel",
+  "pillar": "Routine",
+  "theme": "halloween",
+  "hook_type": "pov",
+  "hook": "The bear went goth for Halloween. The routine didn't.",
+  "caption": "The bear went goth. The routine stayed exactly the same.\n\nTonight is for costumes, candy bowls and at least one ogre at every party. This morning was for one pack: rip, tip, enjoy.\n\nHappy Halloween from the whole Grüns crü.\n\nSee what's in one pack. Link in bio.\n\n*These statements have not been evaluated by the Food and Drug Administration. This product is not intended to diagnose, treat, cure, or prevent any disease.",
+  "hashtags": [
+   "#gruns",
+   "#halloween",
+   "#grunsween",
+   "#halloweencostume"
+  ],
+  "visual_brief": "9:16 reel. Protagonist: the giant dark gummy-bear statue from Gruns-Social-Images-21.png, full height, never cut. On each beat the city light behind it shifts from day to Halloween dusk (orange to violet) while a small green Grüns pack travels from the bear's bag to a hand in the foreground: rip, tip, enjoy. The bear's bag becomes the end card.",
+  "template": "reel",
+  "photo": "Gruns-Social-Images-21.png",
+  "angle_id": "r5",
+  "persona_id": "p3",
+  "stage": "cold",
+  "reel": {
+   "concept": "Governing object: the giant dark gummy-bear statue, full height and never cut, while the sky shifts to Halloween dusk on the beat and one pack travels from its bag to a hand; the bag becomes the end card.",
+   "script_lines": [
+    "The bear went goth for Halloween. The routine didn't.",
+    "Costumes change. Plans change. The candy bowl definitely changes.",
+    "The one pack a day stays exactly where it was: next to your coffee.",
+    "Rip. Tip. Enjoy. Then go be a vampire, a witch or a very convincing ogre.",
+    "60+ ingredients, 21 vitamins and minerals and 6 grams of fiber, one pack.",
+    "Happy Halloween from the whole crü.",
+    "See what's in one pack. Link in bio."
+   ],
+   "on_screen": [
+    "the bear went goth",
+    "costumes change",
+    "the pack stays put",
+    "rip. tip. enjoy.",
+    "60+ · 21 · 6 g",
+    "happy halloween from the crü",
+    "see what's in one pack"
+   ]
+  },
+  "script": [
+   {
+    "text": "The bear went goth for Halloween. The routine didn't.",
+    "seconds": 4,
+    "visual": "the bear went goth"
+   },
+   {
+    "text": "Costumes change. Plans change. The candy bowl definitely changes.",
+    "seconds": 4,
+    "visual": "costumes change"
+   },
+   {
+    "text": "The one pack a day stays exactly where it was: next to your coffee.",
+    "seconds": 6,
+    "visual": "the pack stays put"
+   },
+   {
+    "text": "Rip. Tip. Enjoy. Then go be a vampire, a witch or a very convincing ogre.",
+    "seconds": 7,
+    "visual": "rip. tip. enjoy."
+   },
+   {
+    "text": "60+ ingredients, 21 vitamins and minerals and 6 grams of fiber, one pack.",
+    "seconds": 6,
+    "visual": "60+ · 21 · 6 g"
+   },
+   {
+    "text": "Happy Halloween from the whole crü.",
+    "seconds": 3,
+    "visual": "happy halloween from the crü"
+   },
+   {
+    "text": "See what's in one pack. Link in bio.",
+    "seconds": 4,
+    "visual": "see what's in one pack"
+   }
+  ]
+ }
+]

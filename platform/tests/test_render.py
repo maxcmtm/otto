@@ -5,7 +5,7 @@ and are skipped when no headless Chrome (or ffmpeg) is available.
   cd platform && python3 tests/test_render.py
   OTTO_CHROME=/path/to/chrome-headless-shell python3 tests/test_render.py      # pick the browser
 """
-import json, os, re, shutil, sys, tempfile, unittest
+import json, os, re, shutil, subprocess, sys, tempfile, unittest
 from pathlib import Path
 
 PLATFORM = Path(__file__).resolve().parent.parent
@@ -27,6 +27,20 @@ def browser():
 
 HAVE_BROWSER = bool(browser()) and bool(shutil.which("ffmpeg"))
 SPEC = json.loads((R.TEMPLATES / "_demo.json").read_text())
+
+
+def setUpModule():
+    """These tests read the real brands/ (happygarden, cmtm). When run under discover after test_engine, OTTO_BRANDS
+    points at that suite's temp fixture — pin both lookups back to the repo for the duration."""
+    import ap
+    global _SAVED
+    _SAVED = (R.BRANDS, ap.BRANDS)
+    R.BRANDS = ap.BRANDS = ROOT / "brands"
+
+
+def tearDownModule():
+    import ap
+    R.BRANDS, ap.BRANDS = _SAVED
 
 
 def quiet(*_a, **_k):
@@ -142,7 +156,13 @@ class TokenTest(unittest.TestCase):
     def test_logo_replaces_wordmark(self):
         logo = TMP / "logo.svg"
         logo.write_text('<svg xmlns="http://www.w3.org/2000/svg" width="200" height="40"><rect width="200" height="40"/></svg>')
-        page = R.render_html("editorial", {"headline": "x"}, brand=R.brand_tokens("happygarden", logo=str(logo)))
+        tok = R.brand_tokens("happygarden", logo=str(logo))
+        self.assertEqual(tok["logo_ratio"], 5.0)
+        page = R.render_html("editorial", {"headline": "x"}, brand=tok)       # mono: a mask in the ground's colour
+        self.assertIn('class="logo-m"', page)
+        self.assertIn("data:image/svg+xml;base64,", page)
+        self.assertNotIn(">happygarden<", page.lower())
+        page = R.render_html("editorial", {"headline": "x"}, brand=dict(tok, logo_mode="color"))
         self.assertIn(logo.resolve().as_uri(), page)
 
     def test_overrides(self):
@@ -152,6 +172,41 @@ class TokenTest(unittest.TestCase):
         got = dict(R.palette_labels("- Palette: #111111 (text) · #00A5B5 CTA · #25D366 WhatsApp — UI only"))
         self.assertIn("CTA", got["#00A5B5"])
         self.assertIn("UI only", got["#25D366"])
+
+    def test_two_colour_brand_with_its_own_font(self):
+        """Found on gruns.co: green + yellow, DM Sans. Their face carries emphasis, yellow is the accent on forest
+        green and the highlighter on paper; brands without a web font keep the house serif."""
+        bdir = TMP / "brands-gr" / "t-green"
+        bdir.mkdir(parents=True, exist_ok=True)
+        (bdir / "scan.json").write_text(json.dumps({"visual": {
+            "palette": [{"hex": h} for h in ("#007E40", "#E8B411", "#00572C", "#002613")],
+            "neutrals": [{"hex": "#FFFFFF"}], "fonts": ["DMSans", "Work Sans"]}, "languages": ["en"]}))
+        saved = R.BRANDS
+        R.BRANDS = TMP / "brands-gr"
+        try:
+            t = R.brand_tokens("t-green")
+        finally:
+            R.BRANDS = saved
+        self.assertEqual((t["font_display"], t["font_text"], t["em_style"]), ("DM Sans", "DM Sans", "brand"))
+        self.assertEqual(t["accent_on_dark"], "#E8B411")
+        self.assertEqual((t["em_light"], t["marker"]), ("marker", "#E8B411"))
+        self.assertIn("ems-brand", R.render_html("editorial", {"headline": "x"}, brand=t))
+        self.assertEqual(R.brand_tokens("happygarden")["em_style"], "serif")
+        self.assertEqual(R.brand_tokens("happygarden")["marker"], R.brand_tokens("happygarden")["accent"])
+        self.assertIsNone(R.brand_font({"visual": {"fonts": ["Olipop Display"]}}))
+
+    @unittest.skipUnless(shutil.which("ffmpeg"), "needs ffmpeg")
+    def test_cutout_detection(self):
+        cut, photo = TMP / "cut.png", TMP / "photo.png"
+        subprocess.run(["ffmpeg", "-v", "error", "-y", "-f", "lavfi", "-i", "color=c=black@0.0:s=64x64,format=rgba",
+                        "-vf", "drawbox=x=16:y=16:w=32:h=32:color=green@1:t=fill", "-frames:v", "1", str(cut)], check=True)
+        subprocess.run(["ffmpeg", "-v", "error", "-y", "-f", "lavfi", "-i", "color=c=green:s=64x64", "-frames:v", "1",
+                        str(photo)], check=True)
+        self.assertTrue(R.is_cutout(cut.resolve().as_uri()))
+        self.assertFalse(R.is_cutout(photo.resolve().as_uri()))
+        page = R.render_html("editorial", {"headline": "x", "photo": str(cut)}, brand=R.brand_tokens("cmtm"))
+        self.assertIn("has-cutout", page)
+        self.assertIn('class="ad split', page)
 
 
 class ContextTest(unittest.TestCase):

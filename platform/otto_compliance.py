@@ -71,6 +71,13 @@ def rules(bid):
             "disclaimer_on": raw.get("disclaimer_on") or ["posts"], "error": raw.get("error"), "baseline": raw.get("baseline")}
 
 
+# The DSHEA disclaimer is the text the law requires next to a structure/function claim; it names "diagnose, treat,
+# cure, or prevent" by design. Either spelling of the agency counts, and the disclaimer is never read as a claim.
+DSHEA = re.compile(r"\*?\s*these statements have not been evaluated by the (?:u\.?s\.? )?(?:food (?:and|&) drug "
+                   r"administration|fda)\s*\.?\s*this product is not intended to diagnose,? treat,? cure,? or prevent any "
+                   r"disease\.?", re.I)
+
+
 def check_texts(bid, texts, context="posts"):
     """→ list of {"rule", "match", "excerpt"}; empty list = clean."""
     r = rules(bid)
@@ -80,10 +87,11 @@ def check_texts(bid, texts, context="posts"):
     if r["error"] and blob:                          # fail closed: a broken rules file must not wave everything through
         out.append({"rule": "compliance.json unreadable", "match": "", "excerpt": r["error"][:120]})
     disc = (r["required_disclaimer"] or "").strip()
-    scan = blob
+    scan = DSHEA.sub(" ", blob)
     if disc:
         scan = re.sub(re.escape(disc), " ", scan, flags=re.I)
-        if context in r["disclaimer_on"] and disc.lower() not in blob.lower():
+        present = disc.lower() in blob.lower() or bool(DSHEA.fullmatch(disc.strip()) and DSHEA.search(blob))
+        if context in r["disclaimer_on"] and not present:
             out.append({"rule": "required_disclaimer", "match": "", "excerpt": f"missing: “{disc[:80]}”"})
     for rule, pat in r["patterns"]:
         m = pat.search(scan)

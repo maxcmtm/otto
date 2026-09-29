@@ -1,0 +1,151 @@
+{
+  "angles": [
+    {
+      "rank": 1,
+      "angle": "Nutrition support for people on GLP-1 medication (20+ vitamins + fiber in one pack)",
+      "source": "competitor-research",
+      "evidence": "Grüns' own ads '20+ Vitamins for GLP-1 Support' and 'Essential Nutrients for GLP-1 Users' have been live since 2026-05-29 / 06-02 (119-122 days); about 154 active Grüns ads mention GLP-1. This is the brand's biggest themed cluster.",
+      "longest_running_days": 122,
+      "owner": "Grüns",
+      "otto_note": "Keep the angle, rewrite the copy: third person and structure/function only. Newer variants ('Coming Off Your GLP-1?', 'Support Muscle While You Lose Weight', 'Weight Loss Support') trip Meta personal-attributes and FTC weight-loss rules; compliance.json blocks them.",
+      "ad": {
+        "headline": "Small pack. 21 vitamins. 6 g fiber.",
+        "primary": "Made for people on GLP-1 medication who eat less: 21 vitamins & minerals and 6 g of prebiotic fiber in one small snack pack.",
+        "description": "4.8★ from 100,000+ reviews",
+        "proof": "21 vitamins & minerals and 6 g of fiber, in one pack"
+      }
+    },
+    {
+      "rank": 2,
+      "angle": "Fiber by the number: 6 g prebiotic fiber in one snack pack",
+      "source": "competitor-research",
+      "evidence": "Grüns 'Struggling to Get Enough Fiber?' has been live since 2026-05-29 (122 days), with 3+ variants relaunched on 2026-09-24.",
+      "longest_running_days": 122,
+      "owner": "Grüns",
+      "otto_note": "Drop the 'struggling' call-out and lead with the number.",
+      "ad": {
+        "headline": "6 grams of fiber. One snack pack.",
+        "primary": "Greens, 21 vitamins & minerals and 6 g of prebiotic fiber, in gummies you'll actually look forward to. One pack a day.",
+        "description": "30-day money-back guarantee",
+        "proof": "6 g of prebiotic fiber in every daily pack"
+      }
+    },
+    {
+      "rank": 3,
+      "angle": "Everyday gut and digestion, said playfully ('better poops' voice)",
+      "source": "competitor-research",
+      "evidence": "Grüns 'Fix the Hot Girl Tummy' has run since 2026-06-02 (119 days), with about 10 variants relaunched 2026-09-24 to 09-29. 'Nourish Your Gut with Grüns' since 2026-06-03 (117 days). About 41 active Grüns ads mention 'poop'. Seed runs 'Fart Less, Poop More With DS-01'.",
+      "longest_running_days": 119,
+      "owner": "Grüns + Seed",
+      "otto_note": "Structure/function only ('supports digestion'). No IBS, constipation or bloating-cure testimonials.",
+      "ad": {
+        "headline": "Prebiotic fiber that tastes like fruit.",
+        "primary": "6 g of prebiotic fiber to support digestion. 67% reported more regular digestion in a post-purchase survey of 3k+ customers.",
+        "description": "Pause or cancel anytime",
+        "proof": "67% more regular digestion, in a survey of 3k+ customers"
+      }
+    },
+    {
+      "rank": 4,
+      "angle": "No mess, no shaker: a pack you eat vs a powder you mix",
+      "source": "competitor-research",
+      "evidence": "Grüns 'All Gummies, No Mess' since 2026-06-03 (118 days) and 'Nutrition in Your Bag' since 2026-06-04 (116 days). New on 2026-09-24: 'Ditch the Greens, Go with Grüns' and 'I Tried Both. Grüns Came Out on Top.'. AG1 is now pushing its own pack format ('One Pack. The Whole Stack.', since 2026-09-20).",
+      "longest_running_days": 118,
+      "owner": "Grüns vs AG1",
+      "otto_note": "Use switcher reviews (Bradley O., Dustin O., Jaxon S.). Don't name AG1 in ad copy without legal sign-off.",
+      "ad": {
+        "headline": "No shaker. No grit. Just a pack.",
+        "primary": "Greens, 21 vitamins & minerals and 6 g of fiber, with no mixing and no shaker to wash. Rip the pack, tip, enjoy.",
+        "description": "$49.99 per 28 packs",
+        "proof": "Rip. Tip. Enjoy. Nothing to wash."
+      }
+    },
+    {
+      "rank": 5,
+      "angle": "Daily nutrition, simplified: one pack, the whole day's basics",
+      "source": "competitor-research",
+      "evidence": "Grüns 'Grüns Gummies: Your Daily Nutrients' since 2026-05-29 (122 days), 'Fuel Your Health' and 'Stay Healthy with Grüns' since 2026-06-13 (108 days), 'Grüns: Daily Nutrition, Simplified' since 2026-06-20 (100 days).",
+      "longest_running_days": 122,
+      "owner": "Grüns",
+      "otto_note": "Broad evergreen control. Pair with 'replace the stack' price maths.",
+      "ad": {
+        "headline": "Daily nutrition, one snack pack.",
+        "primary": "Greens, 21 vitamins & minerals and fiber in one grab-and-go pack. $49.99 per 28 packs, $1.78 a day. Pause or cancel anytime.",
+        "description": "4.8★ from 100,000+ reviews",
+        "proof": "$1.78 a day. Pause or cancel anytime."
+      }
+    },
+    {
+      "rank": 6,
+      "angle": "For the person who won't take vitamins (reluctant-male call-out)",
+      "source": "competitor-research",
+      "evidence": "Grüns 'For the Guy Who Won't Take Vitamins' since 2026-06-19 (102 days).",
+      "longest_running_days": 102,
+      "owner": "Grüns",
+      "otto_note": "A role/behaviour call-out, not a health attribute, so it is compliant.",
+      "ad": {
+        "headline": "For the guy who won't take vitamins.",
+        "primary": "No pills to swallow, no powder to mix. Green gummy bears with 21 vitamins & minerals and 6 g of fiber. One pack a day.",
+        "description": "30-day money-back guarantee",
+        "proof": "No pills. No powder. One pack a day."
+      }
+    },
+    {
+      "rank": 7,
+      "angle": "Evergreen catalog retargeting (dynamic product ads)",
+      "source": "competitor-research",
+      "evidence": "Ritual catalog ad since 2026-04-24 (158 days). Grüns '{{product.name}}' catalog ads since 2026-06-13 (108 days).",
+      "longest_running_days": 158,
+      "owner": "Ritual + Grüns",
+      "otto_note": "Keep it as the always-on retargeting layer. Exclude existing subscribers."
+    },
+    {
+      "rank": 8,
+      "angle": "Discount-led first order ('Save 52% + free shipping')",
+      "source": "competitor-research",
+      "evidence": "Grüns 'Save Up to 52% Today + FREE Shipping' since 2026-06-25 (95 days). The newer '61% OFF' family ('\"Grüns is too expensive\" — here's 61% off', 'Don't Pay Full Price', 'Trusted by 1M+ — Take 61% OFF') is only 0-12 days old but has hundreds of variants, so it is being scaled and is not yet proven.",
+      "longest_running_days": 95,
+      "owner": "Grüns",
+      "otto_note": "Always show the recurring price; 'up to' must be real. Confirm the control offer (ask)."
+    },
+    {
+      "rank": 9,
+      "angle": "Parents' side-by-side: kids' vitamin showdown",
+      "source": "competitor-research",
+      "evidence": "Hiya 'Hiya vs. Leading Brands: The Kids' Multivitamin Showdown', 12+ variants since 2026-08-13 (46 days); Hiya has 309 active ads. Only about 31 of about 822 active Grüns ads mention kids.",
+      "longest_running_days": 46,
+      "owner": "Hiya",
+      "otto_note": "Grüns Kids gap. Compare ingredient facts, not rival claims. Audience is parents 18+."
+    },
+    {
+      "rank": 10,
+      "angle": "Licensed characters and seasonal flavors (Minions, summer, Shrek)",
+      "source": "competitor-research",
+      "evidence": "Grüns 'Daily Nutrition. Maximum Minion Energy.' since 2026-08-18 (42 days); 'Tastes Exactly Like Summer' since 2026-08-20 (39 days). The Shrek flavor is on the site ('No restocks planned'), but 0 active ads mention Shrek.",
+      "longest_running_days": 42,
+      "owner": "Grüns",
+      "otto_note": "The Shrek scarcity window is unused in paid. The licence scope is an open ask."
+    },
+    {
+      "rank": 11,
+      "angle": "Creator partnership ads with each creator's own discount code",
+      "source": "competitor-research",
+      "evidence": "Seed runs per-creator code headlines (25TONYA, 25SHELLIE, 25BOBBY, 25IVANELLI, 25MODERNLY) since 2026-09-15 (14 days+), 187 active ads.",
+      "longest_running_days": 14,
+      "owner": "Seed",
+      "otto_note": "Requires creator consent, Paid partnership labels and FTC disclosure."
+    },
+    {
+      "rank": 12,
+      "angle": "Do gummies actually absorb? Plain-English clinical results",
+      "source": "competitor-research",
+      "evidence": "Science authority is AG1's core tone ('Pocket-sized. Science-backed.'). Grüns started 'Gummies That Actually Work' on 2026-09-24 (4 days). Grüns has a 12-week RCT (folate +20.5%, vitamin C +40.1%).",
+      "longest_running_days": 4,
+      "owner": "AG1 / Grüns",
+      "otto_note": "Claim absorption only; never 'clinically proven to work'."
+    }
+  ],
+  "formats": {},
+  "method": "Meta Ad Library API (ads_library_search), US, active ads, checked 2026-09-29. Longevity = days since ad_delivery_start_time. The API returns newest ads first, so older ads were surfaced with narrow keyword slices (kids, poop, bloating, GLP-1, multivitamin, greens powder); 'longest running' means longest seen, not guaranteed longest. Formats, body text, reach and spend are not returned by the API (unverified). 'formats' is left empty on purpose so the planner isn't skewed by guesses.",
+  "updated": "2026-09-29"
+}

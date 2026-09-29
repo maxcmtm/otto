@@ -12,16 +12,17 @@
 .t-dark .list,.t-dark .list li{border-color:rgba(255,255,255,.18)}
 .list li{display:flex;gap:30px;align-items:flex-start;padding:32px 0;border-bottom:2px solid var(--rule)}
 .list .tick{width:calc(58px*var(--k));height:calc(58px*var(--k));margin-top:-4px}
-html.em-marker .t-light .tick{background:var(--accent);color:var(--ink)}
+html.em-marker .t-light .tick{background:var(--marker,var(--accent));color:var(--ink)}
 .item{font:600 calc(38px*var(--k))/1.18 var(--f-display);letter-spacing:-.018em}
 html[dir=rtl] .item{letter-spacing:0;font-weight:700;font-size:calc(38px*var(--k));line-height:1.25}
 .note{font:400 calc(25px*var(--k))/1.4 var(--f-text);margin-top:8px}
 html[dir=rtl] .note{font-size:calc(26px*var(--k))}
 .footnote{font:var(--w-serif) calc(46px*var(--k))/1.1 var(--f-serif);font-style:italic;margin-top:40px;letter-spacing:-.01em}
 html[dir=rtl] .footnote{font-style:normal;font-family:var(--f-display);font-weight:var(--w-display);font-size:calc(38px*var(--k))}
+html.ems-brand .footnote{font-style:normal;font-family:var(--f-display);font-weight:var(--w-display);font-size:calc(38px*var(--k));letter-spacing:-.02em}
 .t-light .footnote{color:var(--accent-text)}
 html.em-marker .t-light .footnote{color:var(--ink)}
-html.em-marker .t-light .footnote span{background:linear-gradient(var(--accent),var(--accent)) 0 86%/100% .3em no-repeat}
+html.em-marker .t-light .footnote span{background:linear-gradient(var(--marker,var(--accent)),var(--marker,var(--accent))) 0 86%/100% .3em no-repeat}
 .t-dark .footnote{color:var(--accent-on-dark)}
 </style>
 </head>

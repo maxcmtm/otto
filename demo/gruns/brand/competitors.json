@@ -1,0 +1,236 @@
+[
+  {
+    "name": "AG1 (Athletic Greens)",
+    "site": "https://drinkag1.com",
+    "type": "direct",
+    "fb": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=US&view_all_page_id=183869772601",
+    "ig": "drinkag1 (handle unverified)",
+    "tiktok": "drinkag1 (handle unverified)",
+    "positioning": "Premium science-led daily greens powder. Relaunched as 'AG1 Next Gen' and now pushing single-serve packs ('One Pack. The Whole Stack.', 'Pocket-sized. Science-backed.'), which moves into Grüns' grab-and-go format. New lines: AGZ (nightly) and AG1 Pro.",
+    "price": "About $79/mo on subscription for the pouch; travel packs about $89/mo subscribed or $109 one-time for 30 (third-party reviews, barbend.com / garagegymreviews.com; drinkag1.com returned 429, so unverified). A Grüns reviewer reported paying $94/mo.",
+    "channels": [
+      "Meta (large)",
+      "podcast/creator sponsorships (unverified)",
+      "celebrity: Hugh Jackman ('Morning Thoughts With Hugh Jackman' ad title)"
+    ],
+    "meta_ads": {
+      "checked": "2026-09-29, Meta Ad Library API, US, active",
+      "active_count": 314,
+      "longest_running_seen": "'Welcome to the Next Gen of Wellness', live since 2026-09-01 (27 days) in the sampled slice. The API returns newest first, so older ads may exist (unverified).",
+      "angles": [
+        "Next Gen relaunch / 'science-backed'",
+        "single-serve pack format ('One Pack. The Whole Stack.')",
+        "gut health ('Easy Everyday Gut Health Support')",
+        "celebrity morning routine (Hugh Jackman)",
+        "new SKUs: AGZ nightly formula, AG1 Pro ('get it before it's gone again')",
+        "welcome kit ('Your AGZ Welcome Kit is here!')"
+      ],
+      "formats": "Not returned by the API (unverified). Dozens of variants per headline suggest heavy creative iteration.",
+      "hooks": [
+        "Welcome to the Next Gen of Wellness",
+        "One Pack. The Whole Stack.",
+        "Pocket-sized. Science-backed.",
+        "Easy Everyday Gut Health Support",
+        "AG1 Pro Is Here - Get it before it's gone again"
+      ]
+    },
+    "steal": "Pack-format framing ('whole stack in one pack') and a morning-ritual celebrity. Grüns already owns the pack format, so say it first and louder: a pack you eat, not a pack you mix.",
+    "avoid": "Science-authority tone without a plain explanation, and premium pricing talk. Don't name AG1 in ad copy without legal sign-off; use 'powder' vs 'pack'.",
+    "formats": {}
+  },
+  {
+    "name": "Hiya",
+    "site": "https://hiyahealth.com",
+    "type": "direct",
+    "fb": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=US&view_all_page_id=100992441449408",
+    "ig": "hiyahealth (handle unverified)",
+    "tiktok": "hiyahealth (handle unverified)",
+    "positioning": "Pediatrician-designed kids' vitamins with zero sugar, on a subscription with a refillable bottle. Wide kids range: multi, bedtime, probiotic, iron, greens, protein, fiber, teen.",
+    "price": "Kids Daily Multivitamin $15 first order (regular $30/bottle); Greens $29 ($58 regular). 50% off the first subscription box plus a free Bedtime month (hiyahealth.com, 2026-09-29).",
+    "channels": [
+      "Meta (large)",
+      "doctor endorsers (Dr. Mark Hyman, Dr. Joel Warsh, Dr. Monica Madan per site)",
+      "parent-creator pages (e.g. 'Healthy Toddler Mama' running Hiya copy)"
+    ],
+    "meta_ads": {
+      "checked": "2026-09-29, Meta Ad Library API, US, active",
+      "active_count": 309,
+      "longest_running_seen": "'Hiya vs. Leading Brands: The Kids' Multivitamin Showdown', 12+ variants live since 2026-08-13 (46 days); 'Get 50% off your first order' variants also since 2026-08-13",
+      "angles": [
+        "head-to-head comparison vs 'leading brands'",
+        "zero sugar / 'Ingredients > candy'",
+        "sleep without melatonin",
+        "first-order 50% off",
+        "kids protein/growth",
+        "picky drinkers"
+      ],
+      "formats": "Not returned by the API (unverified). Some ads have no headline, which suggests video/image-first creatives (unverified).",
+      "hooks": [
+        "Hiya vs. Leading Brands: The Kids' Multivitamin Showdown",
+        "No melatonin. Zero sugar.",
+        "Ingredients > candy. Always.",
+        "Made for picky drinkers",
+        "Kids love it. Parents trust it. (run via the 'Healthy Toddler Mama' page)"
+      ]
+    },
+    "steal": "The side-by-side 'showdown' format for parents (46+ days live is the strongest kids signal in the set), and 'Kids love it. Parents trust it.' dual-audience framing. Grüns Kids has a real edge: greens, fiber and 60+ ingredients in one pack.",
+    "avoid": "Sugar attacks. Grüns Low Sugar has 8 g added sugar, so lead with Sugar-Free (<0.5 g) or don't fight on sugar. Also avoid child-growth and height claims.",
+    "formats": {}
+  },
+  {
+    "name": "Llama Naturals",
+    "site": "https://llamanaturals.com",
+    "type": "direct",
+    "fb": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=US&view_all_page_id=973830766133906",
+    "ig": "llamanaturals (handle unverified)",
+    "tiktok": "",
+    "positioning": "Whole-fruit gummy vitamins for kids and adults, USDA Organic, no added cane sugar. The closest 'real food gummy' rival to Grüns.",
+    "price": "Kids Multivitamin $27/mo subscribed ($30 regular); Adult Multivitamin $31.50 ($35); 100-day money-back guarantee (llamanaturals.com, 2026-09-29).",
+    "channels": [
+      "Meta",
+      "parent pages (e.g. 'Happy Healthy Mamma' running the same headline)",
+      "retail (unverified)"
+    ],
+    "meta_ads": {
+      "checked": "2026-09-29, Meta Ad Library API, US, active",
+      "active_count": 60,
+      "longest_running_seen": "'The multivitamin made from real fruit', live since 2026-09-06 (23 days); the same headline is on all sampled ads",
+      "angles": [
+        "real fruit instead of sugar",
+        "one message, many creative variants"
+      ],
+      "formats": "Not returned by the API (unverified)",
+      "hooks": [
+        "The multivitamin made from real fruit",
+        "Most gummies start with sugar. Ours start with fruit."
+      ]
+    },
+    "steal": "Single-message discipline: one headline, many visuals. Their 100-day guarantee is longer than Grüns' 30-day one, so expect it to come up in comparisons.",
+    "avoid": "'No sugar' fights (see Hiya). Don't claim organic for the whole product; only named ingredients are organic.",
+    "formats": {}
+  },
+  {
+    "name": "Ritual",
+    "site": "https://ritual.com",
+    "type": "adjacent",
+    "fb": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=US&view_all_page_id=706979406105651",
+    "ig": "ritual (handle unverified)",
+    "tiktok": "ritual (handle unverified)",
+    "positioning": "Traceable, clinically backed multivitamins by life stage (18+, 50+, prenatal, postnatal, perimenopause). B Corp, Clean Label Project.",
+    "price": "Essential for Women 18+ $26.40 first month, $33/mo regular; 'Save up to 30% on new subscriptions' (ritual.com, 2026-09-29).",
+    "channels": [
+      "Meta",
+      "catalog / dynamic product ads",
+      "retail (Target, unverified)"
+    ],
+    "meta_ads": {
+      "checked": "2026-09-29, Meta Ad Library API, US, active",
+      "active_count": 86,
+      "longest_running_seen": "Catalog dynamic ad ('{{product.name}}'), live since 2026-04-24 (158 days). The longest creative angle seen is perimenopause, since 2026-09-15.",
+      "angles": [
+        "life-stage targeting (prenatal, postnatal, perimenopause 'hormone-free')",
+        "starter sets",
+        "25% off + free gift",
+        "new product tease: 'COMING SOON: A strong drink. 100% nutritious.'"
+      ],
+      "formats": "Catalog/DPA confirmed by the template token. Other formats not returned (unverified).",
+      "hooks": [
+        "Hormone-Free Perimenopause Support*",
+        "25% off plus a FREE gift",
+        "Daily Health 50+ Starter Set",
+        "COMING SOON: A strong drink. 100% nutritious."
+      ]
+    },
+    "steal": "An evergreen catalog retargeting layer (158 days) and the life-stage structure. Grüns is already testing 'Your Wellness Partner After 40'.",
+    "avoid": "Hormone or menopause relief language. Those are health-condition claims and personal-attribute risks for Grüns.",
+    "formats": {}
+  },
+  {
+    "name": "Seed",
+    "site": "https://seed.com",
+    "type": "adjacent",
+    "fb": "https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=US&view_all_page_id=178024832922517",
+    "ig": "seed (handle unverified)",
+    "tiktok": "seed (handle unverified)",
+    "positioning": "Science-first gut health: DS-01 daily synbiotic. Competes with Grüns on 'better digestion / more regular' demand.",
+    "price": "DS-01 from $49.99/mo subscribed (seed.com, 2026-09-29); 25% off via creator codes.",
+    "channels": [
+      "Meta: creator partnership ads at scale",
+      "quiz funnel ('Take Our Quiz For 25% Off')"
+    ],
+    "meta_ads": {
+      "checked": "2026-09-29, Meta Ad Library API, US, active",
+      "active_count": 187,
+      "longest_running_seen": "Creator-code and 'Pharmacist's #1 Recommendation' ads live since 2026-09-15 (14 days) in the sampled slice; older ones unverified.",
+      "angles": [
+        "'#1 Digestive Health Probiotic*' (footnoted claim)",
+        "pharmacist recommendation",
+        "blunt gut humour ('Fart Less, Poop More With DS-01')",
+        "creator discount codes (25TONYA, 25SHELLIE, 25BOBBY, 25IVANELLI, 25MODERNLY)",
+        "quiz for 25% off"
+      ],
+      "formats": "Not returned by the API. Per-creator code headlines suggest creator-whitelisted (partnership) ads (unverified).",
+      "hooks": [
+        "Fart Less, Poop More With DS-01",
+        "Pharmacist's #1 Recommendation",
+        "Use code 25SEED for 25% off Seed!",
+        "Take Our Quiz For 25% Off Seed"
+      ]
+    },
+    "steal": "Creator-whitelisting at scale, with each creator's own code as the headline, plus the quiz entry point. Grüns' playful voice fits blunt gut humour (Grüns already runs 'better poops' copy).",
+    "avoid": "Unsubstantiated '#1 / pharmacist-recommended' claims. Grüns has no survey backing any such ranking.",
+    "formats": {}
+  },
+  {
+    "name": "Bloom Nutrition",
+    "site": "https://bloomnu.com",
+    "type": "aspirational",
+    "fb": "",
+    "ig": "bloomsupps (handle unverified)",
+    "tiktok": "bloomsupps (handle unverified)",
+    "positioning": "Mass-market, creator-driven greens and energy for women; lower price; wide retail (Target, Walmart, Costco-type clubs, Ulta, CVS per site).",
+    "price": "Greens & Superfoods $33.99 (bloomnu.com, 2026-09-29); 15% off Subscribe & Save.",
+    "channels": [
+      "TikTok/creator economy (third-party reports)",
+      "mass retail",
+      "Meta (not verified)"
+    ],
+    "meta_ads": {
+      "checked": "2026-09-29. The official page was NOT found through the Ad Library API keyword search, so the active ad count is unverified. A third-party tool (tryadlicio.com) claims about 30 active ads, but the hooks it lists belong to unrelated advertisers, so that data is unreliable.",
+      "active_count": null,
+      "longest_running_seen": "unverified",
+      "angles": [],
+      "formats": "unverified",
+      "hooks": []
+    },
+    "steal": "Price-anchored comparison: Bloom's $33.99 tub is the cheap greens alternative. Grüns' answer is $/day for a complete pack.",
+    "avoid": "Racing to the bottom on price.",
+    "formats": {}
+  },
+  {
+    "name": "OLLY",
+    "site": "https://www.olly.com",
+    "type": "adjacent",
+    "fb": "",
+    "ig": "olly (handle unverified)",
+    "tiktok": "",
+    "positioning": "Retail gummy vitamins by need state (multi, sleep, probiotics, perimenopause), now 'mochi supplements'.",
+    "price": "$13.99-$31.99 per bottle (Women's Multi $13.99); 'Buy 3 Get 1 Free' code BUNDLE26 (olly.com, 2026-09-29).",
+    "channels": [
+      "retail",
+      "TV (iSpot lists OLLY spots)",
+      "Meta (not verified)"
+    ],
+    "meta_ads": {
+      "checked": "2026-09-29. The official page was NOT found through the Ad Library API keyword search, so the count is unverified.",
+      "active_count": null,
+      "longest_running_seen": "unverified",
+      "angles": [],
+      "formats": "unverified",
+      "hooks": []
+    },
+    "steal": "Shelf-price anchor: shoppers compare Grüns' $1.78/day with a $13.99 bottle. Answer with 'one pack replaces the multi, the fiber and the greens'.",
+    "avoid": "Need-state claims (sleep, mood, menopause) that Grüns can't make.",
+    "formats": {}
+  }
+]

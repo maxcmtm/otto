@@ -1,0 +1,448 @@
+{
+  "brand": "gruns",
+  "currency": "USD",
+  "language": "en",
+  "tz": "America/New_York",
+  "personas": [
+    {
+      "id": "p1",
+      "label": "Powder dropout, 28-45",
+      "situation": "Has paid for AG1 or another greens powder and quit or is about to. Hates the taste, the shaker and the monthly bill. Trigger: the next renewal charge, or a creator showing the pack. Convinced by: taste, no mess, a price per day lower than the powder, and the same nutrition in a pack.",
+      "awareness": "solution",
+      "words": [
+        "the drink was definitely gritty/chalky",
+        "I've been choking on Athletic Greens for the last few years",
+        "not having to clean a shaker bottle or extra dishes"
+      ]
+    },
+    {
+      "id": "p2",
+      "label": "Busy parent of picky eaters, 30-45",
+      "situation": "Buys for the whole family: Adults for self, Kids (ages 2-13) for children who won't eat vegetables. Trigger: school-year routine, snack-drawer guilt, or seeing kids ask for 'their pack'. Convinced by: kids actually eating it, a clean ingredient list, one pack a day, and other parents' reviews.",
+      "awareness": "problem",
+      "words": [
+        "My kids are picky eaters! I have a really hard time getting them to eat any greens.",
+        "the billion things I have to do as a mom",
+        "A bonus is my kids love them too!"
+      ]
+    },
+    {
+      "id": "p3",
+      "label": "Stack simplifier / habit-quitter, 25-55",
+      "situation": "Has a shelf of half-used bottles (multi, probiotic, B12, fiber) and can't stay consistent. Trigger: New Year reset, a pantry clean-out, or a 'what's in my supplement stack' video. Convinced by: one pack replacing several bottles, $/day maths, and 'the one habit I kept'.",
+      "awareness": "solution",
+      "words": [
+        "I used to pay so much for multiple supplements",
+        "I also stopped buying separate probiotic gummies, b12 gummies, and multivitamin gummies.",
+        "Grüns has been the one thing I've been able to stick to"
+      ]
+    },
+    {
+      "id": "p4",
+      "label": "Adults on GLP-1 medication (third person only)",
+      "situation": "Eats less on GLP-1 medication and worries about getting enough nutrients and fiber. This is Grüns' own largest ad cluster: about 154 active ads mention GLP-1, and the oldest has run since 2026-05-29. Talk about them only in the third person, with structure/function language. No drug names, no weight-loss promises, 18+ only.",
+      "awareness": "problem",
+      "words": []
+    }
+  ],
+  "pains": [
+    {
+      "text": "the drink was definitely gritty/chalky",
+      "persona": "p1",
+      "source": "https://gruns.co/products/gruns (on-site review, Bradley O.)"
+    },
+    {
+      "text": "even with their monthly subscription discount it was still $94 a month",
+      "persona": "p1",
+      "source": "https://gruns.co/products/gruns (on-site review, Bradley O.)"
+    },
+    {
+      "text": "not having to clean a shaker bottle or extra dishes for greens stuff in powder form",
+      "persona": "p1",
+      "source": "https://gruns.co/products/gruns (on-site review, Dustin O.)"
+    },
+    {
+      "text": "I used to pay so much for multiple supplements",
+      "persona": "p3",
+      "source": "https://gruns.co/products/gruns (on-site review, Jeremy H.)"
+    },
+    {
+      "text": "The issue has never been nutritive content. It's always been an issue of consistency",
+      "persona": "p3",
+      "source": "https://gruns.co/products/gruns (on-site review, Samuel L.)"
+    },
+    {
+      "text": "taking just 2 gummies before Grüns was never satisfying",
+      "persona": "p3",
+      "source": "https://gruns.co/products/gruns (on-site review, Brittany A.)"
+    },
+    {
+      "text": "My kids are picky eaters! I have a really hard time getting them to eat any greens.",
+      "persona": "p2",
+      "source": "https://gruns.co/products/gruns-kids (on-site review, Tara)"
+    },
+    {
+      "text": "Getting my kids to eat their veggies is no small task",
+      "persona": "p2",
+      "source": "https://gruns.co/products/gruns-kids (on-site review)"
+    },
+    {
+      "text": "So easy to grab and eat on my way to the billion things I have to do as a mom",
+      "persona": "p2",
+      "source": "https://gruns.co/products/gruns (on-site review, Kelli L.)"
+    },
+    {
+      "text": "Getting enough vitamins and fiber while eating less on GLP-1 medication (Grüns' ad framing, not customer words, unverified)",
+      "persona": "p4",
+      "source": "https://www.facebook.com/ads/library/?id=1553404902862944 (Grüns ad '20+ Vitamins for GLP-1 Support', live since 2026-05-29)"
+    }
+  ],
+  "objections": [
+    {
+      "text": "\"Grüns is too expensive\" (Grüns runs this exact line as an ad headline)",
+      "answer": "Subscribe & Save is $49.99 per 28 packs, which is $1.78 a day, and one pack replaces several bottles. Show the maths next to the stack it replaces, and quote Jeremy H. or Rebecca D. Always show the recurring price next to any first-order price.",
+      "proof_id": "pr7"
+    },
+    {
+      "text": "\"I hate subscriptions, they're a trap\"",
+      "answer": "Pause or cancel anytime, plus a 30-day money-back guarantee on the first order. Kate S. cancelled before her first delivery and then resubscribed, so quote her.",
+      "proof_id": "pr8"
+    },
+    {
+      "text": "\"Gummies are just candy / too much sugar\"",
+      "answer": "The Sugar-Free option has <0.5 g sugar and 20 calories per pack. Low Sugar has 8 g added sugar and 50 calories, and we say that plainly. Pectin base, no gelatin, no synthetic dyes. Never call it candy.",
+      "proof_id": "pr9"
+    },
+    {
+      "text": "\"Do gummy vitamins even absorb?\"",
+      "answer": "A 12-week randomized, double-blind, placebo-controlled study in 120 healthy adults found folate +20.5% (2.9x placebo) and vitamin C +40.1% (2.7x placebo) in blood. Claim absorption only, not 'proven to work'.",
+      "proof_id": "pr3"
+    },
+    {
+      "text": "\"Is it clean? What about heavy metals?\"",
+      "answer": "Every lot is third-party tested for 70 pesticides, 4 heavy metals, 16 contaminants and 9 microbial contaminants, and it is made in NSF, GMP and FDA-registered facilities. Never say lead-free: the site carries a Prop 65 warning.",
+      "proof_id": "pr6"
+    },
+    {
+      "text": "\"Is a handful of gummies really as complete as my greens powder?\"",
+      "answer": "Each pack has 60+ ingredients, 21 vitamins and minerals (100% DV for vitamins, about 25% DV for minerals, on purpose) and 6 g of prebiotic fiber.",
+      "proof_id": "pr4"
+    },
+    {
+      "text": "\"Will my kid actually eat it?\"",
+      "answer": "Show parent reviews from the Kids page (Tara, Macall, Lianna). It is for ages 2-13, one pack a day, and the smaller Kids pack is 15 g.",
+      "proof_id": "rv9"
+    }
+  ],
+  "offers": [
+    {
+      "id": "o1",
+      "name": "Adults Subscribe & Save, Original Low Sugar, 1 adult (core offer)",
+      "price": "$49.99 per 28 packs (list $66.65), $1.78/day",
+      "terms": "Ships every 4 weeks. Free shipping. Pause or cancel anytime. 30-day money-back guarantee on the first order only. Sugar-Free is $54.99 ($73.32 list). Source: https://gruns.co/products/gruns",
+      "deadline": null,
+      "stage": "hot"
+    },
+    {
+      "id": "o2",
+      "name": "New-customer first-order discount (headline offer)",
+      "price": "Adults 'Starts at $29.99' (list $66.65), Kids 'Starts at $24.99' (list $53.32)",
+      "terms": "The site footnote says: 'Offer assumes customer has received and uses promotional SMS discount reserved for new customers only.' The advertised % is inconsistent: the site banner says 52%, the product page 55%, the reviews page 59%, the Kids page 58%, and live ads say 'up to 61% OFF + 4 FREE gifts' (gift terms unverified). The control offer must be confirmed with the client (see ask).",
+      "deadline": null,
+      "stage": "hot"
+    },
+    {
+      "id": "o3",
+      "name": "One-time purchase, Adults",
+      "price": "$66.65 per 28 packs ($2.38/day)",
+      "terms": "No free shipping, no first-order discount. Shown only as the anchor price.",
+      "deadline": null,
+      "stage": "warm"
+    },
+    {
+      "id": "o4",
+      "name": "Kids Subscribe & Save, Original Low Sugar, 1 kid",
+      "price": "$39.99 per 28 packs (list $53.32), $1.42/day",
+      "terms": "Ages 2-13. Free shipping, pause or cancel anytime, 30-day guarantee on the first order. Page badge: 'Get 58% With Free Shipping'. Source: https://gruns.co/products/gruns-kids",
+      "deadline": null,
+      "stage": "hot"
+    },
+    {
+      "id": "o5",
+      "name": "Exclüsives membership: Green (4-week) / Gold (12-week)",
+      "price": "Green 25% off for life, Gold 30% off for life",
+      "terms": "Gold adds limited flavors for a year, VIP partner discounts, 25% off merch, and free shipping on the first order. Source: https://gruns.co/pages/exclusives",
+      "deadline": null,
+      "stage": "warm"
+    },
+    {
+      "id": "o6",
+      "name": "Shrek 'Berry Far Far Away' limited flavor (Adults + Kids)",
+      "price": "Adults 'Starts at $32.79' (list $70.38), Kids 'Starts at $27.79' (list $57.05)",
+      "terms": "'Going fast. No restocks planned.' The first month ships the limited flavor, then the subscription reverts to Original. The sell-out date and the licence scope for paid ads are unknown (see ask).",
+      "deadline": null,
+      "stage": "hot"
+    }
+  ],
+  "proof_bank": [
+    {
+      "id": "pr1",
+      "claim": "4.8/5 stars from 100,000 reviews; 1,000,000+ customers/members (self-reported by Grüns)",
+      "source": "https://gruns.co/products/gruns"
+    },
+    {
+      "id": "pr2",
+      "claim": "60+ ingredients, 21 vitamins & minerals and 6 g fiber per pack",
+      "source": "https://gruns.co/pages/reviews"
+    },
+    {
+      "id": "pr3",
+      "claim": "12-week double-blind, randomized, placebo-controlled study, 120 healthy adults aged 23-59: folate +20.5% (2.9x vs placebo), vitamin C +40.1% (2.7x vs placebo) in blood. The site says a 'leading third-party lab' ran it; the lab and publication are not named (unverified).",
+      "source": "https://gruns.co/pages/science"
+    },
+    {
+      "id": "pr4",
+      "claim": "12 vitamins at 100% DV (vitamin C 103%) plus vitamin K2 (no DV); 8 minerals deliberately dosed at ~25% DV; methylated folate and B12; 6 g prebiotic fiber (FiberSMART®)",
+      "source": "https://gruns.co/pages/science"
+    },
+    {
+      "id": "pr5",
+      "claim": "Post-purchase survey of 3k+ customers: 80% take Grüns daily, 67% report better, more regular digestion, 67% improved overall well-being, 52% more energized, 44% clearer thinking. Always state that it is a customer survey.",
+      "source": "https://gruns.co/pages/science"
+    },
+    {
+      "id": "pr6",
+      "claim": "Every lot third-party tested; tested for 70 pesticides, 4 heavy metals, 16 contaminants and 9 microbial contaminants; manufactured in NSF, GMP and FDA-registered facilities in the U.S. & Canada",
+      "source": "https://gruns.co/products/gruns"
+    },
+    {
+      "id": "pr7",
+      "claim": "Subscribe & Save $49.99 per 28 packs = $1.78/day (Adults, Original Low Sugar); one-time $66.65 = $2.38/day",
+      "source": "https://gruns.co/products/gruns"
+    },
+    {
+      "id": "pr8",
+      "claim": "30-day money-back guarantee on the first order; 'Less than 1% of customers use our Money-Back Guarantee'; pause or cancel anytime",
+      "source": "https://gruns.co/products/gruns"
+    },
+    {
+      "id": "pr9",
+      "claim": "Sugar-Free pack: <0.5 g total sugars, 20 calories; Low Sugar pack: 8 g added sugars, 50 calories, 9 g net carbs; vegan, gluten-, dairy- and nut-free, no synthetic dyes or sweeteners, pectin base (no gelatin)",
+      "source": "https://gruns.co/products/gruns"
+    },
+    {
+      "id": "pr10",
+      "claim": "HSA/FSA eligible with Truemed",
+      "source": "https://gruns.co/products/gruns"
+    },
+    {
+      "id": "pr11",
+      "claim": "Almost 90% of US adults take in less than the estimated average requirement of vitamins D and E (NHANES data). Use this qualified wording, not the site's '90% of adults don't meet recommended intake'.",
+      "source": "https://pmc.ncbi.nlm.nih.gov/articles/PMC9710417/"
+    },
+    {
+      "id": "pr12",
+      "claim": "Shaun White, 3x Olympic gold medalist, is a paid spokesperson and investor (the disclosure must appear with any use)",
+      "source": "https://gruns.co/products/gruns"
+    },
+    {
+      "id": "pr13",
+      "claim": "Grüns Kids is recommended for ages 2-13; 15 g pack, one per day",
+      "source": "https://gruns.co/products/gruns-kids"
+    },
+    {
+      "id": "pr14",
+      "claim": "Orders typically ship within 24 hours and arrive in 3-5 days on average",
+      "source": "https://gruns.co/products/gruns"
+    },
+    {
+      "id": "rv1",
+      "claim": "“I was taking AG1 but even with their monthly subscription discount it was still $94 a month and the drink was definitely gritty/chalky. Grüns literally tastes like fruit snacks I ate as a kid.” — Bradley O.",
+      "source": "https://gruns.co/products/gruns (customer review, verify consent for paid use; do not name AG1 in ads without legal OK)"
+    },
+    {
+      "id": "rv2",
+      "claim": "“10/10 would recommend. The convenience and taste are huge! Like mixed berries! Plus not having to clean a shaker bottle or extra dishes for greens stuff in powder form, is absolutely excellent!” — Dustin O.",
+      "source": "https://gruns.co/products/gruns (customer review, verify consent)"
+    },
+    {
+      "id": "rv3",
+      "claim": "“I hate subscriptions because I feel like they are a trap so I canceled it before the gummies even arrived. We quickly decided to resubscribe because we love Grüns so much!” — Kate S.",
+      "source": "https://gruns.co/products/gruns (customer review, verify consent)"
+    },
+    {
+      "id": "rv4",
+      "claim": "“I used to pay so much for multiple supplements to get all of the same benefits that Grüns gives me in a simple snack pack.” — Jeremy H.",
+      "source": "https://gruns.co/products/gruns (customer review, verify consent)"
+    },
+    {
+      "id": "rv5",
+      "claim": "“Grüns has been the one thing I've been able to stick to because they are so easy to consume and taste wonderful (just like gummy bears).” — Samuel L.",
+      "source": "https://gruns.co/products/gruns (customer review, verify consent)"
+    },
+    {
+      "id": "rv6",
+      "claim": "“I also stopped buying separate probiotic gummies, b12 gummies, and multivitamin gummies. I just take these now and it's easier for me to manage.” — Jamie W.",
+      "source": "https://gruns.co/products/gruns (customer review, verify consent)"
+    },
+    {
+      "id": "rv7",
+      "claim": "“It's wild I WANT to take Grüns and don't forget.” — Brittany A.",
+      "source": "https://gruns.co/products/gruns (customer review, verify consent)"
+    },
+    {
+      "id": "rv8",
+      "claim": "“Love the flavor and it's so easy to grab and eat on my way to the billion things I have to do as a mom.” — Kelli L.",
+      "source": "https://gruns.co/products/gruns (customer review, verify consent)"
+    },
+    {
+      "id": "rv9",
+      "claim": "“Game changer! My daughter who will barely touch a veggie ate all of these immediately.” — Macall",
+      "source": "https://gruns.co/products/gruns-kids (customer review, verify consent)"
+    },
+    {
+      "id": "rv10",
+      "claim": "“My kids are picky eaters! I have a really hard time getting them to eat any greens. So glad we found these!!” — Tara",
+      "source": "https://gruns.co/products/gruns-kids (customer review, verify consent)"
+    }
+  ],
+  "cta_by_stage": {
+    "cold": "See what's in one pack",
+    "warm": "Try it for 30 days, money back on your first order",
+    "hot": "Start your subscription. Pause or cancel anytime."
+  },
+  "landing_by_stage": {
+    "cold": "https://gruns.co/pages/reviews",
+    "warm": "https://gruns.co/pages/science",
+    "hot": "https://gruns.co/products/gruns"
+  },
+  "events": [
+    {
+      "date": "2026-10-31",
+      "name": "Halloween",
+      "use": "Kids line for parents: 'the one daily pack in the treat bag season'. Never call it candy (the Kids label has an iron warning). Shrek costume or flavor tie-in only if the licence allows paid use."
+    },
+    {
+      "date": "2026-11-01",
+      "name": "Daylight saving time ends (US)",
+      "use": "Routine-reset content: darker mornings, keep the one-pack habit. No immunity or 'cold season' claims."
+    },
+    {
+      "date": "2026-11-26",
+      "name": "Thanksgiving",
+      "use": "Warm audiences: pre-announce the BFCM offer, travel-pack convenience ('Nutrition in your bag')."
+    },
+    {
+      "date": "2026-11-27",
+      "name": "Black Friday",
+      "use": "Hot: biggest confirmed offer of the year, plus Gold 12-week membership maths. Hold 15-20% of the monthly budget for Nov 26-30."
+    },
+    {
+      "date": "2026-11-30",
+      "name": "Cyber Monday",
+      "use": "Last-chance BFCM retargeting. Only a real deadline."
+    },
+    {
+      "date": "2026-12-04",
+      "name": "Hanukkah begins (evening, verify)",
+      "use": "Gifting: merch plus a subscription for the family."
+    },
+    {
+      "date": "2026-12-17",
+      "name": "Estimated last order date for Christmas delivery (verify cutoff with client)",
+      "use": "Site FAQ: ships within 24 h and arrives in 3-5 days. 'Order by' urgency only once the client confirms the cutoff."
+    },
+    {
+      "date": "2026-12-26",
+      "name": "Post-holiday reset",
+      "use": "Pre-sell January: 'after the cookies' routine reset. Build retargeting pools for the New Year."
+    },
+    {
+      "date": "2027-01-01",
+      "name": "New Year resolutions (Jan 1-31)",
+      "use": "Peak cold acquisition for supplements. Habit angle ('the one thing I've been able to stick to'), stack-simplifier, powder dropout. Scale winners from Oct-Dec tests."
+    },
+    {
+      "date": "2027-01-08",
+      "name": "Quitter's Day (second Friday of January)",
+      "use": "'The habit you won't quit' creative. Retarget January visitors who did not buy."
+    }
+  ],
+  "targets": {
+    "cpl": null,
+    "cpa": null,
+    "roas": null
+  },
+  "angles": [
+    {
+      "id": "a1",
+      "angle": "Powder to pack: same daily greens and nutrition, no shaker, no chalk, no gag. Show the pack next to the tub and scoop, and quote switchers (Bradley O., Dustin O.) without naming the competitor.",
+      "persona": "p1",
+      "stage": "cold",
+      "source": "competitor",
+      "status": "idea"
+    },
+    {
+      "id": "a2",
+      "angle": "Nutrition support for people on GLP-1 medication: 20+ vitamins and 6 g fiber in one pack, third person only, structure/function wording, no weight-loss language (compliant rewrite of Grüns' longest-running cluster)",
+      "persona": "p4",
+      "stage": "cold",
+      "source": "test",
+      "status": "idea"
+    },
+    {
+      "id": "a3",
+      "angle": "Fiber by the number: 6 g of prebiotic fiber in one snack pack (compliant rewrite of Grüns' 122-day 'Struggling to Get Enough Fiber?' ad, without the 'are you struggling' call-out)",
+      "persona": "p3",
+      "stage": "cold",
+      "source": "test",
+      "status": "idea"
+    },
+    {
+      "id": "a4",
+      "angle": "Replace the stack: one pack instead of a shelf of bottles, and $1.78 a day vs what the stack costs (Jeremy H., Jamie W., Rebecca D.)",
+      "persona": "p3",
+      "stage": "warm",
+      "source": "profile",
+      "status": "idea"
+    },
+    {
+      "id": "a5",
+      "angle": "Parents' picky-eater test: kids ask for their pack. Side-by-side ingredient facts (Hiya's 'vs. Leading Brands' showdown format) using parent reviews, no child health outcomes",
+      "persona": "p2",
+      "stage": "cold",
+      "source": "competitor",
+      "status": "idea"
+    },
+    {
+      "id": "a6",
+      "angle": "Do gummies even absorb? 12-week placebo-controlled blood-test results (folate +20.5%, vitamin C +40.1%), explained plainly",
+      "persona": "p1",
+      "stage": "warm",
+      "source": "competitor",
+      "status": "idea"
+    },
+    {
+      "id": "a7",
+      "angle": "Subscription without the trap: pause or cancel anytime, 30-day money-back on the first order, and Kate S. 'canceled… then resubscribed'",
+      "persona": "p3",
+      "stage": "hot",
+      "source": "profile",
+      "status": "idea"
+    },
+    {
+      "id": "a8",
+      "angle": "Limited Shrek 'Berry Far Far Away': no restocks planned, get it before it's far, far gone (Halloween window; only if the licence allows paid use)",
+      "persona": "p2",
+      "stage": "hot",
+      "source": "profile",
+      "status": "idea"
+    }
+  ],
+  "ask": [
+    "What monthly budget is Otto testing with, and what first-order CAC (or 60-day ROAS) counts as a win?",
+    "Which first-order offer is the control? The site shows 52%, 55%, 58% and 59%, ads say 'up to 61% + 4 free gifts'. What are the gifts, and what is the Black Friday offer and date?",
+    "May Otto use Shrek / DreamWorks characters in paid ads (licence scope, placements, end date), and when will Berry Far Far Away sell out?",
+    "Which reviews, creator videos and Shaun White assets do we have written permission to run as paid ads, and has legal approved GLP-1-related messaging?"
+  ]
+}

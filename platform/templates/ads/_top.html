@@ -1,4 +1,4 @@
 <header class="bar top">
-  <div class="mark">{{#if logo_src}}<img src="{{logo_src}}" alt="">{{else}}{{brand.name}}{{/if}}</div>
+  <div class="mark">{{#if logo_mask}}<span class="logo-m" role="img" aria-label="{{brand.name}}" style="--logo:url('{{logo_mask}}');--ar:{{brand.logo_ratio}}"></span>{{else}}{{#if logo_src}}<img src="{{logo_src}}" alt="">{{else}}{{brand.name}}{{/if}}{{/if}}</div>
   {{#if counter}}<div class="meta"><bdi dir="ltr">{{counter}}</bdi></div>{{else}}{{#if tag}}<div class="chip"><span>{{tag}}</span></div>{{/if}}{{/if}}
 </header>

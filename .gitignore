@@ -53,3 +53,8 @@ motion/*/assets/*.mp4
 motion/*/assets/bgm.mp3
 motion/otto-showreel-score/*.wav
 motion/*/harness-*.html
+
+# full-resolution demo renders (the web copies live in demo/<client>/page/)
+demo/gruns/posts/
+demo/gruns/ads/
+demo/gruns/gruns-reel.mp4

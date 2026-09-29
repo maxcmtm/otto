@@ -299,11 +299,16 @@ def build(d, c, dry=False, base="https://dash.monyflow.work/otto/"):
     OUT.mkdir(parents=True, exist_ok=True)
     cta_card = cta_card_text(b)
     for i, a in enumerate(angles, 1):
-        hook = trim(a["angle"], 40)
-        body = trim(a["angle"], 90) + (f" {proof}" if proof else "") + f" — {b['name']}."
+        # an angle is a strategist's note ("Nutrition support for people on GLP-1…"), not ad copy: use the copy
+        # written for it (angles.json "ad": {headline, primary, description, proof}) and fall back to the note
+        ad = a.get("ad") if isinstance(a.get("ad"), dict) else {}
+        hook = trim(ad.get("headline") or a["angle"], 40)
+        body = ad.get("primary") or (trim(a["angle"], 90) + (f" {proof}" if proof else "") + f" — {b['name']}.")
         cr["angles"].append({"n": i, "angle": a["angle"], "source": a.get("source")})
         cr["titles"].append(hook)
         cr["bodies"].append(trim(body, 125))
+        if ad.get("description"):
+            cr["descriptions"].append(trim(ad["description"], 30))
         img_post = ap.post(d, a.get("post") or "") or src_post
         if img_post and img_post.get("image"):
             dst = OUT / f"{c['id']}-{i}-static.jpg"
@@ -320,9 +325,9 @@ def build(d, c, dry=False, base="https://dash.monyflow.work/otto/"):
             # carousel: hook / proof / cta on three images (rotating through the brand's visuals)
             cards = []
             card_data = [("carousel_cover", {"headline": hook}),
-                         ("carousel_inner", {"title": trim(proof or a["angle"], 140)}),
+                         ("carousel_inner", {"title": trim(ad.get("proof") or proof or a["angle"], 140)}),
                          ("carousel_cta", {"headline": hook, "cta": cta_card})]
-            for j, txt in enumerate([hook, trim(proof or a["angle"], 40), cta_card], 1):
+            for j, txt in enumerate([hook, trim(ad.get("proof") or proof or a["angle"], 40), cta_card], 1):
                 ip = posts[(i + j) % len(posts)] if posts else img_post
                 dst = OUT / f"{c['id']}-{i}-c{j}.jpg"
                 if dry:
@@ -340,7 +345,7 @@ def build(d, c, dry=False, base="https://dash.monyflow.work/otto/"):
         reel = paths.ASSETS / "reels" / f"{(img_post or {}).get('id', '')}.mp4"
         if (img_post or {}).get("video") or reel.exists():
             cr["videos"].append({"file": (img_post or {}).get("video") or f"assets/reels/{reel.name}", "from": img_post["id"]})
-    cr["descriptions"] = [trim(proof, 30)] if proof else []
+    cr["descriptions"] = cr["descriptions"] or ([trim(proof, 30)] if proof else [])
     c["creatives"] = cr
     return cr
 

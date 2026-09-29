@@ -18,7 +18,7 @@ Writes brands/<slug>/scan.json and — if the brand has no profile yet — a
 brands/<slug>/brand-profile.md draft following BRAND-PROFILE-TEMPLATE.md (AUTO sections
 filled from the scan, inference sections marked for the creative engine to complete).
 """
-import http.client, ipaddress, json, os, re, socket, ssl, sys, time, urllib.parse
+import http.client, ipaddress, json, os, re, socket, ssl, sys, time, unicodedata, urllib.parse
 from collections import Counter
 from datetime import datetime, timezone
 from html import unescape
@@ -67,6 +67,10 @@ INDUSTRIES = {
                             "cursus", "opleiding", "corso", "corsi", "scuola", "formazione", "école", "formation", "escuela"],
     "Marketing & agency": ["marketing", "agency", "seo", "social media", "branding", "campaign", "content creation",
                            "autopilot", "advertising", "ads"],
+    "Supplements & nutrition": ["supplement", "supplements", "vitamin", "vitamins", "multivitamin", "gummies", "gummy",
+                                "superfood", "superfoods", "greens powder", "probiotic", "prebiotic", "collagen", "protein powder",
+                                "nutrients", "daily nutrition", "electrolytes", "creatine", "adaptogen", "nahrungsergänzung",
+                                "vitamine", "suplemento", "suplementos", "integratore", "integratori", "complément alimentaire"],
     "E-commerce & retail": ["add to cart", "cart", "checkout", "shipping", "shop", "collection", "free shipping",
                             "returns", "warenkorb", "versand", "winkelwagen", "afrekenen", "verzending", "webshop", "bestellen",
                             "carrinho", "loja online", "envio", "carrello", "spedizione", "panier", "livraison", "carrito", "envío"],
@@ -491,6 +495,12 @@ def industry_guess(title, desc, headings, nav, body):
             s += 5 * cnt(strong, k) + 3 * cnt(navs, k) + min(cnt(body, k), 20)
         scores[name] = s
     ranked = sorted(scores.items(), key=lambda x: -x[1])
+    # "E-commerce & retail" describes the channel, not the business: when a specific vertical scores at least
+    # a third of it, the vertical wins (a supplement shop is a supplement brand first — its claims rules apply).
+    if ranked and ranked[0][0] == "E-commerce & retail":
+        vert = next(((n, v) for n, v in ranked[1:] if n not in ("Marketing & agency", "SaaS & software")), None)
+        if vert and vert[1] >= max(12, ranked[0][1] / 3):
+            ranked.remove(vert); ranked.insert(0, vert)
     top = [{"industry": n, "score": s} for n, s in ranked[:3] if s > 0]
     guess = ranked[0][0] if ranked and ranked[0][1] >= 6 else "Unknown (?)"
     return guess, top
@@ -531,10 +541,36 @@ def quotes_from(pages_quotes, text):
     return [q[:260] for q in dict.fromkeys(out)][:8]
 
 
+PRESS_LOGO = re.compile(r"forbes|mens-?journal|today|people|womens-?health|good-?housekeeping|\bgq\b|logo-gq|vogue|travel-?leisure|"
+                        r"nytimes|new-?york-?times|wsj|cnn|bbc|techcrunch|buzzfeed|elle|cosmopolitan|allure|oprah|shape|"
+                        r"as-?seen|featured|press|media", re.I)
+
+
+def _logo_hint(src, alt, cls):
+    """'logo' in the file name, the class, or a short alt — never in a long product description ("…the Shrek logo…")."""
+    name = src.split("?")[0].rsplit("/", 1)[-1].lower()
+    return "logo" in name or "logo" in (cls or "").lower() or (len(alt or "") <= 60 and "logo" in (alt or "").lower())
+
+
+def _fold(s):
+    """Lower-case without accents: 'Grüns Logo' → 'gruns logo'."""
+    return "".join(c for c in unicodedata.normalize("NFKD", s or "") if not unicodedata.combining(c)).lower()
+
+
 def logo_from(base, imgs, links, metas):
+    host = re.sub(r"^www\.", "", host_of(base) or "").split(".")[0]
+    # 1. an image that names the brand itself (header logos usually carry the brand in src/alt). Match the file
+    #    name, not the whole src: on a store every CDN path carries the host ("//gruns.co/cdn/…/usnacks_logo.svg")
     for src, alt, cls in imgs:
+        blob = _fold(src.split("?")[0].rsplit("/", 1)[-1] + " " + alt + " " + cls)
+        if host and len(host) > 2 and host in blob and _logo_hint(src, alt, cls) and src and not src.startswith("data:") \
+                and not PRESS_LOGO.search(src.rsplit("/", 1)[-1]):
+            return absolute(base, src)
+    for src, alt, cls in imgs:
+        if PRESS_LOGO.search((src.rsplit("/", 1)[-1] + " " + alt).lower()):
+            continue                                     # "As seen in" strips: Forbes, GQ, Today…
         blob = (src + " " + alt + " " + cls).lower()
-        if "logo" in blob and src and not src.startswith("data:") and not re.search(
+        if _logo_hint(src, alt, cls) and src and not src.startswith("data:") and not re.search(
                 r"investor|partner|client|customer|badge|payment|trust|press|award|brand-?logos|sponsor|testimonial|review", blob):
             return absolute(base, src)
     for href, _, rel, _ in links:
@@ -729,6 +765,27 @@ Generated: {s['scanned_at'][:10]} by otto_scan.py (URL → profile draft) · Sou
 """
 
 
+def save_logo(s, out):
+    """Download the scanned logo to brands/<slug>/logo.svg|png (the renderer's wordmark) unless one is already
+    there. Only real logo files — never the og:image / touch-icon fallbacks, which are photos or app icons."""
+    url = ((s.get("visual") or {}).get("logo") or "")
+    ext = urllib.parse.urlsplit(url).path.lower().rsplit(".", 1)[-1]
+    if not url or ext not in ("svg", "png") or any(out.glob("logo.*")):
+        return None
+    if url == (s.get("identity") or {}).get("og_image"):
+        return None
+    try:
+        _final, raw, ctype, _cs = guarded_get(url, limit=600_000, timeout=12)
+    except Exception:
+        return None
+    ok = raw.lstrip()[:400].lower().find(b"<svg") >= 0 if ext == "svg" else raw[:8] == b"\x89PNG\r\n\x1a\n"
+    if not ok or re.search(rb"<script|\bon[a-z]+\s*=", raw, re.I):   # never keep scriptable SVG
+        return None
+    f = out / f"logo.{ext}"
+    f.write_bytes(raw)
+    return f
+
+
 def run_cli(argv):
     if not argv or argv[0] in ("-h", "--help"):
         print(__doc__); return
@@ -744,6 +801,9 @@ def run_cli(argv):
     out.mkdir(parents=True, exist_ok=True)
     (out / "scan.json").write_text(json.dumps(s, ensure_ascii=False, indent=2) + "\n")
     wrote = [str(out / "scan.json")]
+    lf = save_logo(s, out) if "--no-logo" not in argv else None
+    if lf:
+        wrote.append(str(lf))
     prof = out / "brand-profile.md"
     if "--no-profile" not in argv and (not prof.exists() or "--force" in argv):
         target = prof if not prof.exists() else out / "brand-profile.draft.md"

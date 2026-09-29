@@ -31,6 +31,12 @@ python3 otto_render.py sheet <out.jpg> <dir>...
 ## Rules the renderer enforces
 
 - **Brand tokens** come from the profile's VISUAL IDENTITY section plus `scan.json`. The CTA-labelled colour is the accent (CMTM: turquoise on navy, not purple); "UI only" colours are skipped; contrast is checked; a light accent (Happy Garden yellow) becomes a highlighter band. `brands/<id>/render.json` overrides tokens; `brands/<id>/logo.svg` replaces the wordmark.
+- **The brand's own look** (added after the Grüns test, 2026-09-29):
+  - *Font.* When the scan finds one of the site's fonts in the `BRAND_SANS` list of Google families (DM Sans, Poppins, Montserrat…), cards use it for display and text, and emphasis stays in that face (`ems-brand`) instead of our serif italic. Hebrew and Arabic keep their own pairs.
+  - *Second colour.* For a two-colour identity (Grüns green + yellow), a palette colour at least 60° of hue from the accent becomes the accent on dark grounds when the accent itself fails contrast there. In brand-font mode it is also the highlighter on paper (`--marker`).
+  - *Logo.* `otto_scan.py` saves the scanned logo to `brands/<id>/logo.svg|png` (never og:image or icons; scriptable SVG is refused). By default it is drawn as a mask in the ground's text colour, so one file reads on photo, paper and deep grounds; `render.json {"logo_mode": "color"}` keeps its own colours.
+  - *Packshots.* A transparent PNG/WebP (clear corners) is shown whole on a soft ground with a contact shadow and forces the split layout, so text never covers the product.
+- **Post cards.** `render_set` uses a post's explicit `render` specs first (the copywriter writes them for structured templates). Otherwise it honours `template` when the hook carries the data (a quote in quote marks, "Myth: …" with a "Fact: …" line, a hook that opens with a number), else editorial. Planning pillars are never printed as kickers, a subtitle never repeats the hook, and the FDA disclaimer is never display copy.
 - **Hebrew**: `dir="rtl"`, Heebo/Assistant/Frank Ruhl Libre, logical order; numbers are bidi-isolated so `10,000+` never flips.
 - **Safe zones**: story keeps text out of the top 14 % and bottom 35 %.
 - **Photos**: layout "auto" measures brightness; bright photos get a split layout, not a muddy scrim.

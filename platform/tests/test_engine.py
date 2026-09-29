@@ -635,6 +635,23 @@ class ScanParseTest(unittest.TestCase):
         self.assertEqual(otto_scan.industry_guess("Onda Viva", "Escola de surf", ["Aulas de surf"], [], "aulas escola cursos")[0],
                          "Education & courses")
 
+    def test_store_vertical_logo_and_objective(self):
+        """Found on gruns.co: a Shopify supplement store must read as its vertical, sell (not collect leads), stay
+        unrestricted, and take its own logo — not a sub-brand's whose CDN path merely carries the host."""
+        self.assertEqual(otto_scan.industry_guess("Grüns Daily Nutrition", "Superfood greens gummies, one daily pack",
+                                                  ["Greens in a gummy"], ["Shop", "Cart"],
+                                                  "add to cart checkout free shipping gummies superfood greens vitamins "
+                                                  "supplement nutrition")[0], "Supplements & nutrition")
+        self.assertTrue(otto_ads.is_shop({"platform": "Shopify"}, "Supplements & nutrition"))
+        self.assertFalse(otto_ads.is_shop({}, "Clinic & medical"))
+        self.assertFalse(otto_ads.RESTRICTED.search("Supplements & nutrition"))
+        imgs = [("//gruns.co/cdn/shop/files/logo-forbes-black.svg?v=1", "", "block"),
+                ("//gruns.co/cdn/shop/t/165/assets/usnacks_logo.svg?v=3", "", ""),
+                ("//gruns.co/cdn/shop/files/Shrek-pouch.png", "Grüns x Shrek limited edition pouch of greens gummies, with the Shrek logo on the front", ""),
+                ("//gruns.co/cdn/shop/files/gruns_logo_yellow.svg?v=17", "Grüns Logo in yellow", "footer-logo")]
+        self.assertEqual(otto_scan.logo_from("https://gruns.co/", imgs, [], {}),
+                         "https://gruns.co/cdn/shop/files/gruns_logo_yellow.svg?v=17")
+
     def test_theme_color_must_be_a_colour(self):
         _Pages.pages = {"/js": '<html><head><meta name="theme-color" content="javascript:alert(1)"><title>x</title></head></html>',
                         "/ok": '<html><head><meta name="theme-color" content="#0E7C86"><title>y</title></head></html>'}
@@ -670,6 +687,21 @@ class ComplianceBaselineTest(unittest.TestCase):
         self.assertEqual(otto_compliance.check_texts("t-college", ["בגיל 41 היא פתחה קליניקה משלה"]), [])
         self._brand("t-coffee", "E-commerce & retail", "Grachten Koffie")          # not a health brand: nothing invented
         self.assertEqual(otto_compliance.check_texts("t-coffee", ["This coffee cures Monday mornings"]), [])
+
+    def test_fda_disclaimer_is_never_a_claim(self):
+        """The DSHEA line names 'diagnose, treat, cure, or prevent' by law; either agency spelling satisfies the rule."""
+        bdir = TMP / "brands" / "t-supp"
+        bdir.mkdir(parents=True, exist_ok=True)
+        disc = ("These statements have not been evaluated by the Food and Drug Administration. This product is not "
+                "intended to diagnose, treat, cure, or prevent any disease.")
+        (bdir / "compliance.json").write_text(json.dumps({"banned": [r"re:\bcur(e|es|ed|ing)\b", r"re:\bdiagnos(e|es|ed|is)\b"],
+                                                          "required_disclaimer": disc, "disclaimer_on": ["posts"]}))
+        short = ("Supports digestion. *These statements have not been evaluated by the FDA. This product is not intended to "
+                 "diagnose, treat, cure, or prevent any disease.")
+        self.assertEqual(otto_compliance.check_texts("t-supp", [short]), [])
+        self.assertEqual(otto_compliance.check_texts("t-supp", ["Supports digestion. " + disc]), [])
+        self.assertEqual(otto_compliance.check_texts("t-supp", ["Supports digestion."])[0]["rule"], "required_disclaimer")
+        self.assertEqual(otto_compliance.check_texts("t-supp", ["It can cure your gut. " + short])[0]["match"], "cure")
 
     def test_unreadable_rules_fail_closed(self):
         bdir = TMP / "brands" / "t-broken"
@@ -715,6 +747,17 @@ class LanguageTest(unittest.TestCase):
         self.assertNotIn("Onde surfar em outubro perto", heads)
         self.assertEqual(descs[0], "Escola de surf certificada perto de Lisboa")
         self.assertTrue(all(len(h) <= 30 for h in heads) and all(len(x) <= 90 for x in descs))
+
+    def test_shop_search_ads_sell_and_drop_symbols(self):
+        c = {"name": "G", "objective": "sales", "creative": {"headlines": ["4.8★ reviews", "6 grams of fiber"], "descriptions": []},
+             "audience": {"languages": ["en"]}}
+        heads, descs = otto_ads.rsa_assets(c, {"name": "Grüns"}, "en")
+        self.assertIn("4.8 stars reviews", heads)
+        self.assertIn("Official Store", heads)
+        self.assertNotIn("Get in Touch", heads)
+        self.assertNotIn("Talk to our team today", descs)
+        self.assertEqual(otto_ads._sentences_fit("6 grams of fiber. One snack pack.", 30), "6 grams of fiber.")
+        self.assertEqual(otto_ads._sentences_fit("Prebiotic fiber that tastes like fruit.", 30), "")
 
     def test_plan_headlines_skip_labels_and_violating_hooks(self):
         _add_brand(id="t-ads", name="Praxis Test", url="praxis-ads.de", lang="DE", tz="Europe/Berlin", countries=["DE"])

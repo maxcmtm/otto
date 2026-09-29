@@ -376,6 +376,21 @@ def _hsl(h):
     return s, l
 
 
+def _hue(h):
+    r, g, b = (c / 255 for c in _rgb(h))
+    mx, mn = max(r, g, b), min(r, g, b)
+    if mx == mn:
+        return 0.0
+    d = mx - mn
+    hh = ((g - b) / d) % 6 if mx == r else (b - r) / d + 2 if mx == g else (r - g) / d + 4
+    return hh * 60
+
+
+def _hue_gap(a, b):
+    d = abs(_hue(a) - _hue(b)) % 360
+    return min(d, 360 - d)
+
+
 def mix(a, b, t):
     """a blended toward b by t (0..1)."""
     ra, rb = _rgb(a), _rgb(b)
@@ -415,6 +430,36 @@ FONT_SPECS = {
     "DM Serif Display": "DM+Serif+Display:ital@0;1",
     "Manrope": "Manrope:wght@400;500;600;700;800",
 }
+# A brand's own web font, when the scan finds one of these Google families (sans only — the serif pairing stays
+# ours): spec for css2 + the heaviest display weight it has, capped at 800.
+BRAND_SANS = {
+    "DM Sans": ("DM+Sans:wght@400..900", 800), "Work Sans": ("Work+Sans:wght@400..900", 800),
+    "Poppins": ("Poppins:wght@400;500;600;700;800;900", 800), "Montserrat": ("Montserrat:wght@400..900", 800),
+    "Plus Jakarta Sans": ("Plus+Jakarta+Sans:wght@400..800", 800), "Outfit": ("Outfit:wght@400..900", 800),
+    "Figtree": ("Figtree:wght@400..900", 800), "Space Grotesk": ("Space+Grotesk:wght@400..700", 700),
+    "Nunito": ("Nunito:wght@400..900", 800), "Raleway": ("Raleway:wght@400..900", 800),
+    "Open Sans": ("Open+Sans:wght@400..800", 800), "Lato": ("Lato:wght@400;700;900", 900),
+    "Roboto": ("Roboto:wght@400..900", 800), "Sora": ("Sora:wght@400..800", 800),
+    "Urbanist": ("Urbanist:wght@400..900", 800), "Lexend": ("Lexend:wght@400..900", 800),
+    "Karla": ("Karla:wght@400..800", 800), "Mulish": ("Mulish:wght@400..900", 800),
+    "Barlow": ("Barlow:wght@400;500;600;700;800;900", 800), "Archivo": ("Archivo:wght@400..900", 800),
+    "Onest": ("Onest:wght@400..900", 800), "Instrument Sans": ("Instrument+Sans:wght@400..700", 700),
+    "Syne": ("Syne:wght@400..800", 800), "Unbounded": ("Unbounded:wght@400..900", 800),
+    "Bricolage Grotesque": ("Bricolage+Grotesque:wght@400..800", 800),
+}
+FONT_SPECS.update({k: v[0] for k, v in BRAND_SANS.items()})
+_SANS_KEY = {k.replace(" ", "").lower(): k for k in BRAND_SANS}
+
+
+def brand_font(scan):
+    """The site's own Google sans family ('DMSans' → 'DM Sans'), or None."""
+    for f in ((scan or {}).get("visual") or {}).get("fonts") or []:
+        k = _SANS_KEY.get(re.sub(r"[\s_-]", "", str(f)).lower())
+        if k:
+            return k
+    return None
+
+
 FALLBACK = {
     "sans": '-apple-system, "Helvetica Neue", "Segoe UI", Roboto, "Noto Sans", Arial, sans-serif',
     "serif": '"Iowan Old Style", Georgia, "Noto Serif", "Times New Roman", serif',
@@ -455,6 +500,26 @@ def palette_labels(vis):
         for h in hexes:
             out.append((h.upper(), re.sub(r"\s+", " ", HEX.sub("", seg)).strip(" -:*()/")))
     return out
+
+
+def logo_ratio(path):
+    """Width / height of a logo file (SVG viewBox or width/height, PNG header); 3.0 when unknown."""
+    try:
+        p = Path(path)
+        if p.suffix.lower() == ".svg":
+            head = p.read_text(errors="ignore")[:4000]
+            m = re.search(r'viewBox="\s*[-\d.]+[\s,]+[-\d.]+[\s,]+([\d.]+)[\s,]+([\d.]+)', head)
+            m = m or re.search(r'<svg[^>]*?\bwidth="([\d.]+)(?:px)?"[^>]*?\bheight="([\d.]+)', head)
+            if m and float(m.group(2)):
+                return round(float(m.group(1)) / float(m.group(2)), 3)
+        elif p.suffix.lower() == ".png":
+            b = p.read_bytes()[:32]
+            w, h = int.from_bytes(b[16:20], "big"), int.from_bytes(b[20:24], "big")
+            if h:
+                return round(w / h, 3)
+    except OSError:
+        pass
+    return 3.0
 
 
 def brand_tokens(bid=None, **over):
@@ -502,7 +567,11 @@ def brand_tokens(bid=None, **over):
     surface = warm_light or mix("#F6F3ED", accent, 0.025)        # warm paper with a breath of the brand
     white = "#FFFFFF"
     accent_ink = ink if contrast(accent, ink) >= contrast(accent, white) else white
+    # a two-colour identity (green + yellow): the brand's second hue, when it has one
+    second = next((c for c in cols if c != accent and usable(c) and _hue_gap(c, accent) >= 60), None)
     accent_on_dark = accent
+    if contrast(accent, deep) < 4.5 and second and contrast(second, deep) >= 4.5:
+        accent_on_dark = second                                 # yellow on forest, not a washed-out green
     t = 0.0
     while contrast(accent_on_dark, deep) < 4.5 and t < 0.9:
         t += 0.05
@@ -523,6 +592,15 @@ def brand_tokens(bid=None, **over):
 
     lang = (custom.get("lang") or strat.get("language") or ((scan.get("languages") or [None])[0]) or "en").lower()[:2]
     pair = dict(FONT_PAIRS.get(lang) or FONT_PAIRS["default"])
+    own = brand_font(scan) if lang not in RTL_LANGS else None      # Latin families lack Hebrew/Arabic glyphs
+    em_style, marker = "serif", accent
+    if own:
+        pair.update(display=own, text=own, w_display=BRAND_SANS[own][1])
+        em_style = "brand"            # the brand's own face carries emphasis too — our serif italic is not their voice
+        # colour alone must then carry the emphasis: an accent too close to the ink (green on forest) becomes a
+        # highlighter band in the brand's second hue
+        if em_light == "color" and second and _hue_gap(accent_text, ink) < 30 and contrast(second, surface) < 3:
+            em_light, marker = "marker", second
     name = (scan.get("identity") or {}).get("site_name") or ""
     m = re.search(r"\*\*Brand:\*\*\s*(.+)", prof)
     if m:
@@ -539,10 +617,13 @@ def brand_tokens(bid=None, **over):
            "primary": primary, "accent": accent, "accent_ink": accent_ink, "accent_on_dark": accent_on_dark,
            "accent_text": accent_text, "em_light": em_light, "ink": ink, "deep": deep, "surface": surface,
            "surface2": mix(surface, ink, 0.06), "on_deep": white, "host": host, "logo": logo,
+           "logo_ratio": 0, "logo_mode": "mono", "em_style": em_style, "marker": marker,
            "font_display": pair["display"], "font_text": pair["text"], "font_serif": pair["serif"],
            "w_display": pair["w_display"], "w_serif": pair["w_serif"], "currency": strat.get("currency") or ""}
     tok.update({k: v for k, v in custom.items() if k in tok or k.startswith("font")})
     tok.update({k: v for k, v in over.items() if v is not None})
+    if tok["logo"] and not tok["logo_ratio"]:
+        tok["logo_ratio"] = logo_ratio(tok["logo"])
     return tok
 
 
@@ -556,6 +637,7 @@ def tokens_css(tok):
     v = {
         "--primary": tok["primary"], "--accent": tok["accent"], "--accent-ink": tok["accent_ink"],
         "--accent-on-dark": tok["accent_on_dark"], "--accent-text": tok["accent_text"], "--ink": tok["ink"],
+        "--marker": tok.get("marker") or tok["accent"],
         "--ink-rgb": _rgb_str(tok["ink"]), "--deep": tok["deep"], "--deep-rgb": _rgb_str(tok["deep"]),
         "--surface": tok["surface"], "--surface2": tok["surface2"], "--on-deep": tok["on_deep"],
         "--accent-rgb": _rgb_str(tok["accent"]),
@@ -719,6 +801,34 @@ def photo_luma(uri, region=(0.0, 0.45, 1.0, 1.0)):
     return val
 
 
+_CUT = {}
+
+
+def is_cutout(uri):
+    """A transparent packshot (PNG/WebP whose corners are clear). It is shown whole on a ground, never cropped
+    full-bleed like a photo with text laid over the product."""
+    if not uri or not uri.startswith("file:") or not re.search(r"\.(png|webp)$", uri, re.I):
+        return False
+    if uri in _CUT:
+        return _CUT[uri]
+    ff = _ffmpeg()
+    val = False
+    if ff:
+        from urllib.parse import unquote, urlparse
+        path = unquote(urlparse(uri).path)
+        try:
+            r = subprocess.run([ff, "-v", "error", "-i", path, "-vf", "scale=16:16,format=rgba,alphaextract,format=gray",
+                                "-frames:v", "1", "-f", "rawvideo", "-"], capture_output=True, timeout=30)
+            a = r.stdout
+            if r.returncode == 0 and len(a) == 256:
+                corners = [a[i] for i in (0, 1, 16, 14, 15, 31, 224, 240, 241, 239, 254, 255)]
+                val = max(corners) < 16
+        except Exception:
+            val = False
+    _CUT[uri] = val
+    return val
+
+
 def fmt_of(size):
     w, h = size
     r = h / float(w)
@@ -746,6 +856,20 @@ def _partial(name):
     return _BASE[name]
 
 
+def _logo_mask(tok):
+    """A mono logo is drawn as a CSS mask in the ground's own text colour, so one file reads on photo, paper and
+    deep grounds alike. Inlined as a data: URI (Chrome fetches file:// masks in CORS mode and drops them).
+    render.json {"logo_mode": "color"} keeps the file's own colours instead."""
+    if tok.get("logo_mode") != "mono" or not tok.get("logo"):
+        return ""
+    p = Path(tok["logo"])
+    mime = {".svg": "image/svg+xml", ".png": "image/png", ".webp": "image/webp"}.get(p.suffix.lower())
+    try:
+        return f"data:{mime};base64," + base64.b64encode(p.read_bytes()).decode() if mime else ""
+    except OSError:
+        return ""
+
+
 def build_context(data, size, brand, warn=None):
     tok = dict(brand or brand_tokens())
     lang = tok.get("lang", "en")
@@ -757,6 +881,9 @@ def build_context(data, size, brand, warn=None):
         pos = str(d.get(k + "_pos") or "50% 50%")
         d[k + "_pos"] = pos if POS_OK.fullmatch(pos) else "50% 50%"
     lay = re.sub(r"[^a-z0-9_]", "", str(d.get("layout") or "auto").lower())
+    cut = is_cutout(d.get("photo")) or is_cutout(d.get("photo_after"))
+    if cut and lay == "auto":
+        lay = "split"                                  # a packshot sits on paper above the copy, never under it
     if lay == "auto":                                  # text over a photo only when the photo is dark enough there
         lum = photo_luma(d.get("photo"), (0.0, 0.3, 1.0, 0.85) if fmt_of(size) == "story" else (0.0, 0.5, 1.0, 1.0))
         lay = "split" if lum is not None and lum > 0.45 else "overlay"
@@ -771,8 +898,9 @@ def build_context(data, size, brand, warn=None):
     w, h = size
     fmt = fmt_of(size)
     ctx = {"brand": tok, "L": labels, "W": w, "H": h, "fmt": fmt, "lang": lang, "dir": tok.get("dir", "ltr"),
-           "logo_src": resolve_asset(tok.get("logo")), "cta": labels["cta"],
-           "html_class": f"f-{fmt} em-{tok.get('em_light', 'color')}"}
+           "logo_src": resolve_asset(tok.get("logo")), "logo_mask": _logo_mask(tok), "cta": labels["cta"],
+           "html_class": f"f-{fmt} em-{tok.get('em_light', 'color')} ems-{tok.get('em_style', 'serif')}"
+                         + (" has-cutout" if cut else "")}
     ctx.update(d)
     if d.get("date"):
         ctx.update(date_parts(d["date"], lang))
@@ -872,7 +1000,8 @@ def _lang_label(tok, key):
 
 def _sentences(text, lo=15, hi=140):
     parts = re.split(r"(?<=[.!?])\s+|\n+", text or "")
-    return [s.strip() for s in parts if lo <= len(s.strip()) <= hi and not s.strip().startswith("#")]
+    return [s.strip() for s in parts if lo <= len(s.strip()) <= hi and not s.strip().startswith("#")
+            and not DSHEA_LINE.match(s.strip())]                  # the FDA disclaimer is never display copy
 
 
 def _post_image(ref):
@@ -898,6 +1027,37 @@ def _campaign_photo(c, i):
         except Exception:
             pass
     return ""
+
+
+DSHEA_LINE = re.compile(r"^\*?\s*(these statements have not been evaluated|this product is not intended to)", re.I)
+
+
+def _echoes(sent, hook):
+    """A caption sentence that only repeats the hook ('Ogres have layers.' under 'Ogres have layers. This…')."""
+    a, b = (re.sub(r"[^\w]+", " ", t or "").strip().lower() for t in (sent, hook))
+    return bool(a and b) and (a in b or b in a or a[:28] == b[:28])
+
+
+def post_card(obj, photo=""):
+    """(template, data) for a single-image post: the copy's own template when hook + caption carry what it needs
+    (quote, myth_fact, big_number), else editorial. The FDA disclaimer is never a subtitle."""
+    hook = (obj.get("hook") or "").strip()
+    sents = [x for x in _sentences(obj.get("caption")) if not _echoes(x, hook)]
+    kicker = obj.get("kicker") or ""                         # the pillar is a planning label, not audience copy
+    tpl = obj.get("template") or ""
+    if tpl == "quote" and re.fullmatch(r"[“\"][^“”\"]+[”\"]", hook):
+        who = next((m.group(1) for x in sents for m in [re.search(r"\b([A-Z][a-z]+ [A-Z]\.)", x)] if m), "")
+        return "quote", {"quote": hook.strip("“”\" "), "name": who, "detail": "Verified review" if who else "",
+                         "photo": photo if obj.get("format") in ("story", "reel") else ""}
+    if tpl == "myth_fact" and re.match(r"^myth\s*:", hook, re.I):
+        fact = next((re.sub(r"^fact\s*:\s*", "", x, flags=re.I) for x in sents if re.match(r"^fact\s*:", x, re.I)), "")
+        if fact:
+            return "myth_fact", {"myth": re.sub(r"^myth\s*:\s*", "", hook, flags=re.I), "fact": fact}
+    if tpl == "big_number":                                  # only a number that leads the hook ("6 g of fiber…")
+        m = re.match(r"^(\d[\d.,]*\s?(?:%|g\b|★|k\+?|\+)?)\s+(.{8,})$", hook)
+        if m:
+            return "big_number", {"number": m.group(1).strip(), "label": m.group(2).strip(), "kicker": kicker}
+    return "editorial", {"headline": hook, "sub": sents[0] if sents else "", "kicker": kicker, "photo": photo}
 
 
 def render_set(obj, brand_id, out_dir, sizes=None, jobs=3):
@@ -934,6 +1094,10 @@ def render_set(obj, brand_id, out_dir, sizes=None, jobs=3):
     else:
         pid = obj.get("id", "post")
         photo = obj.get("photo") or obj.get("image") or ""
+        if photo in ("none", "null"):
+            photo = ""
+        elif photo and "/" not in photo:
+            photo = f"assets/site/{photo}"                   # a bare file name from the copy = a scanned site image
         fmt = obj.get("format") or "feed"
         if fmt == "carousel":
             slides = [s for s in (obj.get("slides") or []) if isinstance(s, (str, dict))]
@@ -947,7 +1111,7 @@ def render_set(obj, brand_id, out_dir, sizes=None, jobs=3):
             for k, s in enumerate(slides, 1):
                 sd = s if isinstance(s, dict) else {"text": s}
                 if k == 1:
-                    plan.append(("carousel_cover", {"headline": sd.get("title") or sd.get("text"), "kicker": obj.get("pillar"),
+                    plan.append(("carousel_cover", {"headline": sd.get("title") or sd.get("text"), "kicker": obj.get("kicker") or "",
                                                     "photo": sd.get("photo") or photo, "n": 1, "total": total},
                                  SIZES["feed"], out / f"{pid}-1.jpg", "cover"))
                 else:
@@ -960,10 +1124,8 @@ def render_set(obj, brand_id, out_dir, sizes=None, jobs=3):
                          SIZES["feed"], out / f"{pid}-{total}.jpg", "cta"))
         else:
             size = SIZES["story"] if fmt in ("story", "reel") else SIZES["square"] if fmt == "square" else SIZES["feed"]
-            sents = [s for s in _sentences(obj.get("caption")) if s != obj.get("hook")]
-            plan.append(("editorial", {"headline": obj.get("hook"), "sub": sents[0] if sents else "",
-                                       "kicker": obj.get("pillar"), "photo": photo},
-                         size, out / f"{pid}-ad.jpg", "static"))
+            tpl, data = post_card(obj, photo)
+            plan.append((tpl, data, size, out / f"{pid}-ad.jpg", "static"))
     if sizes:
         plan = [(t, d, s2, p.with_name(p.stem + ("" if s2 == SIZES["feed"] else f"-{fmt_of(s2)}") + p.suffix), r)
                 for (t, d, _s, p, r) in plan for s2 in sizes]

@@ -134,7 +134,10 @@ def concepts(bid, n=4):
     ang = [a for a in s.get("angles", []) if a.get("status") in ("winner", "testing", "idea")] or [{"angle": p["text"], "id": "p"} for p in s.get("pains", [])]
     per = s.get("personas") or [{"id": "p1", "label": "core buyer"}]
     for i, a in enumerate(ang[:n]):
-        persona = per[i % len(per)]
+        # the angle names its own persona (id or label); fall back to rotation only when it doesn't
+        want = str(a.get("persona") or "").strip().lower()
+        persona = next((x for x in per if want and want in (str(x.get("id", "")).lower(), str(x.get("label", "")).lower())), None) \
+            or next((x for x in per if want and want in str(x.get("label", "")).lower()), None) or per[i % len(per)]
         stage = a.get("stage") if a.get("stage") not in (None, Q) else ("cold" if i % 3 == 0 else "warm" if i % 3 == 1 else "hot")
         hs = [h for h in hooks if stage in h["stage"]][:3] or hooks[:3]
         print(f"\nConcept {i+1}: {a['angle'][:120]}\n  persona: {persona['label']} · stage: {stage} · CTA: {s['cta_by_stage'].get(stage)} · landing: {s['landing_by_stage'].get(stage)}")
