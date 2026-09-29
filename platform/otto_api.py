@@ -51,7 +51,12 @@ def _log(line):
         f.write(f"{datetime.now(timezone.utc).isoformat()} {line}\n")
 
 
-def apply_action(kind, item_id, status):
+DASHBOARD_DECISIONS = {"approved": "approve", "skipped": "skip"}
+
+
+def apply_action(kind, item_id, status, note=None):
+    """Dashboard status change. Approve/skip go through ap.decide so the taste log learns from the web app
+    exactly as from Telegram; a Change note (status → draft) is stored as an edit request for Quill."""
     if kind == "post":
         if status not in POST_STATUSES:
             raise ValueError(f"bad post status {status}")
@@ -60,15 +65,22 @@ def apply_action(kind, item_id, status):
             raise ValueError(f"bad rec status {status}")
     else:
         raise ValueError(f"bad kind {kind}")
+    note = str(note).strip()[:500] if note else ""
     with ap.transaction() as d:
         item = ap.post(d, item_id) if kind == "post" else ap.rec(d, item_id)
         if item is None:
             raise KeyError(item_id)
-        ap.check_transition(kind, item.get("status"), status)
-        item["status"] = status
-        item["approved_via"] = "dashboard"
-        item["decided_at"] = ap.now_iso()
-    _log(f"dashboard {kind} {item_id} -> {status}")
+        if kind == "post" and status in DASHBOARD_DECISIONS:
+            ap.decide(d, item_id, DASHBOARD_DECISIONS[status], "dashboard")      # status + taste log
+        else:
+            ap.check_transition(kind, item.get("status"), status)
+            item["status"] = status
+            item["approved_via"] = "dashboard"
+            item["decided_at"] = ap.now_iso()
+        if kind == "post" and status == "draft" and note:
+            item["edit_note"] = note
+            d.setdefault("edit_requests", []).append({"post": item_id, "note": note, "ts": ap.now_iso(), "via": "dashboard"})
+    _log(f"dashboard {kind} {item_id} -> {status}" + (" (edit note)" if note else ""))
     return ap.load()
 
 
@@ -199,7 +211,7 @@ class Handler(BaseHTTPRequestHandler):
             if path == "/otto-api/decide":
                 data = apply_decision(req.get("id"), req.get("decision"), req.get("via"))
             else:
-                data = apply_action(req.get("kind"), req.get("id"), req.get("status"))
+                data = apply_action(req.get("kind"), req.get("id"), req.get("status"), req.get("note"))
             self._send(200, {"ok": True, "data": data})
         except KeyError as e:
             self._send(404, {"error": f"unknown id {e}"})

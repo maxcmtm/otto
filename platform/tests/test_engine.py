@@ -153,6 +153,20 @@ class TransitionTest(unittest.TestCase):
         otto_api.apply_action("post", f["id"], "pending_approval")
         self.assertEqual(ap.post(ap.load(), f["id"])["status"], "pending_approval")
 
+    def test_dashboard_feeds_taste_log_and_edit_notes(self):
+        a = add_post(status="pending_approval")
+        otto_api.apply_action("post", a["id"], "approved")
+        d = ap.load()
+        self.assertEqual(ap.post(d, a["id"])["status"], "approved")
+        self.assertTrue(any(t["post"] == a["id"] and t["decision"] == "approve" and t["via"] == "dashboard"
+                            for t in d.get("taste_log", [])))
+        b = add_post(status="pending_approval")
+        otto_api.apply_action("post", b["id"], "draft", note="  Shorter, mention the lab tests  ")
+        d = ap.load()
+        q = ap.post(d, b["id"])
+        self.assertEqual((q["status"], q["edit_note"]), ("draft", "Shorter, mention the lab tests"))
+        self.assertTrue(any(r["post"] == b["id"] and r["via"] == "dashboard" for r in d.get("edit_requests", [])))
+
 
 class SlotTest(unittest.TestCase):
     def test_brand_timezone(self):
