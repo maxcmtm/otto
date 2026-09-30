@@ -91,3 +91,33 @@ footer{margin-top:56px;padding-top:18px;border-top:1px solid var(--line);display
 
 @media (max-width:960px){.tabs,.search{display:none}}
 @media (prefers-reduced-motion:reduce){.live i{animation:none}}
+
+/* ---------- v3 tokens: the app's current look (index.html keeps its own inline copy) ----------
+   Calm system font + light/dark. Opt in with <html class="v3"> (admin.html does); pages without the class keep the
+   light v2 look above, so their hard-coded whites never meet a dark surface. */
+:root{
+  --bg:#F5F7FB;--surface-2:#EEF1F6;--elevated:#FFFFFF;
+  --ink-2:#5B6478;--ink-3:#7A8397;--hair:1px;
+  --accent:#2447F0;--accent-fill:#2447F0;--accent-press:#1631B8;--accent-tint:#EDF1FF;--on-accent:#FFFFFF;
+  --hover:rgba(16,24,43,.035);--press:rgba(16,24,43,.07);--sel:rgba(16,24,43,.06);
+  --bar:rgba(245,247,251,.8);--scrim:rgba(16,24,43,.32);--skel:rgba(16,24,43,.055);
+  --toast-bg:#10182B;--toast-ink:#F2F3F5;--lift:0 0 0 0 transparent;
+  --font:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI Variable","Segoe UI",Roboto,system-ui,sans-serif;
+  --mono:ui-monospace,"SF Mono",SFMono-Regular,Menlo,Consolas,monospace;
+  --dur-fast:140ms;--dur-base:220ms;--dur-med:360ms;--ease-out:cubic-bezier(.22,1,.36,1);
+}
+@media (min-resolution:2dppx){:root{--hair:.5px}}
+html.v3{color-scheme:light dark}
+@media (prefers-color-scheme:dark){html.v3{
+  --bg:#0C0D0F;--canvas:#0C0D0F;--surface:#16171A;--surface-2:#1E2024;--elevated:#24262B;
+  --ink:#F2F3F5;--ink-2:#A3A8B3;--ink-3:#8D95A5;--muted:#A3A8B3;--faint:#8D95A5;
+  --line:#2A2C31;--line-soft:#212327;
+  --accent:#6E88FF;--accent-fill:#4461F5;--accent-press:#3551E0;--accent-tint:#1B2240;
+  --cobalt:#6E88FF;--cobalt-deep:#9DB0FF;--cobalt-tint:#1B2240;
+  --green:#34C77B;--green-tint:rgba(52,199,123,.14);--amber:#F5A524;--amber-tint:rgba(245,165,36,.14);
+  --red:#FF6B61;--red-tint:rgba(255,107,97,.14);
+  --hover:rgba(255,255,255,.035);--press:rgba(255,255,255,.07);--sel:rgba(255,255,255,.07);
+  --bar:rgba(12,13,15,.8);--scrim:rgba(0,0,0,.5);--skel:rgba(255,255,255,.06);
+  --toast-bg:#2A2C31;--lift:inset 0 1px 0 0 rgba(255,255,255,.05);
+}}
+@media (prefers-contrast:more){html.v3{--line:#9AA3B5;--ink-3:#5B6478}}

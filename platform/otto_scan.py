@@ -18,7 +18,7 @@ Writes brands/<slug>/scan.json and — if the brand has no profile yet — a
 brands/<slug>/brand-profile.md draft following BRAND-PROFILE-TEMPLATE.md (AUTO sections
 filled from the scan, inference sections marked for the creative engine to complete).
 """
-import http.client, ipaddress, json, os, re, socket, ssl, sys, time, unicodedata, urllib.parse
+import http.client, ipaddress, json, os, re, socket, ssl, sys, threading, time, unicodedata, urllib.parse, zlib
 from collections import Counter
 from datetime import datetime, timezone
 from html import unescape
@@ -94,11 +94,24 @@ INDUSTRIES = {
 # unicast IPs (ip.is_global — rejects RFC1918, loopback, link-local/metadata 169.254/16, CGNAT 100.64/10,
 # ULA, v4-mapped private …). The connection then goes to that validated IP (DNS pinned per request, with
 # the real hostname for Host/SNI/cert checks), so a rebinding resolver cannot swap the address after the check.
+# A watchdog shuts the connection down at the deadline (at most MAX_FETCH_SECONDS per fetch), so a server that
+# trickles one byte per socket timeout cannot hold a worker; the body is read raw (Accept-Encoding: identity,
+# nothing is ever decompressed) and never past `limit`.
 
 ALLOWED_PORTS = {None, 80, 443}
 BLOCKED_SUFFIXES = (".local", ".internal", ".localhost", ".lan", ".home.arpa", ".localdomain")
 MAX_REDIRECTS = 5
 READ_CHUNK = 65536
+MAX_FETCH_SECONDS = 45
+# Never a public web server, whatever this Python's ipaddress tables say: 3.9 calls 6to4 (2002::/16, which embeds any
+# IPv4 incl. 127.0.0.1), 192.0.0.0/24 and the deprecated site-local fec0::/10 "global"; NAT64 prefixes reach IPv4
+# behind a translator. Listed explicitly so the guard does not depend on the interpreter version.
+_DENY_NETS = [ipaddress.ip_network(n) for n in (
+    "0.0.0.0/8", "10.0.0.0/8", "100.64.0.0/10", "127.0.0.0/8", "169.254.0.0/16", "172.16.0.0/12", "192.0.0.0/24",
+    "192.0.2.0/24", "192.88.99.0/24", "192.168.0.0/16", "198.18.0.0/15", "198.51.100.0/24", "203.0.113.0/24",
+    "224.0.0.0/4", "240.0.0.0/4",
+    "::/8", "64:ff9b::/96", "64:ff9b:1::/48", "100::/64", "2001::/23", "2001:db8::/32", "2002::/16", "3fff::/20",
+    "5f00::/16", "fc00::/7", "fe80::/10", "fec0::/10", "ff00::/8")]
 
 
 class Blocked(Exception):
@@ -121,6 +134,8 @@ def ip_ok(ip):
     mapped = getattr(ip, "ipv4_mapped", None)
     if mapped is not None:
         ip = mapped
+    if any(ip in n for n in _DENY_NETS if n.version == ip.version):
+        return False
     return bool(ip.is_global) and not (ip.is_private or ip.is_loopback or ip.is_link_local or ip.is_multicast
                                        or ip.is_reserved or ip.is_unspecified)
 
@@ -145,6 +160,11 @@ def check_url(u):
         host = host.encode("idna").decode("ascii").lower()
     except (UnicodeError, ValueError):
         raise Blocked("bad host")
+    if not re.fullmatch(r"[a-z0-9_-]+(?:\.[a-z0-9_-]+)*", host):
+        try:
+            ipaddress.ip_address(host)                        # an IPv6 literal ("::1") is checked like any address
+        except ValueError:
+            raise Blocked("bad host")                         # quotes, brackets, @, spaces … are never a host name
     if host == "localhost" or host.endswith(BLOCKED_SUFFIXES):
         raise Blocked("local host name")
     return p, host, port or (443 if p.scheme == "https" else 80)
@@ -173,33 +193,85 @@ def resolve_public(host, port):
     return ips[0]
 
 
-def safe_host(u):
-    """Only public http(s) hosts — pre-check for the public /otto-peek endpoint."""
+def host_status(u):
+    """"ok" (a public http(s) host), "not_found" (the name does not resolve) or "blocked" (not a URL we fetch: a local /
+    private address, a bad port or scheme …) — the pre-check of /otto-peek and onboarding."""
     try:
         _, host, port = check_url(u)
         resolve_public(host, port)
-        return True
-    except Blocked:
-        return False
+        return "ok"
+    except Blocked as e:
+        return "not_found" if str(e) in ("dns lookup failed", "no address") else "blocked"
+
+
+def safe_host(u):
+    """Only public http(s) hosts."""
+    return host_status(u) == "ok"
+
+
+class _Watchdog:
+    """Cuts one fetch off at its deadline. Socket timeouts bound each recv, not the fetch: a server that sends one byte
+    just inside every timeout (status line, headers, TLS handshake or body) would otherwise hold the worker — and a
+    /otto-peek or onboarding slot — for hours. At the deadline every socket of the fetch is shut down, which wakes
+    whatever read is blocked."""
+
+    def __init__(self, at):
+        self._lock, self.fired, self._socks = threading.Lock(), False, []
+        self._timer = threading.Timer(max(0.01, at - time.time()), self._fire)
+        self._timer.daemon = True
+        self._timer.start()
+
+    def watch(self, sock):
+        with self._lock:
+            if self.fired:
+                raise Blocked("deadline reached")
+            self._socks.append(sock.dup())        # shutdown() acts on the connection: the dup outlives wrap_socket's detach
+
+    def _fire(self):
+        with self._lock:
+            self.fired = True
+            for s in self._socks:
+                try:
+                    s.shutdown(socket.SHUT_RDWR)
+                except OSError:
+                    pass
+
+    def close(self):
+        self._timer.cancel()
+        with self._lock:
+            for s in self._socks:
+                s.close()
+            self._socks = []
 
 
 class _PinnedHTTP(http.client.HTTPConnection):
-    def __init__(self, host, ip, port, timeout):
+    def __init__(self, host, ip, port, timeout, dog=None):
         super().__init__(host, port, timeout=timeout)
-        self._pin = ip
+        self._pin, self._dog = ip, dog
+
+    def _open(self):
+        sock = socket.create_connection((self._pin, self.port), self.timeout)
+        if self._dog is not None:
+            try:
+                self._dog.watch(sock)
+            except Blocked:
+                sock.close()
+                raise
+        return sock
 
     def connect(self):
-        self.sock = socket.create_connection((self._pin, self.port), self.timeout)
+        self.sock = self._open()
 
 
 class _PinnedHTTPS(http.client.HTTPSConnection):
-    def __init__(self, host, ip, port, timeout):
+    def __init__(self, host, ip, port, timeout, dog=None):
         super().__init__(host, port, timeout=timeout, context=ssl.create_default_context())
-        self._pin = ip
+        self._pin, self._dog = ip, dog
+
+    _open = _PinnedHTTP._open
 
     def connect(self):
-        sock = socket.create_connection((self._pin, self.port), self.timeout)
-        self.sock = self._context.wrap_socket(sock, server_hostname=self.host)
+        self.sock = self._context.wrap_socket(self._open(), server_hostname=self.host)
 
 
 def _request_target(p):
@@ -219,38 +291,53 @@ def _remaining(deadline, timeout):
 
 
 def guarded_get(url, limit=1_500_000, timeout=12, deadline=None, headers=None):
-    """GET with the SSRF guard on every hop. Returns (final_url, bytes, content_type, charset); raises on error."""
+    """GET with the SSRF guard on every hop. Returns (final_url, bytes, content_type, charset); raises on error.
+    The whole fetch (every hop) ends by `deadline` and never lasts longer than MAX_FETCH_SECONDS."""
     hdrs = {"User-Agent": UA, "Accept": "text/html,*/*;q=0.8", "Accept-Language": "en,de;q=0.8,he;q=0.7",
             "Accept-Encoding": "identity", "Connection": "close"}
     hdrs.update(headers or {})
-    for _ in range(MAX_REDIRECTS + 1):
-        p, host, port = check_url(url)
-        ip = resolve_public(host, port)
-        t = _remaining(deadline, timeout)
-        conn = _PinnedHTTPS(host, ip, port, t) if p.scheme == "https" else _PinnedHTTP(host, ip, port, t)
-        try:
-            conn.request("GET", _request_target(p), headers=hdrs)
-            r = conn.getresponse()
-            if r.status in (301, 302, 303, 307, 308):
-                loc = r.getheader("Location")
-                if not loc:
-                    raise Blocked(f"HTTP {r.status} without Location")
-                url = urllib.parse.urljoin(url, loc.strip())
-                continue
-            if r.status >= 400:
-                raise Blocked(f"HTTP Error {r.status}: {r.reason}")
-            chunks, got = [], 0
-            while got < limit:
-                if conn.sock is not None:
-                    conn.sock.settimeout(_remaining(deadline, timeout))
-                chunk = r.read(min(READ_CHUNK, limit - got))
-                if not chunk:
-                    break
-                chunks.append(chunk); got += len(chunk)
-            return url, b"".join(chunks), r.getheader("Content-Type", "") or "", r.headers.get_content_charset() or "utf-8"
-        finally:
-            conn.close()
-    raise Blocked("too many redirects")
+    hard = time.time() + MAX_FETCH_SECONDS
+    deadline = min(deadline, hard) if deadline else hard
+    dog = _Watchdog(deadline)
+    try:
+        for _ in range(MAX_REDIRECTS + 1):
+            p, host, port = check_url(url)
+            ip = resolve_public(host, port)
+            t = _remaining(deadline, timeout)
+            conn = (_PinnedHTTPS if p.scheme == "https" else _PinnedHTTP)(host, ip, port, t, dog)
+            try:
+                conn.request("GET", _request_target(p), headers=hdrs)
+                r = conn.getresponse()
+                if r.status in (301, 302, 303, 307, 308):
+                    loc = r.getheader("Location")
+                    if not loc:
+                        raise Blocked(f"HTTP {r.status} without Location")
+                    url = urllib.parse.urljoin(url, loc.strip())
+                    continue
+                if r.status >= 400:
+                    raise Blocked(f"HTTP Error {r.status}: {r.reason}")
+                chunks, got = [], 0
+                while got < limit:
+                    if conn.sock is not None:
+                        conn.sock.settimeout(_remaining(deadline, timeout))
+                    chunk = r.read(min(READ_CHUNK, limit - got))
+                    if not chunk:
+                        break
+                    chunks.append(chunk); got += len(chunk)
+                if dog.fired:                         # the watchdog cut the body short: never return half a page as whole
+                    raise Blocked("deadline reached")
+                return url, b"".join(chunks), r.getheader("Content-Type", "") or "", r.headers.get_content_charset() or "utf-8"
+            except Blocked:
+                raise
+            except Exception:
+                if dog.fired:
+                    raise Blocked("deadline reached") from None
+                raise
+            finally:
+                conn.close()
+        raise Blocked("too many redirects")
+    finally:
+        dog.close()
 
 
 def fetch(url, limit=1_500_000, timeout=12, deadline=None):
@@ -417,7 +504,11 @@ def fonts_from(css_texts, links):
                     name = fam.split(":")[0].replace("+", " ").strip()
                     if name:
                         c[name] += 5
-    return [pretty_font(f) for f, _ in c.most_common(8) if "fallback" not in f.lower()][:5]
+    out = [pretty_font(f) for f, _ in c.most_common(8) if "fallback" not in f.lower()]
+    return [f for f in out if FONT_NAME.fullmatch(f)][:5]           # a family name, never CSS or markup from the page
+
+
+FONT_NAME = re.compile(r"[\w .-]{1,40}")
 
 
 def pretty_font(name):
@@ -428,15 +519,15 @@ def pretty_font(name):
     return n.strip()
 
 
-SOCIAL = [("facebook", r"facebook\.com/(?!sharer|share|dialog|plugins)[^/?#\s\"']+"),
-          ("instagram", r"instagram\.com/[^/?#\s\"']+"),
-          ("tiktok", r"tiktok\.com/@[^/?#\s\"']+"),
-          ("linkedin", r"linkedin\.com/(?:company|in)/[^/?#\s\"']+"),
-          ("youtube", r"youtube\.com/(?:@|channel/|c/|user/)[^/?#\s\"']+"),
-          ("x", r"(?:twitter|x)\.com/(?!intent|share)[^/?#\s\"']+"),
-          ("whatsapp", r"(?:wa\.me/\d+|api\.whatsapp\.com/send[^\s\"']*)"),
-          ("telegram", r"t\.me/[^/?#\s\"']+"),
-          ("pinterest", r"pinterest\.[a-z.]+/[^/?#\s\"']+")]
+SOCIAL = [("facebook", r"facebook\.com/(?!sharer|share|dialog|plugins)[\w.@%+~-]+"),
+          ("instagram", r"instagram\.com/[\w.@%+~-]+"),
+          ("tiktok", r"tiktok\.com/@[\w.@%+~-]+"),
+          ("linkedin", r"linkedin\.com/(?:company|in)/[\w.@%+~-]+"),
+          ("youtube", r"youtube\.com/(?:@|channel/|c/|user/)[\w.@%+~-]+"),
+          ("x", r"(?:twitter|x)\.com/(?!intent|share)[\w.@%+~-]+"),
+          ("whatsapp", r"(?:wa\.me/\d+|api\.whatsapp\.com/send[\w.@%+~=&?/-]*)"),
+          ("telegram", r"t\.me/[\w.@%+~-]+"),
+          ("pinterest", r"pinterest\.[a-z.]+/[\w.@%+~-]+")]
 
 
 def socials_from(hrefs):
@@ -461,13 +552,23 @@ def detect_platform(html):
     return " + ".join(dict.fromkeys(found)) or "custom"
 
 
+def lang_code(v):
+    """'de-AT' / 'pt_BR' → 'de' / 'pt'; None for anything that is not a language code (the page wrote it)."""
+    c = re.split(r"[-_]", str(v or "").strip().lower(), 1)[0]
+    return c if re.fullmatch(r"[a-z]{2,3}", c) else None
+
+
+def web_url(u):
+    """An http(s) URL we are willing to store and show (a logo, an og:image), else None: never javascript:/data:."""
+    u = str(u or "").strip().replace(" ", "%20")
+    return u if len(u) <= 1000 and re.match(r"^https?://[^\s\"'<>\\]+$", u, re.I) else None
+
+
 def detect_langs(lang_attr, hreflangs, text):
     langs = []
-    if lang_attr:
-        langs.append(lang_attr.split("-")[0].lower())
-    for h in sorted(hreflangs):
-        if h != "x-default":
-            langs.append(h.split("-")[0])
+    for code in [lang_attr] + sorted(h for h in hreflangs if h != "x-default"):
+        if lang_code(code):
+            langs.append(lang_code(code))
     sample = text[:20000]
     if len(re.findall(r"[֐-׿]", sample)) > 200:
         langs.append("he")
@@ -506,18 +607,62 @@ def industry_guess(title, desc, headings, nav, body):
     return guess, top
 
 
+def clip(t, n):
+    """At most n characters, cut at a word boundary with an ellipsis — never mid-word ("…across h")."""
+    t = re.sub(r"\s+", " ", t or "").strip()
+    if len(t) <= n:
+        return t
+    cut = t[:n - 1]
+    cut = cut[:cut.rfind(" ")] if " " in cut[n // 2:] else cut
+    return cut.rstrip(" ,;:-–—") + "…"
+
+
+# Page chrome that is not proof and not a customer's words: the brand's own promos and announcements, review-widget
+# summaries ("4.8 stars • 100K+ reviews"), testimonial disclaimers, and button soup ("Shop Now Shop All …").
+_PROMO_TALK = re.compile(r"\b(?:shop now|shop all|buy now|order now|sign up|subscribe|join (?:to|our|now)|save up to|save \d+ ?%|"
+                         r"\d+ ?% off|limited (?:time|edition|flavou?rs?)|is live|new!|vip access|use code|add to cart|"
+                         r"one time purchase|pause or cancel|delivered once|jetzt kaufen|jetzt bestellen|in den warenkorb)\b|"
+                         r"free shipping on", re.I)
+_RATING_SUMMARY = re.compile(r"\d(?:[.,]\d)?\s*(?:stars?|sterne|/\s*5|out of 5)\b.*\d+\s*(?:k\+?|m\+?|,\d{3}|\+)?\s*"
+                             r"(?:reviews?|ratings?|bewertungen|members|customers|kunden)", re.I)
+_DISCLAIMER = re.compile(r"testimonials? (?:featured|shown|may|are)|received compensation|free product|results (?:may )?vary|"
+                         r"not typical|individual results|affiliate", re.I)
+_WIDGET_META = re.compile(r"^.*?(?:\bverified (?:buyer|purchase|reviewer)\b|\breviewer\b\s*\d(?:[.,]\d)?\s*/\s*5|"
+                          r"\brated \d(?:[.,]\d)? out of 5\b|\b\d(?:[.,]\d)?\s*/\s*5\b)\s*[:\-–—]?\s*", re.I)
+_EMOJI = re.compile("[\U0001F300-\U0001FAFF\u2600-\u27BF\u2B50\u2B55\u2728]")
+
+
+def is_chrome(t):
+    """True for page chrome (promo, rating summary, disclaimer, button soup), which is neither proof nor a quote."""
+    words = re.findall(r"[^\W\d_]{2,}", t)
+    caps = sum(1 for w in words if w[0].isupper())
+    soup = len(words) >= 8 and caps / len(words) > 0.6 and not re.search(r"[.!?]\s", t)       # "Free Shipping Today Pause Or …"
+    return bool(_PROMO_TALK.search(t) or _RATING_SUMMARY.search(t) or _DISCLAIMER.search(t) or soup
+                or len(_EMOJI.findall(t)) >= 3 or len(re.findall(r"[●•|]", t)) >= 3)
+
+
+_TRUST_RES = [(w, re.compile((r"(?<![\w])" if w[:1].isalnum() else "") + re.escape(w.lower().strip())
+                             + (r"(?![\w])" if w.strip()[-1:].isalnum() else ""))) for w in TRUST_WORDS]
+
+
 def trust_from(text):
+    """Sentences that carry a trust signal (certifications, lab tests, guarantees …). Words match whole ("ssl" is not
+    "hassle"); promos and button soup are dropped; long sentences are cut at a word, with an ellipsis."""
     low = text.lower()
     out, seen = [], set()
-    for w in TRUST_WORDS:
-        i = low.find(w.lower())
-        if i < 0:
-            continue
-        s = max(0, low.rfind(".", 0, i) + 1); e = low.find(".", i)
-        snippet = re.sub(r"\s+", " ", text[s:(e if 0 < e < i + 160 else i + 120)]).strip()
-        key = snippet[:60].lower()
-        if snippet and key not in seen and 8 <= len(snippet) <= 200:
-            seen.add(key); out.append(snippet)
+    for w, rx in _TRUST_RES:
+        for n, m in enumerate(rx.finditer(low)):             # the first mention may sit in a promo bar: try a few
+            if n >= 5:
+                break
+            i = m.start()
+            s = max(0, low.rfind(".", 0, i) + 1); e = low.find(".", i)
+            snippet = clip(text[s:e + 1] if 0 < e < i + 200 else text[s:i + 400], 200)
+            key = snippet[:60].lower()
+            if key in seen:
+                continue
+            if 8 <= len(snippet) and not is_chrome(snippet):
+                seen.add(key); out.append(snippet)
+                break
     return out[:10]
 
 
@@ -533,12 +678,24 @@ def prices_from(text):
     return (cur.most_common(1)[0][0] if cur else None), uniq[:10]
 
 
+def clean_quote(q):
+    """A customer's words from a review widget, or None: the widget's metadata before them ("4 months ago … Tom Berger
+    Reviewer 5/5") is cut off, star runs are dropped, and page chrome (promo, rating summary, disclaimer) is no quote."""
+    q = re.sub(r"\s+", " ", q or "").strip()
+    q = _WIDGET_META.sub("", q, count=1) if _WIDGET_META.search(q) else q
+    q = re.sub(r"[★☆⭐️]+", " ", q)
+    q = re.sub(r"\s+", " ", q).strip(" -–—|•")
+    if len(q) < 25 or is_chrome(q) or not re.search(r"[^\W\d_]{3,}.*\s.*[^\W\d_]{3,}", q):
+        return None
+    return clip(q, 260)
+
+
 def quotes_from(pages_quotes, text):
     out = list(dict.fromkeys(pages_quotes))
     for sent in re.split(r"(?<=[.!?])\s+", text[:80000]):
         if ("★" in sent or "⭐" in sent or re.search(r"\b5 stars\b|\b5/5\b", sent, re.I)) and 40 <= len(sent) <= 300:
             out.append(sent.strip())
-    return [q[:260] for q in dict.fromkeys(out)][:8]
+    return [q for q in dict.fromkeys(clean_quote(q) for q in out) if q][:8]
 
 
 PRESS_LOGO = re.compile(r"forbes|mens-?journal|today|people|womens-?health|good-?housekeeping|\bgq\b|logo-gq|vogue|travel-?leisure|"
@@ -654,10 +811,10 @@ def scan(url, pages=5, page_limit=1_200_000, deadline=None):
         "pages": [final] + [u for u, _ in subpages],
         "identity": {"title": home.title.strip()[:200], "description": (home.metas.get("description") or home.metas.get("og:description") or "")[:400],
                      "site_name": home.metas.get("og:site_name") or "", "og_title": home.metas.get("og:title") or "",
-                     "og_image": absolute(final, home.metas["og:image"]) if home.metas.get("og:image") else None},
+                     "og_image": web_url(absolute(final, home.metas["og:image"])) if home.metas.get("og:image") else None},
         "industry": guess, "industry_candidates": candidates,
         "languages": detect_langs(home.lang, home.hreflangs, text), "platform": detect_platform(html),
-        "visual": {"palette": palette[:6], "neutrals": neutrals[:3], "logo": logo_from(final, home.imgs, home.links, home.metas),
+        "visual": {"palette": palette[:6], "neutrals": neutrals[:3], "logo": web_url(logo_from(final, home.imgs, home.links, home.metas)),
                    "fonts": fonts_from(css_texts, home.links), "theme_color": theme},
         "socials": socials_from(hrefs), "contact": {"emails": emails, "phones": [p.strip() for p in phones]},
         "commerce": {"currency": currency, "prices": prices, "promos": promos},
@@ -667,15 +824,160 @@ def scan(url, pages=5, page_limit=1_200_000, deadline=None):
     }
 
 
+# ---------------- logo tone ----------------
+# The browser cannot read a cross-origin logo's pixels, so the server says whether the logo is light (a white logo needs
+# a dark ground) or dark. Pure stdlib: 8-bit non-interlaced PNG (gray / RGB / palette, with or without alpha) up to
+# LOGO_TONE_MAX_BYTES of pixel data, and SVG by the colours it paints with (no fill at all = black, the SVG default).
+
+LOGO_TONE_MAX_BYTES = 1_600_000
+_NAMED = {"white": "#FFFFFF", "black": "#000000", "currentcolor": None, "none": None, "transparent": None}
+
+
+def _lum(r, g, b):
+    return (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255
+
+
+def _tone(lums):
+    lums = [x for x in lums if x is not None]
+    if not lums:
+        return None
+    return "light" if sum(lums) / len(lums) >= 0.6 else "dark"
+
+
+def _png_lums(raw):
+    """Luminance samples of the opaque pixels of an 8-bit PNG, or None when the file is not one we decode."""
+    if raw[:8] != b"\x89PNG\r\n\x1a\n":
+        return None
+    pos, ihdr, plte, trns, idat = 8, None, b"", b"", []
+    while pos + 8 <= len(raw):
+        n, typ = int.from_bytes(raw[pos:pos + 4], "big"), raw[pos + 4:pos + 8]
+        data = raw[pos + 8:pos + 8 + n]
+        pos += 12 + n
+        if typ == b"IHDR":
+            ihdr = data
+        elif typ == b"PLTE":
+            plte = data
+        elif typ == b"tRNS":
+            trns = data
+        elif typ == b"IDAT":
+            idat.append(data)
+        elif typ == b"IEND":
+            break
+    if not ihdr or len(ihdr) < 13:
+        return None
+    w, h, depth, ctype, interlace = int.from_bytes(ihdr[:4], "big"), int.from_bytes(ihdr[4:8], "big"), ihdr[8], ihdr[9], ihdr[12]
+    ch = {0: 1, 2: 3, 3: 1, 4: 2, 6: 4}.get(ctype)
+    if depth != 8 or interlace or not ch or w <= 0 or h <= 0:
+        return None
+    stride = w * ch
+    need = (stride + 1) * h
+    if need > LOGO_TONE_MAX_BYTES:
+        return None
+    try:
+        buf = zlib.decompressobj().decompress(b"".join(idat), need)      # never inflates past what the header promises
+    except zlib.error:
+        return None
+    if len(buf) < need:
+        return None
+    prev, out = bytes(stride), []
+    sx, sy = max(1, w // 120), max(1, h // 120)
+    for y in range(h):
+        f, line = buf[y * (stride + 1)], bytearray(buf[y * (stride + 1) + 1:(y + 1) * (stride + 1)])
+        if f == 1:
+            for i in range(ch, stride):
+                line[i] = (line[i] + line[i - ch]) & 255
+        elif f == 2:
+            line = bytearray((a + b) & 255 for a, b in zip(line, prev))
+        elif f == 3:
+            for i in range(stride):
+                line[i] = (line[i] + (((line[i - ch] if i >= ch else 0) + prev[i]) >> 1)) & 255
+        elif f == 4:
+            for i in range(stride):
+                a, b, c = (line[i - ch] if i >= ch else 0), prev[i], (prev[i - ch] if i >= ch else 0)
+                pa, pb, pc = abs(b - c), abs(a - c), abs(a + b - 2 * c)
+                line[i] = (line[i] + (a if pa <= pb and pa <= pc else b if pb <= pc else c)) & 255
+        elif f != 0:
+            return None
+        prev = line
+        if y % sy:
+            continue
+        for x in range(0, w, sx):
+            px = line[x * ch:(x + 1) * ch]
+            if ctype == 3:
+                k = px[0]
+                if 3 * k + 2 >= len(plte) or (k < len(trns) and trns[k] < 128):
+                    continue
+                r, g, b = plte[3 * k:3 * k + 3]
+            elif ctype in (0, 4):
+                if ctype == 4 and px[1] < 128:
+                    continue
+                r = g = b = px[0]
+            else:
+                if ctype == 6 and px[3] < 128:
+                    continue
+                r, g, b = px[0], px[1], px[2]
+            out.append(_lum(r, g, b))
+    return out
+
+
+def _svg_lums(raw):
+    """Luminance of every colour an SVG paints with (fill / stroke / stop-color, attributes and inline CSS)."""
+    t = raw.decode("utf-8", "ignore")
+    if "<svg" not in t.lower():
+        return None
+    out = []
+    for v in re.findall(r"(?:fill|stroke|stop-color|color)\s*[=:]\s*[\"']?\s*(#[0-9a-fA-F]{3,8}\b|rgba?\([^)]*\)|[a-zA-Z]+)", t):
+        v = _NAMED.get(v.lower(), v) if not v.startswith(("#", "rgb")) else v
+        if not v:
+            continue
+        if v.startswith("#") and len(v) in (4, 5, 7, 9):
+            h = hex6(v[:4] if len(v) in (4, 5) else v[:7])
+            out.append(_lum(int(h[1:3], 16), int(h[3:5], 16), int(h[5:7], 16)))
+        elif v.startswith("rgb"):
+            nums = [float(x) for x in re.findall(r"[\d.]+", v)[:3]]
+            if len(nums) == 3:
+                out.append(_lum(*nums))
+    has_shape = re.search(r"<(?:path|rect|circle|ellipse|polygon|polyline|text|use|g)\b", t, re.I)
+    if not out and has_shape:
+        out.append(0.0)                                  # nothing coloured: SVG paints black
+    return out
+
+
+def logo_tone(raw, url=""):
+    """'light' | 'dark' | None for a logo file's bytes (PNG or SVG)."""
+    if not raw:
+        return None
+    try:
+        lums = _png_lums(raw) if raw[:8] == b"\x89PNG\r\n\x1a\n" else _svg_lums(raw) if b"<svg" in raw[:2000].lower() else None
+    except (ValueError, IndexError, TypeError):
+        return None
+    return _tone(lums or [])
+
+
+def fetch_logo_tone(url, deadline=None):
+    """Fetch the logo (SSRF-guarded, at most LOGO_MAX bytes) and read its tone; None on any failure."""
+    if not web_url(url):
+        return None
+    try:
+        _f, raw, _ct, _cs = guarded_get(url, limit=LOGO_MAX, timeout=6, deadline=deadline)
+    except Exception:
+        return None
+    return logo_tone(raw, url)
+
+
 def peek(url, deadline=None):
     """Compact scan for the landing/dashboard 'peek' (homepage + 2 pages, fast)."""
     s = scan(url, pages=2, page_limit=600_000, deadline=deadline)
     if "error" in s:
         return s
-    return {"url": s["final_url"], "title": s["identity"]["title"] or s["identity"]["site_name"],
+    logo = s["visual"]["logo"]
+    tone = fetch_logo_tone(logo, deadline) if logo and (deadline is None or deadline - time.time() > 2) else None
+    idn = s["identity"]
+    name = idn["site_name"] or re.split(r"\s[|–—-]\s", idn["title"] or "")[0].strip() or host_of(s["final_url"])
+    return {"url": s["final_url"], "title": idn["title"] or idn["site_name"], "name": name,   # og:site_name "Grüns", not the page title
             "description": s["identity"]["description"], "industry": s["industry"],
             "candidates": s["industry_candidates"], "palette": [p["hex"] for p in s["visual"]["palette"][:5]],
-            "neutrals": [p["hex"] for p in s["visual"]["neutrals"][:2]], "logo": s["visual"]["logo"],
+            "neutrals": [p["hex"] for p in s["visual"]["neutrals"][:2]], "logo": s["visual"]["logo"], "logo_tone": tone,
             "fonts": s["visual"]["fonts"][:3], "socials": s["socials"], "languages": s["languages"],
             "platform": s["platform"], "trust": s["trust"][:5], "quotes": s["quotes"][:3],
             "currency": s["commerce"]["currency"], "prices": s["commerce"]["prices"][:5],
@@ -765,21 +1067,43 @@ Generated: {s['scanned_at'][:10]} by otto_scan.py (URL → profile draft) · Sou
 """
 
 
-def save_logo(s, out):
+LOGO_MAX = 600_000
+# An SVG logo is kept only when nothing in it can run or reach out: no script / event handler / javascript: URL, no
+# embedded HTML (foreignObject, iframe, embed, object), no animation that rewrites a link, no external entity (XXE) or
+# nested entity (billion laughs), no @import, and every href is an internal #fragment or an inline raster image.
+_SVG_BAD = re.compile(rb"<\s*(?:script|foreignobject|iframe|embed|object|handler|listener|audio|video)\b|\bon[a-z]+\s*=|"
+                      rb"(?:java|vb)script\s*:|@import|<\s*(?:set|animate)\b[^>]*attributename\s*=\s*[\"']?\s*(?:xlink:)?href|"
+                      rb"<!entity[^>]*\b(?:system|public)\b|<!entity[^>]*&|\bhref\s*=\s*[^\"'\s>]", re.I)
+_SVG_HREF = re.compile(rb"\bhref\s*=\s*([\"'])(.*?)\1", re.I | re.S)
+_SVG_HREF_OK = re.compile(rb"\s*(?:#[\w.:-]*|data:image/(?:png|jpe?g|gif|webp);base64,[a-z0-9+/=\s]*)\s*$", re.I)
+
+
+def svg_safe(raw):
+    """True for an SVG document with nothing scriptable or external in it (see _SVG_BAD)."""
+    head = raw.lstrip(b"\xef\xbb\xbf \t\r\n")[:400].lower()
+    if b"<svg" not in head or _SVG_BAD.search(raw) or raw.lower().count(b"<!entity") > 20:
+        return False
+    return all(_SVG_HREF_OK.match(m.group(2)) for m in _SVG_HREF.finditer(raw))
+
+
+def save_logo(s, out, deadline=None):
     """Download the scanned logo to brands/<slug>/logo.svg|png (the renderer's wordmark) unless one is already
-    there. Only real logo files — never the og:image / touch-icon fallbacks, which are photos or app icons."""
-    url = ((s.get("visual") or {}).get("logo") or "")
+    there. Only real logo files — never the og:image / touch-icon fallbacks, which are photos or app icons —
+    complete (never cut at the size limit), and for SVG only a document svg_safe() accepts."""
+    url = web_url((s.get("visual") or {}).get("logo")) or ""
     ext = urllib.parse.urlsplit(url).path.lower().rsplit(".", 1)[-1]
     if not url or ext not in ("svg", "png") or any(out.glob("logo.*")):
         return None
     if url == (s.get("identity") or {}).get("og_image"):
         return None
     try:
-        _final, raw, ctype, _cs = guarded_get(url, limit=600_000, timeout=12)
+        _final, raw, ctype, _cs = guarded_get(url, limit=LOGO_MAX + 1, timeout=12, deadline=deadline)
     except Exception:
         return None
-    ok = raw.lstrip()[:400].lower().find(b"<svg") >= 0 if ext == "svg" else raw[:8] == b"\x89PNG\r\n\x1a\n"
-    if not ok or re.search(rb"<script|\bon[a-z]+\s*=", raw, re.I):   # never keep scriptable SVG
+    if not raw or len(raw) > LOGO_MAX:
+        return None
+    ok = svg_safe(raw) if ext == "svg" else raw[:8] == b"\x89PNG\r\n\x1a\n"
+    if not ok:
         return None
     f = out / f"logo.{ext}"
     f.write_bytes(raw)

@@ -1,0 +1,31 @@
+# Telegram approval loop (otto_telegram.py poll): button taps → approvals, edits, paid-plan approval.
+# Starts only once the bot is configured (/etc/otto/secrets/telegram.json). Only ONE poller may run per bot: during a migration
+# keep this stopped until the old box's poller is off (infra/README.md → Migration).
+[Unit]
+Description=Otto Telegram approval loop
+Documentation=file:///opt/otto/infra/README.md
+After=network-online.target
+Wants=network-online.target
+ConditionPathExists=/etc/otto/secrets/telegram.json
+StartLimitIntervalSec=300
+StartLimitBurst=10
+OnFailure=otto-alert@%N.service
+
+[Service]
+Type=simple
+User=otto
+Group=otto
+EnvironmentFile=/etc/otto/otto.env
+WorkingDirectory=/opt/otto/platform
+ExecStart=/usr/bin/python3 /opt/otto/platform/otto_telegram.py poll
+Restart=always
+RestartSec=5
+UMask=0022
+# approving a paid plan can build creatives (headless Chrome) — same sandbox rules as the jobs
+PrivateTmp=yes
+ProtectSystem=full
+ProtectKernelModules=yes
+ProtectControlGroups=yes
+
+[Install]
+WantedBy=multi-user.target

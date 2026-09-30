@@ -116,6 +116,55 @@ class CopyTest(unittest.TestCase):
         self.assertEqual(d["photo"], "assets/x → y.jpg")       # asset paths are never rewritten
         self.assertEqual(len(warned), 2)
 
+    def test_placeholders_fail_loudly_and_real_copy_survives(self):
+        """"Costume: TBD" is a headline, not a placeholder: it renders whole. Real placeholders and internal data stop the
+        render (CopyError), never vanish silently."""
+        tok = R.brand_tokens("happygarden")
+        for ok in ("Costume: TBD", "Launch date TBD", "It leads to calmer evenings.", "CBD on a budget", "Lead the way",
+                   "Budget-friendly, lab tested", "XXL bottle", "30 ml · €45"):
+            page = R.render_html("editorial", {"headline": ok}, brand=tok, warn=quiet)
+            self.assertIn(R.fmt_text(ok).split("<")[0][:12], page, ok)
+        for bad in ("Big [TBD] sale", "Hi {{first_name}}", "Hi {first_name}", "TBD", "tbd.", "TODO: headline",
+                    "6 g of fiber (?)", "Save XX% today", "Lorem ipsum dolor", "[Brand Name] oil", "[insert price]"):
+            with self.assertRaises(R.CopyError, msg=bad) as cm:
+                R.render_html("editorial", {"headline": "ok", "sub": bad}, brand=tok)
+            self.assertTrue(cm.exception.issues[0].startswith("sub: placeholder"), cm.exception.issues)
+        for bad in ("CPL ₪44", "355 leads this week", "daily budget €20", "budget €20/day", "עלות לליד 40 ₪", "ROAS 3.1"):
+            with self.assertRaises(R.CopyError, msg=bad):
+                R.render_html("editorial", {"headline": bad}, brand=tok)
+        # nested copy is checked too; asset paths, urls and layout switches are not copy
+        with self.assertRaises(R.CopyError):
+            R.render_html("checklist", {"title": "x", "items": ["fine", {"text": "[TBD]"}]}, brand=tok)
+        R.render_html("editorial", {"headline": "x", "photo": "assets/[TBD].png", "url": "https://x/{id}"}, brand=tok, warn=quiet)
+
+    def test_check_and_render_set_refuse_placeholders(self):
+        import contextlib, io
+        err = io.StringIO()
+        with contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(err):
+            code = R.main(["check", "editorial", json.dumps({"headline": "Big [TBD] sale"}), "--brand", "happygarden"])
+        self.assertEqual(code, 4)
+        self.assertIn("placeholder", err.getvalue())
+        with self.assertRaises(R.CopyError) as cm:                     # nothing rendered, no browser needed
+            R.render_set({"id": "p-tbd", "format": "feed", "hook": "Hi {first_name}, meet CBD"}, "happygarden", TMP / "set-tbd")
+        self.assertIn("p-tbd-ad.jpg", str(cm.exception))
+        self.assertFalse((TMP / "set-tbd" / "p-tbd-ad.jpg").exists())
+
+    def test_strict_render_refuses_a_missing_required_field(self):
+        out = TMP / "ph-noproduct.jpg"
+        with self.assertRaises(R.FitError) as cm:                  # before any browser: nothing to shoot
+            R.render("product_hero", {"headline": "Clean CBD"}, out, brand="happygarden")
+        self.assertIn("photo", str(cm.exception))
+        self.assertFalse(out.exists())
+        self.assertIsInstance(cm.exception, R.CopyError)          # otto_creative never falls back to a text band
+
+    def test_cta_labels_follow_the_meta_button(self):
+        self.assertEqual(R.cta_label("SHOP_NOW", "en"), "Shop now")
+        self.assertEqual(R.cta_label("shop_now", "he"), "לרכישה")
+        self.assertEqual(R.cta_label("LEARN_MORE", "he"), R.LABELS["he"]["cta"])
+        self.assertEqual(R.cta_label("SIGN_UP", "ro"), "Înscrie-te")
+        self.assertEqual(R.cta_label("BOOK_NOW", "xx"), "Book now")
+        self.assertEqual(R.cta_label(None), "")
+
     def test_hebrew_stays_in_logical_order(self):
         he = "תוך שנה הפכתי למטפלת טובה"
         page = R.render_html("quote", {"quote": he, "name": "רות"}, brand=R.brand_tokens("cmtm"), warn=quiet)
@@ -147,6 +196,30 @@ class TokenTest(unittest.TestCase):
             if t["em_light"] == "color":
                 self.assertGreaterEqual(R.contrast(t["accent_text"], t["surface"]), 3.0, bid)
             self.assertGreaterEqual(R.contrast(t["accent"], t["accent_ink"]), 3.0, bid)
+
+    def test_muted_text_keeps_body_contrast_on_every_ground(self):
+        """Secondary text (subs, sources, hosts, fine print) is as quiet as each brand's colours allow while small text keeps
+        4.5:1 — a fixed 64 % ink fell to 3.3:1 on Grüns' green paper, 74 % white to 3.6:1 on its accent."""
+        palettes = {"t-green": ["#007E40", "#E8B411", "#00572C"], "t-orange": ["#FF6B00", "#1E1E1E"], "t-teal": ["#00B3C7", "#06262B"],
+                    "t-purple": ["#6B3FA0", "#1B1030"], "t-lime": ["#B6E300", "#14210A"]}
+        root = TMP / "brands-mut"
+        for bid, cols in palettes.items():
+            (root / bid).mkdir(parents=True, exist_ok=True)
+            (root / bid / "scan.json").write_text(json.dumps({"visual": {"palette": [{"hex": h} for h in cols]}, "languages": ["en"]}))
+        saved = R.BRANDS
+        R.BRANDS = root
+        try:
+            toks = [R.brand_tokens(b) for b in palettes] + [R.brand_tokens("happygarden"), R.brand_tokens("cmtm")]
+        finally:
+            R.BRANDS = saved
+        for t in toks + [R.brand_tokens(None)]:
+            for paper in (t["surface"], t["surface2"]):
+                self.assertGreaterEqual(R.contrast(t["mut_light"], paper), 4.5, t["id"])
+                self.assertGreaterEqual(R.contrast(t["mut_large_light"], paper), 3.0, t["id"])
+            self.assertGreaterEqual(R.contrast(t["mut_dark"], t["deep"]), 4.5, t["id"])
+            self.assertGreaterEqual(R.contrast(t["mut_accent"], t["accent"]), min(4.5, R.contrast(t["accent_ink"], t["accent"])), t["id"])
+            self.assertGreaterEqual(R.contrast(t["marker_ink"], t["marker"]), 3.0, t["id"])
+            self.assertIn("--mut-light:" + t["mut_light"], R.tokens_css(t))
 
     def test_unknown_brand_defaults(self):
         t = R.brand_tokens("no-such-brand-xyz")
@@ -235,6 +308,14 @@ class ContextTest(unittest.TestCase):
         self.assertTrue(R.build_context({"photo": BRIGHT}, (1080, 1350), tok).get("split"))
         self.assertTrue(R.build_context({"photo": DARK}, (1080, 1350), tok).get("overlay"))
         self.assertTrue(R.build_context({"photo": DARK, "layout": "split"}, (1080, 1350), tok).get("split"))
+
+    @unittest.skipUnless(shutil.which("ffmpeg"), "ffmpeg missing")
+    def test_brand_bar_turns_ink_over_a_bright_photo_top(self):
+        tok = R.brand_tokens("happygarden")
+        self.assertIn("photo-top-light", R.build_context({"photo": BRIGHT}, (1080, 1350), tok)["html_class"])
+        self.assertNotIn("photo-top-light", R.build_context({"photo": DARK}, (1080, 1350), tok)["html_class"])
+        page = R.render_html("offer", {"name": "x", "cta": "Shop now", "photo": BRIGHT}, brand=tok)
+        self.assertIn("html.photo-top-light body .top-on-photo", page)
 
     def test_formats(self):
         self.assertEqual(R.fmt_of((1080, 1920)), "story")
@@ -329,6 +410,17 @@ class IntegrationTest(unittest.TestCase):
                        TMP / "mf.png", size=(1080, 1080), brand="happygarden")
         self.assertEqual(R._png_size(out), (1080, 1080))
 
+    def test_strict_render_never_writes_clipped_copy(self):
+        long = {"headline": " ".join(["Extraordinarily"] * 60)}
+        out = TMP / "clipped.jpg"
+        with self.assertRaises(R.FitError) as cm:
+            R.render("editorial", long, out, brand="happygarden")
+        self.assertIn("does not fit", str(cm.exception))
+        self.assertFalse(out.exists())
+        self.assertTrue(Path(R.render("editorial", long, out, brand="happygarden", strict=False)).exists())   # drafts
+        with self.assertRaises(R.FitError):
+            R.render("editorial", {"headline": "x", "photo": "assets/nope/missing.jpg"}, TMP / "nophoto.jpg", brand="happygarden")
+
     def test_copy_fits_or_is_flagged(self):
         ok = R.fit_report("editorial", {"headline": "Clean CBD, *checked twice*."}, brand="happygarden")
         self.assertTrue(ok["fitted"])
@@ -346,6 +438,49 @@ class IntegrationTest(unittest.TestCase):
         self.assertEqual(out[-1]["text"], "Our spectrum guide makes it simple.")
         for o in out:
             self.assertTrue(Path(o["file"]).exists(), o["file"])
+
+    def test_fit_report_flags_missing_and_broken_images(self):
+        bad = TMP / "broken.jpg"
+        bad.write_bytes(b"not an image at all" * 50)
+        rep = R.fit_report("editorial", {"headline": "Clean CBD", "photo": "assets/nope/missing.jpg"}, brand="happygarden")
+        self.assertEqual(rep["missing"], ["assets/nope/missing.jpg"])
+        self.assertTrue(rep["fitted"])
+        rep = R.fit_report("quote", {"quote": "Lovely.", "name": "A.", "portrait": str(bad)}, brand="happygarden")
+        self.assertEqual(rep["broken"], ["broken.jpg"])
+        self.assertEqual(rep["offcanvas"], [])
+
+    def test_offer_takes_a_cutout_in_every_format(self):
+        """A transparent packshot on the offer card: whole, on the theme's ground (no light band), the brand bar in the
+        ground's text colour, the story card inside the safe zone."""
+        cut = TMP / "offer-cut.png"
+        subprocess.run(["ffmpeg", "-v", "error", "-y", "-f", "lavfi", "-i", "color=c=black@0.0:s=400x600,format=rgba",
+                        "-vf", "drawbox=x=80:y=60:w=240:h=480:color=green@1:t=fill", "-frames:v", "1", str(cut)], check=True)
+        data = {"name": "Subscribe & Save", "price": "€45", "price_note": "30 ml", "features": ["Lab tested", "THC-free"],
+                "cta": "Shop now", "terms": "Renews monthly.", "photo": str(cut), "theme": "dark"}
+        page = R.render_html("offer", data, (1080, 1920), R.brand_tokens("happygarden"))
+        self.assertIn("has-cutout", page)
+        self.assertIn("html:not(.has-cutout) .top-on-photo{color:#fff}", page)
+        for size in ((1080, 1350), (1080, 1080), (1080, 1920)):
+            rep = R.fit_report("offer", data, size, brand="happygarden")
+            self.assertFalse(rep["overflow"], size)
+            self.assertEqual((rep["offcanvas"], rep["unsafe"]), ([], []), size)
+
+    def test_native_screenshot_fills_its_room(self):
+        """A short thread is zoomed in (up to 1.4x the iOS size) instead of a small phone in an empty frame; a long one
+        still fits or scrolls; every story keeps its copy inside Meta's unified safe zone."""
+        short = {"contact": "Happy Garden", "messages": [{"from": "me", "text": "Which oils have no THC?"},
+                                                         {"from": "them", "text": "Broad Spectrum and Isolate."}]}
+        rep = R.fit_report("text_message", short, (1080, 1350), brand="happygarden")
+        size = next(v for k, v in rep["sizes"].items() if k.startswith("in#"))
+        self.assertGreater(size, 17 * 2.3 + 4)
+        self.assertLessEqual(size, 17 * 2.3 * 1.4 + 1)
+        self.assertFalse(rep["overflow"])
+        for t, d in (("text_message", dict(short, headline="The two questions *everyone asks*.")),
+                     ("notes_app", {"title": "Before I buy CBD", "items": ["Find the lab report", "Check the spectrum"],
+                                    "headline": "Your CBD checklist, *before checkout*."}),
+                     ("search", {"query": "cbd oil without", "suggestions": ["cbd oil without thc", "cbd oil without the guesswork"]})):
+            rep = R.fit_report(t, d, (1080, 1920), brand="happygarden")
+            self.assertEqual((rep["overflow"], rep["unsafe"], rep["offcanvas"]), (False, [], []), t)
 
     def test_render_set_campaign_names(self):
         camp = {"id": "cp-t", "objective": "leads", "creatives": {"titles": ["Clean CBD"], "bodies": ["Lab tested."],

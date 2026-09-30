@@ -1,0 +1,11 @@
+[Unit]
+Description=Otto nightly backup, 01:30 (UTC)
+
+[Timer]
+OnCalendar=*-*-* 01:30:00 UTC
+RandomizedDelaySec=10min
+Persistent=true
+Unit=otto-backup.service
+
+[Install]
+WantedBy=timers.target

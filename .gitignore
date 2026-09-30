@@ -45,8 +45,22 @@ motion/*/.media/
 
 # engine runtime state (server only)
 platform/data.json.lock
+# owner console runtime state (otto_track / otto_whop / otto_admin): analytics events, billing, lead notes, logs
+platform/events.jsonl
+platform/.track-salt
+platform/billing.json
+platform/billing.json.lock
+platform/leads.json
+platform/leads.json.lock
+platform/*.log
 platform/publish.log
 platform/.telegram-state.json
+# approval e-mails (otto_email): used-link nonces + per-brand health, the generated link secret, .eml files written while no
+# mail transport is configured (they hold working one-tap links)
+platform/.email-state.json
+platform/.email-state.json.lock
+platform/.email-link-secret
+platform/outbox/
 
 # motion: regenerable media (source scripts are committed)
 motion/*/assets/*.mp4
@@ -58,3 +72,6 @@ motion/*/harness-*.html
 demo/gruns/posts/
 demo/gruns/ads/
 demo/gruns/gruns-reel.mp4
+
+# full-resolution video ads (web copies live in demo/gruns/page/video/)
+demo/gruns/video-ads/

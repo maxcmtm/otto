@@ -2,11 +2,16 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
+<!-- CSP: script-src lists the sha256 of every inline script element in this page. After editing one, the browser refuses it and its console prints the new hash: replace the old one here (or recompute all of them). -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-6uHWk94+3E1aU6/nw5yvRWVKiDvknjZ2dfRmSvDreBs='; style-src 'self' 'unsafe-inline'; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-src 'none'; worker-src 'none'; manifest-src 'self'; img-src 'self' data:; media-src 'none'">
+<script>/* An early design mockup with invented numbers, not the product: clients go to the real app. Add ?mockup to the address to look at it. */
+if(!/[?&]mockup(=|&|$)/.test(location.search))location.replace('index.html#today');</script>
+<meta name="robots" content="noindex">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Autopilot — Analytics</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fraunces:ital,opsz,wght@1,9..144,400;1,9..144,500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<title>Otto mockup — Analytics</title>
+<style>/* Type from our own server, no request to another host: "Inter" in these styles is Mona Sans (assets/landing, as on
+   the landing and setup); Fraunces and JetBrains Mono fall back to the system serif and monospace. */
+@font-face{font-family:"Inter";src:url("assets/landing/mona-sans-latin.woff2") format("woff2");font-weight:400 800;font-stretch:100%;font-style:normal;font-display:swap}</style>
 <link rel="stylesheet" href="assets/platform.css">
 <style>
 .echo-brief{display:flex;gap:14px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow-s);padding:18px 22px;margin-top:26px;max-width:860px}
@@ -15,7 +20,9 @@
 .echo-brief .eb-tx{font-size:14.5px;line-height:1.55;color:var(--ink)}
 .echo-brief .eb-tx b{color:var(--green)}
 
-.cols2{display:grid;grid-template-columns:1fr 330px;gap:28px;align-items:start}
+.cols2{display:grid;grid-template-columns:minmax(0,1fr) 330px;gap:28px;align-items:start}
+.cols2>*{min-width:0}
+.cols2 .rail{grid-template-columns:minmax(0,1fr)}
 
 /* chart */
 .chart-card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow-s);padding:20px 22px}
@@ -63,7 +70,7 @@ svg .marker-label{fill:var(--cobalt);font-weight:600;letter-spacing:.08em}
 <header class="appbar">
   <div class="appbar-in">
     <div class="mark"><div class="face"></div></div>
-    <div class="wordmark">AUTOPILOT<small>MISSION CONTROL</small></div>
+    <div class="wordmark">OTTO<small>DESIGN MOCKUP</small></div>
     <nav class="tabs">
       <a class="tab" href="index.html">Overview</a>
       <span class="tab">Approve</span>
@@ -75,7 +82,7 @@ svg .marker-label{fill:var(--cobalt);font-weight:600;letter-spacing:.08em}
     </nav>
     <div class="spacer"></div>
     <div class="search">Search<span class="kbd">⌘K</span></div>
-    <span class="live"><i></i>LIVE DATA</span>
+    <span class="live"><i></i>SAMPLE DATA</span>
     <div class="avatar">M</div>
   </div>
 </header>
@@ -110,15 +117,15 @@ svg .marker-label{fill:var(--cobalt);font-weight:600;letter-spacing:.08em}
             <h3>Leads &amp; reach — before and after</h3>
             <div class="legend"><span class="l1"><i></i>Leads / wk</span><span class="l2"><i></i>Reach ÷ 1k</span></div>
           </div>
-          <svg viewBox="0 0 640 240" width="100%" height="240" role="img" aria-label="Leads and reach over 8 weeks with Autopilot start marker at week 4">
+          <svg viewBox="0 0 640 240" width="100%" height="240" role="img" aria-label="Leads and reach over 8 weeks with the Otto start marker at week 4">
             <line x1="40" y1="200" x2="620" y2="200" stroke="#E4E8F1"/>
             <line x1="40" y1="140" x2="620" y2="140" stroke="#EDF0F6"/>
             <line x1="40" y1="80" x2="620" y2="80" stroke="#EDF0F6"/>
             <text x="14" y="204">0</text><text x="14" y="144">6</text><text x="10" y="84">12</text>
-            <!-- autopilot start marker -->
+            <!-- start marker -->
             <rect x="300" y="24" width="320" height="176" fill="rgba(36,71,240,.045)"/>
             <line x1="300" y1="24" x2="300" y2="200" stroke="#2447F0" stroke-width="1.5" stroke-dasharray="4 4"/>
-            <text x="310" y="38" class="marker-label">AUTOPILOT STARTS · SEP 27</text>
+            <text x="310" y="38" class="marker-label">OTTO STARTS · SEP 27</text>
             <!-- reach (soft) -->
             <path d="M40,186 L120,182 L200,184 L280,178 L300,176 L380,150 L460,124 L540,104 L620,88"
                   fill="none" stroke="#9DB4FF" stroke-width="2" stroke-linecap="round"/>

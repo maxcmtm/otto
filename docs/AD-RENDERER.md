@@ -100,6 +100,14 @@ Applies cleanly; `test_engine.py` passes 56/56 with it. Same file names and data
                          paths.publish(dst)
 ```
 
+## Ad matrix (paid campaigns)
+
+`platform/otto_styles.py` is the style catalogue (style → template, family, sizes, video kit, fields, needs) and the
+monthly angle × style matrix (`brands/<id>/ads-<YYYY-MM>.json`, coverage rules, `plan_matrix`). `otto_creative.build()`
+renders every ready cell with `render()` (feed + story), skips unwritten / invalid / non-compliant cells, and groups the
+files per angle for `otto_ads.launch_meta` (one ad set per angle). CLI: `otto_creative.py matrix <brand> <YYYY-MM>
+--plan | --check | --render <dir>`; `otto_styles.py list` prints the catalogue.
+
 ## Tests and demo
 
 `python3 platform/tests/test_render.py`: 35 tests; 5 integration renders skip without a browser. Demos: `demo/ads-v2/`.

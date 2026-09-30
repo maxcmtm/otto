@@ -1,0 +1,293 @@
+<!doctype html>
+<html lang="{{lang}}" dir="{{dir}}" class="{{html_class}}">
+<head><meta charset="utf-8">
+<!-- macro_hero: "the product, huge". One product (or one piece of it: a single gummy, a cap, a bottle's shoulder)
+     scaled so big it bleeds off the frame, one bold 1-4 word headline set very large, a small subline.
+     data: photo* (a transparent cutout works best), word* (the big headline; *word* = accent), sub, kicker, cta,
+           crop: right (default: the product bleeds off the right edge, the word stands left) | bottom (it rises
+           from the bottom edge under the word) | center (it fills the middle, word above, subline below),
+           theme: accent (default) | deep | light | marker (the brand's second colour as the ground),
+           zoom (1-2: crop in tighter; the product is still never drawn past 1.6x its pixel size), no_disc (true: no
+           colour disc behind the product), photo_pos (focus point for photos with a background).
+     A photo with a background becomes a full-bleed panel on the crop side, zoomed at most 1.6x. Feed, square, story
+     (story copy stays between 270px and 1248px; the product may run into the Reels UI zone, it is image). -->
+{{&_head}}
+<style>
+/* story: copy only between the top 14 % and the bottom 35 % (Meta's unified Stories/Reels safe zone, 2026); the product
+   (image) may run into the bottom band */
+html.f-story .ad{--top:270px;--bot:672px}
+.ad{--pop:var(--marker);--disc:var(--marker);--disc-a:1;--shc:#000}
+.t-accent{background:var(--accent);color:var(--accent-ink)}
+.t-deep{background:var(--deep);color:var(--on-deep);--pop:var(--accent-on-dark);--disc:var(--accent)}
+.t-light{background:var(--surface);color:var(--ink);--pop:var(--accent-text);--disc:color-mix(in srgb,var(--marker) 55%,var(--surface));
+  --shc:color-mix(in srgb,var(--ink) 35%,#000)}
+.t-marker{background:var(--marker);color:var(--marker-ink);--pop:var(--accent);--disc:color-mix(in srgb,var(--surface) 70%,var(--marker));
+  --shc:color-mix(in srgb,var(--ink) 45%,#000)}
+.t-deep .kicker::before{background:var(--accent-on-dark)}
+.t-accent .kicker::before,.t-marker .kicker::before{background:currentColor}
+.t-deep .muted{color:var(--mut-dark)}
+.t-accent .muted{color:var(--mut-accent)}
+.t-marker .muted{color:var(--mut-marker)}
+
+.ground{position:absolute;inset:0;z-index:0;pointer-events:none}
+.disc{position:absolute;border-radius:50%;background:var(--disc);opacity:var(--disc-a);left:-9999px}
+.hero{position:absolute;inset:0;z-index:1;pointer-events:none}
+.pk{position:absolute;left:52%;top:10%;width:70%;height:80%}
+.pk-img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain}
+.ad.is-cut .pk-img{object-fit:fill;filter:drop-shadow(0 30px 40px color-mix(in srgb,var(--shc) 30%,transparent))
+  drop-shadow(0 4px 8px color-mix(in srgb,var(--shc) 18%,transparent))}
+.ad.is-panel .pk{overflow:hidden;background:var(--surface2)}
+.ad.is-panel .pk-img{object-fit:cover;inset:auto;width:auto;height:auto}
+.ad.is-panel .disc{display:none}
+.cs{position:absolute;border-radius:50%;left:-9999px;background:radial-gradient(closest-side,color-mix(in srgb,var(--shc) 45%,transparent),transparent);filter:blur(6px)}
+
+/* copy */
+.copy{display:flex;flex-direction:column;min-height:0}
+.word{font-family:var(--f-display);font-weight:800;font-size:calc(250px*var(--k));line-height:.86;letter-spacing:-.052em;
+  text-wrap:balance;margin-inline-start:-.04em;padding-block:.04em .1em;flex:none}
+.copy>.word:first-child{margin-top:calc(40px*var(--k))}
+.pop-band .word em{color:inherit;background:linear-gradient(var(--marker),var(--marker)) 0 88%/100% .26em no-repeat !important;
+  -webkit-box-decoration-break:clone;box-decoration-break:clone}
+.word em{color:var(--pop);font-family:inherit;font-style:normal;font-weight:inherit;letter-spacing:inherit;font-size:1em;line-height:inherit;
+  background:none !important;padding:0}
+html[dir=rtl] .word{letter-spacing:-.01em;line-height:.98;margin-inline-start:0}
+.copy .kicker{margin-top:calc(34px*var(--k));margin-bottom:calc(26px*var(--k))}
+.sub{font:500 calc(30px*var(--k))/1.32 var(--f-text);letter-spacing:-.008em;max-width:640px;text-wrap:pretty}
+html[dir=rtl] .sub{font-size:calc(31px*var(--k));letter-spacing:0;line-height:1.45}
+.lower{display:flex;flex-direction:column;gap:calc(26px*var(--k));align-items:flex-start}
+.lower .cta{border-color:currentColor}
+.t-deep .lower .cta{border-color:var(--accent-on-dark)}
+.hostline{font:500 calc(19px*var(--k))/1 var(--f-text)}
+.t-accent .hostline{color:var(--mut-accent)}
+.t-deep .hostline{color:var(--mut-dark)}
+.t-light .hostline{color:var(--mut-light)}
+.t-marker .hostline{color:var(--mut-marker)}
+
+/* right: the word stands in the left column, the product bleeds off the right edge */
+.crop-right .copy{width:56%;flex:1 1 auto}
+html.f-square .crop-right .copy{width:54%}
+.crop-right .lower{margin-top:auto}
+.crop-right .word{font-size:calc(230px*var(--k))}
+/* bottom: the word on top, the product rises from the bottom edge */
+.crop-bottom .copy{flex:0 1 auto;max-height:54%}
+.crop-bottom .lower{margin-top:calc(30px*var(--k))}
+.crop-bottom .sub{max-width:760px}
+/* center: word above, the product fills the middle, subline below */
+.crop-center .copy{flex:0 1 auto;max-height:54%;align-items:center;text-align:center}
+.crop-center .word{text-align:center;margin-inline:0}
+.crop-center .copy .kicker{justify-content:center}
+.crop-center .lower{margin-top:calc(26px*var(--k));align-items:center;text-align:center}
+.crop-center .sub{max-width:760px}
+</style>
+</head>
+<body>
+<div class="ad t-{{#if theme}}{{theme}}{{else}}accent{{/if}} crop-{{#if crop}}{{crop}}{{else}}right{{/if}}" data-zoom="{{zoom}}">
+  <div class="ground">{{#unless no_disc}}<div class="disc"></div>{{/unless}}<div class="cs"></div></div>
+  <div class="hero">{{#if photo}}<div class="pk"><img class="pk-img" src="{{photo}}" style="object-position:{{photo_pos}}" alt=""></div>{{/if}}</div>
+  <div class="frame">
+    {{> top}}
+    <div class="box copy" data-box>
+      {{#if kicker}}<div class="kicker"><span>{{kicker}}</span></div>{{/if}}
+      <h1 class="word" data-fit="1" data-min="64" data-lines="4">{{word}}</h1>
+      <div class="lower">
+        {{#if sub}}<p class="sub" data-fit="2" data-min="22" data-lines="3">{{sub}}</p>{{/if}}
+        {{#if cta}}<span class="cta" data-default="{{L.cta}}">{{cta}}</span>{{/if}}
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+(function () {                          // the renderer defaults cta to "Learn more"; a macro card only shows one it was given
+  var c = document.querySelector('.lower .cta');
+  if (c && c.textContent.trim() === (c.getAttribute('data-default') || '').trim()) c.remove();
+})();
+/* PK:begin */
+/* Packshot layout (shared by product_hero, macro_hero, ingredients). Runs after _fit.js has settled the copy.
+   scan(): the product's real pixels (alpha bbox, silhouette mask), whether it is a cutout, and its natural size. */
+var PK = (function () {
+  var D = document.documentElement;
+  function after(cb) {
+    var t = 0;
+    (function wait() {
+      if (!D.classList.contains('fitted') && t++ < 200) return setTimeout(wait, 25);
+      var imgs = [].slice.call(document.querySelectorAll('img'));
+      Promise.all(imgs.map(function (i) {
+        return i.complete ? 1 : new Promise(function (r) { i.addEventListener('load', r); i.addEventListener('error', r); });
+      })).then(function () {
+        try { cb(); } catch (e) { D.classList.add('pk-error'); }
+        var ad = document.querySelector('.ad'); if (ad) ad.classList.add('pk-done');
+      });
+    })();
+  }
+  function scan(img) {
+    var nw = img.naturalWidth, nh = img.naturalHeight;
+    var r = { nw: nw, nh: nh, x: 0, y: 0, w: nw, h: nh, cut: D.classList.contains('has-cutout'), mask: null, lum: .5 };
+    try {
+      var s = Math.min(1, 360 / Math.max(nw, nh)), cw = Math.max(1, Math.round(nw * s)), ch = Math.max(1, Math.round(nh * s));
+      var c = document.createElement('canvas'); c.width = cw; c.height = ch;
+      var g = c.getContext('2d'); g.drawImage(img, 0, 0, cw, ch);
+      var d = g.getImageData(0, 0, cw, ch).data, m = new Uint8Array(cw * ch);
+      var x0 = cw, y0 = ch, x1 = -1, y1 = -1, clear = 0, border = 0, lum = 0, n = 0, sr = 0, sg = 0, sb = 0;
+      for (var j = 0; j < ch; j++) for (var i = 0; i < cw; i++) {
+        var p = (j * cw + i) * 4, a = d[p + 3];
+        if (a > 200) {                       // the product's solid pixels: a baked-in soft shadow is not the product
+          m[j * cw + i] = 1; if (i < x0) x0 = i; if (i > x1) x1 = i; if (j < y0) y0 = j; if (j > y1) y1 = j;
+          lum += (.2126 * d[p] + .7152 * d[p + 1] + .0722 * d[p + 2]) / 255; n++; sr += d[p]; sg += d[p + 1]; sb += d[p + 2];
+        }
+        if (i === 0 || j === 0 || i === cw - 1 || j === ch - 1) { border++; if (a < 16) clear++; }
+      }
+      r.cut = clear / border > .03;
+      if (r.cut && x1 >= 0) { r.x = x0 / s; r.y = y0 / s; r.w = (x1 - x0 + 1) / s; r.h = (y1 - y0 + 1) / s; }
+      r.mask = m; r.mw = cw; r.mh = ch; r.s = s; r.lum = n ? lum / n : .5;
+      if (n) r.color = '#' + [sr, sg, sb].map(function (v) { return ('0' + Math.round(v / n).toString(16)).slice(-2); }).join('');
+    } catch (e) { /* a cross-origin image: whole-image box, the renderer's cutout test */ }
+    return r;
+  }
+  // x (natural px) of the silhouette edge on row yN, from the left (side -1) or the right (side 1)
+  function edge(r, yN, side) {
+    if (!r.mask || !r.cut) return side < 0 ? r.x : r.x + r.w;
+    var j0 = Math.round(yN * r.s), best = null;
+    for (var dj = -2; dj <= 2; dj++) {
+      var j = Math.max(0, Math.min(r.mh - 1, j0 + dj));
+      if (side < 0) { for (var i = 0; i < r.mw; i++) if (r.mask[j * r.mw + i]) { best = best === null ? i : Math.min(best, i); break; } }
+      else { for (var i2 = r.mw - 1; i2 >= 0; i2--) if (r.mask[j * r.mw + i2]) { best = best === null ? i2 : Math.max(best, i2); break; } }
+    }
+    if (best === null) return side < 0 ? r.x + r.w / 2 : r.x + r.w / 2;
+    return (best + (side > 0 ? 1 : 0)) / r.s;
+  }
+  function box(el, x, y, w, h) { el.style.left = x + 'px'; el.style.top = y + 'px'; el.style.width = w + 'px'; el.style.height = h + 'px'; }
+  // colour helpers for token values ("#007E40"): hue in degrees, WCAG luminance and contrast
+  function rgb(h) { var m = /#?([0-9a-f]{6})/i.exec(h || ''); if (!m) return null; var v = parseInt(m[1], 16); return [v >> 16, v >> 8 & 255, v & 255]; }
+  function hue(h) {
+    var c = rgb(h); if (!c) return null;
+    var R = c[0] / 255, G = c[1] / 255, B = c[2] / 255, mx = Math.max(R, G, B), mn = Math.min(R, G, B), d = mx - mn;
+    if (!d) return null;
+    return (mx === R ? ((G - B) / d + 6) % 6 : mx === G ? (B - R) / d + 2 : (R - G) / d + 4) * 60;
+  }
+  function hueGap(a, b) { var x = hue(a), y = hue(b); if (x === null || y === null) return 0; var d = Math.abs(x - y) % 360; return Math.min(d, 360 - d); }
+  function lum(h) {
+    var c = rgb(h); if (!c) return .5;
+    var f = function (v) { v /= 255; return v <= .03928 ? v / 12.92 : Math.pow((v + .055) / 1.055, 2.4); };
+    return .2126 * f(c[0]) + .7152 * f(c[1]) + .0722 * f(c[2]);
+  }
+  function contrast(a, b) { var x = lum(a), y = lum(b); return (Math.max(x, y) + .05) / (Math.min(x, y) + .05); }
+  function mix(a, b, t) {                  // a blended toward b by t, as hex
+    var x = rgb(a), y = rgb(b); if (!x || !y) return a;
+    return '#' + [0, 1, 2].map(function (i) { return ('0' + Math.round(x[i] + (y[i] - x[i]) * t).toString(16)).slice(-2); }).join('');
+  }
+  function tok(el, name) { return getComputedStyle(el).getPropertyValue(name).trim(); }
+  // object-position "50% 60%" → [.5, .6]
+  function focus(img) {
+    var p = (getComputedStyle(img).objectPosition || '50% 50%').split(/\s+/);
+    var f = function (v) { return /%$/.test(v) ? Math.max(0, Math.min(1, parseFloat(v) / 100)) : .5; };
+    return [f(p[0]), f(p[1] || '50%')];
+  }
+  return { after: after, scan: scan, edge: edge, box: box, hueGap: hueGap, contrast: contrast, mix: mix, tok: tok, focus: focus, MAX: 1.6 };
+})();
+/* PK:end */
+
+PK.after(function () {
+  var D = document.documentElement, ad = document.querySelector('.ad'), pk = ad.querySelector('.pk');
+  var img = pk && pk.querySelector('.pk-img');
+  var mode = /crop-(right|bottom|center)/.exec(ad.className);
+  mode = mode ? mode[1] : 'right';
+  // emphasis colour must read on this ground (Happy Garden's marker is its accent: yellow on yellow)
+  var ground = PK.tok(ad, ad.classList.contains('t-deep') ? '--deep' : ad.classList.contains('t-light') ? '--surface'
+    : ad.classList.contains('t-marker') ? '--marker' : '--accent');
+  var pop = PK.tok(ad, ad.classList.contains('t-deep') ? '--accent-on-dark' : ad.classList.contains('t-light') ? '--accent-text' : ad.classList.contains('t-marker') ? '--accent' : '--marker');
+  if (PK.contrast(pop, PK.tok(ad, '--ink')) < 1.8 && ad.classList.contains('t-light')) ad.classList.add('pop-band');   // yellow accents on paper
+  else if (PK.contrast(pop, ground) < 1.6) ad.style.setProperty('--pop', PK.contrast(PK.tok(ad, '--deep'), ground) > 3 ? 'var(--deep)' : 'var(--surface)');
+  else if (PK.contrast(pop, ground) < 3) {                 // large type still needs 3:1: same hue, lighter / darker (Grüns
+    var up = PK.contrast('#ffffff', ground) > PK.contrast('#000000', ground), p2 = pop, t = 0;   // yellow on its mid green)
+    while (PK.contrast(p2, ground) < 3 && t < .6) { t += .05; p2 = PK.mix(pop, up ? '#ffffff' : '#000000', t); }
+    if (PK.contrast(p2, ground) >= 3) ad.style.setProperty('--pop', p2);
+  }
+  var wd = ad.querySelector('.word');
+  if (wd && wd.scrollWidth > wd.clientWidth + 1) {
+    wd.style.hyphens = 'auto';
+    if (wd.scrollWidth > wd.clientWidth + 1) wd.style.overflowWrap = 'anywhere';
+  }
+  var disc = ad.querySelector('.disc');
+  if (!img || !img.naturalWidth) return;
+  var r = PK.scan(img), cut = r.cut;
+  ad.classList.add(cut ? 'is-cut' : 'is-panel');
+  var W = ad.clientWidth, H = ad.clientHeight, A = ad.getBoundingClientRect();
+  var rect = function (el, ink) {                          // ink: the text's own extent, not its block
+    var b = el.getBoundingClientRect();
+    if (ink) { var rg = document.createRange(); rg.selectNodeContents(el); b = rg.getBoundingClientRect(); }
+    return { l: b.left - A.left, t: b.top - A.top, r: b.right - A.left, b: b.bottom - A.top };
+  };
+  var fmt = /f-square/.test(D.className) ? 'square' : /f-story/.test(D.className) ? 'story' : 'feed';
+  var word = rect(ad.querySelector('.word'), true), lower = ad.querySelector('.lower');
+  var low = lower && lower.children.length ? rect(lower, true) : null;
+  var zoom = Math.max(1, Math.min(2, parseFloat(ad.getAttribute('data-zoom')) || 1));
+  var safeT = fmt === 'story' ? 270 : 0, safeB = fmt === 'story' ? H - 672 : H, gap = W * .04;
+  // the visible region the product owns, and how it bleeds
+  var reg;
+  if (mode === 'right') {
+    var x0 = Math.max(W * .46, Math.max(word.r, low ? low.r : 0) + gap);
+    reg = { l: x0, t: 0, r: W, b: H };
+  } else if (mode === 'bottom') {
+    reg = { l: 0, t: (low ? low.b : word.b) + gap * 1.2, r: W, b: H };
+  } else {
+    reg = { l: 0, t: (low ? low.b : word.b) + gap, r: W, b: H };
+  }
+  var rw = reg.r - reg.l, rh = reg.b - reg.t;
+  if (cut) {
+    var k;
+    if (mode === 'right') k = Math.min(rw / .6 / r.w, (safeB - safeT) * 1.12 / r.h);          // ~40% off the right edge
+    else if (mode === 'bottom') k = Math.min(rh / .7 / r.h, W * 1.05 / r.w);                  // ~30% under the bottom edge
+    else k = Math.min(W * 1.1 / r.w, rh * 1.35 / r.h);                                        // fills the width, bleeds sides + bottom
+    k = Math.min(k * zoom, PK.MAX);
+    var dw = r.w * k, dh = r.h * k, cx, cy;
+    if (mode === 'right') {
+      cx = Math.max(reg.l, W - dw * .8);                     // at least a fifth always bleeds
+      cy = (safeT + safeB) / 2 - dh / 2 + (fmt === 'story' ? 0 : H * .03);
+    } else if (mode === 'bottom') {
+      cx = (W - dw) / 2 + (dw > W ? 0 : W * .02);
+      cy = Math.max(reg.t, safeB - dh * (fmt === 'story' ? .82 : .8));   // story: the product's key part stays above the Reels UI
+    } else {
+      cx = (W - dw) / 2; cy = dh > rh ? reg.t : reg.t + (rh - dh) * .45;
+    }
+    PK.box(pk, cx - r.x * k, cy - r.y * k, r.nw * k, r.nh * k);
+    if (disc) {
+      var ds = Math.min(Math.max(dw, dh) * .98, Math.max(W, H) * 1.1);
+      var dx = cx + dw / 2, dy = cy + dh * .5;
+      if (mode === 'right') ds = Math.min(ds, 2 * (dx - reg.l + gap * .25));
+      if (mode !== 'right') ds = Math.min(ds, 2 * (dy - reg.t + gap * .5));
+      PK.box(disc, dx - ds / 2, dy - ds / 2, ds, ds);
+      // disc colour: the first brand colour that reads on this ground and against the product itself
+      // (Grüns: yellow behind a green pouch; a yellow Kids pouch on yellow gets the deep green)
+      var T = /t-(deep|light|marker)/.exec(ad.className), th = T ? T[1] : 'accent';
+      var M = PK.tok(ad, '--marker'), Ac = PK.tok(ad, '--accent'), Dp = PK.tok(ad, '--deep'), Sf = PK.tok(ad, '--surface');
+      var C = th === 'deep' ? [Ac, M, Sf] : th === 'light' ? [PK.mix(M, Sf, .5), PK.mix(Ac, Sf, .78), Dp]
+        : th === 'marker' ? [PK.mix(Sf, M, .35), Dp, Ac] : [M, Sf, Dp];
+      var need = r.color && PK.contrast(r.color, ground) < 1.4 ? 2.2 : 1.5, pick = C[0];
+      for (var ci = 0; ci < C.length; ci++) {
+        if (PK.contrast(C[ci], ground) >= (th === 'light' ? 1.1 : 1.3) && (!r.color || PK.contrast(C[ci], r.color) >= need)) { pick = C[ci]; break; }
+      }
+      ad.style.setProperty('--disc', pick);
+    }
+    if (cy + dh < H - 8 && mode !== 'bottom') {             // its base is in frame: a soft contact shadow
+      var yb = r.y + r.h * .985, bl = PK.edge(r, yb, -1), br = PK.edge(r, yb, 1);
+      var bw2 = Math.max((br - bl) * k, dw * .3), mid = cx + ((bl + br) / 2 - r.x) * k;
+      PK.box(ad.querySelector('.cs'), mid - bw2 * .65, cy + dh - bw2 * .06, bw2 * 1.3, bw2 * .12);
+    }
+  } else {
+    // a photo: a full-bleed panel on the crop side, cover-scaled around photo_pos, never past 1.6x
+    var pw = mode === 'center' ? W : rw, ph = mode === 'right' ? H : rh + (mode === 'bottom' ? 0 : 0);
+    var s = Math.max(pw / r.nw, ph / r.nh) * zoom;
+    if (s > PK.MAX) { var f = PK.MAX / s; pw = Math.min(pw, r.nw * PK.MAX); ph = Math.min(ph, r.nh * PK.MAX); s = Math.min(PK.MAX, Math.max(pw / r.nw, ph / r.nh) * zoom); }
+    var px = mode === 'right' ? W - pw : (W - pw) / 2, py = mode === 'right' ? (H - ph) / 2 : mode === 'bottom' ? H - ph : reg.t + (rh - ph) / 2;
+    PK.box(pk, px, py, pw, ph);
+    var rad = Math.round(W * .03) + 'px';
+    pk.style.borderRadius = mode === 'right' ? (ph < H ? rad + ' 0 0 ' + rad : '0') : mode === 'bottom' ? (pw < W ? rad + ' ' + rad + ' 0 0' : '0') : (pw < W ? rad : '0');
+    var fo = PK.focus(img), iw = r.nw * s, ih = r.nh * s;
+    img.style.width = iw + 'px'; img.style.height = ih + 'px';
+    img.style.left = (pw - iw) * fo[0] + 'px'; img.style.top = (ph - ih) * fo[1] + 'px';
+  }
+});
+</script>
+{{&_foot}}
+</body>
+</html>

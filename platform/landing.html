@@ -2,6 +2,8 @@
 <html lang="en" dir="ltr" class="no-js">
 <head>
 <meta charset="utf-8">
+<!-- CSP: script-src lists the sha256 of every inline script element in this page. After editing one, the browser refuses it and its console prints the new hash: replace the old one here (or recompute all of them). -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-cWwCZMELdYHZn9EkmuHS8lvrKoP8XuH2traw+QmSh6M=' 'sha256-Qz3Zry9sNTkn0VyeVLB26JkM8Ey6RZFdVxdUi2FKJW0=' 'sha256-mHLbEIA/D0ZEN5cXN2TPAqzR1E/Zb9fc5agvrtYBPFs=' 'sha256-zZnaKxwuwR4k5BluDud3aC/soMTBNy7EEUtg2OnBxV8='; style-src 'self' 'unsafe-inline'; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-src 'none'; worker-src 'none'; manifest-src 'self'; img-src 'self' data: https:; media-src 'self'">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <script>
 /* Head script, under 1KB: base for the deployed copy, js/motion flags, render tier, libraries. */
@@ -11,8 +13,8 @@ h.className='js';var rm=w.matchMedia('(prefers-reduced-motion: reduce)').matches
 if(m)h.classList.add('motion');
 var low=(w.matchMedia('(pointer: coarse)').matches&&w.innerWidth<1024)||c.saveData||(n.deviceMemory&&n.deviceMemory<4)||(n.hardwareConcurrency&&n.hardwareConcurrency<4)||w.innerWidth<700;
 var t=/[?&]tier=([abc])/.exec(q);h.setAttribute('data-tier',t?t[1]:!m?'c':low?'b':'a');
-if(m){var C='https://cdn.jsdelivr.net/npm/',L=[C+'gsap@3.15.0/dist/gsap.min.js',C+'gsap@3.15.0/dist/ScrollTrigger.min.js',C+'lenis@1.3.26/dist/lenis.min.js'];
-w.__ottoLibs=Promise.all(L.map(function(s){return new Promise(function(y,x){var e=d.createElement('script');e.src=s;e.async=false;e.onload=y;e.onerror=x;d.head.appendChild(e)})}))}
+if(m){var C='assets/vendor/',L=[[C+'gsap@3.15.0/dist/gsap.min.js','sha384-XmJ9SoHtVOHoQUcKvFAzVXwdkKo1Ie3bhmSoIAkcdsHGaIrVJIkmozyq0FJeb/Ly'],[C+'gsap@3.15.0/dist/ScrollTrigger.min.js','sha384-wl5TeDVvOWt30Pbf8aSo2ZrzsOjddu3avOBvHe+p+OhJt9gP6w9YXmDkN5DK2/dF'],[C+'lenis@1.3.26/dist/lenis.min.js','sha384-jqpi9VmOdhyLoLURgjCn7EpnG9BbnHW57ibIZoeaIU+erWDH3k8fQQg0xH2ySjnw']];
+w.__ottoLibs=Promise.all(L.map(function(s){return new Promise(function(y,x){var e=d.createElement('script');e.src=s[0];e.integrity=s[1];e.crossOrigin='anonymous';e.async=false;e.onload=y;e.onerror=x;d.head.appendChild(e)})}))}
 })(document,window);
 </script>
 <title>Otto: your marketing department, in your pocket</title>
@@ -24,8 +26,7 @@ w.__ottoLibs=Promise.all(L.map(function(s){return new Promise(function(y,x){var 
 <meta name="theme-color" content="#0C0D0F" media="(prefers-color-scheme: dark)">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 rx=%278%27 fill=%27%232447F0%27/%3E%3Crect x=%278%27 y=%278%27 width=%2716%27 height=%2716%27 rx=%274%27 fill=%27none%27 stroke=%27white%27 stroke-width=%272%27 opacity=%27.9%27/%3E%3C/svg%3E">
 <link rel="preload" href="assets/landing/mona-sans-latin.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
-<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.module.min.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.186.1/examples/jsm/"}}</script>
+<script type="importmap">{"imports":{"three":"./assets/vendor/three@0.186.1/build/three.module.js","three/addons/":"./assets/vendor/three@0.186.1/examples/jsm/"},"integrity":{"./assets/vendor/three@0.186.1/build/three.module.js":"sha384-m8JoFX52V6NGv2usipnlLJKnJfL7IE8dbniPDDCSGSQv3Hm4n6PjfV6syVwfuoRc","./assets/vendor/three@0.186.1/build/three.core.js":"sha384-mdKeCwPEcbDvzaxwhm+MVuLoMou+E7jQqrs4tmu/n8HBYPGI1kZt0MkJxlMR4zFM","./assets/vendor/three@0.186.1/examples/jsm/renderers/CSS3DRenderer.js":"sha384-6I827Bd2N6ydzREj76AdVsj8rVhZzdZShpXYLd4SUcLOD1RNUdg6qrGM3K4qmBXF","./assets/vendor/three@0.186.1/examples/jsm/environments/RoomEnvironment.js":"sha384-/H49oz0ZtMgJNgMZ+OhhuMuKBOsaiC3kY0/PZSvgJJXAOJJwmSBJjzlV5lJul3MB"}}</script>
 <style>
 @font-face{font-family:"Mona Sans";src:url("assets/landing/mona-sans-latin.woff2") format("woff2");font-weight:400 800;font-stretch:100%;font-style:normal;font-display:swap}
 
@@ -173,7 +174,7 @@ button{background:none;border:0;padding:0;cursor:pointer;-webkit-tap-highlight-c
 }
 
 /* ============ Hero ============ */
-.hero{padding:calc(var(--nav) + clamp(32px,6vh,88px)) 0 clamp(24px,4vw,64px)}
+.hero{padding:calc(var(--nav) + clamp(32px,6vh,88px)) 0 clamp(24px,4vw,64px);overflow-x:clip}
 .hero-grid{display:grid;gap:48px}
 @media (min-width:1024px){
   .hero-grid{grid-template-columns:repeat(12,minmax(0,1fr));column-gap:var(--gutter);align-items:center}
@@ -407,6 +408,19 @@ button{background:none;border:0;padding:0;cursor:pointer;-webkit-tap-highlight-c
 .xray b{position:absolute;font:500 11px/1 var(--sans);color:var(--accent);background:var(--surface);padding:3px 5px;border-radius:4px;box-shadow:0 0 0 var(--hair) var(--line);white-space:nowrap;font-variant-numeric:tabular-nums}
 .site.lens-on .xray{clip-path:circle(90px at var(--lx,50%) var(--ly,50%))}
 .site-tag{position:absolute;right:10px;top:9px}
+/* the mockup after a real scan: the scanned site, simplified (no images of theirs, so colour tiles) */
+.s-sk{display:block;width:34px;height:6px;border-radius:3px;background:rgba(0,0,0,.09)}
+.s-hero.on-dark h4{color:#fff}
+.s-hero.on-dark p{color:rgba(255,255,255,.82)}
+.s-hero.on-light p{color:rgba(0,0,0,.66)}
+.s-art{display:grid;place-items:center;width:100%;aspect-ratio:4/5;border-radius:8px;overflow:hidden}
+.s-art img{max-width:62%;max-height:34%;object-fit:contain;filter:drop-shadow(0 1px 2px rgba(0,0,0,.16))}
+.s-tile{display:block;width:100%;aspect-ratio:1;border-radius:8px;margin-bottom:6px}
+.s-prods figure{overflow-wrap:anywhere}
+.s-rev.is-none{color:#666;font-style:italic}
+.scan.is-bad,.try.is-bad input{box-shadow:inset 0 0 0 1.5px var(--red),var(--shadow-1)}
+.scan-err{margin-top:10px;font-size:14px;line-height:1.4;color:var(--red)}
+.scan-err:empty{display:none}
 .profile{position:relative;border-radius:var(--r-stage);background:var(--surface);box-shadow:inset 0 0 0 var(--hair) var(--line);padding:18px}
 .prof-h{display:flex;align-items:center;gap:8px;padding-bottom:14px;border-bottom:var(--hair) solid var(--line)}
 .prof-h b{font-size:15px;font-weight:600}
@@ -592,7 +606,7 @@ button{background:none;border:0;padding:0;cursor:pointer;-webkit-tap-highlight-c
 .ml-h b{display:block;margin-top:2px;font-size:14px;font-weight:600}
 .ml-b{padding:12px 14px 14px;font-size:13px;line-height:1.5;color:var(--ink-2)}
 .ml-b span{display:inline-block;margin-top:10px;padding:8px 14px;border-radius:999px;background:var(--ink);color:var(--bg);font:600 12px/1 var(--sans)}
-.pub-rail.is-pinned{overflow:visible;scroll-snap-type:none}
+.pub-rail.is-pinned{overflow-x:clip;overflow-y:visible;scroll-snap-type:none}
 .fmt-st{transition:background-color var(--dur-base),color var(--dur-base)}
 .fmt-boost{align-self:flex-start;transition:opacity var(--dur-med) var(--ease-out),transform var(--dur-med) var(--spring-snappy)}
 .fmt-boost.is-off{opacity:0;transform:translateY(6px)}
@@ -769,6 +783,8 @@ html.no-js .vid-play,html.no-js .play{display:none}
 footer{padding:28px 0 40px;border-top:var(--hair) solid var(--line);font-size:13px;color:var(--ink-3)}
 footer .wrap{display:flex;flex-wrap:wrap;gap:12px 24px;align-items:center}
 footer .f-r{margin-left:auto;display:flex;gap:20px}
+footer .f-legal{flex:1 0 100%;display:flex;flex-wrap:wrap;gap:4px 20px;padding-top:12px;border-top:var(--hair) solid var(--line-soft)}
+footer .f-legal a{display:inline-flex;align-items:center;min-height:32px}
 footer a:hover{color:var(--ink)}
 
 /* sticky mobile CTA */
@@ -884,6 +900,7 @@ html.motion .rv-play{transition:opacity var(--dur-slow) var(--ease-out),transfor
         <input id="hero-url" type="text" inputmode="url" placeholder="yourcompany.com" aria-label="Your website" spellcheck="false" autocapitalize="off" autocorrect="off">
         <button class="btn btn-primary" type="submit" id="hero-btn"><span class="scan-idle">Scan my site</span><span class="scan-busy" aria-live="polite"><span class="spin" aria-hidden="true"></span><span id="hero-step">Reading the site</span></span></button>
       </form>
+      <p class="scan-err" id="hero-err" role="alert"></p>
       <p class="hero-note">See what Otto reads from your website. No signup. <a class="link" href="#story">See how it works</a></p>
     </div>
 
@@ -1037,6 +1054,7 @@ html.motion .rv-play{transition:opacity var(--dur-slow) var(--ease-out),transfor
             <input id="reads-url" type="text" inputmode="url" placeholder="Try it on your site" aria-label="Your website" spellcheck="false" autocapitalize="off" autocorrect="off">
             <button class="btn btn-quiet" type="submit">Read it</button>
           </form>
+          <p class="scan-err" id="reads-err" role="alert"></p>
         </div>
         <div class="ch-vis">
           <div class="reads-vis">
@@ -1403,13 +1421,7 @@ html.motion .rv-play{transition:opacity var(--dur-slow) var(--ease-out),transfor
         </ol>
       </div>
     </div>
-    <!-- Monthly tiers: pending approval, do not publish.
-    <div class="plans">
-      <div class="plan"><b>Starter</b> €69 / month · 1 brand · €39 per extra brand · A whole month of content, approved from your phone.</div>
-      <div class="plan"><b>Growth</b> €149 / month · 3 brands · Everything in Starter, plus ads and growth reports.</div>
-      <div class="plan"><b>Agency</b> €399 / month · 10 workspaces · €49 per extra workspace · A workspace per client, each with its own Telegram.</div>
-    </div>
-    -->
+    <!-- Monthly tiers: pending approval, so not in the page (not even in a comment; the source is public). Proposal: docs/PRICING-EU.md. -->
   </div>
 </section>
 
@@ -1467,7 +1479,7 @@ html.motion .rv-play{transition:opacity var(--dur-slow) var(--ease-out),transfor
 </main>
 
 <div class="dock" id="dock"><div class="t"><b>Founding pilot</b>€197 one-time</div><a class="btn btn-primary" href="https://whop.com/checkout/plan_joHl1qsZoiJc9">Get started</a></div>
-<footer><div class="wrap"><span>Otto · 2026</span><span>Prices in euro, excluding VAT.</span><span class="f-r"><a href="#faq">FAQ</a><a href="https://dash.monyflow.work/otto/">Log in</a></span></div></footer>
+<footer><div class="wrap"><span>Otto · 2026</span><span>Prices in euro, excluding VAT.</span><span class="f-r"><a href="#faq">FAQ</a><a href="https://dash.monyflow.work/otto/">Log in</a></span><nav class="f-legal" aria-label="Legal"><a href="legal/terms.html">Terms</a><a href="legal/privacy.html">Privacy</a><a href="legal/dpa.html">Data processing agreement</a><a href="legal/subprocessors.html">Sub-processors</a><a href="legal/cookies.html">Cookies</a><a href="legal/ai.html">AI transparency</a><a href="legal/company.html">Company</a></nav></div></footer>
 
 <script>
 /* Otto landing. Everything is authored finished in HTML/CSS; this script only adds behaviour.
@@ -1484,7 +1496,7 @@ var SPRING = CSS.supports('transition-timing-function', 'linear(0, 1)');
 var E_SNAP = SPRING ? 'linear(0,.084,.246,.412,.562,.681,.771,.839,.888,.922,.947,.964,.975,.983,.989,.993,1)' : 'cubic-bezier(.22,1,.36,1)';
 var E_SHEET = SPRING ? 'linear(0,.056,.177,.317,.457,.579,.683,.765,.831,.881,.917,.944,.963,.976,.985,.991,1)' : 'cubic-bezier(.22,1,.36,1)';
 var E_OUT = 'cubic-bezier(.22,1,.36,1)', E_IN = 'cubic-bezier(.55,0,1,.45)';
-var esc = function (t) { return String(t == null ? '' : t).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); };
+var esc = function (t) { return String(t == null ? '' : t).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); };
 var wait = function (ms) { return new Promise(function (r) { setTimeout(r, ms); }); };
 var dur = function (ms) { return RM ? 1 : ms; };
 var lenis = null, readsST = null;
@@ -1544,12 +1556,12 @@ W.addEventListener('resize', onScroll);
 onScroll();
 
 /* ---------- scan: the real /otto-peek call, sample fallback ---------- */
-var PEEK = (location.hostname === 'localhost' || location.hostname === '127.0.0.1') ? 'http://localhost:8161/otto-peek' : '/otto-peek';
+var PEEK = '/otto-peek';   /* same origin everywhere (the CSP allows no other); locally, run the page through the sim server, which proxies it */
 var SAMPLE = {}; $$('#w-scan .prow').forEach(function (r) { SAMPLE[r.dataset.k] = r.innerHTML; });
 var SAMPLE_NOW = $('#scan-now').textContent;
 var STEPS = ['Reading the site', 'Reading your colours and tone', 'Finding competitors', 'Working out your audience', 'Drafting the month'];
 var LANG = { en: 'English', de: 'German', he: 'Hebrew', fr: 'French', es: 'Spanish', it: 'Italian', nl: 'Dutch', pt: 'Portuguese', ru: 'Russian', ar: 'Arabic', pl: 'Polish', ro: 'Romanian', hu: 'Hungarian', sv: 'Swedish', da: 'Danish', el: 'Greek', tr: 'Turkish' };
-var PILLARS_FOR = { 'CBD': ['Education', 'Trust and proof', 'Use cases', 'Product', 'Engagement'], 'Restaurant': ['Dishes and seasons', 'Behind the kitchen', 'Guests and reviews', 'Events', 'Offers'], 'Clinic': ['Education', 'Patient stories', 'Before and after', 'Meet the team', 'Booking'], 'Education': ['Method', 'Student stories', 'Career change', 'Community', 'Enrolment'], 'E-commerce': ['Product', 'Social proof', 'How-to', 'Behind the brand', 'Offers'], 'Real estate': ['Listings', 'Neighbourhood', 'Buyer education', 'Client stories', 'Market updates'], 'SaaS': ['Product', 'Use cases', 'Customer stories', 'Education', 'Launches'], 'Fitness': ['Workouts', 'Member stories', 'Nutrition', 'Community', 'Offers'], 'Beauty': ['Treatments', 'Before and after', 'Skin education', 'Team', 'Offers'], 'Legal': ['Education', 'Case stories', 'FAQ', 'Team', 'Consultations'], 'Hotel': ['Rooms and views', 'Local guide', 'Guest stories', 'Seasonal offers', 'Behind the scenes'], 'Coaching': ['Insights', 'Client wins', 'Framework', 'Personal story', 'Programme'], 'Home': ['Projects', 'Before and after', 'Tips', 'Reviews', 'Quotes'], 'Automotive': ['Inventory', 'Service tips', 'Customer stories', 'Offers', 'Team'] };
+var PILLARS_FOR = { 'CBD': ['Education', 'Trust and proof', 'Use cases', 'Product', 'Engagement'], 'Supplement': ['Product', 'Ingredients', 'Daily routine', 'Customer stories', 'Offers'], 'Restaurant': ['Dishes and seasons', 'Behind the kitchen', 'Guests and reviews', 'Events', 'Offers'], 'Clinic': ['Education', 'Patient stories', 'Before and after', 'Meet the team', 'Booking'], 'Education': ['Method', 'Student stories', 'Career change', 'Community', 'Enrolment'], 'E-commerce': ['Product', 'Social proof', 'How-to', 'Behind the brand', 'Offers'], 'Real estate': ['Listings', 'Neighbourhood', 'Buyer education', 'Client stories', 'Market updates'], 'SaaS': ['Product', 'Use cases', 'Customer stories', 'Education', 'Launches'], 'Fitness': ['Workouts', 'Member stories', 'Nutrition', 'Community', 'Offers'], 'Beauty': ['Treatments', 'Before and after', 'Skin education', 'Team', 'Offers'], 'Legal': ['Education', 'Case stories', 'FAQ', 'Team', 'Consultations'], 'Hotel': ['Rooms and views', 'Local guide', 'Guest stories', 'Seasonal offers', 'Behind the scenes'], 'Coaching': ['Insights', 'Client wins', 'Framework', 'Personal story', 'Programme'], 'Home': ['Projects', 'Before and after', 'Tips', 'Reviews', 'Quotes'], 'Automotive': ['Inventory', 'Service tips', 'Customer stories', 'Offers', 'Team'] };
 var RESTRICTED = /cbd|clinic|medical|legal|finance/i;
 var heroBtn = $('#hero-btn'), heroStep = $('#hero-step'), liveDot = $('#live-dot');
 function setStep(i, state) {
@@ -1559,25 +1571,90 @@ function setStep(i, state) {
 }
 function row(k) { return $('#w-scan .prow[data-k="' + k + '"]'); }
 function setRow(k, html, label) { var r = row(k); if (label) $('.pl', r).textContent = label; $('.pl', r).nextElementSibling.outerHTML = html; }
+/* what the scan returns, cleaned the same way onboarding cleans it */
+var own = function (o, k) { return o != null && Object.prototype.hasOwnProperty.call(o, k) ? o[k] : undefined; };   /* scan strings as keys */
+var SOC = { instagram: 'Instagram', facebook: 'Facebook', tiktok: 'TikTok', linkedin: 'LinkedIn', youtube: 'YouTube', x: 'X', whatsapp: 'WhatsApp', telegram: 'Telegram', pinterest: 'Pinterest' };
+var hex = function (x) { return typeof x === 'string' && /^#[0-9a-f]{6}$/i.test(x) ? x : ''; };
+var clip = function (t, n) { t = String(t || '').replace(/\s+/g, ' ').trim(); if (t.length <= n) return t; var c = t.slice(0, n), sp = c.lastIndexOf(' '); return (sp > n * 0.6 ? c.slice(0, sp) : c).replace(/[\s,;:.–-]+$/, '') + '…'; };
+var cleanTitle = function (t) { return String(t || '').split(/\s+[|–—·:-]\s+|\s\|\s?/)[0].trim(); };
+var fontName = function (f) { return String(f || '').replace(/([a-z])([A-Z])/g, '$1 $2').replace(/([A-Z])([A-Z][a-z])/g, '$1 $2').trim(); };
+function sentence(q) { q = String(q || ''); var dg = (q.match(/\d/g) || []).length; return q.length >= 30 && dg / q.length < 0.06 && !/[•|]/.test(q) && q.split(/\s+/).length >= 6 && !/testimonial|compensation|results may vary|not intended|disclaimer|terms of|privacy|cookie|affiliate/i.test(q); }
+function unstar(q) { return String(q || '').replace(/[★☆✩⭐️]/g, '').replace(/\s{2,}/g, ' ').trim(); }
+function unwidget(q) { return String(q || '').replace(/^[\s\S]*?\bReviewer\s+\d(?:[.,]\d)?\s*\/\s*5\s+/i, '').replace(/^\d+\s+(?:day|week|month|year)s?\s+ago\s+/i, ''); }
+function realQuote(r) {   /* a customer's words: not the brand talking about itself, not a review widget's metadata */
+  var nm = String(r.name || cleanTitle(r.title) || '').toLowerCase();
+  return (r.quotes || []).map(function (q) { return unwidget(unstar(q)); }).filter(function (q) { return sentence(q) && !(nm && q.toLowerCase().indexOf(nm) === 0); })[0] || '';
+}
+function lum(x) { var m = /^#?([0-9a-f]{6})$/i.exec(x || ''); if (!m) return 1; var n = parseInt(m[1], 16); return (0.299 * (n >> 16) + 0.587 * ((n >> 8) & 255) + 0.114 * (n & 255)) / 255; }
 function fillReal(r, domain) {
-  var langs = (r.languages || []).map(function (l) { return LANG[String(l).toLowerCase()] || String(l).toUpperCase(); }).join(', ');
+  var langs = (r.languages || []).map(function (l) { return own(LANG, String(l).toLowerCase()) || String(l).toUpperCase(); }).join(', ');
   setRow('industry', '<div class="pv">' + ([r.industry, langs, r.platform].filter(Boolean).map(esc).join(' · ') || '—') + '</div>');
-  var sw = (r.palette || []).concat(r.neutrals || []).slice(0, 6).map(function (x) { return '<span class="sw" style="background:' + esc(x) + '" title="' + esc(x) + '"></span>'; }).join('');
-  setRow('palette', '<div class="pv">' + (sw || '<i>No brand colours found</i>') + (r.fonts && r.fonts.length ? ' <span class="fonts">' + esc(r.fonts.slice(0, 2).join(' · ')) + '</span>' : '') + '</div>');
-  setRow('voice', '<div class="pv"><i>' + esc(r.description || r.title || '—') + '</i></div>');
-  var proof = (r.trust || []).slice(0, 3).map(esc).join(' · ');
-  setRow('proof', '<div class="pv">' + (proof || '<i>None found yet. Otto will ask you for reviews.</i>') + '</div>', 'Proof on the site');
-  var q = (r.quotes || [])[0];
-  setRow('audience', '<div class="pv">' + (q ? '<i>“' + esc(q.slice(0, 140)) + '”</i>' : (Object.keys(r.socials || {}).length ? esc(Object.keys(r.socials).join(' · ')) : '<i>None linked. Otto connects them during setup.</i>')) + '</div>', q ? 'Customer voice' : 'Social accounts');
+  var sw = (r.palette || []).concat(r.neutrals || []).map(hex).filter(Boolean).slice(0, 6).map(function (x) { return '<span class="sw" style="background:' + x + '" title="' + x + '"></span>'; }).join('');
+  setRow('palette', '<div class="pv">' + (sw || '<i>No brand colours found</i>') + (r.fonts && r.fonts.length ? ' <span class="fonts">' + esc(r.fonts.slice(0, 2).map(fontName).join(' · ')) + '</span>' : '') + '</div>');
+  setRow('voice', '<div class="pv" dir="auto"><i>' + esc(clip(r.description || r.title, 240) || '—') + '</i></div>', r.description ? 'In your words' : 'Tone');
+  var proof = (r.trust || []).slice(0, 3).map(function (x) { return esc(clip(x, 90)); }).join(' · ');
+  setRow('proof', '<div class="pv" dir="auto">' + (proof || '<i>None found yet. Otto will ask you for reviews.</i>') + '</div>', 'Proof on the site');
+  var q = realQuote(r), soc = Object.keys(r.socials && typeof r.socials === 'object' ? r.socials : {}).map(function (x) { return own(SOC, x) || x; });
+  setRow('audience', '<div class="pv" dir="auto">' + (q ? '<i>“' + esc(clip(q, 140)) + '”</i>' : (soc.length ? esc(soc.join(' · ')) : '<i>None linked. Otto connects them during setup.</i>')) + '</div>', q ? 'Customer voice' : 'Social accounts');
   var key = Object.keys(PILLARS_FOR).find(function (k) { return (r.industry || '').toLowerCase().indexOf(k.toLowerCase()) > -1; });
   var pillars = (PILLARS_FOR[key] || ['Education', 'Proof', 'Product', 'Behind the scenes', 'Engagement']).map(function (p) { return '<span class="chip">' + esc(p) + '</span>'; }).join('');
   setRow('plan', '<div class="chips">' + pillars + (RESTRICTED.test(r.industry || '') ? '<span class="chip">Restricted on Meta, so organic first</span>' : '') + '</div>');
   $('#scan-tag').textContent = 'Your site';
-  $('#scan-now').textContent = 'Real scan of ' + domain + ': ' + (r.pages || 1) + ' page' + (r.pages === 1 ? '' : 's') + ' read.';
+  var pages = Math.max(1, Math.round(Number(r.pages) || 1));
+  $('#scan-now').textContent = 'Real scan of ' + domain + ': ' + pages + ' page' + (pages === 1 ? '' : 's') + ' read.';
+  fillSite(r, domain);
+}
+/* the site mockup on the left: the sample until a scan, then the scanned site, simplified and labelled so */
+var siteEl = $('#site'), SITE_SAMPLE = { face: $('.site-face', siteEl).innerHTML, label: $('.site-face', siteEl).getAttribute('aria-label'), xray: $('.xray', siteEl).innerHTML, url: $('#scan-url').textContent, tag: $('.site-tag', siteEl).textContent };
+function refreshScroll() { if (W.ScrollTrigger) { try { W.ScrollTrigger.refresh(); } catch (e) {} } }
+function fillSite(r, domain) {
+  var name = r.name || cleanTitle(r.title) || domain;
+  var pal = (r.palette || []).map(hex).filter(Boolean), neu = (r.neutrals || []).map(hex).filter(Boolean);
+  var p0 = pal[0] || '#E9EBEF', p1 = pal[1] || p0, p2 = pal[2] || p1, darkest = pal.slice().sort(function (a, b) { return lum(a) - lum(b); })[0];
+  var onDark = lum(p0) < 0.55;
+  var parts = String(r.title || '').split(/\s+[|–—·:-]\s+|\s\|\s?/).map(function (x) { return x.trim(); }).filter(function (x) { return x && x.toLowerCase() !== name.toLowerCase(); });
+  var head = parts.sort(function (a, b) { return b.length - a.length; })[0] || '';
+  var heads = (r.headings || []).map(function (x) { return String(x).trim(); });
+  if (head.split(/\s+/).length < 2) head = heads.filter(function (x) { return x.split(/\s+/).length >= 3 && x.length <= 70 && !/(\.\.\.|…)$/.test(x); })[0] || head || name;
+  var prods = heads.filter(function (x) { return x !== head && x.split(/\s+/).length >= 2 && x.length <= 48; }).slice(0, 3);
+  var logo = typeof r.logo === 'string' && (/^https:\/\/[^\s"'<>]+$/i.test(r.logo) || /^data:image\/png;base64,[A-Za-z0-9+\/=]+$/.test(r.logo)) ? r.logo : '';
+  var q = realQuote(r), proof = (r.trust || [])[0];
+  var shop = /shopify|woocommerce|magento|bigcommerce|shopware|prestashop/i.test(r.platform || '') || /e-commerce|retail|shop|store/i.test(r.industry || '');
+  var fonts = (r.fonts || []).slice(0, 2).map(fontName).join(' · ');
+  var tint = function (c, pct) { return 'color-mix(in srgb,' + c + ' ' + pct + '%,#fff)'; };
+  var tiles = [pal[1] || p0, pal[2] || p0, pal[3] || pal[0] || p0];
+  var face = $('.site-face', siteEl);
+  face.innerHTML =
+    '<div class="s-nav"><b dir="auto">' + esc(clip(name, 32)) + '<span class="mk" data-mk="industry"></span></b><i class="s-sk"></i><i class="s-sk"></i><i class="s-sk"></i></div>' +
+    '<div class="s-hero ' + (onDark ? 'on-dark' : 'on-light') + '" style="background:' + p0 + '"><div><h4 dir="auto"><span class="mk" data-mk="voice"></span>' + esc(clip(head, 72)) + '</h4>' + (r.description ? '<p dir="auto">' + esc(clip(r.description, 110)) + '</p>' : '') +
+      '<span class="s-btn" style="background:' + (onDark ? '#fff' : (darkest && lum(darkest) < 0.35 ? darkest : '#111')) + ';color:' + (onDark ? p0 : '#fff') + '">' + (shop ? 'Shop now' : 'Learn more') + '</span></div>' +
+      '<div class="s-art" style="background:linear-gradient(160deg,' + tint(p1, 70) + ',' + tint(p2, 35) + ')">' + (logo ? '<img src="' + esc(logo) + '" alt="' + esc(name) + ' logo, from the site" referrerpolicy="no-referrer" decoding="async">' : '') + '</div></div>' +
+    '<div class="s-prods">' + tiles.map(function (c, i) { return '<figure dir="auto"><span class="s-tile" style="background:' + tint(c, 30) + '"></span>' + esc(clip(prods[i] || '', 30)) + '</figure>'; }).join('') + '</div>' +
+    '<blockquote class="s-rev' + (q || proof ? '' : ' is-none') + '" dir="auto"><span class="mk" data-mk="audience"></span>' + (q ? '“' + esc(clip(q, 120)) + '”<cite>Quoted on your site</cite>' : proof ? esc(clip(proof, 120)) + '<cite>On your site</cite>' : 'No customer reviews on the site yet.<cite>Otto asks you for a few after setup</cite>') + '</blockquote>' +
+    '<div class="s-foot"><span class="mk" data-mk="palette"></span>' + pal.concat(neu).slice(0, 6).map(function (c) { return '<i style="background:' + c + '"></i>'; }).join('') + '<span dir="auto">' + esc(fonts || domain) + '</span></div>';
+  face.setAttribute('aria-label', 'A simplified version of the ' + name + ' website, drawn from the scan');
+  $$('.xray b', siteEl).forEach(function (b, i) {
+    b.textContent = ['Nav · ' + (logo ? 'logo found' : 'no logo found'), 'Hero · ' + (pal[0] || 'no brand colour') + ' · headline read', (r.prices || []).length ? (r.prices.length + ' price' + (r.prices.length === 1 ? '' : 's') + ' read') : 'No prices found', q ? 'Review · tone source' : proof ? 'Proof · on your site' : 'No reviews found', pal.length + ' brand colour' + (pal.length === 1 ? '' : 's')][i] || b.textContent;
+  });
+  $('#scan-url').textContent = domain;
+  $('.site-tag', siteEl).textContent = 'Simplified';
+  /* the logo: a light one (by its file name) gets a dark ground; a soft shadow keeps any other light logo visible */
+  $$('.s-art img', face).forEach(function (img) {
+    var art = img.parentNode, ground = function () { art.style.background = darkest && lum(darkest) < 0.3 ? darkest : '#1B1D22'; };
+    if (/yellow|white|weiss|light|inverse|invert|negative|reverse|knockout/i.test(logo.split('?')[0].split('/').pop())) ground();
+    img.addEventListener('error', function () { img.remove(); });
+  });
+  refreshScroll();
 }
 function fillSample(tag) {
   Object.keys(SAMPLE).forEach(function (k) { var r = row(k); r.innerHTML = SAMPLE[k]; });
   $('#scan-tag').textContent = tag || 'Sample profile';
+  var face = $('.site-face', siteEl);
+  if (face.innerHTML !== SITE_SAMPLE.face) {
+    face.innerHTML = SITE_SAMPLE.face; face.setAttribute('aria-label', SITE_SAMPLE.label);
+    $('.xray', siteEl).innerHTML = SITE_SAMPLE.xray; $('#scan-url').textContent = SITE_SAMPLE.url; $('.site-tag', siteEl).textContent = SITE_SAMPLE.tag;
+    refreshScroll();
+  }
 }
 function popRows() {
   if (RM) return;
@@ -1587,42 +1664,73 @@ function scrollToProfile() {
   if (readsST) scrollToY(readsST.end - 2);
   else scrollToEl(W.innerWidth < 768 ? $('#w-scan') : $('#reads'));
 }
+function ss(k, v) { try { if (v == null) sessionStorage.removeItem(k); else sessionStorage.setItem(k, v); } catch (e) {} }
+async function peekOnce(domain) {
+  var ctl = new AbortController(), to = setTimeout(function () { ctl.abort(); }, 20000);
+  try {
+    var res = await fetch(PEEK + '?url=' + encodeURIComponent(domain), { signal: ctl.signal });
+    var body = null; try { body = await res.json(); } catch (e) {}
+    return { status: res.status, body: body };
+  } catch (err) { return { status: 0 }; } finally { clearTimeout(to); }
+}
 var scanning = false;
 async function runScan(domain) {
   if (scanning) return; scanning = true;
   heroBtn.classList.add('is-busy'); liveDot.classList.add('is-working');
   $('#scan-tag').textContent = domain ? domain : 'Sample profile';
-  if (domain) $('#final-site').textContent = 'Otto · ' + domain;
+  if (domain) {
+    $('#final-site').textContent = 'Otto · ' + domain;
+    ss('otto.site', domain); ss('otto.peek', null);   /* onboarding picks the site (and the scan, below) up from here */
+  }
+  if (domain && W.ottoTrack) W.ottoTrack('scan_start', { domain: domain });
   var i = 0; setStep(0, 'on');
-  var data = null;
+  var out = { status: 0 }, data = null;
   if (domain) {
     var tick = setInterval(function () { if (i < 3) { i++; setStep(i, 'on'); } }, 1100);
-    try {
-      var ctl = new AbortController(), to = setTimeout(function () { ctl.abort(); }, 20000);
-      var res = await fetch(PEEK + '?url=' + encodeURIComponent(domain), { signal: ctl.signal });
-      clearTimeout(to);
-      if (res.ok) data = await res.json();
-    } catch (err) { /* sample fallback below */ }
+    out = await peekOnce(domain);
+    if (out.status === 429) { await wait(4200); out = await peekOnce(domain); }   /* the server allows one scan per 4 s */
     clearInterval(tick);
+    if (out.status === 200 && out.body && !out.body.error) data = out.body;
   }
   for (; i < STEPS.length; i++) { setStep(i, 'on'); await wait(RM ? 60 : domain ? 320 : 520); }
   setStep(STEPS.length, 'done');
-  if (data && !data.error) fillReal(data, domain);
-  else { fillSample('Sample profile'); $('#scan-now').textContent = domain ? 'Sample profile. We couldn’t read ' + domain + ' from here; Otto reads it after you sign up.' : SAMPLE_NOW; }
+  if (data) { try { fillReal(data, domain); ss('otto.peek', JSON.stringify(data)); } catch (e) { data = null; out = { status: 0 }; } }   /* an odd answer never leaves the spinner on */
+  if (domain && W.ottoTrack) W.ottoTrack('scan_result', { domain: domain, ok: !!data });
+  if (!data) {
+    fillSample('Sample profile');
+    $('#scan-now').textContent = !domain ? SAMPLE_NOW :
+      out.status === 404 ? 'We couldn’t find a website at ' + domain + '. Check the address and try again. Showing a sample profile.' :
+      out.status === 400 ? 'Otto can’t open that address. Check it and try again. Showing a sample profile.' :
+      out.status === 429 || out.status === 503 ? 'Lots of scans right now. Try again in a minute. Showing a sample profile.' :
+      'We couldn’t read ' + domain + ' from here; some sites turn automated visitors away. Otto reads it properly after you sign up. Showing a sample profile.';
+  }
   popRows();
   heroBtn.classList.remove('is-busy'); liveDot.classList.remove('is-working');
   scanning = false;
 }
-function onScanSubmit(input) {
+function validDomain(v) { return /^(?=.{4,253}$)([a-z0-9¡-￿]([a-z0-9¡-￿-]{0,61}[a-z0-9¡-￿])?\.)+[a-z¡-￿]{2,63}$/i.test(v) && !/\.(local|internal|localhost|lan)$/i.test(v); }
+function onScanSubmit(input, form, errEl) {
+  var clear = function () { form.classList.remove('is-bad'); input.removeAttribute('aria-invalid'); errEl.textContent = ''; };
+  input.setAttribute('aria-describedby', errEl.id);
+  input.addEventListener('input', clear);
   return function (e) {
     e.preventDefault();
-    var v = input.value.trim().replace(/^https?:\/\//i, '').replace(/^www\./i, '').replace(/[\/?#].*$/, '');
+    if (scanning) return;
+    var v = input.value.trim().replace(/^https?:\/\//i, '').replace(/^www\./i, '').replace(/[\/?#].*$/, '').replace(/\.$/, '').toLowerCase();
+    if (v && !validDomain(v)) {
+      form.classList.add('is-bad'); input.setAttribute('aria-invalid', 'true');
+      errEl.textContent = 'That doesn’t look like a website address. Try something like yourcompany.com.';
+      input.focus(); return;
+    }
+    clear();
+    if (v) input.value = v;
+    if (W.matchMedia('(pointer: coarse)').matches) input.blur();   /* phones: close the keyboard so the profile is visible */
     scrollToProfile();
     setTimeout(function () { runScan(v); }, RM ? 0 : 450);
   };
 }
-$('#hero-form').addEventListener('submit', onScanSubmit($('#hero-url')));
-$('#reads-form').addEventListener('submit', onScanSubmit($('#reads-url')));
+$('#hero-form').addEventListener('submit', onScanSubmit($('#hero-url'), $('#hero-form'), $('#hero-err')));
+$('#reads-form').addEventListener('submit', onScanSubmit($('#reads-url'), $('#reads-form'), $('#reads-err')));
 
 /* ---------- X-ray lens over the sample site ---------- */
 (function () {
@@ -2158,6 +2266,101 @@ function startTiers() {
   }, { timeout: 2000 });
 }
 })();
+</script>
+<script>
+/* First-party analytics (POST /otto-track): no cookies, no storage, no third parties, no personal data. Do Not Track or
+   Global Privacy Control → one anonymous page view and nothing else. Events: view, scroll depth, sections seen, CTA clicks,
+   scan (domain only), FAQ opens, film plays. Batched; flushed every 2 s and when the page is hidden. */
+(function (W, d) {
+  'use strict';
+  var n = navigator, L = W.location;
+  var URL_ = '/otto-track';
+  var path = L.pathname.replace(/[^A-Za-z0-9\/._~-]/g, '').slice(0, 120) || '/';
+  function send(o) {
+    var s = JSON.stringify(o);
+    try { if (n.sendBeacon && n.sendBeacon(URL_, s)) return; } catch (e) {}
+    try { fetch(URL_, { method: 'POST', body: s, keepalive: true, credentials: 'omit', headers: { 'Content-Type': 'text/plain' } }); } catch (e) {}
+  }
+  W.ottoTrack = function () {};
+  if (n.doNotTrack === '1' || W.doNotTrack === '1' || n.globalPrivacyControl === true) { send({ p: path, anon: 1, ev: [{ e: 'view' }] }); return; }
+  var sid = Math.random().toString(36).slice(2, 12), q = [], timer = 0, first = true;
+  function flush() {
+    clearTimeout(timer); timer = 0;
+    while (q.length) {
+      var o = { p: path, s: sid, ev: q.splice(0, 20) };
+      if (first) {
+        first = false;
+        var ref = ''; try { ref = d.referrer ? new URL(d.referrer).hostname : ''; } catch (e) {}
+        if (ref && ref !== L.hostname) o.r = ref;
+        var u = {}, sp = new URLSearchParams(L.search);
+        ['source', 'medium', 'campaign', 'content', 'term'].forEach(function (k) { var v = sp.get('utm_' + k); if (v) u[k] = v.slice(0, 64); });
+        if (Object.keys(u).length) o.u = u;
+        var coarse = W.matchMedia('(pointer: coarse)').matches, w = Math.min(W.innerWidth, screen.width || W.innerWidth);
+        o.dv = coarse && w < 768 ? 'mobile' : coarse && w < 1100 ? 'tablet' : 'desktop';
+      }
+      send(o);
+    }
+  }
+  function track(e, data) {
+    var ev = { e: e }; for (var k in data) ev[k] = data[k];
+    q.push(ev);
+    if (q.length >= 20) flush(); else if (!timer) timer = setTimeout(flush, 2000);
+  }
+  W.ottoTrack = track;
+  track('view');
+  d.addEventListener('visibilitychange', function () { if (d.visibilityState === 'hidden') flush(); });
+  W.addEventListener('pagehide', flush);
+
+  var marks = [25, 50, 75, 100], ticking = false;
+  function depth() {
+    ticking = false;
+    var h = d.documentElement.scrollHeight - W.innerHeight, p = h > 0 ? (W.scrollY / h) * 100 : 100;
+    while (marks.length && p >= marks[0] - 2) track('scroll', { d: marks.shift() });
+  }
+  W.addEventListener('scroll', function () { if (!ticking && marks.length) { ticking = true; requestAnimationFrame(depth); } }, { passive: true });
+
+  if ('IntersectionObserver' in W) {
+    /* a section counts as seen after it has held the middle of the screen for 600 ms, so a smooth scroll that only
+       passes through it (a nav click, the scan jumping to the profile) doesn't count */
+    var seen = {}, dwell = {}, io = new IntersectionObserver(function (es) {
+      es.forEach(function (x) {
+        var id = x.target.id;
+        if (seen[id]) return;
+        if (x.isIntersecting) { if (!dwell[id]) dwell[id] = setTimeout(function () { seen[id] = 1; track('section', { id: id }); io.unobserve(x.target); }, 600); }
+        else { clearTimeout(dwell[id]); dwell[id] = 0; }
+      });
+    }, { rootMargin: '-45% 0px -45% 0px' });
+    Array.prototype.forEach.call(d.querySelectorAll('main section[id], main .chapter[id]'), function (el) { io.observe(el); });
+  }
+
+  d.addEventListener('click', function (e) {
+    var a = e.target.closest && e.target.closest('a, button'); if (!a) return;
+    var href = a.getAttribute('href') || '', kind = null;
+    if (/whop\.com\/checkout/.test(href)) kind = 'get_started';
+    else if (a.dataset.focus === 'hero-url') kind = 'scan_first';
+    else if (/\/otto\/?$/.test(href)) kind = 'login';
+    else if (a.closest('#nav, #menu') && href.charAt(0) === '#' && href.length > 1) kind = 'nav:' + href.slice(1).toLowerCase().replace(/[^a-z0-9-]/g, '').slice(0, 24);
+    if (!kind) return;
+    var where = a.closest('#menu') ? 'menu' : a.closest('#nav') ? 'nav' : a.closest('#dock') ? 'dock' : ((a.closest('section[id]') || {}).id || 'page');
+    track('cta', { id: (kind + '@' + where).toLowerCase().slice(0, 48) });
+    if (kind === 'get_started') flush();
+  }, true);
+
+  d.addEventListener('toggle', function (e) {
+    var t = e.target;
+    if (t.tagName === 'DETAILS' && t.open && t.closest('#faq')) {
+      var s = t.querySelector('summary'), slug = (s ? s.textContent : '').toLowerCase().replace(/[’']/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 80);
+      if (slug) track('faq_open', { q: slug });
+    }
+  }, true);
+
+  var played = {};
+  d.addEventListener('play', function (e) {
+    var v = e.target, src = v.currentSrc || (v.querySelector('source') || {}).src || '';
+    var id = (src.split('/').pop() || '').replace(/\.[a-z0-9]+$/i, '').toLowerCase().replace(/[^a-z0-9_-]/g, '').slice(0, 40);
+    if (id && !played[id]) { played[id] = 1; track('video_play', { id: id }); }
+  }, true);
+})(window, document);
 </script>
 </body>
 </html>

@@ -70,7 +70,7 @@ it is sent; a violating card is held and filed as a "Compliance hold" recommenda
 | 07:35 daily | Paid report: spend, results, CPL, CTR yesterday + 7d per network, best/worst campaign, one suggested action (as a card) | `otto_ads.py report` (cron) → `ads[brand].daily` + Telegram |
 | 06:00 daily | Launch approved flights whose start date is today (Meta: campaign → ad set → creative → ad, each id saved as it is created so a failed run resumes; Google: Search campaign via one mutate). Compliance check first — violations go on hold + a card | `otto_ads.py launch` (cron) |
 | 06:05 daily | Guard: ended flights paused; CPL 3 days above target → "Pause X?" card (auto-pause only if `ads[brand].auto_pause`) | `otto_ads.py guard` (cron) |
-| 25th monthly | Paid Gantt for next month: evergreen leads/traffic all month, two 5-day boosts of the best organic posts, Google Search on brand + category (skipped for restricted categories; Meta flights on compliance hold) | `otto_ads.py plan <brand> <month>` → drafts + ONE recommendation "Approve the paid plan ≈€X" |
+| 25th monthly | Paid Gantt for next month: evergreen leads/traffic all month, two 5-day boosts of the best organic posts, Google Search on brand + category (skipped for restricted categories; Meta flights on compliance hold) | `otto_ads.py plan <brand> <month>` → drafts + the month's ad matrix skeleton (`ads-<month>.json`, Quill fills it) + ONE recommendation "Approve the paid plan ≈€X" (names the matrix size) |
 | on approval | ✅ on the "Approve the <month> paid plan" card runs `otto_ads.approve(<brand>, <month>)` in the Telegram poller; ✅ on a "Pause …" card pauses exactly the campaign stored on it. Nothing spends before this | automatic (poller) · `otto_ads.py approve` by hand |
 Credentials: `meta-<brand>.json` gains `ad_account_id`, `pixel_id`, `lead_form_id`; `google-<brand>.json` = OAuth client + refresh token + customer id.
 How flights are built: leads + `lead_form_id` → instant-form ads (one ad per static, CTA carries the form); leads without a form →
@@ -92,11 +92,14 @@ are never added into the Meta number without a label.
 - **Reels 30–60 s** (`otto_video.py`): `plan <post>` (or Quill writes `post.script`: 4–7 scenes) → `render <post>`: one vertical image per
   scene, Ken Burns, captions in the brand band, voice-over (ElevenLabs, `otto-secrets/elevenlabs.json`) and a music bed
   (`assets/music/*.mp3`). Publisher posts it as an IG reel / FB video.
-- **Ad creatives in every style** (`otto_creative.py`): angle bank = competitor longevity winners (`angles.json`, written by
-  `otto_competitors.py angles` from the research md) → profile winning angles → best hooks. Per campaign: 3 angles × (static with the hook
-  on the image, 3-card carousel, video if a reel exists) + 5 titles / 3 bodies / descriptions / CTA. `otto_ads.py launch` uploads all of it
-  into ONE ad set with Meta dynamic creative (lead-form flights: one ad per static instead), so the platform finds the winning
-  combination; `otto_ads.py report` surfaces best/worst. Statics/cards are JPEG, text via ffmpeg drawtext (RTL right-aligned,
+- **Ad creatives: the angle × style matrix** (`otto_styles.py`, `otto_creative.py matrix`): every month's Meta evergreen runs
+  6 angles (pain, identity, enemy, experience, offer, moment) × 6 styles (real-creator UGC video, faceless video, product,
+  comparison, native screenshot, proof / humor; + a price card on the offer angle), ≥50 % video, 1-2 headlines per angle —
+  the Grüns standard (`research/GRUNS-AD-LIBRARY-2026-09.md`); 4 × 5 under ~€36/day. From `brands/<slug>/ads-<YYYY-MM>.json`.
+  `otto_ads.py plan` writes the skeleton; Quill fills it (otto-creative-engine, "Ad matrix"); `matrix --check` must pass. `otto_ads.py launch` builds one CBO campaign with **one ad set per angle**, each
+  style its own ad. Until the matrix has ready cells the old path runs: angle bank (`angles.json` → profile winning angles
+  → best hooks) × (static + 3-card carousel + reel) in ONE ad set with Meta dynamic creative. `otto_ads.py report` surfaces
+  best/worst. Statics/cards are JPEG, text via ffmpeg drawtext (RTL right-aligned,
   shaped when ffmpeg supports it). Angles from the profile are only quoted hooks or clean angle labels — lines with CPL, ₪/€,
   lead counts, arrows or "(?)" never become copy — and the CTA card speaks the brand language.
 - Visuals: the brand guide wins — the profile's VISUAL IDENTITY `Style:` line, else `brands/<slug>/*brand-guide*.md`; the generic

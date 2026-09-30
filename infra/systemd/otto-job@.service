@@ -1,0 +1,30 @@
+# One Otto engine job, started by its timer (otto-job-<job>.timer) or by hand: sudo systemctl start otto-job@publish
+# otto_cron.py runs the job for every brand that needs it, writes /var/lib/otto/heartbeats.json and exits 1 if a brand failed.
+# It holds a flock per job (/var/lib/otto/locks/<job>.lock): a run that finds the previous one still going exits 75 (not a failure).
+[Unit]
+Description=Otto job %i
+Documentation=file:///opt/otto/infra/README.md
+After=network-online.target
+Wants=network-online.target
+OnFailure=otto-alert@%N.service
+
+[Service]
+Type=oneshot
+User=otto
+Group=otto
+EnvironmentFile=/etc/otto/otto.env
+WorkingDirectory=/opt/otto/platform
+ExecStart=/usr/bin/python3 /opt/otto/platform/otto_cron.py %i
+SuccessExitStatus=75
+# the longest job (reels) has 3 h per brand inside otto_cron; this is the outer safety net
+TimeoutStartSec=12h
+Nice=5
+IOSchedulingClass=best-effort
+IOSchedulingPriority=6
+# headless Chrome renders (otto_render) run in these jobs and need their own sandbox: no NoNewPrivileges / namespace limits here
+PrivateTmp=yes
+ProtectSystem=full
+ProtectKernelModules=yes
+ProtectControlGroups=yes
+ProtectClock=yes
+UMask=0022

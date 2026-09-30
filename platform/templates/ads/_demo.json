@@ -1,5 +1,5 @@
 {
- "_about": "Demo specs for `otto_render.py demo <brand> <out>`. Copy is drawn from each brand's profile, proof bank and content plan and passes brands/<slug>/compliance.json. Paths resolve against the repo root. name = output file stem.",
+ "_about": "Demo specs for `otto_render.py demo <brand> <out>`. Copy is drawn from each brand's profile, proof bank and content plan and passes brands/<slug>/compliance.json. Paths resolve against the repo root. name = output file stem. Templates 19-28 (native, proof, product families) came from the style builders' demo specs (2026-09-29); Grüns specs live in the test workspace, not here.",
  "happygarden": [
   {
    "name": "01-editorial-overlay",
@@ -385,6 +385,390 @@
     "photo": "motion/otto-kit/img/hg-lab.jpg",
     "photo_pos": "50% 60%"
    }
+  },
+  {
+   "name": "19a-notes-app-feed",
+   "label": "Notes / checklist / feed",
+   "template": "notes_app",
+   "data": {
+    "theme": "accent",
+    "headline": "Your CBD checklist, *before checkout*.",
+    "title": "Before I buy CBD",
+    "mode": "checklist",
+    "items": [
+     {
+      "text": "Find the lab report",
+      "checked": true
+     },
+     {
+      "text": "Check the spectrum: full, broad or isolate",
+      "checked": true
+     },
+     {
+      "text": "Look for GMP production",
+      "checked": true
+     },
+     "Work out the price per day"
+    ],
+    "footer": "*€1.50 a day* for a €45 bottle, over a month."
+   }
+  },
+  {
+   "name": "19b-notes-app-square",
+   "label": "Notes / plain / square",
+   "template": "notes_app",
+   "data": {
+    "title": "Evening",
+    "mode": "plain",
+    "date_label": "Today at 9:40 PM",
+    "items": [
+     "Tea. Lights down. Phone in the other room.",
+     "A few drops of the CBD, CBG and CBN blend."
+    ],
+    "footer": "Every batch *third-party lab tested*.",
+    "photo": "motion/otto-kit/img/hg-evening.jpg",
+    "photo_pos": "45% 60%"
+   },
+   "size": "square"
+  },
+  {
+   "name": "20a-search-feed",
+   "label": "Search / autocomplete / feed",
+   "template": "search",
+   "data": {
+    "theme": "light",
+    "headline": "THC-free, and *the lab report shows it*.",
+    "headline_pos": "below",
+    "query": "cbd oil without",
+    "suggestions": [
+     "cbd oil without thc",
+     "*cbd oil without thc, lab tested*",
+     "cbd oil without the guesswork",
+     "cbd oil without a prescription"
+    ]
+   }
+  },
+  {
+   "name": "20b-search-square",
+   "label": "Search / result / square",
+   "template": "search",
+   "data": {
+    "query": "broad spectrum cbd oil lab report",
+    "results": [
+     {
+      "site": "Happy Garden",
+      "url": "https://happygardeneu.com",
+      "title": "Broad Spectrum CBD Oil, THC-free | Happy Garden",
+      "price": "€45",
+      "snippet": "Every batch is tested by an independent lab, and *the certificate is yours to see*. 30 ml, €45, free shipping on subscription."
+     }
+    ],
+    "photo": "motion/otto-kit/img/hg-yellow.jpg",
+    "photo_pos": "60% 50%"
+   },
+   "size": "square"
+  },
+  {
+   "name": "21a-text-message-story",
+   "label": "Text message / story",
+   "template": "text_message",
+   "data": {
+    "theme": "light",
+    "headline": "The two questions *everyone asks*.",
+    "contact": "Happy Garden",
+    "messages": [
+     {
+      "from": "me",
+      "text": "Which of your oils have no THC?"
+     },
+     {
+      "from": "them",
+      "text": "Broad Spectrum and Isolate. Both are THC-free, and the lab report shows it."
+     },
+     {
+      "from": "me",
+      "text": "Where do I see the report?"
+     },
+     {
+      "from": "them",
+      "text": "Every batch is tested by an independent lab, and the certificate is yours to see before you buy."
+     }
+    ]
+   },
+   "size": "story"
+  },
+  {
+   "name": "22a-social-post-feed",
+   "label": "Social post / feed",
+   "template": "social_post",
+   "data": {
+    "name": "Melanie S.",
+    "handle": "Verified customer, Germany",
+    "text": "The quality feels *clean and trustworthy*.",
+    "time": "Review, translated from German",
+    "headline": "Clean CBD, *checked twice*."
+   }
+  },
+  {
+   "name": "22b-social-post-story",
+   "label": "Social post / story",
+   "template": "social_post",
+   "data": {
+    "theme": "accent",
+    "ui": "dark",
+    "headline": "Read it *before you buy*.",
+    "name": "Happy Garden",
+    "handle": "happygardeneu.com",
+    "text": "Buying CBD shouldn't mean taking a label on faith.\n\nSo every batch we sell is tested by an independent lab, and the results are there for you to read.",
+    "photo": "motion/otto-kit/img/hg-lab.jpg",
+    "photo_pos": "50% 60%",
+    "time": "10:05 AM · Sep 29, 2026"
+   },
+   "size": "story"
+  },
+  {
+   "name": "23a-ugc-caption-feed",
+   "label": "UGC caption / feed",
+   "template": "ugc_caption",
+   "data": {
+    "photo": "motion/otto-kit/img/hg-lab.jpg",
+    "photo_pos": "50% 60%",
+    "caption_pos": "top",
+    "captions": [
+     "*Every batch* comes with its lab report"
+    ],
+    "handle": "@happy_garden_cbd",
+    "logo": true
+   }
+  },
+  {
+   "name": "23b-ugc-caption-story",
+   "label": "UGC caption / story",
+   "template": "ugc_caption",
+   "data": {
+    "photo": "motion/otto-kit/img/hg-evening.jpg",
+    "photo_pos": "40% 50%",
+    "caption_pos": "top",
+    "captions": [
+     "The evening routine, *minus the guesswork*",
+     "Every batch comes with its lab report"
+    ],
+    "handle": "@happy_garden_cbd"
+   },
+   "size": "story"
+  },
+  {
+   "name": "24a-review-cards-feed",
+   "label": "Review cards / feed",
+   "template": "review_cards",
+   "data": {
+    "layout": "list",
+    "headline": "Our CBD cat snacks, *reviewed*.",
+    "reviews": [
+     {
+      "rating": 5,
+      "text": "The quality feels clean and trustworthy.",
+      "name": "Melanie S.",
+      "detail": "CBD cat snacks, salmon"
+     },
+     {
+      "rating": 5,
+      "text": "Our cat took to the product well.",
+      "name": "Tom B.",
+      "detail": "CBD cat snacks, salmon"
+     }
+    ],
+    "footnote": "Reviews translated from German."
+   }
+  },
+  {
+   "name": "24b-review-cards-square",
+   "label": "Review cards / square / dark",
+   "template": "review_cards",
+   "data": {
+    "theme": "dark",
+    "headline": "Our CBD cat snacks, *reviewed*.",
+    "reviews": [
+     {
+      "rating": 5,
+      "text": "The quality feels clean and trustworthy.",
+      "name": "Melanie S.",
+      "detail": "CBD cat snacks, salmon"
+     }
+    ],
+    "footnote": "Review translated from German."
+   },
+   "size": "square"
+  },
+  {
+   "name": "25a-us-vs-them-feed",
+   "label": "Us vs them / feed",
+   "template": "us_vs_them",
+   "data": {
+    "headline": "Know what's *in the bottle*.",
+    "us": {
+     "name": "Happy Garden"
+    },
+    "us_photo": "motion/otto-kit/img/hg-yellow.jpg",
+    "us_photo_pos": "50% 60%",
+    "them": {
+     "name": "CBD without a lab report"
+    },
+    "rows": [
+     {
+      "label": "Independent lab report",
+      "us": "Every batch",
+      "them": false
+     },
+     {
+      "label": "Made to GMP-ISO 7 standards",
+      "us": true,
+      "them": "Unknown"
+     },
+     {
+      "label": "THC-free options",
+      "us": "Broad & Isolate",
+      "them": "Unknown"
+     }
+    ],
+    "footnote": "Without a lab report, there is no independent certificate for the batch you buy."
+   }
+  },
+  {
+   "name": "25b-us-vs-them-story",
+   "label": "Us vs them / story / dark",
+   "template": "us_vs_them",
+   "data": {
+    "theme": "dark",
+    "headline": "Know what's *in the bottle*.",
+    "us": {
+     "name": "Happy Garden"
+    },
+    "us_photo": "motion/otto-kit/img/hg-yellow.jpg",
+    "us_photo_pos": "50% 60%",
+    "them": {
+     "name": "CBD without a lab report"
+    },
+    "rows": [
+     {
+      "label": "Independent lab report",
+      "us": "Every batch",
+      "them": false
+     },
+     {
+      "label": "Made to GMP-ISO 7 standards",
+      "us": true,
+      "them": "Unknown"
+     },
+     {
+      "label": "THC-free options",
+      "us": "Broad & Isolate",
+      "them": "Unknown"
+     }
+    ],
+    "footnote": "Without a lab report, there is no independent certificate for the batch you buy."
+   },
+   "size": "story"
+  },
+  {
+   "name": "26a-product-hero-feed",
+   "label": "Product hero / feed / light",
+   "template": "product_hero",
+   "data": {
+    "theme": "light",
+    "kicker": "Broad Spectrum CBD Oil",
+    "headline": "Clean CBD, *checked twice*.",
+    "photo": "motion/otto-kit/img/hg-yellow.jpg",
+    "photo_pos": "50% 60%",
+    "callouts": [
+     "THC-free",
+     "Lab report for every batch",
+     "Made to GMP standards"
+    ],
+    "price": "€1.50 a day",
+    "price_note": "€45 per 30 ml bottle",
+    "cta": "Shop the oil"
+   }
+  },
+  {
+   "name": "26b-product-hero-story",
+   "label": "Product hero / story",
+   "template": "product_hero",
+   "data": {
+    "kicker": "Evening ritual",
+    "headline": "The wind-down, *minus the guesswork*.",
+    "photo": "motion/otto-kit/img/hg-evening.jpg",
+    "photo_pos": "45% 60%",
+    "callouts": [
+     "CBD, CBG and CBN",
+     "Lab report for every batch",
+     "Made to GMP standards"
+    ],
+    "cta": "Explore the evening blend"
+   },
+   "size": "story"
+  },
+  {
+   "name": "27a-macro-hero-feed",
+   "label": "Macro hero / feed / right",
+   "template": "macro_hero",
+   "data": {
+    "word": "Checked *twice.*",
+    "sub": "Every batch of our CBD oil is tested by an independent lab.",
+    "photo": "motion/otto-kit/img/hg-yellow.jpg",
+    "photo_pos": "62% 70%",
+    "crop": "right",
+    "theme": "deep"
+   }
+  },
+  {
+   "name": "27b-macro-hero-square",
+   "label": "Macro hero / square / center",
+   "template": "macro_hero",
+   "data": {
+    "word": "*THC-free.*",
+    "sub": "Broad Spectrum CBD oil, with a lab report for every batch.",
+    "photo": "motion/otto-kit/img/hg-yellow.jpg",
+    "photo_pos": "62% 72%",
+    "crop": "center",
+    "theme": "light"
+   },
+   "size": "square"
+  },
+  {
+   "name": "28a-ingredients-feed",
+   "label": "Ingredients / feed",
+   "template": "ingredients",
+   "data": {
+    "kicker": "The evening blend",
+    "headline": "Three cannabinoids, *one bottle*",
+    "photo": "motion/otto-kit/img/hg-evening.jpg",
+    "photo_pos": "42% 62%",
+    "items": [
+     {
+      "name": "CBD",
+      "note": "The core of every Happy Garden oil",
+      "photo": "motion/otto-kit/img/hg-yellow.jpg"
+     },
+     {
+      "name": "CBG",
+      "note": "A second cannabinoid in the blend",
+      "photo": "motion/otto-kit/img/hg-001.jpg"
+     },
+     {
+      "name": "CBN",
+      "note": "Made for the wind-down part of the day",
+      "photo": "motion/otto-kit/img/hg-evening.jpg"
+     },
+     {
+      "name": "Lab report",
+      "note": "An independent lab tests every batch",
+      "photo": "motion/otto-kit/img/hg-lab.jpg"
+     }
+    ],
+    "footnote": "Every batch is tested by an independent lab.",
+    "cta": "Explore the evening blend"
+   }
   }
  ],
  "cmtm": [
@@ -747,6 +1131,390 @@
     "cta": "לשמירת מקום",
     "photo": "motion/otto-kit/img/interior-room.jpg",
     "photo_pos": "40% 55%"
+   }
+  },
+  {
+   "name": "19a-notes-app-feed",
+   "label": "Notes / checklist / feed",
+   "template": "notes_app",
+   "data": {
+    "headline": "רשימת בדיקה *לפני שנרשמים*",
+    "title": "לפני שבוחרים הכשרת מטפלים",
+    "mode": "checklist",
+    "items": [
+     {
+      "text": "סטאז' מודרך על מטופלים אמיתיים",
+      "checked": true
+     },
+     {
+      "text": "סילבוס, עבודת גמר ומבחן",
+      "checked": true
+     },
+     {
+      "text": "קהילה שנשארת גם אחרי",
+      "checked": true
+     },
+     "שיעור טעימה לפני שמחליטים"
+    ],
+    "footer": "אצלנו תמצאו *את שלושתם*."
+   }
+  },
+  {
+   "name": "19b-notes-app-story",
+   "label": "Notes / numbered / story",
+   "template": "notes_app",
+   "data": {
+    "theme": "light",
+    "headline": "איך נראית *שנה ראשונה*",
+    "title": "שנה ראשונה בהכשרה",
+    "mode": "numbered",
+    "items": [
+     "לומדים את השיטה עם המרצים שפיתחו אותה",
+     "מתרגלים בסטאז' מודרך על מטופלים אמיתיים",
+     "מסיימים בעבודת גמר ומבחן, ומקבלים דיפלומה"
+    ],
+    "footer": "ואחר כך: *קהילת מטפלים* שממשיכה איתך.",
+    "photo": "motion/otto-kit/img/cm-007.jpg",
+    "photo_pos": "70% 50%"
+   },
+   "size": "story"
+  },
+  {
+   "name": "20a-search-feed",
+   "label": "Search / result / feed",
+   "template": "search",
+   "data": {
+    "theme": "light",
+    "query": "תרפיית מימדים הכשרה",
+    "results": [
+     {
+      "site": "מכללת תרפיית מימדים",
+      "url": "https://cmtm.co.il",
+      "title": "הכשרת מטפלים בשיטת תרפיית המימדים",
+      "snippet": "הכשרה פרונטלית בפתח תקווה או דיגיטלית מכל מקום. סילבוס מלא, *סטאז' מודרך* וקהילת בוגרים."
+     },
+     {
+      "site": "מכללת תרפיית מימדים",
+      "url": "https://cmtm.co.il",
+      "title": "שיעור טעימה דיגיטלי עם מפתחי השיטה",
+      "snippet": "שיעור וידאו מתוך קורס ההכשרה, ואחריו שיחת התאמה אישית עם יועצת. *חינם*, בלי התחייבות."
+     }
+    ],
+    "photo": "motion/otto-kit/img/cm-002.jpg",
+    "photo_pos": "50% 20%"
+   }
+  },
+  {
+   "name": "20b-search-square",
+   "label": "Search / autocomplete / square",
+   "template": "search",
+   "data": {
+    "theme": "accent",
+    "headline": "מתחילים *מהשאלה הנכונה*",
+    "query": "הכשרת מטפלים",
+    "suggestions": [
+     "הכשרת מטפלים בלי רקע",
+     "*הכשרת מטפלים עם סטאז' מודרך*",
+     "הכשרת מטפלים דיגיטלית",
+     "הכשרת מטפלים בפתח תקווה"
+    ]
+   },
+   "size": "square"
+  },
+  {
+   "name": "21a-text-message-square",
+   "label": "Text message / square",
+   "template": "text_message",
+   "data": {
+    "theme": "light",
+    "contact": "תרפיית מימדים",
+    "time": "היום 20:30",
+    "messages": [
+     {
+      "from": "them",
+      "text": "שיעור הטעימה הדיגיטלי מוכן. שיעור וידאו מתוך הקורס, ואחריו שיחת התאמה עם יועצת."
+     },
+     {
+      "from": "me",
+      "text": "מעולה, תודה!"
+     }
+    ],
+    "receipt": "נמסרה",
+    "photo": "motion/otto-kit/img/interior-room.jpg",
+    "photo_pos": "40% 60%"
+   },
+   "size": "square"
+  },
+  {
+   "name": "21b-text-message-story",
+   "label": "Text message / story",
+   "template": "text_message",
+   "data": {
+    "headline": "שאלות *לפני שמתחילים*",
+    "contact": "תרפיית מימדים",
+    "messages": [
+     {
+      "from": "me",
+      "text": "צריך רקע טיפולי כדי להתחיל?"
+     },
+     {
+      "from": "them",
+      "text": "לא. ההכשרה בנויה גם למי שמגיעים בלי רקע: מהבסיס, עם סטאז' מודרך על מטופלים אמיתיים."
+     },
+     {
+      "from": "me",
+      "text": "ואפשר ללמוד מהבית?"
+     },
+     {
+      "from": "them",
+      "text": "כן. יש מסלול דיגיטלי מכל מקום, ומסלול פרונטלי בפתח תקווה."
+     },
+     {
+      "from": "them",
+      "text": "רוצה להתחיל משיעור טעימה?"
+     }
+    ]
+   },
+   "size": "story"
+  },
+  {
+   "name": "22a-social-post-feed",
+   "label": "Social post / feed",
+   "template": "social_post",
+   "data": {
+    "theme": "light",
+    "name": "מכללת תרפיית מימדים",
+    "handle": "cmtm.co.il",
+    "text": "25 שנה אנחנו מלמדים את השיטה, ויותר מ-10,000 בוגרים ובוגרות למדו אותה.\n\nמקצוע טיפולי לא לומדים מספר. לומדים אותו מאנשים, *מתרגול* ומקהילה שמחזיקה אותך בדרך.",
+    "photo": "motion/otto-kit/img/cm-001.jpg",
+    "photo_pos": "50% 55%",
+    "time": "20:30 · 29 בספטמבר 2026"
+   }
+  },
+  {
+   "name": "22b-social-post-square",
+   "label": "Social post / square",
+   "template": "social_post",
+   "data": {
+    "ui": "dark",
+    "name": "רות",
+    "handle": "בוגרת המסלול הבסיסי",
+    "portrait": "motion/otto-kit/img/cm-002.jpg",
+    "portrait_pos": "50% 18%",
+    "text": "תוך שנה *הפכתי למטפלת טובה*. לא האמנתי שזה אפשרי בלי תואר."
+   },
+   "size": "square"
+  },
+  {
+   "name": "23a-ugc-caption-square",
+   "label": "UGC caption / square",
+   "template": "ugc_caption",
+   "data": {
+    "photo": "motion/otto-kit/img/cm-002.jpg",
+    "photo_pos": "50% 25%",
+    "caption_pos": "bottom",
+    "captions": [
+     "הכשרת מטפלים *גם בלי רקע טיפולי*"
+    ],
+    "handle": "@dimensions_therapy"
+   },
+   "size": "square"
+  },
+  {
+   "name": "23b-ugc-caption-story",
+   "label": "UGC caption / story",
+   "template": "ugc_caption",
+   "data": {
+    "photo": "motion/otto-kit/img/cm-002.jpg",
+    "photo_pos": "55% 30%",
+    "caption_pos": "bottom",
+    "captions": [
+     "מה לומדים בשנה הראשונה *בהכשרת מטפלים*?",
+     "סטאז' מודרך על מטופלים אמיתיים"
+    ],
+    "handle": "@dimensions_therapy",
+    "logo": true
+   },
+   "size": "story"
+  },
+  {
+   "name": "24a-review-cards-feed",
+   "label": "Review cards / feed",
+   "template": "review_cards",
+   "data": {
+    "headline": "מה בוגרות *מספרות*",
+    "summary": {
+     "count_label": "מעל 10,000 בוגרים ובוגרות"
+    },
+    "photo": "motion/otto-kit/img/interior-room.jpg",
+    "photo_pos": "40% 55%",
+    "reviews": [
+     {
+      "text": "תוך שנה הפכתי למטפלת טובה!",
+      "name": "רות",
+      "detail": "בוגרת המסלול הבסיסי"
+     }
+    ]
+   }
+  },
+  {
+   "name": "24b-review-cards-story",
+   "label": "Review cards / story",
+   "template": "review_cards",
+   "data": {
+    "headline": "מה בוגרות *מספרות*",
+    "summary": {
+     "count_label": "מעל 10,000 בוגרים ובוגרות"
+    },
+    "reviews": [
+     {
+      "text": "תוך שנה הפכתי למטפלת טובה!",
+      "name": "רות",
+      "detail": "בוגרת המסלול הבסיסי"
+     }
+    ],
+    "photo": "motion/otto-kit/img/interior-room.jpg",
+    "photo_pos": "45% 50%"
+   },
+   "size": "story"
+  },
+  {
+   "name": "25a-us-vs-them-feed",
+   "label": "Us vs them / feed",
+   "template": "us_vs_them",
+   "data": {
+    "headline": "לא עוד סדנה. *הכשרה.*",
+    "us": {
+     "name": "תרפיית מימדים"
+    },
+    "us_photo": "motion/otto-kit/img/cm-002.jpg",
+    "us_photo_pos": "50% 20%",
+    "them": {
+     "name": "סדנת סוף שבוע"
+    },
+    "rows": [
+     {
+      "label": "סטאז' מודרך על מטופלים אמיתיים",
+      "us": true,
+      "them": false
+     },
+     {
+      "label": "סילבוס, עבודת גמר ומבחן",
+      "us": true,
+      "them": false
+     },
+     {
+      "label": "קהילת מטפלים אחרי הלימודים",
+      "us": true,
+      "them": "לרוב לא"
+     },
+     {
+      "label": "בסוף הדרך",
+      "us": "דיפלומה",
+      "them": "תעודת השתתפות"
+     }
+    ],
+    "footnote": "השוואה כללית לסדנאות קצרות; כל סדנה בנויה אחרת."
+   }
+  },
+  {
+   "name": "25b-us-vs-them-square",
+   "label": "Us vs them / square / dark",
+   "template": "us_vs_them",
+   "data": {
+    "theme": "dark",
+    "headline": "הכשרה *מול* סדנה",
+    "us": {
+     "name": "תרפיית מימדים"
+    },
+    "them": {
+     "name": "סדנת סוף שבוע"
+    },
+    "rows": [
+     {
+      "label": "סטאז' מודרך על מטופלים אמיתיים",
+      "us": true,
+      "them": false
+     },
+     {
+      "label": "סילבוס, עבודת גמר ומבחן",
+      "us": true,
+      "them": false
+     },
+     {
+      "label": "בסוף הדרך",
+      "us": "דיפלומה",
+      "them": "תעודת השתתפות"
+     }
+    ],
+    "footnote": "השוואה כללית לסדנאות קצרות; כל סדנה בנויה אחרת."
+   },
+   "size": "square"
+  },
+  {
+   "name": "26a-product-hero-feed",
+   "label": "Product hero / feed",
+   "template": "product_hero",
+   "data": {
+    "kicker": "הכשרת מטפלים",
+    "headline": "מקצוע טיפולי, *עם דיפלומה*",
+    "photo": "motion/otto-kit/img/cm-007.jpg",
+    "photo_pos": "30% 50%",
+    "callouts": [
+     "סטאז' מודרך",
+     "20 שיעורי וידאו",
+     "קהילת מטפלים",
+     "10,000+ בוגרים"
+    ],
+    "cta": "לבדיקת התאמה"
+   }
+  },
+  {
+   "name": "27a-macro-hero-feed",
+   "label": "Macro hero / feed / bottom",
+   "template": "macro_hero",
+   "data": {
+    "word": "*10,000+* בוגרים",
+    "sub": "הכשרת מטפלים בשיטת תרפיית המימדים, עם סטאז' מודרך ודיפלומה.",
+    "photo": "motion/otto-kit/img/cm-007.jpg",
+    "photo_pos": "25% 45%",
+    "crop": "bottom",
+    "theme": "deep"
+   }
+  },
+  {
+   "name": "28a-ingredients-feed",
+   "label": "Ingredients / feed / dark",
+   "template": "ingredients",
+   "data": {
+    "theme": "dark",
+    "kicker": "מה יש בהכשרה",
+    "headline": "מה מקבלים *ברמה הבסיסית*",
+    "photo": "motion/otto-kit/img/cm-002.jpg",
+    "photo_pos": "50% 25%",
+    "items": [
+     {
+      "name": "20 שיעורי וידאו",
+      "note": "ו-20 שיעורי אודיו, מכל מקום"
+     },
+     {
+      "name": "סטאז' מודרך",
+      "note": "על מטופלים אמיתיים, בליווי מדריך"
+     },
+     {
+      "name": "תרגולים",
+      "note": "בין השיעורים, לבד ובקבוצה"
+     },
+     {
+      "name": "דיפלומה",
+      "note": "אחרי עבודת גמר ומבחן"
+     },
+     {
+      "name": "קהילת מטפלים",
+      "note": "שממשיכה איתך אחרי הלימודים"
+     }
+    ],
+    "cta": "לבדיקת התאמה"
    }
   }
  ]

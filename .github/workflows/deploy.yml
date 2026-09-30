@@ -1,0 +1,148 @@
+# Otto: test → deploy → tell Telegram. Runbook: infra/README.md.
+#
+# Push to main: unit tests on ubuntu-latest, then over SSH to the server: `sudo -u otto /opt/otto/infra/deploy.sh <sha>`
+# (the server runs the tests again on a clean copy, switches, restarts, health-checks and rolls itself back on failure).
+# Run workflow (Actions tab): deploy any commit, or tick "rollback" to go back one release.
+#
+# Repository secrets: OTTO_HOST (server IP), OTTO_SSH_KEY (private deploy key; its public half is locked on the server to
+# otto-deploy-gate), OTTO_KNOWN_HOSTS (the line bootstrap.sh prints). Optional: TELEGRAM_BOT_TOKEN + TELEGRAM_CHAT_ID.
+# Optional repository variable: OTTO_SSH_USER (default deploy).
+name: deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      rollback:
+        description: "Roll back to the previous release instead of deploying"
+        type: boolean
+        default: false
+      ref:
+        description: "Commit SHA to deploy (empty = the head of the branch you picked)"
+        type: string
+        required: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: otto-production
+  cancel-in-progress: false
+
+jobs:
+  test:
+    if: ${{ !(github.event_name == 'workflow_dispatch' && inputs.rollback) }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref || github.sha }}
+
+      - name: ffmpeg and fonts
+        run: |
+          sudo apt-get update -q
+          sudo apt-get install -y -q --no-install-recommends ffmpeg fonts-dejavu-core
+
+      - name: Headless Chrome (browser tests are skipped when it cannot run)
+        run: |
+          probe() { timeout 60 "$1" --headless --disable-gpu --no-first-run --window-size=64,64 \
+                      --screenshot=/tmp/probe.png about:blank >/dev/null 2>&1 && test -s /tmp/probe.png; }
+          b=$(command -v google-chrome || command -v google-chrome-stable || command -v chromium || true)
+          if [ -z "$b" ]; then echo "no Chrome on this runner: the render tests will skip"; exit 0; fi
+          # Ubuntu 24.04 restricts unprivileged user namespaces, which Chrome's sandbox needs
+          sudo sysctl -q -w kernel.apparmor_restrict_unprivileged_userns=0 || true
+          if probe "$b"; then echo "Chrome works: $("$b" --version)"; exit 0; fi
+          echo "::warning::Chrome is installed but cannot render here — hiding it so the browser tests skip instead of failing"
+          for x in google-chrome google-chrome-stable chromium chromium-browser; do
+            p=$(command -v "$x" || true); [ -n "$p" ] && sudo mv "$p" "$p.disabled"
+          done
+
+      - name: Unit tests
+        working-directory: platform
+        env:
+          PYTHONDONTWRITEBYTECODE: "1"
+        run: python3 -m unittest discover -s tests
+
+      - name: Shell syntax
+        run: |
+          for f in infra/*.sh infra/otto; do bash -n "$f"; done
+          python3 -m py_compile infra/otto_alert.py
+
+  deploy:
+    needs: test
+    if: ${{ always() && (needs.test.result == 'success' || (github.event_name == 'workflow_dispatch' && inputs.rollback)) }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    outputs:
+      summary: ${{ steps.run.outputs.summary }}
+    steps:
+      - name: SSH key and known host
+        id: ssh
+        env:
+          OTTO_SSH_KEY: ${{ secrets.OTTO_SSH_KEY }}
+          OTTO_KNOWN_HOSTS: ${{ secrets.OTTO_KNOWN_HOSTS }}
+          OTTO_HOST: ${{ secrets.OTTO_HOST }}
+        run: |
+          if [ -z "$OTTO_SSH_KEY" ] || [ -z "$OTTO_KNOWN_HOSTS" ] || [ -z "$OTTO_HOST" ]; then
+            # no server yet (before infra/README.md setup): tests still gate main, deploy is skipped without a red X
+            echo "::notice::no Otto server configured (OTTO_HOST, OTTO_SSH_KEY, OTTO_KNOWN_HOSTS) — deploy skipped"
+            echo "configured=false" >> "$GITHUB_OUTPUT"; exit 0
+          fi
+          echo "configured=true" >> "$GITHUB_OUTPUT"
+          install -d -m 700 ~/.ssh
+          printf '%s\n' "$OTTO_SSH_KEY" > ~/.ssh/otto_deploy
+          chmod 600 ~/.ssh/otto_deploy
+          printf '%s\n' "$OTTO_KNOWN_HOSTS" > ~/.ssh/known_hosts
+
+      - name: Deploy or roll back
+        id: run
+        if: ${{ steps.ssh.outputs.configured == 'true' }}
+        env:
+          OTTO_HOST: ${{ secrets.OTTO_HOST }}
+          SSH_USER: ${{ vars.OTTO_SSH_USER || 'deploy' }}
+          ROLLBACK: ${{ github.event_name == 'workflow_dispatch' && inputs.rollback }}
+          SHA: ${{ inputs.ref || github.sha }}
+        run: |
+          if [ "$ROLLBACK" = "true" ]; then arg=--rollback; else arg=$SHA; fi
+          case $arg in --rollback) ;; *) echo "$arg" | grep -Eq '^[0-9a-f]{7,40}$' || { echo "::error::ref must be a commit SHA"; exit 1; } ;; esac
+          set +e
+          ssh -i ~/.ssh/otto_deploy -o IdentitiesOnly=yes -o BatchMode=yes -o StrictHostKeyChecking=yes \
+              -o ConnectTimeout=20 -o ServerAliveInterval=30 \
+              "$SSH_USER@$OTTO_HOST" "sudo -u otto /opt/otto/infra/deploy.sh $arg" 2>&1 | tee deploy.log
+          rc=${PIPESTATUS[0]}
+          set -e
+          line=$(grep -E '^\[deploy\] (OK|FAILED|ROLLBACK FAILED)' deploy.log | tail -n 1 | cut -c1-300)
+          echo "summary=${line:-no result line (exit $rc)}" >> "$GITHUB_OUTPUT"
+          rm -f ~/.ssh/otto_deploy
+          exit "$rc"
+
+  notify:
+    needs: [test, deploy]
+    if: ${{ always() }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Telegram
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          TEST: ${{ needs.test.result }}
+          DEPLOY: ${{ needs.deploy.result }}
+          SUMMARY: ${{ needs.deploy.outputs.summary }}
+          ROLLBACK: ${{ github.event_name == 'workflow_dispatch' && inputs.rollback }}
+          SHA: ${{ inputs.ref || github.sha }}
+          SUBJECT: ${{ github.event.head_commit.message }}
+          ACTOR: ${{ github.actor }}
+          RUN: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          if [ -z "$TELEGRAM_BOT_TOKEN" ] || [ -z "$TELEGRAM_CHAT_ID" ]; then echo "no Telegram secrets — skipped"; exit 0; fi
+          what="deploy ${SHA:0:8}"; [ "$ROLLBACK" = "true" ] && what="rollback"
+          if [ "$DEPLOY" = "success" ]; then head="Otto $what OK"
+          elif [ "$TEST" = "failure" ]; then head="Otto $what STOPPED: tests failed, nothing changed on the server"
+          elif [ "$DEPLOY" = "skipped" ] || [ "$DEPLOY" = "cancelled" ]; then head="Otto $what $DEPLOY"
+          else head="Otto $what FAILED"; fi
+          text=$(printf '%s\n%s\n%s by %s\n%s' "$head" "${SUMMARY:-}" "$(printf '%s' "$SUBJECT" | head -n 1 | cut -c1-120)" "$ACTOR" "$RUN")
+          curl -fsS -m 20 -o /dev/null "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
+               --data-urlencode "chat_id=${TELEGRAM_CHAT_ID}" --data-urlencode "text=${text}" \
+               --data-urlencode "disable_web_page_preview=true" || echo "::warning::Telegram message not sent"

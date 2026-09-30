@@ -2,6 +2,8 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
+<!-- CSP: script-src lists the sha256 of every inline script element in this page. After editing one, the browser refuses it and its console prints the new hash: replace the old one here (or recompute all of them). -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-wjHOi8yIPllHkT54xnBQAhSiW285lPzD2i8rCGHk010='; style-src 'self' 'unsafe-inline'; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-src 'none'; worker-src 'none'; manifest-src 'self'; img-src 'self' data: blob: https:; media-src 'self' blob: https:">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="color-scheme" content="light dark">
 <meta name="theme-color" content="#F5F7FB" media="(prefers-color-scheme: light)">
@@ -376,6 +378,15 @@ html.dragging,html.dragging *{cursor:grabbing!important;-webkit-user-select:none
 
 /* empty + error + skeleton */
 .empty{padding:56px 24px 48px;text-align:center}
+/* gate: shown instead of the app when there is nothing of the client's to show (signed out, no brand yet, offline) */
+.gate{position:fixed;inset:0;overflow-y:auto;background:var(--bg);display:grid;place-items:center;padding:calc(24px + env(safe-area-inset-top,0px)) var(--pad) calc(24px + env(safe-area-inset-bottom,0px))}
+.gate-in{width:100%;max-width:420px;text-align:center}
+.gate-brand{display:inline-flex;align-items:center;gap:10px;margin-bottom:28px}
+.gate-h{font:700 28px/34px var(--font);letter-spacing:-.021em;text-wrap:balance;border-radius:6px}
+.gate-h:focus-visible{outline:none}      /* focused only so a screen reader starts here; it is not a control */
+.gate-s{font:400 17px/24px var(--font);letter-spacing:-.01em;color:var(--ink-2);margin-top:10px;text-wrap:pretty}
+.gate-a{display:grid;gap:10px;margin-top:28px}
+.gate-n{font:400 14px/20px var(--font);color:var(--ink-3);margin-top:18px;text-wrap:pretty}
 .empty-t{font:600 20px/25px var(--font);letter-spacing:-.017em}
 .empty-s{font:400 15px/20px var(--font);color:var(--ink-2);margin-top:6px;text-wrap:balance}
 .err-card{padding:20px 16px;display:grid;gap:4px;justify-items:start}
@@ -458,6 +469,15 @@ html.dragging,html.dragging *{cursor:grabbing!important;-webkit-user-select:none
 .line{display:flex;align-items:center;gap:12px;width:100%;min-height:48px;padding:10px 16px;position:relative;text-align:left}
 .line-v{flex:none;max-width:55%;font:400 15px/20px var(--font);color:var(--ink-2);text-align:right}
 .line-v.s{font-size:13px;line-height:18px}
+.rt-m.wrap{white-space:normal;text-wrap:pretty}
+.grp .hint a{color:var(--accent);font-weight:500;border-radius:6px}
+.grp .hint a:hover{text-decoration:underline;text-underline-offset:3px}
+.appr{padding:12px 16px 14px}
+.appr+.appr{border-top:var(--hair) solid var(--line)}
+.appr .seg{margin-bottom:0;max-width:none}
+.seg button[aria-checked=true]{color:var(--ink);font-weight:600}
+.appr-n{font:600 15px/20px var(--font);margin-bottom:10px}
+.appr-h{font:400 13px/18px var(--font);color:var(--ink-3);padding-top:10px;text-wrap:pretty}
 
 /* ---------- sheets ---------- */
 #layers{position:fixed;inset:0;z-index:100;pointer-events:none}
@@ -690,6 +710,15 @@ html[data-vt=close]::view-transition-old(sheet):only-child{animation:vt-sink .28
   </nav>
 </div>
 
+<section class="gate" id="gate" aria-labelledby="gate-h" hidden>
+  <div class="gate-in">
+    <div class="gate-brand"><span class="mark" aria-hidden="true"></span><span class="wm">Otto</span></div>
+    <h1 class="gate-h" id="gate-h" tabindex="-1"></h1>
+    <p class="gate-s" id="gate-s"></p>
+    <div class="gate-a" id="gate-a"></div>
+    <p class="gate-n" id="gate-n"></p>
+  </div>
+</section>
 <div id="layers"></div>
 <div class="toast" id="toast" hidden></div>
 <label class="hap" aria-hidden="true"><input type="checkbox" switch tabindex="-1"></label>
@@ -697,7 +726,7 @@ html[data-vt=close]::view-transition-old(sheet):only-child{animation:vt-sink .28
 <p class="sr" id="sw-help">Press A to approve, S to skip, C to ask for changes, Enter to open.</p>
 <noscript><p style="padding:24px;font:15px/1.4 -apple-system,system-ui,sans-serif">Otto needs JavaScript to show your posts.</p></noscript>
 
-<script id="fallback-data" type="application/json">{"generated": "2026-09-27T20:35:38Z", "recommendations": [{"id": "rec-001", "priority": "P0", "title": "Approve 4 posts waiting for review", "why": "Week-1 content for both brands is drafted and slotted. Publishing starts Sep 27 — approving today keeps the schedule intact.", "impact": "Keeps the first publishing week on time", "cta": "Review queue", "status": "proposed"}, {"id": "rec-002", "priority": "P0", "title": "Connect Meta assets for the pilot brand", "why": "Live publishing (Phase 4) is blocked until a Facebook Page + Instagram account are linked. Everything upstream is ready.", "impact": "Unblocks automated publishing end-to-end", "cta": "Connect assets", "status": "proposed"}, {"id": "rec-003", "priority": "P1", "title": "Run the pilot on CMTM first", "why": "Hebrew organic content, an engaged alumni community, and no ad-category restrictions. Happy Garden is CBD — restricted on Meta, better as brand #2.", "impact": "Fastest path to a proven publishing loop", "cta": "Confirm choice", "status": "proposed"}, {"id": "rec-004", "priority": "P1", "title": "Move Otto from €197 one-time to monthly plans", "why": "Native charges $79–499/mo for the same job. Recurring pricing funds the agency loop and matches how the market already buys.", "impact": "Recurring revenue instead of one-off sales", "cta": "See pricing draft", "status": "proposed"}, {"id": "rec-005", "priority": "P2", "title": "Add LinkedIn for the career-change pillar", "why": "CMTM's core audience (women 28–55 changing careers) over-indexes on LinkedIn. One extra channel, same content plan.", "impact": "New audience at near-zero extra cost", "cta": "Draft channel plan", "status": "proposed"}, {"id": "rec-006", "priority": "P1", "title": "Ship AI short-form video — Native has none", "why": "Deep-dive confirms Native has zero video support, their most-cited gap. Our video_generate + Leonardo pipeline already exists — autopilot Reels/TikToks is pure differentiation.", "impact": "A format the competition cannot match", "cta": "See video plan", "status": "proposed"}, {"id": "rec-007", "priority": "P1", "title": "Adopt binding brand fingerprints in onboarding", "why": "Native's Taste Layer paper shows brand voice as binding generation params (not hints) is why their output isn't slop. Our interview-based onboarding can produce a richer fingerprint than their URL scrape.", "impact": "On-brand output at scale, fewer declines", "cta": "Approve spec", "status": "proposed"}, {"id": "rec-008", "priority": "P2", "title": "Expose Autopilot via MCP from any assistant", "why": "Native ships an MCP endpoint for Claude/ChatGPT control. We are OpenClaw-native — this is home turf and we can out-execute them.", "impact": "Agentic distribution wedge", "cta": "Draft scope", "status": "proposed"}], "brands": [{"id": "happygarden", "name": "Happy Garden CBD", "url": "happygardeneu.com", "lang": "EN/DE", "status": "active", "pillars": ["Education", "Trust & proof", "Use-case", "Product", "Engagement"], "compliance": "CBD is a restricted category on Meta — organic-first strategy"}, {"id": "cmtm", "name": "CMTM College", "url": "cmtm.co.il", "lang": "HE · shown in English", "status": "active", "pillars": ["Alumni stories", "Method education", "Career change", "Parenting", "Current events", "Community"], "compliance": "No healing claims · mental-health targeting restricted on Meta"}], "posts": [{"id": "hg-001", "brand": "happygarden", "pillar": "Education", "platform": "ig", "hook": "Full vs Broad Spectrum vs Isolate — 60-second guide", "status": "pending_approval", "slot": "2026-09-27T08:00", "approved_via": "dashboard", "caption": "Full Spectrum, Broad Spectrum, Isolate — same plant, three very different products. 🌿\n\nFULL — every compound working together (the entourage effect).\nBROAD — the same team, minus THC.\nISOLATE — pure CBD, nothing else.\n\n60 seconds to know exactly what's in your bottle → swipe.\n\n#CBD #CBDeducation #sleepbetter #wellness", "image": "assets/posts/hg-001.png"}, {"id": "hg-002", "brand": "happygarden", "pillar": "Trust & proof", "platform": "fb", "hook": "What our customers actually say", "status": "approved", "slot": "2026-09-27T17:00"}, {"id": "hg-003", "brand": "happygarden", "pillar": "Use-case", "platform": "ig", "hook": "CBN + CBD for sleep: what the entourage effect means", "status": "draft", "slot": "2026-09-28T08:00"}, {"id": "hg-004", "brand": "happygarden", "pillar": "Engagement", "platform": "ig", "hook": "Poll: what's your #1 sleep struggle?", "status": "scheduled", "slot": "2026-09-28T19:00"}, {"id": "cm-001", "brand": "cmtm", "pillar": "Method education", "platform": "ig", "hook": "“Healing from the root”: what it actually means. Five slides on the subconscious", "status": "pending_approval", "slot": "2026-09-27T09:00", "caption": "“Healing from the root” isn’t a slogan. It’s a method.\n\nMost tools we know work on the symptom: calm it, regulate it, manage it.\nDimension Therapy works on the root: the beliefs and patterns written into the subconscious long before we knew how to choose.\n\nFive slides on how it works → swipe.\n\n(Results vary from person to person. No therapeutic promise is made in this post.)", "image": "assets/posts/cm-001.png"}, {"id": "cm-002", "brand": "cmtm", "pillar": "Alumni stories", "platform": "fb", "hook": "At 43, with no clinical background, she opened a practice", "status": "pending_approval", "slot": "2026-09-27T18:00", "caption": "At 43, with no clinical background, Ronit enrolled “just for herself”.\n\nTwo years later: an active practice, a full calendar, and the feeling that she is finally in the right place.\n\nRonit’s full story in the first comment 👇\n\n25 years. 10,000 graduates. CMTM College.", "image": "assets/posts/cm-002.png"}, {"id": "cm-003", "brand": "cmtm", "pillar": "Career change", "platform": "fb", "hook": "A second career with meaning: three questions to ask first", "status": "draft", "slot": "2026-09-28T09:00"}, {"id": "cm-004", "brand": "cmtm", "pillar": "Parenting", "platform": "ig", "hook": "Is your child “too sensitive”? What sensory regulation is trying to tell you", "status": "draft", "slot": "2026-09-28T18:00"}, {"id": "cm-005", "brand": "cmtm", "pillar": "Current events", "platform": "fb", "hook": "Back from a hard month and carrying on as usual? The body remembers", "status": "draft", "slot": "2026-10-01T09:00"}, {"id": "cm-006", "brand": "cmtm", "pillar": "Community", "platform": "ig", "hook": "10,000 graduates. 25 years. One family", "status": "published", "slot": "2026-09-24T09:00"}, {"id": "cm-007", "brand": "cmtm", "pillar": "Myth-busting", "platform": "ig", "hook": "Myth: you need a psychology degree to help people", "status": "pending_approval", "slot": "2026-09-29T09:00", "caption": "Myth: “You need a psychology degree to help people.”\n\nReality: the therapeutic world is far wider, and there is a structured, deep, practical path that has trained practitioners for 25 years.\n\nWhat you do need: a wish to go deep, a serious framework, and the right training.\n\nAll the details about the programme → link in bio.", "image": "assets/posts/cm-007.png"}], "agents": [{"id": "maximus", "role": "Owner / build", "scope": "Development, deploys, incidents", "status": "active"}, {"id": "autopilot-core", "role": "Orchestrator", "scope": "Onboarding · plans · approvals · scheduling", "status": "planned"}, {"id": "autopilot-client-*", "role": "Per-client", "scope": "Single brand, isolated workspace, separate tokens", "status": "planned"}], "metrics": {"happygarden": {"reach": 0, "saves": 0, "clicks": 0, "leads": 0}, "cmtm": {"reach": 0, "saves": 0, "clicks": 0, "leads": 0}}, "connections": [{"id": "meta-cmtm", "service": "Instagram + Facebook", "brand": "CMTM College", "status": "not_connected"}, {"id": "meta-hg", "service": "Instagram + Facebook", "brand": "Happy Garden CBD", "status": "not_connected"}, {"id": "linkedin", "service": "LinkedIn", "brand": "Shared", "status": "planned"}], "fleet": [{"id": "orion", "name": "Orion", "role": "Orchestrator", "status": "active", "feed": ["Compiled today's briefing 06:00", "Routing 2 blockers to Max", "Watching Sep 27 publish deadline", "Fleet sync: 4 agents reporting"]}, {"id": "quill", "name": "Quill", "role": "Content agent", "status": "active", "feed": ["Drafted 11 posts across 2 brands", "Rewriting hg-003 hook — v2", "HE + DE variants ready for review", "4 posts queued for your sign-off"]}, {"id": "sage", "name": "Sage", "role": "Organic growth", "status": "active", "feed": ["Best CMTM slot: Sun 09:00", "IG hashtag sets refreshed", "LinkedIn pillar mapped (P2)", "Slotting week 2 calendar"]}, {"id": "nova", "name": "Nova", "role": "Ideas & trends", "status": "active", "feed": ["3 new recommendations queued", "Trend scan: reserve-duty chatter ↑", "Native gap found: short-form video", "Watching 6 content pillars"]}, {"id": "atlas", "name": "Atlas", "role": "Paid ads", "status": "standby", "feed": ["Waiting on Meta connection", "CMTM audience drafts ready", "CBD policy: organic-first for HG"]}, {"id": "echo", "name": "Echo", "role": "Analytics", "status": "standby", "feed": ["Activates with first published week", "Baselines set: reach · saves · leads"]}]}</script>
+<script id="fallback-data" type="application/json">{"generated": null, "fallback": "neutral", "brands": [], "posts": [], "recommendations": [], "campaigns": [], "connections": [], "metrics": {}}</script>
 <script>
 "use strict";
 /* ================= data contract (unchanged) =================
@@ -765,6 +794,8 @@ const IC = {
 };
 
 /* ================= formatting ================= */
+const own = (o, k) => o != null && Object.prototype.hasOwnProperty.call(o, k) ? o[k] : undefined;   // server strings as keys: never Object.prototype
+const N = v => { const n = Number(v); return Number.isFinite(n) ? n : 0; };                         // server numbers into markup: numbers only
 const esc = t => String(t ?? "").replace(/[&<>"']/g, c => ({"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"}[c]));
 const pad = n => String(n).padStart(2, "0");
 const hhmm = d => pad(d.getHours()) + ":" + pad(d.getMinutes());
@@ -774,7 +805,7 @@ const cap1 = s => s ? s.charAt(0).toUpperCase() + s.slice(1) : "";
 const H = p => p.hook_en || p.hook || "";          // English display copy when the client content is in another language
 const C = p => p.caption_en || p.caption || H(p);
 const PLAT = {ig: "Instagram", fb: "Facebook", li: "LinkedIn"};
-const plat = k => PLAT[k] || cap1(String(k || ""));
+const plat = k => own(PLAT, k) || cap1(String(k || ""));
 const FMT = {post: "Post", carousel: "Carousel", reel: "Reel", story: "Story", video: "Video"};
 const NUMW = ["No", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten"];
 const numw = n => NUMW[n] || String(n);
@@ -794,7 +825,7 @@ function when(s){ const d = toDate(s); if(!d) return ""; const w = dayWord(d); r
 function longWhen(s){ const d = toDate(s); return d ? d.toLocaleDateString("en-GB", {weekday: "long", day: "numeric", month: "long"}) + " at " + hhmm(d) : "No time set"; }
 const fmtN = n => n == null ? "—" : (Math.abs(n) >= 10000 ? (n / 1000).toFixed(1) + "k" : Number(n).toLocaleString("en-GB"));
 const CUR = {EUR: "€", USD: "$", GBP: "£", ILS: "₪", CHF: "CHF ", PLN: "zł ", HUF: "Ft ", RON: "lei "};
-const curSym = c => !c ? "€" : (CUR[c] || (String(c).length <= 2 ? c : c + " "));
+const curSym = c => !c ? "€" : (own(CUR, c) || (/^[A-Z]{3}$/.test(String(c)) ? c + " " : "€"));
 function updatedText(){ const g = DATA && toDate(DATA.generated); if(!g) return ""; return "Updated " + (dayDiff(g) === 0 ? hhmm(g) : dayMon(g) + ", " + hhmm(g)); }
 
 /* ================= data helpers ================= */
@@ -811,7 +842,7 @@ const nextUp = () => posts().filter(p => (p.status === "approved" || p.status ==
 const TR = {draft: ["pending_approval", "approved", "skipped"], pending_approval: ["draft", "approved", "skipped"],
   approved: ["pending_approval", "draft", "skipped", "scheduled"], scheduled: ["approved", "pending_approval", "draft", "skipped"],
   skipped: ["draft", "pending_approval"], failed: ["draft", "pending_approval", "skipped"], publishing: [], published: []};
-const canTo = (a, b) => (TR[a] || []).includes(b);
+const canTo = (a, b) => (own(TR, a) || []).includes(b);
 
 /* status pills for every post and campaign state */
 const PS = {pending_approval: ["Needs you", "need"], approved: ["Scheduled", "sched"], scheduled: ["Scheduled", "sched"], publishing: ["Publishing", "work"],
@@ -820,12 +851,12 @@ const CS = {draft: ["Draft", "quiet"], approved: ["Scheduled", "sched"], live: [
 const pillH = (t, c) => `<span class="pill ${c}">${c === "work" || t === "Live" ? '<i class="pd" aria-hidden="true"></i>' : ""}${esc(t)}</span>`;
 function postPill(p){
   if(p.status === "draft" && p.edit_note) return pillH("Rewriting", "work");
-  const s = PS[p.status] || [cap1(String(p.status || "").replace(/_/g, " ")), "quiet"];
+  const s = own(PS, p.status) || [cap1(String(p.status || "").replace(/_/g, " ")), "quiet"];
   return pillH(s[0], s[1]);
 }
 function campPill(c){
   if(c.compliance_hold && !["ended", "skipped"].includes(c.status)) return pillH("On hold for copy review", "warn");
-  const s = CS[c.status] || [cap1(String(c.status || "").replace(/_/g, " ")), "quiet"];
+  const s = own(CS, c.status) || [cap1(String(c.status || "").replace(/_/g, " ")), "quiet"];
   return pillH(s[0], s[1]);
 }
 
@@ -836,7 +867,7 @@ function pickRec(d){
   const recs = (d.recommendations || []).filter(r => r.status !== "dismissed" && r.status !== "done")
     .filter(r => !INTERNAL.test([r.title, r.why, r.impact, r.cta].join(" ")))
     .filter(r => !QUEUE_DUP.test([r.title, r.cta].join(" ")));
-  const rank = p => ({P0: 0, P1: 1, P2: 2}[p] ?? 3);
+  const rank = p => own({P0: 0, P1: 1, P2: 2}, p) ?? 3;
   return recs.sort((a, b) => rank(a.priority) - rank(b.priority))[0] || null;
 }
 
@@ -868,9 +899,10 @@ function runRollers(){
 function thumbH(p, size){
   const badge = /^(reel|video|story)$/.test(p.format || "") ? `<span class="th-b">${IC.play}</span>` : p.format === "carousel" ? `<span class="th-b">${IC.stack}</span>` : "";
   const cls = "thumb" + (size ? " " + size : "");
-  if(p.image) return `<span class="${cls}" data-thumb="${esc(p.id)}"><img src="${esc(p.image)}" alt="" loading="lazy" decoding="async" draggable="false" onerror="mediaFail(this)">${badge}</span>`;
+  if(p.image) return `<span class="${cls}" data-thumb="${esc(p.id)}"><img src="${esc(p.image)}" alt="" loading="lazy" decoding="async" draggable="false" data-fail="thumb">${badge}</span>`;
   return `<span class="${cls}" data-thumb="${esc(p.id)}">${/^(reel|video|story)$/.test(p.format || "") ? IC.reel : IC.photo}</span>`;
 }
+document.addEventListener("error", e => { const t = e.target; if(t && t.tagName === "IMG" && t.dataset.fail){ if(t.dataset.fail === "dm") dmFail(t); else mediaFail(t); } }, true);
 function mediaFail(img){ const t = img.parentElement; if(!t) return; img.remove(); t.insertAdjacentHTML("afterbegin", IC.photo); }
 const tileH = k => `<span class="tile" title="${esc(plat(k))}">${IC[k] || IC.photo}</span>`;
 function pendMeta(p){
@@ -889,7 +921,7 @@ function pendRowH(p){
   </div>`;
 }
 function postRowH(p){
-  const meta = [when(p.slot) || "No time set", plat(p.platform), p.format && p.format !== "post" ? (FMT[p.format] || cap1(p.format)) : "",
+  const meta = [when(p.slot) || "No time set", plat(p.platform), p.format && p.format !== "post" ? (own(FMT, p.format) || cap1(p.format)) : "",
     p.status === "published" && p.metrics && p.metrics.reach ? "Reach " + fmtN(p.metrics.reach) : ""].filter(Boolean).join(" · ");
   return `<button type="button" class="prow" data-open="${esc(p.id)}" data-fk="p:${esc(p.id)}">${p.image ? thumbH(p, "sm") : tileH(p.platform)}
     <span class="rt"><span class="rt-t" dir="auto">${esc(H(p)) || '<span class="ph">Copy in progress</span>'}</span><span class="rt-m">${esc(meta)}</span></span>${postPill(p)}</button>`;
@@ -1028,7 +1060,7 @@ function recH(){
 /* ---------- growth + charts ---------- */
 function growthLive(){
   const g = DATA.growth || {};
-  return Object.keys(g).filter(id => { const x = g[id], m = x.months || {}, c = m[x.current] || {}, p = m[x.previous] || {};
+  return Object.keys(g).filter(id => { const x = g[id] || {}, m = x.months || {}, c = own(m, x.current) || {}, p = own(m, x.previous) || {};
     return c.posts || p.posts || c.spend || p.spend || c.reach || p.reach; });
 }
 function delta(v, kind){                      // kind: pct | abs | inv (lower is better; otto_growth already inverts cpl)
@@ -1048,7 +1080,7 @@ function resultsH(first){
     + (quiet.length ? `<p class="hint">${esc(quiet.map(brandName).filter(Boolean).join(" and "))}: results start with the first published week.</p>` : ""));
 }
 function gcardH(id, first){
-  const x = DATA.growth[id], M = x.months || {}, c = M[x.current] || {}, p = M[x.previous] || {}, m = x.mom || {}, cur = curSym(x.currency);
+  const x = own(DATA.growth, id) || {}, M = x.months || {}, c = own(M, x.current) || {}, p = own(M, x.previous) || {}, m = x.mom || {}, cur = curSym(x.currency);
   const paid = c.spend || p.spend || c.results || p.results;
   const kp = [["Engagement", fmtN(c.engagement), delta(m.engagement, "pct")], ["Posts published", fmtN(c.posts), delta(m.posts, "abs")],
     ["Followers", c.followers != null ? fmtN(c.followers) : "—", delta(m.followers, "abs")]];
@@ -1227,7 +1259,7 @@ function dayListH(iso){
   const ps = postsOnIso(iso), fl = flightsOn(iso);
   if(!ps.length && !fl.length) return `<div class="list"><p class="dempty">Nothing planned for this day.</p></div>`;
   return `<div class="list">${ps.map(p => `<button type="button" class="drow" data-open="${esc(p.id)}" data-fk="d:${esc(p.id)}"><span class="dtime">${esc(hhmm(toDate(p.slot)))}</span>
-      <span class="rt"><span class="rt-t" dir="auto">${esc(H(p)) || '<span class="ph">Copy in progress</span>'}</span><span class="rt-m">${esc([brands().length > 1 ? brandName(p.brand) : "", plat(p.platform), p.format && p.format !== "post" ? (FMT[p.format] || cap1(p.format)) : ""].filter(Boolean).join(" · "))}</span></span>${postPill(p)}</button>`).join("")
+      <span class="rt"><span class="rt-t" dir="auto">${esc(H(p)) || '<span class="ph">Copy in progress</span>'}</span><span class="rt-m">${esc([brands().length > 1 ? brandName(p.brand) : "", plat(p.platform), p.format && p.format !== "post" ? (own(FMT, p.format) || cap1(p.format)) : ""].filter(Boolean).join(" · "))}</span></span>${postPill(p)}</button>`).join("")
     + fl.map(c => `<div class="drow"><span class="dtime">All day</span><span class="rt"><span class="rt-t">${esc(c.name)}</span><span class="rt-m">${c.network === "google" ? "Google Ads" : "Meta ads"} · ${esc(c.currency || "€")}${esc(c.daily_budget)} a day</span></span>${campPill(c)}</div>`).join("")}</div>`;
 }
 const longDay = iso => new Date(iso + "T12:00").toLocaleDateString("en-GB", {weekday: "long", day: "numeric", month: "long"});
@@ -1286,27 +1318,87 @@ const JOB_BY_ROLE = [[/orchestr|plan/i, "Planning"], [/content|writ|copy/i, "Wri
 const JOB_DEFAULT = {Planning: "Keeps the month on schedule", Writing: "Writes and rewrites posts", Scheduling: "Slots posts into the best hours",
   Ideas: "Turns trends into post ideas", Ads: "Waiting for an ad account", Analytics: "Starts with the first published week"};
 const PERSONA = /\b(orion|quill|sage|nova|atlas|echo)\b|\b[a-z]{2}-\d{3}\b|native|mcp|openclaw/i;
-function jobOf(a){ if(JOB_BY_ID[a.id]) return JOB_BY_ID[a.id]; const hit = JOB_BY_ROLE.find(([re]) => re.test(a.role || "")); return hit ? hit[1] : null; }
+function jobOf(a){ if(own(JOB_BY_ID, a.id)) return JOB_BY_ID[a.id]; const hit = JOB_BY_ROLE.find(([re]) => re.test(a.role || "")); return hit ? hit[1] : null; }
 function connPill(s){
   if(s === "connected") return pillH("Connected", "ok");
   if(/expired|error|disconnected|revoked|invalid/i.test(s || "")) return pillH("Reconnect needed", "bad");
-  return pillH({not_connected: "Not connected", planned: "Planned"}[s] || cap1(String(s || "").replace(/_/g, " ")), "quiet");
+  return pillH(own({not_connected: "Not connected", planned: "Planned"}, s) || cap1(String(s || "").replace(/_/g, " ")), "quiet");
+}
+/* the plan (plans.json → /otto-api/data brands[].plan_view): what is included and this month's use, one quiet link at most */
+const PRICING_URL = "/pilot-landing.html#pricing";
+function planGroup(B){
+  const P = B.filter(b => b.plan_view && typeof b.plan_view === "object");
+  if(!P.length) return "";
+  const many = P.length > 1;
+  const n = v => Math.round(N(v)).toLocaleString("en-GB");
+  const use = (u, w, money) => !u ? "" : (money ? "€" : "") + n(u.used) + (u.limit != null ? " of " + (money ? "€" : "") + n(u.limit) : "") + " " + w;
+  const rows = P.map(b => {
+    const v = b.plan_view, U = v.usage || {};
+    const inc = v.ended ? "Publishing is paused while there is no plan. Nothing has been deleted." : (Array.isArray(v.included) ? v.included : []).join(" · ");
+    const month = [use(U.posts, "posts"), use(U.reels, "reels"), use(U.ad_budget_eur, "ad budget", true)].filter(Boolean).join(" · ");
+    return lineH(many ? `<b style="font-weight:600">${esc(b.name)}</b>` : "Your plan", "", esc(v.label) + (v.until && !v.expired ? ` <span class="ph">until ${esc(dayMon(new Date(v.until + "T12:00:00")))}</span>` : ""), true)
+      + (inc ? `<div class="line"><span class="rt"><span class="rt-m wrap">${esc(inc)}</span></span></div>` : "")
+      + (month && !v.ended ? lineH("This month", "", esc(month), true) : "");
+  }).join("");
+  const add = P.some(b => !b.plan_view.paid_ads && !b.plan_view.ended) ? `<p class="hint"><a href="${PRICING_URL}" target="_blank" rel="noopener">Add paid campaigns</a></p>` : "";
+  return `<section class="grp"><h2 class="grp-h"><span>Plan</span></h2><div class="list">${rows}</div>${add}</section>`;
+}
+/* how approvals reach each brand (brands[].approvals → POST /otto-api/action {kind:"brand", approvals}); no field = Telegram */
+const APPR = [["email", "Email"], ["telegram", "Telegram"], ["app", "App only"]];
+const APPR_HINT = {email: "Each morning, one short e-mail with the posts to approve. Approve and Skip work in one tap; Change opens the post here.",
+  telegram: "Cards in Telegram, once your phone is paired with Otto's bot.",
+  app: "Nothing is sent. Posts wait for you in Review.",
+  both: "E-mail and Telegram. Pick one to keep only that."};
+function apprOf(b){
+  const v = b.approvals == null ? "telegram" : b.approvals;
+  if(Array.isArray(v)){ const s = [...new Set(v.map(String))].filter(x => x === "email" || x === "telegram"); return s.length > 1 ? "both" : s[0] || "app"; }
+  return APPR.some(x => x[0] === v) ? v : "app";
+}
+function approvalsGroup(B){
+  if(!B.length) return "";
+  const many = B.length > 1;
+  const rows = B.map(b => {
+    const cur = apprOf(b), i = APPR.findIndex(x => x[0] === cur);
+    return `<div class="appr" data-appr-b="${esc(b.id)}">${many ? `<p class="appr-n" dir="auto">${esc(b.name)}</p>` : ""}`
+      + `<div class="seg" role="radiogroup" aria-label="Approvals${many ? " for " + esc(b.name) : ""}" style="--n:3;--i:${Math.max(i, 0)}"><span class="seg-th"${i < 0 ? " hidden" : ""} aria-hidden="true"></span>`
+      + APPR.map(([k, t], j) => `<button type="button" role="radio" aria-checked="${k === cur}" tabindex="${(i < 0 ? j === 0 : k === cur) ? 0 : -1}" data-appr="${k}" data-fk="appr:${esc(b.id)}:${k}">${t}</button>`).join("")
+      + `</div><p class="appr-h">${esc(APPR_HINT[cur])}</p></div>`;
+  }).join("");
+  return `<section class="grp"><h2 class="grp-h"><span>Approvals</span></h2><div class="list">${rows}</div></section>`;
+}
+function paintAppr(bid){
+  const box = document.querySelector(`[data-appr-b="${cssq(bid)}"]`), b = brands().find(x => x.id === bid); if(!box || !b) return;
+  const cur = apprOf(b), i = APPR.findIndex(x => x[0] === cur);
+  box.querySelector(".seg").style.setProperty("--i", Math.max(i, 0)); box.querySelector(".seg-th").hidden = i < 0;
+  $$("[data-appr]", box).forEach(x => { const on = x.dataset.appr === cur; x.setAttribute("aria-checked", on); x.tabIndex = on ? 0 : -1; });
+  box.querySelector(".appr-h").textContent = APPR_HINT[cur];
+}
+async function setApprovals(bid, v){
+  const b = brands().find(x => x.id === bid); if(!b || apprOf(b) === v) return;
+  const prev = b.approvals;
+  b.approvals = v; paintAppr(bid); haptic();
+  try{
+    adopt(await send({kind: "brand", id: bid, approvals: v}));
+    toast(v === "app" ? "Approvals stay in the app" : `Approvals by ${v === "email" ? "e-mail" : "Telegram"}`);
+  }catch(e){ b.approvals = prev; paintAppr(bid); toast("Couldn't save. " + errText(e), {err: true}); }
 }
 function renderSettings(){
   const d = DATA, B = brands();
   let h = "";
+  h += planGroup(B);
+  h += approvalsGroup(B);
   h += groupH("Connections", (d.connections || []).map(c => lineH(esc(c.service), esc(c.brand), connPill(c.status))).join(""));
   // paid (otto_ads.py report writes ads[brand].daily; campaigns[] from otto_ads.py plan/launch)
   const ads = d.ads || {}, camps = d.campaigns || [];
   if(Object.keys(ads).length || camps.length){
-    h += groupH("Paid", B.filter(b => ads[b.id] || camps.some(c => c.brand === b.id)).map(b => {
-      const a = ads[b.id] || {}, days = Object.keys(a.daily || {}).sort(), last = days.length ? a.daily[days[days.length - 1]] : null;
+    h += groupH("Paid", B.filter(b => own(ads, b.id) || camps.some(c => c.brand === b.id)).map(b => {
+      const a = own(ads, b.id) || {}, days = Object.keys(a.daily || {}).sort(), last = days.length ? a.daily[days[days.length - 1]] : null;
       const y = net => last && last[net] ? last[net].yesterday : null;
       const m = y("meta"), g = y("google"), cur = (a.targets || {}).currency || "€";
       const cnt = s => camps.filter(c => c.brand === b.id && c.status === s).length;
       const conn = a.connections || {};
       const net = (name, v, unit, on) => v
-        ? lineH(`${name}, yesterday`, "", `${esc(cur)}${Math.round(v.spend)} · ${Math.round(v.results)} ${unit} · ${v.cpl != null ? esc(cur) + v.cpl + " each" : "no cost data"}`, true)
+        ? lineH(`${name}, yesterday`, "", `${esc(cur)}${Math.round(N(v.spend))} · ${Math.round(N(v.results))} ${unit} · ${v.cpl != null ? esc(cur) + Math.round(N(v.cpl) * 100) / 100 + " each" : "no cost data"}`, true)
         : lineH(name, "", on ? pillH("Connected", "ok") : pillH("Not connected", "quiet"));
       const held = camps.filter(c => c.brand === b.id && c.compliance_hold).length;
       const counts = [cnt("live") + " live", cnt("approved") + " scheduled", cnt("draft") ? cnt("draft") + " draft" : "", held ? held + " on hold for copy review" : ""].filter(Boolean).join(" · ");
@@ -1316,14 +1408,14 @@ function renderSettings(){
   // signals: what the owner's decisions taught Otto + competitor sweep
   const tl = d.taste_log || [], cw = d.competitors || {};
   if(tl.length || Object.keys(cw).length){
-    const agg = {};
-    tl.forEach(t => { const k = t.pillar || "Other"; agg[k] = agg[k] || {a: 0, s: 0}; if(t.decision === "approve") agg[k].a++; if(t.decision === "skip") agg[k].s++; });
-    const taste = Object.entries(agg).map(([k, v]) => ({k, a: v.a, s: v.s, net: v.a - v.s})).sort((x, z) => z.net - x.net).slice(0, 5)
+    const agg = new Map();
+    tl.forEach(t => { const k = String(t.pillar || "Other"); if(!agg.has(k)) agg.set(k, {a: 0, s: 0}); if(t.decision === "approve") agg.get(k).a++; if(t.decision === "skip") agg.get(k).s++; });
+    const taste = [...agg.entries()].map(([k, v]) => ({k, a: v.a, s: v.s, net: v.a - v.s})).sort((x, z) => z.net - x.net).slice(0, 5)
       .map(r => lineH(esc(r.k), "", `${r.a} approved · ${r.s} skipped`, true)).join("");
     const comp = Object.entries(cw).map(([b, c]) => {
       const items = (c.items || []).slice(0, 4).map(it => esc(it.name) + (it.error ? " (unreachable)" : (it.promos || []).length ? ` (${esc(it.promos.slice(0, 2).join(", "))})` : "")).join(", ");
       const wn = c.last_sweep ? (isNaN(new Date(c.last_sweep)) ? esc(c.last_sweep) : dayMon(new Date(c.last_sweep))) : "";
-      return lineH(`Competitors · ${esc(brandName(b) || b)}`, [items, wn ? "Checked " + wn : ""].filter(Boolean).join(" · "), `${c.changes || 0} change${c.changes === 1 ? "" : "s"}`, true);
+      return lineH(`Competitors · ${esc(brandName(b) || b)}`, [items, wn ? "Checked " + wn : ""].filter(Boolean).join(" · "), `${N(c.changes)} change${N(c.changes) === 1 ? "" : "s"}`, true);
     }).join("");
     h += groupH("Signals", taste + comp);
   }
@@ -1376,15 +1468,16 @@ function onViewScroll(){
   $("topbar").classList.toggle("compact", h.getBoundingClientRect().bottom < topH + 2);
 }
 VIEWS.forEach(k => $("v-" + k).addEventListener("scroll", onViewScroll, {passive: true}));
-addEventListener("hashchange", () => { const v = viewFromHash(); if(v) setView(v); });
+addEventListener("hashchange", () => { const v = viewFromHash(); if(v) setView(v); else { DEEP = deepLink(); if(DEEP && DATA && !STACK.length) openDeep(); } });
 
 /* ================= actions ================= */
 const INFLIGHT = new Map();                   // id -> status we asked for (re-applied over fresher server data)
-const QUEUE = {};                             // per-id request chain: an Undo never overtakes its approve
-function enqueue(id, fn){ const p = (QUEUE[id] || Promise.resolve()).catch(() => {}).then(fn); QUEUE[id] = p; return p; }
+const QUEUE = new Map();                      // per-id request chain: an Undo never overtakes its approve
+function enqueue(id, fn){ const p = (QUEUE.get(id) || Promise.resolve()).catch(() => {}).then(fn); QUEUE.set(id, p); return p; }
 async function send(body){
   if(!LIVE){ await new Promise(r => setTimeout(r, 140)); return null; }      // preview: local only, nothing is saved
-  const r = await fetch(API + "/action", {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify(body)});
+  const r = await fetch(API + "/action", {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify(body), credentials: "same-origin", redirect: "manual"});
+  if(r.type === "opaqueredirect" || r.status === 401){ gate("signin"); throw new Error("your session has ended; sign in again"); }
   let j = null; try{ j = await r.json(); }catch(_){}
   if(!r.ok || !j) throw new Error((j && j.error) || "the server answered " + r.status);
   return j.data || null;
@@ -1401,7 +1494,7 @@ function toastFor(status, slot, n, allFuture){
     const d = toDate(slot);
     return d && d > new Date() ? `Scheduled · ${when(slot)}` : "Approved · its slot has passed";
   }
-  return {skipped: "Skipped", draft: "Sent to Otto for changes", pending_approval: "Moved back to review"}[status] || "Saved";
+  return own({skipped: "Skipped", draft: "Sent to Otto for changes", pending_approval: "Moved back to review"}, status) || "Saved";
 }
 function decide(id, status, o){
   o = o || {};
@@ -1436,11 +1529,12 @@ function undo(id, prev, from){
 }
 async function approveAll(){
   const P = pendingList(); if(!P.length) return;
-  const ids = P.map(p => p.id), slots = {};
-  P.forEach(p => { slots[p.id] = p.slot; p.status = "approved"; INFLIGHT.set(p.id, "approved"); });
+  const ids = P.map(p => p.id);
+  P.forEach(p => { p.status = "approved"; INFLIGHT.set(p.id, "approved"); });
   refreshCounts();
   haptic();
-  toast(toastFor("approved", null, ids.length, P.every(isFuture)), {undo: () => ids.forEach(id => undo(id, "pending_approval", "approved"))});
+  toast(toastFor("approved", null, ids.length, P.every(isFuture)), {undo: () => ids.forEach(id => undo(id, "pending_approval", "approved")),
+    ms: 5000 + (RM() ? 0 : ids.length * 40 + 400)});     // the Undo window starts counting once the rows have left, not while they leave
   busy(+1);
   await Promise.all(ids.map((id, i) => wait(i * 40).then(() => animateOut(id, "approved"))));
   busy(-1); scheduleRender();
@@ -1776,16 +1870,16 @@ function wireSheetDrag(s){
 let DT = null;
 function dHeadH(p){
   const P = pendingList(), i = P.findIndex(x => x.id === p.id);
-  const pos = i >= 0 && P.length > 1 ? `${i + 1} of ${P.length}` : (PS[p.status] || [""])[0];
+  const pos = i >= 0 && P.length > 1 ? `${i + 1} of ${P.length}` : (own(PS, p.status) || [""])[0];
   return `<div class="dh"><h2 class="sh-t" id="dt-t">${esc(brandName(p.brand) || plat(p.platform))}</h2><p class="dh-s">${esc(pos)}</p></div>`
     + (i >= 0 && P.length > 1 ? `<div class="dh-nav"><button type="button" class="ibtn tap" data-dnav="-1" aria-label="Previous post">${IC.up}</button><button type="button" class="ibtn tap" data-dnav="1" aria-label="Next post">${IC.down}</button></div>` : "");
 }
 function dBodyH(p){
   let media;
   if(p.video) media = `<figure class="dm tall"><video src="${esc(p.video)}"${p.image ? ` poster="${esc(p.image)}"` : ""} controls playsinline preload="metadata"></video></figure>`;
-  else if(p.image) media = `<figure class="dm"><img src="${esc(p.image)}" alt="" decoding="async" draggable="false" onerror="dmFail(this)" data-alt="${esc(H(p))}"></figure>`;
+  else if(p.image) media = `<figure class="dm"><img src="${esc(p.image)}" alt="" decoding="async" draggable="false" data-fail="dm" data-alt="${esc(H(p))}"></figure>`;
   else media = `<figure class="dm txt"><p dir="auto">${esc(H(p)) || "Copy in progress"}</p></figure>`;
-  const facts = [["Pillar", p.pillar], ["Format", p.format ? (FMT[p.format] || cap1(p.format)) : ""], ["Brand", brands().length > 1 ? brandName(p.brand) : ""],
+  const facts = [["Pillar", p.pillar], ["Format", p.format ? (own(FMT, p.format) || cap1(p.format)) : ""], ["Brand", brands().length > 1 ? brandName(p.brand) : ""],
     ["Reach", p.metrics && p.metrics.reach ? fmtN(p.metrics.reach) : ""], ["Saves", p.metrics && p.metrics.saves ? fmtN(p.metrics.saves) : ""],
     ["Your note", p.edit_note || ""]].filter(f => f[1]);
   return `${media}<div class="dmeta">${postPill(p)}<span>${esc(plat(p.platform))} · ${esc(longWhen(p.slot))}</span></div>
@@ -1890,14 +1984,14 @@ function timelineH(){
     if((t = today(p.published_at))) ev.push({t, h: `Published ${q(p)} on ${esc(plat(p.platform))}`});
     if(p.status === "publishing") ev.push({t: toDate(p.publishing_at) || now, h: `Publishing ${q(p)} to ${esc(plat(p.platform))}`, cls: "now"});
     if((t = today(p.decided_at))){
-      const verb = {approved: "approved", scheduled: "approved", publishing: "approved", published: "approved", skipped: "skipped", draft: "asked for changes to", pending_approval: "moved back to review"}[p.status];
+      const verb = own({approved: "approved", scheduled: "approved", publishing: "approved", published: "approved", skipped: "skipped", draft: "asked for changes to", pending_approval: "moved back to review"}, p.status);
       if(verb) ev.push({t, h: `You ${verb} ${q(p)}${p.approved_via === "telegram" ? " in Telegram" : ""}`});
     }
     if(p.status === "failed" && (t = today(p.slot))) ev.push({t, h: `Couldn't publish ${q(p)}`, cls: "bad"});
     if((p.status === "approved" || p.status === "scheduled") && (t = today(p.slot)) && t > now) ev.push({t, h: `${q(p)} goes out on ${esc(plat(p.platform))}`, cls: "later"});
     if(p.status === "pending_approval" && (t = today(p.slot)) && t > now) ev.push({t, h: `${q(p)} is due and waiting for you`, cls: "later"});
   });
-  Object.entries(DATA.competitors || {}).forEach(([b, c]) => { const t = today(c.last_sweep); if(t) ev.push({t, h: `Checked ${(c.items || []).length || ""} competitors for ${esc(brandName(b) || b)}${c.changes ? ` · ${c.changes} ${plural(c.changes, "change")}` : ""}`.replace("Checked  ", "Checked ")}); });
+  Object.entries(DATA.competitors || {}).forEach(([b, c]) => { const t = today(c.last_sweep); if(t) ev.push({t, h: `Checked ${(c.items || []).length || ""} competitors for ${esc(brandName(b) || b)}${N(c.changes) ? ` · ${N(c.changes)} ${plural(N(c.changes), "change")}` : ""}`.replace("Checked  ", "Checked ")}); });
   (DATA.edit_requests || []).forEach(r => { const t = today(r.ts), p = byId(r.post); if(t && p) ev.push({t, h: `You asked for changes to ${q(p)}`}); });
   ev.sort((a, b) => a.t - b.t);
   const past = ev.filter(e => e.cls !== "later"), later = ev.filter(e => e.cls === "later");
@@ -1960,6 +2054,7 @@ document.addEventListener("click", e => {
   const open = t.closest("[data-open]"); if(open){ openDetail(open.dataset.open, {from: open, opener: open}); return; }
   const ra = t.closest("[data-rec-act]"); if(ra){ const r = ra.closest("[data-rec]"); if(r) recAct(r.dataset.rec, ra.dataset.recAct); return; }
   const pf = t.closest("[data-pf]"); if(pf){ setPF(pf.dataset.pf); return; }
+  const apb = t.closest("[data-appr]"); if(apb){ const box = apb.closest("[data-appr-b]"); if(box) setApprovals(box.dataset.apprB, apb.dataset.appr); return; }
   const day = t.closest("#cal-grid [data-day]"); if(day){ pickDay(day.dataset.day, true); return; }
   if(t.closest("#activity")){ openTimeline(t.closest("#activity")); return; }
 });
@@ -1988,6 +2083,14 @@ $("posts-seg").addEventListener("keydown", e => {
   const keys = Object.keys(PF_OK), i = keys.indexOf(PF);
   if(e.key === "ArrowRight") { e.preventDefault(); setPF(keys[(i + 1) % keys.length], true); }
   if(e.key === "ArrowLeft") { e.preventDefault(); setPF(keys[(i - 1 + keys.length) % keys.length], true); }
+});
+$("settings-body").addEventListener("keydown", e => {
+  const x = e.target.closest && e.target.closest("[data-appr]"); if(!x) return;
+  const step = {ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1}[e.key]; if(!step) return;
+  e.preventDefault();
+  const box = x.closest("[data-appr-b]"), keys = APPR.map(a => a[0]), k = keys[(keys.indexOf(x.dataset.appr) + step + keys.length) % keys.length];
+  setApprovals(box.dataset.apprB, k);
+  const n = box.querySelector(`[data-appr="${k}"]`); if(n) n.focus();
 });
 function trap(e, s){
   const f = $$('button:not([disabled]), [href], textarea, input:not([tabindex="-1"]), video[controls], [tabindex="0"]', s.sheet).filter(shown);
@@ -2036,24 +2139,83 @@ function loadError(){
   $("review-body").innerHTML = card; $("review-body").removeAttribute("aria-busy");
   setActivity(null);
 }
+/* deep links from the approval e-mail: #post=<id> opens that post, #change=<id> opens it with "What should change?" */
+function deepLink(){ const m = /^#(post|change)=([A-Za-z0-9_.:%-]{1,120})$/.exec(location.hash); if(!m) return null; try{ return {k: m[1], id: decodeURIComponent(m[2])}; }catch(_){ return null; } }
+let DEEP = deepLink();
+function openDeep(){
+  const dl = DEEP; DEEP = null; if(!dl || !DATA) return;
+  history.replaceState(null, "", "#review");
+  setView("review", {animate: false});
+  const p = byId(dl.id);
+  if(!p){ toast("That post isn't here any more."); return; }
+  openDetail(dl.id, {});
+  if(dl.k === "change" && p.status === "pending_approval") setTimeout(() => { if(DT && DT.id === dl.id) openChange(dl.id); }, RM() ? 0 : 450);
+}
 function boot(d, live){
   DATA = d; LIVE = live;
+  if(!$("gate").hidden){ $("gate").hidden = true; $("app").hidden = false; }
   document.documentElement.classList.toggle("preview", !live);
   render();
   if(DEMO) requestAnimationFrame(() => runDemo(DEMO));
+  else if(DEEP) requestAnimationFrame(openDeep);
+}
+/* Nothing of the client's to show: signed out (401, or the sign-in page answered instead of the API), signed in with no
+   brand yet (403), or Otto can't be reached. The app is hidden, never filled with someone else's or sample data. */
+const LOCAL = location.protocol === "file:" || /^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname);
+let GATE = null, GATE_T = 0;
+const GATES = {
+  signin: {h: "Sign in to Otto", s: "This browser isn't signed in, or your session has ended.",
+    a: `<button type="button" class="btn pri lg block tap" data-gate="reload">Sign in</button>`,
+    n: "Use the email address you checked out with."},
+  setup: {h: "Your brand is being set up.", s: "You're signed in, but no brand is linked to this sign-in yet. If you haven't finished setting up Otto, pick up where you left off.",
+    a: `<a class="btn pri lg block tap" href="onboarding.html">Continue setup</a><button type="button" class="btn gray lg block tap" data-gate="reload">Try again</button>`,
+    n: "Already finished? Linking your brand to your sign-in can take a few minutes after payment."},
+  offline: {h: "Otto can't be reached right now.", s: "Your posts and approvals are safe. Check your connection; this page tries again on its own.",
+    a: `<button type="button" class="btn pri lg block tap" data-gate="retry">Try again</button>`, n: ""}
+};
+function gate(kind){
+  const g = GATES[kind] || GATES.offline;
+  while(STACK.length){ const st = STACK.pop(); st.layer.remove(); }
+  document.documentElement.classList.remove("sheet-open");
+  const first = GATE !== kind; GATE = kind; LIVE = false;
+  $("gate-h").textContent = g.h; $("gate-s").textContent = g.s; $("gate-a").innerHTML = g.a;
+  $("gate-n").textContent = g.n; $("gate-n").hidden = !g.n;
+  $("app").hidden = true; $("gate").hidden = false;
+  document.title = g.h.replace(/\.$/, "") + " · Otto";
+  if(first) $("gate-h").focus({preventScroll: true});
+  clearInterval(GATE_T);
+  if(kind === "offline") GATE_T = setInterval(() => { if(!document.hidden) load(true); }, 30000);
+}
+$("gate").addEventListener("click", e => {
+  const b = e.target.closest("[data-gate]"); if(!b) return;
+  if(b.dataset.gate === "reload") location.reload(); else load(true);
+});
+addEventListener("online", () => { if(GATE === "offline") load(true); });
+async function fetchData(){
+  const r = await fetch(API + "/data", {cache: "no-store", credentials: "same-origin", redirect: "manual"});
+  if(r.type === "opaqueredirect" || r.status === 401) return {gate: "signin"};
+  if(r.status === 403) return {gate: "setup"};
+  if(!r.ok) return {down: true};
+  if(!/json/.test(r.headers.get("content-type") || "")) return {gate: "signin"};     // a sign-in page answered instead of the API
+  const d = await r.json();
+  return d && typeof d === "object" && !Array.isArray(d) ? {data: d} : {down: true};
 }
 function refresh(){
-  return fetch(API + "/data", {cache: "no-store"}).then(r => r.ok ? r.json() : Promise.reject(r.status)).then(d => adopt(d)).catch(() => {});
+  return fetchData().then(o => { if(o.gate) gate(o.gate); else if(o.data) adopt(o.data); }).catch(() => {});
 }
-function load(){
-  fetch(API + "/data").then(r => { if(!r.ok) throw 0; return r.json(); })
-    .then(d => boot(d, true))
-    .catch(() => fetch("data.json").then(r => { if(!r.ok) throw 0; return r.json(); })
-      .then(d => boot(d, false))
-      .catch(() => {
-        try{ boot(JSON.parse($("fallback-data").textContent), false); }
-        catch(e){ loadError(); }
-      }));
+async function load(again){
+  let o = {down: true};
+  try{ o = await fetchData(); }catch(_){}
+  if(o.data){ clearInterval(GATE_T); GATE = null; document.title = "Otto"; return boot(o.data, true); }
+  if(o.gate) return gate(o.gate);
+  if(again) return gate("offline");
+  // Otto's API is down. On a developer's machine the local snapshot is fine to look at (labelled Preview); a client gets
+  // the offline state: the embedded block is a neutral, empty document by default and is never shown as their data.
+  if(LOCAL){
+    try{ const f = await fetch("data.json", {cache: "no-store"}); if(f.ok) return boot(await f.json(), false); }catch(_){}
+    try{ const fb = JSON.parse($("fallback-data").textContent); if(fb && fb.fallback !== "neutral" && Array.isArray(fb.posts) && fb.posts.length) return boot(fb, false); }catch(_){}
+  }
+  gate("offline");
 }
 // live polling: the activity pill and counts follow real job states; never while the owner is mid-gesture or in a sheet
 setInterval(() => { if(LIVE && !document.hidden && !STACK.length && !BUSY && !SW && !HOLD) refresh(); }, 30000);
@@ -2079,6 +2241,7 @@ function runDemo(k){
 }
 if(DEMO === "skeleton"){ /* keep the skeleton on screen */ }
 else if(DEMO === "error") loadError();
+else if(DEMO && Object.prototype.hasOwnProperty.call(GATES, DEMO)) gate(DEMO);
 else load();
 const hv = viewFromHash(); if(hv && hv !== "today") setView(hv, {animate: false}); else syncNav();
 </script>

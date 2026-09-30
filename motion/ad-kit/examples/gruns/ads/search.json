@@ -1,0 +1,47 @@
+{
+  "id": "gruns-search",
+  "style": "search",
+  "angle": "a1 powder to pack / taste (persona p1, powder dropout)",
+  "formats": [
+    "9x16"
+  ],
+  "music": {
+    "bpm": 120,
+    "mood": "calm"
+  },
+  "scene": {
+    "ground": "bg"
+  },
+  "search": {
+    "placeholder": "Search",
+    "query": "greens that actually taste good",
+    "suggestions": [
+      "greens that actually taste good",
+      "greens that actually taste good gummies",
+      "greens that actually taste good no shaker",
+      "greens that actually taste good on the go"
+    ],
+    "pick": 1,
+    "result": {
+      "site": "Grüns",
+      "url": "gruns.co",
+      "favicon": "g",
+      "title": "Grüns Superfoods Greens Gummies",
+      "rating": 4.8,
+      "ratingText": "4.8 stars · 100,000 reviews (self-reported)",
+      "snippet": "Greens, 21 vitamins & minerals and 6 g of prebiotic fiber, in gummies. One pack a day.",
+      "image": "pack"
+    }
+  },
+  "endcard": {
+    "ground": "primaryDeep",
+    "headline": "Greens you'll actually look forward to.",
+    "accent": "look forward to.",
+    "sub": "$49.99 per 28 packs · $1.78 a day",
+    "fine": "Subscribe & save. Pause or cancel anytime.",
+    "products": [
+      "pack",
+      "unit"
+    ]
+  }
+}

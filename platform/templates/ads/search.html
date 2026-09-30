@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="{{lang}}" dir="{{dir}}" class="{{html_class}}">
+<head><meta charset="utf-8">
+<!-- search: a search-engine screenshot on the brand ground (native family). Generic search UI only: never a
+     search engine's logo, wordmark or colours.
+     data: query*, mode: "autocomplete" (default without results) | "result" (default with results),
+           suggestions (autocomplete, 3-7 strings; the part after the typed query is bold; wrap one in *…* to
+           show it highlighted),
+           results (result mode, 1-2: {site, url, title, snippet, rating ("4.8"), reviews ("100,000 reviews"),
+           price}; *word* in a snippet = bold match),
+           photo (a product cutout: a thumbnail in the first result, or hanging off the page corner in
+           autocomplete), headline (on the ground, *word* = accent), headline_pos: "above" (default) | "below",
+           theme: dark (default) | light | accent, tag, cta. Feed, square, story. -->
+{{&_head}}
+<style>
+/* ---- native family: a real-looking screenshot on the brand ground ---- */
+:root{--u:2.3px;--ui:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro",var(--f-text)}
+html.f-square{--u:1.9px}
+/* story: copy only between the top 14 % and the bottom 35 % (Meta's unified Stories/Reels safe zone, 2026) */
+html.f-story{--top:270px;--bot:672px;--u:2.2px}
+.nat.t-dark{background:radial-gradient(110% 70% at 50% 60%,color-mix(in srgb,var(--deep) 88%,#fff) 0%,var(--deep) 72%)}
+.nat.t-light{background:radial-gradient(110% 70% at 50% 60%,color-mix(in srgb,var(--surface) 70%,#fff) 0%,var(--surface) 72%)}
+.nat .col{flex:1 1 auto;min-height:0;display:flex;flex-direction:column;justify-content:center}
+.nat .hl{font-size:calc(80px*var(--k));margin-top:40px;max-width:900px;flex:none}
+html.f-square .nat .hl{font-size:calc(70px*var(--k));margin-top:28px}
+html.f-story .nat .hl{font-size:calc(84px*var(--k));margin-top:24px}
+/* emphasis on an accent ground: a paper band behind ink (readable on any accent, never over the line above) */
+html body .t-accent .hl em{color:var(--ink);background:linear-gradient(var(--surface),var(--surface)) 0 64%/100% 70% no-repeat;
+  padding:0 .08em;-webkit-box-decoration-break:clone;box-decoration-break:clone}
+html body .t-accent.mk2 .hl em{background-image:linear-gradient(var(--marker),var(--marker))}
+.nat{--st-t:44px;--st-b:30px}
+html.f-square .nat{--st-t:30px;--st-b:22px}
+.nat .stage{flex:0 1 auto;min-height:0;display:flex;flex-direction:column;justify-content:center;padding-block:var(--st-t) var(--st-b)}
+.nat .shot{position:relative;flex:0 1 auto;min-height:0;display:flex;flex-direction:column}
+.nat .foot{padding-top:0}
+.scr{font-family:var(--ui);color:#202124;-webkit-font-smoothing:antialiased;
+  box-shadow:0 1px 1px rgba(0,0,0,.05),0 calc(6*var(--u)) calc(14*var(--u)) rgba(0,0,0,.10),0 calc(22*var(--u)) calc(48*var(--u)) calc(-8*var(--u)) rgba(0,0,0,.34)}
+.t-light .scr{box-shadow:0 0 0 1px rgba(var(--ink-rgb),.05),0 calc(6*var(--u)) calc(14*var(--u)) rgba(var(--ink-rgb),.07),0 calc(22*var(--u)) calc(50*var(--u)) calc(-10*var(--u)) rgba(var(--ink-rgb),.26)}
+/* copy still too long at the minimum sizes (fit_report says overflow): the screenshot fades out at the
+   bottom, as a longer page cut by the phone's screen would, instead of slicing a line */
+.scr{position:relative}
+html.overflow .scr::after{content:"";position:absolute;inset:auto 0 0 0;height:calc(40*var(--u));z-index:3;
+  background:linear-gradient(color-mix(in srgb,#fff 0%,transparent),#fff 78%)}
+html body .ad .scr em{font-family:inherit;font-style:normal;font-weight:inherit;letter-spacing:inherit;font-size:1em;line-height:inherit;color:inherit;background:none}
+/* headline under the screenshot */
+.sr.hl-below .hl{order:3;margin-top:0;margin-bottom:34px}
+html .ad.sr.hl-below{--st-t:30px;--st-b:48px}
+
+/* ---- the search page ---- */
+.page{flex:0 1 auto;min-height:0;overflow:hidden;background:#fff;border-radius:calc(15*var(--u));padding:calc(18*var(--u)) calc(16*var(--u)) calc(20*var(--u))}
+.page .in{font-size:calc(16*var(--u));line-height:1.35;letter-spacing:-.012em}
+html[dir=rtl] .page .in{letter-spacing:0}
+.ico{flex:none;width:1.25em;height:1.25em;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round}
+html[dir=rtl] .ico{transform:scaleX(-1)}
+/* the box: a rounded pill; in autocomplete it opens into one card with the suggestions */
+.qbox{border-radius:1.5em;background:#fff;box-shadow:0 0 0 1px #DFE1E5}
+.qrow{display:flex;align-items:center;gap:.8em;height:3em;padding-inline:1.05em 1.2em;color:#70757A}
+.qtext{flex:1 1 auto;min-width:0;color:#202124;font-size:1.06em;white-space:nowrap;overflow:hidden;display:flex;align-items:center}
+.caret{flex:none;display:inline-block;width:.11em;height:1.28em;margin-inline-start:.06em;background:#1A73E8;border-radius:.05em}
+.m-autocomplete .qbox{box-shadow:0 .1em .45em rgba(32,33,36,.28);border-radius:1.5em}
+.m-autocomplete .qrow{border-bottom:1px solid #E8EAED;margin-inline:.35em;padding-inline:.7em .85em}
+.sugg{list-style:none;padding-block:.35em .7em}
+.sugg li{display:flex;align-items:center;gap:.95em;min-height:2.55em;padding-inline:1.05em;color:#9AA0A6}
+.sugg li .st{flex:1 1 auto;min-width:0;color:#202124;font-size:1.06em;line-height:1.25;padding-block:.25em}
+.sugg li b{font-weight:700}
+.sugg li.hi{background:#F1F3F4}
+.m-autocomplete .results,.m-result .sugg,.m-result .caret{display:none}
+/* results */
+.m-result .qbox{box-shadow:0 1px 6px rgba(32,33,36,.2);border:0}
+.results{margin-top:1.4em}
+.res{padding-block:.2em 1.3em}
+.res+.res{border-top:1px solid #ECEDEF;padding-top:1.25em}
+.src{display:flex;align-items:center;gap:.75em}
+.fav{flex:none;width:1.75em;height:1.75em;border-radius:50%;display:grid;place-items:center;background:var(--accent);color:var(--accent-ink);
+  font-weight:700;font-size:.9em;box-shadow:0 0 0 .2em #F1F3F4}
+.site{font-size:.875em;color:#202124;line-height:1.3}
+.url{font-size:.78em;color:#3F6B50;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;direction:ltr;unicode-bidi:isolate}
+html[dir=rtl] .url{text-align:right}
+.rbody{display:flex;gap:1em;align-items:flex-start;margin-top:.55em}
+.rtext{flex:1 1 auto;min-width:0}
+.rtitle{font-size:1.28em;line-height:1.28;color:#1A0DAB;font-weight:400;letter-spacing:-.01em;text-wrap:pretty}
+html[dir=rtl] .rtitle{letter-spacing:0}
+.rate{display:flex;align-items:center;flex-wrap:wrap;gap:.4em;margin-top:.45em;font-size:.875em;color:#70757A}
+.rate .rv{color:#70757A}
+.st5{position:relative;display:inline-block;width:5.4em;height:1.08em;flex:none}
+.st5 i{position:absolute;inset:0;background:var(--star-bg) 0 0/1.08em 1.08em repeat-x}
+.st5 .off{--star-bg:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23DADCE0' d='M12 2.6l2.8 6 6.6.7-4.9 4.5 1.4 6.5L12 17l-5.9 3.3 1.4-6.5-4.9-4.5 6.6-.7z'/%3E%3C/svg%3E")}
+.st5 .on{--star-bg:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23F2A60C' d='M12 2.6l2.8 6 6.6.7-4.9 4.5 1.4 6.5L12 17l-5.9 3.3 1.4-6.5-4.9-4.5 6.6-.7z'/%3E%3C/svg%3E");
+  width:calc(var(--r,5)/5*100%)}
+html[dir=rtl] .st5 .on{inset-inline-start:auto;right:0;background-position:100% 0}
+.snip{margin-top:.5em;font-size:.94em;line-height:1.5;color:#4D5156;text-wrap:pretty}
+html body .ad .snip em{font-weight:700;color:#3C4043}
+.thumb{flex:none;width:5.6em;height:5.6em;border-radius:.6em;overflow:hidden;background:#F1F3F4;margin-top:.2em}
+.thumb img{width:100%;height:100%;object-fit:cover}
+html.has-cutout .thumb img{object-fit:contain;padding:.35em}
+/* autocomplete: the product hangs off the page's end corner */
+.cut{position:absolute;z-index:4;width:27%;height:auto;inset-inline-end:-5%;bottom:calc(var(--hang)*-1);transform:rotate(8deg);
+  filter:drop-shadow(0 calc(10*var(--u)) calc(12*var(--u)) rgba(0,0,0,.32))}
+html[dir=rtl] .cut{transform:rotate(-8deg)}
+html:not(.has-cutout) .cut{aspect-ratio:1;object-fit:cover;width:24%;border-radius:calc(4*var(--u));border:calc(5*var(--u)) solid #fff;filter:none;
+  box-shadow:0 calc(8*var(--u)) calc(20*var(--u)) rgba(0,0,0,.3)}
+.sr.m-autocomplete.has-photo{--hang:calc(46*var(--u))}
+.sr.m-autocomplete.has-photo .page{padding-bottom:calc(58*var(--u))}
+html .ad.sr.m-autocomplete.has-photo{--st-b:calc(var(--hang) + 30px)}
+html.f-square .cut{width:23%}
+</style>
+</head>
+<body>
+<div class="ad nat sr m-{{#if mode}}{{mode}}{{else}}{{#if results}}result{{else}}autocomplete{{/if}}{{/if}} t-{{#if theme}}{{theme}}{{else}}dark{{/if}} {{#if photo}}has-photo{{/if}} hl-{{#if headline_pos}}{{headline_pos}}{{else}}above{{/if}}">
+  <div class="frame">
+    {{> top}}
+    <div class="col">
+      {{#if headline}}<h1 class="display hl" data-fit="2" data-min="48" data-lines="3">{{headline}}</h1>{{/if}}
+      <div class="stage">
+        <div class="shot">
+          <div class="page scr" data-box>
+            <div class="in" data-fit="1" data-min="22" data-base="16">
+              <div class="qbox">
+                <div class="qrow"><svg class="ico" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.4 15.4L20.5 20.5"/></svg><span class="qtext"><span class="qv">{{query}}</span><i class="caret"></i></span></div>
+                {{#if suggestions}}<ul class="sugg">{{#each suggestions}}<li><svg class="ico" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.4 15.4L20.5 20.5"/></svg><span class="st">{{.}}</span></li>{{/each}}</ul>{{/if}}
+              </div>
+              {{#if results}}<div class="results">{{#each results}}
+                <div class="res">
+                  <div class="src"><span class="fav" data-site="{{site}}"></span><div><div class="site">{{site}}</div><div class="url">{{url}}</div></div></div>
+                  <div class="rbody"><div class="rtext">
+                    <div class="rtitle">{{title}}</div>
+                    {{#if rating}}<div class="rate"><span>{{rating}}</span><span class="st5" style="--r:{{rating}}"><i class="off"></i><i class="on"></i></span>{{#if reviews}}<span class="rv">({{reviews}})</span>{{/if}}{{#if price}}<span class="rv">&middot; {{price}}</span>{{/if}}</div>{{/if}}
+                    {{#if snippet}}<div class="snip">{{snippet}}</div>{{/if}}
+                  </div>{{#if @first}}{{#if photo}}<div class="thumb"><img src="{{photo}}" style="object-position:{{photo_pos}}" alt=""></div>{{/if}}{{/if}}</div>
+                </div>{{/each}}</div>{{/if}}
+            </div>
+          </div>
+          {{#unless results}}{{#if photo}}<img class="cut" src="{{photo}}" alt="">{{/if}}{{/unless}}
+        </div>
+      </div>
+    </div>
+    {{> foot}}
+  </div>
+</div>
+<script>
+(function () {
+  var q = (document.querySelector('.qv') || {}).textContent || '';
+  var tq = q.trim().toLocaleLowerCase();
+  // Suggestions: the typed part stays regular, the completion is bold; a *highlighted* one is the selected row.
+  document.querySelectorAll('.sugg .st').forEach(function (st) {
+    var em = st.querySelector('em');
+    if (em) { st.closest('li').classList.add('hi'); while (em.firstChild) em.parentNode.insertBefore(em.firstChild, em); em.remove(); }
+    var text = st.textContent, lead = text.length - text.replace(/^\s+/, '').length;
+    var cut = tq && text.trim().toLocaleLowerCase().indexOf(tq) === 0 ? lead + tq.length : 0;
+    var w = document.createTreeWalker(st, NodeFilter.SHOW_TEXT), nodes = [], n, pos = 0;
+    while ((n = w.nextNode())) nodes.push(n);
+    nodes.forEach(function (t) {
+      var len = t.nodeValue.length, start = pos; pos += len;
+      if (pos <= cut) return;
+      if (start < cut) t = t.splitText(cut - start);
+      if (!t.nodeValue.trim()) return;
+      var b = document.createElement('b'); t.parentNode.insertBefore(b, t); b.appendChild(t);
+    });
+  });
+  // favicons: the site's first letter
+  document.querySelectorAll('.fav').forEach(function (f) {
+    var s = (f.getAttribute('data-site') || '').replace(/^(https?:\/\/)?(www\.)?/i, '').trim();
+    f.textContent = s ? s.charAt(0).toLocaleUpperCase() : '';
+  });
+  // a two-colour brand (Grüns green + yellow): emphasis on the accent ground uses the second colour as the band
+  var rs = getComputedStyle(document.documentElement), mk = rs.getPropertyValue('--marker').trim().toLowerCase();
+  if (mk && mk !== rs.getPropertyValue('--accent').trim().toLowerCase()) document.querySelector('.ad').classList.add('mk2');
+  // typographic quotes inside the screenshot, as the phone's keyboard types them (Latin scripts only)
+  if (document.documentElement.dir !== 'rtl') document.querySelectorAll('.scr').forEach(function (root) {
+    var w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT), n, prev = ' ';
+    while ((n = w.nextNode())) {
+      if (n.parentNode.closest('.url,.qv,.at')) { prev = 'x'; continue; }
+      var out = '', s = n.nodeValue;
+      for (var i = 0; i < s.length; i++) {
+        var c = s[i], open = /[\s(\[{\u2014\u2013]/.test(prev);
+        if (c === '"') c = open ? '\u201c' : '\u201d';
+        else if (c === "'") c = open ? '\u2018' : '\u2019';
+        out += c; prev = s[i];
+      }
+      if (out !== s) n.nodeValue = out;
+    }
+  });
+})();
+</script>
+{{> grow}}
+{{&_foot}}
+</body>
+</html>

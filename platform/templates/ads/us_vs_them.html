@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="{{lang}}" dir="{{dir}}" class="{{html_class}}">
+<head><meta charset="utf-8">
+<!-- us_vs_them: the classic split. The brand's column (accent panel, product) against the usual alternative
+     (muted), 3-6 attribute rows between them. Fair and true: the alternative is a generic category ("Greens
+     powders", "A weekend workshop"), never a named competitor or a third-party logo; ties are shown as ties.
+     data: headline*, us {name*, photo}, them {name*, photo} (a generic photo of the category, shown muted),
+           rows* [{label*, us, them}] (3-6) where us / them is true (check), false (cross) or a short string
+           ("6 g", "Varies"), footnote (what was compared), kicker, theme: light (default) | dark.
+           Photos: us_photo / them_photo (+ _pos) at the top level resolve like any photo (repo-relative paths
+           work); us.photo / them.photo inside the objects must be absolute paths or URLs. A transparent
+           packshot is detected in the page and shown whole; any other image fills its tile.
+     Feed, story and square; RTL mirrors the columns (the brand stays on the reading-start side). -->
+{{&_head}}
+<style>
+/* story: the base safe zone (top 14 %, bottom 35 %: Meta's unified Stories/Reels UI) */
+/* ---------- one grid holds everything: headline, the two product tiles, the name caps, the rows.
+   The row text size (grid font-size) drives every cell in em; fewer rows start bigger. ---------- */
+.grid{--fs:36px;--boost:1;display:grid;grid-template-columns:1fr 1.14fr 1fr;grid-template-rows:auto minmax(4.2em,1fr) auto;
+  grid-auto-rows:auto;flex:1 0 auto;font:600 calc(var(--fs)*var(--boost))/1.2 var(--f-text);letter-spacing:-.01em}
+.grid:has(> :nth-child(19)){--fs:32px}
+html.f-story .grid{--fs:41px}
+html.f-story .grid:has(> :nth-child(19)){--fs:37px}
+html.f-square .grid{--fs:31px;grid-template-rows:auto minmax(3em,1fr) auto}
+html.f-square .grid:has(> :nth-child(19)){--fs:27px}
+html[dir=rtl] .grid{letter-spacing:0;line-height:1.28}
+.hd{grid-column:1/-1;grid-row:1;display:flex;flex-direction:column;align-items:center;text-align:center;
+  padding-bottom:calc(44px*var(--k));min-width:0}
+html.f-story .hd{padding-bottom:60px}
+html.f-square .hd{padding-bottom:28px}
+.pimg.u{grid-column:1;grid-row:2}
+.pimg.t{grid-column:3;grid-row:2}
+.cap.u{grid-column:1;grid-row:3}
+.cap.l{grid-column:2;grid-row:3}
+.cap.t{grid-column:3;grid-row:3}
+.c.u{grid-column:1}
+.c.l{grid-column:2}
+.c.t{grid-column:3}
+/* only the brand has an image: it stands tall on the start side, the headline takes the space beside it */
+.grid:has(.pimg.u img):not(:has(.pimg.t img)) .hd{grid-column:2/4;grid-row:1/3;align-self:center;align-items:flex-start;
+  text-align:start;padding:0 0 .9em;padding-inline-start:.9em}
+.grid:has(.pimg.u img):not(:has(.pimg.t img)) .pimg.u{grid-row:1/3}
+.grid:has(.pimg.u img):not(:has(.pimg.t img)) .pimg.t{display:none}
+.grid:has(.pimg.u img):not(:has(.pimg.t img)) .hl{max-width:none}
+/* no images: natural height, the whole lockup centred in the frame */
+.uvt .grid:not(:has(img)){flex:0 0 auto;margin-block:auto;grid-template-rows:auto;--boost:1.16}
+.uvt .kicker{justify-content:center;margin-bottom:calc(22px*var(--k))}
+.uvt .kicker::before{display:none}
+.hl{font-size:calc(84px*var(--k));max-width:13em;letter-spacing:-.034em}
+html.f-story .hl{font-size:94px}
+html.f-square .hl{font-size:68px}
+html[dir=rtl] .hl{font-size:calc(80px*var(--k));letter-spacing:-.01em}
+html.f-story[dir=rtl] .hl{font-size:88px}
+html.f-square[dir=rtl] .hl{font-size:64px}
+/* ---------- cells ---------- */
+.c,.cap{display:flex;align-items:center;justify-content:center;text-align:center;min-width:0}
+.c{padding:.5em .5em;min-height:2.6em}
+.c.l{padding-inline:.3em;border-top:2px solid var(--rule);font-size:.9em}
+.t-dark .c.l{border-top-color:rgba(255,255,255,.14)}
+.c.l span{text-wrap:balance}
+/* us: the accent panel; them: a quiet tinted panel. Drawn per cell, so any row count joins up */
+.u{--panel:var(--accent);color:var(--accent-ink)}
+.t{--panel:rgba(var(--ink-rgb),.06);color:var(--mut-light)}
+.t-dark .t{--panel:rgba(255,255,255,.08);color:var(--mut-dark)}
+.c.u,.c.t,.cap.u,.cap.t{background:var(--panel)}
+.c.u{border-top:2px solid color-mix(in srgb,var(--accent-ink) 16%,transparent)}
+.c.t{border-top:2px solid rgba(var(--ink-rgb),.07)}
+.t-dark .c.t{border-top-color:rgba(255,255,255,.1)}
+.c.last{border-radius:0 0 .62em .62em;padding-bottom:.72em}
+.cap{align-items:flex-end;border-radius:.62em .62em 0 0;padding:.62em .45em .5em}
+.cap.l{padding-bottom:.62em}
+.nm{font:var(--w-display) 1.2em/1.04 var(--f-display);letter-spacing:-.03em;text-wrap:balance;overflow-wrap:anywhere}
+html[dir=rtl] .nm{letter-spacing:0;line-height:1.14}
+.t .nm{font-weight:700;letter-spacing:-.02em}
+.vs{font:400 1.5em/1 var(--f-serif);font-style:italic;letter-spacing:-.01em;color:var(--mut-large-light)}
+.t-dark .vs{color:var(--mut-large-dark)}
+html.ems-brand .vs,html[dir=rtl] .vs{font:700 1em/1 var(--f-display);font-style:normal;letter-spacing:.04em;padding-bottom:.12em}
+html[dir=rtl] .vs{letter-spacing:0}
+/* product / photo tiles: a photo sits flush on its cap; a packshot stands on the cap's top edge */
+.pimg{position:relative;min-height:0;min-width:0;border-radius:.62em .62em 0 0;overflow:hidden;background:var(--panel)}
+.pimg:empty{background:none}
+.pimg img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.pimg:not(:empty) ~ .cap.u{border-radius:0}
+.grid:has(.pimg.t img) .cap.t{border-radius:0}
+.pimg.t img{filter:grayscale(.9) contrast(.9) brightness(1.05);opacity:.8}
+.pimg.cut{overflow:visible;background:none;z-index:2;margin-bottom:-.3em}
+.pimg.cut img{inset:auto;top:.2em;left:50%;width:114%;height:calc(100% - .2em);transform:translateX(-50%);
+  object-fit:contain;object-position:50% 100% !important;filter:drop-shadow(0 .35em .45em rgba(var(--ink-rgb),.28))}
+.pimg.t.cut img{filter:grayscale(1) contrast(.9) drop-shadow(0 .3em .4em rgba(var(--ink-rgb),.14));opacity:.72}
+.grid:has(.pimg.u.cut) .cap.u{border-radius:.62em .62em 0 0;padding-top:.8em}
+.grid:has(.pimg.t.cut) .cap.t{border-radius:.62em .62em 0 0;padding-top:.8em}
+/* values: check / cross / short text */
+.mk{display:none;place-items:center;width:1.5em;height:1.5em;border-radius:50%;flex:none}
+.mk svg{width:58%;height:58%}
+.txt{display:none;text-wrap:balance;overflow-wrap:anywhere}
+.v:is([data-v="True"],[data-v="true" i],[data-v="yes" i],[data-v="1"],[data-v="✓"],[data-v="כן"]) .yes{display:inline-grid}
+.v:is([data-v=""],[data-v="False"],[data-v="false" i],[data-v="no" i],[data-v="0"],[data-v="✗"],[data-v="✕"],[data-v="לא"]) .no{display:inline-grid}
+.v:not([data-v="True"],[data-v="true" i],[data-v="yes" i],[data-v="1"],[data-v="✓"],[data-v="כן"],[data-v=""],[data-v="False"],[data-v="false" i],[data-v="no" i],[data-v="0"],[data-v="✗"],[data-v="✕"],[data-v="לא"]) .txt{display:block}
+.u .yes{background:var(--accent-ink);color:var(--accent)}
+.u .no{box-shadow:inset 0 0 0 .08em color-mix(in srgb,var(--accent-ink) 55%,transparent);color:color-mix(in srgb,var(--accent-ink) 70%,transparent)}
+.u .txt{font:var(--w-display) 1.06em/1.1 var(--f-display);letter-spacing:-.02em}
+.t .yes{background:rgba(var(--ink-rgb),.15);color:rgba(var(--ink-rgb),.7)}
+.t .no{box-shadow:inset 0 0 0 .08em rgba(var(--ink-rgb),.24);color:rgba(var(--ink-rgb),.4)}
+.t-dark .t .yes{background:rgba(255,255,255,.2);color:rgba(255,255,255,.85)}
+.t-dark .t .no{box-shadow:inset 0 0 0 .08em rgba(255,255,255,.3);color:rgba(255,255,255,.5)}
+.t .txt{font-size:.9em;font-weight:600}
+html[dir=rtl] .u .txt{letter-spacing:0}
+.fn{flex:none;text-align:center;margin:calc(26px*var(--k)) auto 0;max-width:36em;text-wrap:balance}
+</style>
+</head>
+<body>
+<div class="ad uvt t-{{#if theme}}{{theme}}{{else}}light{{/if}}">
+  <div class="frame">
+    <div class="box" data-box>
+      <div class="grid" data-fit="1" data-min="19">
+        <div class="hd">{{#if kicker}}<div class="kicker"><span>{{kicker}}</span></div>{{/if}}<h1 class="display hl" data-fit="2" data-min="38" data-lines="3">{{headline}}</h1></div>
+        <div class="pimg u">{{#if us_photo}}<img src="{{us_photo}}" style="object-position:{{us_photo_pos}}" alt="">{{else}}{{#if us.photo}}<img src="{{us.photo}}" alt="">{{/if}}{{/if}}</div>
+        <div class="pimg t">{{#if them_photo}}<img src="{{them_photo}}" style="object-position:{{them_photo_pos}}" alt="">{{else}}{{#if them.photo}}<img src="{{them.photo}}" alt="">{{/if}}{{/if}}</div>
+        <div class="cap u"><span class="nm">{{us.name}}</span></div>
+        <div class="cap l"><span class="vs">{{L.vs}}</span></div>
+        <div class="cap t"><span class="nm">{{them.name}}</span></div>
+        {{#each rows}}<div class="c u v {{#if @last}}last{{/if}}" data-v="{{us}}"><span class="mk yes">{{> tick}}</span><span class="mk no"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M7.5 7.5l9 9M16.5 7.5l-9 9"/></svg></span><span class="txt">{{us}}</span></div>
+        <div class="c l"><span>{{label}}</span></div>
+        <div class="c t v {{#if @last}}last{{/if}}" data-v="{{them}}"><span class="mk yes">{{> tick}}</span><span class="mk no"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M7.5 7.5l9 9M16.5 7.5l-9 9"/></svg></span><span class="txt">{{them}}</span></div>
+        {{/each}}
+      </div>
+      {{#if footnote}}<p class="small fn muted">{{footnote}}</p>{{/if}}
+    </div>
+  </div>
+</div>
+{{&_foot}}
+<script>/* a transparent packshot (clear corners) is shown whole, trimmed to its opaque pixels (object-view-box) so the
+   file's own padding never shrinks the product; any other image fills its tile */
+(function(){function chk(img){try{var n=48,c=document.createElement('canvas');c.width=c.height=n;var x=c.getContext('2d');
+x.drawImage(img,0,0,n,n);var d=x.getImageData(0,0,n,n).data,A=function(i){return d[i*4+3];};
+if(Math.max(A(0),A(1),A(n-1),A(n*(n-1)),A(n*n-1),A(n*n-2))>=16)return;
+var t=n,l=n,b=-1,r=-1;for(var y=0;y<n;y++)for(var X=0;X<n;X++)if(A(y*n+X)>24){if(y<t)t=y;if(y>b)b=y;if(X<l)l=X;if(X>r)r=X;}
+if(b<0)return;var P=function(v){return Math.max(0,(v-.6)/n*100).toFixed(2)+'%';};
+img.style.objectViewBox='inset('+P(t)+' '+P(n-1-r)+' '+P(n-1-b)+' '+P(l)+')';img.parentNode.classList.add('cut');}catch(e){}}
+[].forEach.call(document.querySelectorAll('.pimg img'),function(img){if(img.complete&&img.naturalWidth)chk(img);
+else img.addEventListener('load',function(){chk(img);});});})();</script>
+</body>
+</html>

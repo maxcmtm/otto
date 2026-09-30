@@ -1,0 +1,22 @@
+{
+  "id": "gruns-notes",
+  "style": "notes",
+  "angle": "a4 replace the stack (persona p3, stack simplifier; Jamie W. 'I also stopped buying separate … gummies')",
+  "formats": ["9x16", "4x5"],
+  "music": { "bpm": 120, "mood": "calm" },
+  "scene": { "ground": "primary" },
+  "note": {
+    "meta": "Sunday, 8:02 AM",
+    "title": "Things I stopped buying",
+    "struck": ["greens powder", "the shaker", "4 separate gummy bottles"],
+    "keep": "one Grüns pack a day"
+  },
+  "endcard": {
+    "ground": "bg",
+    "headline": "See what's in one pack",
+    "accent": "one pack",
+    "sub": "60+ ingredients · 21 vitamins & minerals · 6 g fiber",
+    "fine": "",
+    "products": ["pack", "unit"]
+  }
+}

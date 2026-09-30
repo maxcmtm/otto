@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="{{lang}}" dir="{{dir}}" class="{{html_class}}">
+<head><meta charset="utf-8">
+<!-- text_message: a phone chat screenshot on the brand ground (native family). Real conversations only, or
+     clearly the brand talking (a support reply, an order update); never an invented customer.
+     data: contact*, messages* [{from: "them" | "me", text, attach}] (2-7; "me" bubbles are the brand accent;
+           attach: true puts the photo there), photo (an image attachment bubble: after the first message unless a
+           message has attach), time (default "Today 9:14 AM"; the day part is bold), receipt ("Delivered", under
+           the last message), initials (default: from contact), portrait (avatar photo), headline (on the ground,
+           *word* = accent), theme: dark (default) | light | accent, tag, cta. Feed, square, story.
+           Hebrew / RTL mirrors the thread: your own bubbles sit on the left. -->
+{{&_head}}
+<style>
+/* ---- native family: a real-looking screenshot on the brand ground ---- */
+:root{--u:2.3px;--ui:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro",var(--f-text)}
+html.f-square{--u:1.9px}
+/* story: copy only between the top 14 % and the bottom 35 % (Meta's unified Stories/Reels safe zone, 2026) */
+html.f-story{--top:270px;--bot:672px;--u:2.2px}
+.nat.t-dark{background:radial-gradient(110% 70% at 50% 60%,color-mix(in srgb,var(--deep) 88%,#fff) 0%,var(--deep) 72%)}
+.nat.t-light{background:radial-gradient(110% 70% at 50% 60%,color-mix(in srgb,var(--surface) 70%,#fff) 0%,var(--surface) 72%)}
+.nat .col{flex:1 1 auto;min-height:0;display:flex;flex-direction:column;justify-content:center}
+.nat .hl{font-size:calc(80px*var(--k));margin-top:40px;max-width:900px;flex:none}
+html.f-square .nat .hl{font-size:calc(70px*var(--k));margin-top:28px}
+html.f-story .nat .hl{font-size:calc(84px*var(--k));margin-top:24px}
+/* emphasis on an accent ground: a paper band behind ink (readable on any accent, never over the line above) */
+html body .t-accent .hl em{color:var(--ink);background:linear-gradient(var(--surface),var(--surface)) 0 64%/100% 70% no-repeat;
+  padding:0 .08em;-webkit-box-decoration-break:clone;box-decoration-break:clone}
+html body .t-accent.mk2 .hl em{background-image:linear-gradient(var(--marker),var(--marker))}
+.nat{--st-t:44px;--st-b:30px}
+html.f-square .nat{--st-t:30px;--st-b:22px}
+.nat .stage{flex:0 1 auto;min-height:0;display:flex;flex-direction:column;justify-content:center;padding-block:var(--st-t) var(--st-b)}
+.nat .shot{position:relative;flex:0 1 auto;min-height:0;display:flex;flex-direction:column}
+.nat .foot{padding-top:0}
+.scr{font-family:var(--ui);color:#000;-webkit-font-smoothing:antialiased;
+  box-shadow:0 1px 1px rgba(0,0,0,.05),0 calc(6*var(--u)) calc(14*var(--u)) rgba(0,0,0,.10),0 calc(22*var(--u)) calc(48*var(--u)) calc(-8*var(--u)) rgba(0,0,0,.34)}
+.t-light .scr{box-shadow:0 0 0 1px rgba(var(--ink-rgb),.05),0 calc(6*var(--u)) calc(14*var(--u)) rgba(var(--ink-rgb),.07),0 calc(22*var(--u)) calc(50*var(--u)) calc(-10*var(--u)) rgba(var(--ink-rgb),.26)}
+html body .ad .scr em{font-family:inherit;font-style:normal;font-weight:inherit;letter-spacing:inherit;font-size:1em;line-height:inherit;color:inherit;background:none}
+
+/* ---- the chat ---- */
+.chat{flex:0 1 auto;min-height:0;overflow:hidden;background:#fff;border-radius:calc(15*var(--u))}
+.chat .in{font-size:calc(17*var(--u));line-height:1.294;letter-spacing:-.024em}
+html[dir=rtl] .chat .in{letter-spacing:0;line-height:1.34}
+.head{background:#F6F6F6;border-bottom:1px solid #E3E3E6;display:flex;flex-direction:column;align-items:center;padding:.62em 0 .45em}
+.av{width:2.3em;height:2.3em;border-radius:50%;overflow:hidden;display:grid;place-items:center;color:#fff;
+  background:linear-gradient(#A9AEB9,#858A95);font-size:1em;font-weight:500;letter-spacing:.02em}
+.av img{width:100%;height:100%;object-fit:cover}
+.av span{font-size:1.06em}
+.cn{margin-top:.34em;font-size:.68em;line-height:1.2;color:#000;letter-spacing:0;max-width:80%;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.thread{display:flex;flex-direction:column;padding:.7em .95em 1.1em;overflow:hidden}
+.time{align-self:center;font-size:.66em;color:#8E8E93;letter-spacing:0;margin-bottom:.8em}
+.time b{font-weight:600}
+.msg{display:flex;flex-direction:column;align-items:flex-start;max-width:74%;align-self:flex-start}
+.msg.me{align-self:flex-end;align-items:flex-end}
+.msg+.msg{margin-top:.13em}
+.msg.me+.msg:not(.me),.msg:not(.me)+.msg.me{margin-top:.62em}
+.bub{position:relative;padding:.4em .72em .42em;border-radius:1.06em;background:#E9E9EB;color:#000;text-wrap:pretty;overflow-wrap:anywhere}
+.me .bub{background:var(--accent);color:var(--accent-ink)}
+/* the tail on the last bubble of a run */
+.msg.tail .bub::before,.msg.tail .bub::after{content:"";position:absolute;bottom:-.06em;height:1.1em}
+.msg.tail .bub::before{inset-inline-start:-.32em;width:.9em;background:inherit;border-end-end-radius:.74em .64em}
+.msg.tail .bub::after{inset-inline-start:-1.14em;width:1.14em;background:#fff;border-end-end-radius:.46em}
+.msg.me.tail .bub::before{inset-inline-start:auto;inset-inline-end:-.32em;border-end-end-radius:0;border-end-start-radius:.74em .64em}
+.msg.me.tail .bub::after{inset-inline-start:auto;inset-inline-end:-1.14em;border-end-end-radius:0;border-end-start-radius:.46em}
+/* a fixed box, so the layout (and the fit) never waits for the image */
+.att{display:block;width:11em;max-width:100%;height:auto;aspect-ratio:4/3;object-fit:cover;border-radius:1.06em;background:#F2F2F7}
+html.has-cutout .att{width:5.2em;aspect-ratio:1;object-fit:contain;padding:.3em}
+.msg .att+.bub{margin-top:.13em}
+.rcpt{align-self:flex-end;font-size:.66em;color:#8E8E93;letter-spacing:0;margin-top:.3em;font-weight:500}
+.holder{display:none}
+/* a thread still too long at the minimum size: it scrolls, as a phone does. The newest messages stay, the
+   oldest slide under the header (fit_report still says overflow) */
+.chat.scroll{display:flex;flex-direction:column}
+.chat.scroll .in{flex:1 1 auto;min-height:0;display:flex;flex-direction:column}
+.chat.scroll .head{flex:none;position:relative;z-index:2}
+.chat.scroll .thread{flex:1 1 auto;min-height:0;justify-content:flex-end}
+.chat.scroll .time{display:none}
+</style>
+</head>
+<body>
+<div class="ad nat tm t-{{#if theme}}{{theme}}{{else}}dark{{/if}}">
+  <div class="frame">
+    {{> top}}
+    <div class="col">
+      {{#if headline}}<h1 class="display hl" data-fit="2" data-min="48" data-lines="3">{{headline}}</h1>{{/if}}
+      <div class="stage">
+        <div class="shot">
+          <div class="chat scr" data-box>
+            <div class="in" data-fit="1" data-min="26" data-base="17">
+              <div class="head">
+                <div class="av">{{#if portrait}}<img src="{{portrait}}" style="object-position:{{portrait_pos}}" alt="">{{else}}<span data-name="{{contact}}">{{initials}}</span>{{/if}}</div>
+                <div class="cn">{{contact}}</div>
+              </div>
+              <div class="thread">
+                <div class="time"{{#unless time}} data-default{{/unless}}>{{#if time}}{{time}}{{else}}Today 9:14 AM{{/if}}</div>
+                {{#each messages}}<div class="msg {{from}}">{{#if attach}}<i class="slot"></i>{{/if}}{{#if text}}<div class="bub">{{text}}</div>{{/if}}</div>
+                {{/each}}{{#if receipt}}<div class="rcpt">{{receipt}}</div>{{/if}}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    {{> foot}}
+  </div>
+</div>
+{{#if photo}}<div class="holder"><img class="att" src="{{photo}}" style="object-position:{{photo_pos}}" alt=""></div>{{/if}}
+<script>
+(function () {
+  var lang = document.documentElement.lang;
+  // initials from the contact's name
+  var av = document.querySelector('.av span[data-name]');
+  if (av && !av.textContent.trim()) {
+    var words = av.getAttribute('data-name').split(/\s+/).filter(function (w) { return /\p{L}/u.test(w); });
+    av.textContent = words.slice(0, 2).map(function (w) { return w.match(/\p{L}/u)[0].toLocaleUpperCase(); }).join('');
+  }
+  // the photo: into the message marked attach, else its own bubble after the first message
+  var img = document.querySelector('.holder .att');
+  if (img) {
+    var slot = document.querySelector('.msg .slot');
+    if (slot) slot.parentNode.replaceChild(img, slot);
+    else {
+      var first = document.querySelector('.thread .msg'), m = document.createElement('div');
+      m.className = 'msg ' + (first && first.classList.contains('me') ? 'me' : 'them');
+      m.appendChild(img);
+      if (first) first.parentNode.insertBefore(m, first.nextSibling); else document.querySelector('.thread').appendChild(m);
+    }
+  }
+  document.querySelectorAll('.msg .slot').forEach(function (s) { s.remove(); });
+  // the tail goes on the last text bubble of each run from the same side
+  var msgs = Array.prototype.slice.call(document.querySelectorAll('.thread .msg'));
+  msgs.forEach(function (m, i) {
+    var me = m.classList.contains('me'), nx = msgs[i + 1];
+    if (m.querySelector('.bub') && (!nx || nx.classList.contains('me') !== me)) m.classList.add('tail');
+  });
+  // "Today 9:14 AM": the day part bold, as the phone shows it
+  var t = document.querySelector('.time');
+  if (t && t.hasAttribute('data-default')) {
+    var L = {he: 'היום 9:14', de: 'Heute 9:14', fr: "Aujourd’hui 9:14", es: 'Hoy 9:14'};
+    if (L[lang]) t.textContent = L[lang];
+  }
+  if (t) {
+    var w = document.createTreeWalker(t, NodeFilter.SHOW_TEXT), n = w.nextNode();
+    if (n) {
+      var i = n.nodeValue.search(/\d/), head = i < 0 ? n.nodeValue : n.nodeValue.slice(0, i);
+      if (head.trim()) {
+        if (i > 0) n.splitText(i);
+        var b = document.createElement('b'); n.parentNode.insertBefore(b, n); b.appendChild(n);
+      }
+    }
+  }
+  // a two-colour brand (Grüns green + yellow): emphasis on the accent ground uses the second colour as the band
+  var rs = getComputedStyle(document.documentElement), mk = rs.getPropertyValue('--marker').trim().toLowerCase();
+  if (mk && mk !== rs.getPropertyValue('--accent').trim().toLowerCase()) document.querySelector('.ad').classList.add('mk2');
+  // a thread still too long at the minimum size scrolls, as a phone does (a short one is zoomed in by _grow.html)
+  new MutationObserver(function () {
+    var d = document.documentElement;
+    if (d.classList.contains('fitted') && d.classList.contains('overflow')) document.querySelector('.chat').classList.add('scroll');
+  }).observe(document.documentElement, {attributes: true, attributeFilter: ['class']});
+  // typographic quotes inside the screenshot, as the phone's keyboard types them (Latin scripts only)
+  if (document.documentElement.dir !== 'rtl') document.querySelectorAll('.scr').forEach(function (root) {
+    var w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT), n, prev = ' ';
+    while ((n = w.nextNode())) {
+      if (n.parentNode.closest('.url,.qv,.at')) { prev = 'x'; continue; }
+      var out = '', s = n.nodeValue;
+      for (var i = 0; i < s.length; i++) {
+        var c = s[i], open = /[\s(\[{\u2014\u2013]/.test(prev);
+        if (c === '"') c = open ? '\u201c' : '\u201d';
+        else if (c === "'") c = open ? '\u2018' : '\u2019';
+        out += c; prev = s[i];
+      }
+      if (out !== s) n.nodeValue = out;
+    }
+  });
+})();
+</script>
+<script>/* a cutout attachment is trimmed to its opaque pixels (object-view-box): the file's own padding never shrinks the pack */
+(function(){if(!document.documentElement.classList.contains('has-cutout'))return;var img=document.querySelector('.att');if(!img)return;
+function trim(){try{var n=48,c=document.createElement('canvas');c.width=c.height=n;var x=c.getContext('2d');x.drawImage(img,0,0,n,n);
+var d=x.getImageData(0,0,n,n).data,t=n,l=n,b=-1,r=-1;for(var y=0;y<n;y++)for(var X=0;X<n;X++)if(d[(y*n+X)*4+3]>24){if(y<t)t=y;if(y>b)b=y;if(X<l)l=X;if(X>r)r=X;}
+if(b<0)return;var P=function(v){return Math.max(0,(v-.6)/n*100).toFixed(2)+'%';};
+img.style.objectViewBox='inset('+P(t)+' '+P(n-1-r)+' '+P(n-1-b)+' '+P(l)+')';}catch(e){}}
+if(img.complete&&img.naturalWidth)trim();else img.addEventListener('load',trim);})();</script>
+{{> grow}}
+{{&_foot}}
+</body>
+</html>

@@ -9,11 +9,14 @@ Usage:
   ap.py decide <post-id> <approve|skip|later> [--via telegram|dashboard|auto]
   ap.py set <post-id> '<json-object>'          # merge fields into a post (hook, caption, image, format, brief…)
   ap.py brand-add <id> <name> <url> <lang> [pillar,pillar,...] [--tz Europe/Berlin] [--countries DE,AT] [--currency EUR]
-                                                 # tz/countries default from the url's country TLD, then the language
+                 [--plan content]                # tz/countries default from the url's country TLD, then the language;
+                                                 # plan defaults to plans.json defaults.new (a Whop link sets the paid one)
+  ap.py plans                                    # the plans in plans.json and every brand's resolved plan
   ap.py recs | rec <rec-id> <proposed|approved|dismissed|done>
   ap.py rec-add <P0|P1|P2> <title> | <why> | <impact> | <cta>
   ap.py taste [brand]                            # what the owner's decisions taught us
-  ap.py sync-fallback                            # re-embed data.json into index.html fallback block
+  ap.py sync-fallback                            # rewrite index.html's fallback block: neutral (default) or, with
+                                                 # OTTO_FALLBACK=full, the live data.json (owner-only machines)
 
 Concurrency: every writer uses `with ap.transaction() as d:` — an exclusive flock on data.json.lock,
 a fresh load, the change, then an atomic write (temp file + os.replace). Long network work (Meta,
@@ -22,9 +25,9 @@ Google, Leonardo, Telegram) happens OUTSIDE the lock; only the per-id patch runs
 Env: OTTO_DATA (default ./data.json), OTTO_HTML (default ./index.html), OTTO_BRANDS (default ../brands),
      OTTO_TZ (default brand timezone when brands[].tz is not set; default Asia/Jerusalem)
 """
-import fcntl, json, os, re, sys, tempfile, threading, urllib.parse
+import fcntl, json, math, os, re, sys, tempfile, threading, urllib.parse
 from contextlib import contextmanager
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
@@ -140,7 +143,10 @@ def _write(d, sync=True):
     d["generated"] = now_iso()
     _atomic_write(DATA, json.dumps(d, ensure_ascii=False, indent=2) + "\n")
     if sync:
-        sync_fallback(d)
+        try:
+            sync_fallback(d)
+        except OSError as e:          # the embedded copy is a convenience: data.json is already saved, the write stands
+            print(f"ap: fallback sync failed ({type(e).__name__}: {e})", file=sys.stderr)
 
 
 def save(d, sync=True):
@@ -158,8 +164,19 @@ def embed_json(d):
     return json.dumps(d, ensure_ascii=False).replace("</", "<\\/").replace("<!--", "\\u003c!--")
 
 
+# What the dashboard's embedded fallback block carries. index.html is served to every signed-in client, so by default it
+# holds no client data at all (a neutral, empty document the app renders as "nothing yet"); OTTO_FALLBACK=full embeds
+# the live data.json for local development / demos on a machine only the owner uses.
+NEUTRAL_FALLBACK = {"generated": None, "fallback": "neutral", "brands": [], "posts": [], "recommendations": [], "campaigns": [],
+                    "connections": [], "metrics": {}}
+
+
+def fallback_full():
+    return (os.environ.get("OTTO_FALLBACK") or "").strip().lower() in ("full", "1", "true", "yes")
+
+
 def sync_fallback(d=None):
-    d = d or load()
+    d = (d or load()) if fallback_full() else NEUTRAL_FALLBACK
     if not HTML.exists():
         return
     html = HTML.read_text()
@@ -173,20 +190,50 @@ def sync_fallback(d=None):
 
 # ---------- helpers used by the engine scripts ----------
 
+def _find(items, ident):
+    """The record with this id; a malformed entry (not a dict, no id) is skipped, never a KeyError for every lookup."""
+    return next((x for x in items or [] if isinstance(x, dict) and x.get("id") == ident), None) if ident is not None else None
+
+
 def brand(d, bid):
-    return next((b for b in d.get("brands", []) if b["id"] == bid), None)
+    return _find(d.get("brands"), bid)
+
+
+EMAIL = re.compile(r"[A-Za-z0-9._%+'-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,24}")
+
+
+def norm_member(v):
+    """A brand member as stored: a lower-case e-mail, or "@domain" for everyone signed in with that domain. None if invalid."""
+    v = str(v or "").strip().lower()
+    if v.startswith("@") and re.fullmatch(r"@[a-z0-9-]+(\.[a-z0-9-]+)+", v):
+        return v
+    return v if EMAIL.fullmatch(v) else None
+
+
+def is_member(b, user):
+    """True when the signed-in user (an e-mail from the proxy) is on brands[].members (exactly, or by "@domain")."""
+    user = str(user or "").strip().lower()
+    if not user or "@" not in user:
+        return False
+    members = {str(m).strip().lower() for m in (b or {}).get("members") or []}
+    return user in members or "@" + user.rsplit("@", 1)[1] in members
+
+
+def member_brands(d, user):
+    """Ids of the brands this signed-in user may see and act on."""
+    return {b["id"] for b in d.get("brands", []) if isinstance(b, dict) and b.get("id") and is_member(b, user)}
 
 
 def post(d, pid):
-    return next((p for p in d.get("posts", []) if p["id"] == pid), None)
+    return _find(d.get("posts"), pid)
 
 
 def rec(d, rid):
-    return next((r for r in d.get("recommendations", []) if r["id"] == rid), None)
+    return _find(d.get("recommendations"), rid)
 
 
 def campaign(d, cid):
-    return next((c for c in d.get("campaigns", []) if c["id"] == cid), None)
+    return _find(d.get("campaigns"), cid)
 
 
 def _num_suffix(ident, prefix):
@@ -254,6 +301,466 @@ def add_rec_once(d, prio, title, why, impact, cta, **fields):
     return add_rec(d, prio, title, why, impact, cta, **fields)
 
 
+def paused(d, bid=None):
+    """Why publishing and ad launches are stopped right now, or None. The owner console (otto_admin) sets
+    controls.publishing_paused (the global kill switch) and brands[].paused; otto_publish and otto_ads launch honour both.
+    A brand on the "ended" plan (plans.json defaults.ended, "none": a canceled / expired membership) is paused too."""
+    ks = (d.get("controls") or {}).get("publishing_paused")
+    if ks:
+        return "all publishing is paused (kill switch" + (f", {ks.get('by')}" if isinstance(ks, dict) and ks.get("by") else "") + ")"
+    if bid:
+        b = brand(d, bid) or {}
+        if b.get("paused") or b.get("status") == "paused":
+            return f"{b.get('name') or bid} is paused"
+        if b and plan_ended(d, bid):
+            return f"{b.get('name') or bid} has no active plan (membership ended)"
+    return None
+
+
+# ---------- plans (plans.json): what each brand gets ----------
+#
+# plans.json is the single source of truth (edited without code): plans keyed by id with label, features, limits and
+# optional prices / Whop plan ids; "inherits" merges a parent's features + limits. brands[].plan names the brand's plan
+# (missing = a brand from before plans → defaults.legacy, "founding"); brands[].plan_until (YYYY-MM-DD, brand-local)
+# ends it → defaults.after_expiry ("content"); an unknown id → defaults.unknown ("content": fail-safe, no paid ads).
+# New brands get defaults.new ("starter"), flagged brands[].plan_billing "not_billed" while that plan cannot be bought on
+# Whop yet (no whop_plan_ids); linking a Whop membership clears the flag.
+# The paid budget band (limits.ad_spend_managed_eur_month) is a soft cap (ad_band): the first month above it is planned in
+# full, the second month in a row above it at the cap with the next plan offered; a plan with "overage" is never capped
+# and shows overage.pct % of the spend above overage.above_eur_month. brands[].ad_band keeps the last months' decisions.
+# An unreadable or invalid plans.json never pauses anything: plan_of answers SAFE_PLAN (organic only, config_error set),
+# so paid work is refused / skipped with the reason and the guard leaves live campaigns alone.
+
+FEATURES = ("organic", "stories", "reels", "ads_meta", "ads_google", "ad_matrix", "video_ads", "creator_briefs",
+            "competitor_sweep", "reports", "telegram", "multi_brand")
+LIMITS = ("brands", "posts_per_month", "reels_per_month", "ad_matrix_preset", "ad_spend_managed_eur_month",
+          "video_ads_per_month", "refresh_per_angle_week")
+PRESET_ORDER = ("none", "micro", "launch", "scale")
+SWEEPS = (False, "monthly", "weekly")
+PLAN_DEFAULTS = {"legacy": "founding", "new": "content", "after_expiry": "content", "unknown": "content", "ended": "none"}
+SAFE_PLAN = {"label": "Content (plans.json unreadable)", "upgrade_to": None, "overage": None, "public": False,
+             "features": {"organic": True, "stories": True, "reels": True, "ads_meta": False, "ads_google": False, "ad_matrix": False,
+                          "video_ads": False, "creator_briefs": False, "competitor_sweep": "monthly", "reports": True,
+                          "telegram": True, "multi_brand": False},
+             "limits": {"brands": 1, "posts_per_month": 66, "reels_per_month": 4, "ad_matrix_preset": "none",
+                        "ad_spend_managed_eur_month": 0, "video_ads_per_month": 0, "refresh_per_angle_week": 0}}
+_plans_cache = {"key": None, "cfg": None}
+
+
+def plans_path():
+    return Path(os.environ.get("OTTO_PLANS") or HERE / "plans.json")
+
+
+def _plan_problems(raw):
+    """Why a parsed plans.json cannot be used ([] = fine), and the resolved plans (inheritance merged)."""
+    if not isinstance(raw, dict) or not isinstance(raw.get("plans"), dict) or not raw["plans"]:
+        return ["no \"plans\" object"], {}
+    src, out, probs = raw["plans"], {}, []
+
+    def resolve(pid, seen=()):
+        if pid in out:
+            return out[pid]
+        p = src.get(pid)
+        if not isinstance(p, dict):
+            raise ValueError(f"plan {pid!r} is not an object")
+        if pid in seen:
+            raise ValueError(f"plan {pid!r} inherits itself")
+        feats, lims = {}, {}
+        if p.get("inherits") is not None:
+            if p["inherits"] not in src:
+                raise ValueError(f"plan {pid!r} inherits unknown plan {p['inherits']!r}")
+            parent = resolve(p["inherits"], seen + (pid,))
+            feats, lims = dict(parent["features"]), dict(parent["limits"])
+        for k, box in (("features", feats), ("limits", lims)):
+            if p.get(k) is not None and not isinstance(p[k], dict):
+                raise ValueError(f"plan {pid!r}: {k} must be an object")
+            box.update(p.get(k) or {})
+        for f in FEATURES:
+            if f not in feats:
+                raise ValueError(f"plan {pid!r}: feature {f!r} missing")
+            v = feats[f]
+            if f == "competitor_sweep" and v not in SWEEPS:
+                raise ValueError(f"plan {pid!r}: competitor_sweep must be false, \"monthly\" or \"weekly\"")
+            if f != "competitor_sweep" and not isinstance(v, bool):
+                raise ValueError(f"plan {pid!r}: feature {f!r} must be true or false")
+        for k in LIMITS:
+            if k not in lims:
+                raise ValueError(f"plan {pid!r}: limit {k!r} missing (null = no limit)")
+            v = lims[k]
+            if k == "ad_matrix_preset":
+                if v not in PRESET_ORDER:
+                    raise ValueError(f"plan {pid!r}: ad_matrix_preset must be one of {', '.join(PRESET_ORDER)}")
+            elif v is not None and (isinstance(v, bool) or not isinstance(v, (int, float)) or v < 0):
+                raise ValueError(f"plan {pid!r}: limit {k!r} must be a number ≥ 0 or null")
+        ids = p.get("whop_plan_ids") or []
+        if not isinstance(ids, list) or not all(isinstance(x, str) and x.strip() for x in ids):
+            raise ValueError(f"plan {pid!r}: whop_plan_ids must be a list of Whop plan ids")
+        if p.get("upgrade_to") is not None and p["upgrade_to"] not in src:
+            raise ValueError(f"plan {pid!r}: upgrade_to names unknown plan {p['upgrade_to']!r}")
+        ov = p.get("overage")
+        if ov is not None and not (isinstance(ov, dict) and all(isinstance(ov.get(k), (int, float)) and not isinstance(ov.get(k), bool)
+                                                                 and ov[k] >= 0 for k in ("above_eur_month", "pct"))):
+            raise ValueError(f"plan {pid!r}: overage must be {{\"above_eur_month\": number, \"pct\": number}}")
+        for k in ("monthly_eur", "yearly_eur", "one_time_eur", "extra_brand_eur"):
+            v = p.get(k)
+            if v is not None and (isinstance(v, bool) or not isinstance(v, (int, float)) or v < 0):
+                raise ValueError(f"plan {pid!r}: {k} must be a number or null")
+        extra = {k: v for k, v in p.items() if k not in ("features", "limits", "inherits") and not k.startswith("_")}
+        out[pid] = dict(extra, label=str(p.get("label") or pid), features=feats, limits=lims, whop_plan_ids=list(ids),
+                        inherits=p.get("inherits"), upgrade_to=p.get("upgrade_to"), overage=ov,
+                        public=bool(p.get("public", True)))
+        return out[pid]
+
+    for pid in src:
+        if not re.fullmatch(r"[a-z][a-z0-9_-]{0,31}", str(pid)):
+            probs.append(f"plan id {pid!r}: lower-case letters, digits, - and _ only")
+            continue
+        try:
+            resolve(pid)
+        except ValueError as e:
+            probs.append(str(e))
+    defaults = dict(PLAN_DEFAULTS, **{k: v for k, v in (raw.get("defaults") or {}).items() if not str(k).startswith("_")})
+    for k, v in defaults.items():
+        if v not in src:
+            probs.append(f"defaults.{k} names unknown plan {v!r}")
+    seen = {}
+    for pid, p in out.items():
+        for w in p["whop_plan_ids"]:
+            if w in seen and seen[w] != pid:
+                probs.append(f"Whop plan {w} is listed on both {seen[w]!r} and {pid!r}")
+            seen[w] = pid
+    return probs, out
+
+
+def plans_config():
+    """plans.json parsed, validated and inheritance-resolved: {"plans": {id: {label, features, limits, whop_plan_ids, …}},
+    "defaults", "order", "file", "error"}. Re-read whenever the file changes (mtime + size). error is a short reason when the
+    file cannot be used; then "plans" is empty and plan_of answers SAFE_PLAN."""
+    f = plans_path()
+    try:
+        st = f.stat()
+        key = (str(f), st.st_mtime_ns, st.st_size)
+    except OSError:
+        key = (str(f), None, None)
+    if _plans_cache["key"] == key and _plans_cache["cfg"] is not None:
+        return _plans_cache["cfg"]
+    try:
+        raw = json.loads(f.read_text())
+        probs, plans_ = _plan_problems(raw)
+    except (OSError, ValueError) as e:
+        raw, probs, plans_ = {}, [f"cannot read {f.name}: {type(e).__name__}: {str(e)[:160]}"], {}
+    if probs:
+        cfg = {"plans": {}, "defaults": dict(PLAN_DEFAULTS), "order": [], "file": str(f),
+               "error": "; ".join(probs)[:400]}
+    else:
+        order = [x for x in raw.get("order") or [] if x in plans_] + [x for x in plans_ if x not in (raw.get("order") or [])]
+        cfg = {"plans": plans_, "order": order, "file": str(f), "error": None,
+               "defaults": dict(PLAN_DEFAULTS, **{k: v for k, v in (raw.get("defaults") or {}).items() if not str(k).startswith("_")})}
+    _plans_cache.update(key=key, cfg=cfg)
+    return cfg
+
+
+def _plan_date(v):
+    m = re.match(r"\d{4}-\d{2}-\d{2}", str(v or "").strip())
+    if not m:
+        return None
+    try:
+        return datetime.strptime(m.group(0), "%Y-%m-%d").date()
+    except ValueError:
+        return None
+
+
+def plan_of(d, bid, today=None):
+    """The brand's resolved plan: {id, label, features, limits, prices…, requested, source, until, expired, config_error}.
+    source: "brand" (brands[].plan) · "legacy" (no plan on the record → defaults.legacy) · "expired" (plan_until passed →
+    defaults.after_expiry) · "unknown" (an id plans.json does not have → defaults.unknown) · "config_error"."""
+    b = brand(d, bid) or {}
+    cfg = plans_config()
+    dflt = cfg["defaults"]
+    raw = b.get("plan")
+    requested = raw.strip() if isinstance(raw, str) and raw.strip() else None
+    pid, source = requested or dflt["legacy"], "brand" if requested else "legacy"
+    until = _plan_date(b.get("plan_until"))
+    today = today or datetime.now(brand_tz(b)).date()
+    expired = bool(until and today > until and pid != dflt["ended"])
+    if expired:
+        pid, source = dflt["after_expiry"], "expired"
+    if cfg.get("error"):
+        base, pid, source = SAFE_PLAN, dflt["unknown"], "config_error"
+    elif pid in cfg["plans"]:
+        base = cfg["plans"][pid]
+    else:
+        pid, source = dflt["unknown"], "unknown"
+        base = cfg["plans"].get(pid) or SAFE_PLAN
+    out = json.loads(json.dumps(base))                        # callers may change what they get, never the cache
+    out.update(id=pid, requested=requested or dflt["legacy"], source=source, until=until.isoformat() if until else None,
+               expired=expired, config_error=cfg.get("error"))
+    return out
+
+
+def plan_ended(d, bid):
+    """True when the brand sits on the "ended" plan (a canceled / expired membership): publishing is paused."""
+    b = brand(d, bid) or {}
+    raw = b.get("plan")
+    return isinstance(raw, str) and raw.strip() == plans_config()["defaults"]["ended"]
+
+
+AD_FEATURE = {"meta": "ads_meta", "google": "ads_google"}
+
+
+def entitled(d, bid, feature, today=None):
+    """Does the brand's plan include `feature` (a plans.json feature; "ads" = paid ads on any network, "meta" / "google"
+    = that network)? competitor_sweep counts as included when it is monthly or weekly."""
+    f = plan_of(d, bid, today)["features"]
+    if feature in ("ads", "paid_ads"):
+        return bool(f.get("ads_meta") or f.get("ads_google"))
+    return bool(f.get(AD_FEATURE.get(feature, feature)))
+
+
+def limit(d, bid, name, today=None):
+    """The brand's plan limit `name` (None = no limit)."""
+    return plan_of(d, bid, today)["limits"].get(name)
+
+
+def no_ads_why(d, bid, network=None):
+    """Why this brand's plan does not cover paid ads (on `network`), or None when it does."""
+    p = plan_of(d, bid)
+    if p.get("config_error"):
+        return f"plans.json is unreadable ({p['config_error'][:120]}) — paid ads are off until it is fixed"
+    if not (p["features"].get("ads_meta") or p["features"].get("ads_google")):
+        return f"plan {p['id']} has no paid ads"
+    if network and not p["features"].get(AD_FEATURE.get(network, network)):
+        return f"plan {p['id']} has no {'Meta' if network == 'meta' else 'Google'} ads"
+    return None
+
+
+def preset_rank(p):
+    return PRESET_ORDER.index(p) if p in PRESET_ORDER else 0
+
+
+def matrix_preset(d, bid, budget_preset=None):
+    """The ad-matrix preset the brand's plan allows ("none" | "micro" | "launch" | "scale"), capped at micro when the
+    daily budget calls for the micro floor (otto_styles.preset_for_budget → budget_preset "micro")."""
+    p = plan_of(d, bid)
+    preset = p["limits"].get("ad_matrix_preset") or "none"
+    if not p["features"].get("ad_matrix"):
+        return "none"
+    if budget_preset == "micro" and preset_rank(preset) > preset_rank("micro"):
+        return "micro"
+    return preset
+
+
+def plan_for_whop(whop_plan_id):
+    """The Otto plan a Whop plan id sells (plans.json whop_plan_ids), or None."""
+    if not whop_plan_id:
+        return None
+    return next((pid for pid, p in plans_config()["plans"].items() if whop_plan_id in p["whop_plan_ids"]), None)
+
+
+def new_brand_plan():
+    """(plan id, plan_billing flag or None) for a brand created now: plans.json defaults.new, flagged "not_billed" while
+    that plan has no Whop plan id to buy it with."""
+    cfg = plans_config()
+    pid = cfg["defaults"]["new"]
+    sold = bool((cfg["plans"].get(pid) or {}).get("whop_plan_ids"))
+    return pid, (None if sold else "not_billed")
+
+
+def _prev_month(ym):
+    y, m = int(ym[:4]), int(ym[5:7])
+    return f"{y - (m == 1):04d}-{(m - 2) % 12 + 1:02d}"
+
+
+def ad_band(d, bid, ym, asked_eur):
+    """The soft cap for `ym`'s paid plan (research §4.2) given the budget asked for, in EUR → {mode, cap_eur, asked_eur,
+    plan_eur, overage_eur, upgrade_to, upgrade_label, upgrade_cap_eur, plan}. mode: "within" · "grace" (the first month
+    above the band: planned in full, the card says so) · "capped" (the second month in a row above it on the same plan:
+    planned at the cap, the card offers upgrade_to) · "overage" (a plan with overage: planned in full, overage_eur =
+    pct % of the spend above above_eur_month, shown, never billed by Otto). Pure: record_band() stores the decision."""
+    p = plan_of(d, bid)
+    cap = p["limits"].get("ad_spend_managed_eur_month")
+    up = plans_config()["plans"].get(p.get("upgrade_to") or "") or {}
+    out = {"plan": p["id"], "cap_eur": cap, "asked_eur": round(asked_eur or 0, 2), "plan_eur": round(asked_eur or 0, 2),
+           "overage_eur": 0.0, "mode": "within", "upgrade_to": p.get("upgrade_to"), "upgrade_label": up.get("label"),
+           "upgrade_cap_eur": (up.get("limits") or {}).get("ad_spend_managed_eur_month")}
+    if cap is None or (asked_eur or 0) <= cap:
+        return out
+    ov = p.get("overage")
+    if ov:
+        out.update(mode="overage", overage_eur=round(max(0.0, asked_eur - ov["above_eur_month"]) * ov["pct"] / 100, 2),
+                   overage_pct=ov["pct"], overage_above_eur=ov["above_eur_month"])
+        return out
+    hist = (brand(d, bid) or {}).get("ad_band")
+    prev = (hist if isinstance(hist, dict) else {}).get(_prev_month(ym))
+    prev = prev if isinstance(prev, dict) else {}
+    if prev.get("over") and prev.get("plan") == p["id"]:
+        out.update(mode="capped", plan_eur=float(cap))
+    else:
+        out["mode"] = "grace"
+    return out
+
+
+def record_band(d, bid, ym, band):
+    """Remember `ym`'s band decision on brands[].ad_band (the last 6 months) — next month's ad_band reads it."""
+    b = brand(d, bid)
+    if b is None:
+        return
+    hist = b.get("ad_band") if isinstance(b.get("ad_band"), dict) else {}
+    hist[ym] = {"plan": band["plan"], "over": band["mode"] != "within", "mode": band["mode"], "asked_eur": band["asked_eur"],
+                "plan_eur": band["plan_eur"], "cap_eur": band["cap_eur"], "overage_eur": band["overage_eur"], "at": now_iso()}
+    if band["mode"] == "overage":
+        hist[ym].update(overage_pct=band.get("overage_pct"), overage_above_eur=band.get("overage_above_eur"))
+    b["ad_band"] = {k: hist[k] for k in sorted(hist)[-6:]}
+
+
+KEEP = object()
+
+
+def set_plan(d, bid, plan_id, until=KEEP, by="admin", via="admin", note="", **extra):
+    """Put a brand on a plan (validated against plans.json) inside the caller's transaction and keep a short history
+    (brands[].plan_history: who, when, from → to, until, note). until: "YYYY-MM-DD", None / "" = no expiry, KEEP = unchanged.
+    → (plan before, plan after) as plan_of resolves them."""
+    cfg = plans_config()
+    if cfg.get("error"):
+        raise ValueError(f"plans.json is unreadable: {cfg['error'][:200]}")
+    if plan_id not in cfg["plans"]:
+        raise ValueError(f"unknown plan {plan_id!r} — one of {', '.join(cfg['order'])}")
+    b = brand(d, bid)
+    if b is None:
+        raise KeyError(bid)
+    before = plan_of(d, bid)
+    b["plan"] = plan_id
+    if until is not KEEP:
+        if until in (None, ""):
+            b.pop("plan_until", None)
+        else:
+            day = _plan_date(until)
+            if day is None or not re.fullmatch(r"\d{4}-\d{2}-\d{2}", str(until).strip()):
+                raise ValueError("until must be a date (YYYY-MM-DD)")
+            b["plan_until"] = day.isoformat()
+    b.pop("plan_notice", None)                              # a fresh plan gets a fresh expiry notice
+    entry = {"at": now_iso(), "by": by, "via": via, "from": before["id"], "to": plan_id,
+             "until": b.get("plan_until"), "note": str(note or "")[:300]}
+    entry.update({k: v for k, v in extra.items() if v is not None})
+    b["plan_history"] = (b.get("plan_history") or [])[-19:] + [entry]
+    return before, plan_of(d, bid)
+
+
+def plan_expiry_notices(d, today=None):
+    """One owner recommendation per brand whose plan_until has passed (brands[].plan_notice remembers it was filed).
+    Runs inside the caller's transaction. → brand ids noticed now."""
+    out = []
+    for b in d.get("brands", []):
+        if not isinstance(b, dict) or not b.get("id"):
+            continue
+        p = plan_of(d, b["id"], today)
+        if not p["expired"]:
+            continue
+        key = f"expired:{p['requested']}:{p['until']}"
+        if b.get("plan_notice") == key:
+            continue
+        b["plan_notice"] = key
+        cfg = plans_config()["plans"]
+        old = (cfg.get(p["requested"]) or {}).get("label") or p["requested"]
+        name = b.get("name") or b["id"]
+        paid = p["features"].get("ads_meta") or p["features"].get("ads_google")
+        add_rec(d, "P1", f"{name}: the {old} plan ended on {p['until']}",
+                f"{name} is on {p['label']} now." + ("" if paid else " Paid ads are not part of it: nothing new is planned or "
+                                                                       "launched, and the daily guard pauses live campaigns.")
+                + " Nothing was deleted.", "Keeps what the client gets in line with what they pay for",
+                "Renew or change the plan", brand=b["id"], source="plans", audience="owner", action="plan", plan=p["id"])
+        out.append(b["id"])
+    return out
+
+
+PRESET_TEXT = {"micro": "4 concepts × 5 styles", "launch": "6 concepts × 6 styles", "scale": "6 concepts × 8 styles"}
+
+
+def to_eur(amount, code):
+    """A brand-currency amount in EUR (otto_whop's approximate table); None when the currency is unknown."""
+    try:
+        import otto_whop
+        return otto_whop.to_eur(amount, currency_code(code) or "EUR")
+    except Exception:
+        return amount if (currency_code(code) or "EUR") == "EUR" else None
+
+
+def plan_usage(d, bid, today=None):
+    """This month (brand-local) against the plan: posts + reels planned (not skipped), and the paid budget Otto manages
+    (approved / live / paused / ended flights × days in the month, in EUR)."""
+    b = brand(d, bid) or {}
+    today = today or datetime.now(brand_tz(b)).date()
+    ym = today.strftime("%Y-%m")
+    month = [p for p in d.get("posts", []) if isinstance(p, dict) and p.get("brand") == bid
+             and str(p.get("slot") or "").startswith(ym) and p.get("status") != "skipped"]
+    y, m = today.year, today.month
+    first = today.replace(day=1)
+    last = (first.replace(year=y + (m == 12), month=m % 12 + 1)) - timedelta(days=1)
+    budget = 0.0
+    for c in d.get("campaigns", []):
+        if not isinstance(c, dict) or c.get("brand") != bid or c.get("status") not in ("approved", "live", "paused", "ended"):
+            continue
+        s, e = _plan_date(c.get("start")), _plan_date(c.get("end"))
+        if not (s and e):
+            continue
+        days = (min(e, last) - max(s, first)).days + 1
+        if days > 0:
+            budget += (num(c.get("daily_budget")) or 0) * days
+    return {"month": ym, "posts": len(month), "reels": sum(1 for p in month if p.get("format") == "reel"),
+            "ad_budget_eur": round(to_eur(budget, brand_currency(d, bid)) or 0, 2)}
+
+
+def plan_view(d, bid, today=None):
+    """The plan as the owner console and the client's Settings show it: label, what is included (plain English lines),
+    limits and this month's usage against them."""
+    p = plan_of(d, bid, today)
+    f, L = p["features"], p["limits"]
+    inc = []
+    if f.get("organic"):
+        inc.append(f"{L['posts_per_month']} posts a month" + (", carousels and stories included" if f.get("stories") else "")
+                   if L.get("posts_per_month") is not None else "Organic posts on Facebook and Instagram")
+    if f.get("reels"):
+        inc.append(f"{L['reels_per_month']} reels a month" if L.get("reels_per_month") is not None else "Reels")
+    if f.get("competitor_sweep"):
+        inc.append(f"{str(f['competitor_sweep']).capitalize()} competitor sweep")
+    if f.get("telegram"):
+        inc.append("Approvals in Telegram")
+    if f.get("reports"):
+        inc.append("Morning report and weekly insights")
+    nets = " and ".join(n for n, k in (("Meta", "ads_meta"), ("Google", "ads_google")) if f.get(k))
+    if nets:
+        cap, ov = L.get("ad_spend_managed_eur_month"), p.get("overage")
+        inc.append(f"Paid campaigns on {nets}" + (f", ad spend up to €{cap:,.0f} a month" if cap else "")
+                   + (f" (above €{ov['above_eur_month']:,.0f}: {ov['pct']:g}% of the excess)" if ov else ""))
+    if f.get("ad_matrix") and PRESET_TEXT.get(L.get("ad_matrix_preset")):
+        inc.append(f"Monthly ad matrix: {PRESET_TEXT[L['ad_matrix_preset']]}")
+    if f.get("video_ads"):
+        inc.append("Video ads" + (f", up to {L['video_ads_per_month']} a month" if L.get("video_ads_per_month") else ""))
+    if f.get("creator_briefs"):
+        inc.append("Creator briefs")
+    if f.get("multi_brand") and L.get("brands"):
+        inc.append(f"Up to {L['brands']} brands")
+    u = plan_usage(d, bid, today)
+    usage = {"posts": {"used": u["posts"], "limit": L.get("posts_per_month")},
+             "reels": {"used": u["reels"], "limit": L.get("reels_per_month")}}
+    overage = None
+    if nets:
+        usage["ad_budget_eur"] = {"used": u["ad_budget_eur"], "limit": L.get("ad_spend_managed_eur_month")}
+        ov = p.get("overage")
+        if ov and u["ad_budget_eur"] > ov["above_eur_month"]:
+            overage = {"above_eur": ov["above_eur_month"], "pct": ov["pct"], "excess_eur": round(u["ad_budget_eur"] - ov["above_eur_month"], 2),
+                       "fee_eur": round((u["ad_budget_eur"] - ov["above_eur_month"]) * ov["pct"] / 100, 2)}
+    b = brand(d, bid) or {}
+    band = (b["ad_band"] if isinstance(b.get("ad_band"), dict) else {}).get(u["month"])
+    band = band if isinstance(band, dict) else None
+    up = plans_config()["plans"].get(p.get("upgrade_to") or "") or {}
+    return {"id": p["id"], "label": p["label"], "requested": p["requested"], "source": p["source"], "until": p["until"],
+            "expired": p["expired"], "paid_ads": bool(nets), "ended": plan_ended(d, bid), "included": inc,
+            "limits": dict(L), "features": dict(f), "usage": usage, "month": u["month"], "config_error": p["config_error"],
+            "overage": overage, "band": band, "not_billed": b.get("plan_billing") == "not_billed",
+            "upgrade_to": p.get("upgrade_to"), "upgrade_label": up.get("label")}
+
+
 def can_transition(kind, cur, new):
     table = POST_TRANSITIONS if kind == "post" else REC_TRANSITIONS
     if new == cur:
@@ -281,7 +788,7 @@ def decide(d, pid, decision, via="dashboard", enforce=True):
     p["status"] = DECISIONS[decision]
     p["approved_via"] = via
     p["decided_at"] = now_iso()
-    d.setdefault("taste_log", []).append({"post": pid, "brand": p["brand"], "pillar": p.get("pillar"),
+    d.setdefault("taste_log", []).append({"post": pid, "brand": p.get("brand"), "pillar": p.get("pillar"),
                                           "platform": p.get("platform"), "decision": decision,
                                           "via": via, "ts": p["decided_at"]})
     return p
@@ -429,16 +936,19 @@ def money(v, code, digits=0):
 
 
 def num(v):
-    """Metric value if it is a real number, else None (Graph sometimes returns dicts/strings/None)."""
+    """Metric value if it is a real, finite number, else None (Graph sometimes returns dicts/strings/None; "1e999"
+    or NaN would reach json.dumps as Infinity/NaN, which no browser JSON.parse accepts)."""
     if isinstance(v, bool):
         return None
-    if isinstance(v, (int, float)):
-        return v
     if isinstance(v, str):
         try:
-            return float(v) if "." in v else int(v)
+            v = float(v) if re.search(r"[.eE]|inf|nan", v, re.I) else int(v)
         except ValueError:
             return None
+    if isinstance(v, int):
+        return v
+    if isinstance(v, float):
+        return v if math.isfinite(v) else None
     return None
 
 
@@ -486,7 +996,7 @@ def main():
         print(f'{pid} updated: {", ".join(fields)}')
     elif args[0] == "brand-add":
         opts = {}
-        for k in ("--tz", "--countries", "--currency"):
+        for k in ("--tz", "--countries", "--currency", "--plan"):
             if k in args:
                 i = args.index(k)
                 opts[k] = args[i + 1]
@@ -497,7 +1007,13 @@ def main():
         countries = [c.strip().upper() for c in opts["--countries"].split(",")] if "--countries" in opts else ([country] if country else [])
         tz = opts.get("--tz") or COUNTRY_TZ.get((countries or [None])[0], DEFAULT_TZ)
         ZoneInfo(tz)                                     # a typo fails here, not at publish time
-        b = {"id": bid, "name": name, "url": url, "lang": lang, "tz": tz, "status": "onboarding", "pillars": pillars, "compliance": ""}
+        plan_id, billing = new_brand_plan()
+        plan_id = opts.get("--plan") or plan_id
+        assert plan_id in plans_config()["plans"], f"unknown plan {plan_id} ({plans_config().get('error') or 'see plans.json'})"
+        b = {"id": bid, "name": name, "url": url, "lang": lang, "tz": tz, "status": "onboarding", "pillars": pillars, "compliance": "",
+             "plan": plan_id}
+        if billing and "--plan" not in opts:
+            b["plan_billing"] = billing                  # not billed yet: no Whop plan sells it; a Whop link clears it
         if countries:
             b["countries"] = countries
         if "--currency" in opts:
@@ -505,7 +1021,25 @@ def main():
         with transaction() as d:
             assert not brand(d, bid), f"brand {bid} exists"
             d.setdefault("brands", []).append(b)
-        print(f"added brand {bid} · tz {tz} · countries {','.join(countries) or '—'}")
+        print(f"added brand {bid} · tz {tz} · countries {','.join(countries) or '—'} · plan {plan_id}")
+    elif args[0] == "plans":
+        cfg = plans_config()
+        if cfg.get("error"):
+            print(f"plans.json cannot be used: {cfg['error']}")
+        for pid in cfg["order"]:
+            p = cfg["plans"][pid]
+            f = p["features"]
+            print(f"{pid:9} {p['label']:16} ads {'meta' if f['ads_meta'] else '-':4} {'google' if f['ads_google'] else '-':6} "
+                  f"matrix {p['limits']['ad_matrix_preset']:6} posts {p['limits']['posts_per_month']} reels {p['limits']['reels_per_month']} "
+                  f"cap €{p['limits']['ad_spend_managed_eur_month']} whop {','.join(p['whop_plan_ids']) or '—'}")
+        try:
+            d = load()
+        except (OSError, ValueError) as e:
+            print(f"(no brands: {DATA.name} cannot be read — {type(e).__name__})")
+            d = {}
+        for b in d.get("brands", []):
+            p = plan_of(d, b["id"])
+            print(f"  {b['id']:16} {p['id']:9} ({p['source']}{', until ' + p['until'] if p['until'] else ''})")
     elif args[0] == "recs":
         for r in load().get("recommendations", []):
             print(f'{r["id"]:8} {r["priority"]:3} {r["status"]:10} {r["title"]}')
@@ -529,7 +1063,7 @@ def main():
             print(f'{b:12} {pillar:22} ✓{c["approve"]:2}  ✗{c["skip"]:2}  ↷{c["later"]:2}')
     elif args[0] == "sync-fallback":
         with locked():
-            sync_fallback(load())
+            sync_fallback(load() if fallback_full() else None)        # neutral needs no data.json (a checkout has none)
     else:
         print(__doc__)
 

@@ -1,0 +1,442 @@
+<template>
+  <!-- Otto ad-kit · style "versus" — a split screen: the generic category on the left (neutral, drawn tub or a
+       neutral image), the brand's way on the right (brand ground + product). Rows reveal in pairs on the beat:
+       a cross on the left, a check on the right; a footer line lands on the brand side. Never name a competitor —
+       the left side is always the category. -->
+  <script src="__GSAP__"></script>
+  <style>
+    @font-face {
+      font-family: "AdKit Brand";
+      src: url("assets/fonts/brand.woff2") format("woff2");
+      font-weight: 100 900;
+      font-style: normal;
+      font-display: block;
+    }
+    #root {
+      /*@TOKENS*/
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+      font-family: "AdKit Brand", sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+    #vs-ground {
+      position: absolute;
+      inset: 0;
+      background: var(--c-neutral);
+    }
+    #vs-stage {
+      position: absolute;
+      inset: 0;
+    }
+    #vs-right-bg {
+      position: absolute;
+      left: 540px;
+      top: 0;
+      width: 540px;
+      height: 100%;
+      background: var(--ad-ground);
+    }
+    .vs-col {
+      position: absolute;
+      top: 0;
+      width: 540px;
+      height: 100%;
+    }
+    #vs-left {
+      left: 0;
+    }
+    #vs-right {
+      left: 540px;
+    }
+    .vs-label {
+      position: absolute;
+      left: 44px;
+      right: 44px;
+      font-weight: 800;
+      font-size: 78px;
+      line-height: 0.98;
+      letter-spacing: var(--brand-track);
+      text-wrap: balance;
+    }
+    #vs-left .vs-label {
+      color: var(--c-muted);
+    }
+    #vs-right .vs-label {
+      color: var(--ad-on);
+    }
+    #vs-badge {
+      position: absolute;
+      left: 474px;
+      width: 132px;
+      height: 132px;
+      border-radius: 50%;
+      background: var(--c-accent);
+      color: var(--c-onAccent);
+      font-weight: 800;
+      font-size: 54px;
+      line-height: 124px;
+      text-align: center;
+      letter-spacing: -0.03em;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.18);
+    }
+    .vs-illo {
+      position: absolute;
+      display: block;
+    }
+    .vs-row {
+      position: absolute;
+      left: 44px;
+      right: 30px;
+      height: 110px;
+    }
+    .vs-icon {
+      position: absolute;
+      left: 0;
+      top: 18px;
+      width: 74px;
+      height: 74px;
+    }
+    .vs-word {
+      position: absolute;
+      left: 100px;
+      top: 0;
+      line-height: 110px;
+      font-size: 68px;
+      font-weight: 800;
+      letter-spacing: -0.035em;
+      white-space: nowrap;
+    }
+    #vs-left .vs-word {
+      color: var(--c-muted);
+    }
+    #vs-right .vs-word {
+      color: var(--ad-on);
+    }
+    /* the footer is a marker: dark text on the accent (echoes the notes highlight; 3:1+ on any brand ground) */
+    #vs-footer {
+      position: absolute;
+      left: 34px;
+      right: 20px;
+    }
+    .vs-foot-row {
+      display: block;
+      margin-bottom: 10px;
+    }
+    .vs-foot-mark {
+      position: relative;
+      display: inline-block;
+      padding: 10px 18px 14px;
+      font-weight: 800;
+      font-size: 58px;
+      line-height: 1;
+      letter-spacing: -0.035em;
+      color: var(--c-onAccent);
+      white-space: nowrap;
+    }
+    .vs-foot-bg {
+      position: absolute;
+      inset: 0;
+      border-radius: 12px;
+      background: var(--c-accent);
+    }
+    .vs-foot-text {
+      position: relative;
+    }
+  </style>
+
+  <div id="root" data-composition-id="versus" data-width="__W__" data-height="__H__" data-duration="__DUR__">
+    <div id="vs-ground" class="clip" data-start="0" data-duration="__DUR__" data-track-index="0"></div>
+    <div id="vs-stage">
+      <div id="vs-right-bg"></div>
+      <div id="vs-left" class="vs-col"></div>
+      <div id="vs-right" class="vs-col"></div>
+      <div id="vs-badge"></div>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      var D = /*@DATA*/null;
+      var ID = "versus";
+      var $ = function (id) {
+        return document.getElementById(id);
+      };
+      var IR = { immediateRender: false };
+      var NS = "http://www.w3.org/2000/svg";
+
+      // generic greens-powder tub + scoop, neutral greys (never a real product)
+      var TUB =
+        '<svg viewBox="0 0 400 440" xmlns="http://www.w3.org/2000/svg">' +
+        '<defs><linearGradient id="vs-tubg" x1="0" x2="1"><stop offset="0" stop-color="#D9DAD4"/><stop offset=".55" stop-color="#C6C8C1"/><stop offset="1" stop-color="#AEB1A9"/></linearGradient>' +
+        '<linearGradient id="vs-lidg" x1="0" x2="1"><stop offset="0" stop-color="#9C9F97"/><stop offset="1" stop-color="#83867E"/></linearGradient></defs>' +
+        '<ellipse cx="200" cy="412" rx="170" ry="16" fill="rgba(0,0,0,0.14)"/>' +
+        '<path d="M78 128h244v248a28 28 0 0 1-28 28H106a28 28 0 0 1-28-28z" fill="url(#vs-tubg)"/>' +
+        '<rect x="66" y="92" width="268" height="52" rx="16" fill="url(#vs-lidg)"/>' +
+        '<rect x="78" y="196" width="244" height="120" fill="#E6E7E2"/>' +
+        '<rect x="110" y="222" width="150" height="16" rx="8" fill="#B9BCB4"/>' +
+        '<rect x="110" y="252" width="112" height="12" rx="6" fill="#C9CBC4"/>' +
+        '<rect x="110" y="276" width="132" height="12" rx="6" fill="#C9CBC4"/>' +
+        '<path d="M20 404c14-30 44-44 74-44s58 16 70 44z" fill="#8E9C7E"/>' +
+        '<circle cx="176" cy="398" r="4" fill="#8E9C7E"/><circle cx="190" cy="404" r="3" fill="#8E9C7E"/>' +
+        '<path d="M300 300 L372 196" stroke="#8B8E86" stroke-width="12" stroke-linecap="round"/>' +
+        '<path d="M262 300h92v26a34 34 0 0 1-34 34h-24a34 34 0 0 1-34-34z" fill="#9DA097"/>' +
+        '<ellipse cx="308" cy="300" rx="46" ry="10" fill="#8E9C7E"/>' +
+        "</svg>";
+
+      // a neutral plate with broccoli (for "the veggie standoff" kind of category) — greys and a muted green, no brand
+      var PLATE =
+        '<svg viewBox="0 150 400 240" xmlns="http://www.w3.org/2000/svg">' +
+        '<ellipse cx="200" cy="300" rx="186" ry="74" fill="rgba(0,0,0,0.10)"/>' +
+        '<ellipse cx="200" cy="286" rx="182" ry="72" fill="#F4F4F1"/>' +
+        '<ellipse cx="200" cy="286" rx="182" ry="72" fill="none" stroke="#D5D6D1" stroke-width="4"/>' +
+        '<ellipse cx="200" cy="284" rx="128" ry="46" fill="#E9EAE5"/>' +
+        '<g fill="#7E8C70"><rect x="150" y="238" width="16" height="44" rx="7" transform="rotate(-14 158 260)"/><rect x="204" y="232" width="16" height="50" rx="7"/><rect x="246" y="240" width="15" height="42" rx="7" transform="rotate(16 253 261)"/></g>' +
+        '<g fill="#5F6F54"><circle cx="138" cy="226" r="26"/><circle cx="162" cy="210" r="24"/><circle cx="150" cy="244" r="20"/><circle cx="196" cy="206" r="28"/><circle cx="222" cy="190" r="26"/><circle cx="214" cy="222" r="22"/><circle cx="256" cy="218" r="25"/><circle cx="276" cy="202" r="22"/><circle cx="270" cy="234" r="19"/></g>' +
+        '<g fill="#6E7E62"><circle cx="152" cy="214" r="12"/><circle cx="208" cy="198" r="13"/><circle cx="262" cy="210" r="11"/></g>' +
+        '<ellipse cx="296" cy="302" rx="16" ry="7" fill="#7E8C70"/><ellipse cx="112" cy="300" rx="12" ry="6" fill="#7E8C70"/>' +
+        "</svg>";
+
+      function fontsReady() {
+        try {
+          if (document.fonts && document.fonts.load) {
+            return Promise.all([document.fonts.load('800 78px "AdKit Brand"')]).catch(function () {});
+          }
+        } catch (e) {}
+        return Promise.resolve();
+      }
+      function el(tag, cls, text) {
+        var e = document.createElement(tag);
+        if (cls) e.className = cls;
+        if (text != null) e.textContent = text;
+        return e;
+      }
+      function icon(kind, C) {
+        var svg = document.createElementNS(NS, "svg");
+        svg.setAttribute("viewBox", "0 0 74 74");
+        svg.setAttribute("class", "vs-icon");
+        var circ = document.createElementNS(NS, "circle");
+        circ.setAttribute("cx", "37");
+        circ.setAttribute("cy", "37");
+        circ.setAttribute("r", kind === "check" ? "37" : "34");
+        var mark = document.createElementNS(NS, "path");
+        mark.setAttribute("fill", "none");
+        mark.setAttribute("stroke-linecap", "round");
+        mark.setAttribute("stroke-linejoin", "round");
+        if (kind === "check") {
+          circ.setAttribute("fill", C.accent);
+          mark.setAttribute("d", "M22 38.5l10 10 20-22");
+          mark.setAttribute("stroke", C.onAccent);
+          mark.setAttribute("stroke-width", "7");
+        } else {
+          circ.setAttribute("fill", "none");
+          circ.setAttribute("stroke", C.muted);
+          circ.setAttribute("stroke-width", "4");
+          circ.setAttribute("opacity", "0.6");
+          mark.setAttribute("d", "M27 27l20 20M47 27 27 47");
+          mark.setAttribute("stroke", C.muted);
+          mark.setAttribute("stroke-width", "6");
+        }
+        svg.appendChild(circ);
+        svg.appendChild(mark);
+        return { svg: svg, mark: mark };
+      }
+
+      function build() {
+        var V = D.content;
+        var S = D.S;
+        var C = D.c;
+        var H = D.fmt.h;
+        var k = H / 1920; // vertical layout scale (9:16 is the design size)
+        var Y = {
+          label: Math.round(226 * k),
+          badge: Math.round(418 * k),
+          illoTop: Math.round(572 * k),
+          illoH: Math.round(420 * k),
+          rows: Math.round(1052 * k),
+          rowGap: Math.round(130 * k),
+          footer: Math.round(1462 * k),
+        };
+
+        var cols = { left: $("vs-left"), right: $("vs-right") };
+        var parts = {};
+        ["left", "right"].forEach(function (side) {
+          var col = cols[side];
+          var c = V[side];
+          var lab = el("div", "vs-label", c.label);
+          lab.style.top = Y.label + "px";
+          col.appendChild(lab);
+          // illustration: an image role, or the built-in neutral tub for the left side
+          var illo = null;
+          if (c.image && D.assets[c.image]) {
+            var a = D.assets[c.image];
+            illo = el("img", "vs-illo");
+            illo.src = a.src;
+            illo.alt = "";
+            var h = Y.illoH;
+            var w = (h * a.w) / a.h;
+            if (w > 440) {
+              w = 440;
+              h = (w * a.h) / a.w;
+            }
+            illo.style.width = w + "px";
+            illo.style.height = h + "px";
+            illo.style.left = (540 - w) / 2 + "px";
+            illo.style.top = Y.illoTop + (Y.illoH - h) / 2 + "px";
+            illo.style.filter = "drop-shadow(0 28px 40px rgba(0,0,0,0.25))";
+            col.appendChild(illo);
+          } else if (c.illo === "tub" || c.illo === "plate") {
+            illo = el("div", "vs-illo");
+            illo.innerHTML = c.illo === "plate" ? PLATE : TUB;
+            var ar = c.illo === "plate" ? 240 / 400 : 440 / 400; // height / width of the drawing
+            var tw = Math.min(460, Y.illoH / ar);
+            var th = tw * ar;
+            illo.style.width = tw + "px";
+            illo.style.height = th + "px";
+            illo.style.left = (540 - tw) / 2 + "px";
+            illo.style.top = Y.illoTop + (Y.illoH - th) / 2 + "px";
+            illo.firstChild.style.width = "100%";
+            illo.firstChild.style.height = "100%";
+            col.appendChild(illo);
+          }
+          var rows = c.rows.map(function (txt, i) {
+            var r = el("div", "vs-row");
+            r.style.top = Y.rows + i * Y.rowGap + "px";
+            var ic = icon(side === "right" ? "check" : "cross", C);
+            r.appendChild(ic.svg);
+            var w = el("div", "vs-word", txt);
+            r.appendChild(w);
+            col.appendChild(r);
+            return { row: r, icon: ic, word: w };
+          });
+          parts[side] = { label: lab, illo: illo, rows: rows };
+        });
+        // every row word fits its column: one shared size for both columns (never under 44 px)
+        var avail = 540 - 44 - 100 - 26;
+        var widest = 0;
+        ["left", "right"].forEach(function (side) {
+          parts[side].rows.forEach(function (r) {
+            widest = Math.max(widest, r.word.offsetWidth);
+          });
+        });
+        if (widest > avail) {
+          var rs = Math.max(44, Math.floor((68 * avail) / widest));
+          ["left", "right"].forEach(function (side) {
+            parts[side].rows.forEach(function (r) {
+              r.word.style.fontSize = rs + "px";
+            });
+          });
+        }
+        var badge = $("vs-badge");
+        badge.textContent = V.vs || "vs";
+        badge.style.top = Y.badge + "px";
+        var footer = null;
+        var foots = [];
+        if (V.footer) {
+          footer = el("div");
+          footer.id = "vs-footer";
+          footer.style.top = Y.footer + "px";
+          cols.right.appendChild(footer);
+          // one marker per line: fits the column on one line, else two balanced lines (a break after punctuation wins)
+          var maxW = 470;
+          var size = 58;
+          var probe = el("span", "vs-foot-mark");
+          probe.style.visibility = "hidden";
+          probe.style.position = "absolute";
+          footer.appendChild(probe);
+          var mw = function (t) {
+            probe.textContent = t;
+            return probe.offsetWidth;
+          };
+          var words = V.footer.split(" ");
+          var lines = [V.footer];
+          if (mw(V.footer) > maxW && words.length > 1) {
+            var best = null;
+            for (var k = 1; k < words.length; k++) {
+              var a1 = mw(words.slice(0, k).join(" "));
+              var b1 = mw(words.slice(k).join(" "));
+              var sc = Math.max(a1, b1) * (/[.,?!:;]$/.test(words[k - 1]) ? 0.75 : 1);
+              if (!best || sc < best.m) best = { k: k, m: sc, w: Math.max(a1, b1) };
+            }
+            lines = [words.slice(0, best.k).join(" "), words.slice(best.k).join(" ")];
+            if (best.w > maxW) size = Math.floor((58 * maxW) / best.w);
+          }
+          footer.removeChild(probe);
+          lines.forEach(function (ln) {
+            var row = el("div", "vs-foot-row");
+            var mk = el("span", "vs-foot-mark");
+            mk.style.fontSize = size + "px";
+            var bg = el("span", "vs-foot-bg");
+            var tx = el("span", "vs-foot-text", ln);
+            mk.appendChild(bg);
+            mk.appendChild(tx);
+            row.appendChild(mk);
+            footer.appendChild(row);
+            foots.push({ bg: bg, text: tx });
+          });
+        }
+
+        // ── starting states ──
+        gsap.set(parts.left.label, { x: -60, opacity: 0 });
+        gsap.set(parts.right.label, { x: 60, opacity: 0 });
+        gsap.set(badge, { scale: 0, rotation: -20, transformOrigin: "50% 50%" });
+        if (parts.left.illo) gsap.set(parts.left.illo, { y: 60, opacity: 0 });
+        if (parts.right.illo) gsap.set(parts.right.illo, { y: 90, rotation: 12, opacity: 0, transformOrigin: "50% 60%" });
+        ["left", "right"].forEach(function (side) {
+          parts[side].rows.forEach(function (r) {
+            gsap.set(r.icon.svg, { scale: 0.3, opacity: 0, transformOrigin: "50% 50%" });
+            gsap.set(r.word, { x: side === "left" ? -24 : 24, opacity: 0 });
+            var len = r.icon.mark.getTotalLength ? r.icon.mark.getTotalLength() : 60;
+            gsap.set(r.icon.mark, { strokeDasharray: len, strokeDashoffset: len });
+            r.len = len;
+          });
+        });
+        foots.forEach(function (f) {
+          gsap.set(f.bg, { scaleX: 0, transformOrigin: "0% 50%" });
+          gsap.set(f.text, { opacity: 0, x: -10 });
+        });
+        gsap.set($("vs-left"), { opacity: 1 });
+
+        var tl = gsap.timeline({ paused: true });
+        tl.fromTo(parts.left.label, { x: -60, opacity: 0 }, Object.assign({ x: 0, opacity: 1, duration: 0.6, ease: "expo.out" }, IR), S.labelsAt[0]);
+        tl.fromTo(parts.right.label, { x: 60, opacity: 0 }, Object.assign({ x: 0, opacity: 1, duration: 0.6, ease: "expo.out" }, IR), S.labelsAt[1]);
+        tl.fromTo(badge, { scale: 0, rotation: -20 }, Object.assign({ scale: 1, rotation: 0, duration: 0.55, ease: "expo.out" }, IR), S.vsAt);
+        if (parts.left.illo) tl.fromTo(parts.left.illo, { y: 60, opacity: 0 }, Object.assign({ y: 0, opacity: 1, duration: 0.8, ease: "expo.out" }, IR), S.illoAt[0]);
+        if (parts.right.illo)
+          tl.fromTo(parts.right.illo, { y: 90, rotation: 12, opacity: 0 }, Object.assign({ y: 0, rotation: -5, opacity: 1, duration: 0.85, ease: "expo.out" }, IR), S.illoAt[1]);
+        // gentle life on the product for the rest of the scene
+        if (parts.right.illo) tl.fromTo(parts.right.illo, { rotation: -5 }, Object.assign({ rotation: -2, duration: Math.max(1, D.endAt - S.illoAt[1] - 0.85), ease: "sine.inOut" }, IR), S.illoAt[1] + 0.85);
+
+        S.rows.forEach(function (rt, i) {
+          [["left", rt.left], ["right", rt.right]].forEach(function (p) {
+            var r = parts[p[0]].rows[i];
+            if (!r) return;
+            var at = p[1];
+            tl.fromTo(r.icon.svg, { scale: 0.3, opacity: 0 }, Object.assign({ scale: 1, opacity: 1, duration: 0.45, ease: "expo.out" }, IR), at);
+            tl.fromTo(r.icon.mark, { strokeDashoffset: r.len }, Object.assign({ strokeDashoffset: 0, duration: 0.3, ease: "power2.out" }, IR), at + 0.08);
+            tl.fromTo(r.word, { x: p[0] === "left" ? -24 : 24, opacity: 0 }, Object.assign({ x: 0, opacity: 1, duration: 0.5, ease: "expo.out" }, IR), at + 0.04);
+          });
+        });
+
+        if (footer) {
+          foots.forEach(function (f, i) {
+            var at = S.footerAt + i * 0.28;
+            tl.fromTo(f.bg, { scaleX: 0 }, Object.assign({ scaleX: 1, duration: 0.36, ease: "power2.out" }, IR), at);
+            tl.fromTo(f.text, { opacity: 0, x: -10 }, Object.assign({ opacity: 1, x: 0, duration: 0.4, ease: "expo.out" }, IR), at + 0.1);
+          });
+          // the category side steps back
+          tl.fromTo($("vs-left"), { opacity: 1 }, Object.assign({ opacity: 0.55, duration: 0.5, ease: "power2.out" }, IR), S.footerAt);
+        }
+
+        // once the end card fully covers the scene, the scene steps out (nothing hidden keeps "rendering" underneath)
+        tl.set($("vs-stage"), { opacity: 0 }, D.endAt + 0.75);
+
+        window.__timelines = window.__timelines || {};
+        window.__timelines[ID] = tl;
+        if (window.__hfForceTimelineRebind) window.__hfForceTimelineRebind();
+      }
+
+      fontsReady().then(build, build);
+    })();
+  </script>
+</template>

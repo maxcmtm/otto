@@ -1,0 +1,521 @@
+<template>
+  <!-- Otto ad-kit · style "search" — a generic search pill: the query types, an autocomplete list drops, the
+       highlight walks to one suggestion, it is chosen, and a single result card rises (site, title, stars, snippet,
+       product image). Generic search UI only — no search-engine logo, wordmark or colours; links take the brand
+       colour. Timings come from lib/schedule.mjs. -->
+  <script src="__GSAP__"></script>
+  <style>
+    @font-face {
+      font-family: "AdKit UI";
+      src: url("assets/fonts/ui.woff2") format("woff2");
+      font-weight: 100 900;
+      font-style: normal;
+      font-display: block;
+    }
+    @font-face {
+      font-family: "AdKit Brand";
+      src: url("assets/fonts/brand.woff2") format("woff2");
+      font-weight: 100 900;
+      font-style: normal;
+      font-display: block;
+    }
+    #root {
+      /*@TOKENS*/
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+      font-family: "AdKit UI", sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+    #sr-ground {
+      position: absolute;
+      inset: 0;
+      background: var(--ad-ground);
+    }
+    #sr-stage,
+    #sr-cam {
+      position: absolute;
+      inset: 0;
+    }
+    #sr-pill {
+      position: absolute;
+      left: 30px;
+      width: 1020px;
+      height: 150px;
+      border-radius: 75px;
+      background: var(--c-surface);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06), 0 24px 60px rgba(0, 38, 19, 0.14);
+    }
+    #sr-icon {
+      position: absolute;
+      left: 50px;
+      top: 47px;
+      width: 56px;
+      height: 56px;
+    }
+    #sr-field {
+      position: absolute;
+      left: 128px;
+      right: 36px;
+      top: 0;
+      bottom: 0;
+      overflow: hidden;
+    }
+    #sr-fade {
+      position: absolute;
+      right: 36px;
+      top: 10px;
+      bottom: 10px;
+      width: 120px;
+      background: linear-gradient(90deg, rgba(255, 255, 255, 0), var(--c-surface) 75%);
+    }
+    #sr-lfade {
+      position: absolute;
+      left: 118px;
+      top: 10px;
+      bottom: 10px;
+      width: 70px;
+      background: linear-gradient(90deg, var(--c-surface) 25%, rgba(255, 255, 255, 0));
+    }
+    #sr-ph,
+    #sr-q {
+      position: absolute;
+      left: 0;
+      top: 0;
+      line-height: 150px;
+      font-size: 54px;
+      font-weight: 500;
+      letter-spacing: -0.01em;
+      white-space: pre;
+    }
+    #sr-ph {
+      color: var(--c-muted);
+      opacity: 0.75;
+    }
+    #sr-q {
+      color: var(--c-ink);
+    }
+    .sr-ch {
+      position: relative;
+    }
+    .sr-caret {
+      position: absolute;
+      right: -3px;
+      top: 0.02em;
+      width: 5px;
+      height: 1.04em;
+      margin-top: 0.4em;
+      border-radius: 3px;
+      background: var(--c-primary);
+    }
+    #sr-drop {
+      position: absolute;
+      left: 30px;
+      width: 1020px;
+      padding: 16px 0;
+      border-radius: 48px;
+      background: var(--c-surface);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05), 0 24px 60px rgba(0, 38, 19, 0.12);
+    }
+    #sr-hl {
+      position: absolute;
+      left: 14px;
+      right: 14px;
+      height: 128px;
+      border-radius: 40px;
+      background: var(--c-wash);
+    }
+    .sr-row {
+      position: relative;
+      height: 128px;
+      padding-left: 128px;
+      padding-right: 30px;
+      font-size: 44px;
+      line-height: 128px;
+      color: var(--c-muted);
+      white-space: nowrap;
+      overflow: hidden;
+      -webkit-mask-image: linear-gradient(90deg, #000 90%, transparent);
+      mask-image: linear-gradient(90deg, #000 90%, transparent);
+    }
+    .sr-row b {
+      color: var(--c-ink);
+      font-weight: 700;
+    }
+    .sr-row svg {
+      position: absolute;
+      left: 54px;
+      top: 43px;
+      width: 42px;
+      height: 42px;
+    }
+    #sr-card {
+      position: absolute;
+      left: 30px;
+      width: 1020px;
+      padding: 50px 52px 52px;
+      border-radius: 48px;
+      background: var(--c-surface);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05), 0 30px 80px rgba(0, 38, 19, 0.16);
+    }
+    #sr-site {
+      position: relative;
+      height: 88px;
+      padding-left: 112px;
+    }
+    #sr-fav {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 88px;
+      height: 88px;
+      border-radius: 50%;
+      background: var(--c-primary);
+      color: var(--c-onPrimary);
+      font-family: "AdKit Brand", sans-serif;
+      font-weight: 800;
+      font-size: 52px;
+      line-height: 80px;
+      text-align: center;
+    }
+    #sr-sitename {
+      padding-top: 2px;
+      font-size: 40px;
+      font-weight: 700;
+      line-height: 46px;
+      color: var(--c-ink);
+    }
+    #sr-url {
+      font-size: 33px;
+      line-height: 40px;
+      color: var(--c-muted);
+    }
+    #sr-title {
+      margin-top: 30px;
+      font-size: 66px;
+      font-weight: 700;
+      letter-spacing: -0.025em;
+      line-height: 1.1;
+      color: var(--c-primary);
+    }
+    #sr-stars {
+      margin-top: 28px;
+      height: 54px;
+      display: flex;
+      gap: 8px;
+    }
+    .sr-star {
+      display: block;
+      width: 54px;
+      height: 54px;
+    }
+    #sr-rating {
+      margin-top: 14px;
+      font-size: 35px;
+      font-weight: 500;
+      color: var(--c-muted);
+    }
+    #sr-snip {
+      margin-top: 24px;
+      font-size: 41px;
+      line-height: 1.28;
+      color: var(--c-ink);
+    }
+    #sr-shot {
+      position: relative;
+      margin-top: 36px;
+      height: 440px;
+      border-radius: 36px;
+      background: var(--c-wash);
+      overflow: hidden;
+    }
+    #sr-shot img {
+      position: absolute;
+      display: block;
+    }
+  </style>
+
+  <div id="root" data-composition-id="search" data-width="__W__" data-height="__H__" data-duration="__DUR__">
+    <div id="sr-ground" class="clip" data-start="0" data-duration="__DUR__" data-track-index="0"></div>
+    <div id="sr-stage">
+      <div id="sr-cam">
+        <div id="sr-card">
+          <div id="sr-site">
+            <div id="sr-fav"></div>
+            <div id="sr-sitename"></div>
+            <div id="sr-url"></div>
+          </div>
+          <div id="sr-title"></div>
+          <div id="sr-stars"></div>
+          <div id="sr-rating"></div>
+          <div id="sr-snip"></div>
+          <div id="sr-shot"></div>
+        </div>
+        <div id="sr-drop"><div id="sr-hl"></div></div>
+        <div id="sr-pill">
+          <svg id="sr-icon" viewBox="0 0 50 50" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="21" cy="21" r="14" stroke="currentColor" stroke-width="5" />
+            <path d="M31.5 31.5 43 43" stroke="currentColor" stroke-width="5" stroke-linecap="round" />
+          </svg>
+          <div id="sr-field">
+            <div id="sr-ph"></div>
+            <div id="sr-q" data-layout-allow-occlusion></div>
+          </div>
+          <div id="sr-fade" data-layout-allow-occlusion></div>
+          <div id="sr-lfade" data-layout-allow-occlusion></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      var D = /*@DATA*/null;
+      var ID = "search";
+      var $ = function (id) {
+        return document.getElementById(id);
+      };
+      var IR = { immediateRender: false };
+      var MAG =
+        '<svg viewBox="0 0 38 38" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="16" cy="16" r="10.5" stroke="currentColor" stroke-width="4"/><path d="M24 24l9 9" stroke="currentColor" stroke-width="4" stroke-linecap="round"/></svg>';
+      var STAR = '<svg class="sr-star" viewBox="0 0 44 44" xmlns="http://www.w3.org/2000/svg"><path d="M22 3.5l5.6 11.7 12.9 1.6-9.5 8.9 2.4 12.8L22 32.2 10.6 38.5 13 25.7 3.5 16.8l12.9-1.6z" fill="currentColor"/></svg>';
+
+      function fontsReady() {
+        try {
+          if (document.fonts && document.fonts.load) {
+            return Promise.all([document.fonts.load('500 46px "AdKit UI"'), document.fonts.load('700 56px "AdKit UI"'), document.fonts.load('800 44px "AdKit Brand"')]).catch(function () {});
+          }
+        } catch (e) {}
+        return Promise.resolve();
+      }
+      function el(tag, cls, text) {
+        var e = document.createElement(tag);
+        if (cls) e.className = cls;
+        if (text != null) e.textContent = text;
+        return e;
+      }
+
+      function build() {
+        var Q = D.content;
+        var S = D.S;
+        var C = D.c;
+        var END = D.endAt;
+        var H = D.fmt.h;
+        var tall = H >= 1600;
+        var PILL_Y0 = tall ? 690 : 250; // while typing (the hook, centred high)
+        var PILL_Y1 = tall ? 200 : 60; // results header
+        var pill = $("sr-pill");
+        pill.style.top = PILL_Y0 + "px";
+        $("sr-icon").style.color = C.muted;
+        $("sr-ph").textContent = Q.placeholder || "Search";
+
+        // query characters + the completion of the picked suggestion (appended on choose)
+        var q = $("sr-q");
+        var picked = Q.suggestions[Q.pick];
+        var completion = picked.indexOf(Q.query) === 0 ? picked.slice(Q.query.length) : "";
+        var qChars = Array.from(Q.query).map(function (ch) {
+          var s = el("span", "sr-ch", ch);
+          s.setAttribute("data-layout-allow-occlusion", "");
+          var c = el("span", "sr-caret");
+          s.appendChild(c);
+          q.appendChild(s);
+          return { el: s, caret: c };
+        });
+        var cChars = Array.from(completion).map(function (ch) {
+          var s = el("span", "sr-ch", ch);
+          s.setAttribute("data-layout-allow-occlusion", "");
+          q.appendChild(s);
+          return s;
+        });
+
+        // dropdown
+        var drop = $("sr-drop");
+        drop.style.top = PILL_Y0 + 150 + 18 + "px";
+        var rows = Q.suggestions.map(function (sg) {
+          var r = el("div", "sr-row");
+          r.innerHTML = MAG;
+          r.querySelector("svg").style.color = C.muted;
+          var base = sg.indexOf(Q.query) === 0 ? Q.query : "";
+          r.appendChild(document.createTextNode(base));
+          if (sg.length > base.length) r.appendChild(el("b", null, sg.slice(base.length)));
+          drop.appendChild(r);
+          return r;
+        });
+        var hl = $("sr-hl");
+        hl.style.top = 16 + "px";
+
+        // result card
+        var R = Q.result;
+        var card = $("sr-card");
+        card.style.top = PILL_Y1 + 150 + 26 + "px";
+        $("sr-fav").textContent = R.favicon || (R.site || "").charAt(0).toLowerCase();
+        $("sr-sitename").textContent = R.site || "";
+        $("sr-url").textContent = R.url || "";
+        $("sr-title").textContent = R.title || "";
+        var starsBox = $("sr-stars");
+        var stars = [];
+        for (var i = 0; i < 5; i++) {
+          starsBox.insertAdjacentHTML("beforeend", STAR);
+        }
+        stars = Array.prototype.slice.call(starsBox.querySelectorAll(".sr-star"));
+        var full = Math.round(R.rating || 5);
+        var rated = R.rating != null || !!R.ratingText;
+        $("sr-rating").textContent = R.ratingText || "";
+        if (!rated) {
+          starsBox.style.display = "none";
+          $("sr-rating").style.display = "none";
+          stars = [];
+        }
+        $("sr-snip").textContent = R.snippet || "";
+        var shot = $("sr-shot");
+        var shotH = tall ? 440 : 0;
+        if (!tall) shot.style.display = "none";
+        var shotImg = null;
+        if (tall && R.image && D.assets[R.image]) {
+          var a = D.assets[R.image];
+          shotImg = el("img");
+          shotImg.src = a.src;
+          shotImg.alt = "";
+          var ih = shotH - 60;
+          var iw = (ih * a.w) / a.h;
+          shotImg.style.height = ih + "px";
+          shotImg.style.width = iw + "px";
+          shotImg.style.left = (916 - iw) / 2 + "px";
+          shotImg.style.top = "36px";
+          shotImg.style.filter = "drop-shadow(0 18px 30px rgba(0,0,0,0.18))";
+          shot.appendChild(shotImg);
+        }
+        var cardParts = [$("sr-site"), $("sr-title")].concat(rated ? [starsBox, $("sr-rating")] : [], [$("sr-snip"), shot]);
+
+        // ── starting states ──
+        gsap.set(qChars.map(function (c) {
+          return c.el;
+        }), { opacity: 0 });
+        gsap.set(qChars.map(function (c) {
+          return c.caret;
+        }), { opacity: 0 });
+        gsap.set(cChars, { opacity: 0 });
+        gsap.set(q, { x: 0 });
+        gsap.set($("sr-lfade"), { opacity: 0 });
+        // a long query shrinks (down to 44 px) so the whole question reads; only the completion scrolls
+        var fw0 = $("sr-field").clientWidth - 24;
+        var qw = qChars.length ? qChars[qChars.length - 1].el.offsetLeft + qChars[qChars.length - 1].el.offsetWidth : 0;
+        if (qw > fw0) {
+          var fsz = Math.max(44, Math.floor((54 * fw0) / qw));
+          q.style.fontSize = fsz + "px";
+          $("sr-ph").style.fontSize = fsz + "px";
+        }
+        gsap.set($("sr-fade"), { opacity: 0 });
+        gsap.set($("sr-ph"), { opacity: 0.75 });
+        gsap.set(pill, { y: 0, scale: 1, transformOrigin: "50% 50%" });
+        gsap.set(drop, { opacity: 0, y: -16, scaleY: 0.92, transformOrigin: "50% 0%" });
+        gsap.set(rows, { opacity: 0, y: 10 });
+        gsap.set(hl, { opacity: 0, y: 0 });
+        gsap.set(card, { opacity: 0, y: 90 });
+        gsap.set(cardParts, { opacity: 0, y: 18 });
+        if (stars.length) gsap.set(stars, { scale: 0.4, color: C.line, transformOrigin: "50% 50%" });
+        if (shotImg) gsap.set(shotImg, { y: 60, opacity: 0 });
+        gsap.set($("sr-cam"), { scale: 1, transformOrigin: "50% 30%" });
+
+        var tl = gsap.timeline({ paused: true });
+        tl.fromTo(pill, { scale: 0.94 }, Object.assign({ scale: 1, duration: 0.7, ease: "expo.out" }, IR), 0);
+        tl.fromTo($("sr-cam"), { scale: 1 }, Object.assign({ scale: 1.03, duration: END, ease: "sine.inOut" }, IR), 0);
+
+        // ── typing ──
+        tl.set($("sr-ph"), { opacity: 0 }, S.query.times[0]);
+        var firstCaret = qChars[0].caret;
+        qChars.forEach(function (c, i) {
+          var t = S.query.times[i];
+          tl.set(c.el, { opacity: 1 }, t);
+          tl.set(c.caret, { opacity: 1 }, t);
+          var t1 = i + 1 < qChars.length ? S.query.times[i + 1] : S.chooseAt;
+          // idle blink on the last caret
+          if (i === qChars.length - 1) {
+            var on = true;
+            for (var bt = t + 0.55; bt < t1 - 0.06; bt += 0.5) {
+              on = !on;
+              tl.set(c.caret, { opacity: on ? 1 : 0 }, bt);
+            }
+          }
+          tl.set(c.caret, { opacity: 0 }, t1);
+        });
+
+        // the field scrolls left like a real input once the text outgrows it (keeps the caret in view)
+        var fieldW = $("sr-field").clientWidth - 20;
+        var shift = 0;
+        function follow(node, t) {
+          var right = node.offsetLeft + node.offsetWidth;
+          var need = Math.max(0, right - fieldW);
+          if (need > shift + 0.5) {
+            if (shift === 0) tl.fromTo($("sr-lfade"), { opacity: 0 }, Object.assign({ opacity: 1, duration: 0.12, ease: "none" }, IR), t);
+            tl.fromTo(q, { x: -shift }, Object.assign({ x: -need, duration: 0.08, ease: "none" }, IR), t);
+            shift = need;
+          }
+        }
+        qChars.forEach(function (c, i) {
+          follow(c.el, S.query.times[i]);
+        });
+        cChars.forEach(function (c, i) {
+          follow(c, S.chooseAt + i * 0.012);
+        });
+
+        // ── the list drops ──
+        tl.fromTo(drop, { opacity: 0, y: -16, scaleY: 0.92 }, Object.assign({ opacity: 1, y: 0, scaleY: 1, duration: 0.45, ease: "expo.out" }, IR), S.dropAt);
+        rows.forEach(function (r, i) {
+          tl.fromTo(r, { opacity: 0, y: 10 }, Object.assign({ opacity: 1, y: 0, duration: 0.4, ease: "expo.out" }, IR), S.dropAt + 0.05 + i * 0.05);
+        });
+
+        // ── the highlight walks to the pick ──
+        S.steps.forEach(function (st, k) {
+          var y = st.i * 128;
+          if (k === 0) {
+            tl.set(hl, { y: y }, st.t);
+            tl.fromTo(hl, { opacity: 0 }, Object.assign({ opacity: 1, duration: 0.12, ease: "none" }, IR), st.t);
+          } else {
+            tl.fromTo(hl, { y: S.steps[k - 1].i * 128 }, Object.assign({ y: y, duration: 0.18, ease: "power2.out" }, IR), st.t);
+          }
+        });
+
+        // ── choose: the completion fills the pill, the list folds, the pill rises to the results header ──
+        var CH = S.chooseAt;
+        tl.fromTo(hl, { scale: 1 }, Object.assign({ scale: 0.97, duration: 0.08, ease: "power2.out" }, IR), CH - 0.08);
+        tl.fromTo(hl, { scale: 0.97 }, Object.assign({ scale: 1, duration: 0.2, ease: "power2.out" }, IR), CH);
+        cChars.forEach(function (c, i) {
+          tl.set(c, { opacity: 1 }, CH + i * 0.012);
+        });
+        tl.fromTo(drop, { opacity: 1, y: 0 }, Object.assign({ opacity: 0, y: -12, duration: 0.26, ease: "power2.in" }, IR), CH + 0.16);
+        tl.fromTo(pill, { y: 0 }, Object.assign({ y: PILL_Y1 - PILL_Y0, duration: 0.6, ease: "power3.inOut" }, IR), CH + 0.2);
+        // submitted: the field unfocuses and shows the start of the query again, fading at the right edge
+        if (shift > 0) {
+          tl.fromTo(q, { x: -shift }, Object.assign({ x: 0, duration: 0.5, ease: "power3.inOut" }, IR), CH + 0.3);
+          tl.fromTo($("sr-fade"), { opacity: 0 }, Object.assign({ opacity: 1, duration: 0.3, ease: "none" }, IR), CH + 0.3);
+          tl.fromTo($("sr-lfade"), { opacity: 1 }, Object.assign({ opacity: 0, duration: 0.3, ease: "none" }, IR), CH + 0.3);
+        }
+
+        // ── the result card ──
+        var RA = S.resultAt;
+        tl.fromTo(card, { opacity: 0, y: 90 }, Object.assign({ opacity: 1, y: 0, duration: 0.75, ease: "expo.out" }, IR), RA - 0.3);
+        cardParts.forEach(function (p, i) {
+          tl.fromTo(p, { opacity: 0, y: 18 }, Object.assign({ opacity: 1, y: 0, duration: 0.5, ease: "expo.out" }, IR), RA - 0.18 + i * 0.07);
+        });
+        stars.forEach(function (st, i) {
+          var at = S.starsAt + i * 0.07;
+          tl.fromTo(st, { scale: 0.4, color: C.line }, Object.assign({ scale: 1, color: i < full ? C.accent : C.line, duration: 0.35, ease: "expo.out" }, IR), at);
+        });
+        if (shotImg) tl.fromTo(shotImg, { y: 60, opacity: 0 }, Object.assign({ y: 0, opacity: 1, duration: 0.8, ease: "expo.out" }, IR), RA + 0.4);
+
+        // once the end card fully covers the scene, the scene steps out (nothing hidden keeps "rendering" underneath)
+        tl.set($("sr-stage"), { opacity: 0 }, D.endAt + 0.75);
+
+        // under the end card the page sinks back
+        tl.fromTo($("sr-stage"), { scale: 1, y: 0 }, Object.assign({ scale: 0.93, y: -40, duration: 0.7, ease: "power3.inOut" }, IR), END);
+
+        window.__timelines = window.__timelines || {};
+        window.__timelines[ID] = tl;
+        if (window.__hfForceTimelineRebind) window.__hfForceTimelineRebind();
+      }
+
+      fontsReady().then(build, build);
+    })();
+  </script>
+</template>

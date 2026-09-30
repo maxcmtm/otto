@@ -1,0 +1,187 @@
+{
+  "_note": "Otto plans: the single source of truth for what each client brand gets (read by ap.plan_of / ap.entitled / ap.limit; re-read when this file changes, no code change or restart needed). Values follow research/EU-LAUNCH-AND-PRICING-2026-09.md §4.1-4.6. DRAFT: every price (monthly_eur, yearly_eur, extra_brand_eur, founding_bridge) is \"status\": \"draft\" until Max approves it; the landing page is not wired to this file. whop_plan_ids stay [] until the subscriptions exist on Whop (founding is the only plan sold today). Yearly = two months free (10 x monthly). A plan with \"inherits\" takes its parent's features and limits and overrides only what it names (prices, public, upgrade_to, overage and founding_bridge are never inherited). Limits are per brand; null = no limit. posts_per_month counts every organic item (feed posts, carousels, stories and reels); reels_per_month is the reel part of it. ad_spend_managed_eur_month is the plan's band for the monthly paid budget Otto plans (EUR, converted from the brand's currency). It is a SOFT cap: the first month above it is planned in full and the plan card says so; the second month in a row above it is planned at the cap and the card offers upgrade_to. A plan with overage (scale) is never capped: above overage.above_eur_month it shows overage.pct % of the excess (computed and shown, never billed automatically). ad_matrix_preset: none | micro | launch | scale (otto_styles.PRESETS; a daily budget under ~EUR 36 still gets micro). competitor_sweep: false | monthly (the first Monday of the month) | weekly. video_ads_per_month counts Otto-made faceless video ads; creator videos need creator_briefs. public = shown on the pricing page.",
+  "yearly_rule": "two months free",
+  "defaults": {
+    "_note": "legacy = a brand record without a plan (created before plans existed) · new = what onboarding / brand-add write; while that plan has no whop_plan_ids the brand is also flagged plan_billing \"not_billed\" (not billed yet) until a Whop membership is linked · after_expiry = when brands[].plan_until has passed · unknown = a plan id not in this file (fail-safe: no paid ads) · ended = a canceled / expired Whop membership (publishing paused; otto_retention deletes the brand's data 90 days later unless a plan starts again)",
+    "legacy": "founding",
+    "new": "starter",
+    "after_expiry": "content",
+    "unknown": "content",
+    "ended": "none"
+  },
+  "order": ["starter", "growth", "scale", "agency", "founding", "content", "none"],
+  "plans": {
+    "content": {
+      "label": "Content",
+      "public": false,
+      "_note": "Non-public fallback: organic only, no paid ads (the landing for an expired plan and for an unknown plan id). Research §2: after 60 days, test it at EUR 69 as a cancel-flow downsell.",
+      "monthly_eur": null,
+      "yearly_eur": null,
+      "whop_plan_ids": [],
+      "upgrade_to": "starter",
+      "features": {
+        "organic": true,
+        "stories": true,
+        "reels": true,
+        "ads_meta": false,
+        "ads_google": false,
+        "ad_matrix": false,
+        "video_ads": false,
+        "creator_briefs": false,
+        "competitor_sweep": "monthly",
+        "reports": true,
+        "telegram": true,
+        "multi_brand": false
+      },
+      "limits": {
+        "brands": 1,
+        "posts_per_month": 66,
+        "reels_per_month": 4,
+        "ad_matrix_preset": "none",
+        "ad_spend_managed_eur_month": 0,
+        "video_ads_per_month": 0,
+        "refresh_per_angle_week": 0
+      }
+    },
+    "starter": {
+      "label": "Starter",
+      "inherits": "content",
+      "public": true,
+      "status": "draft",
+      "_note": "Public entry plan: organic plus Meta ads on the micro matrix (4 concepts x 5 styles), ad spend up to about EUR 1,000 a month. Research §4.1.",
+      "monthly_eur": 99,
+      "yearly_eur": 990,
+      "extra_brand_eur": 59,
+      "whop_plan_ids": [],
+      "upgrade_to": "growth",
+      "features": {
+        "ads_meta": true,
+        "ad_matrix": true,
+        "video_ads": true
+      },
+      "limits": {
+        "ad_matrix_preset": "micro",
+        "ad_spend_managed_eur_month": 1000,
+        "video_ads_per_month": 10,
+        "refresh_per_angle_week": 0
+      }
+    },
+    "growth": {
+      "label": "Growth",
+      "inherits": "starter",
+      "public": true,
+      "status": "draft",
+      "_note": "Adds Google Search ads, the 6 x 6 launch matrix plus 1 refreshed creative per concept a week, creator briefs, weekly competitor sweep. Research §4.1.",
+      "monthly_eur": 249,
+      "yearly_eur": 2490,
+      "extra_brand_eur": 149,
+      "whop_plan_ids": [],
+      "upgrade_to": "scale",
+      "features": {
+        "ads_google": true,
+        "creator_briefs": true,
+        "competitor_sweep": "weekly"
+      },
+      "limits": {
+        "posts_per_month": 70,
+        "reels_per_month": 8,
+        "ad_matrix_preset": "launch",
+        "ad_spend_managed_eur_month": 5000,
+        "video_ads_per_month": 31,
+        "refresh_per_angle_week": 1
+      }
+    },
+    "scale": {
+      "label": "Scale",
+      "inherits": "growth",
+      "public": true,
+      "status": "draft",
+      "_note": "Up to EUR 15,000 a month on ads with the 6 x 8 scale matrix and 2 refreshed creatives per concept a week; above EUR 15,000, 2% of the excess (shown, not billed automatically). Research §4.1-4.2.",
+      "monthly_eur": 499,
+      "yearly_eur": 4990,
+      "extra_brand_eur": 149,
+      "whop_plan_ids": [],
+      "upgrade_to": null,
+      "overage": {
+        "above_eur_month": 15000,
+        "pct": 2
+      },
+      "limits": {
+        "brands": 1,
+        "ad_matrix_preset": "scale",
+        "ad_spend_managed_eur_month": 15000,
+        "video_ads_per_month": 50,
+        "refresh_per_angle_week": 2
+      }
+    },
+    "agency": {
+      "label": "Agency",
+      "inherits": "starter",
+      "public": true,
+      "status": "draft",
+      "_note": "From EUR 499 for 5 client workspaces at Starter level (limits are per workspace), +EUR 79 per extra workspace; lifting one workspace to Growth is +EUR 149 (put that brand on growth). Research §4.1.",
+      "monthly_eur": 499,
+      "yearly_eur": 4990,
+      "extra_brand_eur": 79,
+      "whop_plan_ids": [],
+      "upgrade_to": "growth",
+      "features": {
+        "multi_brand": true
+      },
+      "limits": {
+        "brands": 5,
+        "ad_spend_managed_eur_month": 1000
+      }
+    },
+    "founding": {
+      "label": "Founding pilot",
+      "inherits": "growth",
+      "public": true,
+      "status": "draft",
+      "_note": "The EUR 197 one-time founding seat (Whop plan_joHl1qsZoiJc9, sold until monthly plans go live): Growth during the pilot. Optional brands[].plan_until ends it; after that date the brand falls back to defaults.after_expiry and the owner gets one recommendation. founding_bridge = the offer each founder gets when plans open (research §4.4): Growth or Starter at a locked price for locked_months, at most seat_cap seats; no automatic charge.",
+      "one_time_eur": 197,
+      "monthly_eur": null,
+      "yearly_eur": null,
+      "whop_plan_ids": ["plan_joHl1qsZoiJc9"],
+      "upgrade_to": "scale",
+      "founding_bridge": {
+        "growth_eur": 179,
+        "starter_eur": 79,
+        "locked_months": 12,
+        "seat_cap": 50
+      }
+    },
+    "none": {
+      "label": "No plan",
+      "public": false,
+      "_note": "A canceled or expired membership: publishing and ad launches pause for the brand, live campaigns are paused by the daily guard, nothing is deleted.",
+      "monthly_eur": null,
+      "yearly_eur": null,
+      "whop_plan_ids": [],
+      "upgrade_to": null,
+      "features": {
+        "organic": false,
+        "stories": false,
+        "reels": false,
+        "ads_meta": false,
+        "ads_google": false,
+        "ad_matrix": false,
+        "video_ads": false,
+        "creator_briefs": false,
+        "competitor_sweep": false,
+        "reports": false,
+        "telegram": false,
+        "multi_brand": false
+      },
+      "limits": {
+        "brands": 0,
+        "posts_per_month": 0,
+        "reels_per_month": 0,
+        "ad_matrix_preset": "none",
+        "ad_spend_managed_eur_month": 0,
+        "video_ads_per_month": 0,
+        "refresh_per_angle_week": 0
+      }
+    }
+  }
+}

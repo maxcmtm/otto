@@ -15,12 +15,14 @@ PLATFORM = Path(__file__).resolve().parent.parent
 TMP = Path(tempfile.mkdtemp(prefix="otto-test-"))
 
 
+FIXTURE = Path(__file__).resolve().parent / "fixtures" / "data.json"     # the two pilot brands (CMTM, Happy Garden)
+
+
 def _build_fixture():
-    html = (PLATFORM / "index.html").read_text()
-    m = re.search(r'<script id="fallback-data" type="application/json">(.*?)</script>', html, re.S)
-    data = json.loads(m.group(1).replace("<\\/", "</"))
-    (TMP / "data.json").write_text(json.dumps(data, ensure_ascii=False, indent=2))
-    (TMP / "index.html").write_text(html)
+    # The data comes from tests/fixtures/, never from the dashboard's embedded block: the committed index.html carries only
+    # the neutral fallback (it is served to every client). The page itself is copied so the fallback-sync tests have a block.
+    (TMP / "data.json").write_text(FIXTURE.read_text())
+    (TMP / "index.html").write_text((PLATFORM / "index.html").read_text())
     shutil.copytree(PLATFORM.parent / "brands", TMP / "brands")
     shutil.copytree(PLATFORM / "assets" / "posts", TMP / "assets" / "posts")
     (TMP / "secrets").mkdir()
@@ -34,11 +36,15 @@ def _build_fixture():
 _build_fixture()
 ENV = {"OTTO_DATA": str(TMP / "data.json"), "OTTO_HTML": str(TMP / "index.html"), "OTTO_SECRETS": str(TMP / "secrets"),
        "OTTO_BRANDS": str(TMP / "brands"), "OTTO_ASSETS": str(TMP / "assets"), "OTTO_PUBLIC_ASSETS": str(TMP / "public"),
-       "OTTO_MOTION_ROOT": str(TMP / "motion")}
+       "OTTO_MOTION_ROOT": str(TMP / "motion"), "OTTO_FALLBACK": "full"}      # full: the fallback-escaping test embeds real data
 os.environ.update(ENV)
 sys.path.insert(0, str(PLATFORM))
 
 import ap                    # noqa: E402  (env must be set first)
+# Under discover another suite may have imported ap first (test_cron imports otto_cron → ap at load time, before this
+# module sets OTTO_*): pin its paths BEFORE the modules below derive theirs from ap.DATA, or these tests would read and
+# WRITE the real platform/data.json, index.html and state files.
+ap.DATA, ap.HTML, ap.BRANDS = TMP / "data.json", TMP / "index.html", TMP / "brands"
 import otto_ads              # noqa: E402
 import otto_api              # noqa: E402
 import otto_compliance       # noqa: E402
@@ -53,6 +59,7 @@ import otto_demo             # noqa: E402
 import otto_motion           # noqa: E402
 import otto_plan             # noqa: E402
 import otto_strategy         # noqa: E402
+import otto_styles           # noqa: E402
 import otto_video            # noqa: E402
 import otto_watch            # noqa: E402
 
@@ -819,9 +826,12 @@ class LanguageTest(unittest.TestCase):
         finally:
             otto_motion.sh, otto_motion._dur = orig_sh, orig_dur
         q = ap.post(ap.load(), "tr-001")
-        self.assertEqual((q["video"], q["status"]), ("assets/reels/tr-001.mp4", "pending_approval"))
-        self.assertTrue((TMP / "assets" / "reels" / "tr-001.mp4").exists(), "not written under OTTO_ASSETS")
-        self.assertTrue((TMP / "public" / "reels" / "tr-001.mp4").exists(), "rendered reel never copied to the public dir")
+        self.assertRegex(q["video"], r"^assets/reels/tr-001-[0-9a-f]{32}\.mp4$")         # unguessable public name
+        self.assertEqual(q["status"], "pending_approval")
+        name = q["video"].rsplit("/", 1)[1]
+        self.assertTrue((TMP / "assets" / "reels" / name).exists(), "not written under OTTO_ASSETS")
+        self.assertTrue((TMP / "public" / "reels" / name).exists(), "rendered reel never copied to the public dir")
+        self.assertFalse((TMP / "public" / "reels" / "tr-001.mp4").exists(), "public under the guessable post-id name")
 
 
 class SchedulingTest(unittest.TestCase):
@@ -977,6 +987,643 @@ class WatchAndGrowthTest(unittest.TestCase):
             otto_ads.notify = orig
         self.assertEqual(len(sent), 1)
         self.assertNotIn(otto_growth.SENDING, ap.load()["markers"])
+
+
+def _matrix_brand(bid, full=True):
+    """A brand for the ad-matrix tests: 8 angles covering the six angle families (competitor / hot among them); with
+    full=True verbatim reviews, sourced numbers, ingredient facts, a real offer, a product packshot and a person photo;
+    with full=False none of that."""
+    _add_brand(id=bid, name=bid.title(), url=f"{bid}.example", lang="EN", countries=["US"])
+    bdir = TMP / "brands" / bid
+    (bdir / "assets").mkdir(parents=True, exist_ok=True)
+    angles = [{"id": f"a{i}", "angle": t, "persona": "p1", "stage": st, "source": src, "status": "idea"} for i, (t, st, src) in enumerate([
+        ("Pack vs powder: no shaker, no grit, a pack you eat instead of a powder", "cold", "competitor"),
+        ("Fiber gap: most people miss their fiber, 6 g in one pack", "cold", "test"),
+        ("For the guy who won't take vitamins", "cold", "profile"),
+        ("Tastes like fruit snacks: the easy daily habit", "warm", "profile"),
+        ("Subscription without the trap: pause or cancel anytime, money-back guarantee", "hot", "profile"),
+        ("Halloween limited drop: the seasonal flavor before it sells out", "hot", "profile"),
+        ("Kids ask for their pack: parents' picky-eater test", "cold", "test"),
+        ("Do gummies even absorb? The blood-test study, explained", "warm", "competitor")], 1)]
+    s = {"brand": bid, "personas": [{"id": "p1", "label": "Powder dropout", "words": ["the shaker was the worst part"]}],
+         "angles": angles, "cta_by_stage": {"cold": "See what's in one pack", "warm": "Try it", "hot": "Start today"},
+         "proof_bank": [], "offers": [], "events": []}
+    if full:
+        s["proof_bank"] = [{"id": "pr1", "claim": "6 g prebiotic fiber and 21 vitamins & minerals per pack", "source": "site"},
+                           {"id": "pr2", "claim": "4.8 stars from 100,000 reviews", "source": "site"},
+                           {"id": "rv1", "claim": "“No more shaker bottle, and it tastes like fruit snacks.” — Bradley O.", "source": "review"},
+                           {"id": "rv2", "claim": "“The one thing I have been able to stick to.” — Samuel L.", "source": "review"}]
+        s["offers"] = [{"id": "o1", "name": "Subscribe & Save", "price": "$49.99 per 28 packs", "stage": "hot"}]
+        shutil.copyfile(TMP / "assets" / "posts" / "hg-001.png", bdir / "assets" / "product-pack.png")
+        shutil.copyfile(TMP / "assets" / "posts" / "hg-001.png", bdir / "assets" / "woman-smiling-kitchen.png")
+    (bdir / "strategy.json").write_text(json.dumps(s))
+    (bdir / "competitors.json").write_text(json.dumps([{"name": "RivalCo (Rival Greens)", "site": ""}]))
+    (bdir / "compliance.json").write_text(json.dumps({"banned": ["re:\\bclinically proven\\b"], "required_disclaimer": None}))
+    return bdir
+
+
+def _full_matrix():
+    """The launch standard by hand: 6 angles (one per family) × 6 slots, a price card on the two hot angles, 19 of 38 video."""
+    fams = ["pain", "identity", "enemy", "experience", "offer", "moment"]
+    native = ["search", "text_message", "social_post", "notes_app", "search", "social_post"]
+    faceless = ["notes_app", "search", "text_message", "search", "text_message", "notes_app"]
+    product = ["product_hero", "macro_hero", "ingredients", "product_hero", "macro_hero", "ingredients"]
+    proof = ["quote", "review_cards", "big_number", "editorial", "myth_fact", "review_cards"]
+    angles = []
+    for i, fam in enumerate(fams):
+        aid = f"a{i + 1}"
+        cells = [("ugc_talking_head", "creator"), (faceless[i], "video"), (product[i], "video" if fam == "offer" else "image"),
+                 ("us_vs_them", "video"), (native[i], "image"), (proof[i], "image")]
+        if fam in ("offer", "moment"):
+            cells.append(("offer", "image"))
+        angles.append({"id": aid, "name": fam, "family": fam, "source": "competitor" if fam == "enemy" else "profile",
+                       "stage": "hot" if fam in ("offer", "moment") else "cold",
+                       "ads": [{"id": f"{aid}-{st}", "style": st, "format": f, "size": "story" if f != "image" else ["feed", "story"]}
+                               for st, f in cells]})
+    return {"brand": "x", "month": "2031-01", "angles": angles}
+
+
+def _fake_render(calls):
+    def render(template, data, out_path, size=(1080, 1350), brand=None, budget=6000):
+        calls.append((template, json.dumps(data, ensure_ascii=False), tuple(size)))
+        Path(out_path).parent.mkdir(parents=True, exist_ok=True)
+        Path(out_path).write_bytes(b"\xff\xd8\xff\xe0 fake jpeg")
+        return str(out_path)
+    return render
+
+
+class AdMatrixTest(unittest.TestCase):
+    YM = "2031-03"
+    P = "Greens, vitamins and 6 g of fiber in one pack. No shaker."
+
+    @classmethod
+    def setUpClass(cls):
+        cls.bdir = _matrix_brand("t-matrix")
+        vdir = cls.bdir / "video" / cls.YM
+        vdir.mkdir(parents=True, exist_ok=True)
+        (vdir / "a1-search.json").write_text(json.dumps({"id": "t-search", "style": "search", "angle": "a1 (no weight-loss language)",
+                                                         "search": {"query": "greens without the shaker"}}))
+        shutil.copyfile(TMP / "assets" / "posts" / "hg-001.png", cls.bdir / "creator-take1.mp4")    # stands in for real footage
+        P = cls.P
+        creator = {"hook": "I quit greens powder.", "script": ["I quit greens powder.", "This is one pack."],
+                   "shot_list": ["face to camera", "the pack in hand"]}
+        cls.matrix = {"brand": "t-matrix", "month": cls.YM, "angles": [
+            {"id": "a1", "name": "Pack vs powder", "family": "enemy", "source": "competitor", "stage": "cold", "ad_set": "a1 · Pack vs powder",
+             "headlines": ["No shaker. Just a pack."], "primaries": [P, "One pack a day, nothing to mix."], "ads": [
+                {"id": "a1-editorial", "style": "editorial", "format": "image", "size": ["feed", "story"],
+                 "data": {"headline": "No *shaker*. Just a pack.", "photo": "woman-smiling-kitchen.png"}},
+                {"id": "a1-quote", "style": "quote", "size": "feed", "headline": "Switchers say it",
+                 "data": {"quote": "No more shaker bottle, and it tastes like fruit snacks.", "name": "Bradley O."}},
+                {"id": "a1-big_number", "style": "big_number", "primary": "6 g of fiber, clinically proven to work.",
+                 "data": {"number": "6 g", "label": "fiber in one pack"}},
+                {"id": "a1-comparison", "style": "comparison", "data": {
+                    "title": "Pack vs RivalCo", "columns": [{"name": "RivalCo"}, {"name": "Us", "highlight": True}],
+                    "rows": [{"label": "Shaker", "values": ["yes", "no"]}]}},
+                {"id": "a1-notes_app", "style": "notes_app", "data": {}},
+                {"id": "a1-search", "style": "search", "format": "video", "video": {"kit": "search", "data": f"video/{cls.YM}/a1-search.json"}},
+                {"id": "a1-ugc_talking_head", "style": "ugc_talking_head", "format": "creator", "creator": dict(creator)}]},
+            {"id": "a2", "name": "Replace the stack", "family": "offer", "source": "profile", "stage": "hot", "ads": [
+                {"id": "a2-before_after", "style": "before_after", "primary": P, "headline": "Five bottles → one pack",
+                 "data": {"before": "Five half-used bottles on a shelf.", "after": "One pack a day."}},
+                {"id": "a2-carousel", "style": "carousel", "primary": P, "headline": "What is in one pack",
+                 "data": {"cover": {"headline": "One pack, *five bottles*"}, "slides": [{"title": "6 g fiber"}, {"title": "21 vitamins"}],
+                          "end": {"headline": "One pack a day", "cta": "Shop now"}}},
+                {"id": "a2-offer", "style": "offer", "size": ["feed", "story"], "primary": P, "headline": "$49.99 per 28 packs", "cta": "SHOP_NOW",
+                 "data": {"name": "Subscribe & Save", "price": "$49.99", "cta": "Start today", "features": ["Pause or cancel anytime"]}},
+                {"id": "a2-ugc_talking_head", "style": "ugc_talking_head", "format": "creator", "primary": P, "headline": "Why I switched",
+                 "file": "creator-take1.mp4", "poster": "assets/product-pack.png",
+                 "creator": dict(creator, name="Dana K.", consent=True)}]}]}
+        otto_styles.save_matrix("t-matrix", cls.YM, cls.matrix)
+
+    def _campaign(self, cid, **kw):
+        return dict({"id": cid, "brand": "t-matrix", "name": "T · Evergreen", "objective": "sales", "plan": self.YM,
+                     "start": f"{self.YM}-01", "end": f"{self.YM}-28", "daily_budget": 20, "currency_code": "EUR",
+                     "audience": {"countries": ["US"], "age": [25, 60]}, "creative": {}, "remote": {},
+                     "landing_url": "https://t-matrix.example/"}, **kw)
+
+    # ---- catalogue
+    def test_catalog_sanity(self):
+        for name, s in otto_styles.STYLES.items():
+            self.assertIn(s["family"], otto_styles.FAMILIES, name)
+            self.assertTrue(s["sizes"] and set(s["sizes"]) <= set(otto_styles.SIZES), name)
+            self.assertTrue(s["stages"] and set(s["stages"]) <= set(otto_styles.STAGES), name)
+            self.assertTrue(s["kinds"] and set(s["kinds"]) <= set(otto_styles.KINDS), name)
+            self.assertTrue(s["fields"]["required"] and s["desc"], name)
+            self.assertTrue(s["video"] is None or s["video"] in otto_styles.VIDEO_KITS, name)
+            for n in s["needs"]:
+                self.assertIn(n.partition(":")[0], otto_styles.NEEDS, name)
+            missing = [t for t in otto_styles.templates(name) if not otto_styles.template_ready(t)]
+            self.assertTrue(not missing or name in otto_styles.PENDING, f"{name}: template {missing} missing and not marked pending")
+            self.assertTrue(otto_styles.templates(name) or s["family"] == "ugc_video", f"{name} renders with nothing")
+        for alias, key in otto_styles.ALIASES.items():
+            self.assertIn(key, otto_styles.STYLES, alias)
+        self.assertEqual(otto_styles.resolve("Google Search"), "search")
+        self.assertEqual(otto_styles.resolve("ugc"), "ugc_talking_head")
+        self.assertNotIn("ugc", otto_styles.VIDEO_KITS, "a talking person is never a generated video")
+        wanted = {"before_after", "us_vs_them", "review_cards", "quote", "search", "notes_app", "ugc_caption", "social_post",
+                  "text_message", "product_hero", "macro_hero", "ingredients", "big_number", "offer", "comparison", "myth_fact",
+                  "editorial", "carousel", "ugc_talking_head"}
+        self.assertLessEqual(wanted, set(otto_styles.STYLES))
+        self.assertEqual({s["family"] for s in otto_styles.STYLES.values()}, set(otto_styles.FAMILIES))
+        for preset in otto_styles.PRESETS.values():                       # every slot can be filled by some style
+            for slot in preset["slots"] + ["price"]:
+                self.assertTrue(any(otto_styles.slot_fits(slot, {"style": st, "format": f}) for st in otto_styles.STYLES
+                                    for f in otto_styles.FORMATS), slot)
+
+    # ---- coverage
+    def test_coverage_catches_each_gap(self):
+        import copy
+        base = _full_matrix()
+        self.assertEqual(otto_styles.coverage(base), [])
+        self.assertEqual(otto_styles.size_text(base), "6 concepts × 6–7 styles = 38 ads (19 video, 6 creator)")
+
+        def gaps(fn, rules=None):
+            m = copy.deepcopy(base)
+            fn(m)
+            return " | ".join(otto_styles.coverage(m, rules))
+
+        cells = lambda m: [c for a in m["angles"] for c in a["ads"]]
+        A = lambda m, i: m["angles"][i]
+        self.assertIn("need ≥6 concepts", gaps(lambda m: m["angles"].pop()))
+        self.assertIn("no moment angle (or a second identity angle)", gaps(lambda m: A(m, 5).update(family="pain")))
+        self.assertNotIn("moment", gaps(lambda m: A(m, 5).update(family="identity")))     # month 1: a second identity angle
+        self.assertIn("5 style(s) — need ≥6 per concept", gaps(lambda m: A(m, 0)["ads"].pop()))
+
+        def all_native(m):
+            A(m, 1)["ads"] = [{"id": f"n{j}", "style": st, "format": "image", "size": "feed"}
+                              for j, st in enumerate(["notes_app", "search", "text_message", "social_post", "notes_app", "search"])]
+        self.assertIn("1 style families (native) — need ≥4", gaps(all_native))
+        self.assertIn("no product static (product_hero / macro_hero / ingredients) on angle a2",
+                      gaps(lambda m: A(m, 1)["ads"].__setitem__(2, {"id": "x", "style": "checklist", "format": "image"})))
+        self.assertIn("no UGC talking-head video by a real creator on angles a1, a3",
+                      gaps(lambda m: [A(m, i)["ads"].pop(0) for i in (0, 2)]))
+        self.assertIn("no faceless video", gaps(lambda m: [A(m, 0)["ads"][k].update(format="image", size="feed") for k in (1, 3)]))
+        self.assertIn("no price card (offer) on angle a5", gaps(lambda m: A(m, 4)["ads"].pop()))
+        self.assertIn("no comparison static", gaps(lambda m: A(m, 3)["ads"][3].update(style="checklist", format="image")))
+        self.assertIn("no native screenshot static", gaps(lambda m: A(m, 3)["ads"][4].update(style="carousel")))
+        self.assertIn("no proof or humor static", gaps(lambda m: A(m, 3)["ads"][5].update(style="before_after")))
+
+        def fewer_videos(m):
+            for a in m["angles"]:
+                a["ads"][3].update(format="image", size="feed")
+        self.assertIn("13 of 38 cells are video — need ≥19", gaps(fewer_videos))
+        self.assertIn("angle a1 “pain”: 1 video cell(s) — need ≥2",
+                      gaps(lambda m: [A(m, 0)["ads"][k].update(format="image", size="feed") for k in (1, 3)]))
+        self.assertIn("static cell(s) — keep ≥2", gaps(lambda m: [c.update(format="video") for c in A(m, 0)["ads"][4:]]))
+
+        def feed_only(m):
+            for c in cells(m):
+                c["size"] = "feed"
+        self.assertIn("story (9:16) versions on 0 of 38 cells — need ≥19", gaps(feed_only))
+        self.assertIn("from competitor research", gaps(lambda m: A(m, 2).update(source="profile")))
+
+        def same_styles(m):
+            for a in m["angles"]:
+                for c, st in zip(a["ads"][1:], ["notes_app", "product_hero", "us_vs_them", "search", "quote"]):
+                    c["style"] = st
+        self.assertIn("distinct style(s) across the matrix — need ≥10", gaps(same_styles))
+        self.assertIn("unknown style(s) hologram", gaps(lambda m: A(m, 0)["ads"].append({"id": "x", "style": "hologram"})))
+        self.assertIn("need ≥6 concepts", gaps(lambda m: A(m, 0).update(status="dropped")))           # dropped = gone
+        # presets and overrides: the micro floor is 4 angles (pain, identity, enemy, offer) × 5 slots
+        micro = copy.deepcopy(base)
+        micro["angles"] = [a for a in micro["angles"] if a["family"] in ("pain", "identity", "enemy", "offer")]
+        for a in micro["angles"]:
+            a["ads"] = [c for c in a["ads"] if otto_styles.resolve(c["style"]) not in ("quote", "review_cards", "big_number", "editorial", "myth_fact")]
+        self.assertTrue(any("concepts" in g for g in otto_styles.coverage(micro)))
+        micro["preset"] = "micro"
+        self.assertEqual(otto_styles.coverage(micro), [])
+        micro["angles"][0]["ads"] = micro["angles"][0]["ads"][:3]
+        self.assertTrue(any("style families" in g or "need ≥5 per concept" in g for g in otto_styles.coverage(micro)))
+        self.assertFalse(otto_styles.coverage(base, {"min_video_share": 0.9}) == [])
+        three = copy.deepcopy(base)
+        three["angles"], three["rules"] = three["angles"][:3], {"min_angles": 3, "angle_families": ["pain", "identity", "enemy"]}
+        self.assertEqual(otto_styles.coverage(three), [])
+
+    def test_copy_and_refresh_rules(self):
+        from datetime import date
+        a = {"id": "a1", "headlines": ["One pack."], "primaries": ["First text.", "Second text."],
+             "ads": [{"id": f"c{i}", "style": "editorial"} for i in range(4)]}
+        m = {"angles": [a]}
+        self.assertEqual(otto_styles.copy_gaps(m), [])
+        self.assertEqual([otto_styles.ad_copy(a, c, i)["primary"] for i, c in enumerate(a["ads"])],
+                         ["First text.", "Second text.", "First text.", "Second text."])      # visuals vary, copy repeats
+        a["ads"][0]["headline"], a["ads"][1]["headline"] = "Another one", "And a third"
+        self.assertIn("3 headlines across its visuals — keep 1-2", " ".join(otto_styles.copy_gaps(m)))
+        a["primaries"], a["ads"][0]["headline"], a["ads"][1]["headline"] = ["Only one."], "", ""
+        self.assertIn("1 primary text(s) — write 2-3", " ".join(otto_styles.copy_gaps(m)))
+        a["headlines"] = []
+        self.assertIn("no headline", " ".join(otto_styles.copy_gaps(m)))
+        # refresh: +2 new creatives per angle per week after launch, one on a style the angle has not run
+        launched = date(2031, 3, 1)
+        self.assertEqual(otto_styles.refresh_gaps(m, date(2031, 3, 5), launched), [])          # first week not over
+        self.assertIn("0 new creative(s) in the last 7 days — add 2", " ".join(otto_styles.refresh_gaps(m, date(2031, 3, 9), launched)))
+        a["ads"] += [{"id": "n1", "style": "editorial", "added": "2031-03-08"}, {"id": "n2", "style": "editorial", "added": "2031-03-09"}]
+        self.assertIn("repeat styles", " ".join(otto_styles.refresh_gaps(m, date(2031, 3, 9), launched)))
+        a["ads"][-1]["style"] = "notes_app"
+        self.assertEqual(otto_styles.refresh_gaps(m, date(2031, 3, 9), launched), [])
+
+    # ---- plan_matrix
+    def test_plan_matrix_launch_standard(self):
+        m = otto_styles.plan_matrix("t-matrix", ym="2031-02")
+        self.assertEqual(m, otto_styles.plan_matrix("t-matrix", ym="2031-02"), "plan_matrix is not deterministic")
+        self.assertEqual(otto_styles.coverage(m), [], "a brand with every asset gets a full-coverage skeleton")
+        self.assertEqual([a["family"] for a in m["angles"]], list(otto_styles.ANGLE_FAMILIES))
+        by_fam = {a["family"]: a for a in m["angles"]}
+        self.assertEqual(by_fam["enemy"]["source"], "competitor")
+        self.assertIn("Halloween", by_fam["moment"]["angle"])
+        self.assertIn("Subscription", by_fam["offer"]["angle"])
+        self.assertEqual((by_fam["offer"]["stage"], by_fam["moment"]["stage"]), ("hot", "hot"))
+        used, total, video = {}, 0, 0
+        for a in m["angles"]:
+            st = [c["style"] for c in a["ads"]]
+            self.assertEqual(len(st), len(set(st)), f"{a['id']} repeats a style")
+            self.assertGreaterEqual(len(st), 6)
+            self.assertEqual(otto_styles.missing_slots(a["ads"], otto_styles.angle_slots(a, otto_styles.LAUNCH_RULES)), [])
+            self.assertEqual((a["headlines"], a["primaries"]), ([], []))
+            for c in a["ads"]:
+                used[c["style"]] = used.get(c["style"], 0) + 1
+                total += 1
+                video += c["format"] in ("video", "creator")
+                self.assertTrue(c["brief"], c["id"])
+                if c["format"] == "creator":
+                    self.assertEqual(c["style"], "ugc_talking_head")
+                    self.assertIn("REAL creator", c["brief"])
+                    self.assertEqual(set(c["creator"]) >= {"hook", "script", "shot_list"}, True)
+                if c["format"] == "video":
+                    self.assertEqual(c["video"]["kit"], otto_styles.STYLES[c["style"]]["video"])
+                    self.assertTrue(c["video"]["data"].endswith(f"{c['id']}.json"))
+                if otto_styles.STYLES[c["style"]]["family"] == "product" and c.get("data", {}).get("photo"):
+                    self.assertIn("product-pack", c["data"]["photo"])
+        self.assertGreaterEqual(video / total, 0.5)
+        self.assertGreaterEqual(len(used), 12, f"too little variety: {used}")
+        self.assertEqual(used["ugc_talking_head"], 6)
+        self.assertLessEqual(max(v for k, v in used.items() if k != "ugc_talking_head"), 4, f"one style dominates: {used}")
+        # the micro floor: 4 angles (pain, identity, enemy, offer) × 5 styles, 4+ style families each
+        micro = otto_styles.plan_matrix("t-matrix", ym="2031-02", preset="micro")
+        self.assertEqual(micro["preset"], "micro")
+        self.assertEqual(otto_styles.coverage(micro), [])
+        self.assertEqual([a["family"] for a in micro["angles"]], ["pain", "identity", "enemy", "offer"])
+        self.assertTrue(all(len({otto_styles.cell_family(c) for c in a["ads"]}) >= 4 for a in micro["angles"]))
+        self.assertEqual(otto_styles.preset_for_budget(20, "EUR"), "micro")
+        self.assertEqual(otto_styles.preset_for_budget(60, "USD"), "launch")
+        self.assertEqual(otto_styles.preset_for_budget(9000, "HUF"), "micro")
+        # nothing to back reviews, products or an offer up → those styles are never planned, and the gap is named
+        _matrix_brand("t-matrix-bare", full=False)
+        bare = otto_styles.plan_matrix("t-matrix-bare", ym="2031-02")
+        styles = {c["style"] for a in bare["angles"] for c in a["ads"]}
+        self.assertFalse(styles & {"review_cards", "quote", "big_number", "product_hero", "macro_hero", "ingredients", "offer",
+                                   "ugc_caption", "myth_fact"}, styles)
+        for st in ("review_cards", "quote", "product_hero", "offer", "ugc_caption"):
+            self.assertIn(st, bare["excluded"])
+        g = " | ".join(otto_styles.coverage(bare))
+        self.assertIn("no product static", g)
+        self.assertIn("no price card (offer)", g)
+
+    # ---- cell validation
+    def test_check_matrix_statuses(self):
+        rep = otto_styles.check_matrix("t-matrix", self.YM)
+        st = {r["id"]: r for r in rep["cells"]}
+        self.assertEqual(st["a1-editorial"]["status"], "ready")
+        self.assertEqual(st["a1-editorial"]["copy"]["headline"], "No shaker. Just a pack.")         # the angle's copy
+        self.assertEqual(st["a1-quote"]["status"], "ready", st["a1-quote"]["reasons"])       # verbatim from proof_bank
+        self.assertEqual(st["a1-big_number"]["status"], "violation")
+        self.assertEqual(st["a1-comparison"]["status"], "invalid")
+        self.assertIn("RivalCo", " ".join(st["a1-comparison"]["reasons"]))
+        self.assertEqual(st["a1-notes_app"]["status"], "unwritten")
+        self.assertEqual(st["a1-search"]["status"], "ready", st["a1-search"]["reasons"])     # video data written (not rendered)
+        self.assertEqual(st["a1-ugc_talking_head"]["status"], "planned")                    # brief written, footage not in
+        self.assertEqual(st["a2-ugc_talking_head"]["status"], "ready", st["a2-ugc_talking_head"]["reasons"])
+        self.assertIn("angle a2: no headline", " ".join(rep["copy"]) + " angle a2: no headline")  # a2 copy is per cell
+        ctx = otto_styles.brand_context("t-matrix")
+        v = lambda cell: otto_styles.validate_cell(dict({"id": "x", "primary": "x"}, **cell), ctx)
+        self.assertTrue(any("not verbatim" in e for e in v({"style": "quote", "data": {"quote": "Best gummies ever", "name": "A"}})["errors"]))
+        self.assertEqual(v({"style": "quote", "data": {"quote": "No more shaker bottle … like fruit snacks", "name": "A"}})["errors"], [])
+        wrong_kit = v({"style": "notes_app", "format": "video", "video": {"kit": "notes", "data": f"video/{self.YM}/a1-search.json"}})
+        self.assertTrue(any("is for kit 'search'" in e for e in wrong_kit["errors"]))
+        brief = {"hook": "h", "script": ["s"], "shot_list": ["x"]}
+        self.assertTrue(any("AI-generated person" in e for e in v({"style": "ugc_talking_head", "format": "creator",
+                                                                    "creator": dict(brief, source="AI avatar")})["errors"]))
+        self.assertTrue(any("consent" in e for e in v({"style": "ugc_talking_head", "format": "creator", "file": "creator-take1.mp4",
+                                                       "creator": dict(brief, name="Dana K.")})["errors"]))
+        self.assertTrue(any("generated UGC" in e for e in v({"style": "editorial", "format": "video", "video": {"kit": "ugc"}})["errors"]))
+        self.assertIn("creator brief missing", " ".join(v({"style": "ugc", "format": "creator"})["unwritten"]))
+        dup = {"angles": [{"id": "a1", "ads": [dict(self.matrix["angles"][0]["ads"][0], primary="x")]},
+                          {"id": "a2", "ads": [dict(self.matrix["angles"][0]["ads"][0], primary="x")]}]}
+        rows = otto_styles.check_matrix("t-matrix", matrix=dup)["cells"]
+        self.assertEqual([r["status"] for r in rows], ["ready", "invalid"])            # the same id would overwrite files / ads
+
+    # ---- otto_creative.build
+    def test_build_plans_and_renders_per_cell_and_skips_violations(self):
+        c = self._campaign("cp-mx-dry")
+        cr = otto_creative.build(ap.load(), c, dry=True)
+        self.assertIs(c["creatives"], cr)
+        self.assertEqual([con["angle"] for con in cr["concepts"]], ["a1", "a2"])
+        ids = {ad["id"] for con in cr["concepts"] for ad in con["ads"]}
+        self.assertEqual(ids, {"a1-editorial", "a1-quote", "a2-before_after", "a2-carousel", "a2-offer", "a2-ugc_talking_head"})
+        skipped = {s["id"]: s["status"] for s in cr["matrix"]["skipped"]}
+        self.assertEqual(skipped, {"a1-big_number": "violation", "a1-comparison": "invalid", "a1-notes_app": "unwritten"})
+        self.assertEqual([v["id"] for v in cr["matrix"]["planned_videos"]], ["a1-search"])
+        self.assertEqual([v["id"] for v in cr["matrix"]["planned_creators"]], ["a1-ugc_talking_head"])
+        ed = next(ad for ad in cr["concepts"][0]["ads"] if ad["id"] == "a1-editorial")
+        self.assertEqual([f["size"] for f in ed["files"]], ["feed", "story"])
+        self.assertEqual((ed["headline"], ed["primary"]), ("No shaker. Just a pack.", self.P))         # angle-level copy
+        quote = next(ad for ad in cr["concepts"][0]["ads"] if ad["id"] == "a1-quote")
+        self.assertEqual((quote["headline"], quote["primary"]), ("Switchers say it", "One pack a day, nothing to mix."))
+        self.assertTrue(all(f["planned"] for f in ed["files"]))
+        self.assertTrue(all(i["style"] and i["angle"] for i in cr["images"]))
+        self.assertEqual(len([k for car in cr["carousels"] for k in car["cards"]]), 4)          # cover + 2 slides + end card
+        cv = next(v for v in cr["videos"] if v["cell"] == "a2-ugc_talking_head")
+        self.assertEqual(cv["creator"], "Dana K.")
+        self.assertNotIn("clinically proven to work", " ".join(cr["bodies"]))
+        self.assertFalse(otto_compliance.check_campaign(c), "matrix creatives must pass the launch compliance check")
+        # real build (render mocked): every ready cell rendered, the violating one never
+        calls, orig = [], otto_creative.otto_render.render
+        otto_creative.otto_render.render = _fake_render(calls)
+        try:
+            cr = otto_creative.build(ap.load(), self._campaign("cp-mx-run"), dry=False)
+        finally:
+            otto_creative.otto_render.render = orig
+        self.assertFalse([x for x in calls if "clinically" in x[1] or "RivalCo" in x[1]], "a blocked cell reached the renderer")
+        self.assertEqual(len(calls), 2 + 1 + 1 + 4 + 2)          # editorial ×2 sizes, quote, before_after, 4 carousel cards, offer ×2
+        self.assertIn(("editorial", (1080, 1920)), {(t, s) for t, _, s in calls})
+        photo = next(json.loads(d)["photo"] for t, d, s in calls if t == "editorial")
+        self.assertTrue(photo.endswith("woman-smiling-kitchen.png") and Path(photo).exists(), photo)   # bare name → brand asset
+        for con in cr["concepts"]:
+            for ad in con["ads"]:
+                for f in ad["files"]:
+                    self.assertTrue(Path(f["file"]).exists() or otto_paths.local_path(f["file"]).exists(), f)
+                    self.assertNotIn("planned", f)
+
+    def test_build_falls_back_and_pending_templates_wait(self):
+        c = self._campaign("cp-mx-none", plan="2031-09", start="2031-09-01")
+        cr = otto_creative.build(ap.load(), c, dry=True)
+        self.assertNotIn("concepts", cr)                                   # no matrix → the angle-bank creatives
+        otto_styles.save_matrix("t-matrix", "2031-10", {"brand": "t-matrix", "month": "2031-10", "angles": [
+            {"id": "a1", "ads": [{"id": "a1-notes_app", "style": "notes_app", "data": {}}]}]})
+        cr = otto_creative.build(ap.load(), self._campaign("cp-mx-empty", plan="2031-10", start="2031-10-01"), dry=True)
+        self.assertNotIn("concepts", cr)
+        self.assertIn("ready to run", cr["matrix"]["note"])
+        orig = otto_styles.template_ready
+        otto_styles.template_ready = lambda name: name != "offer"
+        try:
+            cr = otto_creative.build(ap.load(), self._campaign("cp-mx-pend"), dry=True)
+        finally:
+            otto_styles.template_ready = orig
+        self.assertEqual({s["id"]: s["status"] for s in cr["matrix"]["skipped"]}.get("a2-offer"), "pending")
+
+    # ---- otto_ads.launch_meta
+    def test_launch_meta_one_ad_set_per_angle(self):
+        sys.path.insert(0, str(PLATFORM / "tests"))
+        from simulate import FakeMeta
+        fm, calls, fail = FakeMeta(), [], {"adsets": 1}
+
+        def graph(method, path, token, **params):
+            calls.append((method, path, params))
+            if path.endswith("/adsets") and len([x for x in calls if x[1].endswith("/adsets")]) == 2 and fail["adsets"]:
+                fail["adsets"] -= 1
+                raise otto_publish.GraphError("Graph 2: temporary (second ad set)")
+            return fm.graph(method, path, token, **params)
+
+        c = self._campaign("cp-mx-live")
+        rend, orig_r, orig_g = [], otto_creative.otto_render.render, otto_publish.graph
+        orig_up = otto_ads.upload_video
+        otto_creative.otto_render.render, otto_publish.graph = _fake_render(rend), graph
+        otto_ads.upload_video = lambda ref, m, base, timeout=600: "VID-" + Path(ref).name     # no public URL in the fixture
+        otto_ads._acct.clear()
+        creds = {"access_token": "T", "ad_account_id": "act_mx", "page_id": "PG"}
+        try:
+            with self.assertRaises(otto_publish.GraphError):
+                otto_ads.launch_meta(ap.load(), c, creds, "https://x/", persist=lambda **kw: c.update(kw))
+            out = otto_ads.launch_meta(ap.load(), c, creds, "https://x/", persist=lambda **kw: c.update(kw))
+            n = len(calls)
+            again = otto_ads.launch_meta(ap.load(), c, creds, "https://x/", persist=lambda **kw: c.update(kw))
+        finally:
+            otto_creative.otto_render.render, otto_publish.graph, otto_ads.upload_video = orig_r, orig_g, orig_up
+        self.assertTrue(out["done"] and again["done"])
+        self.assertEqual(out["structure"], "concepts")
+        posts = lambda suffix: [(p, x) for m, p, x in calls if m == "POST" and p.endswith(suffix)]
+        camps = posts("/campaigns")
+        self.assertEqual(len(camps), 1, "campaign created twice across the resume")
+        self.assertEqual(camps[0][1]["daily_budget"], 2000)                            # CBO: the budget is on the campaign
+        self.assertNotIn("is_adset_budget_sharing_enabled", camps[0][1])
+        adsets = [x for p, x in posts("/adsets")]
+        self.assertEqual(len(adsets), 3)                                               # 2 concepts + the refused attempt
+        self.assertEqual([a["name"] for a in adsets], ["T · Evergreen · a1 · Pack vs powder"] + ["T · Evergreen · a2 · Replace the stack"] * 2)
+        self.assertTrue(all("daily_budget" not in a for a in adsets))
+        by_set = {}
+        for p, x in posts("/ads"):
+            by_set.setdefault(x["adset_id"], []).append(x["name"].split(" · ")[-1])
+        self.assertEqual(sorted(map(sorted, by_set.values())),
+                         [["a1-editorial", "a1-quote"], ["a2-before_after", "a2-carousel", "a2-offer", "a2-ugc_talking_head"]])
+        self.assertEqual(set(by_set), {v["adset_id"] for v in out["concepts"].values()})
+        self.assertEqual(len(calls), n, "a re-run after done created objects")
+        specs = [json.loads(x.get("object_story_spec", "{}")) for p, x in posts("/adcreatives")]
+        self.assertTrue(any("child_attachments" in (s.get("link_data") or {}) for s in specs))      # the carousel cell
+        vid = next(s["video_data"] for s in specs if "video_data" in s)                              # the creator's footage
+        self.assertRegex(vid["video_id"], r"^VID-cp-mx-live-a2-ugc_talking_head-[0-9a-f]{32}\.mp4$")   # copied into the public assets
+        self.assertTrue(vid["image_hash"])
+        feeds = [json.loads(x["asset_feed_spec"]) for p, x in posts("/adcreatives") if "asset_feed_spec" in x]
+        self.assertTrue(feeds and all(len(f["images"]) == 2 and f["asset_customization_rules"] for f in feeds))  # feed + story
+        self.assertEqual(out["ads"], 6)
+
+    def test_plan_writes_the_skeleton_and_names_the_matrix_size(self):
+        _matrix_brand("t-mplan")
+        quiet(otto_ads.plan, "t-mplan", "2031-04")                          # €20/day → the micro floor
+        m = otto_styles.load_matrix("t-mplan", "2031-04")
+        self.assertIsNotNone(m, "plan() did not write the month's matrix skeleton")
+        self.assertEqual(m["preset"], "micro")
+        size = otto_styles.size_text(m)
+        self.assertRegex(size, r"^4 concepts × 5–6 styles = 2\d ads \(\d+ video, 4 creator\)$")
+        r = next(r for r in ap.load()["recommendations"] if r.get("brand") == "t-mplan" and r.get("action") == "approve_plan")
+        self.assertIn(size, r["why"])
+        self.assertIn("one ad set per concept", r["why"])
+        self.assertIn("real creators' footage", r["why"])
+        md = (TMP / "brands" / "t-mplan" / "ads-plan-2031-04.md").read_text()
+        self.assertIn("Meta ad matrix", md)
+        evergreen = next(c for c in ap.load()["campaigns"] if c["brand"] == "t-mplan" and c["network"] == "meta" and c["stage"] == "cold")
+        self.assertIn("ready to run", evergreen["creatives"]["matrix"]["note"])      # copy not written yet → angle-bank meanwhile
+        _matrix_brand("t-mplan60")
+        quiet(otto_ads.plan, "t-mplan60", "2031-04", 60.0)                  # €60/day → the launch standard
+        self.assertRegex(otto_styles.size_text(otto_styles.load_matrix("t-mplan60", "2031-04")), r"^6 concepts × 6–7 styles")
+
+    def test_matrix_cli(self):
+        _matrix_brand("t-mcli")
+        run = lambda *a: subprocess.run([sys.executable, "otto_creative.py", "matrix", "t-mcli", "2031-05", *a], cwd=str(PLATFORM),
+                                        env=dict(os.environ, **ENV), capture_output=True, text=True, timeout=120)
+        r = run("--plan")
+        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+        self.assertIn("launch · 6 concepts", r.stdout)
+        f = TMP / "brands" / "t-mcli" / "ads-2031-05.json"
+        before = f.read_text()
+        self.assertIn("not overwritten", run("--plan").stdout)
+        self.assertEqual(f.read_text(), before)
+        r = run("--check")
+        self.assertEqual(r.returncode, 1)                                  # a skeleton: nothing written yet
+        n = sum(len(a["ads"]) for a in json.loads(before)["angles"])
+        self.assertIn(f"{n} unwritten", r.stdout)
+        self.assertIn("copy: angle", r.stdout)
+
+
+# ================================================================ ad creative launch QA (matrix statuses, CTA, copy gates)
+
+class AdMatrixLaunchQATest(unittest.TestCase):
+    """Launch QA for matrix creative: hold / scripted statuses, the on-image CTA follows the Meta button, placeholders and
+    third-party names fail loudly instead of being cleaned away."""
+    YM = "2031-06"
+    P = "Greens, vitamins and 6 g of fiber in one pack. Nothing to mix."
+
+    @classmethod
+    def setUpClass(cls):
+        cls.bdir = _matrix_brand("t-mxqa")
+        (cls.bdir / "video" / cls.YM).mkdir(parents=True, exist_ok=True)
+
+    def _matrix(self, cells, cta="SHOP_NOW"):
+        return {"brand": "t-mxqa", "month": self.YM, "angles": [
+            {"id": "a1", "name": "Pack vs powder", "family": "enemy", "source": "competitor", "stage": "cold", "cta": cta,
+             "headlines": ["No shaker. Just a pack."], "primaries": [self.P, "One pack a day, nothing to mix."], "ads": cells}]}
+
+    def _campaign(self, cid, **kw):
+        return dict({"id": cid, "brand": "t-mxqa", "name": "QA · Evergreen", "objective": "traffic", "plan": self.YM,
+                     "start": f"{self.YM}-01", "end": f"{self.YM}-28", "daily_budget": 20, "currency_code": "EUR",
+                     "audience": {"countries": ["US"]}, "creative": {}, "remote": {}}, **kw)
+
+    def _build(self, m, cid):
+        otto_styles.save_matrix("t-mxqa", self.YM, m)
+        calls, orig = [], otto_creative.otto_render.render
+        otto_creative.otto_render.render = _fake_render(calls)
+        try:
+            cr = otto_creative.build(ap.load(), self._campaign(cid), dry=False)
+        finally:
+            otto_creative.otto_render.render = orig
+        return cr, calls
+
+    def test_hold_is_reported_never_launched_and_out_of_coverage(self):
+        ed = {"id": "a1-editorial", "style": "editorial", "data": {"headline": "No *shaker*. Just a pack."}}
+        held = {"id": "a1-notes_app", "style": "notes_app", "status": "hold", "hold_reason": "licence pending",
+                "data": {"title": "Limited flavor", "items": ["one", "two"]}}
+        m = self._matrix([ed, held])
+        self.assertEqual(otto_styles.size_text(m), "1 concept × 1 style = 1 ads")          # the held cell is not counted
+        self.assertTrue(any("need ≥6 per concept" in g for g in otto_styles.coverage(m)))
+        rows = {r["id"]: r for r in otto_styles.check_matrix("t-mxqa", matrix=m)["cells"]}
+        self.assertEqual(rows["a1-notes_app"]["status"], "hold")
+        self.assertIn("licence pending", rows["a1-notes_app"]["reasons"][0])
+        cr, calls = self._build(m, "cp-qa-hold")
+        self.assertEqual([h["id"] for h in cr["matrix"]["held"]], ["a1-notes_app"])
+        self.assertEqual({ad["id"] for con in cr["concepts"] for ad in con["ads"]}, {"a1-editorial"})
+        self.assertFalse([c for c in calls if c[0] == "notes_app"], "a held cell reached the renderer")
+        # a whole angle on hold: every cell listed, none built
+        m2 = self._matrix([ed])
+        m2["angles"][0]["status"] = "hold"
+        rows = otto_styles.check_matrix("t-mxqa", matrix=m2)["cells"]
+        self.assertEqual([r["status"] for r in rows], ["hold"])
+        self.assertEqual(otto_styles.live_angles(m2), [])
+
+    def test_scripted_video_is_a_production_gap_not_a_writing_gap(self):
+        scripted = {"id": "a1-search", "style": "search", "format": "video",
+                    "video": {"kit": "search", "data": f"video/{self.YM}/a1-search.json"},
+                    "data": {"search": {"query": "greens without the shaker"}, "beats": ["query types", "result rises"]}}
+        empty = {"id": "a1-notes_app", "style": "notes_app", "format": "video",
+                 "video": {"kit": "notes", "data": f"video/{self.YM}/a1-notes_app.json"}, "data": {}}
+        m = self._matrix([scripted, empty])
+        rows = {r["id"]: r for r in otto_styles.check_matrix("t-mxqa", matrix=m)["cells"]}
+        self.assertEqual(rows["a1-search"]["status"], "scripted")
+        self.assertIn("not generated yet (motion)", " ".join(rows["a1-search"]["reasons"]))
+        self.assertEqual(rows["a1-notes_app"]["status"], "unwritten")
+        cr, _ = self._build(m, "cp-qa-scripted")
+        self.assertEqual([v["id"] for v in cr["matrix"]["scripted_videos"]], ["a1-search"])
+        self.assertIn("a1-notes_app", {s["id"] for s in cr["matrix"]["skipped"]})
+        # the motion engineer writes the kit JSON → the cell is ready (a video to render)
+        (self.bdir / "video" / self.YM / "a1-search.json").write_text(json.dumps({"id": "a1-search", "style": "search"}))
+        try:
+            rows = {r["id"]: r for r in otto_styles.check_matrix("t-mxqa", matrix=m)["cells"]}
+            self.assertEqual(rows["a1-search"]["status"], "ready")
+        finally:
+            (self.bdir / "video" / self.YM / "a1-search.json").unlink()
+        # --check: scripted / hold are listed apart from writing gaps and do not fail the run on their own
+        import contextlib, io
+        m3 = self._matrix([dict(scripted, id="a1-search")])
+        m3["rules"] = {"min_angles": 1, "angle_families": ["enemy"], "min_styles_per_angle": 1, "min_style_families_per_angle": 1,
+                       "slots": [], "min_video_per_angle": 0, "min_statics_per_angle": 0, "min_story_share": 0,
+                       "min_video_share": 0, "min_styles_total": 1, "min_native": 0, "min_proof": 0, "min_product": 0,
+                       "primaries_per_angle": [1, 3]}
+        otto_styles.save_matrix("t-mxqa", self.YM, m3)
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out):
+            code = otto_creative.matrix_cli("t-mxqa", self.YM, ["--check"])
+        self.assertEqual(code, 0, out.getvalue())
+        self.assertIn("1 scripted", out.getvalue())
+        self.assertIn("writing gaps: 0 · production gaps: 1", out.getvalue())
+
+    def test_rendered_video_cell_is_ready_and_ships_from_public_assets(self):
+        """A video cell with its final file (+ poster) is ready without a kit JSON; a file outside assets/ is copied there
+        (Meta only fetches public assets/ files); a file that is not on disk blocks the cell."""
+        finals = TMP / "finals"
+        finals.mkdir(exist_ok=True)
+        shutil.copyfile(TMP / "assets" / "posts" / "hg-001.png", finals / "a1-big_number-9x16.mp4")
+        shutil.copyfile(TMP / "assets" / "posts" / "hg-001.png", finals / "a1-big_number-9x16.jpg")
+        cell = {"id": "a1-big_number", "style": "big_number", "format": "video", "video": {"kit": "big", "data": "video/x/none.json"},
+                "file": str(finals / "a1-big_number-9x16.mp4"), "poster": str(finals / "a1-big_number-9x16.jpg"), "data": {}}
+        m = self._matrix([cell])
+        row = otto_styles.check_matrix("t-mxqa", matrix=m)["cells"][0]
+        self.assertEqual(row["status"], "ready", row["reasons"])
+        self.assertNotIn("not rendered", " ".join(row["reasons"]))
+        cr, _ = self._build(m, "cp-qa-vid")
+        f = cr["concepts"][0]["ads"][0]["files"][0]
+        self.assertEqual(f["kind"], "video")
+        self.assertRegex(f["file"], r"^assets/ads/cp-qa-vid-a1-big_number-[0-9a-f]{32}\.mp4$")
+        self.assertTrue(f["poster"].startswith("assets/ads/") and otto_paths.local_path(f["poster"]).exists(), f)
+        self.assertTrue(otto_paths.local_path(f["file"]).exists())
+        row = otto_styles.check_matrix("t-mxqa", matrix=self._matrix([dict(cell, file="assets/video/nope.mp4")]))["cells"][0]
+        self.assertEqual(row["status"], "invalid")
+        self.assertIn("not on disk", " ".join(row["reasons"]))
+
+    def test_on_image_cta_follows_the_meta_button(self):
+        cells = [{"id": "a1-editorial", "style": "editorial", "data": {"headline": "No *shaker*. Just a pack."}},
+                 {"id": "a1-quote", "style": "quote", "cta": "LEARN_MORE",
+                  "data": {"quote": "No more shaker bottle, and it tastes like fruit snacks.", "name": "Bradley O."}},
+                 {"id": "a1-checklist", "style": "checklist", "data": {"title": "Check", "items": ["a", "b"], "cta": "See what's inside"}}]
+        cr, calls = self._build(self._matrix(cells, cta="SHOP_NOW"), "cp-qa-cta")
+        got = {t: json.loads(d).get("cta") for t, d, s in calls}
+        self.assertEqual(got["editorial"], "Shop now")               # the angle's SHOP_NOW, not the objective's "Learn more"
+        self.assertEqual(got["quote"], "Learn more")                 # a cell's own Meta cta wins
+        self.assertEqual(got["checklist"], "See what's inside")      # copy written on the card is kept
+        cr, calls = self._build(self._matrix(cells[:1], cta=""), "cp-qa-cta2")
+        self.assertEqual(json.loads(calls[0][1])["cta"], "Learn more")   # no cta anywhere: the campaign objective (traffic)
+        import otto_render
+        self.assertEqual(otto_render.cta_label("SHOP_NOW", "he"), "לרכישה")
+        self.assertEqual(otto_render.cta_label("SIGN_UP", "de"), "Jetzt anmelden")
+        self.assertEqual(otto_render.cta_label("SHOP_NOW", "ja"), "Shop now")
+        self.assertEqual(otto_render.cta_label("NOPE", "en"), "")
+
+    def test_placeholders_and_third_party_names_block_the_cell(self):
+        ctx = dict(otto_styles.brand_context("t-mxqa"), allowed_names=[])
+        v = lambda cell: otto_styles.validate_cell(dict({"id": "x", "primary": self.P}, **cell), ctx)
+        ok = v({"style": "editorial", "data": {"headline": "Costume: TBD. Daily pack: done."}})
+        self.assertEqual(ok["errors"], [], "legit copy containing TBD must pass")
+        for bad in ("Big [TBD] sale", "Hi {{first_name}}", "TBD", "TODO: write it", "6 g of fiber (?)", "Save XX% today"):
+            errs = v({"style": "editorial", "data": {"headline": bad}})["errors"]
+            self.assertTrue(any("copy not ready: placeholder" in e for e in errs), (bad, errs))
+        errs = v({"style": "editorial", "data": {"headline": "One pack", "sub": "CPL ₪44 across 355 leads"}})["errors"]
+        self.assertTrue(any("internal data" in e for e in errs), errs)
+        for fine in ("It leads to calmer mornings.", "Greens on a budget.", "Lead the way."):
+            self.assertEqual(v({"style": "editorial", "data": {"headline": fine}})["errors"], [], fine)
+        errs = v({"style": "search", "data": {"query": "greens powder alternative",
+                                              "suggestions": ["greens powder alternative reddit", "greens powder alternative gummies"]}})["errors"]
+        self.assertTrue(any("“Reddit”" in e for e in errs), errs)
+        for name in ("Seen on TikTok", "the one Amazon reviewers love", "cheaper than at Costco"):
+            self.assertTrue(v({"style": "editorial", "data": {"headline": name}})["errors"], name)
+        self.assertEqual(v({"style": "editorial", "data": {"headline": "Target your mornings. Hit the target."}})["errors"], [])
+        self.assertTrue(v({"style": "editorial", "data": {"headline": "Now at Target."}})["errors"])
+        errs = v({"style": "editorial", "data": {"headline": "One pack", "photo": "no-such-pack.png"}})["errors"]
+        self.assertTrue(any("image not found — photo: no-such-pack.png" in e for e in errs), errs)
+        self.assertEqual(v({"style": "editorial", "data": {"headline": "One pack", "photo": "product-pack.png"}})["errors"], [])
+        ctx["allowed_names"] = ["Amazon"]                              # a brand that really sells there may say so
+        self.assertEqual(v({"style": "editorial", "data": {"headline": "Now on Amazon."}})["errors"], [])
+        # a real creator's spoken lines may carry a fill-in for them; the on-screen text may not
+        brief = {"hook": "Honestly?", "script": ["And yes, [name] eats them."], "shot_list": ["face to camera"]}
+        self.assertEqual(v({"style": "ugc_talking_head", "format": "creator", "creator": brief})["errors"], [])
+        errs = v({"style": "ugc_talking_head", "format": "creator", "creator": dict(brief, on_screen=["[name] approved"])})["errors"]
+        self.assertTrue(any("placeholder" in e for e in errs), errs)
 
 
 def tearDownModule():

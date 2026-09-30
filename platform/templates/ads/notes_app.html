@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="{{lang}}" dir="{{dir}}" class="{{html_class}}">
+<head><meta charset="utf-8">
+<!-- notes_app: a phone note, screenshotted and placed on the brand ground (native family).
+     data: title*, items* (strings, or {text, checked}; 2-7. ~~text~~ strikes it through; in checklist mode a
+           fully struck item is also ticked), mode: "bullets" (default) | "checklist" | "numbered" | "plain",
+           date_label (default "Today at 7:42 AM"), footer (one line under the list, *word* = highlighter),
+           photo (a transparent product cutout that hangs off the note's bottom corner; a normal photo becomes a
+           small print), headline (on the ground above the note, *word* = accent), theme: dark (default) |
+           light | accent, tag, cta. Feed, square, story. -->
+{{&_head}}
+<style>
+/* ---- native family: a real-looking screenshot on the brand ground ---- */
+:root{--u:2.3px;--ui:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro",var(--f-text)}
+html.f-square{--u:1.9px}
+/* story: copy only between the top 14 % and the bottom 35 % (Meta's unified Stories/Reels safe zone, 2026) */
+html.f-story{--top:270px;--bot:672px;--u:2.2px}
+.nat.t-dark{background:radial-gradient(110% 70% at 50% 60%,color-mix(in srgb,var(--deep) 88%,#fff) 0%,var(--deep) 72%)}
+.nat.t-light{background:radial-gradient(110% 70% at 50% 60%,color-mix(in srgb,var(--surface) 70%,#fff) 0%,var(--surface) 72%)}
+.nat .col{flex:1 1 auto;min-height:0;display:flex;flex-direction:column;justify-content:center}
+.nat .hl{font-size:calc(80px*var(--k));margin-top:40px;max-width:900px;flex:none}
+html.f-square .nat .hl{font-size:calc(70px*var(--k));margin-top:28px}
+html.f-story .nat .hl{font-size:calc(84px*var(--k));margin-top:24px}
+/* emphasis on an accent ground: a paper band behind ink (readable on any accent, never over the line above) */
+html body .t-accent .hl em{color:var(--ink);background:linear-gradient(var(--surface),var(--surface)) 0 64%/100% 70% no-repeat;
+  padding:0 .08em;-webkit-box-decoration-break:clone;box-decoration-break:clone}
+html body .t-accent.mk2 .hl em{background-image:linear-gradient(var(--marker),var(--marker))}
+.nat{--st-t:44px;--st-b:30px}
+html.f-square .nat{--st-t:30px;--st-b:22px}
+.nat .stage{flex:0 1 auto;min-height:0;display:flex;flex-direction:column;justify-content:center;padding-block:var(--st-t) var(--st-b)}
+.nat .shot{position:relative;flex:0 1 auto;min-height:0;display:flex;flex-direction:column}
+.nat .foot{padding-top:0}
+/* the screenshot itself: neutral UI colours, the system face, iOS type ramp (1pt = --u) */
+.scr{font-family:var(--ui);color:#1C1C1E;-webkit-font-smoothing:antialiased;
+  box-shadow:0 1px 1px rgba(0,0,0,.05),0 calc(6*var(--u)) calc(14*var(--u)) rgba(0,0,0,.10),0 calc(22*var(--u)) calc(48*var(--u)) calc(-8*var(--u)) rgba(0,0,0,.34)}
+.t-light .scr{box-shadow:0 0 0 1px rgba(var(--ink-rgb),.05),0 calc(6*var(--u)) calc(14*var(--u)) rgba(var(--ink-rgb),.07),0 calc(22*var(--u)) calc(50*var(--u)) calc(-10*var(--u)) rgba(var(--ink-rgb),.26)}
+/* copy still too long at the minimum sizes (fit_report says overflow): the screenshot fades out at the
+   bottom, as a longer page cut by the phone's screen would, instead of slicing a line */
+.scr{position:relative}
+html.overflow .scr::after{content:"";position:absolute;inset:auto 0 0 0;height:calc(40*var(--u));z-index:3;
+  background:linear-gradient(color-mix(in srgb,#FFFEFA 0%,transparent),#FFFEFA 78%)}
+html body .ad .scr em{font-family:inherit;font-style:normal;font-weight:inherit;letter-spacing:inherit;font-size:1em;line-height:inherit;color:inherit}
+
+/* ---- the note ---- */
+.nt{--tint:var(--accent)}
+html.em-marker .nt{--tint:var(--marker,var(--accent))}
+.note{flex:0 1 auto;min-height:0;overflow:hidden;background:#FFFEFA;border-radius:calc(15*var(--u));
+  padding:calc(14*var(--u)) calc(22*var(--u)) calc(26*var(--u))}
+/* everything inside scales together (data-fit on .in), like a screenshot zoomed out a little */
+.note .in{font-size:calc(17*var(--u))}
+.note .date{text-align:center;font-size:.765em;line-height:1.3;color:#8A8A8E;letter-spacing:-.006em;font-weight:400}
+.note .title{font-size:1.647em;line-height:1.2;font-weight:700;letter-spacing:.012em;margin-top:.52em;text-wrap:balance;color:#1C1C1E}
+.note .nbody{line-height:1.294;letter-spacing:-.024em;margin-top:.62em}
+html[dir=rtl] .note .title,html[dir=rtl] .note .nbody,html[dir=rtl] .note .date{letter-spacing:0}
+html[dir=rtl] .note .nbody{line-height:1.36}
+.items{list-style:none;counter-reset:n}
+.items li{display:flex;align-items:flex-start;gap:.5em;padding-block:.14em;counter-increment:n}
+.items .tx{flex:1 1 auto;min-width:0;text-wrap:pretty}
+.items .bx{flex:none;display:inline-grid;place-items:center;width:1.05em;height:1.294em}
+.items .bx svg{display:none}
+.m-bullets .bx::before{content:"";width:.3em;height:.3em;border-radius:50%;background:currentColor}
+.m-numbered .bx{width:auto;min-width:1.05em;display:block}
+.m-numbered .bx::before{content:counter(n) ".";font-variant-numeric:tabular-nums}
+.m-plain .bx{display:none}
+.m-plain .items li{padding-block:0 .5em}
+/* checklist: iOS round checkboxes, ticked in the brand tint */
+.m-checklist .items li{gap:.56em;padding-block:.34em}
+.m-checklist .items li:first-child{padding-top:.1em}
+.m-checklist .bx{width:1.3em;height:1.3em;margin-top:-.01em;border-radius:50%;box-shadow:inset 0 0 0 .085em #C4C4C8}
+.m-checklist li.on .bx{background:var(--tint);box-shadow:none}
+.m-checklist li.on .bx svg{display:block;width:.86em;height:.86em;stroke:#fff}
+.items s,.note .ft s{text-decoration-thickness:.065em;color:#8E8E93}
+.items li.struck .tx{color:#8E8E93}
+/* iOS 18 highlight: *word* in a note */
+html body .ad .note em{background:color-mix(in srgb,var(--tint) 34%,transparent);border-radius:.14em;padding:0 .08em;margin:0 -.04em;
+  -webkit-box-decoration-break:clone;box-decoration-break:clone}
+.note .ft{margin-top:.95em;text-wrap:pretty}
+
+/* the product: a cutout hanging off the note's end corner (a normal photo becomes a small print) */
+.cut{position:absolute;z-index:4;width:31%;height:auto;inset-inline-end:-5.5%;bottom:calc(var(--hang)*-1);
+  transform:rotate(8deg);filter:drop-shadow(0 calc(10*var(--u)) calc(12*var(--u)) rgba(0,0,0,.32))}
+html[dir=rtl] .cut{transform:rotate(-8deg)}
+.nt.has-photo{--hang:calc(60*var(--u));--lap:calc(64*var(--u))}
+.nt.has-photo .note{padding-bottom:calc(var(--lap) + 10*var(--u))}
+html .ad.nt.has-photo{--st-b:calc(var(--hang) + 30px)}
+html:not(.has-cutout) .cut{aspect-ratio:1;object-fit:cover;width:27%;border-radius:calc(4*var(--u));border:calc(5*var(--u)) solid #fff;
+  filter:none;box-shadow:0 calc(8*var(--u)) calc(20*var(--u)) rgba(0,0,0,.3)}
+html.f-story .cut{width:33%}
+html.f-square .cut{width:25%;inset-inline-end:-4%}
+html.f-square .nt.has-photo{--hang:calc(34*var(--u));--lap:calc(52*var(--u))}
+</style>
+</head>
+<body>
+<div class="ad nat nt m-{{#if mode}}{{mode}}{{else}}bullets{{/if}} t-{{#if theme}}{{theme}}{{else}}dark{{/if}} {{#if photo}}has-photo{{/if}}">
+  <div class="frame">
+    {{> top}}
+    <div class="col">
+      {{#if headline}}<h1 class="display hl" data-fit="2" data-min="48" data-lines="3">{{headline}}</h1>{{/if}}
+      <div class="stage">
+        <div class="shot">
+          <div class="note scr" data-box>
+            <div class="in" data-fit="1" data-min="24" data-base="17">
+            <div class="date"{{#unless date_label}} data-default{{/unless}}>{{#if date_label}}{{date_label}}{{else}}Today at 7:42 AM{{/if}}</div>
+            <h2 class="title">{{title}}</h2>
+            <div class="nbody">
+              <ul class="items">
+                {{#each items}}<li class="{{#if checked}}on{{/if}}"><span class="bx"><svg viewBox="0 0 24 24" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M6.2 12.6l3.9 3.8 7.7-8.2"/></svg></span><span class="tx">{{#if text}}{{text}}{{else}}{{.}}{{/if}}</span></li>{{/each}}
+              </ul>
+              {{#if footer}}<p class="ft">{{footer}}</p>{{/if}}
+            </div>
+            </div>
+          </div>
+          {{#if photo}}<img class="cut" src="{{photo}}" style="object-position:{{photo_pos}}" alt="">{{/if}}
+        </div>
+      </div>
+    </div>
+    {{> foot}}
+  </div>
+</div>
+<script>
+(function () {
+  var root = document.querySelector('.nt'), check = root.classList.contains('m-checklist');
+  // ~~text~~ → struck through; a fully struck checklist item is ticked
+  document.querySelectorAll('.items .tx, .note .ft').forEach(function (t) {
+    if (t.innerHTML.indexOf('~~') < 0) return;
+    t.innerHTML = t.innerHTML.replace(/~~([\s\S]+?)~~/g, '<s>$1</s>');
+    var all = t.textContent.replace(/\s+/g, ''), struck = '';
+    t.querySelectorAll('s').forEach(function (s) { struck += s.textContent.replace(/\s+/g, ''); });
+    var li = t.closest('li');
+    if (li && all && all === struck) { li.classList.add('struck'); if (check) li.classList.add('on'); }
+  });
+  var d = document.querySelector('.date[data-default]');
+  var L = {he: 'היום ב-7:42', de: 'Heute um 7:42', fr: "Aujourd’hui à 7:42", es: 'Hoy a las 7:42'};
+  if (d && L[document.documentElement.lang]) d.textContent = L[document.documentElement.lang];
+  // a two-colour brand (Grüns green + yellow): emphasis on the accent ground uses the second colour as the band
+  var rs = getComputedStyle(document.documentElement), mk = rs.getPropertyValue('--marker').trim().toLowerCase();
+  if (mk && mk !== rs.getPropertyValue('--accent').trim().toLowerCase()) document.querySelector('.ad').classList.add('mk2');
+  // typographic quotes inside the screenshot, as the phone's keyboard types them (Latin scripts only)
+  if (document.documentElement.dir !== 'rtl') document.querySelectorAll('.scr').forEach(function (root) {
+    var w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT), n, prev = ' ';
+    while ((n = w.nextNode())) {
+      if (n.parentNode.closest('.url,.qv,.at')) { prev = 'x'; continue; }
+      var out = '', s = n.nodeValue;
+      for (var i = 0; i < s.length; i++) {
+        var c = s[i], open = /[\s(\[{\u2014\u2013]/.test(prev);
+        if (c === '"') c = open ? '\u201c' : '\u201d';
+        else if (c === "'") c = open ? '\u2018' : '\u2019';
+        out += c; prev = s[i];
+      }
+      if (out !== s) n.nodeValue = out;
+    }
+  });
+})();
+</script>
+{{> grow}}
+{{&_foot}}
+</body>
+</html>

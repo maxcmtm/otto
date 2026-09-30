@@ -1,0 +1,412 @@
+<template>
+  <!-- Otto ad-kit · style "notes" — a phone note being typed; lines get struck through, the last one is kept and
+       highlighted. Brand tokens arrive as CSS variables on #root, content + beat-locked times as the D object
+       (both baked in by build.mjs). One paused timeline, built after the fonts load (strikes/markers are laid out
+       per visual line, so any line length wraps cleanly). -->
+  <script src="__GSAP__"></script>
+  <style>
+    @font-face {
+      font-family: "AdKit UI";
+      src: url("assets/fonts/ui.woff2") format("woff2");
+      font-weight: 100 900;
+      font-style: normal;
+      font-display: block;
+    }
+    #root {
+      /*@TOKENS*/
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+      font-family: "AdKit UI", sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+    #nt-ground {
+      position: absolute;
+      inset: 0;
+      background: var(--ad-ground);
+    }
+    #nt-stage,
+    #nt-cam {
+      position: absolute;
+      inset: 0;
+    }
+    #nt-sheet {
+      position: absolute;
+      left: 40px;
+      right: 40px;
+      top: 200px;
+      bottom: -140px;
+      background: var(--c-surface);
+      border-radius: 60px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08), 0 40px 120px rgba(0, 16, 8, 0.3);
+      padding: 34px 66px 0;
+    }
+    #nt-grab {
+      width: 84px;
+      height: 10px;
+      border-radius: 5px;
+      background: var(--c-line);
+      margin: 0 auto 44px;
+    }
+    #nt-meta {
+      text-align: center;
+      font-size: 30px;
+      font-weight: 500;
+      color: var(--c-muted);
+      margin-bottom: 44px;
+    }
+    #nt-title {
+      font-size: 108px;
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      line-height: 1.06;
+      color: var(--c-ink);
+      margin-bottom: 40px;
+    }
+    .nt-row {
+      font-size: 76px;
+      font-weight: 500;
+      letter-spacing: -0.025em;
+      line-height: 1.16;
+      color: var(--c-ink);
+      margin-bottom: 30px;
+    }
+    .nt-row.nt-keep {
+      font-weight: 700;
+    }
+    /* a typed block = one or more explicit, balanced lines; each line box carries its own strike / marker */
+    .nt-text {
+      position: relative;
+    }
+    .nt-vl {
+      display: block;
+      white-space: pre;
+    }
+    .nt-lbox {
+      position: relative;
+      display: inline-block;
+    }
+    .nt-ch {
+      position: relative;
+    }
+    .nt-anchor {
+      position: relative;
+      display: inline-block;
+      width: 0;
+      height: 1em;
+    }
+    .nt-caret {
+      position: absolute;
+      right: -4px;
+      top: 0.1em;
+      width: 6px;
+      height: 1em;
+      border-radius: 3px;
+      background: var(--c-primary);
+    }
+    .nt-anchor .nt-caret {
+      right: auto;
+      left: -3px;
+      top: 0.02em;
+    }
+    .nt-strike {
+      position: absolute;
+      left: -10px;
+      right: -10px;
+      top: 56%;
+      height: 7px;
+      margin-top: -3.5px;
+      border-radius: 4px;
+      background: var(--c-ink);
+    }
+    .nt-mark {
+      position: absolute;
+      left: -16px;
+      right: -16px;
+      top: 15%;
+      bottom: 3%;
+      border-radius: 14px;
+      background: var(--c-accent);
+    }
+    /* 4:5 feed cut */
+    #nt-stage.nt-f45 #nt-sheet {
+      top: 72px;
+      padding: 28px 60px 0;
+    }
+    #nt-stage.nt-f45 #nt-grab {
+      margin-bottom: 30px;
+    }
+    #nt-stage.nt-f45 #nt-meta {
+      font-size: 27px;
+      margin-bottom: 30px;
+    }
+    #nt-stage.nt-f45 #nt-title {
+      font-size: 90px;
+      margin-bottom: 28px;
+    }
+    #nt-stage.nt-f45 .nt-row {
+      font-size: 64px;
+      margin-bottom: 20px;
+    }
+  </style>
+
+  <div id="root" data-composition-id="notes" data-width="__W__" data-height="__H__" data-duration="__DUR__">
+    <div id="nt-ground" class="clip" data-start="0" data-duration="__DUR__" data-track-index="0"></div>
+    <div id="nt-stage">
+      <div id="nt-cam">
+        <div id="nt-sheet">
+          <div id="nt-grab"></div>
+          <div id="nt-meta"></div>
+          <div id="nt-title"></div>
+          <div id="nt-list"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      var D = /*@DATA*/null;
+      var ID = "notes";
+      var $ = function (id) {
+        return document.getElementById(id);
+      };
+      var IR = { immediateRender: false };
+
+      function fontsReady() {
+        try {
+          if (document.fonts && document.fonts.load) {
+            return Promise.all([
+              document.fonts.load('500 76px "AdKit UI"'),
+              document.fonts.load('700 76px "AdKit UI"'),
+              document.fonts.load('800 108px "AdKit UI"'),
+            ]).catch(function () {});
+          }
+        } catch (e) {}
+        return Promise.resolve();
+      }
+
+      function span(cls, text) {
+        var s = document.createElement("span");
+        s.className = cls;
+        if (text != null) s.textContent = text;
+        return s;
+      }
+
+      // Split text into balanced lines that fit maxW (measured with the row's own font). 1 line if it fits;
+      // 2 lines: the split with the narrowest widest line; more: greedy toward total/n.
+      function splitLines(text, host, maxW) {
+        var probe = span("nt-probe");
+        probe.style.whiteSpace = "pre";
+        probe.style.position = "absolute";
+        probe.style.visibility = "hidden";
+        host.appendChild(probe);
+        var w = function (t) {
+          probe.textContent = t;
+          return probe.offsetWidth;
+        };
+        var words = text.split(" ");
+        var out = [text];
+        if (w(text) > maxW && words.length > 1) {
+          var best = null;
+          for (var k = 1; k < words.length; k++) {
+            var a = w(words.slice(0, k).join(" "));
+            var b = w(words.slice(k).join(" "));
+            // prefer breaking after punctuation
+            var m = Math.max(a, b) * (/[.,?!:;]$/.test(words[k - 1]) ? 0.85 : 1);
+            if (a <= maxW && b <= maxW && (!best || m < best.m)) best = { k: k, m: m };
+          }
+          if (best) {
+            out = [words.slice(0, best.k).join(" "), words.slice(best.k).join(" ")];
+          } else {
+            var n = Math.ceil(w(text) / maxW) + 1;
+            var target = w(text) / n;
+            out = [];
+            var cur = "";
+            words.forEach(function (word) {
+              var next = cur ? cur + " " + word : word;
+              if (cur && (w(next) > maxW || w(cur) >= target)) {
+                out.push(cur);
+                cur = word;
+              } else {
+                cur = next;
+              }
+            });
+            if (cur) out.push(cur);
+          }
+        }
+        host.removeChild(probe);
+        return out;
+      }
+
+      // A typed block: per line [anchor caret][char+caret]… All characters are laid out from the start (invisible),
+      // so nothing reflows while typing. The space at a line break has no glyph; its caret is the next line's anchor.
+      function typedLine(parent, text) {
+        var box = document.createElement("div");
+        box.className = "nt-text";
+        parent.appendChild(box);
+        var lines = splitLines(text, box, box.clientWidth - 12);
+        var chars = [];
+        var boxes = [];
+        lines.forEach(function (ln, li) {
+          var vl = document.createElement("div");
+          vl.className = "nt-vl";
+          var lb = span("nt-lbox");
+          vl.appendChild(lb);
+          box.appendChild(vl);
+          var anchor = span("nt-anchor");
+          var ac = span("nt-caret");
+          anchor.appendChild(ac);
+          lb.appendChild(anchor);
+          if (li > 0) chars.push({ el: null, caret: ac, ch: " " });
+          Array.from(ln).forEach(function (ch) {
+            var s = span("nt-ch", ch);
+            var c = span("nt-caret");
+            s.appendChild(c);
+            lb.appendChild(s);
+            chars.push({ el: s, caret: c, ch: ch });
+          });
+          boxes.push({ lbox: lb, anchor: ac });
+        });
+        return { box: box, anchor: boxes[0].anchor, chars: chars, boxes: boxes };
+      }
+
+      // one bar per line box, inserted first so the (position:relative) characters paint over it
+      function bars(line, cls) {
+        return line.boxes.map(function (bx) {
+          var b = span(cls);
+          bx.lbox.insertBefore(b, bx.lbox.firstChild);
+          return { el: b, w: bx.lbox.offsetWidth };
+        });
+      }
+
+      function build() {
+        var S = D.S;
+        var C = D.c;
+        var END = D.endAt;
+        if (D.fmt.h < 1600) $("nt-stage").className = "nt-f45";
+
+        $("nt-meta").textContent = D.content.meta || "";
+        var title = typedLine($("nt-title"), S.title.text);
+        var list = $("nt-list");
+        var rows = S.rows.map(function (r) {
+          var row = document.createElement("div");
+          row.className = "nt-row";
+          list.appendChild(row);
+          return typedLine(row, r.text);
+        });
+        var keepRow = document.createElement("div");
+        keepRow.className = "nt-row nt-keep";
+        list.appendChild(keepRow);
+        var keep = typedLine(keepRow, S.keep.text);
+
+        rows.forEach(function (l) {
+          l.strikes = bars(l, "nt-strike");
+        });
+        var marks = bars(keep, "nt-mark");
+
+        var allChars = [];
+        var allCarets = [title.anchor];
+        [title].concat(rows, [keep]).forEach(function (l, i) {
+          if (i) allCarets.push(l.anchor);
+          l.chars.forEach(function (c) {
+            if (c.el) allChars.push(c.el);
+            if (allCarets.indexOf(c.caret) < 0) allCarets.push(c.caret);
+          });
+        });
+
+        // ── starting states ──
+        gsap.set(allChars, { opacity: 0 });
+        gsap.set(allCarets, { opacity: 0 });
+        rows.forEach(function (l) {
+          l.strikes.forEach(function (b) {
+            gsap.set(b.el, { scaleX: 0, transformOrigin: "0% 50%" });
+          });
+        });
+        marks.forEach(function (b) {
+          gsap.set(b.el, { scaleX: 0, transformOrigin: "0% 50%" });
+        });
+        gsap.set($("nt-sheet"), { y: 70 });
+        gsap.set($("nt-cam"), { scale: 1, y: 0, transformOrigin: "50% 28%" });
+
+        var tl = gsap.timeline({ paused: true });
+
+        // the sheet settles in (hero on screen from frame 0), then a slow push for the whole scene
+        tl.fromTo($("nt-sheet"), { y: 70 }, Object.assign({ y: 0, duration: 0.8, ease: "expo.out" }, IR), 0);
+        tl.fromTo($("nt-cam"), { scale: 1 }, Object.assign({ scale: 1.03, duration: END, ease: "sine.inOut" }, IR), 0);
+        // under the rising end card the note sinks back like a presented sheet
+        tl.fromTo($("nt-cam"), { scale: 1.03, y: 0 }, Object.assign({ scale: 0.93, y: -40, duration: 0.7, ease: "power3.inOut" }, IR), END);
+
+        // ── typing: one opacity set per character, on the scheduled key times ──
+        function typeIn(line, times) {
+          line.chars.forEach(function (c, i) {
+            if (c.el) tl.set(c.el, { opacity: 1 }, times[i]);
+          });
+        }
+        typeIn(title, S.title.times);
+        rows.forEach(function (l, i) {
+          typeIn(l, S.rows[i].times);
+        });
+        typeIn(keep, S.keep.times);
+
+        // ── caret: solid while typing, blinks (0.5 s) when idle ──
+        var seq = [{ el: title.anchor, t: 0 }];
+        title.chars.forEach(function (c, i) {
+          seq.push({ el: c.caret, t: S.title.times[i] });
+        });
+        rows.forEach(function (l, r) {
+          seq.push({ el: l.anchor, t: S.rows[r].start });
+          l.chars.forEach(function (c, i) {
+            seq.push({ el: c.caret, t: S.rows[r].times[i] });
+          });
+        });
+        seq.push({ el: keep.anchor, t: S.keep.start });
+        keep.chars.forEach(function (c, i) {
+          seq.push({ el: c.caret, t: S.keep.times[i] });
+        });
+        seq.forEach(function (p, k) {
+          var t0 = p.t;
+          var t1 = k + 1 < seq.length ? seq[k + 1].t : END;
+          tl.set(p.el, { opacity: 1 }, t0);
+          var on = true;
+          for (var bt = t0 + 0.55; bt < t1 - 0.06; bt += 0.5) {
+            on = !on;
+            tl.set(p.el, { opacity: on ? 1 : 0 }, bt);
+          }
+          if (k + 1 < seq.length) tl.set(p.el, { opacity: 0 }, t1);
+        });
+
+        // ── strike-through on the beat, drawn like a pen across each visual line; the struck line greys out ──
+        function draw(list, at, total, ease) {
+          var sum = 0;
+          list.forEach(function (b) {
+            sum += b.w;
+          });
+          var t = at;
+          list.forEach(function (b) {
+            var d = Math.max(0.08, (total * b.w) / sum);
+            tl.fromTo(b.el, { scaleX: 0 }, Object.assign({ scaleX: 1, duration: d, ease: list.length > 1 ? "none" : ease }, IR), t);
+            t += d;
+          });
+        }
+        rows.forEach(function (l, i) {
+          var at = S.rows[i].strikeAt;
+          draw(l.strikes, at, 0.3, "power2.inOut");
+          tl.fromTo(l.box, { color: C.ink }, Object.assign({ color: C.muted, duration: 0.3, ease: "none" }, IR), at + 0.12);
+        });
+
+        // once the end card fully covers the scene, the scene steps out (nothing hidden keeps "rendering" underneath)
+        tl.set($("nt-stage"), { opacity: 0 }, D.endAt + 0.75);
+
+        // ── the kept line gets the marker (the turn) ──
+        draw(marks, S.keep.markAt, 0.42, "power2.out");
+
+        window.__timelines = window.__timelines || {};
+        window.__timelines[ID] = tl;
+        if (window.__hfForceTimelineRebind) window.__hfForceTimelineRebind();
+      }
+
+      fontsReady().then(build, build);
+    })();
+  </script>
+</template>

@@ -1,0 +1,11 @@
+# Weekly refresh of Cloudflare's IP ranges: ufw (80/443 from Cloudflare only) + the Caddy matcher that trusts
+# CF-Connecting-IP / the Access e-mail only from Cloudflare. Runs the root-owned copy installed by bootstrap.sh.
+[Unit]
+Description=Otto: refresh Cloudflare IP ranges (ufw + Caddy)
+After=network-online.target
+Wants=network-online.target
+OnFailure=otto-alert@%N.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/otto-cloudflare-ips

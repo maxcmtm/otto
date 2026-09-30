@@ -1,193 +1,1208 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" dir="ltr" class="no-js">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Autopilot — Get started</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fraunces:ital,opsz,wght@1,9..144,400;1,9..144,500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/platform.css">
+<!-- CSP: script-src lists the sha256 of every inline script element in this page. After editing one, the browser refuses it and its console prints the new hash: replace the old one here (or recompute all of them). -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-WE/PxVHLqMPEBLxw3Rp4WNT2sGZYKKI+U54xHA6xTTE=' 'sha256-5JgXI8VC0fNDhAjC+tkjz7MAlj0D1XCgpGyo4OPVlws=' 'sha256-aSX2oKbxkP7TlL0D9exZPRdwV+onWN7wyzlAcQ8IwNM='; style-src 'self' 'unsafe-inline'; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-src 'none'; worker-src 'none'; manifest-src 'self'; img-src 'self' data: https:; media-src 'none'">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<script>
+/* Head script: js + motion flags before first paint. */
+(function(d,w){var h=d.documentElement,q=w.location.search;h.className='js';
+if(!w.matchMedia('(prefers-reduced-motion: reduce)').matches&&!/[?&]static=1/.test(q))h.classList.add('motion');})(document,window);
+</script>
+<title>Set up Otto</title>
+<meta name="description" content="Set up Otto from your website: check what Otto read, answer four questions, and see your first week.">
+<meta name="robots" content="noindex">
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#F5F7FB" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0C0D0F" media="(prefers-color-scheme: dark)">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 rx=%278%27 fill=%27%232447F0%27/%3E%3Crect x=%278%27 y=%278%27 width=%2716%27 height=%2716%27 rx=%274%27 fill=%27none%27 stroke=%27white%27 stroke-width=%272%27 opacity=%27.9%27/%3E%3C/svg%3E">
+<link rel="preload" href="assets/landing/mona-sans-latin.woff2" as="font" type="font/woff2" crossorigin>
 <style>
-/* wizard shell — no app tabs during onboarding */
-.wiz-steps{display:flex;align-items:center;gap:0;margin:30px 0 8px;flex-wrap:wrap}
-.wstep{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted);background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:8px 14px;box-shadow:var(--shadow-s)}
-.wstep.done{color:var(--green)}
-.wstep.done .ck{font-weight:700}
-.wstep.on{color:var(--cobalt-deep);border-color:#C6D2FF;background:var(--cobalt-tint);font-weight:600}
-.warrow{color:var(--faint);padding:0 9px;font-size:12px}
+@font-face{font-family:"Mona Sans";src:url("assets/landing/mona-sans-latin.woff2") format("woff2");font-weight:400 800;font-stretch:100%;font-style:normal;font-display:swap}
 
-.wiz{display:grid;grid-template-columns:1fr 330px;gap:32px;align-items:start;margin-top:26px}
+/* ============ Tokens (research/DESIGN-DIRECTION.md §4, same as landing v6) ============ */
+:root{
+  color-scheme:light;
+  --bg:#F5F7FB;--surface:#FFFFFF;--surface-2:#EEF1F6;--elevated:#FFFFFF;
+  --ink:#10182B;--ink-2:#5B6478;--ink-3:#7A8397;
+  --line:#E4E8F1;--line-soft:#EDF0F6;--hair:1px;
+  --accent:#2447F0;--accent-fill:#2447F0;--accent-press:#1631B8;--accent-tint:#EDF1FF;--on-accent:#FFFFFF;
+  --green:#0B7A4B;--green-tint:#E5F6EE;--amber:#B45309;--amber-tint:#FFF4E2;--red:#B4231F;--red-tint:#FDEBEA;
+  --scrim:rgba(16,24,43,.32);--bar:rgba(245,247,251,.78);--edge:rgba(16,24,43,.05);
+  --shadow-1:0 1px 2px rgba(16,24,43,.06),0 1px 1px rgba(16,24,43,.04);
+  --shadow-2:0 6px 16px -4px rgba(16,24,43,.12),0 2px 4px rgba(16,24,43,.06);
+  --shadow-3:0 24px 48px -12px rgba(16,24,43,.22),0 8px 16px -8px rgba(16,24,43,.10);
+  --display:"Mona Sans","Helvetica Neue",Helvetica,Arial,sans-serif;
+  --sans:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI Variable Text","Segoe UI",Roboto,system-ui,sans-serif;
+  --r-chip:6px;--r-input:10px;--r-card:14px;--r-panel:20px;--r-stage:28px;--r-pill:999px;
+  --dur-press:80ms;--dur-fast:140ms;--dur-base:220ms;--dur-med:360ms;--dur-slow:560ms;
+  --ease-out:cubic-bezier(.22,1,.36,1);--ease-in-out:cubic-bezier(.65,0,.35,1);
+  --spring-snappy:cubic-bezier(.22,1,.36,1);--spring-smooth:cubic-bezier(.22,1,.36,1);--spring-pop:cubic-bezier(.34,1.4,.64,1);
+  --margin:20px;--gutter:16px;--nav:56px;
+}
+@supports (transition-timing-function:linear(0,1)){:root{
+  --spring-snappy:linear(0,.084,.246,.412,.562,.681,.771,.839,.888,.922,.947,.964,.975,.983,.989,.993,1);
+  --spring-smooth:linear(0,.083,.243,.413,.559,.678,.77,.838,.887,.922,.946,.964,.975,.983,.989,.992,1);
+  --spring-pop:linear(0,.08,.251,.451,.635,.787,.898,.974,1.018,1.039,1.045,1.042,1.035,1.026,1.017,1.01,1);
+}}
+@media (min-resolution:2dppx){:root{--hair:.5px}}
+@media (min-width:768px){:root{--margin:40px;--gutter:24px}}
+@media (min-width:1024px){:root{--nav:64px}}
+@media (min-width:1280px){:root{--margin:64px}}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){
+  color-scheme:dark;
+  --bg:#0C0D0F;--surface:#16171A;--surface-2:#1E2024;--elevated:#24262B;
+  --ink:#F2F3F5;--ink-2:#A3A8B3;--ink-3:#8D95A5;--line:#2A2C31;--line-soft:#212327;
+  --accent:#6E88FF;--accent-fill:#4461F5;--accent-press:#3551E0;--accent-tint:#1B2240;
+  --green:#34C77B;--green-tint:#12291D;--amber:#F5A524;--amber-tint:#2B2112;--red:#FF6B61;--red-tint:#2E1614;
+  --scrim:rgba(0,0,0,.5);--bar:rgba(12,13,15,.78);--edge:rgba(0,0,0,.35);
+  --shadow-1:inset 0 1px 0 rgba(255,255,255,.06),0 0 0 1px var(--line);
+  --shadow-2:inset 0 1px 0 rgba(255,255,255,.06),0 0 0 1px var(--line),0 8px 20px -6px rgba(0,0,0,.6);
+  --shadow-3:inset 0 1px 0 rgba(255,255,255,.06),0 0 0 1px var(--line),0 28px 56px -12px rgba(0,0,0,.7);
+}}
+:root[data-theme=dark]{
+  color-scheme:dark;
+  --bg:#0C0D0F;--surface:#16171A;--surface-2:#1E2024;--elevated:#24262B;
+  --ink:#F2F3F5;--ink-2:#A3A8B3;--ink-3:#8D95A5;--line:#2A2C31;--line-soft:#212327;
+  --accent:#6E88FF;--accent-fill:#4461F5;--accent-press:#3551E0;--accent-tint:#1B2240;
+  --green:#34C77B;--green-tint:#12291D;--amber:#F5A524;--amber-tint:#2B2112;--red:#FF6B61;--red-tint:#2E1614;
+  --scrim:rgba(0,0,0,.5);--bar:rgba(12,13,15,.78);--edge:rgba(0,0,0,.35);
+  --shadow-1:inset 0 1px 0 rgba(255,255,255,.06),0 0 0 1px var(--line);
+  --shadow-2:inset 0 1px 0 rgba(255,255,255,.06),0 0 0 1px var(--line),0 8px 20px -6px rgba(0,0,0,.6);
+  --shadow-3:inset 0 1px 0 rgba(255,255,255,.06),0 0 0 1px var(--line),0 28px 56px -12px rgba(0,0,0,.7);
+}
 
-/* connect cards */
-.connect{display:grid;gap:14px}
-.ccard{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow-s);padding:18px 20px;display:grid;grid-template-columns:44px 1fr auto;gap:16px;align-items:center}
-.ccard.hero{border-color:#B9C7FA;box-shadow:var(--shadow-m);position:relative}
-.ccard.hero::before{content:"WHERE YOU'LL APPROVE EVERYTHING";position:absolute;top:-9px;left:20px;font:600 9.5px/1 "JetBrains Mono",monospace;letter-spacing:.16em;color:#fff;background:var(--cobalt);padding:4px 9px;border-radius:5px;box-shadow:0 4px 10px rgba(36,71,240,.35)}
-.cic{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;font:600 13px/1 "Inter";color:#fff}
-.cic.meta{background:linear-gradient(135deg,#7A3BFF,#E1306C)}
-.cic.li{background:#0A66C2}
-.cic.tg{background:#29A9EB;font-size:19px}
-.ccard .cn{font-weight:600;font-size:14.5px}
-.ccard .cd{font-size:12.5px;color:var(--muted);margin-top:3px;max-width:420px}
-.ccard .cs{font:600 11px/1.2 "Inter";border-radius:999px;padding:5px 10px;white-space:nowrap}
-.cs.ok{color:var(--green);background:var(--green-tint)}
-.qr{display:flex;gap:16px;align-items:center;margin-top:14px;padding-top:14px;border-top:1px solid var(--line-soft);grid-column:1/-1}
-.qrbox{width:86px;height:86px;border-radius:10px;background:
-  conic-gradient(from 0deg,#10182B 25%,transparent 0 50%,#10182B 0 75%,transparent 0) 0 0/28px 28px,
-  #fff;border:1px solid var(--line);flex:none;position:relative;overflow:hidden}
-.qrbox::after{content:"";position:absolute;inset:30px;background:#fff;border:3px solid #10182B;border-radius:4px}
-.qr .qt{font-size:12.5px;color:var(--muted);line-height:1.55}
-.qr .qt b{color:var(--ink)}
-.qr .code{font:500 12px/1 "JetBrains Mono",monospace;color:var(--cobalt);background:var(--cobalt-tint);border-radius:6px;padding:6px 9px;display:inline-block;margin-top:7px}
+/* ============ Base ============ */
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%;background:var(--bg);scroll-padding-top:calc(var(--nav) + env(safe-area-inset-top,0px) + 16px)}
+@media (max-width:767px){html{scroll-padding-bottom:calc(84px + env(safe-area-inset-bottom,0px))}}
+body{margin:0;min-height:100vh;min-height:100dvh;background:var(--bg);color:var(--ink);font:400 17px/1.55 var(--sans);-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;overflow-x:clip}
+h1,h2,h3,h4,p,ol,ul,figure,blockquote,fieldset,legend{margin:0;padding:0}
+fieldset{border:0;min-width:0}
+ol,ul{list-style:none}
+img,svg{display:block;max-width:100%}
+a{color:inherit;text-decoration:none}
+button,input,textarea,select{font:inherit;color:inherit;letter-spacing:inherit}
+button{background:none;border:0;padding:0;cursor:pointer;-webkit-tap-highlight-color:transparent}
+button:disabled{cursor:default}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+::selection{background:var(--accent-tint)}
+[hidden]{display:none!important}
+.sr{position:absolute!important;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.wrap{width:min(1200px,100% - 2*var(--margin));margin-inline:auto}
+.tnum{font-variant-numeric:tabular-nums}
+.ink-2{color:var(--ink-2)}
+.ink-3{color:var(--ink-3)}
+.i{width:24px;height:24px;flex:none;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.gly{width:22px;height:22px;flex:none}
+.skip{position:fixed;left:16px;top:12px;z-index:100;padding:10px 16px;border-radius:var(--r-pill);background:var(--ink);color:var(--bg);font-size:15px;transform:translateY(-200%);transition:transform var(--dur-base) var(--ease-out)}
+.skip:focus{transform:none}
 
-.wiz-nav{display:flex;align-items:center;gap:14px;margin-top:24px}
-.skip{font-size:12.5px;color:var(--faint);cursor:pointer}
-.skip:hover{color:var(--ink)}
+/* ============ Controls ============ */
+.btn{--h:48px;display:inline-flex;align-items:center;justify-content:center;gap:8px;height:var(--h);padding:0 22px;border-radius:var(--r-pill);font:600 16px/1 var(--sans);letter-spacing:-.005em;white-space:nowrap;user-select:none;transition:background-color var(--dur-fast) var(--ease-out),color var(--dur-fast),box-shadow var(--dur-fast),opacity var(--dur-fast),transform var(--dur-med) var(--spring-snappy)}
+.btn:active:not(:disabled){transform:scale(.97);transition-duration:var(--dur-fast),var(--dur-fast),var(--dur-fast),var(--dur-fast),var(--dur-press)}
+.btn-primary{background:var(--accent-fill);color:var(--on-accent)}
+.btn-primary:active{background:var(--accent-press)}
+.btn-primary:disabled{opacity:.4}
+.btn-quiet{background:var(--surface);color:var(--ink);box-shadow:inset 0 0 0 var(--hair) var(--line)}
+.btn-plain{color:var(--ink-2);padding:0 12px}
+.btn-sm{--h:36px;padding:0 16px;font-size:15px}
+@media (hover:hover){
+  .btn-primary:hover:not(:disabled){background:color-mix(in srgb,var(--accent-fill) 94%,#000)}
+  .btn-quiet:hover{background:color-mix(in srgb,var(--surface) 94%,var(--ink))}
+  .btn-plain:hover{color:var(--ink)}
+}
+.link{color:var(--accent);background:linear-gradient(currentColor,currentColor) 0 100%/0 1px no-repeat;padding-bottom:1px;transition:background-size 180ms var(--ease-out)}
+.link:hover,.link:focus-visible{background-size:100% 1px}
+.tag{display:inline-flex;align-items:center;height:22px;padding:0 8px;border-radius:var(--r-chip);background:var(--surface-2);color:var(--ink-2);font:500 12px/1 var(--sans);white-space:nowrap}
+.tag.is-own{background:var(--accent-tint);color:var(--accent)}
+.pill{display:inline-flex;align-items:center;gap:6px;height:24px;padding:0 10px;border-radius:var(--r-pill);font:500 12px/1 var(--sans);white-space:nowrap;background:var(--surface-2);color:var(--ink-2)}
+.pill.is-ok{background:var(--green-tint);color:var(--green)}
+.pill.is-work{background:var(--accent-tint);color:var(--accent)}
+.pill .i{width:14px;height:14px;stroke-width:2}
+.spin{width:14px;height:14px;border-radius:50%;border:1.5px solid color-mix(in srgb,currentColor 30%,transparent);border-top-color:currentColor;animation:spin .8s linear infinite;flex:none}
+@keyframes spin{to{transform:rotate(360deg)}}
+.field{width:100%;min-height:48px;padding:12px 14px;border:0;border-radius:var(--r-input);background:var(--surface);box-shadow:inset 0 0 0 var(--hair) var(--line);font-size:16px;line-height:1.45;outline:0;transition:box-shadow var(--dur-fast)}
+textarea.field{min-height:96px;resize:vertical;display:block}
+.field::placeholder{color:var(--ink-3)}
+.field:focus{box-shadow:inset 0 0 0 var(--hair) var(--line),0 0 0 2px var(--bg),0 0 0 4px var(--accent)}
+select.field{appearance:none;-webkit-appearance:none;padding-right:40px;background-image:linear-gradient(45deg,transparent 50%,var(--ink-3) 50%),linear-gradient(135deg,var(--ink-3) 50%,transparent 50%);background-position:calc(100% - 20px) 21px,calc(100% - 15px) 21px;background-size:5px 5px;background-repeat:no-repeat}
 
-/* fingerprint rail */
-.fp .fp-head{display:flex;align-items:center;gap:10px;margin-bottom:14px}
-.fp .fp-head img{width:38px;height:38px;border-radius:50%;background:#0B1230}
-.fp .fp-head .ft{font-weight:600;font-size:13px}
-.fp .fp-head .fs{font-size:11.5px;color:var(--faint)}
-.frow{padding:10px 0;border-bottom:1px solid var(--line-soft)}
-.frow:last-child{border-bottom:0}
-.frow .fl{font:600 10px/1 "JetBrains Mono",monospace;letter-spacing:.14em;color:var(--faint);text-transform:uppercase}
-.frow .fv{font-size:13px;margin-top:5px;line-height:1.5}
-.frow .fv i{font-style:italic;font-family:"Fraunces",serif}
-.sw{display:inline-block;width:16px;height:16px;border-radius:5px;margin-right:6px;vertical-align:-3px;border:1px solid rgba(16,24,43,.08)}
-.pillset{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
-.pillset .chip{font:500 11px/1 "Inter";color:var(--cobalt-deep);background:var(--cobalt-tint);border-radius:999px;padding:5px 9px}
-.depth{margin-top:12px;font-size:11.5px;color:var(--green);background:var(--green-tint);border-radius:8px;padding:9px 12px;line-height:1.5}
+/* ============ Top bar + progress ============ */
+.bar{position:fixed;inset:0 0 auto;z-index:60;padding-top:env(safe-area-inset-top,0px)}
+.bar::before{content:"";position:absolute;inset:0;background:var(--bar);-webkit-backdrop-filter:blur(20px) saturate(180%);backdrop-filter:blur(20px) saturate(180%)}
+.bar-in{position:relative;height:var(--nav);display:flex;align-items:center;gap:24px}
+.brand{display:inline-flex;align-items:center;gap:10px;font:640 19px/1 var(--display);letter-spacing:-.02em;flex:none}
+.mark{position:relative;width:24px;height:24px;border-radius:7px;background:var(--accent-fill);flex:none}
+.mark::after{content:"";position:absolute;inset:6px;border-radius:3px;border:1.5px solid var(--on-accent);opacity:.92}
+.brand small{font:500 15px/1 var(--sans);letter-spacing:0;color:var(--ink-3);margin-left:2px}
+.rail{display:none}
+.bar-count{margin-left:auto;font-size:14px;color:var(--ink-2);font-variant-numeric:tabular-nums;white-space:nowrap}
+.saved{display:none;align-items:center;gap:6px;font-size:13px;color:var(--ink-3);white-space:nowrap;transition:opacity var(--dur-base)}
+.saved .i{width:15px;height:15px;stroke-width:2}
+.saved.is-off{opacity:0}
+.prog{position:relative;display:flex;gap:4px;height:3px}
+.prog i{flex:1;border-radius:2px;background:var(--line);overflow:hidden;position:relative}
+.prog i::after{content:"";position:absolute;inset:0;background:var(--ink);transform:scaleX(0);transform-origin:left;transition:transform var(--dur-slow) var(--ease-out)}
+.prog i.done::after{transform:none}
+.prog i.on::after{background:var(--accent);transform:scaleX(.5)}
+@media (min-width:1024px){
+  .rail{display:flex;align-items:center;gap:2px;margin-inline:auto;padding:4px;border-radius:var(--r-pill);background:color-mix(in srgb,var(--surface) 55%,transparent);box-shadow:inset 0 0 0 var(--hair) var(--line)}
+  .rail button{display:flex;align-items:center;gap:7px;height:32px;padding:0 14px;border-radius:var(--r-pill);font-size:14px;line-height:1;color:var(--ink-3);white-space:nowrap;transition:color var(--dur-fast),background-color var(--dur-base)}
+  .rail button:not(:disabled):hover{color:var(--ink)}
+  .rail button:disabled{opacity:.55}
+  .rail button.done{color:var(--ink-2)}
+  .rail button[aria-current=step]{color:var(--ink);background:var(--surface);box-shadow:var(--shadow-1)}
+  .rail .n{font-variant-numeric:tabular-nums;color:var(--ink-3)}
+  .rail button.done .n{display:none}
+  .rail .ck{display:none;width:14px;height:14px;stroke-width:2.2;color:var(--green)}
+  .rail button.done .ck{display:block}
+  .bar-count{display:none}
+  .saved{display:inline-flex;min-width:150px;justify-content:flex-end}
+  .prog{display:none}
+}
 
-.concierge{display:flex;gap:14px;align-items:center}
-.concierge .cav{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#3D5CFF,#1631B8);color:#fff;display:grid;place-items:center;font:600 14px/1 "Inter";flex:none}
-.concierge .ct{font-size:12.5px;color:var(--muted);line-height:1.5}
-.concierge .ct b{color:var(--ink);display:block;font-size:13px}
+/* ============ Steps ============ */
+main{padding-top:calc(var(--nav) + 3px + env(safe-area-inset-top,0px))}
+.st{padding-block:clamp(28px,6vh,72px) clamp(40px,8vh,96px)}
+.st-grid{display:grid;gap:32px}
+.st-text{display:grid;gap:18px;align-content:start}
+.st-body{min-width:0}
+@media (min-width:1024px){
+  .st-grid{grid-template-columns:repeat(12,minmax(0,1fr));column-gap:var(--gutter);align-items:start}
+  .st-text{grid-column:1/span 5;position:sticky;top:calc(var(--nav) + 48px)}
+  .st-body{grid-column:7/span 6}
+}
+.kick{font-size:15px;font-weight:500;color:var(--accent)}
+.t1{font-family:var(--display);font-weight:600;font-size:clamp(34px,3.7vw,54px);line-height:1.04;letter-spacing:-.03em;text-wrap:balance}
+.t1:focus{outline:0}
+.lead{font-size:clamp(17px,1.3vw,19px);line-height:1.5;color:var(--ink-2);text-wrap:pretty;max-width:520px}
+.lead b{color:var(--ink);font-weight:600}
+.note{font-size:14px;line-height:1.5;color:var(--ink-2);max-width:480px}
+.panel{border-radius:var(--r-panel);background:var(--surface);box-shadow:inset 0 0 0 var(--hair) var(--line)}
+.panel-h{display:flex;align-items:center;gap:10px;padding:16px 18px;border-bottom:var(--hair) solid var(--line)}
+.panel-h b{font-size:15px;font-weight:600}
+.panel-h .tag,.panel-h .pill{margin-left:auto}
+.act{display:flex;align-items:center;gap:12px;margin-top:28px}
+.act .grow{margin-left:auto}
+.act-note{font-size:14px;color:var(--ink-2)}
+.act.has-legal{flex-wrap:wrap}
+.act-legal{flex:1 0 100%;margin-top:12px;font-size:13px;line-height:1.45;color:var(--ink-3);max-width:520px}
+.act .act-legal{margin-top:0}
+.act-legal a{color:var(--ink-2);text-decoration:underline;text-underline-offset:2px}
+.act-legal a:hover{color:var(--ink)}
+@media (max-width:767px){
+  .act{position:sticky;bottom:0;z-index:20;margin:24px calc(-1*var(--margin)) 0;padding:12px var(--margin) calc(12px + env(safe-area-inset-bottom,0px));background:var(--bar);-webkit-backdrop-filter:blur(20px) saturate(180%);backdrop-filter:blur(20px) saturate(180%);box-shadow:inset 0 var(--hair) 0 var(--line)}
+  .act .btn-primary{flex:1}
+  .act .grow{margin-left:0}
+  .act.is-static{position:static;margin:4px 0 0;padding:0;background:none;-webkit-backdrop-filter:none;backdrop-filter:none;box-shadow:none}
+}
 
-@media (max-width:1000px){.wiz{grid-template-columns:1fr}}
+/* step transitions: the incoming step rises 12px and fades in; nothing hides without JS */
+html.motion .st.is-in{animation:st-in var(--dur-slow) var(--ease-out) both}
+@keyframes st-in{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+
+/* ============ Step 1 · Your site ============ */
+.scan{position:relative;display:flex;align-items:center;gap:8px;max-width:520px;margin-top:10px;padding:6px 6px 6px 22px;background:var(--surface);border-radius:var(--r-pill);box-shadow:inset 0 0 0 var(--hair) var(--line),var(--shadow-1);transition:box-shadow var(--dur-fast)}
+.scan:focus-within{box-shadow:inset 0 0 0 var(--hair) var(--line),0 0 0 2px var(--bg),0 0 0 4px var(--accent)}
+.scan.is-bad{box-shadow:inset 0 0 0 1px var(--red)}
+.scan input{flex:1;min-width:0;height:44px;border:0;outline:0;background:none;font-size:17px;color:var(--ink)}
+.scan input::placeholder{color:var(--ink-3)}
+.scan .btn{--h:44px}
+.scan-busy{display:none;align-items:center;gap:8px}
+.scan .btn.is-busy .scan-idle{display:none}
+.scan .btn.is-busy .scan-busy{display:inline-flex}
+.scan-err{font-size:14px;line-height:1.45;color:var(--red)}
+.scan-err:empty{display:none}
+@media (max-width:560px){
+  .scan{flex-direction:column;align-items:stretch;border-radius:20px;padding:8px}
+  .scan input{padding:0 12px}
+  .scan .btn{width:100%}
+}
+.rl{padding:4px 18px}
+.rl li{display:grid;grid-template-columns:24px minmax(0,1fr);gap:12px;align-items:start;padding:13px 0}
+.rl li+li{border-top:var(--hair) solid var(--line-soft)}
+.rl-i{position:relative;display:grid;place-items:center;width:24px;height:24px}
+.rl-i::before{content:"";width:8px;height:8px;border-radius:50%;box-shadow:inset 0 0 0 1.5px var(--line)}
+.rl li.on .rl-i::before{display:none}
+.rl li.on .rl-i{color:var(--accent)}
+.rl li.done .rl-i::before,.rl li.miss .rl-i::before{display:none}
+.rl-i .ck{display:none;width:18px;height:18px;stroke-width:2;color:var(--green)}
+.rl-i .ck path{stroke-dasharray:24;stroke-dashoffset:24;transition:stroke-dashoffset 240ms var(--ease-out)}
+.rl li.done .ck{display:block}
+.rl li.done .ck path{stroke-dashoffset:0}
+.rl-i .dash{display:none;width:10px;height:1.5px;border-radius:1px;background:var(--ink-3)}
+.rl li.miss .dash{display:block}
+.rl b{display:block;font-size:15px;font-weight:500;line-height:24px;color:var(--ink-3);transition:color var(--dur-base)}
+.rl li.on b,.rl li.done b,.rl li.miss b{color:var(--ink)}
+.rl-r{display:block;margin-top:1px;font-size:14px;line-height:1.45;color:var(--ink-2)}
+.rl-r:empty{display:none}
+.rl-sw{display:inline-flex;gap:3px;margin-right:6px;vertical-align:-3px}
+.rl-sw i{width:14px;height:14px;border-radius:50%;box-shadow:inset 0 0 0 1px rgba(0,0,0,.12)}
+.panel-f{display:flex;align-items:center;gap:8px;padding:14px 18px;border-top:var(--hair) solid var(--line);font-size:14px;line-height:1.45;color:var(--ink-2);min-height:50px}
+.panel-f .spin{color:var(--accent)}
+
+/* ============ Step 2 · Your brand ============ */
+.bcard{padding:18px;border-radius:var(--r-panel);background:var(--surface);box-shadow:inset 0 0 0 var(--hair) var(--line);display:grid;gap:14px;max-width:520px}
+.bc-top{display:flex;align-items:center;gap:14px;min-width:0}
+.bc-logo{display:grid;place-items:center;width:64px;height:64px;border-radius:var(--r-card);background:var(--surface-2);flex:none;overflow:hidden}
+.bc-logo img{max-width:48px;max-height:40px;object-fit:contain}
+.bc-logo:not(.is-dark) img{filter:drop-shadow(0 0 .5px rgba(16,24,43,.55)) drop-shadow(0 0 1px rgba(16,24,43,.2))}
+.bc-logo.is-dark{background:var(--logo-ground,#1B1D22)}
+.bc-logo .i{color:var(--ink-3);width:22px;height:22px}
+.bc-name{min-width:0}
+.bc-name b{display:block;font:600 23px/1.15 var(--display);letter-spacing:-.02em;overflow-wrap:anywhere}
+.bc-name span{display:block;margin-top:3px;font-size:14px;color:var(--ink-2);overflow-wrap:anywhere}
+.bc-strip{display:flex;height:44px;border-radius:var(--r-input);overflow:hidden;box-shadow:inset 0 0 0 var(--hair) var(--line)}
+.bc-strip i{flex:1}
+.bc-strip i.n{flex:.5}
+.bc-strip.is-empty{align-items:center;justify-content:center;font-size:13px;color:var(--ink-3);background:var(--surface-2)}
+.bc-meta{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:13px;color:var(--ink-3)}
+.bc-meta b{color:var(--ink-2);font-weight:500}
+.group{border-radius:var(--r-panel);background:var(--surface);box-shadow:inset 0 0 0 var(--hair) var(--line)}
+.row{display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:12px;padding:14px 12px 14px 18px}
+.row+.row{box-shadow:inset 0 var(--hair) 0 var(--line-soft)}
+.row-l{display:flex;align-items:center;gap:8px;font-size:13px;line-height:20px;color:var(--ink-2)}
+.row-v{grid-column:1;margin-top:2px;font-size:15px;line-height:1.5;color:var(--ink);overflow-wrap:anywhere;min-width:0}
+.row-v .none{color:var(--ink-3)}
+.row-v ul li{position:relative;padding-left:14px}
+.row-v ul li::before{content:"";position:absolute;left:2px;top:.72em;width:4px;height:4px;border-radius:50%;background:var(--ink-3)}
+.row-v q{display:block;margin-top:6px;color:var(--ink-2);quotes:"“" "”"}
+.fix{grid-column:2;grid-row:1/span 2;align-self:start;height:36px;margin-top:-4px;padding:0 12px;border-radius:var(--r-pill);font-size:15px;font-weight:500;color:var(--accent);transition:background-color var(--dur-fast),transform var(--dur-med) var(--spring-snappy)}
+.fix:hover{background:var(--accent-tint)}
+.fix:active{transform:scale(.96);transition-duration:var(--dur-press)}
+.row.open .fix{visibility:hidden}
+.row{transition:background-color var(--dur-base) var(--ease-out)}
+.row.open{background:color-mix(in srgb,var(--surface) 96%,var(--ink))}
+.row:first-child{border-radius:var(--r-panel) var(--r-panel) 0 0}
+.row:last-child{border-radius:0 0 var(--r-panel) var(--r-panel)}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}
+.chip{display:inline-flex;align-items:center;min-height:28px;padding:3px 10px;border-radius:var(--r-pill);background:var(--surface-2);color:var(--ink);font:500 13.5px/1.3 var(--sans)}
+.sws{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-top:4px}
+.sw{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--ink-2);font-variant-numeric:tabular-nums}
+.sw i{width:22px;height:22px;border-radius:50%;box-shadow:inset 0 0 0 1px rgba(0,0,0,.12)}
+.sws .sep{width:var(--hair);height:18px;background:var(--line)}
+.logo-v{display:flex;align-items:center;gap:12px}
+.logo-v .bc-logo{width:52px;height:40px;border-radius:var(--r-input)}
+.logo-v .bc-logo img{max-width:40px;max-height:28px}
+/* inline editor: height via grid rows, content focused on open */
+.ed{grid-column:1/-1;display:grid;grid-template-rows:0fr;transition:grid-template-rows var(--dur-med) var(--ease-out)}
+.row.open .ed{grid-template-rows:1fr}
+.ed>div{overflow:hidden;min-height:0}
+.ed-in{display:grid;gap:12px;padding:12px 6px 4px 0}
+.ed-hint{font-size:13px;color:var(--ink-3)}
+.ed-act{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.ed-act .reset{margin-left:auto;font-size:14px;color:var(--ink-2);padding:8px 4px}
+.ed-act .reset:hover{color:var(--ink)}
+.check{display:flex;align-items:flex-start;gap:10px;font-size:15px;line-height:1.45;cursor:pointer}
+.check input{width:20px;height:20px;margin:1px 0 0;accent-color:var(--accent-fill);flex:none}
+.pal-ed{display:flex;flex-wrap:wrap;gap:8px}
+.pal-ed button{display:inline-flex;align-items:center;gap:8px;height:36px;padding:0 12px 0 6px;border-radius:var(--r-pill);background:var(--surface-2);font:500 13px/1 var(--sans);font-variant-numeric:tabular-nums;color:var(--ink);transition:opacity var(--dur-fast),box-shadow var(--dur-fast)}
+.pal-ed button i{width:24px;height:24px;border-radius:50%;box-shadow:inset 0 0 0 1px rgba(0,0,0,.12)}
+.pal-ed button[aria-pressed=false]{opacity:.45;text-decoration:line-through}
+.pal-add{display:flex;align-items:center;gap:8px}
+.pal-add input[type=color]{width:44px;height:36px;padding:0;border:0;border-radius:var(--r-input);background:none;cursor:pointer}
+.pal-add .field{max-width:140px;min-height:36px;padding:6px 12px}
+
+/* radio chips + switches (real inputs, styled) */
+.rc{display:flex;flex-wrap:wrap;gap:8px}
+.rc label{position:relative;display:inline-flex}
+.rc input{position:absolute;opacity:0;inset:0;margin:0;cursor:pointer}
+.rc span{display:inline-flex;align-items:center;min-height:40px;padding:8px 16px;border-radius:var(--r-pill);background:var(--surface-2);color:var(--ink);font:500 15px/1.25 var(--sans);transition:background-color var(--dur-fast),color var(--dur-fast),transform var(--dur-med) var(--spring-snappy)}
+.rc input:checked+span{background:var(--ink);color:var(--bg)}
+.rc input:focus-visible+span{outline:2px solid var(--accent);outline-offset:2px}
+.rc label:active span{transform:scale(.96);transition-duration:var(--dur-fast),var(--dur-fast),var(--dur-press)}
+@media (hover:hover){.rc label:hover input:not(:checked)+span{background:color-mix(in srgb,var(--surface-2) 90%,var(--ink))}}
+.rc.sm span{min-height:34px;padding:6px 12px;font-size:14px}
+.sug{display:flex;flex-wrap:wrap;gap:6px}
+.sug button{height:34px;padding:0 12px;border-radius:var(--r-pill);box-shadow:inset 0 0 0 var(--hair) var(--line);background:var(--surface);font:500 14px/1 var(--sans);color:var(--ink-2);transition:color var(--dur-fast),background-color var(--dur-fast),transform var(--dur-med) var(--spring-snappy)}
+.sug button:hover{color:var(--ink)}
+.sug button:active{transform:scale(.96);transition-duration:var(--dur-press)}
+.sug button[aria-pressed=true]{background:var(--surface-2);color:var(--ink);box-shadow:none}
+.sw-t{position:relative;display:inline-flex;flex:none;width:51px;height:31px}
+.sw-t input{position:absolute;inset:0;opacity:0;margin:0;cursor:pointer;z-index:1}
+.sw-t span{position:absolute;inset:0;border-radius:16px;background:var(--line);transition:background-color var(--dur-base) var(--ease-out)}
+.sw-t span::after{content:"";position:absolute;left:2px;top:2px;width:27px;height:27px;border-radius:50%;background:#fff;box-shadow:0 2px 6px rgba(0,0,0,.18),0 0 0 .5px rgba(0,0,0,.06);transition:transform var(--dur-med) var(--spring-snappy)}
+.sw-t input:checked+span{background:var(--green)}
+.sw-t input:checked+span::after{transform:translateX(20px)}
+.sw-t input:focus-visible+span{outline:2px solid var(--accent);outline-offset:2px}
+.seg{display:inline-flex;padding:3px;border-radius:10px;background:var(--surface-2);gap:2px}
+.seg label{position:relative}
+.seg input{position:absolute;inset:0;opacity:0;margin:0;cursor:pointer}
+.seg span{display:inline-flex;align-items:center;height:32px;padding:0 14px;border-radius:8px;font:500 14px/1 var(--sans);color:var(--ink-2);transition:background-color var(--dur-base),color var(--dur-fast),box-shadow var(--dur-base)}
+.seg input:checked+span{background:var(--surface);color:var(--ink);box-shadow:var(--shadow-1)}
+.seg input:focus-visible+span{outline:2px solid var(--accent);outline-offset:1px}
+
+/* ============ Step 3 · Four questions ============ */
+.qs{display:grid;gap:12px}
+.q{padding:20px;border-radius:var(--r-panel);background:var(--surface);box-shadow:inset 0 0 0 var(--hair) var(--line);display:grid;gap:14px}
+.q legend{float:left;width:100%;font:600 19px/1.3 var(--display);letter-spacing:-.012em}
+.q legend+*{clear:both}
+.q-h{display:grid;gap:4px}
+.q-h p{font-size:14px;line-height:1.45;color:var(--ink-2)}
+.q-h p b{color:var(--ink);font-weight:600}
+.q-quote{padding:10px 12px;border-radius:var(--r-input);background:var(--surface-2);font-size:14px;line-height:1.45;color:var(--ink-2)}
+.q-quote b{display:block;font-size:12px;font-weight:500;color:var(--ink-3);margin-bottom:2px}
+.q-guard{display:flex;gap:8px;align-items:flex-start;font-size:14px;line-height:1.45;color:var(--ink-2)}
+.q-guard .i{width:18px;height:18px;margin-top:1px;color:var(--green);stroke-width:1.8}
+
+/* ============ Step 4 · Connect ============ */
+.conn{display:grid;gap:12px}
+.cc{padding:18px;border-radius:var(--r-panel);background:var(--surface);box-shadow:inset 0 0 0 var(--hair) var(--line);display:grid;grid-template-columns:40px minmax(0,1fr);gap:4px 14px}
+.cc-ic{grid-row:1/span 2;display:grid;place-items:center;width:40px;height:40px;border-radius:12px;background:var(--surface-2);color:var(--ink-2)}
+.cc-h{display:flex;align-items:center;gap:10px;flex-wrap:wrap;min-height:24px}
+.cc-h b{font-size:17px;font-weight:600;letter-spacing:-.01em}
+.cc-h .pill{margin-left:auto}
+.cc-d{font-size:15px;line-height:1.45;color:var(--ink-2)}
+.cc-found{grid-column:2;font-size:13px;line-height:1.45;color:var(--ink-3);overflow-wrap:anywhere}
+.cc-how{grid-column:1/-1;display:grid;gap:12px;margin-top:12px;padding-top:14px;border-top:var(--hair) solid var(--line-soft)}
+.cc-how p{font-size:14px;line-height:1.5;color:var(--ink-2)}
+.cc-how p b{color:var(--ink);font-weight:600}
+.cc-ctl{display:flex;align-items:center;justify-content:space-between;gap:16px;font-size:15px}
+.cc-ctl label.lbl{cursor:pointer}
+@media (max-width:560px){
+  .cc{grid-template-columns:40px minmax(0,1fr);row-gap:0}
+  .cc-ic{grid-row:auto}
+  .cc-h{flex-wrap:nowrap;align-self:center;gap:8px}
+  .cc-h b{min-width:0;line-height:1.25}
+  .cc-h .pill{flex:none}
+  .cc-d{grid-column:1/-1;margin-top:12px}
+  .cc-found{grid-column:1/-1;margin-top:4px}
+}
+.promise{display:grid;gap:10px;padding:16px 18px;border-radius:var(--r-panel);background:var(--surface-2);max-width:520px}
+.promise li{display:flex;gap:10px;font-size:14px;line-height:1.45;color:var(--ink-2)}
+.promise .i{width:18px;height:18px;margin-top:1px;stroke-width:1.8;color:var(--ink-2)}
+
+/* ============ Step 5 · First week ============ */
+.setup{display:flex;align-items:flex-start;gap:10px;max-width:520px;padding:14px 16px;border-radius:var(--r-card);background:var(--surface);box-shadow:inset 0 0 0 var(--hair) var(--line);font-size:14px;line-height:1.5;color:var(--ink-2)}
+.setup b{display:block;color:var(--ink);font-weight:600;font-size:15px}
+.setup .spin{margin-top:4px;color:var(--accent)}
+.setup .i{width:18px;height:18px;margin-top:2px;stroke-width:2}
+.setup.is-ok .i{color:var(--green)}
+.setup.is-local .i{color:var(--ink-2)}
+.setup.is-err .i{color:var(--red)}
+.setup .btn{margin-top:10px}
+.notif{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:18px;background:var(--elevated);box-shadow:var(--shadow-2);max-width:460px}
+.notif .mark{width:32px;height:32px;border-radius:9px}
+.notif .mark::after{inset:8px}
+.notif div{min-width:0}
+.notif b{display:block;font-size:14px;font-weight:600}
+.notif span{display:block;font-size:14px;color:var(--ink-2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.notif time{margin-left:auto;align-self:flex-start;font-size:12px;color:var(--ink-3);font-variant-numeric:tabular-nums;white-space:nowrap}
+.wk{margin-top:14px;padding:16px;border-radius:var(--r-panel);background:var(--surface);box-shadow:inset 0 0 0 var(--hair) var(--line)}
+.wk-h{display:flex;align-items:baseline;gap:12px;margin-bottom:12px;flex-wrap:wrap}
+.wk-h b{font:600 19px/1.2 var(--display);letter-spacing:-.015em}
+.wk-h span{font-size:14px;color:var(--ink-2);font-variant-numeric:tabular-nums}
+.days{display:grid;gap:4px}
+.day{display:grid;grid-template-columns:64px minmax(0,1fr);gap:10px;align-items:start;padding:8px 0}
+.day+.day{border-top:var(--hair) solid var(--line-soft)}
+.dn{font-size:13px;line-height:26px;color:var(--ink-2);font-variant-numeric:tabular-nums;white-space:nowrap}
+.dn b{color:var(--ink);font-weight:600}
+.slots{display:flex;flex-wrap:wrap;gap:4px}
+.pc{display:inline-flex;align-items:center;gap:6px;height:26px;padding:0 8px;border-radius:var(--r-chip);background:var(--surface-2);font:500 12.5px/1 var(--sans);color:var(--ink-2);white-space:nowrap;font-variant-numeric:tabular-nums}
+.pc em{font-style:normal;color:var(--ink)}
+.pc.reel{background:var(--accent-tint);color:var(--accent);box-shadow:none}
+.pc.reel em{color:var(--accent)}
+.pc.story{background:transparent;box-shadow:inset 0 0 0 var(--hair) var(--line)}
+.pc.story em{color:var(--ink-2)}
+.day.empty .slots::before{content:"No posts";font-size:13px;line-height:26px;color:var(--ink-3)}
+@media (min-width:768px){
+  .days{grid-template-columns:repeat(7,minmax(0,1fr));gap:0}
+  .day{grid-template-columns:1fr;align-content:start;gap:8px;padding:2px 4px 4px}
+  .day+.day{border-top:0;border-left:var(--hair) solid var(--line-soft)}
+  .dn{line-height:1.2;padding:2px 2px 0}
+  .slots{display:grid;grid-template-rows:repeat(3,42px);gap:4px}
+  .pc[data-band="1"]{grid-row:1}.pc[data-band="2"]{grid-row:2}.pc[data-band="3"]{grid-row:3}
+  .day.empty .slots::before{grid-row:1}
+  .pc{justify-content:flex-start;height:auto;min-height:24px;padding:5px 6px;gap:2px;flex-direction:column;align-items:flex-start;white-space:normal;line-height:1.2}
+  .day.empty .slots::before{line-height:1.2}
+}
+.wk-f{margin-top:12px;font-size:14px;line-height:1.5;color:var(--ink-2)}
+.wk-f b{color:var(--ink);font-weight:600}
+.tl{margin-top:14px}
+.tl li{display:grid;grid-template-columns:132px minmax(0,1fr);gap:16px;padding:14px 0;border-top:var(--hair) solid var(--line);font-size:15px;line-height:1.45}
+.tl li b{font-weight:600;font-size:14px;color:var(--ink);font-variant-numeric:tabular-nums}
+.tl li span{color:var(--ink-2)}
+.tl li span strong{color:var(--ink);font-weight:500}
+@media (max-width:560px){.tl li{grid-template-columns:1fr;gap:2px}}
+
+footer{padding:24px 0 40px;font-size:13px;color:var(--ink-3)}
+footer .wrap{display:flex;flex-wrap:wrap;gap:8px 20px}
+@media (max-width:767px){footer{padding-bottom:28px}}
+@media (prefers-reduced-transparency:reduce){.bar::before,.act{-webkit-backdrop-filter:none;backdrop-filter:none;background:var(--bg)}}
+@media (prefers-contrast:more){.panel,.group,.q,.cc,.bcard,.wk{box-shadow:inset 0 0 0 1px var(--ink-3)}}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:1ms!important;animation-iteration-count:1!important;transition-duration:120ms!important;transition-delay:0ms!important}}
 </style>
 </head>
 <body>
-<header class="appbar">
-  <div class="appbar-in">
-    <div class="mark"><div class="face"></div></div>
-    <div class="wordmark">AUTOPILOT<small>GET STARTED</small></div>
-    <div class="spacer"></div>
-    <span class="human">☎ Prefer a human? 15-min call</span>
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="bar" id="bar">
+  <div class="wrap bar-in">
+    <span class="brand"><span class="mark" aria-hidden="true"></span>Otto<small>Setup</small></span>
+    <nav class="rail" id="rail" aria-label="Setup steps"></nav>
+    <span class="saved is-off" id="saved" aria-live="polite"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg><span id="saved-t">Saved on this device</span></span>
+    <span class="bar-count" id="bar-count">Step 1 of 5</span>
   </div>
+  <div class="wrap prog" id="prog" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
 </header>
-<div class="wrap">
 
-  <section style="padding-top:24px">
-    <div class="eyebrow">Setup · step 4 of 5</div>
-    <h1 class="voice">Connect your channels — <b>including the one in your pocket.</b></h1>
-    <p class="page-sub">Your brand is mapped and week one is drafted. Link where we publish, and pair Telegram — that's where every decision will find you.</p>
+<main id="main" tabindex="-1">
 
-    <div class="wiz-steps">
-      <span class="wstep done"><span class="ck">✓</span>Your site</span><span class="warrow">→</span>
-      <span class="wstep done"><span class="ck">✓</span>5 questions</span><span class="warrow">→</span>
-      <span class="wstep done"><span class="ck">✓</span>Brand fingerprint</span><span class="warrow">→</span>
-      <span class="wstep on">Connect channels</span><span class="warrow">→</span>
-      <span class="wstep">Your first week</span>
+<!-- ============ 1 · Your site ============ -->
+<section class="st" id="s1" data-step="1" aria-labelledby="s1-h">
+  <div class="wrap st-grid">
+    <div class="st-text">
+      <p class="kick">Step 1 of 5 · Your site</p>
+      <h1 class="t1" id="s1-h" tabindex="-1">Let’s start with your website.</h1>
+      <p class="lead">Otto reads it the way a new marketer would on their first morning: <b>what you sell, how you sound and what your customers say.</b></p>
+      <form class="scan" id="scan" autocomplete="off" novalidate>
+        <input id="site" type="text" inputmode="url" placeholder="yourcompany.com" aria-label="Your website" aria-describedby="scan-err" spellcheck="false" autocapitalize="off" autocorrect="off">
+        <button class="btn btn-primary" type="submit" id="scan-btn"><span class="scan-idle" id="scan-idle">Read my site</span><span class="scan-busy"><span class="spin" aria-hidden="true"></span>Reading</span></button>
+      </form>
+      <p class="scan-err" id="scan-err" aria-live="polite"></p>
+      <p class="note">Otto reads your homepage and two more pages now, and the rest once setup is done. Nothing is posted anywhere.</p>
     </div>
-  </section>
-
-  <section style="padding-top:26px">
-    <div class="wiz">
-      <div>
-        <div class="connect">
-          <div class="ccard hero">
-            <div class="cic tg">✈</div>
-            <div>
-              <div class="cn">Telegram</div>
-              <div class="cd">Approvals, daily briefings and lead confirmations arrive as one-tap cards. The dashboard stays optional.</div>
-            </div>
-            <span class="cs pill pending_approval">scan to pair</span>
-            <div class="qr">
-              <div class="qrbox" role="img" aria-label="Telegram pairing QR code"></div>
-              <div class="qt">
-                <b>Scan with your phone</b> — or open the link below.<br>
-                <span class="code">t.me/AutopilotHQBot?start=cmtm-4F7K</span>
-              </div>
-            </div>
-          </div>
-
-          <div class="ccard">
-            <div class="cic meta">IG</div>
-            <div>
-              <div class="cn">Instagram + Facebook</div>
-              <div class="cd">Connected as CMTM College · Page + professional account linked. Publishing enabled.</div>
-            </div>
-            <span class="cs ok">connected</span>
-          </div>
-
-          <div class="ccard">
-            <div class="cic li">in</div>
-            <div>
-              <div class="cn">LinkedIn</div>
-              <div class="cd">Recommended for your career-change pillar — one extra channel, same content plan.</div>
-            </div>
-            <span class="btn ghost">Connect</span>
-          </div>
-        </div>
-
-        <div class="wiz-nav">
-          <span class="btn go">Continue → your first week</span>
-          <span class="skip">Skip for now — preview in snapshot mode</span>
-        </div>
+    <div class="st-body">
+      <div class="panel" id="read">
+        <div class="panel-h"><b id="read-h">What Otto reads</b><span class="tag" id="read-tag">Not started</span></div>
+        <ol class="rl" id="rl">
+          <li data-k="open"><span class="rl-i"><svg class="ck" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg><i class="dash"></i></span><div><b>Opening your site</b><span class="rl-r"></span></div></li>
+          <li data-k="look"><span class="rl-i"><svg class="ck" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg><i class="dash"></i></span><div><b>Colours, fonts and logo</b><span class="rl-r"></span></div></li>
+          <li data-k="sell"><span class="rl-i"><svg class="ck" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg><i class="dash"></i></span><div><b>What you sell and for how much</b><span class="rl-r"></span></div></li>
+          <li data-k="proof"><span class="rl-i"><svg class="ck" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg><i class="dash"></i></span><div><b>Proof and customer words</b><span class="rl-r"></span></div></li>
+          <li data-k="draft"><span class="rl-i"><svg class="ck" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg><i class="dash"></i></span><div><b>Drafting your brand profile</b><span class="rl-r"></span></div></li>
+        </ol>
+        <p class="panel-f" id="read-now" aria-live="polite">Type your address and Otto starts reading.</p>
       </div>
-
-      <div style="display:grid;gap:20px">
-        <div class="card fp">
-          <div class="fp-head">
-            <img src="assets/agents/orion.png" alt="Orion">
-            <div>
-              <div class="ft">Brand fingerprint · CMTM College</div>
-              <div class="fs">Built from your site + 5 answers</div>
-            </div>
-          </div>
-          <div class="frow">
-            <div class="fl">Archetype</div>
-            <div class="fv">The Sage: <i>wisdom that changes lives</i></div>
-          </div>
-          <div class="frow">
-            <div class="fl">Voice</div>
-            <div class="fv">Warm, direct, proof-first. Never clinical, never salesy.</div>
-          </div>
-          <div class="frow">
-            <div class="fl">Palette</div>
-            <div class="fv">
-              <span class="sw" style="background:#2B2118"></span><span class="sw" style="background:#C9A227"></span><span class="sw" style="background:#F3EEE4"></span><span class="sw" style="background:#5B7C6F"></span>
-            </div>
-          </div>
-          <div class="frow">
-            <div class="fl">Pillars</div>
-            <div class="pillset">
-              <span class="chip">Alumni stories</span><span class="chip">Method education</span><span class="chip">Career change</span><span class="chip">Parenting</span><span class="chip">Community</span><span class="chip">+1</span>
-            </div>
-          </div>
-          <div class="frow">
-            <div class="fl">Compliance</div>
-            <div class="fv" style="color:var(--amber)">No healing claims · restricted targeting on Meta — handled automatically.</div>
-          </div>
-          <div class="depth">Your 5 answers added 14 details no website scrape can see — real student quotes, your “healing from the root” phrasing, and who this is <b>not</b> for.</div>
-        </div>
-
-        <div class="card concierge">
-          <div class="cav">L</div>
-          <div class="ct">
-            <b>Liat · your onboarding concierge</b>
-            A human reviews every new brand within 2 hours. Questions answered by a person, not a bot.
-          </div>
-        </div>
+      <div class="act" id="act1" hidden>
+        <p class="act-note" id="act1-note"></p>
+        <button class="btn btn-primary grow" type="button" id="go2">Continue</button>
       </div>
     </div>
-  </section>
+  </div>
+</section>
 
-  <footer>
-    <span>Onboarding · mockup v1 · step 4 of 5 (connect channels)</span>
-  </footer>
-</div>
+<!-- ============ 2 · Your brand ============ -->
+<section class="st" id="s2" data-step="2" aria-labelledby="s2-h" hidden>
+  <div class="wrap st-grid">
+    <div class="st-text">
+      <p class="kick">Step 2 of 5 · Your brand</p>
+      <h1 class="t1" id="s2-h" tabindex="-1">Your brand, as Otto read it.</h1>
+      <p class="lead" id="s2-lead">If anything is wrong, tap <b>Fix</b> and Otto uses your version. Every post is built on this.</p>
+      <div class="bcard" id="bcard"></div>
+    </div>
+    <div class="st-body">
+      <div class="group" id="rows"></div>
+      <div class="act">
+        <button class="btn btn-plain" type="button" data-back>Back</button>
+        <button class="btn btn-primary grow" type="button" id="go3">Looks right</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 3 · Four questions ============ -->
+<section class="st" id="s3" data-step="3" aria-labelledby="s3-h" hidden>
+  <div class="wrap st-grid">
+    <div class="st-text">
+      <p class="kick">Step 3 of 5 · Four questions</p>
+      <h1 class="t1" id="s3-h" tabindex="-1">Four things a website can’t tell Otto.</h1>
+      <p class="lead">Short answers are fine, and every one can be skipped. <b>Otto starts from sensible defaults</b> and learns the rest from what you approve and skip.</p>
+    </div>
+    <div class="st-body">
+      <form class="qs" id="qs" autocomplete="off" novalidate>
+        <fieldset class="q">
+          <legend>What’s the goal this quarter?</legend>
+          <div class="q-h"><p id="goal-hint">Otto plans the month around it.</p></div>
+          <div class="rc" role="radiogroup" aria-label="Goal this quarter" id="goal"></div>
+          <input class="field" id="goal-note" maxlength="200" placeholder="Anything specific? For example: sell out the winter bundle" aria-label="Anything specific about the goal">
+        </fieldset>
+        <fieldset class="q">
+          <legend>Monthly ad budget</legend>
+          <div class="q-h"><p id="budget-hint">Paid to Meta or Google directly, on top of Otto. “Not yet” is a fine answer: Otto starts with posts.</p></div>
+          <div class="rc" role="radiogroup" aria-label="Monthly ad budget" id="budget"></div>
+        </fieldset>
+        <fieldset class="q">
+          <legend>What do customers ask before they buy?</legend>
+          <div class="q-h"><p>The worry, the question or the sentence you hear most. Otto answers it in posts.</p></div>
+          <div class="q-quote" id="q-quote" hidden></div>
+          <textarea class="field" id="objection" maxlength="500" rows="3" aria-label="What customers ask before they buy"></textarea>
+          <div class="sug" id="obj-sug" aria-label="Common answers"></div>
+        </fieldset>
+        <fieldset class="q">
+          <legend>Anything Otto must never say?</legend>
+          <div class="q-h"><p>Words, claims or topics. Separate them with commas; Otto checks every post against them before it reaches you.</p></div>
+          <textarea class="field" id="never" maxlength="500" rows="2" placeholder="For example: cheap, miracle, a competitor’s name" aria-label="Words or claims Otto must never use"></textarea>
+          <p class="q-guard" id="q-guard" hidden><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5 5 6v5.5c0 4.2 3 7.6 7 9 4-1.4 7-4.8 7-9V6z"/><path d="m9 12 2.2 2.2L15.5 10"/></svg><span>Already covered for health brands: no cure or healing claims, and no posts that single out a condition.</span></p>
+        </fieldset>
+      </form>
+      <div class="act">
+        <button class="btn btn-plain" type="button" data-back>Back</button>
+        <button class="btn btn-primary grow" type="button" id="go4">Continue</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 4 · Connect ============ -->
+<section class="st" id="s4" data-step="4" aria-labelledby="s4-h" hidden>
+  <div class="wrap st-grid">
+    <div class="st-text">
+      <p class="kick">Step 4 of 5 · Connect</p>
+      <h1 class="t1" id="s4-h" tabindex="-1">Where Otto works. <span class="ink-2">Connect each one when you’re ready.</span></h1>
+      <p class="lead">Nothing is connected yet, and that’s fine. Otto prepares your first week now and waits for you.</p>
+      <ul class="promise">
+        <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10.5" width="14" height="10" rx="2.5"/><path d="M8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5"/></svg><span>Every connection opens the service’s own sign-in. Otto never sees or stores your password.</span></li>
+        <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="m8.4 12.3 2.4 2.4 4.8-5"/></svg><span>Nothing is published until you approve it.</span></li>
+        <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/><path d="M12 5v14" opacity="0"/><circle cx="12" cy="12" r="8.5"/></svg><span>You can remove Otto’s access from Meta or Google at any time.</span></li>
+      </ul>
+    </div>
+    <div class="st-body">
+      <div class="conn" id="conn"></div>
+      <div class="act has-legal">
+        <p class="act-legal" id="consent">By continuing, Otto starts setting up your brand. You confirm you’re setting it up for a business and agree to the <a href="legal/terms.html" target="_blank" rel="noopener">Terms</a> and the <a href="legal/dpa.html" target="_blank" rel="noopener">Data Processing Agreement</a>.</p>
+        <button class="btn btn-plain" type="button" data-back>Back</button>
+        <button class="btn btn-primary grow" type="button" id="go5" aria-describedby="consent">Continue, connect later</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 5 · First week ============ -->
+<section class="st" id="s5" data-step="5" aria-labelledby="s5-h" hidden>
+  <div class="wrap st-grid">
+    <div class="st-text">
+      <p class="kick">Step 5 of 5 · Your first week</p>
+      <h1 class="t1" id="s5-h" tabindex="-1">Your first week. <span class="ink-2">Otto starts now.</span></h1>
+      <p class="lead" id="s5-lead"></p>
+      <div class="setup" id="setup" aria-live="polite"></div>
+      <div class="act is-static" style="margin-top:8px">
+        <button class="btn btn-plain" type="button" id="edit-answers">Change answers</button>
+        <a class="btn btn-primary grow" href="index.html" id="open-app">Open Otto</a>
+      </div>
+      <p class="act-legal">By starting, you agree to the <a href="legal/terms.html" target="_blank" rel="noopener">Terms</a> and the <a href="legal/dpa.html" target="_blank" rel="noopener">Data Processing Agreement</a>.</p>
+    </div>
+    <div class="st-body">
+      <div class="notif" id="notif"></div>
+      <div class="wk" id="wk"></div>
+      <ol class="tl" id="tl"></ol>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer><div class="wrap"><span>Otto · 2026</span><span>Your answers stay on this device until setup finishes.</span><a href="legal/terms.html" target="_blank" rel="noopener">Terms</a><a href="legal/privacy.html" target="_blank" rel="noopener">Privacy</a><a href="legal/dpa.html" target="_blank" rel="noopener">Data processing agreement</a></div></footer>
+
+<script>
+/* Otto onboarding. Five steps, one state object saved to sessionStorage on every change (a refresh resumes).
+   Step 1 calls the real /otto-peek; step 5 posts everything to /otto-api/onboard and, while that route
+   isn't live (404) or can't be reached, keeps the setup on this device and says so. */
+(function () {
+'use strict';
+var d = document, W = window, h = d.documentElement;
+var $ = function (s, el) { return (el || d).querySelector(s); };
+var $$ = function (s, el) { return Array.prototype.slice.call((el || d).querySelectorAll(s)); };
+var own = function (o, k) { return o != null && Object.prototype.hasOwnProperty.call(o, k) ? o[k] : undefined; };   /* server strings as keys */
+var N = function (v) { var n = Number(v); return isFinite(n) ? n : 0; };                                                /* server numbers into markup */
+var esc = function (t) { return String(t == null ? '' : t).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); };
+var RM = W.matchMedia('(prefers-reduced-motion: reduce)').matches;
+var wait = function (ms) { return new Promise(function (r) { setTimeout(r, RM ? Math.min(ms, 60) : ms); }); };
+var backoff = function (ms) { return new Promise(function (r) { setTimeout(r, ms); }); };   /* server rate limits: real time, even with reduced motion */
+var KEY = 'otto.onboarding', STEPS = ['Your site', 'Your brand', 'Four questions', 'Connect', 'First week'];
+var HASH = ['site', 'brand', 'questions', 'connect', 'week'];
+var PEEK = ['/otto-peek'];   /* same origin only (CSP connect-src 'self'); locally the sim server proxies it */
+/* The signed-in route first: it also makes this login a member of the brand, so the app opens straight onto it. A buyer
+   who isn't signed in gets a login redirect / 401 there and goes on to the public twin, which only creates brands. */
+var ONBOARD = ['/otto-api/onboard', '/otto-onboard'];
+var CK = '<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>';
+
+/* ---------- state ---------- */
+function fresh(site) {
+  return { v: 1, step: 1, reached: 1, site: site || '', peek: null, peekMs: null, peekAt: null, peekErr: null,
+           cor: {}, ans: { goal: null, goal_note: '', budget: null, objection: '', never_say: '' },
+           ch: { meta: true, google_ads: false, telegram: false }, approvals: 'email', chTouched: {}, submit: null };
+}
+var S = fresh();
+function store(k, v) { try { if (v == null) sessionStorage.removeItem(k); else sessionStorage.setItem(k, v); return true; } catch (e) { return false; } }
+function read(k) { try { return sessionStorage.getItem(k); } catch (e) { return null; } }
+var savedT = 0;
+function save(quiet) {
+  var ok = store(KEY, JSON.stringify(S));
+  if (quiet || !ok) return;
+  var el = $('#saved'); el.classList.remove('is-off');
+  clearTimeout(savedT); savedT = setTimeout(function () { el.classList.add('is-off'); }, 2400);
+}
+function cleanDomain(v) { return String(v || '').trim().replace(/^https?:\/\//i, '').replace(/^www\./i, '').replace(/[\/?#].*$/, '').replace(/\.$/, '').toLowerCase(); }
+function validDomain(v) { return /^(?=.{4,253}$)([a-z0-9¡-￿]([a-z0-9¡-￿-]{0,61}[a-z0-9¡-￿])?\.)+[a-z¡-￿]{2,63}$/i.test(v) && !/\.(local|internal|localhost|lan)$/i.test(v); }
+(function boot() {
+  var saved = null; try { saved = JSON.parse(read(KEY) || 'null'); } catch (e) {}
+  var q = cleanDomain(new URLSearchParams(location.search).get('site'));
+  var handed = cleanDomain(read('otto.site'));
+  var want = q || handed;
+  if (saved && saved.v === 1 && (!want || saved.site === want)) S = Object.assign(fresh(), saved);
+  else S = fresh(want || (saved && saved.site) || '');
+  if (!S.peek && want) {                       // the landing may hand over its own scan result
+    try { var lp = JSON.parse(read('otto.peek') || 'null'); if (lp && !lp.error && cleanDomain(lp.url) === S.site) S.handoff = lp; } catch (e) {}
+  }
+  save(true);
+})();
+
+/* ---------- brand view: the scan with the owner's corrections on top ---------- */
+var LANG = { en: 'English', de: 'German', he: 'Hebrew', fr: 'French', es: 'Spanish', it: 'Italian', nl: 'Dutch', pt: 'Portuguese', pl: 'Polish', ro: 'Romanian', hu: 'Hungarian', sv: 'Swedish', da: 'Danish', el: 'Greek', tr: 'Turkish', ar: 'Arabic', ru: 'Russian' };
+var SOC = { instagram: 'Instagram', facebook: 'Facebook', tiktok: 'TikTok', linkedin: 'LinkedIn', youtube: 'YouTube', x: 'X', whatsapp: 'WhatsApp', telegram: 'Telegram', pinterest: 'Pinterest' };
+var CUR = { EUR: '€', USD: '$', GBP: '£', ILS: '₪', CHF: 'CHF ' };
+function cleanTitle(t) { return String(t || '').split(/\s+[|–—·:-]\s+|\s\|\s?/)[0].trim(); }
+function titleCase(s) { return s ? s.charAt(0).toUpperCase() + s.slice(1) : s; }
+function domainName(host) {   // the business part of the host, as otto_onboard.base_slug picks it (shop.acme.co.uk → Acme)
+  var l = String(host || '').split('.'), core = l.length >= 3 && /^(co|com|org|net|ac|gov|edu|or|ne|ltd|plc)$/.test(l[l.length - 2]) && l[l.length - 1].length === 2 ? l.slice(0, -2) : l.slice(0, -1);
+  return titleCase((core.length ? core[core.length - 1] : l[0]) || 'Your brand');
+}
+function known(ind) { return ind && !/unknown/i.test(ind) ? ind : ''; }
+function fontName(f) { return String(f || '').replace(/([a-z])([A-Z])/g, '$1 $2').replace(/([A-Z])([A-Z][a-z])/g, '$1 $2').trim(); }
+function sentence(q) { q = String(q || ''); var dg = (q.match(/\d/g) || []).length; return q.length >= 30 && dg / q.length < 0.06 && !/[•|]/.test(q) && q.split(/\s+/).length >= 6 && !/testimonial|compensation|results may vary|not intended|disclaimer|terms of|privacy|cookie|affiliate/i.test(q); }
+function unstar(q) { return String(q || '').replace(/[\u2605\u2606\u2729\u2B50\uFE0F]/g, '').replace(/\s{2,}/g, ' ').trim(); }
+function unwidget(q) { return String(q || '').replace(/^[\s\S]*?\bReviewer\s+\d(?:[.,]\d)?\s*\/\s*5\s+/i, '').replace(/^\d+\s+(?:day|week|month|year)s?\s+ago\s+/i, ''); }
+function customerQuotes(p) { var nm = String(p.name || cleanTitle(p.title) || '').toLowerCase(); return (p.quotes || []).map(function (q) { return unwidget(unstar(q)); }).filter(function (q) { return sentence(q) && !(nm && q.toLowerCase().indexOf(nm) === 0); }); }
+function tidy(x) { var m = /^(.{40,}?)\s+([a-z]{1,2})$/.exec(x); return m && !/^(a|an|of|to|in|on|at|by|us|we|it|is|or|as|be|do|go|me|my|no|so|up)$/.test(m[2]) ? m[1].replace(/[\s,;:–-]+$/, '') + '…' : x; }
+/* defence in depth: scan values end up in style="" and src="" (escaped, but still only what they claim to be) */
+function hexes(a) { return (Array.isArray(a) ? a : []).filter(function (x) { return typeof x === 'string' && /^#[0-9a-f]{6}$/i.test(x); }); }
+function safeLogo(u) { u = typeof u === 'string' ? u.trim() : ''; return /^https:\/\/[^\s"'<>]+$/i.test(u) || /^data:image\/png;base64,[A-Za-z0-9+\/=]+$/.test(u) ? u : ''; }
+function V() {
+  var p = S.peek || {}, c = S.cor;
+  return {
+    name: c.name || p.name || cleanTitle(p.title) || domainName(S.site),
+    description: c.description != null ? c.description : (p.description || ''),
+    industry: c.industry || known(p.industry), candidates: (p.candidates || []).map(function (x) { return x.industry; }).filter(known),
+    prices: c.prices || p.prices || [], currency: p.currency || '',
+    proof: c.proof || (p.trust || []).slice(0, 3), quote: customerQuotes(p)[0] || '', quotes: customerQuotes(p),
+    palette: hexes(c.palette || (p.palette || []).slice(0, 5)), neutrals: hexes((p.neutrals || []).slice(0, 2)),
+    fonts: c.fonts || (p.fonts || []).slice(0, 3).map(fontName), logo: c.logo_wrong ? '' : safeLogo(p.logo), logoWrong: !!c.logo_wrong,
+    language: String(c.language || (p.languages || [])[0] || 'en'), socials: p.socials && typeof p.socials === 'object' ? p.socials : {}, platform: p.platform || '', pages: N(p.pages)
+  };
+}
+var HEALTH = /cbd|hemp|cannab|clinic|medical|dental|therap|psycholog|supplement|nutrition|pharma|physio|aesthetic|med ?spa|beauty/i;
+var SHOPP = /shopify|woocommerce|magento|bigcommerce|shopware|prestashop/i;
+var LEADS = /clinic|education|legal|real estate|coaching|home|automotive|hotel|beauty|restaurant|marketing/i;
+function isShop(v) { return SHOPP.test(v.platform) || (/e-commerce|retail|supplement|nutrition|cbd/i.test(v.industry) && v.prices.length > 0); }
+function defaultGoal(v) { return isShop(v) || !LEADS.test(v.industry) ? 'sales' : 'leads'; }
+var PILLARS = [['cbd', ['Education', 'Trust and proof', 'Use cases', 'Product', 'Engagement']], ['supplement', ['Product', 'Ingredients', 'Daily routine', 'Customer stories', 'Offers']], ['restaurant', ['Dishes and seasons', 'Behind the kitchen', 'Guests and reviews', 'Events', 'Offers']], ['clinic', ['Education', 'Patient stories', 'Before and after', 'Meet the team', 'Booking']], ['education', ['Method', 'Student stories', 'Career change', 'Community', 'Enrolment']], ['e-commerce', ['Product', 'Social proof', 'How-to', 'Behind the brand', 'Offers']], ['real estate', ['Listings', 'Neighbourhood', 'Buyer education', 'Client stories', 'Market updates']], ['saas', ['Product', 'Use cases', 'Customer stories', 'Education', 'Launches']], ['fitness', ['Workouts', 'Member stories', 'Nutrition', 'Community', 'Offers']], ['beauty', ['Treatments', 'Before and after', 'Skin education', 'Team', 'Offers']], ['legal', ['Education', 'Case stories', 'FAQ', 'Team', 'Consultations']], ['hotel', ['Rooms and views', 'Local guide', 'Guest stories', 'Seasonal offers', 'Behind the scenes']], ['coaching', ['Insights', 'Client wins', 'Framework', 'Personal story', 'Programme']], ['home', ['Projects', 'Before and after', 'Tips', 'Reviews', 'Quotes']], ['automotive', ['Inventory', 'Service tips', 'Customer stories', 'Offers', 'Team']], ['marketing', ['Results', 'Playbooks', 'Client stories', 'Behind the scenes', 'Offers']]];
+function pillarsFor(ind) { var l = (ind || '').toLowerCase(), hit = PILLARS.find(function (p) { return l.indexOf(p[0]) > -1; }); return hit ? hit[1] : ['Education', 'Proof', 'Product', 'Behind the scenes', 'Engagement']; }
+var OBJ = [['supplement', ['Does it actually work?', 'Is it worth the price?', 'How does it taste?']], ['cbd', ['Is it legal where I live?', 'Will it make me high?', 'Which strength do I need?']], ['clinic', ['Does it hurt?', 'How much does it cost?', 'How long is recovery?']], ['education', ['Will this get me work?', 'Do I have time for this?', 'Is the certificate recognised?']], ['restaurant', ['Do I need to book?', 'Can you cater for allergies?', 'Is it good for groups?']], ['real estate', ['Is now a good time to buy?', 'What are the fees?', 'How long does it take?']], ['saas', ['Will it work with our tools?', 'How long is setup?', 'Is our data safe?']], ['fitness', ['I’m not fit enough to start', 'Is it too expensive?', 'What if I miss sessions?']], ['beauty', ['Does it hurt?', 'How long does it last?', 'Is it safe for my skin?']], ['legal', ['How much will it cost?', 'How long will it take?', 'Do I even have a case?']], ['hotel', ['Is it worth the price?', 'How far is it from the centre?', 'Can I cancel?']], ['coaching', ['Will this work for me?', 'Is it worth the money?', 'How much time does it take?']], ['home', ['How much will it cost?', 'How long will it take?', 'Who does the work?']], ['e-commerce', ['Is it worth the price?', 'How long is delivery?', 'Can I return it?']]];
+function objFor(ind) { var l = (ind || '').toLowerCase(), hit = OBJ.find(function (p) { return l.indexOf(p[0]) > -1; }); return hit ? hit[1] : ['Is it worth the price?', 'Why you and not someone else?', 'How soon will I see a difference?']; }
+
+/* ---------- navigation ---------- */
+var rail = $('#rail');
+rail.innerHTML = STEPS.map(function (t, i) { return '<button type="button" data-go="' + (i + 1) + '"><span class="n">' + (i + 1) + '</span><svg class="i ck" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>' + t + '</button>'; }).join('');
+function chrome() {
+  $$('button', rail).forEach(function (b, i) {
+    var n = i + 1;
+    b.disabled = n > S.reached;
+    b.classList.toggle('done', n < S.reached && n !== S.step);
+    if (n === S.step) b.setAttribute('aria-current', 'step'); else b.removeAttribute('aria-current');
+  });
+  $$('#prog i').forEach(function (el, i) { el.className = i + 1 < S.step ? 'done' : i + 1 === S.step ? 'on' : ''; });
+  $('#bar-count').textContent = 'Step ' + S.step + ' of 5';
+}
+var RENDER = {};
+function go(n, opt) {
+  opt = opt || {};
+  n = Math.max(1, Math.min(5, n));
+  if (n > S.reached) S.reached = n;
+  var from = S.step; S.step = n; save(true);
+  $$('.st').forEach(function (s) { var on = +s.dataset.step === n; s.hidden = !on; s.classList.toggle('is-in', on && from !== n); });
+  if (RENDER[n]) RENDER[n]();
+  chrome();
+  if (!opt.silent) {
+    if (opt.push !== false) history.pushState({ step: n }, '', '#' + HASH[n - 1]);
+    W.scrollTo(0, 0);
+    var t = $('#s' + n + '-h'); if (t) t.focus({ preventScroll: true });
+  }
+}
+rail.addEventListener('click', function (e) { var b = e.target.closest('button[data-go]'); if (b && !b.disabled) go(+b.dataset.go); });
+$$('[data-back]').forEach(function (b) { b.addEventListener('click', function () { go(S.step - 1); }); });
+W.addEventListener('popstate', function () {
+  var i = HASH.indexOf(location.hash.slice(1)) + 1;
+  if (i >= 1 && i <= S.reached) go(i, { push: false });
+});
+
+/* ---------- 1 · Your site: the real /otto-peek, with a real progress state ---------- */
+var siteIn = $('#site'), scanBtn = $('#scan-btn'), rl = $('#rl'), readNow = $('#read-now'), readTag = $('#read-tag');
+var ROWKEYS = ['open', 'look', 'sell', 'proof', 'draft'];
+var NOW = ['Opening ', 'Reading colours, fonts and logo', 'Working out what you sell', 'Collecting proof and customer words', 'Drafting your brand profile'];
+function li(k) { return $('li[data-k="' + k + '"]', rl); }
+function mark(i, state, result) { var el = li(ROWKEYS[i]); el.className = state || ''; if (result != null) $('.rl-r', el).innerHTML = result; }
+function resetRead() { ROWKEYS.forEach(function (k, i) { mark(i, '', ''); }); }
+function results(p) {
+  var v = V(), n = N(p.pages) || 1;
+  var sw = v.palette.concat(v.neutrals).slice(0, 6).map(function (x) { return '<i style="background:' + esc(x) + '"></i>'; }).join('');
+  return [
+    n + (n === 1 ? ' page read' : ' pages read') + (p.platform && !/unknown/i.test(p.platform) ? ' · built on ' + esc(p.platform) : ''),
+    (sw ? '<span class="rl-sw" aria-hidden="true">' + sw + '</span>' : '') + (v.palette.length ? v.palette.length + ' brand colour' + (v.palette.length === 1 ? '' : 's') : 'No brand colours found') + (v.fonts.length ? ' · ' + esc(v.fonts.slice(0, 2).join(', ')) : '') + (v.logo ? ' · logo found' : ''),
+    esc(v.industry || 'Industry not clear yet') + (v.prices.length ? ' · ' + v.prices.length + ' price' + (v.prices.length === 1 ? '' : 's') : ''),
+    (v.proof.length ? v.proof.length + ' proof point' + (v.proof.length === 1 ? '' : 's') : 'No proof found yet') + (v.quotes.length ? ' · ' + v.quotes.length + ' customer quote' + (v.quotes.length === 1 ? '' : 's') : ''),
+    'Ready for you to check'
+  ];
+}
+function showDone(p, ms) {
+  var r = results(p);
+  ROWKEYS.forEach(function (k, i) { mark(i, 'done', r[i]); });
+  readTag.textContent = S.site; readTag.className = 'tag';
+  readNow.textContent = 'Read ' + S.site + (ms == null || ms === 0 ? '' : ms < 1000 ? ' in under a second' : ' in ' + (ms / 1000).toFixed(1) + ' s') + '. Next, check what Otto found.';
+  $('#act1').hidden = false; $('#act1-note').textContent = ''; $('#go2').textContent = 'Continue';
+}
+function showFail(kind) {
+  ROWKEYS.forEach(function (k, i) { mark(i, i === 0 ? 'miss' : '', i === 0 ? 'Couldn’t read it from here' : ''); });
+  readTag.textContent = 'Not read'; readTag.className = 'tag';
+  readNow.textContent = kind === 'invalid' ? 'Check the address and read it again. If the site isn’t live yet, continue: you’ll fill in the basics next.' :
+    'Some sites turn automated visitors away. Continue anyway: you’ll fill in the basics next, and Otto tries again after setup.';
+  $('#act1').hidden = false;   /* a buyer is never stuck here: a new or offline site can still be set up by hand */
+  $('#go2').textContent = 'Continue anyway';
+}
+async function fetchPeek(domain, signal) {
+  var last = null;
+  for (var i = 0; i < PEEK.length; i++) {
+    try {
+      var res = await fetch(PEEK[i] + '?url=' + encodeURIComponent(domain), { signal: signal, cache: 'no-store' });
+      var ct = res.headers.get('content-type') || '';
+      if (ct.indexOf('json') < 0) { last = { status: res.status }; continue; }
+      var body = await res.json();
+      return { status: res.status, body: body };
+    } catch (err) { if (err && err.name === 'AbortError') throw err; last = { status: 0 }; }
+  }
+  return last || { status: 0 };
+}
+var scanning = false;
+async function runScan(domain, tries) {
+  if (scanning) return; scanning = true; tries = tries || 0;
+  var err = $('#scan-err'); err.textContent = ''; $('#scan').classList.remove('is-bad');
+  S.site = domain; S.peek = null; S.peekErr = null; S.cor = {}; save(true);
+  scanBtn.classList.add('is-busy'); scanBtn.disabled = true; $('#act1').hidden = true;
+  resetRead(); readTag.innerHTML = '<span class="spin" aria-hidden="true"></span>'; readTag.className = 'pill is-work';
+  var t0 = performance.now(), i = 0;
+  mark(0, 'on'); readNow.innerHTML = '<span class="spin" aria-hidden="true"></span><span>Opening ' + esc(domain) + '…</span>';
+  var tick = setInterval(function () {
+    var s = Math.round((performance.now() - t0) / 1000);
+    if (i < 2 && s >= (i + 1) * 2) { mark(i, 'done', ''); i++; mark(i, 'on'); }
+    readNow.innerHTML = '<span class="spin" aria-hidden="true"></span><span>' + esc(i === 0 ? NOW[0] + domain : NOW[i]) + '… <span class="tnum ink-3">' + s + ' s</span></span>';
+  }, 250);
+  var ctl = new AbortController(), to = setTimeout(function () { ctl.abort(); }, 25000), out = { status: 0 };
+  try { out = await fetchPeek(domain, ctl.signal); } catch (e) { out = { status: 0 }; }
+  clearTimeout(to); clearInterval(tick);
+  var ms = Math.round(performance.now() - t0);
+  scanning = false; scanBtn.classList.remove('is-busy'); scanBtn.disabled = false;
+  if (out.status === 429 && tries < 2) { readNow.textContent = 'One moment…'; await backoff(4200); return runScan(domain, tries + 1); }
+  if (out.status === 200 && out.body && !out.body.error) {
+    S.peek = out.body; S.peekMs = ms; S.peekAt = Date.now(); save();
+    for (; i < ROWKEYS.length; i++) { mark(i, 'on'); await wait(200); mark(i, 'done', ''); }
+    showDone(S.peek, ms);
+    $('#scan-idle').textContent = 'Read again';
+    $('#go2').focus({ preventScroll: true });
+    return;
+  }
+  if (S.handoff) { S.peek = S.handoff; S.peekAt = Date.now(); delete S.handoff; save(); showDone(S.peek, 0); readNow.textContent = 'Using the scan from a moment ago. Next, check what Otto found.'; return; }
+  S.peekErr = out.status === 404 || out.status === 400 ? 'invalid' : 'unreadable'; save();   /* 404: no such site (DNS); 400: an address Otto won't open */
+  if (out.status === 404) { err.textContent = 'Otto couldn’t find a website at ' + domain + '.'; $('#scan').classList.add('is-bad'); }
+  else if (out.status === 400) { err.textContent = 'Otto can’t open that address. Check it and try again.'; $('#scan').classList.add('is-bad'); }
+  showFail(S.peekErr);
+}
+$('#scan').addEventListener('submit', function (e) {
+  e.preventDefault();
+  var v = cleanDomain(siteIn.value);
+  if (!validDomain(v)) { $('#scan-err').textContent = v ? 'Enter a web address like yourcompany.com.' : 'Enter your website address to start.'; $('#scan').classList.add('is-bad'); siteIn.focus(); return; }
+  siteIn.value = v; runScan(v);
+});
+siteIn.addEventListener('input', function () { $('#scan').classList.remove('is-bad'); $('#scan-err').textContent = ''; });
+$('#go2').addEventListener('click', function () { go(2); });
+RENDER[1] = function () {
+  siteIn.value = S.site;
+  if (S.peek) { showDone(S.peek, S.peekMs); $('#scan-idle').textContent = 'Read again'; }
+  else if (S.peekErr) { showFail(S.peekErr); }
+};
+
+/* ---------- 2 · Your brand, with inline corrections ---------- */
+var ROWS = [
+  { k: 'name', label: 'Name' }, { k: 'description', label: 'What you sell' }, { k: 'industry', label: 'Industry' },
+  { k: 'prices', label: 'Price points' }, { k: 'proof', label: 'Proof on your site' }, { k: 'palette', label: 'Colours' },
+  { k: 'fonts', label: 'Fonts' }, { k: 'logo', label: 'Logo' }, { k: 'language', label: 'Language' }, { k: 'socials', label: 'Accounts on your site', ro: true }
+];
+var CORKEY = { logo: 'logo_wrong' };
+function none(t) { return '<span class="none">' + esc(t) + '</span>'; }
+function valueHTML(k, v) {
+  switch (k) {
+    case 'name': return esc(v.name);
+    case 'description': return v.description ? esc(v.description) : none('Not found. Add one sentence about what you sell.');
+    case 'industry': return v.industry ? esc(v.industry) : none('Not clear from the site');
+    case 'prices': return v.prices.length ? '<div class="chips">' + v.prices.map(function (x) { return '<span class="chip tnum">' + esc(x) + '</span>'; }).join('') + '</div>' : none('No prices on the site');
+    case 'proof': return v.proof.length ? '<ul>' + v.proof.map(function (x) { return '<li>' + esc(tidy(x)) + '</li>'; }).join('') + '</ul>' + (v.quote && !S.cor.proof ? '<q>' + esc(v.quote.slice(0, 180)) + '</q>' : '') : none('None found yet. Otto will ask for reviews you can quote.');
+    case 'palette': return v.palette.length || v.neutrals.length ? '<div class="sws">' + v.palette.map(sw).join('') + (v.neutrals.length && v.palette.length ? '<span class="sep" aria-hidden="true"></span>' : '') + v.neutrals.map(sw).join('') + '</div>' : none('No brand colours found');
+    case 'fonts': return v.fonts.length ? esc(v.fonts.join(' · ')) : none('Not found');
+    case 'logo': return v.logoWrong ? none('Not this one. Otto will ask you for the file.') : v.logo ? '<span class="logo-v">' + logoTile(v.logo) + '<span class="ink-2">Found on your site</span></span>' : none('Not found. Otto will ask you for the file.');
+    case 'language': return esc(own(LANG, v.language) || v.language.toUpperCase());
+    case 'socials': var ks = Object.keys(v.socials); return ks.length ? esc(ks.map(function (x) { return own(SOC, x) || x; }).join(' · ')) : none('None linked from the site');
+  }
+  return '';
+}
+function sw(x) { return '<span class="sw"><i style="background:' + esc(x) + '"></i>' + esc(x.toUpperCase()) + '</span>'; }
+function lum(hex) { var m = /^#?([0-9a-f]{6})$/i.exec(hex || ''); if (!m) return 1; var n = parseInt(m[1], 16); return (0.299 * (n >> 16) + 0.587 * ((n >> 8) & 255) + 0.114 * (n & 255)) / 255; }
+function logoTile(src) { return '<span class="bc-logo" data-logo><img src="' + esc(src) + '" alt="" referrerpolicy="no-referrer" loading="lazy" decoding="async"></span>'; }
+function corrected(k) { var ck = CORKEY[k] || k; return S.cor[ck] != null && S.cor[ck] !== false; }
+function renderRows() {
+  var v = V();
+  $('#rows').innerHTML = ROWS.map(function (r) {
+    var own = corrected(r.k);
+    var empty = /class="none"/.test(valueHTML(r.k, v)) && !own;
+    return '<div class="row" data-k="' + r.k + '"><div class="row-l">' + r.label + (own ? '<span class="tag is-own">Your correction</span>' : '') + '</div>' +
+      (r.ro ? '' : '<button class="fix" type="button" aria-expanded="false" aria-label="' + (empty ? 'Add ' : 'That’s wrong, fix ') + r.label.toLowerCase() + '">' + (empty ? 'Add' : 'Fix') + '</button>') +
+      '<div class="row-v">' + valueHTML(r.k, v) + '</div><div class="ed"><div></div></div></div>';
+  }).join('');
+  wireLogos($('#rows'));
+}
+function darkGround(tile) {
+  var v = V(), dark = v.palette.filter(function (x) { return lum(x) < 0.3; }).sort(function (a, b) { return lum(a) - lum(b); })[0];
+  tile.style.setProperty('--logo-ground', dark || '#1B1D22'); tile.classList.add('is-dark');
+}
+function wireLogos(root) {
+  $$('[data-logo] img', root).forEach(function (img) {
+    var tile = img.parentNode;
+    if (/yellow|white|weiss|light|inverse|invert|negative|reverse|knockout/i.test(img.getAttribute('src').split('?')[0].split('/').pop())) darkGround(tile);
+    img.addEventListener('error', function () { tile.classList.remove('is-dark'); tile.innerHTML = '<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="5" width="16" height="14" rx="2.5"/><path d="m4.5 16 4.5-4.5 4 4 2.5-2.5 4 4"/></svg>'; });
+    /* no pixel probe: reading the pixels needs CORS, which most sites don't send, and every refusal is a console error.
+       A white logo the file name doesn't give away keeps a hairline shadow (CSS) so it never disappears on the light tile. */
+  });
+}
+function renderCard() {
+  var v = V(), p = S.peek;
+  var strip = v.palette.length || v.neutrals.length ? '<div class="bc-strip" aria-label="Brand colours">' + v.palette.map(function (x) { return '<i style="background:' + esc(x) + '" title="' + esc(x) + '"></i>'; }).join('') + v.neutrals.map(function (x) { return '<i class="n" style="background:' + esc(x) + '" title="' + esc(x) + '"></i>'; }).join('') + '</div>' : '<div class="bc-strip is-empty">No colours yet</div>';
+  var ago = S.peekAt ? Math.max(0, Math.round((Date.now() - S.peekAt) / 60000)) : null;
+  $('#bcard').innerHTML = '<div class="bc-top">' + (v.logo ? logoTile(v.logo) : '<span class="bc-logo"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="5" width="16" height="14" rx="2.5"/><path d="m4.5 16 4.5-4.5 4 4 2.5-2.5 4 4"/></svg></span>') +
+    '<div class="bc-name"><b>' + esc(v.name) + '</b><span>' + esc([S.site, v.industry].filter(Boolean).join(' · ')) + '</span></div></div>' + strip +
+    '<div class="bc-meta">' + (v.fonts.length ? '<span><b>Type</b> ' + esc(v.fonts.slice(0, 2).join(', ')) + '</span>' : '') + '<span><b>Language</b> ' + esc(own(LANG, v.language) || v.language) + '</span>' +
+    (p ? '<span>' + (N(p.pages) || 1) + ' page' + ((N(p.pages) || 1) === 1 ? '' : 's') + ' read' + (ago != null ? (ago < 1 ? ' just now' : ago < 60 ? ' ' + ago + ' min ago' : '') : '') + '</span>' : '<span>Not read yet</span>') + '</div>';
+  wireLogos($('#bcard'));
+}
+RENDER[2] = function () {
+  var ok = !!S.peek;
+  $('#s2-h').textContent = ok ? 'Your brand, as Otto read it.' : 'Tell Otto the basics.';
+  $('#s2-lead').innerHTML = ok ? 'If anything is wrong, tap <b>Fix</b> and Otto uses your version. Every post is built on this.'
+    : 'Otto couldn’t read ' + esc(S.site || 'your site') + ' from here, so start with a name and a sentence about what you sell. <b>Otto reads the site again after setup.</b>';
+  $('#go3').textContent = ok ? 'Looks right' : 'Continue';
+  renderCard(); renderRows();
+};
+var open = null;
+function editorHTML(k, v) {
+  var cur = function (x) { return esc(x); };
+  var act = '<div class="ed-act"><button class="btn btn-primary btn-sm" type="button" data-save>Save</button><button class="btn btn-quiet btn-sm" type="button" data-cancel>Cancel</button>' + (corrected(k) ? '<button class="reset" type="button" data-reset>Use what Otto read</button>' : '') + '</div>';
+  switch (k) {
+    case 'name': return '<input class="field" data-in maxlength="80" value="' + cur(v.name) + '" aria-label="Brand name">' + act;
+    case 'description': return '<textarea class="field" data-in maxlength="400" rows="3" aria-label="What you sell">' + cur(v.description) + '</textarea><p class="ed-hint">One or two sentences, the way you’d say it to a customer.</p>' + act;
+    case 'industry':
+      var opts = v.candidates.slice(0, 3); if (v.industry && opts.indexOf(v.industry) < 0) opts.unshift(v.industry);
+      return (opts.length ? '<div class="rc sm" role="radiogroup" aria-label="Industry">' + opts.map(function (o) { return '<label><input type="radio" name="ind" value="' + esc(o) + '"' + (o === v.industry ? ' checked' : '') + '><span>' + esc(o) + '</span></label>'; }).join('') + '</div>' : '') +
+        '<input class="field" data-in maxlength="60" placeholder="Or in your words, for example: Specialty coffee roaster" aria-label="Industry in your words">' + act;
+    case 'prices': return '<input class="field" data-in maxlength="300" value="' + cur(v.prices.join(', ')) + '" aria-label="Price points"><p class="ed-hint">Separate prices with commas, for example: €29, €49 a month.</p>' + act;
+    case 'proof': return '<textarea class="field" data-in maxlength="1200" rows="4" aria-label="Proof">' + cur(v.proof.join('\n')) + '</textarea><p class="ed-hint">One per line: reviews you may quote, certificates, numbers you can back.</p>' + act;
+    case 'fonts': return '<input class="field" data-in maxlength="160" value="' + cur(v.fonts.join(', ')) + '" aria-label="Fonts"><p class="ed-hint">Separate fonts with commas.</p>' + act;
+    case 'palette':
+      return '<div class="pal-ed">' + v.palette.map(function (x) { return '<button type="button" aria-pressed="true" data-hex="' + esc(x) + '"><i style="background:' + esc(x) + '"></i>' + esc(x.toUpperCase()) + '</button>'; }).join('') + '</div>' +
+        '<div class="pal-add"><input type="color" value="' + esc(v.palette[0] || '#2447F0') + '" aria-label="Pick a colour" data-pick><input class="field" data-hexin maxlength="7" placeholder="#RRGGBB" aria-label="Colour code"><button class="btn btn-quiet btn-sm" type="button" data-add>Add</button></div>' +
+        '<p class="ed-hint">Tap a colour to leave it out. Add the ones Otto missed.</p>' + act;
+    case 'logo': return '<label class="check"><input type="checkbox" data-in' + (v.logoWrong ? ' checked' : '') + '><span>This isn’t our logo. <span class="ink-2">Otto will ask you for the file after setup.</span></span></label>' + act;
+    case 'language': return '<select class="field" data-in aria-label="Language">' + Object.keys(LANG).map(function (c) { return '<option value="' + c + '"' + (c === v.language ? ' selected' : '') + '>' + LANG[c] + '</option>'; }).join('') + '</select><p class="ed-hint">The language Otto writes your posts in.</p>' + act;
+  }
+  return act;
+}
+function closeEditor(focusFix) {
+  if (!open) return;
+  var row = open; open = null; row.classList.remove('open');
+  var b = $('.fix', row); if (b) { b.setAttribute('aria-expanded', 'false'); if (focusFix) b.focus({ preventScroll: true }); }
+  setTimeout(function () { var x = $('.ed>div', row); if (x && !row.classList.contains('open')) x.innerHTML = ''; }, RM ? 0 : 380);
+}
+function openEditor(row) {
+  if (open && open !== row) closeEditor();
+  var k = row.dataset.k, v = V();
+  $('.ed>div', row).innerHTML = '<div class="ed-in">' + editorHTML(k, v) + '</div>';
+  row.classList.add('open'); open = row;
+  $('.fix', row).setAttribute('aria-expanded', 'true');
+  var f = $('[data-in], [data-hexin], .rc input:checked, .pal-ed button', row);
+  if (f) setTimeout(function () { f.focus({ preventScroll: true }); if (f.select && f.tagName === 'INPUT' && f.type === 'text') f.select(); }, RM ? 0 : 60);
+  var r = row.getBoundingClientRect();
+  if (r.bottom > W.innerHeight - 120) setTimeout(function () { row.scrollIntoView({ block: 'nearest', behavior: RM ? 'auto' : 'smooth' }); }, 120);
+}
+function splitList(t, n) { return String(t || '').split(/[\n,;]+|\s·\s/).map(function (x) { return x.trim(); }).filter(Boolean).slice(0, n); }
+function saveEditor(row) {
+  var k = row.dataset.k, inp = $('[data-in]', row), v = V(), c = S.cor;
+  var val = inp ? (inp.type === 'checkbox' ? inp.checked : inp.value.trim()) : null;
+  switch (k) {
+    case 'name': if (val) c.name = val.slice(0, 80); break;
+    case 'description': c.description = val.slice(0, 400); break;
+    case 'industry': var pick = $('input[name=ind]:checked', row); var ind = val || (pick ? pick.value : ''); if (ind) c.industry = ind.slice(0, 60); break;
+    case 'prices': c.prices = splitList(val, 8); break;
+    case 'proof': c.proof = String(val).split('\n').map(function (x) { return x.trim(); }).filter(Boolean).slice(0, 6); break;
+    case 'fonts': c.fonts = splitList(val, 4); break;
+    case 'palette': c.palette = $$('.pal-ed button', row).filter(function (b) { return b.getAttribute('aria-pressed') === 'true'; }).map(function (b) { return b.dataset.hex.toUpperCase(); }); break;
+    case 'logo': if (val) c.logo_wrong = true; else delete c.logo_wrong; break;
+    case 'language': if (val && val !== ((S.peek && S.peek.languages || [])[0] || 'en')) c.language = val; else delete c.language; break;
+  }
+  // a "correction" equal to what the scan says is not a correction
+  var p = S.peek || {};
+  if (k === 'name' && c.name === (p.name || cleanTitle(p.title))) delete c.name;
+  if (k === 'description' && c.description === (p.description || '')) delete c.description;
+  if (k === 'industry' && c.industry === known(p.industry)) delete c.industry;
+  ['prices', 'fonts', 'proof', 'palette'].forEach(function (x) { if (k === x && JSON.stringify(c[x]) === JSON.stringify(x === 'proof' ? (p.trust || []).slice(0, 3) : x === 'palette' ? (p.palette || []).slice(0, 5).map(function (y) { return y.toUpperCase(); }) : x === 'fonts' ? (p.fonts || []).slice(0, 3).map(fontName) : (p.prices || []))) delete c[x]; });
+  save(); open = null; RENDER[2]();
+  var nb = $('.row[data-k="' + k + '"] .fix'); if (nb) nb.focus({ preventScroll: true });
+}
+$('#rows').addEventListener('click', function (e) {
+  var row = e.target.closest('.row'); if (!row) return;
+  if (e.target.closest('.fix')) return openEditor(row);
+  if (e.target.closest('[data-cancel]')) return closeEditor(true);
+  if (e.target.closest('[data-save]')) return saveEditor(row);
+  if (e.target.closest('[data-reset]')) { delete S.cor[CORKEY[row.dataset.k] || row.dataset.k]; save(); open = null; RENDER[2](); return; }
+  var pb = e.target.closest('.pal-ed button'); if (pb) { pb.setAttribute('aria-pressed', pb.getAttribute('aria-pressed') === 'true' ? 'false' : 'true'); return; }
+  if (e.target.closest('[data-add]')) {
+    var hi = $('[data-hexin]', row), hex = (hi.value.trim() || $('[data-pick]', row).value).toUpperCase();
+    if (!/^#?[0-9A-F]{6}$/.test(hex)) { hi.focus(); return; }
+    hex = hex.charAt(0) === '#' ? hex : '#' + hex;
+    if (!$('.pal-ed button[data-hex="' + hex + '"]', row)) $('.pal-ed', row).insertAdjacentHTML('beforeend', '<button type="button" aria-pressed="true" data-hex="' + hex + '"><i style="background:' + hex + '"></i>' + hex + '</button>');
+    hi.value = '';
+  }
+});
+$('#rows').addEventListener('input', function (e) { if (e.target.matches('[data-pick]')) $('[data-hexin]', e.target.closest('.row')).value = e.target.value.toUpperCase(); });
+$('#rows').addEventListener('keydown', function (e) {
+  var row = e.target.closest('.row.open'); if (!row) return;
+  if (e.key === 'Escape') { e.preventDefault(); closeEditor(true); }
+  else if (e.key === 'Enter' && e.target.matches('input.field[data-in], select[data-in]')) { e.preventDefault(); saveEditor(row); }
+  else if (e.key === 'Enter' && e.target.matches('[data-hexin]')) { e.preventDefault(); $('[data-add]', row).click(); }
+});
+$('#go3').addEventListener('click', function () { if (open) saveEditor(open); go(3); });
+
+/* ---------- 3 · Four questions ---------- */
+var GOALS = [['sales', 'More sales'], ['leads', 'More leads or bookings'], ['audience', 'A bigger audience'], ['launch', 'Launch something new']];
+function budgets() {
+  var c = own(CUR, (S.peek || {}).currency) || '€';
+  return [['not_yet', 'Not yet'], ['under_300', 'Under ' + c + '300'], ['300_1000', c + '300–1,000'], ['1000_3000', c + '1,000–3,000'], ['3000_plus', 'More than ' + c + '3,000']];
+}
+function radios(name, list, cur) { return list.map(function (o) { return '<label><input type="radio" name="' + name + '" value="' + o[0] + '"' + (o[0] === cur ? ' checked' : '') + '><span>' + esc(o[1]) + '</span></label>'; }).join(''); }
+RENDER[3] = function () {
+  var v = V(), a = S.ans, dg = defaultGoal(v);
+  if (!a.goal) a.goal = dg;
+  if (!a.budget) a.budget = 'not_yet';
+  $('#goal').innerHTML = radios('goal', GOALS, a.goal);
+  $('#goal-hint').innerHTML = a.goal === dg && !a.goalTouched ? 'Suggested from your site: <b>' + esc(GOALS.find(function (g) { return g[0] === dg; })[1].toLowerCase()) + '</b>. Otto plans the month around it.' : 'Otto plans the month around it.';
+  $('#goal-note').value = a.goal_note || '';
+  $('#budget').innerHTML = radios('budget', budgets(), a.budget);
+  var obj = $('#objection'), sug = objFor(v.industry);
+  obj.value = a.objection || ''; obj.placeholder = 'For example: “' + sug[0] + '”';
+  $('#obj-sug').innerHTML = sug.map(function (s) { return '<button type="button" aria-pressed="' + (obj.value.indexOf(s) > -1) + '">' + esc(s) + '</button>'; }).join('');
+  var q = v.quote; $('#q-quote').hidden = !q;
+  if (q) $('#q-quote').innerHTML = '<b>A customer on your site</b>“' + esc(q.slice(0, 200)) + '”';
+  $('#never').value = a.never_say || '';
+  $('#q-guard').hidden = !HEALTH.test(v.industry + ' ' + ((S.peek || {}).title || ''));
+  save(true); label4();
+};
+function label4() {
+  var a = S.ans, v = V(), any = a.goalTouched || a.budgetTouched || a.goal_note || a.objection || a.never_say;
+  $('#go4').textContent = any ? 'Continue' : 'Continue with the defaults';
+  if (a.goal !== defaultGoal(v)) a.goalTouched = true;
+}
+$('#qs').addEventListener('change', function (e) {
+  var t = e.target;
+  if (t.name === 'goal') { S.ans.goal = t.value; S.ans.goalTouched = true; $('#goal-hint').textContent = 'Otto plans the month around it.'; }
+  if (t.name === 'budget') { S.ans.budget = t.value; S.ans.budgetTouched = true; if (!S.chTouched.google_ads) S.ch.google_ads = t.value !== 'not_yet'; }
+  save(); label4();
+});
+$('#qs').addEventListener('input', function (e) {
+  var t = e.target;
+  if (t.id === 'goal-note') S.ans.goal_note = t.value;
+  if (t.id === 'objection') { S.ans.objection = t.value; $$('#obj-sug button').forEach(function (b) { b.setAttribute('aria-pressed', String(t.value.indexOf(b.textContent) > -1)); }); }
+  if (t.id === 'never') S.ans.never_say = t.value;
+  save(); label4();
+});
+$('#obj-sug').addEventListener('click', function (e) {
+  var b = e.target.closest('button'); if (!b) return;
+  var o = $('#objection'), s = b.textContent;
+  if (o.value.indexOf(s) > -1) o.value = o.value.replace(s, '').replace(/^[\s·,]+|[\s·,]+$/g, '').replace(/\s*·\s*·\s*/g, ' · ');
+  else o.value = o.value.trim() ? o.value.trim() + ' · ' + s : s;
+  o.dispatchEvent(new Event('input', { bubbles: true }));
+});
+$('#go4').addEventListener('click', function () { go(4); });
+
+/* ---------- 4 · Connect: honest states, official sign-in later ---------- */
+var G = {
+  tg: '<svg class="gly" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="M20.5 4.2 3.8 10.7c-.9.4-.9 1.1 0 1.4l4.2 1.3 1.6 5c.2.6.6.7 1 .3l2.4-2.2 4.4 3.3c.6.4 1.1.2 1.3-.6l2.9-13.7c.2-1-.4-1.5-1.1-1.3Z"/><path d="m8 13.4 9.4-6"/></svg>',
+  ig: '<svg class="gly" viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="5" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="12" cy="12" r="3.9" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="17.2" cy="6.8" r="1.1" fill="currentColor"/></svg>',
+  ads: '<svg class="gly" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="10.5" cy="10.5" r="6"/><path d="m15 15 5 5"/></svg>'
+};
+function handle(url) { return String(url || '').replace(/^https?:\/\/(www\.)?/, '').replace(/\/$/, ''); }
+RENDER[4] = function () {
+  var v = V(), s = v.socials, paid = S.ans.budget && S.ans.budget !== 'not_yet';
+  if (!S.chTouched.google_ads) S.ch.google_ads = !!paid;
+  var metaFound = [s.instagram, s.facebook].filter(Boolean).map(handle);
+  var np = '<span class="pill">Not connected</span>';
+  $('#conn').innerHTML =
+    '<div class="cc"><span class="cc-ic">' + G.tg + '</span><div class="cc-h"><b>How you approve posts</b>' + (S.approvals === 'telegram' ? '<span class="pill">Not paired</span>' : '') + '</div>' +
+      '<p class="cc-d">Posts arrive ready to approve, change or skip with one tap. Nothing goes out without your OK.</p>' +
+      '<div class="cc-how"><div class="cc-ctl"><span id="appr-l">Approve by</span><div class="seg" role="radiogroup" aria-labelledby="appr-l">' +
+        '<label><input type="radio" name="appr" value="email"' + (S.approvals === 'email' ? ' checked' : '') + '><span>Email</span></label>' +
+        '<label><input type="radio" name="appr" value="telegram"' + (S.approvals === 'telegram' ? ' checked' : '') + '><span>Telegram</span></label>' +
+        '<label><input type="radio" name="appr" value="app"' + (S.approvals === 'app' ? ' checked' : '') + '><span>The Otto app</span></label></div></div>' +
+        '<p>' + (S.approvals === 'telegram' ? '<b>Next:</b> after setup you get a one-time link that opens Otto’s bot in Telegram and pairs your phone. Until then, everything waits in the app.'
+              : S.approvals === 'email' ? 'Each morning at 08:00, one email with the posts due in the next 3 days: Approve or Skip in one tap, Change opens the post in the app. You can switch in Settings.'
+              : 'Everything waits in the app. You can switch to email or Telegram later in Settings.') + '</p></div></div>' +
+    '<div class="cc"><span class="cc-ic">' + G.ig + '</span><div class="cc-h"><b>Instagram and Facebook</b>' + np + '</div>' +
+      '<p class="cc-d">Posts, stories and reels, and the numbers behind them.</p>' + (metaFound.length ? '<p class="cc-found">Found on your site: ' + esc(metaFound.join(' · ')) + '</p>' : '') +
+      '<div class="cc-how"><div class="cc-ctl"><label class="lbl" for="ch-meta">Plan posts for Instagram and Facebook</label><span class="sw-t"><input type="checkbox" role="switch" id="ch-meta"' + (S.ch.meta ? ' checked' : '') + '><span></span></span></div>' +
+        '<p><b>Next:</b> connect from Otto with Meta’s own sign-in. You choose the Page and the Instagram account; Otto can post and read results, nothing else.</p></div></div>' +
+    '<div class="cc"><span class="cc-ic">' + G.ads + '</span><div class="cc-h"><b>Google Ads</b>' + np + '</div>' +
+      '<p class="cc-d">Search ads for people already looking for what you sell.</p>' +
+      '<div class="cc-how"><div class="cc-ctl"><label class="lbl" for="ch-gads">Plan search ads</label><span class="sw-t"><input type="checkbox" role="switch" id="ch-gads"' + (S.ch.google_ads ? ' checked' : '') + '><span></span></span></div>' +
+        '<p>' + (paid ? '<b>Next:</b> connect your Google Ads account with Google’s own sign-in. Otto proposes each campaign; nothing spends before you approve it.' : 'You said no ad budget yet, so this can wait. Switch it on whenever you’re ready.') + '</p></div></div>';
+  S.ch.telegram = S.approvals === 'telegram';
+  save(true);
+};
+$('#conn').addEventListener('change', function (e) {
+  var t = e.target;
+  if (t.name === 'appr') { S.approvals = t.value; S.ch.telegram = t.value === 'telegram'; RENDER[4](); $('#conn input[name=appr]:checked').focus(); }
+  if (t.id === 'ch-meta') { S.ch.meta = t.checked; S.chTouched.meta = true; }
+  if (t.id === 'ch-gads') { S.ch.google_ads = t.checked; S.chTouched.google_ads = true; }
+  save();
+});
+$('#go5').addEventListener('click', function () { go(5); submit(); });
+
+/* ---------- 5 · First week: the preview, and setup on the server ---------- */
+var DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'], LONG = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+var MON = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+var FMT = { post: 'Post', carousel: 'Carousel', reel: 'Reel', story: 'Story', video: 'Video' }, PLAT = { ig: 'Instagram', fb: 'Facebook', li: 'LinkedIn' };
+var SLOTS = { 1: ['09:00', '18:00'], 2: ['09:00', '18:00'], 3: ['09:00', '18:00'], 4: ['09:00', '18:00'], 5: ['09:00', '18:00'], 6: ['10:00'], 0: ['09:00'] };
+var MIX = [['education', [.4, .4, .2]], ['coaching', [.4, .4, .2]], ['legal', [.5, .35, .15]], ['saas', [.4, .4, .2]], ['restaurant', [.4, .15, .45]], ['hotel', [.4, .15, .45]], ['fitness', [.35, .2, .45]], ['beauty', [.4, .2, .4]], ['real estate', [.4, .3, .3]], ['e-commerce', [.45, .3, .25]], ['cbd', [.45, .35, .2]]];
+function roundEven(x) { var r = Math.round(x); return Math.abs(x % 1) === 0.5 && r % 2 ? r - 1 : r; }
+function pattern(ind) {     // otto_plan.mix_pattern: largest remainder, then spread out
+  var l = (ind || '').toLowerCase(), m = (MIX.find(function (x) { return l.indexOf(x[0]) > -1; }) || [0, [.5, .3, .2]])[1];
+  var F = ['post', 'carousel', 'reel'], n = 10, c = m.map(function (x) { return roundEven(x * n); });
+  while (c[0] + c[1] + c[2] < n) c[0]++;
+  while (c[0] + c[1] + c[2] > n) c[c.indexOf(Math.max.apply(null, c))]--;
+  var acc = [0, 0, 0], seq = [];
+  for (var i = 0; i < n; i++) { for (var j = 0; j < 3; j++) acc[j] += c[j] / n; var k = acc.indexOf(Math.max.apply(null, acc)); acc[k] -= 1; seq.push(F[k]); }
+  return seq;
+}
+function at(day, hm) { var t = new Date(day); t.setHours(+hm.slice(0, 2), +hm.slice(3), 0, 0); return t; }
+function firstReview(now) { now = now || new Date(); var t = at(now, '07:35'); while (t - now < 6 * 3600e3) t.setDate(t.getDate() + 1); return t; }
+function isoWeek(dt) { var t = new Date(Date.UTC(dt.getFullYear(), dt.getMonth(), dt.getDate())), n = t.getUTCDay() || 7; t.setUTCDate(t.getUTCDate() + 4 - n); var y = new Date(Date.UTC(t.getUTCFullYear(), 0, 1)); return Math.ceil(((t - y) / 864e5 + 1) / 7); }
+function localWeek() {       // mirrors otto_plan's slot logic when the server hasn't answered
+  var v = V(), start = firstReview(), end = new Date(start.getTime() + 7 * 864e5), pil = pillarsFor(v.industry), pat = pattern(v.industry);
+  var out = [], idx = 0, per = {}, day = new Date(start); day.setHours(0, 0, 0, 0);
+  for (; day < end; day.setDate(day.getDate() + 1)) {
+    var dow = day.getDay(), wk = isoWeek(day);
+    if ((dow === 1 || dow === 3 || dow === 5) && S.ch.meta) { var st = at(day, '12:00'); if (st > start && st <= end) out.push({ t: st, platform: 'ig', format: 'story', pillar: pil[(idx + 2) % pil.length] }); }
+    SLOTS[dow].forEach(function (hm) {
+      if ((per[wk] || 0) >= 12) return;
+      var t = at(day, hm); if (t <= start || t > end) return;
+      var f = pat[idx % pat.length], pl = ['fb', 'ig'][idx % 2]; if (f === 'reel' || f === 'carousel') pl = 'ig';
+      out.push({ t: t, platform: pl, format: f, pillar: pil[idx % pil.length] }); per[wk] = (per[wk] || 0) + 1; idx++;
+    });
+  }
+  return { start: start, items: out.sort(function (a, b) { return a.t - b.t; }), pillars: pil };
+}
+function wall(iso) {          // the server's times are the brand's wall clock; read them as such (slots carry no offset, first_review does)
+  var m = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/.exec(String(iso || ''));
+  return m ? new Date(+m[1], +m[2] - 1, +m[3], +m[4], +m[5]) : null;
+}
+function serverWeek(res) {
+  var start = wall(res.first_review) || firstReview();
+  return { start: start, items: (res.first_week || []).map(function (x) { return { t: wall(x.slot), platform: x.platform, format: x.format, pillar: x.pillar }; }).filter(function (x) { return x.t; }), pillars: res.pillars || [] };
+}
+function hm(t) { return String(t.getHours()).padStart(2, '0') + ':' + String(t.getMinutes()).padStart(2, '0'); }
+function dayWord(t, now) { now = now || new Date(); var a = new Date(now); a.setHours(0, 0, 0, 0); var b = new Date(t); b.setHours(0, 0, 0, 0); var n = Math.round((b - a) / 864e5); return n === 0 ? 'Today' : n === 1 ? 'Tomorrow' : LONG[t.getDay()]; }
+RENDER[5] = function () {
+  var v = V(), res = S.submit && S.submit.status === 'ok' ? S.submit.res : null;
+  var W7 = res && res.first_week ? serverWeek(res) : localWeek();
+  var items = W7.items, posts = items.filter(function (x) { return x.format !== 'story'; }), stories = items.length - posts.length;
+  var start = W7.start, first = items.filter(function (x) { return x.t - start <= 48 * 3600e3; });
+  var fd = []; first.forEach(function (x) { var k = LONG[x.t.getDay()]; if (fd.indexOf(k) < 0) fd.push(k); });
+  var firstDays = fd.join(' and ');
+  $('#s5-lead').innerHTML = dayWord(start) + ' at 07:35, your first posts are on your phone, ready for a tap. <b>Nothing goes out without your approval.</b>';
+  $('#notif').innerHTML = '<span class="mark" aria-hidden="true"></span><div><b>Otto · ' + esc(res && res.name || v.name) + '</b><span>' + (first.length ? first.length + (first.length === 1 ? ' post ready' : ' posts ready') + ' for review' : 'Your first posts are ready for review') + '</span></div><time>' + esc(dayWord(start)) + ' 07:35</time>';
+  // the week strip
+  var days = [], d0 = new Date(start); d0.setHours(0, 0, 0, 0);
+  for (var j = 0; j < 7; j++) { var x = new Date(d0); x.setDate(d0.getDate() + j); days.push(x); }
+  $('#wk').innerHTML = '<div class="wk-h"><b>What Otto prepares</b><span>' + posts.length + (posts.length === 1 ? ' post' : ' posts') + (stories ? ' · ' + stories + (stories === 1 ? ' story' : ' stories') : '') + ' · ' + days[0].getDate() + ' ' + MON[days[0].getMonth()].slice(0, 3) + ' – ' + days[6].getDate() + ' ' + MON[days[6].getMonth()].slice(0, 3) + '</span></div>' +
+    '<div class="days">' + days.map(function (dy) {
+      var its = items.filter(function (x) { return x.t.toDateString() === dy.toDateString(); });
+      return '<div class="day' + (its.length ? '' : ' empty') + '"><span class="dn"><b>' + DAYS[dy.getDay()] + '</b> ' + dy.getDate() + '</span><div class="slots">' + its.map(function (x) {
+        var label = own(FMT, x.format) || x.format;
+        return '<span class="pc ' + esc(x.format) + '" data-band="' + (x.t.getHours() < 11 ? 1 : x.t.getHours() < 15 ? 2 : 3) + '" title="' + esc(label + ' · ' + (own(PLAT, x.platform) || x.platform) + ' · ' + x.pillar) + '"><span>' + hm(x.t) + '</span><em>' + esc(label) + '</em><span class="sr"> on ' + esc(own(PLAT, x.platform) || x.platform) + ', ' + esc(x.pillar) + '</span></span>';
+      }).join('') + '</div></div>';
+    }).join('') + '</div>' +
+    '<p class="wk-f"><b>Pillars:</b> ' + esc((W7.pillars.length ? W7.pillars : pillarsFor(v.industry)).join(', ')) + '. ' + (res ? 'Slots from your plan on Otto’s server.' : 'Slots are a preview; Otto sets the final hours from when your customers are online.') + '</p>';
+  var metaOn = S.ch.meta;
+  $('#tl').innerHTML = [
+    ['Today', 'Otto reads the rest of <strong>' + esc(S.site || 'your site') + '</strong>, writes your brand profile and plans the month.'],
+    [dayWord(start) + (S.approvals === 'email' ? ' 08:00' : ' 07:35'), 'Your first review: <strong>' + first.length + (first.length === 1 ? ' post' : ' posts') + (firstDays ? ' for ' + esc(firstDays) : '') + '</strong> to approve, change or skip' + (S.approvals === 'telegram' ? ', in Telegram once paired, or in the app.' : S.approvals === 'email' ? ', by email at 08:00, or in the app.' : ', in the app.')],
+    ['Every morning', 'A short report at 07:35: what went out, what it cost, what it brought in.'],
+    [metaOn ? 'When you connect' : 'Later', metaOn ? 'Approved posts publish to Instagram and Facebook in their slots. Until then they wait for you.' : 'Switch on Instagram and Facebook in Otto whenever you want posts to go out.']
+  ].map(function (r) { return '<li><b>' + r[0] + '</b><span>' + r[1] + '</span></li>'; }).join('');
+  renderSetup();
+};
+function renderSetup() {
+  var el = $('#setup'), s = S.submit || { status: 'sending' }, v = V();
+  el.className = 'setup is-' + (s.status === 'ok' ? 'ok' : s.status === 'local' || s.status === 'exists' ? 'local' : s.status === 'error' ? 'err' : 'work');
+  if (s.status === 'sending') el.innerHTML = '<span class="spin" aria-hidden="true"></span><div><b>Setting up ' + esc(v.name) + '</b>Reading the rest of the site and writing your brand profile. This takes a moment.</div>';
+  else if (s.status === 'ok') { var r = s.res || {}; el.innerHTML = CK + '<div><b>' + esc(r.name || v.name) + ' is set up</b>' + (r.scan && r.scan.source === 'site' ? N(r.scan.pages) + ' pages read. ' : '') + 'Brand profile, strategy and your answers are saved on Otto’s server.</div>'; }
+  else if (s.status === 'exists') el.innerHTML = '<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10.5" width="14" height="10" rx="2.5"/><path d="M8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5"/></svg><div><b>' + esc(S.site) + ' is already set up with Otto</b>' + (s.signedIn ? 'It belongs to another sign-in. Ask whoever set it up to add you.' : 'Sign in to Otto to change it.') + ' Your answers are still on this device.</div>';
+  else if (s.status === 'local') el.innerHTML = '<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="3.5" width="12" height="17" rx="2.5"/><path d="M10.5 17.5h3"/></svg><div><b>Saved on this device</b>Otto will finish setup when you connect.' + (s.detail ? ' <span class="ink-3">' + esc(s.detail) + '</span>' : '') + '</div>';
+  else el.innerHTML = '<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5v5.5M12 16.2v.3"/></svg><div><b>Otto couldn’t save this</b>' + esc(s.detail || 'Something went wrong.') + ' Your answers are still on this device.<br><button class="btn btn-quiet btn-sm" type="button" id="retry">Try again</button></div>';
+  var rb = $('#retry'); if (rb) rb.addEventListener('click', function () { submit(true); });
+}
+function payload() {
+  var a = S.ans, tz = ''; try { tz = Intl.DateTimeFormat().resolvedOptions().timeZone || ''; } catch (e) {}
+  return { site: S.site, answers: { goal: a.goal, goal_note: a.goal_note, budget: a.budget, objection: a.objection, never_say: a.never_say, tz: tz,
+    corrections: S.cor, channels: { meta: !!S.ch.meta, google_ads: !!S.ch.google_ads, telegram: S.approvals === 'telegram' }, approvals: S.approvals } };
+}
+var sending = false;
+async function submit(force) {
+  if (!S.site || sending) { if (!S.site) { S.submit = { status: 'local', detail: 'Add your website address in step 1 first.' }; renderSetup(); } return; }
+  var body = JSON.stringify(payload());
+  if (!force && S.submit && S.submit.status === 'ok' && S.submit.body === body) { renderSetup(); return; }
+  sending = true; S.submit = { status: 'sending' }; renderSetup();
+  var out;
+  for (var attempt = 0; attempt < 3; attempt++) {
+    try {
+      var res = null, json = null, u;
+      for (u = 0; u < ONBOARD.length; u++) {
+        var ctl = new AbortController(), to = setTimeout(function () { ctl.abort(); }, 60000);
+        try { res = await fetch(ONBOARD[u], { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: body, credentials: 'same-origin', signal: ctl.signal, redirect: 'manual' }); }
+        finally { clearTimeout(to); }
+        json = null; try { if ((res.headers.get('content-type') || '').indexOf('json') > -1) json = await res.json(); } catch (e) {}
+        /* not signed in (login redirect, 401) or not served on this host (404 / 405 / an HTML page): the next route */
+        if (u < ONBOARD.length - 1 && (res.type === 'opaqueredirect' || !json || res.status === 401 || res.status === 404 || res.status === 405)) continue;
+        break;
+      }
+      if (res.ok && json && json.ok) out = { status: 'ok', res: json, body: body };
+      else if (res.status === 409 && json) out = { status: 'exists', signedIn: ONBOARD[Math.min(u, ONBOARD.length - 1)] === '/otto-api/onboard' };
+      else if (res.status === 400 && json) out = { status: 'error', detail: String(json.error || 'The server refused the answers.').replace(/^./, function (c) { return c.toUpperCase(); }).replace(/\.?$/, '.') };
+      else if ((res.status === 429 || res.status === 503) && attempt < 2) { await backoff(res.status === 429 ? 21000 : 4000); continue; }
+      else out = { status: 'local' };
+    } catch (e) { out = { status: 'local' }; }
+    break;
+  }
+  sending = false; S.submit = out; save(); if (S.step === 5) RENDER[5]();
+}
+$('#edit-answers').addEventListener('click', function () { go(3); });
+$('#open-app').addEventListener('click', function () { store('otto.site', S.site); });
+
+/* ---------- start ---------- */
+var start = HASH.indexOf(location.hash.slice(1)) + 1;
+var n = start >= 1 && start <= S.reached ? start : S.step;
+history.replaceState({ step: n }, '', '#' + HASH[n - 1]);
+go(n, { silent: true });
+if (n === 5 && (!S.submit || S.submit.status === 'sending')) submit();
+if (n === 1 && S.site && !S.peek && !S.peekErr) { siteIn.value = S.site; runScan(S.site); }
+else if (n === 1 && !S.site) siteIn.focus({ preventScroll: true });
+})();
+</script>
+<script>(function(n,L){var o={p:L.pathname.replace(/[^A-Za-z0-9\/._~-]/g,'').slice(0,120),ev:[{e:'view'}]};if(n.doNotTrack==='1'||n.globalPrivacyControl===true)o.anon=1;try{n.sendBeacon('/otto-track',JSON.stringify(o))}catch(e){}})(navigator,location);</script>
 </body>
 </html>

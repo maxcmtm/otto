@@ -1,0 +1,301 @@
+<!doctype html>
+<html lang="{{lang}}" dir="{{dir}}" class="{{html_class}}">
+<head><meta charset="utf-8">
+<!-- product_hero: the packshot is the hero, on a designed brand ground, with 2-4 benefit callouts pointing at it.
+     data: headline* (*word* = accent), photo* (the packshot; a transparent cutout works best),
+           callouts (2-4 short strings, about 30 characters each), price ("$1.78 a day"), price_note ("$49.99 per 28
+           packs"), rating (4.8 → five stars), rating_line ("4.8 from 100,000 reviews"), kicker, tag, cta,
+           theme: brand (default: deep ground lit in the accent) | light (paper) | accent | dark,
+           callout_style: pill (default) | line (text + hairline), photo_pos (framed photos only).
+     A cutout (transparent PNG/WebP) is trimmed to its pixels, stood on a contact shadow and never scaled past 1.6x
+     its pixel size; a photo with a background gets a rounded frame. Callout pointers land on the product's own
+     silhouette. Feed, square, story (story keeps copy between 270px and 1248px: the top 14 % and bottom 35 % carry the Stories/Reels UI). -->
+{{&_head}}
+<style>
+/* story: copy only between the top 14 % and the bottom 35 % (Meta's unified Stories/Reels safe zone, 2026); the product
+   (image) may run into the bottom band */
+html.f-story .ad{--top:270px;--bot:672px}
+.ad{--shc:#000;--line:rgba(255,255,255,.5);--glow:color-mix(in srgb,var(--accent) 78%,#fff);--glow-a:.62;
+  --pool:rgba(255,255,255,.07);--pill-bg:rgba(255,255,255,.1);--pill-bd:rgba(255,255,255,.24);--pill-fg:#fff;--dot:var(--accent-on-dark)}
+.t-brand{background:var(--deep);color:var(--on-deep)}
+.t-brand .muted,.t-brand .host{color:var(--mut-dark)}
+.t-brand em{color:var(--accent-on-dark)}
+.t-brand .kicker::before{background:var(--accent-on-dark)}
+.t-brand .cta{border-color:var(--accent-on-dark)}
+.t-brand .stars .on{fill:var(--accent-on-dark)}
+.t-light{--shc:color-mix(in srgb,var(--ink) 35%,#000);--line:rgba(var(--ink-rgb),.34);--glow:#fff;--glow-a:.95;--pool:rgba(var(--ink-rgb),.05);
+  --pill-bg:#fff;--pill-bd:rgba(var(--ink-rgb),.08);--pill-fg:var(--ink);--dot:var(--accent)}
+html.em-marker .t-light{--dot:var(--marker)}
+.t-accent{--shc:color-mix(in srgb,var(--ink) 50%,#000);--line:currentColor;--glow:#fff;--glow-a:.34;--pool:rgba(255,255,255,.1);
+  --pill-bg:var(--surface);--pill-bd:transparent;--pill-fg:var(--ink);--dot:var(--surface)}
+.t-dark{--glow:color-mix(in srgb,var(--deep) 60%,#fff);--glow-a:.3}
+
+/* ground: a seamless sweep, lit behind the product (the glow is placed by the script) */
+.ground{position:absolute;inset:0;z-index:0;pointer-events:none}
+.t-brand .ground{background:radial-gradient(130% 70% at 50% 108%,rgba(0,0,0,.28),rgba(0,0,0,0) 60%),
+  radial-gradient(120% 60% at 50% -10%,rgba(0,0,0,.22),rgba(0,0,0,0) 60%)}
+.t-light .ground{background:linear-gradient(to bottom,var(--surface) 55%,color-mix(in srgb,var(--surface) 70%,var(--surface2)))}
+.glow{position:absolute;border-radius:50%;opacity:var(--glow-a);z-index:0;
+  background:radial-gradient(closest-side,var(--glow),color-mix(in srgb,var(--glow) 40%,transparent) 55%,transparent)}
+.pool{position:absolute;border-radius:50%;z-index:1;background:radial-gradient(closest-side,var(--pool),transparent)}
+
+/* copy */
+.head{flex:0 1 auto;align-items:center;text-align:center;padding-top:calc(34px*var(--k))}
+.head .kicker{justify-content:center;margin-bottom:calc(22px*var(--k))}
+.hl{font-size:calc(84px*var(--k));max-width:940px;margin-inline:auto}
+.hl em{padding:0 !important}
+html.f-square .hl{font-size:calc(74px*var(--k))}
+html[dir=rtl] .hl{font-size:calc(80px*var(--k))}
+.rating{display:flex;align-items:center;justify-content:center;gap:14px;margin-top:calc(24px*var(--k));
+  font:500 calc(22px*var(--k))/1.2 var(--f-text);letter-spacing:.005em}
+html[dir=rtl] .rating{font-size:calc(24px*var(--k))}
+.rating .stars svg{width:calc(24px*var(--k));height:calc(24px*var(--k))}
+.rating .stars{gap:4px}
+
+/* stage: product + callouts, laid out by the script once the copy has settled */
+.stage{position:relative;flex:1 1 0;min-height:calc(430px*var(--k));margin-top:calc(26px*var(--k))}
+html.f-square .stage{min-height:360px;margin-top:18px}
+.pk{position:absolute;z-index:2;left:18%;right:18%;top:2%;bottom:8%}
+.pk-img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain}
+.ad.is-cut .pk-img{object-fit:fill;filter:drop-shadow(0 16px 22px color-mix(in srgb,var(--shc) 22%,transparent)) drop-shadow(0 2px 3px color-mix(in srgb,var(--shc) 16%,transparent))}
+.ad.is-framed .pk{border-radius:calc(30px*var(--k));overflow:hidden;background:var(--surface2);
+  box-shadow:0 44px 70px -34px color-mix(in srgb,var(--shc) 55%,transparent),0 2px 6px color-mix(in srgb,var(--shc) 12%,transparent)}
+.ad.is-framed .pk-img{object-fit:cover}
+.ad.t-brand.is-framed .pk,.ad.t-dark.is-framed .pk{box-shadow:0 44px 80px -30px rgba(0,0,0,.7),0 0 0 1px rgba(255,255,255,.08)}
+.cs{position:absolute;border-radius:50%;z-index:1;pointer-events:none}
+.cs.amb{--a:46%;background:radial-gradient(closest-side,color-mix(in srgb,var(--shc) var(--a),transparent),
+  color-mix(in srgb,var(--shc) calc(var(--a)*.35),transparent) 55%,transparent);filter:blur(5px)}
+.cs.core{--a:66%;background:radial-gradient(closest-side,color-mix(in srgb,var(--shc) var(--a),transparent),transparent)}
+.t-light .cs.amb{--a:34%}
+.t-light .cs.core{--a:58%}
+.ad:not(.is-cut) .cs,.ad:not(.is-cut) .pool{display:none}
+
+/* callouts: a pill (or plain label) + a hairline to a dot on the product */
+.cos{position:absolute;inset:0;z-index:3}
+.co{position:absolute;left:0;top:0;display:flex;align-items:center;visibility:hidden}
+.co-row .cos{inset:auto 0 calc(12px*var(--k)) 0;display:flex;flex-wrap:wrap;justify-content:center;gap:12px 14px}
+.co-row .co{position:static}
+.co-row .co .ln,.co-row .co .dt{display:none}
+.co-line.co-row .cos{gap:10px 34px}
+.ad.pk-done .co{visibility:visible}
+.co .tx{display:block;font:600 calc(24px*var(--k))/1.22 var(--f-text);letter-spacing:-.004em;text-align:center;text-wrap:balance;
+  padding:calc(15px*var(--k)) calc(24px*var(--k));border-radius:calc(30px*var(--k));background:var(--pill-bg);color:var(--pill-fg);
+  box-shadow:inset 0 0 0 1.5px var(--pill-bd);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px)}
+html[dir=rtl] .co .tx{font-size:calc(25px*var(--k));letter-spacing:0;line-height:1.3;font-weight:700}
+.t-light .co .tx{box-shadow:0 10px 26px -12px rgba(var(--ink-rgb),.35),inset 0 0 0 1px var(--pill-bd)}
+.co-line .co .tx{background:none;box-shadow:none;padding:0;border-radius:0;-webkit-backdrop-filter:none;backdrop-filter:none;
+  color:inherit;font-size:calc(25px*var(--k));text-align:start}
+.co-line .co.l .tx{text-align:right}
+.co-line .co.r .tx{text-align:left}
+.co .ln{position:absolute;top:50%;height:2px;margin-top:-1px;background:var(--line);z-index:-1}
+.co .dt{position:absolute;top:50%;width:14px;height:14px;margin:-7px 0 0 -7px;border-radius:50%;background:var(--dot);
+  box-shadow:0 0 0 4px rgba(255,255,255,.9),0 3px 8px rgba(0,0,0,.25)}
+.t-light .co .dt{box-shadow:0 0 0 4px #fff,0 3px 8px rgba(var(--ink-rgb),.25)}
+
+/* foot: price chip + CTA */
+.foot{align-items:center;padding-top:calc(26px*var(--k))}
+.price{display:flex;align-items:center;gap:18px;min-width:0}
+.pchip{display:inline-flex;align-items:center;white-space:nowrap;font:750 calc(30px*var(--k))/1 var(--f-display);letter-spacing:-.02em;
+  padding:calc(14px*var(--k)) calc(24px*var(--k));border-radius:999px;background:var(--accent);color:var(--accent-ink)}
+html[dir=rtl] .pchip{letter-spacing:0;font-weight:800}
+html.em-marker .t-light .pchip{background:var(--marker);color:var(--ink)}
+.t-brand .pchip,.t-dark .pchip{background:var(--accent-on-dark);color:var(--deep)}
+.t-accent .pchip{background:var(--ink);color:var(--surface)}
+.pnote{font:500 calc(19px*var(--k))/1.3 var(--f-text);max-width:300px}
+html[dir=rtl] .pnote{font-size:calc(21px*var(--k))}
+</style>
+</head>
+<body>
+<div class="ad t-{{#if theme}}{{theme}}{{else}}brand{{/if}} {{#if callout_style}}co-{{callout_style}}{{/if}}">
+  <div class="ground"><div class="glow"></div><div class="pool"></div></div>
+  <div class="frame">
+    {{> top}}
+    <div class="box head" data-box>
+      {{#if kicker}}<div class="kicker"><span>{{kicker}}</span></div>{{/if}}
+      <h1 class="display hl" data-fit="1" data-min="44" data-lines="3">{{headline}}</h1>
+      {{#if rating_line}}<div class="rating">{{> stars}}<span>{{rating_line}}</span></div>{{else}}{{#if _stars}}<div class="rating">{{> stars}}</div>{{/if}}{{/if}}
+    </div>
+    <div class="stage">
+      <div class="cs amb"></div><div class="cs core"></div>
+      {{#if photo}}<div class="pk"><img class="pk-img" src="{{photo}}" style="object-position:{{photo_pos}}" alt=""></div>{{/if}}
+      <div class="cos">{{#each callouts}}<div class="co"><span class="ln"></span><span class="dt"></span><span class="tx">{{.}}</span></div>{{/each}}</div>
+    </div>
+    <footer class="bar foot">
+      {{#if price}}<div class="price"><span class="pchip"><span>{{price}}</span></span>{{#if price_note}}<span class="pnote muted">{{price_note}}</span>{{/if}}</div>
+      {{#if cta}}<span class="cta">{{cta}}</span>{{else}}{{#if brand.host}}<span class="host">{{brand.host}}</span>{{/if}}{{/if}}
+      {{else}}{{#if cta}}<span class="cta">{{cta}}</span>{{else}}<span></span>{{/if}}
+      {{#if brand.host}}<span class="host">{{brand.host}}</span>{{/if}}{{/if}}
+    </footer>
+  </div>
+</div>
+<script>
+/* PK:begin */
+/* Packshot layout (shared by product_hero, macro_hero, ingredients). Runs after _fit.js has settled the copy.
+   scan(): the product's real pixels (alpha bbox, silhouette mask), whether it is a cutout, and its natural size. */
+var PK = (function () {
+  var D = document.documentElement;
+  function after(cb) {
+    var t = 0;
+    (function wait() {
+      if (!D.classList.contains('fitted') && t++ < 200) return setTimeout(wait, 25);
+      var imgs = [].slice.call(document.querySelectorAll('img'));
+      Promise.all(imgs.map(function (i) {
+        return i.complete ? 1 : new Promise(function (r) { i.addEventListener('load', r); i.addEventListener('error', r); });
+      })).then(function () {
+        try { cb(); } catch (e) { D.classList.add('pk-error'); }
+        var ad = document.querySelector('.ad'); if (ad) ad.classList.add('pk-done');
+      });
+    })();
+  }
+  function scan(img) {
+    var nw = img.naturalWidth, nh = img.naturalHeight;
+    var r = { nw: nw, nh: nh, x: 0, y: 0, w: nw, h: nh, cut: D.classList.contains('has-cutout'), mask: null, lum: .5 };
+    try {
+      var s = Math.min(1, 360 / Math.max(nw, nh)), cw = Math.max(1, Math.round(nw * s)), ch = Math.max(1, Math.round(nh * s));
+      var c = document.createElement('canvas'); c.width = cw; c.height = ch;
+      var g = c.getContext('2d'); g.drawImage(img, 0, 0, cw, ch);
+      var d = g.getImageData(0, 0, cw, ch).data, m = new Uint8Array(cw * ch);
+      var x0 = cw, y0 = ch, x1 = -1, y1 = -1, clear = 0, border = 0, lum = 0, n = 0, sr = 0, sg = 0, sb = 0;
+      for (var j = 0; j < ch; j++) for (var i = 0; i < cw; i++) {
+        var p = (j * cw + i) * 4, a = d[p + 3];
+        if (a > 200) {                       // the product's solid pixels: a baked-in soft shadow is not the product
+          m[j * cw + i] = 1; if (i < x0) x0 = i; if (i > x1) x1 = i; if (j < y0) y0 = j; if (j > y1) y1 = j;
+          lum += (.2126 * d[p] + .7152 * d[p + 1] + .0722 * d[p + 2]) / 255; n++; sr += d[p]; sg += d[p + 1]; sb += d[p + 2];
+        }
+        if (i === 0 || j === 0 || i === cw - 1 || j === ch - 1) { border++; if (a < 16) clear++; }
+      }
+      r.cut = clear / border > .03;
+      if (r.cut && x1 >= 0) { r.x = x0 / s; r.y = y0 / s; r.w = (x1 - x0 + 1) / s; r.h = (y1 - y0 + 1) / s; }
+      r.mask = m; r.mw = cw; r.mh = ch; r.s = s; r.lum = n ? lum / n : .5;
+      if (n) r.color = '#' + [sr, sg, sb].map(function (v) { return ('0' + Math.round(v / n).toString(16)).slice(-2); }).join('');
+    } catch (e) { /* a cross-origin image: whole-image box, the renderer's cutout test */ }
+    return r;
+  }
+  // x (natural px) of the silhouette edge on row yN, from the left (side -1) or the right (side 1)
+  function edge(r, yN, side) {
+    if (!r.mask || !r.cut) return side < 0 ? r.x : r.x + r.w;
+    var j0 = Math.round(yN * r.s), best = null;
+    for (var dj = -2; dj <= 2; dj++) {
+      var j = Math.max(0, Math.min(r.mh - 1, j0 + dj));
+      if (side < 0) { for (var i = 0; i < r.mw; i++) if (r.mask[j * r.mw + i]) { best = best === null ? i : Math.min(best, i); break; } }
+      else { for (var i2 = r.mw - 1; i2 >= 0; i2--) if (r.mask[j * r.mw + i2]) { best = best === null ? i2 : Math.max(best, i2); break; } }
+    }
+    if (best === null) return side < 0 ? r.x + r.w / 2 : r.x + r.w / 2;
+    return (best + (side > 0 ? 1 : 0)) / r.s;
+  }
+  function box(el, x, y, w, h) { el.style.left = x + 'px'; el.style.top = y + 'px'; el.style.width = w + 'px'; el.style.height = h + 'px'; }
+  // colour helpers for token values ("#007E40"): hue in degrees, WCAG luminance and contrast
+  function rgb(h) { var m = /#?([0-9a-f]{6})/i.exec(h || ''); if (!m) return null; var v = parseInt(m[1], 16); return [v >> 16, v >> 8 & 255, v & 255]; }
+  function hue(h) {
+    var c = rgb(h); if (!c) return null;
+    var R = c[0] / 255, G = c[1] / 255, B = c[2] / 255, mx = Math.max(R, G, B), mn = Math.min(R, G, B), d = mx - mn;
+    if (!d) return null;
+    return (mx === R ? ((G - B) / d + 6) % 6 : mx === G ? (B - R) / d + 2 : (R - G) / d + 4) * 60;
+  }
+  function hueGap(a, b) { var x = hue(a), y = hue(b); if (x === null || y === null) return 0; var d = Math.abs(x - y) % 360; return Math.min(d, 360 - d); }
+  function lum(h) {
+    var c = rgb(h); if (!c) return .5;
+    var f = function (v) { v /= 255; return v <= .03928 ? v / 12.92 : Math.pow((v + .055) / 1.055, 2.4); };
+    return .2126 * f(c[0]) + .7152 * f(c[1]) + .0722 * f(c[2]);
+  }
+  function contrast(a, b) { var x = lum(a), y = lum(b); return (Math.max(x, y) + .05) / (Math.min(x, y) + .05); }
+  function mix(a, b, t) {                  // a blended toward b by t, as hex
+    var x = rgb(a), y = rgb(b); if (!x || !y) return a;
+    return '#' + [0, 1, 2].map(function (i) { return ('0' + Math.round(x[i] + (y[i] - x[i]) * t).toString(16)).slice(-2); }).join('');
+  }
+  function tok(el, name) { return getComputedStyle(el).getPropertyValue(name).trim(); }
+  // object-position "50% 60%" → [.5, .6]
+  function focus(img) {
+    var p = (getComputedStyle(img).objectPosition || '50% 50%').split(/\s+/);
+    var f = function (v) { return /%$/.test(v) ? Math.max(0, Math.min(1, parseFloat(v) / 100)) : .5; };
+    return [f(p[0]), f(p[1] || '50%')];
+  }
+  return { after: after, scan: scan, edge: edge, box: box, hueGap: hueGap, contrast: contrast, mix: mix, tok: tok, focus: focus, MAX: 1.6 };
+})();
+/* PK:end */
+
+PK.after(function () {
+  var D = document.documentElement, ad = document.querySelector('.ad'), st = ad.querySelector('.stage'), pk = st.querySelector('.pk');
+  var img = pk && pk.querySelector('.pk-img');
+  if (!img || !img.naturalWidth) return;
+  var fmt = /f-square/.test(D.className) ? 'square' : /f-story/.test(D.className) ? 'story' : 'feed';
+  var r = PK.scan(img), cut = r.cut;
+  ad.classList.add(cut ? 'is-cut' : 'is-framed');
+  var W = st.clientWidth, H = st.clientHeight;
+  var box = st.querySelector('.cos'), cos = [].slice.call(box.querySelectorAll('.co')).slice(0, 4), n = cos.length;
+  [].slice.call(box.querySelectorAll('.co')).slice(4).forEach(function (c) { c.remove(); });
+  // the part of the image that is the product: a cutout's own pixels, or a photo cropped to a 0.74-1.25 frame
+  var ar = Math.max(.74, Math.min(1.25, r.nw / r.nh));
+  var pw = cut ? r.w : Math.min(r.nw, r.nh * ar), ph = cut ? r.h : pw / ar;
+  var floor = cut ? H * .08 : H * .035, top = H * .02, gap = Math.round(W * .05);
+  // A. callouts beside the product (their columns never overlap it). Labels stay on one line when short, else wrap
+  //    (balanced); the widths that leave the biggest product win.
+  function widths(cap) {
+    cos.forEach(function (c) {
+      var t = c.querySelector('.tx'); t.style.maxWidth = ''; t.style.whiteSpace = 'nowrap';
+      var one = t.offsetWidth; t.style.whiteSpace = '';
+      if (cap) t.style.maxWidth = (one <= W * cap ? one + 1 : Math.round(W * cap)) + 'px';
+    });
+    var m = 0; lines = 0;
+    cos.forEach(function (c) {
+      var t = c.querySelector('.tx'), cs = getComputedStyle(t);
+      m = Math.max(m, t.offsetWidth);
+      lines = Math.max(lines, Math.round((t.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom)) / parseFloat(cs.lineHeight)));
+    });
+    return m;
+  }
+  var lines = 0;
+  var bh = H - floor - top, kA = 0, capA = 0;
+  (fmt === 'square' ? [.3, .25] : [.27, .23, .2]).forEach(function (cap) {
+    var side = n ? widths(cap) + gap : W * .05, kk = Math.min((W - 2 * side) / pw, bh / ph, PK.MAX);
+    if (kk > kA * 1.04 && (lines <= 2 || !capA)) { kA = kk; capA = cap; }
+  });
+  // B. callouts in a centred row under the product (wide products, or when beside would make it small)
+  ad.classList.add('co-row'); widths(0);
+  var rowH = n ? box.offsetHeight + H * .06 : 0;
+  var kB = Math.min(W * .86 / pw, (bh - rowH) / ph, PK.MAX);
+  var row = n && kB > kA * 1.18;
+  if (!row) { ad.classList.remove('co-row'); widths(capA); }
+  var k = row ? kB : kA, dw = pw * k, dh = ph * k, cx = (W - dw) / 2;
+  var room = bh - (row ? rowH : 0);                         // centred in its room, a touch low (it stands on the floor)
+  var cy = top + (room - dh) * (cut ? .62 : .5);
+  if (cut) PK.box(pk, cx - r.x * k, cy - r.y * k, r.nw * k, r.nh * k);
+  else PK.box(pk, cx, cy, dw, dh);
+  // light behind it (in the ground layer, under the copy); floor pool and a two-layer contact shadow at the real base
+  if (ad.classList.contains('t-brand') && PK.hueGap(PK.tok(ad, '--accent'), PK.tok(ad, '--deep')) > 50) {
+    ad.style.setProperty('--glow', 'color-mix(in srgb,var(--deep) 55%,#fff)'); ad.style.setProperty('--glow-a', '.3');
+  }
+  var so = st.getBoundingClientRect(), ao = ad.getBoundingClientRect(), ox = so.left - ao.left, oy = so.top - ao.top;
+  var gs = Math.max(dw, dh) * 1.8;
+  PK.box(ad.querySelector('.glow'), ox + cx + dw / 2 - gs * .62, oy + cy + dh * .45 - gs * .5, gs * 1.24, gs);
+  if (cut) {
+    var yb = r.y + r.h * .985, bl = PK.edge(r, yb, -1), br = PK.edge(r, yb, 1);
+    var x0 = cx + (bl - r.x) * k, x1 = cx + (br - r.x) * k, bwid = Math.max(x1 - x0, dw * .3), mid = (x0 + x1) / 2, base = cy + dh;
+    var aw = bwid * 1.3, ah = Math.max(16, aw * .1);
+    PK.box(st.querySelector('.cs.amb'), mid - aw / 2, base - ah * .5, aw, ah);
+    var qw = bwid * 1.02, qh = Math.max(7, qw * .04);
+    PK.box(st.querySelector('.cs.core'), mid - qw / 2, base - qh * .6, qw, qh);
+    var lw = Math.max(dw * 2, bwid * 2.4), lh = lw * .18;
+    PK.box(ad.querySelector('.pool'), ox + mid - lw / 2, oy + base - lh * .5, lw, lh);
+  }
+  if (row || !n) return;
+  // beside: zig-zag down the product, the first callout on the reading side; the hairline ends on the silhouette
+  var rtl = D.dir === 'rtl', F = { 1: [.42], 2: [.3, .64], 3: [.22, .48, .74], 4: [.18, .4, .6, .82] }[n];
+  cos.forEach(function (c, i) {
+    var left = (i % 2 === 0) !== rtl, tx = c.querySelector('.tx'), w = tx.offsetWidth, h = tx.offsetHeight;
+    c.classList.add(left ? 'l' : 'r');
+    var y = Math.max(h / 2 + 2, Math.min(H - h / 2 - 2, cy + dh * F[i])), yn = (cut ? r.y : 0) + (y - cy) / k;
+    var ex = cut ? cx + (PK.edge(r, yn, left ? -1 : 1) - r.x) * k : (left ? cx : cx + dw);
+    var dotx = ex + (left ? 1 : -1) * Math.min(cut ? 16 : 24, dw * .04);
+    var px = left ? Math.max(0, cx - gap - w) : Math.min(W - w, cx + dw + gap);
+    c.style.left = px + 'px'; c.style.top = (y - h / 2) + 'px'; c.style.height = h + 'px';
+    var ln = c.querySelector('.ln'), dt = c.querySelector('.dt'), rel = dotx - px;
+    ln.style.left = (left ? w : rel) + 'px';
+    ln.style.width = Math.max(0, left ? rel - w : -rel) + 'px';
+    dt.style.left = rel + 'px';
+  });
+});
+</script>
+{{&_foot}}
+</body>
+</html>

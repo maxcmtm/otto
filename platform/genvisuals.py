@@ -5,7 +5,7 @@
 
 Reads data.json, picks posts without an image (or the given ids), builds a prompt from the brand's
 visual identity plus the post's visual_brief / pillar / hook, fires the generations, polls, saves
-assets/posts/<id>.jpg (named by the real type — Leonardo returns JPEG; anything else is converted,
+assets/posts/<id>-<token>.jpg (otto_paths.token_name: unguessable; named by the real type — Leonardo returns JPEG; anything else is converted,
 Instagram only takes JPEG), copies it to the public assets dir (otto_paths.publish) and writes
 image + visual_prompt back per post in a short ap.transaction. Sizes by format: story 9:16, feed/carousel 4:5, else 1:1.
 Art direction — the brand guide always wins: the profile's VISUAL IDENTITY "Style:" line, else
@@ -13,6 +13,9 @@ brands/<slug>/*brand-guide*.md (its visual/style sections + don'ts), else the ge
 "Photorealistic" is only forced for the generic hint or a guide that asks for photography.
 Rules: no text rendered in-image (Hebrew gets mangled; the caption carries the copy), no watermark,
 clear space bottom-right for the logo, only the brand's palette. --dry prints the prompts and stops.
+Provenance (EU AI Act Art. 50(2), otto_provenance): every saved image is marked as AI-generated before it is made public
+(IPTC DigitalSourceType in XMP; a JPEG that already carries the model's signed C2PA manifest is left as it is), carousel
+slides as composites; post.media_ai[<ref>] records it.
 Key: env LEONARDO_API_KEY or platform/.leonardo_key (chmod 600). ~$0.20 per image (HIGH).
 """
 import json, os, re, shutil, subprocess, sys, time, urllib.request
@@ -20,10 +23,13 @@ from pathlib import Path
 
 import ap
 import otto_paths as paths
+import otto_provenance as prov
 
 HERE = Path(__file__).parent
 BRANDS = ap.BRANDS
 BASE = "https://cloud.leonardo.ai/api/rest"
+MODEL = "gpt-image-2"
+TOOL = f"Leonardo.ai {MODEL}"                       # what the provenance mark names as the AI system
 OUT = paths.ASSETS / "posts"
 UA = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0 Safari/537.36"
 SIZES = {"story": (768, 1376), "feed": (848, 1264), "carousel": (848, 1264), "square": (1024, 1024)}
@@ -48,7 +54,13 @@ def key():
     f = HERE / ".leonardo_key"
     if f.exists():
         return f.read_text().strip()
-    sys.exit("no Leonardo key (LEONARDO_API_KEY or platform/.leonardo_key)")
+    s = Path(os.environ.get("OTTO_SECRETS") or HERE.parent.parent / "otto-secrets") / "leonardo.json"   # the server keeps it here
+    if s.exists():
+        try:
+            return (json.loads(s.read_text()).get("api_key") or "").strip() or sys.exit(f"no api_key in {s}")
+        except ValueError:
+            sys.exit(f"{s} is not valid JSON")
+    sys.exit("no Leonardo key (LEONARDO_API_KEY, platform/.leonardo_key or <OTTO_SECRETS>/leonardo.json)")
 
 
 GUIDE_HEAD = re.compile(r"style|visual|art direction|imagery|photograph|motif|aesthetic|look and feel|"
@@ -163,25 +175,32 @@ def post_json(u, body, k):
         return json.loads(x.read())
 
 
-def save_image(pid, data):
-    """Leonardo bytes → assets/posts/<id>.<real ext>; non-JPEG also gets a .jpg twin (Instagram). Returns the
-    stored ref of the JPEG (or the original if conversion is impossible) after copying it to the public dir."""
+def save_image(pid, data, ai=None, token=None):
+    """Leonardo bytes → assets/posts/<id>-<token>.<real ext> (otto_paths.token_name with the post's media token: never a
+    guessable public name); non-JPEG also gets a .jpg twin (Instagram). Returns the
+    stored ref of the JPEG (or the original if conversion is impossible) after marking it as AI-generated and
+    copying it to the public dir. `ai` (a dict) receives {ref: provenance record} for post.media_ai."""
     kind = paths.sniff(data) or "jpeg"
-    path = OUT / f"{pid}{paths.EXT.get(kind, '.jpg')}"
+    path = OUT / paths.token_name(pid, paths.EXT.get(kind, '.jpg'), token or paths.media_token("post", pid))
     path.write_bytes(data)
     if kind != "jpeg":
         ff = shutil.which("ffmpeg")
-        jpg = OUT / f"{pid}.jpg"
+        jpg = path.with_suffix(".jpg")
         if ff and subprocess.run([ff, "-y", "-loglevel", "error", "-i", str(path), "-frames:v", "1", "-q:v", "2", str(jpg)],
                                  capture_output=True).returncode == 0:
             path = jpg
         else:
             print("  warning: not JPEG and no ffmpeg — Instagram will refuse", path.name)
+    info = prov.mark_safely(path, ["image"], TOOL)            # before it is public: the public copy carries the mark
+    if ai is not None:
+        ai[paths.rel_of(path)] = prov.record(info)
     paths.publish(path)
     return paths.rel_of(path)
 
 
 def _patch(pid, fields, force=False):
+    fields = dict(fields)
+    ai = fields.pop("media_ai", None)                     # merged per asset ref, never replaces other assets' records
     with ap.transaction() as d:
         q = ap.post(d, pid)
         if q is None:
@@ -189,6 +208,8 @@ def _patch(pid, fields, force=False):
         if q.get("image") and not force and "image" in fields:
             print("  already has an image, kept:", pid); return False
         q.update(fields)
+        if ai:
+            q["media_ai"] = dict(q.get("media_ai") if isinstance(q.get("media_ai"), dict) else {}, **ai)
     return True
 
 
@@ -209,7 +230,7 @@ def run(bid=None, ids=None, limit=6, statuses=("draft", "pending_approval"), dry
     jobs = []
     for p, pr in plans:
         w, h = SIZES.get(p.get("format", "post"), SIZES["square"])
-        body = {"model": "gpt-image-2", "parameters": {"width": w, "height": h, "prompt": pr,
+        body = {"model": MODEL, "parameters": {"width": w, "height": h, "prompt": pr,
                 "quality": "HIGH", "quantity": 1, "prompt_enhance": "OFF"}, "public": False}
         try:
             gid = post_json(f"{BASE}/v2/generations", body, k)["generate"]["generationId"]
@@ -235,8 +256,10 @@ def run(bid=None, ids=None, limit=6, statuses=("draft", "pending_approval"), dry
                         q = urllib.request.Request(imgs[0]["url"], headers={"User-Agent": UA})
                         with urllib.request.urlopen(q, timeout=60) as x:
                             data = x.read()
-                        ref = save_image(p["id"], data)
-                        if _patch(p["id"], {"image": ref, "visual_prompt": pr, "visual_at": ap.now_iso()}, force=bool(ids)):
+                        ai = {}
+                        ref = save_image(p["id"], data, ai)
+                        if _patch(p["id"], {"image": ref, "visual_prompt": pr, "visual_at": ap.now_iso(), "media_ai": ai},
+                                  force=bool(ids)):
                             p["image"] = ref
                         done[p["id"]] = ref; print("SAVED", p["id"], ref, len(data))
                     except Exception as e:
@@ -254,18 +277,20 @@ def run(bid=None, ids=None, limit=6, statuses=("draft", "pending_approval"), dry
             if p.get("format") == "carousel" and p.get("image") and done.get(p["id"]):
                 slides = p.get("slides") or carousel_slides(p)
                 pal = brand_visual(p["brand"])[0]
-                files = []
+                files, ai = [], {}
                 for i, txt in enumerate(slides[:5], 1):
-                    dst = OUT / f"{p['id']}-{i}.jpg"
+                    dst = OUT / paths.token_name(f"{p['id']}-{i}", ".jpg", paths.media_token("post", p["id"]))
                     try:
                         cre.overlay_text(paths.local_path(p["image"]), dst, txt, pal[0] if pal else "#2447F0",
                                          pos="bottom" if i > 1 else "center", size=58)
+                        # generated image + the post's text: a composite that contains a generated element
+                        ai[paths.rel_of(dst)] = prov.record(prov.mark_safely(dst, ["image"], TOOL, composite=True))
                         paths.publish(dst)
                         files.append(paths.rel_of(dst))
                     except Exception as e:
                         print("slide failed", p["id"], i, e)
                 if len(files) >= 2:
-                    _patch(p["id"], {"images": files, "slides": slides})
+                    _patch(p["id"], {"images": files, "slides": slides, "media_ai": {f: ai[f] for f in files if f in ai}})
     except Exception as e:
         print("carousel step skipped:", e)
     print("DONE", json.dumps(done))

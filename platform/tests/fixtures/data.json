@@ -1,0 +1,345 @@
+{
+  "generated": "2026-09-27T20:35:38Z",
+  "recommendations": [
+    {
+      "id": "rec-001",
+      "priority": "P0",
+      "title": "Approve 4 posts waiting for review",
+      "why": "Week-1 content for both brands is drafted and slotted. Publishing starts Sep 27 — approving today keeps the schedule intact.",
+      "impact": "Keeps the first publishing week on time",
+      "cta": "Review queue",
+      "status": "proposed"
+    },
+    {
+      "id": "rec-002",
+      "priority": "P0",
+      "title": "Connect Meta assets for the pilot brand",
+      "why": "Live publishing (Phase 4) is blocked until a Facebook Page + Instagram account are linked. Everything upstream is ready.",
+      "impact": "Unblocks automated publishing end-to-end",
+      "cta": "Connect assets",
+      "status": "proposed"
+    },
+    {
+      "id": "rec-003",
+      "priority": "P1",
+      "title": "Run the pilot on CMTM first",
+      "why": "Hebrew organic content, an engaged alumni community, and no ad-category restrictions. Happy Garden is CBD — restricted on Meta, better as brand #2.",
+      "impact": "Fastest path to a proven publishing loop",
+      "cta": "Confirm choice",
+      "status": "proposed"
+    },
+    {
+      "id": "rec-004",
+      "priority": "P1",
+      "title": "Move Otto from €197 one-time to monthly plans",
+      "why": "Native charges $79–499/mo for the same job. Recurring pricing funds the agency loop and matches how the market already buys.",
+      "impact": "Recurring revenue instead of one-off sales",
+      "cta": "See pricing draft",
+      "status": "proposed"
+    },
+    {
+      "id": "rec-005",
+      "priority": "P2",
+      "title": "Add LinkedIn for the career-change pillar",
+      "why": "CMTM's core audience (women 28–55 changing careers) over-indexes on LinkedIn. One extra channel, same content plan.",
+      "impact": "New audience at near-zero extra cost",
+      "cta": "Draft channel plan",
+      "status": "proposed"
+    },
+    {
+      "id": "rec-006",
+      "priority": "P1",
+      "title": "Ship AI short-form video — Native has none",
+      "why": "Deep-dive confirms Native has zero video support, their most-cited gap. Our video_generate + Leonardo pipeline already exists — autopilot Reels/TikToks is pure differentiation.",
+      "impact": "A format the competition cannot match",
+      "cta": "See video plan",
+      "status": "proposed"
+    },
+    {
+      "id": "rec-007",
+      "priority": "P1",
+      "title": "Adopt binding brand fingerprints in onboarding",
+      "why": "Native's Taste Layer paper shows brand voice as binding generation params (not hints) is why their output isn't slop. Our interview-based onboarding can produce a richer fingerprint than their URL scrape.",
+      "impact": "On-brand output at scale, fewer declines",
+      "cta": "Approve spec",
+      "status": "proposed"
+    },
+    {
+      "id": "rec-008",
+      "priority": "P2",
+      "title": "Expose Autopilot via MCP from any assistant",
+      "why": "Native ships an MCP endpoint for Claude/ChatGPT control. We are OpenClaw-native — this is home turf and we can out-execute them.",
+      "impact": "Agentic distribution wedge",
+      "cta": "Draft scope",
+      "status": "proposed"
+    }
+  ],
+  "brands": [
+    {
+      "id": "happygarden",
+      "name": "Happy Garden CBD",
+      "url": "happygardeneu.com",
+      "lang": "EN/DE",
+      "status": "active",
+      "pillars": [
+        "Education",
+        "Trust & proof",
+        "Use-case",
+        "Product",
+        "Engagement"
+      ],
+      "compliance": "CBD is a restricted category on Meta — organic-first strategy"
+    },
+    {
+      "id": "cmtm",
+      "name": "CMTM College",
+      "url": "cmtm.co.il",
+      "lang": "HE · shown in English",
+      "status": "active",
+      "pillars": [
+        "Alumni stories",
+        "Method education",
+        "Career change",
+        "Parenting",
+        "Current events",
+        "Community"
+      ],
+      "compliance": "No healing claims · mental-health targeting restricted on Meta"
+    }
+  ],
+  "posts": [
+    {
+      "id": "hg-001",
+      "brand": "happygarden",
+      "pillar": "Education",
+      "platform": "ig",
+      "hook": "Full vs Broad Spectrum vs Isolate — 60-second guide",
+      "status": "pending_approval",
+      "slot": "2026-09-27T08:00",
+      "approved_via": "dashboard",
+      "caption": "Full Spectrum, Broad Spectrum, Isolate — same plant, three very different products. 🌿\n\nFULL — every compound working together (the entourage effect).\nBROAD — the same team, minus THC.\nISOLATE — pure CBD, nothing else.\n\n60 seconds to know exactly what's in your bottle → swipe.\n\n#CBD #CBDeducation #sleepbetter #wellness",
+      "image": "assets/posts/hg-001.png"
+    },
+    {
+      "id": "hg-002",
+      "brand": "happygarden",
+      "pillar": "Trust & proof",
+      "platform": "fb",
+      "hook": "What our customers actually say",
+      "status": "approved",
+      "slot": "2026-09-27T17:00"
+    },
+    {
+      "id": "hg-003",
+      "brand": "happygarden",
+      "pillar": "Use-case",
+      "platform": "ig",
+      "hook": "CBN + CBD for sleep: what the entourage effect means",
+      "status": "draft",
+      "slot": "2026-09-28T08:00"
+    },
+    {
+      "id": "hg-004",
+      "brand": "happygarden",
+      "pillar": "Engagement",
+      "platform": "ig",
+      "hook": "Poll: what's your #1 sleep struggle?",
+      "status": "scheduled",
+      "slot": "2026-09-28T19:00"
+    },
+    {
+      "id": "cm-001",
+      "brand": "cmtm",
+      "pillar": "Method education",
+      "platform": "ig",
+      "hook": "“Healing from the root”: what it actually means. Five slides on the subconscious",
+      "status": "pending_approval",
+      "slot": "2026-09-27T09:00",
+      "caption": "“Healing from the root” isn’t a slogan. It’s a method.\n\nMost tools we know work on the symptom: calm it, regulate it, manage it.\nDimension Therapy works on the root: the beliefs and patterns written into the subconscious long before we knew how to choose.\n\nFive slides on how it works → swipe.\n\n(Results vary from person to person. No therapeutic promise is made in this post.)",
+      "image": "assets/posts/cm-001.png"
+    },
+    {
+      "id": "cm-002",
+      "brand": "cmtm",
+      "pillar": "Alumni stories",
+      "platform": "fb",
+      "hook": "At 43, with no clinical background, she opened a practice",
+      "status": "pending_approval",
+      "slot": "2026-09-27T18:00",
+      "caption": "At 43, with no clinical background, Ronit enrolled “just for herself”.\n\nTwo years later: an active practice, a full calendar, and the feeling that she is finally in the right place.\n\nRonit’s full story in the first comment 👇\n\n25 years. 10,000 graduates. CMTM College.",
+      "image": "assets/posts/cm-002.png"
+    },
+    {
+      "id": "cm-003",
+      "brand": "cmtm",
+      "pillar": "Career change",
+      "platform": "fb",
+      "hook": "A second career with meaning: three questions to ask first",
+      "status": "draft",
+      "slot": "2026-09-28T09:00"
+    },
+    {
+      "id": "cm-004",
+      "brand": "cmtm",
+      "pillar": "Parenting",
+      "platform": "ig",
+      "hook": "Is your child “too sensitive”? What sensory regulation is trying to tell you",
+      "status": "draft",
+      "slot": "2026-09-28T18:00"
+    },
+    {
+      "id": "cm-005",
+      "brand": "cmtm",
+      "pillar": "Current events",
+      "platform": "fb",
+      "hook": "Back from a hard month and carrying on as usual? The body remembers",
+      "status": "draft",
+      "slot": "2026-10-01T09:00"
+    },
+    {
+      "id": "cm-006",
+      "brand": "cmtm",
+      "pillar": "Community",
+      "platform": "ig",
+      "hook": "10,000 graduates. 25 years. One family",
+      "status": "published",
+      "slot": "2026-09-24T09:00"
+    },
+    {
+      "id": "cm-007",
+      "brand": "cmtm",
+      "pillar": "Myth-busting",
+      "platform": "ig",
+      "hook": "Myth: you need a psychology degree to help people",
+      "status": "pending_approval",
+      "slot": "2026-09-29T09:00",
+      "caption": "Myth: “You need a psychology degree to help people.”\n\nReality: the therapeutic world is far wider, and there is a structured, deep, practical path that has trained practitioners for 25 years.\n\nWhat you do need: a wish to go deep, a serious framework, and the right training.\n\nAll the details about the programme → link in bio.",
+      "image": "assets/posts/cm-007.png"
+    }
+  ],
+  "agents": [
+    {
+      "id": "maximus",
+      "role": "Owner / build",
+      "scope": "Development, deploys, incidents",
+      "status": "active"
+    },
+    {
+      "id": "autopilot-core",
+      "role": "Orchestrator",
+      "scope": "Onboarding · plans · approvals · scheduling",
+      "status": "planned"
+    },
+    {
+      "id": "autopilot-client-*",
+      "role": "Per-client",
+      "scope": "Single brand, isolated workspace, separate tokens",
+      "status": "planned"
+    }
+  ],
+  "metrics": {
+    "happygarden": {
+      "reach": 0,
+      "saves": 0,
+      "clicks": 0,
+      "leads": 0
+    },
+    "cmtm": {
+      "reach": 0,
+      "saves": 0,
+      "clicks": 0,
+      "leads": 0
+    }
+  },
+  "connections": [
+    {
+      "id": "meta-cmtm",
+      "service": "Instagram + Facebook",
+      "brand": "CMTM College",
+      "status": "not_connected"
+    },
+    {
+      "id": "meta-hg",
+      "service": "Instagram + Facebook",
+      "brand": "Happy Garden CBD",
+      "status": "not_connected"
+    },
+    {
+      "id": "linkedin",
+      "service": "LinkedIn",
+      "brand": "Shared",
+      "status": "planned"
+    }
+  ],
+  "fleet": [
+    {
+      "id": "orion",
+      "name": "Orion",
+      "role": "Orchestrator",
+      "status": "active",
+      "feed": [
+        "Compiled today's briefing 06:00",
+        "Routing 2 blockers to Max",
+        "Watching Sep 27 publish deadline",
+        "Fleet sync: 4 agents reporting"
+      ]
+    },
+    {
+      "id": "quill",
+      "name": "Quill",
+      "role": "Content agent",
+      "status": "active",
+      "feed": [
+        "Drafted 11 posts across 2 brands",
+        "Rewriting hg-003 hook — v2",
+        "HE + DE variants ready for review",
+        "4 posts queued for your sign-off"
+      ]
+    },
+    {
+      "id": "sage",
+      "name": "Sage",
+      "role": "Organic growth",
+      "status": "active",
+      "feed": [
+        "Best CMTM slot: Sun 09:00",
+        "IG hashtag sets refreshed",
+        "LinkedIn pillar mapped (P2)",
+        "Slotting week 2 calendar"
+      ]
+    },
+    {
+      "id": "nova",
+      "name": "Nova",
+      "role": "Ideas & trends",
+      "status": "active",
+      "feed": [
+        "3 new recommendations queued",
+        "Trend scan: reserve-duty chatter ↑",
+        "Native gap found: short-form video",
+        "Watching 6 content pillars"
+      ]
+    },
+    {
+      "id": "atlas",
+      "name": "Atlas",
+      "role": "Paid ads",
+      "status": "standby",
+      "feed": [
+        "Waiting on Meta connection",
+        "CMTM audience drafts ready",
+        "CBD policy: organic-first for HG"
+      ]
+    },
+    {
+      "id": "echo",
+      "name": "Echo",
+      "role": "Analytics",
+      "status": "standby",
+      "feed": [
+        "Activates with first published week",
+        "Baselines set: reach · saves · leads"
+      ]
+    }
+  ]
+}

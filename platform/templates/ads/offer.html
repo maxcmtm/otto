@@ -4,7 +4,10 @@
 <!-- offer: price card with one CTA. Real prices only; a struck "was" price needs the EU 30-day prior price.
      data: name*, price (or a word such as "Free"), price_note ("30 ml · THC-free"), was, features (2-4),
            cta*, terms (fine print), kicker, photo, photo_pos, theme: accent (default) | dark | light.
-     Feed and story. -->
+     photo: a regular photo fills the top of the card (feed, square) or the whole frame behind it (story); a transparent
+     product cutout stands whole on the theme's ground with a contact shadow — above the card (feed), beside it (square),
+     under it (story, in the band the Stories/Reels UI covers anyway: it is image, the card stays in the safe zone).
+     Feed, square and story. -->
 {{&_head}}
 <style>
 .ad{--fade:var(--accent)}
@@ -14,56 +17,116 @@
 .hero .fade{position:absolute;inset:auto 0 0 0;height:42%;z-index:1;background:linear-gradient(to bottom,rgba(0,0,0,0),var(--fade))}
 .hero .shade-t{z-index:1}
 .frame{z-index:3}
-.top-on-photo{color:#fff}
-.card{margin-top:auto;background:var(--surface);color:var(--ink);border-radius:30px;padding:54px 56px 50px;
+html:not(.has-cutout) .top-on-photo{color:#fff}
+.card{margin-top:auto;background:var(--surface);color:var(--ink);border-radius:30px;padding:54px 56px 50px;flex:none;
   display:flex;flex-direction:column;box-shadow:0 30px 60px -30px rgba(var(--deep-rgb),.45)}
+.t-light .card{box-shadow:0 0 0 1.5px rgba(var(--ink-rgb),.07),0 30px 60px -30px rgba(var(--deep-rgb),.35)}
 .card .kicker{margin-bottom:22px}
+.card .top-in{display:none;margin-bottom:34px;color:var(--ink)}
 .name{font-size:calc(58px*var(--k));letter-spacing:-.03em;line-height:1.02}
 html[dir=rtl] .name{letter-spacing:0;line-height:1.12;font-size:calc(54px*var(--k))}
-.pricerow{display:flex;align-items:flex-end;gap:22px;margin-top:30px;overflow:hidden}
+.pricerow{display:flex;align-items:flex-end;gap:22px;margin-top:30px;overflow:hidden;flex:none}
 .price{font-size:calc(150px*var(--k));white-space:nowrap}
 html[dir=rtl] .price{font-size:calc(128px*var(--k))}
-.was{font:500 calc(34px*var(--k))/1 var(--f-text);text-decoration:line-through;opacity:.5;padding-bottom:.5em}
-.pnote{font:500 calc(24px*var(--k))/1.3 var(--f-text);padding-bottom:.55em;opacity:.7}
+.was{font:500 calc(34px*var(--k))/1 var(--f-text);text-decoration:line-through;color:var(--mut-light);padding-bottom:.5em;white-space:nowrap}
+.pnote{font:500 calc(24px*var(--k))/1.3 var(--f-text);padding-bottom:.55em;color:var(--mut-light);min-width:0}
 html[dir=rtl] .pnote{font-size:calc(26px*var(--k))}
 .feats{list-style:none;margin-top:34px;display:flex;flex-direction:column;gap:16px}
 .feats li{display:flex;gap:16px;align-items:center;font:500 calc(25px*var(--k))/1.3 var(--f-text)}
 html[dir=rtl] .feats li{font-size:calc(27px*var(--k))}
 .feats .tick{width:calc(34px*var(--k));height:calc(34px*var(--k))}
 html.em-marker .feats .tick{background:var(--marker,var(--accent));color:var(--ink)}
-.act{display:flex;align-items:center;gap:30px;margin-top:40px;flex-wrap:wrap}
+.act{display:flex;align-items:center;gap:22px 30px;margin-top:40px;flex-wrap:wrap}
 .card .pill{background:var(--ink);color:var(--surface)}
 .t-dark .card .pill{background:var(--accent);color:var(--accent-ink)}
-.terms{font:400 calc(18px*var(--k))/1.4 var(--f-text);opacity:.6;flex:1 1 280px}
+.terms{font:400 calc(18px*var(--k))/1.4 var(--f-text);color:var(--mut-light);flex:1 1 280px}
 html[dir=rtl] .terms{font-size:calc(20px*var(--k))}
-/* story: the card sits in the safe zone near the top, the product photo fills the rest */
+
+/* ---------- a transparent product cutout: whole, on the theme's ground, standing on a contact shadow ---------- */
+.prod{display:none;position:relative;flex:1 1 0;min-height:0;z-index:1}
+html.has-cutout .hero{display:none}
+html.has-cutout .prod{display:block}
+.prod .glow{position:absolute;inset:4% 8% 0;border-radius:50%;
+  background:radial-gradient(closest-side,rgba(255,255,255,.22),rgba(255,255,255,.08) 55%,rgba(255,255,255,0))}
+.t-light .prod .glow{background:radial-gradient(closest-side,#fff,rgba(255,255,255,.5) 55%,rgba(255,255,255,0))}
+.prod img{position:absolute;left:0;right:0;top:0;bottom:var(--sh-room,26px);width:100%;height:calc(100% - var(--sh-room,26px));
+  object-fit:contain;object-position:50% 100%;z-index:2;
+  filter:drop-shadow(0 18px 22px rgba(0,0,0,.2)) drop-shadow(0 3px 5px rgba(0,0,0,.14))}
+.prod .cs{position:absolute;z-index:1;left:50%;bottom:calc(var(--sh-room,26px) - 14px);width:var(--sh-w,46%);height:30px;
+  transform:translateX(-50%);border-radius:50%;filter:blur(4px);
+  background:radial-gradient(closest-side,rgba(0,0,0,.42),rgba(0,0,0,.16) 60%,rgba(0,0,0,0))}
+.t-light .prod .cs{background:radial-gradient(closest-side,rgba(var(--ink-rgb),.34),rgba(var(--ink-rgb),.1) 60%,rgba(var(--ink-rgb),0))}
+/* feed: the product between the brand bar and the card */
+html.has-cutout .card{margin-top:0}
+html.has-cutout .prod{margin:18px 0 22px;min-height:calc(300px*var(--k))}
+html.f-feed.has-cutout .card{max-height:calc(var(--h) - var(--top) - var(--bot) - 40px - 340px*var(--k))}
+/* square: the product beside the card (end side), the card keeps its width */
+html.f-square.has-cutout .row{display:flex;gap:26px;flex:1 1 auto;min-height:0;align-items:stretch;margin-top:22px}
+html.f-square.has-cutout .row .card{flex:0 0 61%;margin:0;align-self:center;padding:44px 44px 40px;max-height:100%}
+html.f-square.has-cutout .row .prod{margin:0;align-self:stretch}
+html.f-square.has-cutout .price{font-size:118px}
+html.f-square.has-cutout .pricerow{flex-wrap:wrap;gap:6px 18px}
+html.f-square.has-cutout .pnote,html.f-square.has-cutout .was{padding-bottom:.2em}
+.row{display:contents}
+
+/* ---------- story: the card in the safe zone (below the 14 % profile bar, above the 35 % Reels UI) ---------- */
+html.f-story .card{margin-top:28px;max-height:calc(var(--h) - 672px - 270px - 68px)}
 html.f-story .hero{inset:0;height:100%}
 html.f-story .hero .fade{display:none}
-html.f-story .card{margin-top:0}
-html.f-story .top-on-photo{color:inherit}
+/* over a photo the brand bar moves into the card: legible on any photo, never touching the card's edge */
+html.f-story:not(.has-cutout) .has-photo .top-out{display:none}
+html.f-story:not(.has-cutout) .has-photo .card{margin-top:0}
+html.f-story:not(.has-cutout) .has-photo .card .top-in{display:block}
+/* no photo: the card sits in the middle of the safe zone */
+html.f-story .ad:not(.has-photo) .card{margin-block:auto}
+/* a cutout: the product stands under the card, in the band the Reels UI covers (image, not copy) */
+html.f-story.has-cutout .frame{bottom:96px}
+html.f-story.has-cutout .card{order:1}
+html.f-story.has-cutout .prod{order:2;margin:40px 0 0}
 </style>
 </head>
 <body>
-<div class="ad t-{{#if theme}}{{theme}}{{else}}accent{{/if}}">
+<div class="ad t-{{#if theme}}{{theme}}{{else}}accent{{/if}} {{#if photo}}has-photo{{/if}}">
   {{#if photo}}<div class="hero pic grain"><img class="photo" src="{{photo}}" style="object-position:{{photo_pos}}" alt=""><div class="shade-t"></div><div class="fade"></div></div>{{/if}}
   <div class="frame">
-    <div class="{{#if photo}}top-on-photo{{/if}}">{{> top}}</div>
-    <div class="card" data-box>
-      {{#if kicker}}<div class="kicker"><span>{{kicker}}</span></div>{{/if}}
-      <h2 class="display name" data-fit="1" data-min="34" data-lines="2">{{name}}</h2>
-      {{#if price}}<div class="pricerow">
-        <span class="num price" data-fitw data-min="70">{{price}}</span>
-        {{#if was}}<span class="was">{{was}}</span>{{/if}}
-        {{#if price_note}}<span class="pnote">{{price_note}}</span>{{/if}}
-      </div>{{/if}}
-      {{#if features}}<ul class="feats">{{#each features}}<li><span class="tick">{{> tick}}</span><span data-fit="3" data-min="18">{{.}}</span></li>{{/each}}</ul>{{/if}}
-      <div class="act">
-        <span class="pill"><span>{{cta}}</span></span>
-        {{#if terms}}<span class="terms">{{terms}}</span>{{/if}}
+    <div class="top-out {{#if photo}}top-on-photo{{/if}}">{{> top}}</div>
+    <div class="row">
+      {{#if photo}}<div class="prod"><div class="glow"></div><div class="cs"></div><img src="{{photo}}" alt=""></div>{{/if}}
+      <div class="card" data-box>
+        <div class="top-in">{{> top}}</div>
+        {{#if kicker}}<div class="kicker"><span>{{kicker}}</span></div>{{/if}}
+        <h2 class="display name" data-fit="1" data-min="34" data-lines="2">{{name}}</h2>
+        {{#if price}}<div class="pricerow">
+          <span class="num price" data-fitw data-min="70">{{price}}</span>
+          {{#if was}}<span class="was">{{was}}</span>{{/if}}
+          {{#if price_note}}<span class="pnote">{{price_note}}</span>{{/if}}
+        </div>{{/if}}
+        {{#if features}}<ul class="feats">{{#each features}}<li><span class="tick">{{> tick}}</span><span data-fit="3" data-min="18">{{.}}</span></li>{{/each}}</ul>{{/if}}
+        <div class="act">
+          <span class="pill"><span>{{cta}}</span></span>
+          {{#if terms}}<span class="terms" data-fit="4" data-min="15">{{terms}}</span>{{/if}}
+        </div>
       </div>
     </div>
   </div>
 </div>
+<script>/* the cutout: trimmed to its opaque pixels (the file's own padding never shrinks it), never drawn past 1.6x its pixel
+   size, standing on its contact shadow at the product's real base */
+(function(){var D=document.documentElement;if(!D.classList.contains('has-cutout'))return;var img=document.querySelector('.prod img');
+if(!img)return;var tries=0;function go(){if(!D.classList.contains('fitted')&&tries++<200)return setTimeout(go,25);try{var n=64,c=document.createElement('canvas');c.width=c.height=n;var x=c.getContext('2d');
+x.drawImage(img,0,0,n,n);var d=x.getImageData(0,0,n,n).data,t=n,l=n,b=-1,r=-1;
+for(var y=0;y<n;y++)for(var X=0;X<n;X++)if(d[(y*n+X)*4+3]>40){if(y<t)t=y;if(y>b)b=y;if(X<l)l=X;if(X>r)r=X;}
+if(b<0)return;var P=function(v){return Math.max(0,(v-.5)/n*100).toFixed(2)+'%';};
+img.style.objectViewBox='inset('+P(t)+' '+P(n-1-r)+' '+P(n-1-b)+' '+P(l)+')';
+var tw=img.naturalWidth*(r-l+1)/n,th=img.naturalHeight*(b-t+1)/n,box=img.parentNode,room=26;
+var W=box.clientWidth,H=box.clientHeight-room,k=Math.min(W*.92/tw,H/th,1.6),dw=tw*k,dh=th*k;
+var lift=D.classList.contains('f-square')?Math.max(0,(H-dh)/2):0;          // square: centred beside the card
+img.style.width=dw+'px';img.style.height=dh+'px';img.style.left=(W-dw)/2+'px';img.style.right='auto';img.style.top='auto';
+if(lift){img.style.bottom=(room+lift)+'px';box.querySelector('.cs').style.bottom=(room+lift-14)+'px';}
+img.style.objectFit='fill';box.style.setProperty('--sh-w',Math.round(dw*1.02)+'px');
+var g=box.querySelector('.glow');if(g){var gs=Math.max(dw,dh)*1.25;g.style.inset='auto';g.style.width=gs+'px';g.style.height=gs+'px';
+g.style.left=(W-gs)/2+'px';g.style.top=(H-lift-dh/2-gs/2)+'px';}}catch(e){}}
+if(img.complete&&img.naturalWidth)go();else img.addEventListener('load',go);})();</script>
 {{&_foot}}
 </body>
 </html>

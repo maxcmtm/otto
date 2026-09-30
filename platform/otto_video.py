@@ -2,7 +2,7 @@
 """Otto reels — 30–60 s explainer videos for every brand, in the base package.
 
   otto_video.py plan   <post-id> [--seconds 45]         # scene script from the post (Quill may write post.script first)
-  otto_video.py render <post-id> [--dry] [--no-voice]    # scenes → images → voice-over → ffmpeg → assets/reels/<id>.mp4 → post.video
+  otto_video.py render <post-id> [--dry] [--no-voice]    # scenes → images → voice-over → ffmpeg → assets/reels/<id>-<token>.mp4 → post.video
   otto_video.py demo   <out.mp4> [--voice]               # render a sample reel from existing post images (local check)
   otto_video.py missing [--brand <id>]                   # ids of reel posts (draft/pending_approval) that have no video yet (cron loop)
 
@@ -14,6 +14,9 @@ post.script = [{"text","seconds","visual"}] — if missing, `plan` derives it fr
 Scene images and voice clips are cached per scene under assets/reels/<post-id>/ keyed by a hash of the
 scene text (+ visual / voice), so editing one line of the script re-renders only that scene.
 The finished mp4 is copied to the public assets dir (otto_paths.publish) before post.video is set.
+Provenance (EU AI Act Art. 50(2), otto_provenance): generated scene images are marked when they are saved; a reel that
+contains a generated scene or a synthetic voice is marked as compositeSynthetic (MP4 comment/description
+tags + XMP uuid box + <mp4>.provenance.json) before it is made public, and post.media_ai[<ref>] records what is synthetic.
 Needs ffmpeg + ffprobe on PATH and a TTF font (OTTO_FONT or the defaults in otto_creative.py).
 """
 import hashlib, json, os, re, shutil, subprocess, sys, tempfile, textwrap, urllib.request
@@ -22,6 +25,7 @@ from pathlib import Path
 import ap
 import otto_creative as cre
 import otto_paths as paths
+import otto_provenance as prov
 
 HERE = Path(__file__).parent
 BRANDS = ap.BRANDS
@@ -107,6 +111,7 @@ def scene_images(p, script, dry):
                             data = x.read()
                         f = d / (stem + paths.EXT.get(paths.sniff(data) or "", ".jpg"))   # named by real type
                         f.write_bytes(data)
+                        prov.mark_safely(f, ["image"], gv.TOOL)
                         break
                     if g.get("status") == "FAILED":
                         break
@@ -133,6 +138,43 @@ def brand_color(bid):
         if pl:
             return pl[0]["hex"]
     return "#2447F0"
+
+
+def scene_is_ai(img):
+    """A scene image is generated when it carries an AI mark (XMP / C2PA), or when it is a Leonardo scene from the
+    cache (s-<hash>.<ext>; fallbacks are named s-<hash>-fb.*: the post image, which counts only if it is marked itself,
+    or a solid brand-colour card)."""
+    img = Path(img)
+    return prov.is_generated(img) or (img.name.startswith("s-") and "-fb" not in img.stem)
+
+
+def voice_tool():
+    f = SECRETS / "elevenlabs.json"
+    try:
+        model = json.loads(f.read_text()).get("model_id") if f.exists() else None
+    except ValueError:
+        model = None
+    return f"ElevenLabs {model or 'eleven_multilingual_v2'}"
+
+
+def mark_reel(out, imgs, vos):
+    """→ the post.media_ai record for the finished reel, or None when nothing in it is synthetic."""
+    kinds, tools = [], []
+    if any(scene_is_ai(i) for i in imgs):
+        kinds.append("image"); tools.append(genvisuals_tool())
+    if any(vos):
+        kinds.append("voice"); tools.append(voice_tool())
+    if not kinds:
+        return None
+    return prov.record(prov.mark_safely(out, kinds, " + ".join(tools), composite=True))
+
+
+def genvisuals_tool():
+    try:
+        import genvisuals as gv
+        return gv.TOOL
+    except Exception:                                    # noqa: BLE001
+        return "Leonardo.ai"
 
 
 def voice_over(script, out_dir, voice=True):
@@ -247,16 +289,27 @@ def render(pid, dry=False, voice=True):
     work = REELS / p["id"]
     vos = voice_over(script, work, voice)
     REELS.mkdir(parents=True, exist_ok=True)
-    out = REELS / f"{p['id']}.mp4"
+    out = REELS / paths.token_name(p["id"], ".mp4", paths.media_token("post", p["id"]))   # unguessable public name
     _, total = assemble(list(zip(imgs, script)), vos, out, brand_color(p["brand"]), work)
+    ai = mark_reel(out, imgs, vos)                  # marked before it is public: the public copy carries the mark
     paths.publish(out)                              # public before anything points at it
+    if prov.sidecar_path(out).exists():
+        paths.publish(prov.sidecar_path(out))
+    ref = paths.rel_of(out)
     with ap.transaction() as d2:
         q = ap.post(d2, pid)
         if q is None:
             print(f"{pid} disappeared while rendering — video kept at {out}"); return
         q["script"] = q.get("script") or script
-        q["video"] = f"assets/reels/{pid}.mp4"; q["video_seconds"] = round(total, 1); q["format"] = q.get("format") or "reel"
-    print(f"rendered {out} · {total:.0f}s · {len(imgs)} scenes · voice {'yes' if any(vos) else 'no'}")
+        q["video"] = ref; q["video_seconds"] = round(total, 1); q["format"] = q.get("format") or "reel"
+        media_ai = dict(q.get("media_ai") if isinstance(q.get("media_ai"), dict) else {})
+        media_ai.pop(ref, None)
+        if ai:
+            media_ai[ref] = ai
+        if media_ai or "media_ai" in q:
+            q["media_ai"] = media_ai
+    print(f"rendered {out} · {total:.0f}s · {len(imgs)} scenes · voice {'yes' if any(vos) else 'no'}"
+          f"{' · AI-marked (' + ','.join(ai['kinds']) + ')' if ai and ai.get('marked') else ' · NOT marked: ' + ai['error'] if ai else ''}")
 
 
 def demo(out, voice=False):

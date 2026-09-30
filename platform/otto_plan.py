@@ -16,6 +16,10 @@ show:  prints the month grid.
 Slots come from brands[].slots in data.json (weekday -> ["HH:MM", ...]); defaults below.
 Stories: an Instagram story slot on brands[].story_days (default mon/wed/fri) at story_time (12:00),
 on top of the weekly feed quota. `--no-stories` turns them off.
+Plan (plans.json via ap.plan_of): stories only when the plan has them; reels up to limits.reels_per_month (topped up to it
+when the mix falls short, extras become posts; none without the reels feature); the month never holds more than
+limits.posts_per_month items (every format counts, posts the month already has included) — over it, feed slots are thinned
+evenly across the month and the build says how many were left out. A plan without organic content plans nothing.
 Slots already in the past (brand-local time — onboarding mid-month builds the current month) are not planned: they could
 only ever be "missed".
 Pure stdlib. Writes through ap.transaction() (lock + atomic save) so the dashboard fallback stays in sync.
@@ -123,6 +127,12 @@ def _build(d, bid, ym, per_week, platforms, dry, replace, stories):
     if replace:
         d["posts"] = [p for p in d["posts"] if not (p["brand"] == bid and p.get("plan") == ym and p["status"] == "draft")]
 
+    p_plan = ap.plan_of(d, bid)
+    feats, lims = p_plan["features"], p_plan["limits"]
+    if not feats.get("organic"):
+        print(f"{bid}: plan {p_plan['id']} has no organic content — nothing planned for {ym}")
+        return []
+    stories = stories and bool(feats.get("stories"))
     plan, week_count, idx = [], {}, 0
     pattern = mix_pattern(format_mix(b))
     story_days = b.get("story_days") if b.get("story_days") is not None else ["mon", "wed", "fri"]
@@ -162,11 +172,23 @@ def _build(d, bid, ym, per_week, platforms, dry, replace, stories):
 
     if past:
         print(f"note: {past} slot(s) in {ym} are already past ({tz.key}) — not planned")
-    # the base package promises four explainer reels a month — top up if the mix fell short
+    # the plan promises reels_per_month explainer reels (none without the reels feature) — top up if the mix fell short,
+    # turn extras back into posts
+    want = (lims.get("reels_per_month") if lims.get("reels_per_month") is not None else 4) if feats.get("reels") else 0
     reels = [x for x in plan if x["format"] == "reel"]
-    if len(reels) < 4:
-        for x in [x for x in plan if x["format"] == "post" and x["platform"] == "ig"][:4 - len(reels)]:
+    if len(reels) < want:
+        for x in [x for x in plan if x["format"] == "post" and x["platform"] == "ig"][:want - len(reels)]:
             x["format"] = "reel"
+    for x in reels[int(want):]:
+        x["format"] = "post"
+    cap = lims.get("posts_per_month")
+    if cap is not None:
+        kept = [p for p in d["posts"] if p["brand"] == bid and p.get("plan") == ym and p.get("status") != "skipped"]
+        room = max(0, int(cap) - len(kept))
+        if len(plan) > room:
+            plan = thin(plan, room)
+            print(f"note: plan {p_plan['id']} allows {int(cap)} posts a month — {ym} planned at {len(kept) + len(plan)}"
+                  + (f" ({len(kept)} already there)" if kept else ""))
     if dry:
         for p in plan:
             print(f'{p["slot"]}  {p["platform"]:2}  {p["format"]:8}  {p["pillar"]}')
@@ -181,6 +203,20 @@ def _build(d, bid, ym, per_week, platforms, dry, replace, stories):
                                    format=p["format"], plan=ym,
                                    brief=f'{p["pillar"]} · {p["format"]} · angle TBD by Quill · visual on-brand per brand-profile.md'))
     return created
+
+
+def thin(plan, n):
+    """At most n items, spread evenly over the month: reels are kept first (the plan promises them), then feed slots and
+    stories at even intervals. Order stays chronological."""
+    if n <= 0:
+        return []
+    if len(plan) <= n:
+        return plan
+    reels = [i for i, x in enumerate(plan) if x["format"] == "reel"][:n]
+    rest = [i for i, x in enumerate(plan) if x["format"] != "reel"]
+    k = n - len(reels)
+    pick = {rest[int(j * len(rest) / k)] for j in range(k)} if k > 0 else set()
+    return [x for i, x in enumerate(plan) if i in pick or i in set(reels)]
 
 
 def plan_path(bid, ym):

@@ -383,10 +383,9 @@ class WS:
 
     def build(self):
         html = (PLATFORM / "index.html").read_text()
-        m = re.search(r'<script id="fallback-data" type="application/json">(.*?)</script>', html, re.S)
-        data = json.loads(m.group(1).replace("<\\/", "</"))
+        data = json.loads((Path(__file__).resolve().parent / "fixtures" / "data.json").read_text())   # never the page's block:
         (self.root / "data.json").write_text(json.dumps(data, ensure_ascii=False, indent=2))   # the two pilot brands stay in
-        (self.root / "index.html").write_text(html)
+        (self.root / "index.html").write_text(html)                                             # it is neutral when committed
         shutil.copytree(REPO / "brands", self.root / "brands")
         shutil.copytree(PLATFORM / "assets" / "posts", self.root / "assets" / "posts")
         for d in ("secrets", "public", "motion", "guard", "demo", "calls"):
@@ -794,9 +793,11 @@ def step_onboard(b):
         R.check(lang == e["primary"], f"brand_lang = {lang} (expected {e['primary']})")
         code, out, _ = cli("ap.py", "brand-add", b["slug"], b["name"], b["domain"], b["lang_arg"])
         R.check(code != 0 and "exists" in out, "second brand-add with the same slug was not refused")
-        if b.get("landing"):                      # what the onboarding agent records after the owner's answers
-            with M["ap"].transaction(sync=False) as dd:
-                M["ap"].brand(dd, b["slug"])["landing"] = b["landing"]
+        with M["ap"].transaction(sync=False) as dd:  # a paying Growth client (Whop link), so the whole engine runs —
+            bb = M["ap"].brand(dd, b["slug"])        # Starter/Content limits are covered by tests/test_plans.py
+            bb["plan"] = "growth"; bb.pop("plan_billing", None)
+            if b.get("landing"):                  # what the onboarding agent records after the owner's answers
+                bb["landing"] = b["landing"]
         R.mark("PASS", f"tz {br.get('tz')} · lang {lang} · countries {br.get('countries')}")
 
 

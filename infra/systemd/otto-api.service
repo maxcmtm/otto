@@ -1,0 +1,44 @@
+# Otto API (platform/otto_api.py) on 127.0.0.1:8161 — only Caddy talks to it (infra/Caddyfile).
+[Unit]
+Description=Otto API (127.0.0.1:8161)
+Documentation=file:///opt/otto/infra/README.md
+After=network-online.target
+Wants=network-online.target
+StartLimitIntervalSec=300
+StartLimitBurst=10
+OnFailure=otto-alert@%N.service
+
+[Service]
+Type=simple
+User=otto
+Group=otto
+EnvironmentFile=/etc/otto/otto.env
+WorkingDirectory=/opt/otto/platform
+ExecStart=/usr/bin/python3 /opt/otto/platform/otto_api.py
+Restart=always
+RestartSec=3
+UMask=0022
+# writes only /var/lib/otto (data.json, logs, brands, billing, events); the checkout and the web roots are read-only to it
+NoNewPrivileges=yes
+PrivateTmp=yes
+PrivateDevices=yes
+ProtectSystem=strict
+ReadWritePaths=/var/lib/otto
+ProtectHome=read-only
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectKernelLogs=yes
+ProtectControlGroups=yes
+ProtectClock=yes
+ProtectHostname=yes
+RestrictNamespaces=yes
+RestrictRealtime=yes
+RestrictSUIDSGID=yes
+LockPersonality=yes
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+SystemCallArchitectures=native
+CapabilityBoundingSet=
+MemoryMax=1536M
+
+[Install]
+WantedBy=multi-user.target

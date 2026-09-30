@@ -1,0 +1,14 @@
+# Telegram alert when an Otto unit fails (OnFailure=otto-alert@%N.service). %i = the failed unit without ".service".
+# /usr/local/lib/otto/otto_alert.py is a root-owned copy of infra/otto_alert.py (installed by bootstrap.sh) so the alert still
+# works when a bad release breaks the checkout. No bot config → it logs and exits 0.
+[Unit]
+Description=Otto failure alert for %i
+
+[Service]
+Type=oneshot
+User=otto
+Group=otto
+SupplementaryGroups=systemd-journal
+EnvironmentFile=-/etc/otto/otto.env
+ExecStart=/usr/bin/python3 /usr/local/lib/otto/otto_alert.py %i
+TimeoutStartSec=60

@@ -1,0 +1,44 @@
+{
+  "id": "gruns-big",
+  "style": "big",
+  "angle": "a3 fiber by the number + what's in one pack (proof pr2)",
+  "formats": [
+    "9x16"
+  ],
+  "music": {
+    "bpm": 120,
+    "mood": "punchy"
+  },
+  "scene": {
+    "ground": "accent"
+  },
+  "big": {
+    "hero": "hero",
+    "phrases": [
+      {
+        "big": "6 g",
+        "rest": "of fiber."
+      },
+      {
+        "big": "21",
+        "rest": "vitamins & minerals."
+      },
+      {
+        "big": "One pack.",
+        "product": "unit"
+      }
+    ]
+  },
+  "endcard": {
+    "ground": "primaryDeep",
+    "headline": "60+ ingredients. One snack pack.",
+    "accent": "One snack pack.",
+    "sub": "$1.78 a day · 30-day money-back on your first order",
+    "fine": "",
+    "products": [
+      "pack",
+      "unit"
+    ],
+    "duration": 3.2
+  }
+}

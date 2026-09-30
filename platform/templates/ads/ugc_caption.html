@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="{{lang}}" dir="{{dir}}" class="{{html_class}}">
+<head><meta charset="utf-8">
+<!-- ugc_caption: a creator's frame. A real photo of a person (or hands with the product), full-bleed, with the
+     short-video "text sticker" look: 1-3 captions in white rounded boxes, black text, one box per line.
+     No brand bar, no UI chrome: it has to feel native. Story 9:16 is the primary size; feed and square work too.
+     data: photo* (a real photo, never a packshot), captions* (1-3 short strings; *word* = the brand-accent box;
+           a single `caption` string also works), caption_pos: "top" | "middle" | "bottom" (default; put the
+           captions where the photo leaves room), handle ("@name", small creator tag, bottom corner),
+           logo (true = a small brand mark in the other bottom corner), photo_pos.
+     Copy must be true in the creator's voice: no invented testimonials, no results claims. -->
+{{&_head}}
+<style>
+.ugc{--ut:118px;--ub:132px;--hb:52px;--cap:calc(54px*var(--k));--f-ugc:var(--f-text);background:#1b1b1b}
+/* story: captions and the creator tag between the top 14 % and the bottom 35 % (Meta's unified Stories/Reels UI) */
+html.f-story .ugc{--ut:270px;--ub:760px;--hb:684px;--cap:58px}
+html.f-square .ugc{--ut:92px;--ub:118px;--hb:44px;--cap:48px}
+/* the photo as the phone saw it: no grade, no brand tint, a whisper of grain to hide upscaling */
+.ugc .pic{position:absolute;inset:0;z-index:0}
+.ugc .photo{filter:none}
+.ugc .grain::after{opacity:.05}
+.ugc .veil{position:absolute;inset:auto 0 0 0;height:calc(var(--hb) + 170px);z-index:1;pointer-events:none;
+  background:linear-gradient(to top,rgba(0,0,0,.34),rgba(0,0,0,.14) 55%,rgba(0,0,0,0))}
+/* captions: the safe frame, stacked bottom (default), middle or top. Auto margins, not justify-content, so an
+   overflowing stack spills downward where _fit.js can see it and shrink it. */
+.caps-frame{position:absolute;inset:var(--ut) var(--pad) var(--ub) var(--pad);z-index:3;display:flex;flex-direction:column}
+.caps{display:flex;flex-direction:column;align-items:center;margin-top:auto;width:100%}
+.cap-top .caps{margin-top:0;margin-bottom:auto}
+.cap-middle .caps{margin-top:auto;margin-bottom:auto}
+.cap{max-width:88%;text-align:center;font:600 var(--cap)/1.3 var(--f-ugc);letter-spacing:-.012em;color:#0b0b0b;
+  text-wrap:balance;hyphens:none}
+.cap + .cap{margin-top:.52em}
+/* the sticker: one white rounded box per line (box-decoration-break), lines touch like the native text tool */
+.cap .s{background:#fff;padding:.13em .44em .15em;border-radius:.3em;
+  -webkit-box-decoration-break:clone;box-decoration-break:clone}
+html.has-cutout .cap .s{box-shadow:0 .06em .5em rgba(0,0,0,.12)}
+/* *word*: the brand accent box inside the sticker, same face, no italics */
+html .ugc .cap em{font:inherit;font-style:normal;letter-spacing:inherit;line-height:inherit;color:var(--accent-ink);
+  background:var(--accent);padding:.02em .16em .04em;margin:0 -.04em;border-radius:.18em;
+  -webkit-box-decoration-break:clone;box-decoration-break:clone}
+html[dir=rtl] .cap{font-weight:700;letter-spacing:0;line-height:1.36;font-size:calc(var(--cap)*1.04)}
+/* creator tag + optional brand mark: small, white, on the bottom edge of the safe zone */
+.tagrow{position:absolute;inset-inline:var(--pad);bottom:var(--hb);z-index:3;display:flex;align-items:center;
+  justify-content:space-between;gap:24px;color:#fff}
+.handle{font:600 calc(27px*var(--k))/1 var(--f-text);letter-spacing:-.005em;white-space:nowrap;
+  text-shadow:0 1px 2px rgba(0,0,0,.4),0 0 14px rgba(0,0,0,.28)}
+html.f-story .handle{font-size:30px}
+.ugc .mark{color:#fff;opacity:.94;filter:drop-shadow(0 1px 3px rgba(0,0,0,.35));margin-inline-start:auto}
+.ugc .mark .logo-m{height:calc(34px*var(--k))}
+html.f-story .ugc .mark .logo-m{height:40px}
+.ugc .mark img{height:calc(38px*var(--k))}
+html.has-cutout .tagrow{color:var(--ink)}
+html.has-cutout .ugc .mark{color:var(--ink);filter:none}
+html.has-cutout .handle{text-shadow:none}
+html.has-cutout .veil{display:none}
+</style>
+</head>
+<body>
+<div class="ad ugc cap-{{caption_pos}}">
+  {{#if photo}}<div class="pic grain"><img class="photo" src="{{photo}}" style="object-position:{{photo_pos}}" alt=""></div>{{/if}}
+  {{#if handle}}<div class="veil"></div>{{else}}{{#if logo}}<div class="veil"></div>{{/if}}{{/if}}
+  <div class="caps-frame" data-box>
+    <div class="caps">
+      {{#each captions}}<p class="cap" data-fit="1" data-min="34" data-lines="3"><span class="s">{{.}}</span></p>{{else}}{{#if caption}}<p class="cap" data-fit="1" data-min="34" data-lines="4"><span class="s">{{caption}}</span></p>{{/if}}{{/each}}
+    </div>
+  </div>
+  {{#if handle}}<div class="tagrow"><span class="handle"><bdi dir="ltr">{{handle}}</bdi></span>{{#if logo}}<span class="mark">{{#if logo_mask}}<span class="logo-m" role="img" aria-label="{{brand.name}}" style="--logo:url('{{logo_mask}}');--ar:{{brand.logo_ratio}}"></span>{{else}}{{#if logo_src}}<img src="{{logo_src}}" alt="">{{else}}{{brand.name}}{{/if}}{{/if}}</span>{{/if}}</div>{{else}}{{#if logo}}<div class="tagrow"><span class="mark">{{#if logo_mask}}<span class="logo-m" role="img" aria-label="{{brand.name}}" style="--logo:url('{{logo_mask}}');--ar:{{brand.logo_ratio}}"></span>{{else}}{{#if logo_src}}<img src="{{logo_src}}" alt="">{{else}}{{brand.name}}{{/if}}{{/if}}</span></div>{{/if}}{{/if}}
+</div>
+{{&_foot}}
+<script>/* after _fit.js: one caption size for the whole stack (the smallest any caption needed) */
+(function(){var g=0;function eq(){var d=document.documentElement;if(!d.classList.contains('fitted')){if(g++<200)setTimeout(eq,25);return;}
+var cs=[].slice.call(document.querySelectorAll('.cap'));if(cs.length<2)return;
+var m=Math.min.apply(null,cs.map(function(e){return parseFloat(getComputedStyle(e).fontSize);}));
+cs.forEach(function(e){e.style.fontSize=m+'px';});}eq();})();</script>
+</body>
+</html>

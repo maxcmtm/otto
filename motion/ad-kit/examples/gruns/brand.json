@@ -1,0 +1,35 @@
+{
+  "name": "Grüns",
+  "slug": "gruns",
+  "site": "gruns.co",
+  "assetRoot": "assets",
+  "fonts": {
+    "brand": { "file": "DMSans-var-latin.woff2", "weight": "100 900", "tracking": "-0.04em" },
+    "ui": null
+  },
+  "colors": {
+    "bg": "#FFF8E6",
+    "surface": "#FFFFFF",
+    "ink": "#002613",
+    "muted": "#5E6B63",
+    "line": "rgba(0, 38, 19, 0.12)",
+    "primary": "#007E40",
+    "primaryDeep": "#00572C",
+    "onPrimary": "#FFF8E6",
+    "accent": "#E8B411",
+    "onAccent": "#002613",
+    "night": "#002613",
+    "neutral": "#ECEBE6",
+    "wash": "#DAECE3"
+  },
+  "assets": {
+    "pack": "pouch-hd.png",
+    "unit": "sachet-front.png",
+    "hero": "gummy.png",
+    "photo": "hero-life.png",
+    "logo": "logo.svg"
+  },
+  "legal": {
+    "fda": "These statements have not been evaluated by the Food and Drug Administration. This product is not intended to diagnose, treat, cure, or prevent any disease."
+  }
+}

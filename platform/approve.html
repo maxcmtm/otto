@@ -2,11 +2,16 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
+<!-- CSP: script-src lists the sha256 of every inline script element in this page. After editing one, the browser refuses it and its console prints the new hash: replace the old one here (or recompute all of them). -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-OytfkNTeePq+FfdmN/rjnmgbm6WS77JXBpabLpWiuvc='; style-src 'self' 'unsafe-inline'; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-src 'none'; worker-src 'none'; manifest-src 'self'; img-src 'self' data:; media-src 'none'">
+<script>/* An early design mockup with invented numbers, not the product: clients go to the real app. Add ?mockup to the address to look at it. */
+if(!/[?&]mockup(=|&|$)/.test(location.search))location.replace('index.html#review');</script>
+<meta name="robots" content="noindex">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Autopilot — Approve</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fraunces:ital,opsz,wght@1,9..144,400;1,9..144,500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<title>Otto mockup — Approve</title>
+<style>/* Type from our own server, no request to another host: "Inter" in these styles is Mona Sans (assets/landing, as on
+   the landing and setup); Fraunces and JetBrains Mono fall back to the system serif and monospace. */
+@font-face{font-family:"Inter";src:url("assets/landing/mona-sans-latin.woff2") format("woff2");font-weight:400 800;font-stretch:100%;font-style:normal;font-display:swap}</style>
 <link rel="stylesheet" href="assets/platform.css">
 <style>
 .stage{display:grid;grid-template-columns:1fr 320px;gap:36px;align-items:start;margin-top:8px}
@@ -87,7 +92,7 @@
 <header class="appbar">
   <div class="appbar-in">
     <div class="mark"><div class="face"></div></div>
-    <div class="wordmark">AUTOPILOT<small>MISSION CONTROL</small></div>
+    <div class="wordmark">OTTO<small>DESIGN MOCKUP</small></div>
     <nav class="tabs">
       <a class="tab" href="index.html">Overview</a>
       <span class="tab on">Approve</span>
@@ -99,7 +104,7 @@
     </nav>
     <div class="spacer"></div>
     <div class="search">Search<span class="kbd">⌘K</span></div>
-    <span class="live"><i></i>LIVE DATA</span>
+    <span class="live"><i></i>SAMPLE DATA</span>
     <div class="avatar">M</div>
   </div>
 </header>

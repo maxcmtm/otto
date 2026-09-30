@@ -1,0 +1,251 @@
+# Otto web front (Caddy 2.8+, the official apt package). Versioned here, loaded on the server through a one-line
+# /etc/caddy/Caddyfile written by infra/bootstrap.sh:
+#     import /opt/otto/infra/Caddyfile
+# OTTO_DOMAIN comes from /etc/otto/caddy.env (systemd drop-in /etc/systemd/system/caddy.service.d/otto.conf).
+# deploy.sh reloads Caddy when this file changes; a reload with a broken config keeps the running one.
+#
+# OTTO_PROXY_KEY also comes from caddy.env (the same random value as in otto.env; bootstrap generates it): the API only believes
+# X-Otto-User on a request that carries it, so nothing that reaches 127.0.0.1:8161 some other way can name itself a user.
+#
+# Generated on the server, not in git (bootstrap.sh / otto-cloudflare-ips):
+#   /etc/caddy/otto.d/cloudflare.caddy  → (cloudflare_peer)  @cloudflare = the connecting peer is one of Cloudflare's ranges
+#   /etc/caddy/otto.d/tls.caddy         → (otto_tls)         Cloudflare origin cert (default) or Let's Encrypt (fallback)
+#
+# Trust: every request reaches this box through Cloudflare (ufw opens 80/443 to Cloudflare's ranges only). The API trusts
+# three headers and all three are set here on every proxied request, never passed through from the browser:
+#   X-Real-IP        = CF-Connecting-IP when the peer is one of Cloudflare's ranges, else the peer's own address
+#   X-Otto-User      = Cf-Access-Authenticated-User-Email (Cloudflare Access) when the peer is Cloudflare, on app. and admin.
+#                      only (empty otherwise; the apex never names a user). The API scopes /otto-api/data per user
+#                      (brands[].members) and gates /otto-api/admin* on it (OTTO_ADMIN_USERS).
+#   X-Otto-Proxy-Key = OTTO_PROXY_KEY
+# Rate limits for the public endpoints live in Cloudflare (WAF → rate limiting rules, infra/README.md) and in the API itself.
+
+import /etc/caddy/otto.d/*.caddy
+
+(otto_common) {
+	import otto_tls
+	import cloudflare_peer
+	# whatever the browser sent is gone before any handler runs (otto_api sets all three again)
+	request_header -X-Otto-User
+	request_header -X-Real-IP
+	request_header -X-Otto-Proxy-Key
+	encode zstd gzip
+	header {
+		Strict-Transport-Security "max-age=31536000"
+		X-Content-Type-Options "nosniff"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		X-Frame-Options "DENY"
+		Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=(), usb=()"
+		Content-Security-Policy "frame-ancestors 'none'; base-uri 'self'; object-src 'none'; form-action 'self'"
+		Cross-Origin-Opener-Policy "same-origin"
+		-Server
+	}
+	# no access log on purpose: Cloudflare has the traffic view, and a log here would hold visitor IPs and Access tokens
+}
+
+# Signed-in hosts (app., admin.): the Access e-mail becomes X-Otto-User.
+(otto_signed_in) {
+	vars @cloudflare {
+		otto_user {http.request.header.Cf-Access-Authenticated-User-Email}
+	}
+}
+
+# The API. A route keeps the order as written: the peer's own address first, CF-Connecting-IP over it only when the peer is
+# Cloudflare. X-Otto-User is {vars.otto_user}: set on app./admin. from Cloudflare only (otto_signed_in), empty elsewhere.
+(otto_api) {
+	route {
+		vars otto_ip {remote_host}
+		vars @cloudflare otto_ip {http.request.header.CF-Connecting-IP}
+		reverse_proxy 127.0.0.1:8161 {
+			header_up X-Real-IP {vars.otto_ip}
+			header_up X-Otto-User {vars.otto_user}
+			header_up X-Otto-Proxy-Key {$OTTO_PROXY_KEY}
+			transport http {
+				dial_timeout 3s
+				response_header_timeout 60s
+			}
+		}
+	}
+}
+
+# /assets/*: generated media (posts, ad statics, reels — OTTO_PUBLIC_ASSETS=/var/lib/otto/public/assets) first,
+# then the static files shipped with the release (deploy.sh → /srv/otto/static/assets). Meta fetches media from here.
+(otto_assets) {
+	@generated file {
+		root /var/lib/otto/public
+		try_files {path}
+	}
+	handle @generated {
+		root * /var/lib/otto/public
+		header Cache-Control "public, max-age=3600"
+		file_server
+	}
+	handle {
+		root * /srv/otto/static
+		header Cache-Control "public, max-age=86400"
+		file_server
+	}
+}
+
+(otto_pages) {
+	# /onboarding → onboarding.html; HTML is revalidated on every visit (deploys show at once)
+	try_files {path} {path}.html
+	header Cache-Control "no-cache"
+	file_server
+}
+
+# ---------------------------------------------------------------- otto.example — landing + public endpoints (no login)
+{$OTTO_DOMAIN} {
+	import otto_common
+
+	@get method GET HEAD
+	@post method POST
+
+	# landing: brand DNA peek (GET, no body)
+	handle /otto-peek {
+		request_body {
+			max_size 1KB
+		}
+		handle @get {
+			import otto_api
+		}
+		respond 405
+	}
+	# landing analytics beacon (sendBeacon POST, ≤ 4 KB)
+	handle /otto-track {
+		request_body {
+			max_size 4KB
+		}
+		handle @post {
+			import otto_api
+		}
+		respond 405
+	}
+	# onboarding for a buyer without a login yet (Whop redirect → /onboarding.html): creates a brand, never updates one
+	handle /otto-onboard {
+		request_body {
+			max_size 16KB
+		}
+		handle @post {
+			import otto_api
+		}
+		respond 405
+	}
+	# onboarding.html posts to /otto-api/onboard; on the apex that is the public create-only route, never the signed-in one
+	handle /otto-api/onboard {
+		request_body {
+			max_size 16KB
+		}
+		handle @post {
+			rewrite * /otto-onboard
+			import otto_api
+		}
+		respond 405
+	}
+	# one-tap approvals from e-mail (otto_email): GET shows a confirmation page and never acts; only that page's POST
+	# decides. No login on purpose — the signed, single-use, 72-hour link is the credential. The page sends its own strict
+	# CSP (also as a meta tag, so it holds under the site header below).
+	handle /otto-email/act {
+		request_body {
+			max_size 4KB
+		}
+		@act method GET POST
+		handle @act {
+			import otto_api
+		}
+		respond 405
+	}
+	# Whop → us (server to server; the Standard Webhooks signature is the authentication)
+	handle /hooks/whop {
+		request_body {
+			max_size 256KB
+		}
+		handle @post {
+			rewrite * /otto-api/whop
+			import otto_api
+		}
+		respond 405
+	}
+	# nothing else of the API exists on the apex
+	handle /otto-api/* {
+		respond 404
+	}
+	handle /assets/* {
+		import otto_assets
+	}
+	handle {
+		root * /srv/otto/site
+		import otto_pages
+	}
+}
+
+# ---------------------------------------------------------------- app.otto.example — client app (Cloudflare Access: clients)
+app.{$OTTO_DOMAIN} {
+	import otto_common
+	import otto_signed_in
+
+	@get method GET HEAD
+	@post method POST
+
+	# the owner console API lives on admin. only; Whop only on the apex
+	handle /otto-api/admin* {
+		respond 404
+	}
+	handle /otto-api/whop {
+		respond 404
+	}
+	handle /otto-api/* {
+		request_body {
+			max_size 64KB
+		}
+		import otto_api
+	}
+	handle /otto-peek {
+		request_body {
+			max_size 1KB
+		}
+		handle @get {
+			import otto_api
+		}
+		respond 405
+	}
+	handle /otto-track {
+		request_body {
+			max_size 4KB
+		}
+		handle @post {
+			import otto_api
+		}
+		respond 405
+	}
+	handle /assets/* {
+		import otto_assets
+	}
+	handle {
+		root * /srv/otto/app
+		import otto_pages
+	}
+}
+
+# ---------------------------------------------------------------- admin.otto.example — owner console (Access: the Otto team)
+admin.{$OTTO_DOMAIN} {
+	import otto_common
+	import otto_signed_in
+
+	handle /otto-api/admin* {
+		request_body {
+			max_size 64KB
+		}
+		import otto_api
+	}
+	handle /otto-api/* {
+		respond 404
+	}
+	handle /assets/* {
+		import otto_assets
+	}
+	handle {
+		root * /srv/otto/admin
+		import otto_pages
+	}
+}

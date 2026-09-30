@@ -6,7 +6,8 @@
   otto_telegram.py poll [--once] [--timeout 50]
   otto_telegram.py send "<text>"
 
-send-cards: every post in pending_approval whose slot is within --hours and that has no card yet
+send-cards: every post in pending_approval whose slot is within --hours and that has no card yet, of a brand whose approvals
+            go to Telegram (brands[].approvals; a brand without the field does — e-mail approvals are otto_email.py)
             → photo (the visual) + caption + inline buttons  ✅ Approve · ❌ Skip · ✏️ Edit · ↷ Later
             Each card is checked against brands/<slug>/compliance.json first (otto_compliance): a violating
             card is NOT sent and a "Compliance hold" recommendation is filed instead. Photo by public URL,
@@ -34,6 +35,7 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 import ap
+import otto_email
 import otto_paths as paths
 
 HERE = Path(__file__).parent
@@ -160,6 +162,8 @@ def send_cards(bid=None, hours=72, resend=False, dry=False, base=BASE, ids=None)
             continue
         if p["status"] != "pending_approval" or (bid and p["brand"] != bid):
             continue
+        if not ids and "telegram" not in otto_email.approval_channels(ap.brand(d, p["brand"])):
+            continue                                # this brand approves by e-mail / in the app (brands[].approvals)
         if p.get("tg_message_id") and not resend:
             continue
         slot = ap.slot_dt(p, ap.brand(d, p["brand"]))
@@ -335,8 +339,10 @@ def handle_callback(cq):
     data = cq.get("data", "")
     if not _is_owner((cq.get("from") or {}).get("id"), chat):
         api("answerCallbackQuery", callback_query_id=cq["id"], text="Not your Otto."); return
-    parts = data.split(":")
+    parts = str(data).split(":")
     if len(parts) == 4 and parts[0] == "otto" and parts[1] == "rec":
+        if parts[3] not in ("approve", "dismiss"):            # callback data comes from the client: only our two buttons
+            api("answerCallbackQuery", callback_query_id=cq["id"], text="?"); return
         return handle_rec(cq, parts[2], parts[3])
     if len(parts) != 3 or parts[0] != "otto":
         api("answerCallbackQuery", callback_query_id=cq["id"], text="?"); return

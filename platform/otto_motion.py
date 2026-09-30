@@ -2,7 +2,8 @@
 """Otto motion reels — the HyperFrames pipeline around skills/otto-motion-director.
 
   otto_motion.py prepare <post-id> [--length 45] [--preset <name>]   # project + BRIEF + capture + frame.md + templates
-  otto_motion.py voice   <post-id> <dir-with-NN.mp3>                 # wav, tighten pauses, words, audio_meta, start music
+  otto_motion.py voice   <post-id> <dir-with-NN.mp3> [--human-voice] # wav, tighten pauses, words, audio_meta, start music
+                                                                     # (--human-voice: a real recording, not ElevenLabs)
   otto_motion.py words   <post-id>                                   # print word cues per frame (to time the Scene lines)
   otto_motion.py finish  <post-id> [--no-render]                     # captions → assemble → transitions → lint/check/snapshot → render → attach
 
@@ -10,6 +11,9 @@ The creative work in between (SCRIPT.md, STORYBOARD.md, dispatching one frame wo
 by the agent following skills/otto-motion-director/SKILL.md. Reference build: motion/happygarden-spectrum-guide/.
 Requires: node + npx (HyperFrames CLI), ffmpeg/ffprobe, python faster-whisper (word timings).
 Env: OTTO_MOTION_ROOT (default <repo>/motion), HF_SKILLS (default ~/.claude/skills), npm_config_cache (optional).
+Provenance (EU AI Act Art. 50(2), otto_provenance): `finish` marks the rendered mp4 as compositeSynthetic
+when it carries the synthetic voice (ElevenLabs, unless `voice --human-voice`) and/or the generated MusicGen bed, before it
+is made public; post.media_ai[<ref>] records it.
 """
 import json
 import os
@@ -21,6 +25,7 @@ from pathlib import Path
 
 import ap
 import otto_paths as paths
+import otto_provenance as prov
 
 HERE = Path(__file__).parent
 REPO = HERE.parent
@@ -254,8 +259,13 @@ def join_fragments(words):
     return out
 
 
-def voice(pid, mp3_dir):
+VOICE_TOOL = "ElevenLabs via Higgsfield"
+MUSIC_TOOL = "MusicGen"
+
+
+def voice(pid, mp3_dir, human=False):
     d = ap.load(); p = ap.post(d, pid); pdir = project_dir(d, p)
+    with_tx(lambda dd: ap.post(dd, pid).setdefault("motion", {}).__setitem__("voice", "human" if human else "synthetic"))
     adir = pdir / "assets" / "audio"; adir.mkdir(parents=True, exist_ok=True)
     mp3s = sorted(Path(mp3_dir).glob("*.mp3"))
     assert mp3s, f"no .mp3 files in {mp3_dir} (name them 01.mp3, 02.mp3 … one per frame)"
@@ -325,6 +335,22 @@ def solid_crossfades(index_path):
     return n
 
 
+def synthetic_parts(p, pdir):
+    """(kinds, tool) of the synthetic elements in a finished motion reel: the voice (ElevenLabs unless the voice step was
+    told it is a human recording) and the generated music bed. The visuals are code-rendered motion graphics."""
+    kinds, tools = [], []
+    try:
+        meta = json.loads((pdir / "audio_engine_meta.json").read_text())
+    except (OSError, ValueError):
+        meta = {}
+    has_voice = bool(meta.get("voices")) or (pdir / "audio_meta.json").exists()
+    if has_voice and ((p.get("motion") or {}).get("voice") or "synthetic") != "human":
+        kinds.append("voice"); tools.append(VOICE_TOOL)
+    if meta.get("bgm"):
+        kinds.append("music"); tools.append(MUSIC_TOOL)
+    return kinds, " + ".join(tools)
+
+
 def finish(pid, render=True):
     d = ap.load(); p = ap.post(d, pid); pdir = project_dir(d, p)
     frames = sorted((pdir / "compositions" / "frames").glob("*.html"))
@@ -348,15 +374,26 @@ def finish(pid, render=True):
         return
     sh(["npx", "hyperframes", "render", "--skill=faceless-explainer", "--quality", "high", "--output", "renders/video.mp4"], cwd=pdir)
     REELS.mkdir(parents=True, exist_ok=True)
-    out = REELS / f"{pid}.mp4"
+    out = REELS / paths.token_name(pid, ".mp4", paths.media_token("post", pid))     # unguessable public name
     shutil.copy(pdir / "renders" / "video.mp4", out)
+    kinds, tool = synthetic_parts(p, pdir)
+    ai = prov.record(prov.mark_safely(out, kinds, tool, composite=True)) if kinds else None   # before it is public
     paths.publish(out)                               # public before post.video points at it (ap has no publish_asset)
+    if prov.sidecar_path(out).exists():
+        paths.publish(prov.sidecar_path(out))
     secs = round(_dur(out), 1)
+    ref = paths.rel_of(out)
 
     def attach(dd):
         pp = ap.post(dd, pid)
-        pp["video"] = f"assets/reels/{pid}.mp4"; pp["video_seconds"] = secs; pp["format"] = "reel"
+        pp["video"] = ref; pp["video_seconds"] = secs; pp["format"] = "reel"
         pp.setdefault("motion", {})["status"] = "rendered"
+        media_ai = dict(pp.get("media_ai") if isinstance(pp.get("media_ai"), dict) else {})
+        media_ai.pop(ref, None)
+        if ai:
+            media_ai[ref] = ai
+        if media_ai or "media_ai" in pp:
+            pp["media_ai"] = media_ai
         if pp.get("status") == "draft":
             pp["status"] = "pending_approval"
     with_tx(attach)
@@ -369,7 +406,7 @@ if __name__ == "__main__":
     if cmd == "prepare":
         prepare(a[1], int(a[a.index("--length") + 1]) if "--length" in a else 45, a[a.index("--preset") + 1] if "--preset" in a else None)
     elif cmd == "voice":
-        voice(a[1], a[2])
+        voice(a[1], a[2], human="--human-voice" in a)
     elif cmd == "words":
         words_cmd(a[1])
     elif cmd == "finish":

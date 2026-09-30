@@ -1,0 +1,41 @@
+<script>/* native screenshots (notes_app, search, text_message, social_post), after _fit.js: a short screenshot is zoomed in
+   (its .in grows 1px at a time, up to 1.4x the iOS size data-base × --u) until it fills its room — never a small phone
+   floating in an empty frame. A long one that still overflows at the minimum first gives back the post's photo height
+   (.media, social_post), then scrolls / fades as the template decides. Only whole-page checks: the screenshot box, the
+   column and every no-wrap line inside the screenshot must still fit. */
+(function () {
+  var D = document.documentElement, done = false;
+  function fits(scr, col) {
+    if (scr.scrollHeight > scr.clientHeight + 1 || col.scrollHeight > col.clientHeight + 1) return false;
+    var els = scr.querySelectorAll('*');
+    for (var i = 0; i < els.length; i++) {
+      var e = els[i], cs = getComputedStyle(e);
+      if (cs.whiteSpace === 'nowrap' && cs.overflow === 'hidden' && e.scrollWidth > e.clientWidth + 1) return false;
+    }
+    return true;
+  }
+  function run() {
+    var scr = document.querySelector('.scr'), col = document.querySelector('.col'), inn = scr && scr.querySelector('.in');
+    if (!scr || !col || !inn) return;
+    var media = scr.querySelector('.media');
+    if (D.classList.contains('overflow') && media) {           // a long post: the photo gets shorter before the copy is cut
+      [2, 2.5, 3, 3.6].some(function (r) { media.style.aspectRatio = r + ' / 1'; return fits(scr, col); });
+      if (fits(scr, col)) D.classList.remove('overflow');
+    }
+    if (D.classList.contains('overflow')) return;
+    var u = parseFloat(getComputedStyle(D).getPropertyValue('--u')) || 2.3, base = parseFloat(inn.getAttribute('data-base')) || 17;
+    var cap = base * u * 1.4, fs = parseFloat(getComputedStyle(inn).fontSize), g = 0;
+    while (fs + 1 <= cap && g++ < 80) {
+      inn.style.fontSize = (fs + 1) + 'px';
+      if (!fits(scr, col)) { inn.style.fontSize = fs + 'px'; break; }
+      fs += 1;
+    }
+  }
+  new MutationObserver(function () {
+    if (done || !D.classList.contains('fitted')) return;
+    done = true;
+    try { run(); } catch (e) {}
+    D.classList.add('grown');
+  }).observe(D, {attributes: true, attributeFilter: ['class']});
+})();
+</script>

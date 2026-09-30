@@ -1,0 +1,288 @@
+<template>
+  <!-- Otto ad-kit · style "big" — the product hero huge: a macro pull-back from a blurred close-up, then kinetic
+       type slams one fact per hit on the beat ("6 g" / "of fiber." …), the hero answering every hit with a small
+       camera punch; the last phrase brings in the product unit. Fast, bold, on-beat; one fact at a time. -->
+  <script src="__GSAP__"></script>
+  <style>
+    @font-face {
+      font-family: "AdKit Brand";
+      src: url("assets/fonts/brand.woff2") format("woff2");
+      font-weight: 100 900;
+      font-style: normal;
+      font-display: block;
+    }
+    #root {
+      /*@TOKENS*/
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+      font-family: "AdKit Brand", sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+    #bg-ground {
+      position: absolute;
+      inset: 0;
+      background: var(--ad-ground);
+    }
+    #bg-stage,
+    #bg-cam,
+    #bg-heroes {
+      position: absolute;
+      inset: 0;
+    }
+    .bg-shadow {
+      position: absolute;
+      border-radius: 50%;
+      background: rgba(0, 0, 0, 0.22);
+      filter: blur(26px);
+    }
+    .bg-img {
+      position: absolute;
+      display: block;
+    }
+    .bg-phrase {
+      position: absolute;
+      left: 50px;
+      right: 50px;
+      text-align: center;
+      color: var(--ad-on);
+    }
+    .bg-big {
+      display: block;
+      font-weight: 800;
+      letter-spacing: -0.055em;
+      line-height: 0.9;
+      white-space: nowrap;
+    }
+    .bg-rest-mask {
+      display: block;
+      overflow: hidden;
+      padding: 0.06em 0 0.14em;
+    }
+    .bg-rest {
+      display: block;
+      font-weight: 800;
+      letter-spacing: -0.035em;
+      line-height: 1;
+      color: var(--ad-hi);
+    }
+  </style>
+
+  <div id="root" data-composition-id="big" data-width="__W__" data-height="__H__" data-duration="__DUR__">
+    <div id="bg-ground" class="clip" data-start="0" data-duration="__DUR__" data-track-index="0"></div>
+    <div id="bg-stage">
+      <div id="bg-cam">
+        <div id="bg-heroes"></div>
+      </div>
+      <div id="bg-type"></div>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      var D = /*@DATA*/null;
+      var ID = "big";
+      var $ = function (id) {
+        return document.getElementById(id);
+      };
+      var IR = { immediateRender: false };
+
+      function fontsReady() {
+        try {
+          if (document.fonts && document.fonts.load) {
+            return Promise.all([document.fonts.load('800 300px "AdKit Brand"')]).catch(function () {});
+          }
+        } catch (e) {}
+        return Promise.resolve();
+      }
+      function el(tag, cls, text) {
+        var e = document.createElement(tag);
+        if (cls) e.className = cls;
+        if (text != null) e.textContent = text;
+        return e;
+      }
+
+      function build() {
+        var B = D.content;
+        var S = D.S;
+        var W = D.fmt.w;
+        var H = D.fmt.h;
+        var tall = H >= 1600;
+        var END = D.endAt;
+        var beat = D.beat;
+
+        // ── the hero (e.g. the gummy) — rest size and position ──
+        var heroA = D.assets[B.hero];
+        var heroH = tall ? 900 : 660;
+        var heroW = (heroH * heroA.w) / heroA.h;
+        var heroCx = W / 2;
+        var heroCy = tall ? 1200 : 880;
+        var heroes = $("bg-heroes");
+        var shadow = el("div", "bg-shadow");
+        shadow.style.width = heroW * 0.85 + "px";
+        shadow.style.height = "70px";
+        shadow.style.left = heroCx - heroW * 0.425 + "px";
+        shadow.style.top = heroCy + heroH / 2 - 40 + "px";
+        heroes.appendChild(shadow);
+        var hero = el("img", "bg-img");
+        hero.src = heroA.src;
+        hero.alt = "";
+        hero.style.width = heroW + "px";
+        hero.style.height = heroH + "px";
+        hero.style.left = heroCx - heroW / 2 + "px";
+        hero.style.top = heroCy - heroH / 2 + "px";
+        heroes.appendChild(hero);
+
+        // the product that arrives with the last phrase
+        var last = S.phrases[S.phrases.length - 1];
+        var prod = null;
+        // the last phrase's product is the hero itself (e.g. a sachet hero): no second copy, the hero settles instead
+        var heroIsProduct = !!(last.product && D.assets[last.product] && D.assets[last.product].src === heroA.src);
+        if (last.product && D.assets[last.product] && !heroIsProduct) {
+          var pa = D.assets[last.product];
+          var ph = tall ? 690 : 520;
+          var pw = (ph * pa.w) / pa.h;
+          prod = el("img", "bg-img");
+          prod.src = pa.src;
+          prod.alt = "";
+          prod.style.width = pw + "px";
+          prod.style.height = ph + "px";
+          prod.style.left = W * 0.575 - pw / 2 + "px";
+          prod.style.top = heroCy - ph / 2 - (tall ? 60 : 40) + "px";
+          prod.style.filter = "drop-shadow(0 40px 60px rgba(0,0,0,0.28))";
+          heroes.insertBefore(prod, shadow);
+        }
+
+        // ── phrases ──
+        var type = $("bg-type");
+        var TOP = tall ? 210 : 80;
+        var phrases = S.phrases.map(function (p, i) {
+          var box = el("div", "bg-phrase");
+          box.style.top = TOP + "px";
+          var big = el("div", "bg-big", p.big);
+          big.setAttribute("data-layout-allow-overlap", "");
+          box.setAttribute("data-layout-allow-overlap", "");
+          var isLast = i === S.phrases.length - 1;
+          var size = p.rest ? (tall ? 330 : 250) : tall ? 250 : 190;
+          big.style.fontSize = size + "px";
+          box.appendChild(big);
+          var rest = null;
+          if (p.rest) {
+            var m = el("div", "bg-rest-mask");
+            m.setAttribute("data-layout-allow-overlap", "");
+            rest = el("div", "bg-rest");
+            rest.style.fontSize = (tall ? 96 : 76) + "px";
+            m.appendChild(rest);
+            box.appendChild(m);
+          }
+          type.appendChild(box);
+          // fit the big word to the width
+          if (big.scrollWidth > W - 100) big.style.fontSize = Math.floor((size * (W - 100)) / big.scrollWidth) + "px";
+          // the rest line: one line if it fits, else two balanced lines (a break after punctuation wins), then shrink
+          if (rest) {
+            var maxW = W - 110;
+            var probe = el("span");
+            probe.style.cssText = "position:absolute;visibility:hidden;white-space:pre";
+            rest.appendChild(probe);
+            var mw = function (t) {
+              probe.textContent = t;
+              return probe.offsetWidth;
+            };
+            var words = p.rest.split(" ");
+            var lines = [p.rest];
+            if (mw(p.rest) > maxW && words.length > 1) {
+              var best = null;
+              for (var k = 1; k < words.length; k++) {
+                var a1 = mw(words.slice(0, k).join(" "));
+                var b1 = mw(words.slice(k).join(" "));
+                var sc = Math.max(a1, b1) * (/[.,?!:;]$/.test(words[k - 1]) ? 0.8 : 1);
+                if (!best || sc < best.m) best = { k: k, m: sc, w: Math.max(a1, b1) };
+              }
+              lines = [words.slice(0, best.k).join(" "), words.slice(best.k).join(" ")];
+              if (best.w > maxW) rest.style.fontSize = Math.floor((parseFloat(rest.style.fontSize) * maxW) / best.w) + "px";
+            } else if (mw(p.rest) > maxW) {
+              rest.style.fontSize = Math.floor((parseFloat(rest.style.fontSize) * maxW) / mw(p.rest)) + "px";
+            }
+            rest.removeChild(probe);
+            lines.forEach(function (ln) {
+              var d = el("div", null, ln);
+              d.style.lineHeight = "1.08";
+              d.setAttribute("data-layout-allow-overlap", "");
+              rest.appendChild(d);
+            });
+          }
+          return { p: p, box: box, big: big, rest: rest, last: isLast };
+        });
+
+        // ── starting states ──
+        gsap.set($("bg-cam"), { scale: 2.7, y: tall ? 260 : 180, filter: "blur(16px)", transformOrigin: "50% 58%" });
+        gsap.set(hero, { rotation: -4, x: 0, y: 0, scale: 1, transformOrigin: "50% 60%" });
+        gsap.set(shadow, { opacity: 1 });
+        if (prod) gsap.set(prod, { x: 420, y: 80, rotation: 26, opacity: 0, transformOrigin: "50% 60%" });
+        phrases.forEach(function (x) {
+          gsap.set(x.box, { opacity: 0 });
+          gsap.set(x.big, { scale: 1.4, filter: "blur(14px)", transformOrigin: "50% 60%" });
+          if (x.rest) gsap.set(x.rest, { yPercent: 110 });
+        });
+
+        var tl = gsap.timeline({ paused: true });
+
+        // macro pull-back: from a blurred close-up to the whole hero, landing just before the first hit
+        var F = S.firstAt;
+        tl.fromTo($("bg-cam"), { scale: 2.7, y: tall ? 260 : 180 }, Object.assign({ scale: 1, y: 0, duration: F - 0.05, ease: "expo.out" }, IR), 0);
+        tl.fromTo($("bg-cam"), { filter: "blur(16px)" }, Object.assign({ filter: "blur(0px)", duration: F * 0.7, ease: "power2.out" }, IR), 0);
+        tl.fromTo(hero, { rotation: -4 }, Object.assign({ rotation: 0, duration: F, ease: "power2.out" }, IR), 0);
+
+        // each hit: the phrase slams in, the previous one cuts out, the hero answers with a small punch
+        var sides = [-1, 1, -1, 1];
+        var rot = 0;
+        var hx = 0;
+        phrases.forEach(function (x, i) {
+          var at = x.p.at;
+          if (i > 0) {
+            var prev = phrases[i - 1];
+            tl.fromTo(prev.box, { opacity: 1, y: 0 }, Object.assign({ opacity: 0, y: -40, duration: 0.12, ease: "power2.in" }, IR), at - 0.12);
+          }
+          tl.set(x.box, { opacity: 1 }, at);
+          tl.fromTo(x.big, { scale: 1.4, filter: "blur(14px)" }, Object.assign({ scale: 1, filter: "blur(0px)", duration: 0.38, ease: "expo.out" }, IR), at);
+          if (x.rest) tl.fromTo(x.rest, { yPercent: 110 }, Object.assign({ yPercent: 0, duration: 0.42, ease: "expo.out" }, IR), x.p.restAt);
+
+          if (!x.last) {
+            var nr = 5 * sides[i];
+            var nx = 30 * sides[i];
+            tl.fromTo(hero, { scale: 1.07 }, Object.assign({ scale: 1, duration: 0.45, ease: "expo.out" }, IR), at);
+            tl.fromTo(hero, { rotation: rot, x: hx }, Object.assign({ rotation: nr, x: nx, duration: 0.5, ease: "expo.out" }, IR), at);
+            rot = nr;
+            hx = nx;
+          } else {
+            if (prod) {
+              // the last phrase: the hero steps left and down, the product swings in beside it
+              tl.fromTo(hero, { scale: 1.07, rotation: rot, x: hx, y: 0 }, Object.assign({ scale: 0.6, rotation: -8, x: -W * 0.25, y: tall ? 170 : 120, duration: 0.6, ease: "expo.out" }, IR), at);
+              tl.fromTo(shadow, { opacity: 1 }, Object.assign({ opacity: 0, duration: 0.3, ease: "none" }, IR), at);
+            } else {
+              // the hero is the product: it squares up and settles a touch lower, under the last line
+              tl.fromTo(hero, { scale: 1.07, rotation: rot, x: hx, y: 0 }, Object.assign({ scale: 0.9, rotation: -3, x: 0, y: tall ? 60 : 40, duration: 0.6, ease: "expo.out" }, IR), at);
+              tl.fromTo(hero, { rotation: -3 }, Object.assign({ rotation: -1, duration: Math.max(0.5, END - at - 0.6), ease: "sine.inOut" }, IR), at + 0.6);
+            }
+            if (prod) {
+              tl.fromTo(prod, { opacity: 0 }, Object.assign({ opacity: 1, duration: 0.15, ease: "none" }, IR), at);
+              tl.fromTo(prod, { x: 420, y: 80, rotation: 26 }, Object.assign({ x: 0, y: 0, rotation: 7, duration: 0.7, ease: "expo.out" }, IR), at);
+              tl.fromTo(prod, { rotation: 7 }, Object.assign({ rotation: 4, duration: Math.max(0.5, END - at - 0.7), ease: "sine.inOut" }, IR), at + 0.7);
+            }
+            // held read: a slow push on the pair
+            tl.fromTo($("bg-cam"), { scale: 1 }, Object.assign({ scale: 1.04, duration: Math.max(0.5, END - at), ease: "sine.inOut" }, IR), at + 0.05);
+          }
+        });
+
+        // once the end card fully covers the scene, the scene steps out (nothing hidden keeps "rendering" underneath)
+        tl.set($("bg-stage"), { opacity: 0 }, D.endAt + 0.75);
+
+        window.__timelines = window.__timelines || {};
+        window.__timelines[ID] = tl;
+        if (window.__hfForceTimelineRebind) window.__hfForceTimelineRebind();
+      }
+
+      fontsReady().then(build, build);
+    })();
+  </script>
+</template>

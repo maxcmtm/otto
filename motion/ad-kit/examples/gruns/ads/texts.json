@@ -1,0 +1,59 @@
+{
+  "id": "gruns-texts",
+  "style": "texts",
+  "angle": "a1 powder to pack, social (persona p1; switcher language: no shaker, no grit)",
+  "formats": [
+    "9x16",
+    "4x5"
+  ],
+  "music": {
+    "bpm": 120,
+    "mood": "calm"
+  },
+  "scene": {
+    "ground": "accent"
+  },
+  "thread": {
+    "name": "Maya",
+    "initial": "M",
+    "stamp": "Today 8:14 AM",
+    "placeholder": "Message",
+    "messages": [
+      {
+        "from": "them",
+        "text": "wait you actually take greens now?"
+      },
+      {
+        "from": "me",
+        "text": "it's gummies. one pack. that's it"
+      },
+      {
+        "from": "them",
+        "text": "what happened to the powder"
+      },
+      {
+        "from": "me",
+        "text": "retired it. no shaker, no grit"
+      },
+      {
+        "from": "me",
+        "photo": "photo"
+      },
+      {
+        "from": "them",
+        "text": "ok I'm trying it"
+      }
+    ]
+  },
+  "endcard": {
+    "ground": "primaryDeep",
+    "headline": "Daily nutrition, one snack pack.",
+    "accent": "one snack pack.",
+    "sub": "30-day money-back guarantee on your first order",
+    "fine": "Pause or cancel anytime.",
+    "products": [
+      "pack",
+      "unit"
+    ]
+  }
+}

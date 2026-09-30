@@ -1,0 +1,272 @@
+<!doctype html>
+<html lang="{{lang}}" dir="{{dir}}" class="{{html_class}}">
+<head><meta charset="utf-8">
+<!-- ingredients: what's inside. The product at the centre, 3-6 ingredients or components around it, each joined to the
+     product by a thin leader line that ends on its silhouette.
+     data: headline* (*word* = accent), photo* (the product; a transparent cutout works best),
+           items* (3-6: strings or {name, note, photo}; note = one line, photo = a small round picture of that
+           ingredient, else a numbered accent dot), kicker, footnote (e.g. where the list comes from), cta, tag,
+           theme: light (default) | dark | brand (deep ground lit in the accent).
+     Labels zig-zag left/right (the first on the reading side) and shrink together to fit; when they still do not fit
+     beside the product (square with 5-6 items) they become a tidy grid under it. Item photos must be absolute paths
+     or URLs (the renderer resolves top-level asset keys only). Feed, square, story (copy between 270px and 1248px). -->
+{{&_head}}
+<style>
+/* story: copy only between the top 14 % and the bottom 35 % (Meta's unified Stories/Reels safe zone, 2026); the product
+   (image) may run into the bottom band */
+html.f-story .ad{--top:270px;--bot:672px}
+.ad{--ls:1;--pc:40%;--shc:color-mix(in srgb,var(--ink) 35%,#000);--line:rgba(var(--ink-rgb),.42);--dot:var(--accent);
+  --mk-bg:var(--accent);--mk-fg:var(--accent-ink);--glow:#fff;--glow-a:.9}
+html.f-story .ad{--pc:46%}
+html.f-square .ad{--pc:36%}
+html.em-marker .t-light{--mk-bg:var(--marker);--mk-fg:var(--ink);--dot:var(--ink)}
+.t-brand{background:var(--deep);color:var(--on-deep)}
+.t-brand .muted,.t-brand .host{color:var(--mut-dark)}
+.t-brand em{color:var(--accent-on-dark)}
+.t-brand .kicker::before{background:var(--accent-on-dark)}
+.t-brand .cta{border-color:var(--accent-on-dark)}
+.t-brand,.t-dark{--shc:#000;--line:rgba(255,255,255,.5);--dot:var(--accent-on-dark);--mk-bg:var(--accent-on-dark);--mk-fg:var(--deep);
+  --glow:color-mix(in srgb,var(--accent) 78%,#fff);--glow-a:.5}
+.t-dark{--glow:color-mix(in srgb,var(--deep) 60%,#fff);--glow-a:.25}
+
+.ground{position:absolute;inset:0;z-index:0;pointer-events:none}
+.t-light .ground{background:linear-gradient(to bottom,var(--surface) 50%,color-mix(in srgb,var(--surface) 65%,var(--surface2)))}
+.glow{position:absolute;border-radius:50%;opacity:var(--glow-a);left:-9999px;
+  background:radial-gradient(closest-side,var(--glow),color-mix(in srgb,var(--glow) 40%,transparent) 55%,transparent)}
+
+/* copy */
+.head{flex:0 1 auto;align-items:center;text-align:center;padding-top:calc(30px*var(--k))}
+.head .kicker{justify-content:center;margin-bottom:calc(22px*var(--k))}
+.hl{font-size:calc(76px*var(--k));max-width:920px;margin-inline:auto}
+.hl em{padding:0 !important}
+html.f-square .hl{font-size:calc(64px*var(--k))}
+.fn{flex:none;text-align:center;font:500 calc(19px*var(--k))/1.35 var(--f-text);margin-top:calc(18px*var(--k))}
+html[dir=rtl] .fn{font-size:calc(21px*var(--k))}
+.foot{padding-top:calc(24px*var(--k))}
+
+/* stage: product in the middle column, labels in the outer columns (half-row grid: they zig-zag) */
+.stage{position:relative;flex:1 1 0;min-height:calc(460px*var(--k));margin-top:calc(22px*var(--k))}
+html.f-square .stage{min-height:400px;margin-top:14px}
+.pk{position:absolute;z-index:2;left:32%;right:32%;top:8%;bottom:10%}
+.pk-img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain}
+.ad.is-cut .pk-img{object-fit:fill;filter:drop-shadow(0 16px 22px color-mix(in srgb,var(--shc) 22%,transparent)) drop-shadow(0 2px 3px color-mix(in srgb,var(--shc) 16%,transparent))}
+.ad.is-framed .pk{border-radius:calc(28px*var(--k));overflow:hidden;background:var(--surface2);
+  box-shadow:0 40px 64px -32px color-mix(in srgb,var(--shc) 55%,transparent)}
+.ad.is-framed .pk-img{object-fit:cover}
+.cs{position:absolute;border-radius:50%;z-index:1;left:-9999px}
+.cs.amb{background:radial-gradient(closest-side,color-mix(in srgb,var(--shc) 38%,transparent),color-mix(in srgb,var(--shc) 12%,transparent) 55%,transparent);filter:blur(5px)}
+.cs.core{background:radial-gradient(closest-side,color-mix(in srgb,var(--shc) 60%,transparent),transparent)}
+.ad:not(.is-cut) .cs{display:none}
+.leaders{position:absolute;inset:0;width:100%;height:100%;z-index:3;overflow:visible;pointer-events:none}
+.leaders line{stroke:var(--line);stroke-width:2;stroke-linecap:round}
+.leaders circle{fill:var(--dot);stroke:#fff;stroke-width:3}
+.t-brand .leaders circle,.t-dark .leaders circle{stroke:rgba(255,255,255,.95)}
+
+.items{position:absolute;inset:0;z-index:4;display:grid;grid-template-columns:minmax(0,1fr) var(--pc) minmax(0,1fr);
+  grid-auto-rows:minmax(0,1fr);column-gap:calc(18px*var(--k))}
+.it{display:flex;align-items:center;gap:calc(16px*var(--k));align-self:center;min-width:0}
+.it:nth-child(odd){grid-column:1;flex-direction:row-reverse;text-align:end}
+.it:nth-child(even){grid-column:3;flex-direction:row;text-align:start}
+.it:nth-child(1){grid-row:1/span 2}.it:nth-child(2){grid-row:2/span 2}.it:nth-child(3){grid-row:3/span 2}
+.it:nth-child(4){grid-row:4/span 2}.it:nth-child(5){grid-row:5/span 2}.it:nth-child(6){grid-row:6/span 2}
+.it:nth-child(n+7){display:none}
+.mk{flex:none;display:grid;place-items:center;border-radius:50%;width:calc(46px*var(--k)*var(--ls));height:calc(46px*var(--k)*var(--ls));
+  background:var(--mk-bg);color:var(--mk-fg);font:700 calc(21px*var(--k)*var(--ls))/1 var(--f-display);font-variant-numeric:lining-nums tabular-nums}
+.mk.ph{width:calc(84px*var(--k)*var(--ls));height:calc(84px*var(--k)*var(--ls));background:var(--surface2);overflow:hidden;
+  box-shadow:0 0 0 3px var(--surface),0 8px 18px -8px color-mix(in srgb,var(--shc) 45%,transparent)}
+.t-brand .mk.ph,.t-dark .mk.ph{box-shadow:0 0 0 3px rgba(255,255,255,.9),0 8px 18px -8px rgba(0,0,0,.5)}
+.mk.ph img{width:100%;height:100%;object-fit:cover}
+.mk.ph bdi{display:none}
+.tx{min-width:0}
+.nm{font:700 calc(28px*var(--k)*var(--ls))/1.15 var(--f-display);letter-spacing:-.016em}
+html[dir=rtl] .nm{letter-spacing:0;line-height:1.25;font-size:calc(29px*var(--k)*var(--ls))}
+.nt{font:400 calc(20px*var(--k)*var(--ls))/1.36 var(--f-text);margin-top:calc(6px*var(--k));text-wrap:balance}
+html[dir=rtl] .nt{font-size:calc(21px*var(--k)*var(--ls));line-height:1.45}
+
+/* grid fallback: the product on top, the items in a tidy grid under it, no leaders */
+.as-grid .items{inset:auto 0 0 0;grid-template-columns:repeat(var(--gc,2),minmax(0,1fr));grid-auto-rows:auto;
+  column-gap:calc(34px*var(--k));row-gap:calc(22px*var(--k));align-items:start}
+.as-grid .it{grid-column:auto !important;grid-row:auto !important;flex-direction:row !important;text-align:start !important;align-items:flex-start}
+.as-grid .leaders{display:none}
+</style>
+</head>
+<body>
+<div class="ad t-{{#if theme}}{{theme}}{{else}}light{{/if}}">
+  <div class="ground"><div class="glow"></div></div>
+  <div class="frame">
+    {{> top}}
+    <div class="box head" data-box>
+      {{#if kicker}}<div class="kicker"><span>{{kicker}}</span></div>{{/if}}
+      <h1 class="display hl" data-fit="1" data-min="40" data-lines="3">{{headline}}</h1>
+    </div>
+    <div class="stage">
+      <div class="cs amb"></div><div class="cs core"></div>
+      {{#if photo}}<div class="pk"><img class="pk-img" src="{{photo}}" style="object-position:{{photo_pos}}" alt=""></div>{{/if}}
+      <svg class="leaders" xmlns="http://www.w3.org/2000/svg"></svg>
+      <div class="items">{{#each items}}<div class="it"><span class="mk{{#if photo}} ph{{/if}}">{{#if photo}}<img src="{{photo}}" alt="">{{/if}}<bdi>{{@n}}</bdi></span><div class="tx"><div class="nm">{{#if name}}{{name}}{{else}}{{.}}{{/if}}</div>{{#if note}}<div class="nt muted">{{note}}</div>{{/if}}</div></div>{{/each}}</div>
+    </div>
+    {{#if footnote}}<p class="fn muted">{{footnote}}</p>{{/if}}
+    {{> foot}}
+  </div>
+</div>
+<script>
+(function () {   // an item without its own photo inherits the product's through the template scope: show its number instead
+  var p = document.querySelector('.pk-img'), src = p && p.getAttribute('src');
+  [].forEach.call(document.querySelectorAll('.mk.ph img'), function (i) {
+    if (i.getAttribute('src') === src) { i.parentNode.classList.remove('ph'); i.remove(); }
+  });
+})();
+/* PK:begin */
+/* Packshot layout (shared by product_hero, macro_hero, ingredients). Runs after _fit.js has settled the copy.
+   scan(): the product's real pixels (alpha bbox, silhouette mask), whether it is a cutout, and its natural size. */
+var PK = (function () {
+  var D = document.documentElement;
+  function after(cb) {
+    var t = 0;
+    (function wait() {
+      if (!D.classList.contains('fitted') && t++ < 200) return setTimeout(wait, 25);
+      var imgs = [].slice.call(document.querySelectorAll('img'));
+      Promise.all(imgs.map(function (i) {
+        return i.complete ? 1 : new Promise(function (r) { i.addEventListener('load', r); i.addEventListener('error', r); });
+      })).then(function () {
+        try { cb(); } catch (e) { D.classList.add('pk-error'); }
+        var ad = document.querySelector('.ad'); if (ad) ad.classList.add('pk-done');
+      });
+    })();
+  }
+  function scan(img) {
+    var nw = img.naturalWidth, nh = img.naturalHeight;
+    var r = { nw: nw, nh: nh, x: 0, y: 0, w: nw, h: nh, cut: D.classList.contains('has-cutout'), mask: null, lum: .5 };
+    try {
+      var s = Math.min(1, 360 / Math.max(nw, nh)), cw = Math.max(1, Math.round(nw * s)), ch = Math.max(1, Math.round(nh * s));
+      var c = document.createElement('canvas'); c.width = cw; c.height = ch;
+      var g = c.getContext('2d'); g.drawImage(img, 0, 0, cw, ch);
+      var d = g.getImageData(0, 0, cw, ch).data, m = new Uint8Array(cw * ch);
+      var x0 = cw, y0 = ch, x1 = -1, y1 = -1, clear = 0, border = 0, lum = 0, n = 0, sr = 0, sg = 0, sb = 0;
+      for (var j = 0; j < ch; j++) for (var i = 0; i < cw; i++) {
+        var p = (j * cw + i) * 4, a = d[p + 3];
+        if (a > 200) {                       // the product's solid pixels: a baked-in soft shadow is not the product
+          m[j * cw + i] = 1; if (i < x0) x0 = i; if (i > x1) x1 = i; if (j < y0) y0 = j; if (j > y1) y1 = j;
+          lum += (.2126 * d[p] + .7152 * d[p + 1] + .0722 * d[p + 2]) / 255; n++; sr += d[p]; sg += d[p + 1]; sb += d[p + 2];
+        }
+        if (i === 0 || j === 0 || i === cw - 1 || j === ch - 1) { border++; if (a < 16) clear++; }
+      }
+      r.cut = clear / border > .03;
+      if (r.cut && x1 >= 0) { r.x = x0 / s; r.y = y0 / s; r.w = (x1 - x0 + 1) / s; r.h = (y1 - y0 + 1) / s; }
+      r.mask = m; r.mw = cw; r.mh = ch; r.s = s; r.lum = n ? lum / n : .5;
+      if (n) r.color = '#' + [sr, sg, sb].map(function (v) { return ('0' + Math.round(v / n).toString(16)).slice(-2); }).join('');
+    } catch (e) { /* a cross-origin image: whole-image box, the renderer's cutout test */ }
+    return r;
+  }
+  // x (natural px) of the silhouette edge on row yN, from the left (side -1) or the right (side 1)
+  function edge(r, yN, side) {
+    if (!r.mask || !r.cut) return side < 0 ? r.x : r.x + r.w;
+    var j0 = Math.round(yN * r.s), best = null;
+    for (var dj = -2; dj <= 2; dj++) {
+      var j = Math.max(0, Math.min(r.mh - 1, j0 + dj));
+      if (side < 0) { for (var i = 0; i < r.mw; i++) if (r.mask[j * r.mw + i]) { best = best === null ? i : Math.min(best, i); break; } }
+      else { for (var i2 = r.mw - 1; i2 >= 0; i2--) if (r.mask[j * r.mw + i2]) { best = best === null ? i2 : Math.max(best, i2); break; } }
+    }
+    if (best === null) return side < 0 ? r.x + r.w / 2 : r.x + r.w / 2;
+    return (best + (side > 0 ? 1 : 0)) / r.s;
+  }
+  function box(el, x, y, w, h) { el.style.left = x + 'px'; el.style.top = y + 'px'; el.style.width = w + 'px'; el.style.height = h + 'px'; }
+  // colour helpers for token values ("#007E40"): hue in degrees, WCAG luminance and contrast
+  function rgb(h) { var m = /#?([0-9a-f]{6})/i.exec(h || ''); if (!m) return null; var v = parseInt(m[1], 16); return [v >> 16, v >> 8 & 255, v & 255]; }
+  function hue(h) {
+    var c = rgb(h); if (!c) return null;
+    var R = c[0] / 255, G = c[1] / 255, B = c[2] / 255, mx = Math.max(R, G, B), mn = Math.min(R, G, B), d = mx - mn;
+    if (!d) return null;
+    return (mx === R ? ((G - B) / d + 6) % 6 : mx === G ? (B - R) / d + 2 : (R - G) / d + 4) * 60;
+  }
+  function hueGap(a, b) { var x = hue(a), y = hue(b); if (x === null || y === null) return 0; var d = Math.abs(x - y) % 360; return Math.min(d, 360 - d); }
+  function lum(h) {
+    var c = rgb(h); if (!c) return .5;
+    var f = function (v) { v /= 255; return v <= .03928 ? v / 12.92 : Math.pow((v + .055) / 1.055, 2.4); };
+    return .2126 * f(c[0]) + .7152 * f(c[1]) + .0722 * f(c[2]);
+  }
+  function contrast(a, b) { var x = lum(a), y = lum(b); return (Math.max(x, y) + .05) / (Math.min(x, y) + .05); }
+  function mix(a, b, t) {                  // a blended toward b by t, as hex
+    var x = rgb(a), y = rgb(b); if (!x || !y) return a;
+    return '#' + [0, 1, 2].map(function (i) { return ('0' + Math.round(x[i] + (y[i] - x[i]) * t).toString(16)).slice(-2); }).join('');
+  }
+  function tok(el, name) { return getComputedStyle(el).getPropertyValue(name).trim(); }
+  // object-position "50% 60%" → [.5, .6]
+  function focus(img) {
+    var p = (getComputedStyle(img).objectPosition || '50% 50%').split(/\s+/);
+    var f = function (v) { return /%$/.test(v) ? Math.max(0, Math.min(1, parseFloat(v) / 100)) : .5; };
+    return [f(p[0]), f(p[1] || '50%')];
+  }
+  return { after: after, scan: scan, edge: edge, box: box, hueGap: hueGap, contrast: contrast, mix: mix, tok: tok, focus: focus, MAX: 1.6 };
+})();
+/* PK:end */
+
+PK.after(function () {
+  var D = document.documentElement, ad = document.querySelector('.ad'), st = ad.querySelector('.stage'), pk = st.querySelector('.pk');
+  var img = pk && pk.querySelector('.pk-img');
+  var fmt = /f-square/.test(D.className) ? 'square' : /f-story/.test(D.className) ? 'story' : 'feed';
+  var box = st.querySelector('.items'), its = [].slice.call(box.children).slice(0, 6), n = its.length;
+  var W = st.clientWidth, H = st.clientHeight, svg = st.querySelector('.leaders');
+  var r = img && img.naturalWidth ? PK.scan(img) : null, cut = r && r.cut;
+  ad.classList.add(cut ? 'is-cut' : 'is-framed');
+  if (ad.classList.contains('t-brand') && PK.hueGap(PK.tok(ad, '--accent'), PK.tok(ad, '--deep')) > 50) {
+    ad.style.setProperty('--glow', 'color-mix(in srgb,var(--deep) 55%,#fff)'); ad.style.setProperty('--glow-a', '.3');
+  }
+  // 1. labels beside the product: shrink them together until each fits its two half-rows and its column
+  var area = 2 * H / (n + 1), ls = 1, fits = function () {
+    return its.every(function (it) { return it.offsetHeight <= area - 6 && it.scrollWidth <= it.clientWidth + 1; });
+  };
+  while (!fits() && ls > .74) { ls -= .03; ad.style.setProperty('--ls', ls.toFixed(2)); }
+  var colW = its.length ? its[0].getBoundingClientRect().width : 0;
+  var grid = !fits() || colW < W * .2;
+  if (grid) {                                              // 2. or a tidy grid under the product
+    ad.classList.add('as-grid'); ls = 1; ad.style.setProperty('--ls', '1');
+    ad.style.setProperty('--gc', fmt !== 'story' && n >= 5 ? 3 : 2);
+    while (box.offsetHeight > H * .56 && ls > .74) { ls -= .03; ad.style.setProperty('--ls', ls.toFixed(2)); }
+  }
+  if (!r) return;
+  // product box: the middle column (beside) or the space above the grid
+  var bx;
+  if (grid) bx = { x: W * .12, y: H * .02, w: W * .76, h: H - box.offsetHeight - H * .09 };
+  else {
+    var cw = W * parseFloat(getComputedStyle(ad).getPropertyValue('--pc')) / 100, g = parseFloat(getComputedStyle(box).columnGap) || 0;
+    var mg = Math.max(0, W * .028 - g);                      // room for the leaders between labels and product
+    bx = { x: (W - cw) / 2 + mg, y: H * .06, w: cw - 2 * mg, h: H * .84 };
+  }
+  var ar = Math.max(.74, Math.min(1.25, r.nw / r.nh));
+  var pw = cut ? r.w : Math.min(r.nw, r.nh * ar), ph = cut ? r.h : pw / ar;
+  var floor = cut ? bx.h * .07 : 0;
+  var k = Math.min(bx.w / pw, (bx.h - floor) / ph, PK.MAX), dw = pw * k, dh = ph * k;
+  var cx = bx.x + (bx.w - dw) / 2, cy = bx.y + (bx.h - floor - dh) / 2;
+  if (cut) PK.box(pk, cx - r.x * k, cy - r.y * k, r.nw * k, r.nh * k); else PK.box(pk, cx, cy, dw, dh);
+  var so = st.getBoundingClientRect(), ao = ad.getBoundingClientRect(), gs = Math.max(dw, dh) * 1.9;
+  PK.box(ad.querySelector('.glow'), so.left - ao.left + cx + dw / 2 - gs * .6, so.top - ao.top + cy + dh * .45 - gs * .5, gs * 1.2, gs);
+  if (cut) {
+    var yb = r.y + r.h * .985, bl = PK.edge(r, yb, -1), br = PK.edge(r, yb, 1);
+    var x0 = cx + (bl - r.x) * k, x1 = cx + (br - r.x) * k, bw = Math.max(x1 - x0, dw * .3), m = (x0 + x1) / 2, base = cy + dh;
+    PK.box(st.querySelector('.cs.amb'), m - bw * .65, base - bw * .065, bw * 1.3, bw * .13);
+    PK.box(st.querySelector('.cs.core'), m - bw * .51, base - bw * .025, bw * 1.02, bw * .045);
+  }
+  if (grid) return;
+  // 3. leader lines: from each marker's inner edge to a dot on the product's silhouette (clamped into its height)
+  // markers spread taller than the product fan in onto it (spokes); within its height the lines stay level
+  var S = st.getBoundingClientRect(), out = '', ys = its.map(function (it) { var b = it.querySelector('.mk').getBoundingClientRect(); return b.top + b.height / 2 - S.top; });
+  var m0 = Math.min.apply(null, ys), m1 = Math.max.apply(null, ys), p0 = cy + dh * .16, p1 = cy + dh * .84;
+  var sc = m1 - m0 > p1 - p0 ? (p1 - p0) / (m1 - m0) : 1, mc = (m0 + m1) / 2, pc2 = Math.max(p0 + (m1 - m0) * sc / 2, Math.min(p1 - (m1 - m0) * sc / 2, mc));
+  its.forEach(function (it, i) {
+    var mk = it.querySelector('.mk').getBoundingClientRect();
+    var y = ys[i], left = mk.left - S.left + mk.width / 2 < W / 2;
+    var x = left ? mk.right - S.left + 8 : mk.left - S.left - 8;
+    var ty = pc2 + (y - mc) * sc;
+    var ex = cut ? cx + (PK.edge(r, r.y + (ty - cy) / k, left ? -1 : 1) - r.x) * k : (left ? cx : cx + dw);
+    var tx = ex + (left ? 1 : -1) * Math.min(cut ? 14 : 22, dw * .05);
+    if (left ? tx - x < 14 : x - tx < 14) return;           // no room for a line: the marker already touches it
+    out += '<line x1="' + x.toFixed(1) + '" y1="' + y.toFixed(1) + '" x2="' + tx.toFixed(1) + '" y2="' + ty.toFixed(1) + '"/>'
+         + '<circle cx="' + tx.toFixed(1) + '" cy="' + ty.toFixed(1) + '" r="6"/>';
+  });
+  svg.innerHTML = out;
+});
+</script>
+{{&_foot}}
+</body>
+</html>

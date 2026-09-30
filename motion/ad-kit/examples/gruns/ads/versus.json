@@ -1,0 +1,22 @@
+{
+  "id": "gruns-versus",
+  "style": "versus",
+  "angle": "a4 no mess, no shaker: a pack you eat vs a powder you mix (generic category, no competitor named)",
+  "formats": ["9x16"],
+  "music": { "bpm": 120, "mood": "calm" },
+  "scene": { "ground": "primary" },
+  "versus": {
+    "vs": "vs",
+    "left": { "label": "Greens powder", "illo": "tub", "rows": ["Scoop", "Shake", "Rinse"] },
+    "right": { "label": "A pack you eat", "image": "unit", "rows": ["Rip", "Tip", "Enjoy"] },
+    "footer": "Nothing to wash."
+  },
+  "endcard": {
+    "ground": "bg",
+    "headline": "No shaker. No grit. Just a pack.",
+    "accent": "Just a pack.",
+    "sub": "$49.99 per 28 packs · $1.78 a day",
+    "fine": "Subscribe & save. Pause or cancel anytime.",
+    "products": ["pack", "unit"]
+  }
+}

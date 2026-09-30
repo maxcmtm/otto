@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="{{lang}}" dir="{{dir}}" class="{{html_class}}">
+<head><meta charset="utf-8">
+<!-- review_cards: real reviews as clean review "screenshots", 1-3 cards, with an optional rating summary.
+     data: reviews* [{text* (verbatim, never edited), name* (first name + initial), detail ("Verified buyer",
+                      "Review on gruns.co"; only what is true), title (the reviewer's own title, verbatim),
+                      rating (1-5, only when the reviewer gave it), verified (true = small check before detail)}],
+           summary {rating (e.g. 4.8, the published average), count_label ("from 100,000 reviews")},
+           headline, layout: "stack" (default: a loose, slightly rotated pile) | "list" (clean column),
+           photo: a transparent packshot sits in the header; a regular photo fills the background,
+           photo_pos, footnote ("Translated from German", "Verbatim reviews from gruns.co"),
+           theme: light (default) | dark | accent, tag. Feed, story and square. -->
+{{&_head}}
+<style>
+.rc{--cw:88%;--sh:40px;--star:var(--marker,var(--accent));--rv-ink:color-mix(in srgb,var(--ink) 30%,#121212)}
+/* story: the base safe zone (top 14 %, bottom 35 %: Meta's unified Stories/Reels UI) */
+/* the box reaches past the frame by --sh so card shadows and tilts are never clipped or read as overflow */
+.rc .box{margin-inline:calc(-1*var(--sh));padding-inline:var(--sh)}
+html.f-square .rc{--cw:92%}
+/* ---------- rating stars: one masked strip of 5; the fill is clipped to rating/5 (4.8 → 96 %) ---------- */
+.rs{position:relative;display:inline-block;flex:none;vertical-align:middle;--sz:calc(30px*var(--k));
+  width:calc(var(--sz)*5.8333);height:var(--sz);
+  -webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='-2 0 28 24'%3E%3Cpath d='M12 2.4l2.95 6.26 6.85.8-5.07 4.7 1.36 6.77L12 17.52l-6.09 3.41 1.36-6.77L2.2 9.46l6.85-.8z'/%3E%3C/svg%3E") 0 0/calc(var(--sz)*1.16667) var(--sz) repeat-x;
+  mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='-2 0 28 24'%3E%3Cpath d='M12 2.4l2.95 6.26 6.85.8-5.07 4.7 1.36 6.77L12 17.52l-6.09 3.41 1.36-6.77L2.2 9.46l6.85-.8z'/%3E%3C/svg%3E") 0 0/calc(var(--sz)*1.16667) var(--sz) repeat-x}
+.rs::before{content:"";position:absolute;inset:0;background:currentColor;opacity:.17}
+.rs::after{content:"";position:absolute;inset-block:0;inset-inline-start:0;background:var(--rs-fill,var(--star));
+  width:clamp(0%,calc(var(--r,5) / 5 * 100%),100%)}
+/* ---------- header: summary + headline (+ packshot) ---------- */
+/* header + cards travel together, centred in the box: sparse copy never leaves a hole between them */
+.hd{position:relative;display:flex;flex-direction:column;flex:none;margin-top:auto;padding-top:calc(30px*var(--k))}
+.sum{display:flex;align-items:center;gap:calc(26px*var(--k))}
+.sum-n{font-size:calc(128px*var(--k));letter-spacing:-.05em;line-height:.78;padding-top:.04em}
+.sum-r{display:flex;flex-direction:column;gap:calc(12px*var(--k));min-width:0}
+.sum .rs{--sz:calc(46px*var(--k))}
+.sum-c{font:500 calc(27px*var(--k))/1.2 var(--f-text);letter-spacing:-.005em;opacity:.8}
+.sum.bare .sum-c{font-size:calc(32px*var(--k));opacity:1;font-weight:600;letter-spacing:-.01em}
+.hl{font-size:calc(76px*var(--k));margin-top:calc(34px*var(--k));max-width:16.5em}
+.sum + .hl{margin-top:calc(30px*var(--k))}
+.hd>.hl:first-child{margin-top:0}
+html[dir=rtl] .hl{font-size:calc(70px*var(--k))}
+html[dir=rtl] .sum-c{font-size:calc(29px*var(--k))}
+/* packshot: whole, top corner, behind the cards */
+.prod{display:none;position:absolute;z-index:0;inset-inline-end:0;top:calc(-8px*var(--k));
+  width:38%;height:calc(380px*var(--k));pointer-events:none}
+.prod img{width:100%;height:100%;object-fit:contain;object-position:50% 0;
+  filter:drop-shadow(0 calc(22px*var(--k)) calc(28px*var(--k)) rgba(var(--ink-rgb),.22))}
+html.has-cutout .prod{display:block}
+html.has-cutout .hd .sum,html.has-cutout .hd .hl{max-width:62%;position:relative;z-index:1}
+/* the cards start under the packshot's foot: a review never covers the product */
+html.has-cutout .hd{min-height:calc(372px*var(--k))}
+html.f-story.has-cutout .hd{min-height:412px}
+html.f-square.has-cutout .hd{min-height:292px}
+html.f-story.has-cutout .prod{height:420px;width:40%}
+html.f-square.has-cutout .prod{height:300px;width:34%}
+html.f-square.has-cutout .hd .sum,html.f-square.has-cutout .hd .hl{max-width:66%}
+/* a regular photo fills the ground; the header sits on a shade, the cards stay white */
+.bgp{position:absolute;inset:0;z-index:0}
+.bgp .shade{position:absolute;inset:0;z-index:1;
+  background:linear-gradient(to bottom,rgba(var(--deep-rgb),.78) 0%,rgba(var(--deep-rgb),.42) 42%,rgba(var(--deep-rgb),.3) 70%,rgba(var(--deep-rgb),.55) 100%)}
+html.has-cutout .bgp{display:none}
+.has-photo .frame{color:#fff}
+html.has-cutout .has-photo .frame{color:inherit}
+.has-photo .hl em{color:var(--accent-on-dark);background:none}
+html.has-cutout .has-photo .hl em{color:inherit}
+/* ---------- the cards: one font-size on .cards (the review text size) drives every card in em, so _fit.js
+   scales the whole stack as one and short reviews can start big ---------- */
+.cards{--rvs:42px;--m:1;position:relative;z-index:2;display:flex;flex-direction:column;margin-bottom:auto;
+  padding-block:calc(44px*var(--k)) calc(14px*var(--k));font:400 calc(var(--rvs)*var(--m))/1.36 var(--f-text);--gap:.5em}
+html.f-story .cards{--rvs:46px}
+html.f-square .cards{--rvs:36px}
+html[dir=rtl] .cards{--rvs:44px;line-height:1.46}
+html.f-story[dir=rtl] .cards{--rvs:48px}
+html.f-square[dir=rtl] .cards{--rvs:38px}
+/* one or two reviews start bigger; _fit.js still shrinks the stack as one when the copy is long */
+.cards:has(> .rv:only-child){--m:1.3}
+.cards:has(> .rv:nth-child(2):last-child){--m:1.1}
+.rv{position:relative;width:var(--cw);background:#fff;color:var(--rv-ink);border-radius:.62em;
+  padding:.84em 1em .8em;display:flex;flex-direction:column;
+  box-shadow:0 1px 2px rgba(var(--ink-rgb),.06),0 10px 24px -8px rgba(var(--ink-rgb),.16),0 30px 60px -28px rgba(var(--ink-rgb),.28)}
+.t-light .rv,.t-paper2 .rv{box-shadow:0 0 0 1px rgba(var(--ink-rgb),.06),0 10px 24px -10px rgba(var(--ink-rgb),.14),0 34px 60px -30px rgba(var(--ink-rgb),.24)}
+.rv + .rv{margin-top:var(--gap)}
+.rv .rs{--sz:.7em;margin-bottom:.46em}
+.rv-t{font-weight:700;line-height:1.2;letter-spacing:-.014em;margin-bottom:.22em}
+.rv-x{letter-spacing:-.01em;text-wrap:pretty}
+.rv:only-child .rv-x{text-wrap:balance}
+html[dir=rtl] .rv-x,html[dir=rtl] .rv-t{letter-spacing:0}
+.rv-x em{font-family:inherit;font-style:normal;font-weight:600;letter-spacing:inherit;color:inherit;
+  background:linear-gradient(var(--marker,var(--accent)),var(--marker,var(--accent))) 0 88%/100% .34em no-repeat;
+  -webkit-box-decoration-break:clone;box-decoration-break:clone}
+html.em-marker .rv .rv-x em{color:inherit}
+.rv-by{display:flex;align-items:center;flex-wrap:wrap;gap:.1em .4em;margin-top:.52em;line-height:1.2}
+.rv-n{font-weight:700;font-size:.66em;letter-spacing:-.004em}
+.rv-d{display:inline-flex;align-items:center;gap:.3em;font-weight:500;font-size:.58em;color:rgba(18,18,18,.68)}
+.rv-d .tick{width:1em;height:1em;background:var(--accent);color:var(--accent-ink)}
+html.em-marker .rv-d .tick{background:var(--ink);color:#fff}
+/* stack: a loose pile of screenshots, alternating sides, each tilted a little; nothing covers copy */
+.lay-stack .rv:nth-child(3n+1){align-self:flex-start;transform:rotate(-1.3deg)}
+.lay-stack .rv:nth-child(3n+2){align-self:flex-end;transform:rotate(1.1deg)}
+.lay-stack .rv:nth-child(3n+3){align-self:flex-start;transform:rotate(-.6deg);margin-inline-start:2%}
+.lay-stack .rv + .rv{margin-top:-.2em}
+.lay-stack .rv:only-child{align-self:center;transform:rotate(-1deg)}
+/* list: one clean column */
+.lay-list .rv{width:100%}
+.fn{position:relative;z-index:2;flex:none;padding-top:calc(14px*var(--k))}
+.has-photo .fn{opacity:.8}
+.t-accent .sum .rs{--rs-fill:var(--ink)}
+.t-dark .sum .rs,.has-photo .sum .rs{--rs-fill:var(--accent-on-dark)}
+html.has-cutout .t-light.has-photo .sum .rs{--rs-fill:var(--star)}
+</style>
+</head>
+<body>
+<div class="ad rc t-{{#if theme}}{{theme}}{{else}}light{{/if}} lay-{{#if list}}list{{else}}stack{{/if}} {{#if photo}}has-photo{{/if}}">
+  {{#if photo}}<div class="bgp pic grain"><img class="photo" src="{{photo}}" style="object-position:{{photo_pos}}" alt=""><div class="shade"></div></div>{{/if}}
+  <div class="frame">
+    {{> top}}
+    <div class="box" data-box>
+      <header class="hd">
+        {{#if photo}}<div class="prod"><img src="{{photo}}" alt=""></div>{{/if}}
+        {{#with summary}}{{#if rating}}<div class="sum">
+          <span class="num sum-n">{{rating}}</span>
+          <div class="sum-r">
+            <span class="rs" style="--r:{{rating}}" role="img" aria-label="{{rating}} / 5"></span>
+            {{#if count_label}}<span class="sum-c">{{count_label}}</span>{{/if}}
+          </div>
+        </div>{{else}}{{#if count_label}}<div class="sum bare"><span class="sum-c">{{count_label}}</span></div>{{/if}}{{/if}}{{/with}}
+        {{#if headline}}<h1 class="display hl" data-fit="2" data-min="40" data-lines="3">{{headline}}</h1>{{/if}}
+      </header>
+      <div class="cards" data-fit="1" data-min="22">
+        {{#each reviews}}<article class="rv">
+          {{#if rating}}<span class="rs" style="--r:{{rating}}" role="img" aria-label="{{rating}} / 5"></span>{{/if}}
+          {{#if title}}<h3 class="rv-t">{{title}}</h3>{{/if}}
+          <p class="rv-x">{{text}}</p>
+          <div class="rv-by"><span class="rv-n">{{name}}</span>{{#if detail}}<span class="rv-d">{{#if verified}}<span class="tick">{{> tick}}</span>{{/if}}<span>{{detail}}</span></span>{{/if}}</div>
+        </article>{{/each}}
+      </div>
+      {{#if footnote}}<p class="small fn muted">{{footnote}}</p>{{/if}}
+    </div>
+  </div>
+</div>
+{{&_foot}}
+<script>/* the packshot is trimmed to its opaque pixels (object-view-box): the file's own padding never shrinks it */
+(function(){var img=document.querySelector('.prod img');if(!img)return;function trim(){try{var n=48,c=document.createElement('canvas');
+c.width=c.height=n;var x=c.getContext('2d');x.drawImage(img,0,0,n,n);var d=x.getImageData(0,0,n,n).data,A=function(i){return d[i*4+3];};
+var t=n,l=n,b=-1,r=-1;for(var y=0;y<n;y++)for(var X=0;X<n;X++)if(A(y*n+X)>24){if(y<t)t=y;if(y>b)b=y;if(X<l)l=X;if(X>r)r=X;}
+if(b<0)return;var P=function(v){return Math.max(0,(v-.6)/n*100).toFixed(2)+'%';};
+img.style.objectViewBox='inset('+P(t)+' '+P(n-1-r)+' '+P(n-1-b)+' '+P(l)+')';}catch(e){}}
+if(img.complete&&img.naturalWidth)trim();else img.addEventListener('load',trim);})();</script>
+</body>
+</html>

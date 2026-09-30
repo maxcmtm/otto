@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="{{lang}}" dir="{{dir}}" class="{{html_class}}">
+<head><meta charset="utf-8">
+<!-- social_post: a shared text post (the generic post-card look) on the brand ground (native family). No
+     network's logo or badge. Post as the brand, or quote a real customer verbatim with consent.
+     data: name*, text* (the post; short posts set larger, long ones shrink to fit; *word* = bold),
+           handle ("@grunsdaily"; text without an @ is shown as a plain sub-line, e.g. "Review on gruns.co"),
+           verified (false by default: a small tick in the brand accent), avatar_logo (true: the brand logo in the
+           avatar), portrait (avatar photo), initials, photo (an image inside the post), photo_pos,
+           time ("9:14 AM · Sep 29, 2026"; the real post time, left out = no date line), replies, reposts, likes (real numbers only, as
+           text: "1,204"), ui: light (default) | dark (the card), headline (on the ground, *word* = accent),
+           theme: dark (default) | light | accent, tag, cta. Feed, square, story. -->
+{{&_head}}
+<style>
+/* ---- native family: a real-looking screenshot on the brand ground ---- */
+:root{--u:2.3px;--ui:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro",var(--f-text)}
+html.f-square{--u:1.9px}
+/* story: copy only between the top 14 % and the bottom 35 % (Meta's unified Stories/Reels safe zone, 2026) */
+html.f-story{--top:270px;--bot:672px;--u:2.2px}
+.nat.t-dark{background:radial-gradient(110% 70% at 50% 60%,color-mix(in srgb,var(--deep) 88%,#fff) 0%,var(--deep) 72%)}
+.nat.t-light{background:radial-gradient(110% 70% at 50% 60%,color-mix(in srgb,var(--surface) 70%,#fff) 0%,var(--surface) 72%)}
+.nat .col{flex:1 1 auto;min-height:0;display:flex;flex-direction:column;justify-content:center}
+.nat .hl{font-size:calc(80px*var(--k));margin-top:40px;max-width:900px;flex:none}
+html.f-square .nat .hl{font-size:calc(70px*var(--k));margin-top:28px}
+html.f-story .nat .hl{font-size:calc(84px*var(--k));margin-top:24px}
+/* emphasis on an accent ground: a paper band behind ink (readable on any accent, never over the line above) */
+html body .t-accent .hl em{color:var(--ink);background:linear-gradient(var(--surface),var(--surface)) 0 64%/100% 70% no-repeat;
+  padding:0 .08em;-webkit-box-decoration-break:clone;box-decoration-break:clone}
+html body .t-accent.mk2 .hl em{background-image:linear-gradient(var(--marker),var(--marker))}
+.nat{--st-t:44px;--st-b:30px}
+html.f-square .nat{--st-t:30px;--st-b:22px}
+.nat .stage{flex:0 1 auto;min-height:0;display:flex;flex-direction:column;justify-content:center;padding-block:var(--st-t) var(--st-b)}
+.nat .shot{position:relative;flex:0 1 auto;min-height:0;display:flex;flex-direction:column}
+.nat .foot{padding-top:0}
+.scr{font-family:var(--ui);-webkit-font-smoothing:antialiased;
+  box-shadow:0 1px 1px rgba(0,0,0,.05),0 calc(6*var(--u)) calc(14*var(--u)) rgba(0,0,0,.10),0 calc(22*var(--u)) calc(48*var(--u)) calc(-8*var(--u)) rgba(0,0,0,.34)}
+.t-light .scr{box-shadow:0 0 0 1px rgba(var(--ink-rgb),.05),0 calc(6*var(--u)) calc(14*var(--u)) rgba(var(--ink-rgb),.07),0 calc(22*var(--u)) calc(50*var(--u)) calc(-10*var(--u)) rgba(var(--ink-rgb),.26)}
+/* copy still too long at the minimum sizes (fit_report says overflow): the screenshot fades out at the
+   bottom, as a longer page cut by the phone's screen would, instead of slicing a line */
+.scr{position:relative}
+html.overflow .scr::after{content:"";position:absolute;inset:auto 0 0 0;height:calc(40*var(--u));z-index:3;
+  background:linear-gradient(color-mix(in srgb,var(--bg) 0%,transparent),var(--bg) 78%)}
+html body .ad .scr em{font-family:inherit;font-style:normal;font-weight:inherit;letter-spacing:inherit;font-size:1em;line-height:inherit;color:inherit;background:none}
+
+/* ---- the post ---- */
+.post{--bg:#fff;--fg:#0F1419;--mu:#536471;--ln:#EFF3F4;flex:0 1 auto;min-height:0;overflow:hidden;background:var(--bg);color:var(--fg);
+  border-radius:calc(15*var(--u));padding:calc(16*var(--u)) calc(18*var(--u)) calc(6*var(--u))}
+.ui-dark .post{--bg:#000;--fg:#E7E9EA;--mu:#71767B;--ln:#2F3336}
+.t-dark.ui-dark .scr{box-shadow:0 0 0 1px rgba(255,255,255,.12),0 calc(22*var(--u)) calc(48*var(--u)) calc(-8*var(--u)) rgba(0,0,0,.5)}
+.post .in{font-size:calc(15*var(--u));line-height:1.33}
+.who{display:flex;align-items:center;gap:.8em}
+.av{flex:none;width:2.9em;height:2.9em;border-radius:50%;overflow:hidden;display:grid;place-items:center;background:var(--accent);color:var(--accent-ink)}
+.av img{width:100%;height:100%;object-fit:cover}
+.av .ini{font-weight:700;font-size:1.1em;letter-spacing:.01em}
+.av .lg{display:block;width:72%;aspect-ratio:var(--ar,3);background:currentColor;-webkit-mask:var(--logo) center/contain no-repeat;mask:var(--logo) center/contain no-repeat}
+.nm{min-width:0}
+.name{display:flex;align-items:center;gap:.25em;font-weight:700;color:var(--fg);letter-spacing:-.005em;white-space:nowrap}
+.name span{overflow:hidden;text-overflow:ellipsis}
+.tk{flex:none;width:1.1em;height:1.1em;border-radius:50%;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center}
+.tk svg{width:.72em;height:.72em}
+.handle{color:var(--mu);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.handle.at{direction:ltr;unicode-bidi:isolate}
+html[dir=rtl] .handle.at{text-align:right}
+.txt{margin-top:.8em;color:var(--fg);white-space:normal;text-wrap:pretty;overflow-wrap:anywhere;letter-spacing:-.012em;font-size:1.14em;line-height:1.36}
+.txt.l-xs{font-size:2.3em;line-height:1.18;letter-spacing:-.024em}
+.txt.l-s{font-size:1.9em;line-height:1.22;letter-spacing:-.022em}
+.txt.l-m{font-size:1.5em;line-height:1.28;letter-spacing:-.018em}
+.txt.l-l{font-size:1.3em;line-height:1.32;letter-spacing:-.015em}
+html[dir=rtl] .txt{letter-spacing:0;line-height:1.42}
+html body .ad .txt em{font-weight:700}
+.media{margin-top:.85em;border-radius:1.05em;overflow:hidden;border:1px solid var(--ln);background:#F2F4F5;aspect-ratio:16/10}
+html.f-story .media{aspect-ratio:4/3}
+.media img{width:100%;height:100%;object-fit:cover}
+html.has-cutout .media img{object-fit:contain;padding:6%}
+.stamp{margin-top:.95em;color:var(--mu);padding-bottom:.95em}
+.stats{display:flex;flex-wrap:wrap;gap:.35em 1.35em;border-top:1px solid var(--ln);padding-block:.95em .8em;color:var(--mu)}
+.stats b{color:var(--fg);font-weight:700;margin-inline-end:.28em}
+.stats i{font-style:normal}
+.gap{height:.9em}
+.stats:not(:has(span)){display:none}
+.post:not(:has(.stats span)) .stamp{padding-bottom:.7em}
+</style>
+</head>
+<body>
+<div class="ad nat sp t-{{#if theme}}{{theme}}{{else}}dark{{/if}} ui-{{#if ui}}{{ui}}{{else}}light{{/if}}">
+  <div class="frame">
+    {{> top}}
+    <div class="col">
+      {{#if headline}}<h1 class="display hl" data-fit="2" data-min="48" data-lines="3">{{headline}}</h1>{{/if}}
+      <div class="stage">
+        <div class="shot">
+          <div class="post scr" data-box>
+            <div class="in" data-fit="1" data-min="22" data-base="15">
+              <div class="who">
+                <div class="av">{{#if portrait}}<img src="{{portrait}}" style="object-position:{{portrait_pos}}" alt="">{{else}}{{#if avatar_logo}}{{#if logo_mask}}<span class="lg" role="img" aria-label="{{brand.name}}" style="--logo:url('{{logo_mask}}');--ar:{{brand.logo_ratio}}"></span>{{else}}<span class="ini" data-name="{{name}}">{{initials}}</span>{{/if}}{{else}}<span class="ini" data-name="{{name}}">{{initials}}</span>{{/if}}{{/if}}</div>
+                <div class="nm">
+                  <div class="name"><span>{{name}}</span>{{#if verified}}<i class="tk"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 12.6l4 3.9 8-8.6"/></svg></i>{{/if}}</div>
+                  {{#if handle}}<div class="handle">{{handle}}</div>{{/if}}
+                </div>
+              </div>
+              <div class="txt">{{text}}</div>
+              {{#if photo}}<div class="media"><img src="{{photo}}" style="object-position:{{photo_pos}}" alt=""></div>{{/if}}
+              {{#if time}}<div class="stamp">{{time}}</div>{{else}}<div class="gap"></div>{{/if}}
+              <div class="stats">{{#if replies}}<span><b>{{replies}}</b><i data-k="replies">Replies</i></span>{{/if}}{{#if reposts}}<span><b>{{reposts}}</b><i data-k="reposts">Reposts</i></span>{{/if}}{{#if likes}}<span><b>{{likes}}</b><i data-k="likes">Likes</i></span>{{/if}}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    {{> foot}}
+  </div>
+</div>
+<script>
+(function () {
+  var lang = document.documentElement.lang;
+  var ini = document.querySelector('.av .ini[data-name]');
+  if (ini && !ini.textContent.trim()) {
+    var words = ini.getAttribute('data-name').split(/\s+/).filter(function (w) { return /\p{L}/u.test(w); });
+    ini.textContent = words.slice(0, 2).map(function (w) { return w.match(/\p{L}/u)[0].toLocaleUpperCase(); }).join('');
+  }
+  var h = document.querySelector('.handle');
+  if (h && /^\s*@/.test(h.textContent)) h.classList.add('at');
+  // short posts are set larger, as a screenshot of a one-liner reads
+  var t = document.querySelector('.txt'), n = t ? t.textContent.trim().length : 0;
+  if (t) t.classList.add(n <= 64 ? 'l-xs' : n <= 120 ? 'l-s' : n <= 200 ? 'l-m' : n <= 300 ? 'l-l' : 'l-xl');
+  var L = {he: {replies: 'תגובות', reposts: 'שיתופים', likes: 'לייקים'},
+           de: {replies: 'Antworten', reposts: 'Reposts', likes: 'Likes'}}[lang];
+  if (L) document.querySelectorAll('.stats i[data-k]').forEach(function (i) { i.textContent = L[i.getAttribute('data-k')]; });
+  // a two-colour brand (Grüns green + yellow): emphasis on the accent ground uses the second colour as the band
+  var rs = getComputedStyle(document.documentElement), mk = rs.getPropertyValue('--marker').trim().toLowerCase();
+  if (mk && mk !== rs.getPropertyValue('--accent').trim().toLowerCase()) document.querySelector('.ad').classList.add('mk2');
+  // typographic quotes inside the screenshot, as the phone's keyboard types them (Latin scripts only)
+  if (document.documentElement.dir !== 'rtl') document.querySelectorAll('.scr').forEach(function (root) {
+    var w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT), n, prev = ' ';
+    while ((n = w.nextNode())) {
+      if (n.parentNode.closest('.url,.qv,.at')) { prev = 'x'; continue; }
+      var out = '', s = n.nodeValue;
+      for (var i = 0; i < s.length; i++) {
+        var c = s[i], open = /[\s(\[{\u2014\u2013]/.test(prev);
+        if (c === '"') c = open ? '\u201c' : '\u201d';
+        else if (c === "'") c = open ? '\u2018' : '\u2019';
+        out += c; prev = s[i];
+      }
+      if (out !== s) n.nodeValue = out;
+    }
+  });
+})();
+</script>
+{{> grow}}
+{{&_foot}}
+</body>
+</html>

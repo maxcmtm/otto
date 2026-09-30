@@ -1,4 +1,53 @@
-# Otto engine crons (server, UTC; IL = UTC+2/+3)
+# Otto engine jobs (the old crontab below is in UTC; IL = UTC+2/+3)
+
+**New server (Hetzner, infra/):** one systemd timer per job runs `platform/otto_cron.py <job>`, which runs the job for every
+brand that needs it — a new client needs no server change. The schedule is the table in `otto_cron.JOBS` (the timer files in
+`infra/systemd/otto-job-*.timer` are generated from it: `python3 platform/otto_cron.py timers infra/systemd`; a test fails
+when they drift). Each run writes a heartbeat to `heartbeats.json` next to data.json (the owner console's System section) and
+a failed run sends a Telegram alert (`otto-alert@.service`). Runbook: `infra/README.md`.
+
+Wall-clock jobs run on **local** time — a client's at its own clock (`brands[].tz`), the owner's at `OTTO_OWNER_TZ` — so
+summer/winter time and clients abroad need nothing. Their timers tick hourly; each tick runs whoever's local time has reached
+the job's time today and has not had its run yet that day (a tick up to 3 h late still counts; each brand runs once per local
+day, success or not — a failure alerts and `otto run <job> --brand B` repeats it by hand).
+
+| job | when | runs | for |
+|---|---|---|---|
+| `publish` | every 15 min | `otto_publish.py --brand B` (slots are brand-local already) | each active brand · kill switch |
+| `watch` | hourly :15 | `otto_watch.py watch` | once |
+| `watch-report` | 07:30 owner | `otto_watch.py report` (the owner's digest, all brands) | once |
+| `cards` | 08:00 brand | `otto_telegram.py send-cards --brand B` | each active brand |
+| `recs` | 18:30 owner | `otto_telegram.py send-recs` (recommendation cards go to the owner) | once |
+| `email-cards` | 08:00 brand | `otto_email.py send-cards --brand B` (the approval digest: posts due within 72 h, one-tap links) | each active brand whose approvals include e-mail |
+| `email-recs` | 18:30 brand | `otto_email.py send-recs --brand B` (the monthly paid-plan card + P0/P1 recommendations) | each active brand whose approvals include e-mail |
+| `genvisuals` | 18:00 brand | `genvisuals.py --brand B --limit 12` | each active brand |
+| `reels` | 18:30 brand | `otto_video.py missing --brand B` → `render <id>` per id | each active brand |
+| `ads-launch` | 06:00 brand | `otto_ads.py launch --brand B` | each active brand · kill switch |
+| `ads-guard` | 06:05 owner | `otto_ads.py guard` | once (runs under the kill switch too) |
+| `ads-report` | 07:35 brand | `otto_ads.py report --brand B` | each active brand |
+| `growth` | 05:10 owner | `otto_growth.py rollup` (+ `--send` on the owner's days 1–3; the month marker sends it once) | once |
+| `competitors` | Mon 06:00 brand | `otto_competitors.py sweep B [--country C]` | each active brand with a competitor list |
+| `insights` | Fri 06:00 brand | `otto_insights.py --brand B` | each active brand |
+| `plan-month` | 25th 06:00 brand | `otto_plan.py build B <the brand's next month>` | each active brand not planned yet |
+| `ads-plan` | 25th 06:15 brand | `otto_ads.py plan B <next month> [--budget N]` | each active brand not planned yet, with an ad budget |
+| `whop-sync` | 02:20 UTC | `otto_whop.py backfill` | once, when api_key + company_id exist |
+| `track-prune` | 1st 04:00 UTC | `otto_track.py prune --days 400` | once |
+| `retention` | 04:40 owner | `otto_retention.py run` (client data 90 days after the plan ended, owner notices 14 and 3 days before, export first; exports after 30 days; leads after `OTTO_LEAD_RETENTION_DAYS`) | once (the kill switch does not stop it) |
+
+"Active" = `brands[].status == "active"` (or no status); onboarding and paused brands (`brands[].paused` / status `paused`) are
+skipped and the heartbeat says why. Plans (`plans.json`, `otto_cron.PLAN_GATES`): a brand whose plan lacks a job's feature sits it
+out with the reason — `ads-plan` / `ads-launch` / `ads-report` say "plan content has no paid ads", likewise reels, Telegram cards,
+insights, visuals and the monthly plan; a monthly competitor sweep runs on the first Monday of the month only; a brand on plan
+`none` (membership ended) sits every job out. Approvals channel (`brands[].approvals`, `otto_cron.CHANNEL_GATES`): `cards` runs
+for brands whose approvals include Telegram (no field = Telegram, as before), `email-cards` / `email-recs` for brands whose approvals
+include e-mail; "app" sends nothing — the heartbeat says "approvals by email" / "approvals in the app only". `ads-guard` runs for everyone and pauses live campaigns a plan no longer covers. Per-brand overrides in `brands[].cron`: `{"off": [jobs], "ads_budget": 30, "country": "IL",
+"visuals_limit": 12, "per_week": 12}` — e.g. the old `cmtm` lines become `"countries": ["IL"]` (or `cron.country`) and
+`"cron": {"ads_budget": 30}`. By hand: `otto run <job>` (every active brand, now) or `otto run <job> --brand B`;
+`python3 otto_cron.py <job> --dry` prints what a tick would run now; `otto_cron.py status` shows the heartbeats. Every job still
+only writes through `ap.transaction()`; one run per job at a time (flock on `locks/<job>.lock`, a second run exits 75). Child
+output goes to the same log files as before (publish.log, ads.log, …); logrotate rotates `/var/lib/otto/*.log` weekly.
+
+## Old box (AWS, until the cut-over): the crontab
 
 Run from `autopilot/platform/` with the workspace Python. All scripts write state only through `ap.transaction()`
 (exclusive `flock` on `data.json.lock`, fresh load, atomic temp-file + `os.replace` write), and every job line is wrapped
@@ -19,6 +68,7 @@ What "safe to re-run" really means per job:
   second run while the first is still generating would pay twice — that is what the flock prevents).
 
 ```cron
+# OLD BOX ONLY (crontab, one line per brand) — replaced on the new server by otto_cron.py + systemd timers
 # morning briefing 07:30 IL + daily metrics snapshot
 30 4 * * *   cd /home/ubuntu/.openclaw/workspace-maximus/autopilot/platform && flock -n /tmp/otto-watch-report.lock python3 otto_watch.py report >> watch.log 2>&1
 # hourly guard: drops, missed slots, approvals about to miss their slot, posts stuck in "publishing"
@@ -26,6 +76,9 @@ What "safe to re-run" really means per job:
 # approval cards to the owner's Telegram 08:00 IL (posts due within 72 h; compliance-checked first) + new recommendation cards 18:30 IL
 0 5 * * *    cd /home/ubuntu/.openclaw/workspace-maximus/autopilot/platform && flock -n /tmp/otto-cards.lock python3 otto_telegram.py send-cards >> telegram.log 2>&1
 30 15 * * *  cd /home/ubuntu/.openclaw/workspace-maximus/autopilot/platform && flock -n /tmp/otto-recs.lock python3 otto_telegram.py send-recs >> telegram.log 2>&1
+# approval e-mails (brands whose brands[].approvals include "email"): digest 08:00 IL, paid-plan card + recommendations 18:30 IL
+0 5 * * *    cd /home/ubuntu/.openclaw/workspace-maximus/autopilot/platform && flock -n /tmp/otto-email-cards.lock python3 otto_email.py send-cards >> email.log 2>&1
+30 15 * * *  cd /home/ubuntu/.openclaw/workspace-maximus/autopilot/platform && flock -n /tmp/otto-email-recs.lock python3 otto_email.py send-recs >> email.log 2>&1
 # visuals for every post without an image (18:00 IL) — one line per brand, ~$0.20/image; files are copied to /srv/pulse/otto/assets at once
 0 15 * * *   cd /home/ubuntu/.openclaw/workspace-maximus/autopilot/platform && flock -n /tmp/otto-genvisuals-happygarden.lock python3 genvisuals.py --brand happygarden --limit 12 >> genvisuals.log 2>&1
 0 15 * * *   cd /home/ubuntu/.openclaw/workspace-maximus/autopilot/platform && flock -n /tmp/otto-genvisuals-cmtm.lock python3 genvisuals.py --brand cmtm --limit 12 >> genvisuals.log 2>&1
@@ -57,7 +110,8 @@ Agent-side steps that are not cron (they need the LLM): writing copy (`otto_plan
 `edit_requests[]`, completing the ad-library half of the competitor sweep, the Sunday weekly card.
 `otto-autopilot/SKILL.md` is the schedule for those.
 
-Telegram button handling is a long-running poller, not a cron — systemd user service:
+Telegram button handling is a long-running poller, not a cron. New server: `infra/systemd/otto-telegram.service` (system
+unit, starts once `/etc/otto/secrets/telegram.json` exists). Old box — systemd user service:
 ```ini
 # ~/.config/systemd/user/otto-telegram.service
 [Unit]
@@ -120,3 +174,6 @@ location /otto-api/ {
 link-local/metadata, private and loopback refused; the connection is pinned to the validated IP), runs at most 4 peeks at
 once with a 20 s deadline, rate-limits 1 request / 4 s per `X-Real-IP` and caches 1 h. `/otto-api/*` sends no CORS
 header; POSTs must be `application/json` from an allowed Origin (`OTTO_ALLOWED_ORIGINS`, default `https://dash.monyflow.work`).
+
+Owner console (`admin.html`, `otto_admin.py`): the public `/otto-track` (landing analytics) and `/otto-api/whop` (Whop webhook)
+nginx locations, the optional Whop backfill + analytics prune crons, and the secrets shape are in `docs/ADMIN.md`.

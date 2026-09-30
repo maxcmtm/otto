@@ -1,0 +1,391 @@
+<template>
+  <!-- Otto ad-kit · style "reel" — short voiceover b-roll (15–25 s). The voice leads; on-screen lines carry it
+       sound-off. One stage: a line zone on top and one visual zone below that changes per cue: a product
+       cut-out (slow turn / rise), a photo card (slow push), or stat cards that count up (label: value). A cue
+       without a shot sets its line large, on its own. The shared end card takes the last voice line.
+       Timings come from the measured voice clips (lib/schedule.mjs → reel). -->
+  <script src="__GSAP__"></script>
+  <style>
+    @font-face {
+      font-family: "AdKit Brand";
+      src: url("assets/fonts/brand.woff2") format("woff2");
+      font-weight: 100 900;
+      font-style: normal;
+      font-display: block;
+    }
+    #root {
+      /*@TOKENS*/
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+      font-family: "AdKit Brand", sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+    #rl-ground {
+      position: absolute;
+      inset: 0;
+      background: var(--ad-ground);
+    }
+    #rl-stage {
+      position: absolute;
+      inset: 0;
+    }
+    .rl-line {
+      position: absolute;
+      left: 70px;
+      right: 70px;
+      font-weight: 800;
+      letter-spacing: var(--brand-track);
+      line-height: 1.02;
+      color: var(--ad-on);
+      text-align: center;
+    }
+    .rl-row {
+      display: block;
+      white-space: nowrap;
+    }
+    .rl-mask {
+      display: inline-block;
+      vertical-align: top;
+      overflow: hidden;
+      padding: 0.08em 0.05em 0.16em;
+      margin: -0.08em -0.05em -0.16em;
+    }
+    .rl-word {
+      display: inline-block;
+    }
+    .rl-hi {
+      color: var(--ad-hi);
+    }
+    .rl-vis {
+      position: absolute;
+    }
+    .rl-shadow {
+      position: absolute;
+      border-radius: 50%;
+      background: rgba(0, 0, 0, 0.2);
+      filter: blur(24px);
+    }
+    .rl-img {
+      position: absolute;
+      display: block;
+    }
+    .rl-card {
+      position: absolute;
+      overflow: hidden;
+      border-radius: 44px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06), 0 30px 80px rgba(0, 0, 0, 0.18);
+      background: var(--c-surface);
+    }
+    .rl-card img {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .rl-stat {
+      position: absolute;
+      border-radius: 44px;
+      background: var(--c-primary);
+      color: var(--c-onPrimary);
+      box-shadow: 0 30px 70px rgba(0, 0, 0, 0.16);
+      text-align: center;
+    }
+    .rl-stat-label {
+      position: absolute;
+      left: 40px;
+      right: 40px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      opacity: 0.9;
+    }
+    .rl-stat-value {
+      position: absolute;
+      left: 20px;
+      right: 20px;
+      font-weight: 800;
+      letter-spacing: -0.05em;
+      line-height: 1;
+      white-space: nowrap;
+    }
+  </style>
+
+  <div id="root" data-composition-id="reel" data-width="__W__" data-height="__H__" data-duration="__DUR__">
+    <div id="rl-ground" class="clip" data-start="0" data-duration="__DUR__" data-track-index="0"></div>
+    <div id="rl-stage"></div>
+  </div>
+
+  <script>
+    (function () {
+      var D = /*@DATA*/null;
+      var ID = "reel";
+      var $ = function (id) {
+        return document.getElementById(id);
+      };
+      var IR = { immediateRender: false };
+
+      function fontsReady() {
+        try {
+          if (document.fonts && document.fonts.load) {
+            return Promise.all([document.fonts.load('800 96px "AdKit Brand"'), document.fonts.load('700 44px "AdKit Brand"')]).catch(function () {});
+          }
+        } catch (e) {}
+        return Promise.resolve();
+      }
+      function el(tag, cls, text) {
+        var e = document.createElement(tag);
+        if (cls) e.className = cls;
+        if (text != null) e.textContent = text;
+        return e;
+      }
+
+      // explicit lines (≤ maxLines): every split is scored — widest line, + a penalty for a break that isn't after
+      // punctuation, + a penalty for a one-word last line; a lone "·" / "–" / "&" rides with the word before it (never
+      // starts a line). The size shrinks only when no split fits.
+      function layoutLines(host, text, size, maxW, maxLines) {
+        var probe = el("span");
+        probe.style.cssText = "position:absolute;visibility:hidden;white-space:pre";
+        host.appendChild(probe);
+        var w = function (t) {
+          probe.textContent = t;
+          return probe.offsetWidth;
+        };
+        var words = [];
+        text.split(" ").forEach(function (t) {
+          if (words.length && /^[·•–—&|]$/.test(t)) words[words.length - 1] += "\u00a0" + t;
+          else words.push(t);
+        });
+        function bestSplit(n) {
+          var best = null;
+          (function rec(start, k, acc) {
+            if (k === 1) {
+              var ls = acc.concat([words.slice(start).join(" ")]);
+              var ws = ls.map(w);
+              var mx = Math.max.apply(null, ws);
+              if (mx > maxW) return;
+              var pen = 0;
+              for (var j = 0; j < ls.length - 1; j++) if (!/[.,?!:;·]$/.test(ls[j])) pen += 0.14 * maxW;
+              if (ls.length > 1 && ls[ls.length - 1].indexOf(" ") < 0 && ls[ls.length - 1].length < 8) pen += 0.12 * maxW;
+              var sc = mx + pen + (ls.length - 1) * 0.25 * maxW;
+              if (!best || sc < best.s) best = { s: sc, l: ls };
+              return;
+            }
+            for (var i = start + 1; i <= words.length - (k - 1); i++) rec(i, k - 1, acc.concat([words.slice(start, i).join(" ")]));
+          })(0, n, []);
+          return best;
+        }
+        var out = null;
+        for (var tries = 0; tries < 14 && !out; tries++) {
+          host.style.fontSize = size + "px";
+          if (w(words.join(" ")) <= maxW) {
+            out = [words.join(" ")];
+            break;
+          }
+          var pick = null;
+          for (var n = 2; n <= Math.min(maxLines, words.length); n++) {
+            var b = bestSplit(n);
+            if (b && (!pick || b.s < pick.s)) pick = b;
+          }
+          if (pick) out = pick.l;
+          else size = Math.round(size * 0.92);
+        }
+        host.removeChild(probe);
+        return { lines: out || [text], size: size };
+      }
+
+      // a line element: rows of masked words; words with digits take the one accent colour
+      function lineEl(text, top, size, maxW, maxLines, center) {
+        var box = el("div", "rl-line");
+        $("rl-stage").appendChild(box);
+        var L = layoutLines(box, text, size, maxW, maxLines);
+        box.style.fontSize = L.size + "px";
+        var words = [];
+        L.lines.forEach(function (ln) {
+          var row = el("div", "rl-row");
+          ln.split(" ").forEach(function (wd, i) {
+            var m = el("span", "rl-mask");
+            var s = el("span", "rl-word" + (/\d/.test(wd) ? " rl-hi" : ""), wd);
+            m.appendChild(s);
+            if (i) row.appendChild(document.createTextNode(" "));
+            row.appendChild(m);
+            words.push(s);
+          });
+          box.appendChild(row);
+        });
+        box.style.top = (center ? top - box.offsetHeight / 2 : top) + "px";
+        return { box: box, words: words };
+      }
+
+      function build() {
+        var R = D.content;
+        var S = D.S;
+        var W = D.fmt.w;
+        var H = D.fmt.h;
+        var tall = H >= 1600;
+        var END = D.endAt;
+        var stage = $("rl-stage");
+        // zones
+        var Z = tall ? { lineTop: 214, lineSize: 100, visTop: 640, visBot: 1590, heroMid: 900, heroSize: 128 } : { lineTop: 70, lineSize: 76, visTop: 400, visBot: 1270, heroMid: 640, heroSize: 104 };
+        var visW = W - 120;
+        var visH = Z.visBot - Z.visTop;
+
+        var tl = gsap.timeline({ paused: true });
+        var cues = S.cues.filter(function (c) {
+          return !c.endcard;
+        });
+
+        // ── build each cue's pieces ──
+        var curLine = null;
+        var curVis = [];
+        var stats = [];
+        cues.forEach(function (c, i) {
+          var next = cues[i + 1];
+          var until = next ? next.at : END + 0.75;
+          var text = c.line != null ? R.lines[c.line] : null;
+
+          // visual
+          var vis = null;
+          if (c.stat) {
+            // "Label: value" → a stat card; up to two stack in the visual zone
+            var parts = text.split(/:\s+/);
+            var label = parts.length > 1 ? parts[0] + ":" : "";
+            var value = parts.length > 1 ? parts.slice(1).join(": ") : text;
+            var slot = stats.length;
+            var cardH = (visH - 40) / 2;
+            var card = el("div", "rl-stat");
+            card.style.left = "60px";
+            card.style.width = visW + "px";
+            card.style.height = cardH + "px";
+            card.style.top = Z.visTop + slot * (cardH + 40) + "px";
+            var lab = el("div", "rl-stat-label", label);
+            lab.style.top = cardH * 0.14 + "px";
+            lab.style.fontSize = (tall ? 50 : 40) + "px";
+            var val = el("div", "rl-stat-value", value);
+            val.style.fontSize = (tall ? 200 : 150) + "px";
+            val.style.top = cardH * 0.38 + "px";
+            card.appendChild(lab);
+            card.appendChild(val);
+            stage.appendChild(card);
+            if (val.scrollWidth > visW - 40) val.style.fontSize = Math.floor((parseFloat(val.style.fontSize) * (visW - 40)) / val.scrollWidth) + "px";
+            // count-up: the number inside the value (sign, decimals and suffix kept exactly)
+            var m = value.match(/^([^\d]*)(\d+(?:\.\d+)?)(.*)$/);
+            gsap.set(card, { opacity: 0, y: 70 });
+            tl.fromTo(card, { opacity: 0, y: 70 }, Object.assign({ opacity: 1, y: 0, duration: 0.6, ease: "expo.out" }, IR), c.at);
+            if (m) {
+              var dec = (m[2].split(".")[1] || "").length;
+              var o = { v: 0 };
+              val.textContent = m[1] + (0).toFixed(dec) + m[3];
+              tl.fromTo(o, { v: 0 }, Object.assign({ v: parseFloat(m[2]), duration: 0.9, ease: "power2.out", onUpdate: function () {
+                val.textContent = m[1] + o.v.toFixed(dec) + m[3];
+              } }, IR), c.at + 0.08);
+            }
+            stats.push(card);
+            vis = { els: [card], stat: true };
+          } else if (c.shot && D.assets[c.shot.asset]) {
+            var a = D.assets[c.shot.asset];
+            if (c.shot.kind === "photo") {
+              var pc = el("div", "rl-card");
+              var ch = Math.min(visH, visW * 1.1);
+              pc.style.left = "60px";
+              pc.style.width = visW + "px";
+              pc.style.top = Z.visTop + (visH - ch) / 2 + "px";
+              pc.style.height = ch + "px";
+              var im = el("img");
+              im.src = a.src;
+              im.alt = "";
+              pc.appendChild(im);
+              stage.appendChild(pc);
+              gsap.set(pc, { opacity: 0, y: 60, scale: 0.97, transformOrigin: "50% 50%" });
+              gsap.set(im, { scale: 1.02, xPercent: 0, transformOrigin: "50% 50%" });
+              tl.fromTo(pc, { opacity: 0, y: 60, scale: 0.97 }, Object.assign({ opacity: 1, y: 0, scale: 1, duration: 0.7, ease: "expo.out" }, IR), c.at);
+              tl.fromTo(im, { scale: 1.02, xPercent: 0 }, Object.assign({ scale: 1.1, xPercent: -2, duration: until - c.at + 0.4, ease: "sine.inOut" }, IR), c.at);
+              vis = { els: [pc] };
+            } else {
+              // cut-out: fit the zone, soft contact shadow, a slow turn or a rise
+              var maxH = visH * (c.shot.scale || 0.9);
+              var ih = maxH;
+              var iw = (ih * a.w) / a.h;
+              if (iw > visW * 0.9) {
+                iw = visW * 0.9;
+                ih = (iw * a.h) / a.w;
+              }
+              var cx = W / 2;
+              var cy = Z.visTop + visH / 2;
+              var grp = el("div", "rl-vis");
+              grp.style.left = "0";
+              grp.style.top = "0";
+              grp.style.width = W + "px";
+              grp.style.height = H + "px";
+              var sh = el("div", "rl-shadow");
+              sh.style.width = iw * 0.8 + "px";
+              sh.style.height = "56px";
+              sh.style.left = cx - iw * 0.4 + "px";
+              sh.style.top = cy + ih / 2 - 30 + "px";
+              var ig = el("img", "rl-img");
+              ig.src = a.src;
+              ig.alt = "";
+              ig.style.width = iw + "px";
+              ig.style.height = ih + "px";
+              ig.style.left = cx - iw / 2 + "px";
+              ig.style.top = cy - ih / 2 + "px";
+              ig.style.filter = "drop-shadow(0 30px 50px rgba(0,0,0,0.22))";
+              grp.appendChild(sh);
+              grp.appendChild(ig);
+              stage.appendChild(grp);
+              var turn = c.shot.move !== "rise";
+              gsap.set(grp, { opacity: 0 });
+              gsap.set(ig, { y: 90, scale: turn ? 1.08 : 0.94, rotation: turn ? -6 : 0, transformOrigin: "50% 60%" });
+              tl.fromTo(grp, { opacity: 0 }, Object.assign({ opacity: 1, duration: 0.25, ease: "none" }, IR), c.at);
+              tl.fromTo(ig, { y: 90, scale: turn ? 1.08 : 0.94, rotation: turn ? -6 : 0 }, Object.assign({ y: 0, scale: 1, rotation: turn ? -2 : 0, duration: 0.8, ease: "expo.out" }, IR), c.at);
+              tl.fromTo(ig, { scale: 1, rotation: turn ? -2 : 0 }, Object.assign({ scale: 1.05, rotation: turn ? 4 : 0, duration: Math.max(0.4, until - c.at - 0.8 + 0.4), ease: "sine.inOut" }, IR), c.at + 0.8);
+              vis = { els: [grp] };
+            }
+          }
+
+          // line: a cue with a shot or a stat keeps the top zone; a cue without either sets its line large, alone
+          var hero = !c.shot && !c.stat && text != null;
+          var newLine = null;
+          if (text != null && !c.stat) {
+            newLine = hero ? lineEl(text, Z.heroMid, Z.heroSize, W - 140, 4, true) : lineEl(text, Z.lineTop, Z.lineSize, W - 140, 3, false);
+            gsap.set(newLine.box, { opacity: 0 });
+            tl.set(newLine.box, { opacity: 1 }, c.at);
+            gsap.set(newLine.words, { yPercent: 115 });
+            newLine.words.forEach(function (w, k) {
+              tl.fromTo(w, { yPercent: 115 }, Object.assign({ yPercent: 0, duration: 0.55, ease: "expo.out" }, IR), c.at + k * 0.045);
+            });
+          }
+
+          // what leaves at this cue: the previous line (when replaced) and the previous visual (when replaced)
+          if (newLine && curLine) {
+            tl.fromTo(curLine.box, { opacity: 1, y: 0 }, Object.assign({ opacity: 0, y: -26, duration: 0.24, ease: "power2.in" }, IR), c.at - 0.06);
+          }
+          if (newLine) curLine = newLine;
+          var replacesVis = vis && !(vis.stat && curVis.stat);
+          if ((replacesVis || hero) && curVis.els) {
+            curVis.els.forEach(function (e) {
+              tl.fromTo(e, { opacity: 1 }, Object.assign({ opacity: 0, duration: 0.3, ease: "power2.in" }, IR), c.at - 0.04);
+            });
+          }
+          if (vis) {
+            if (vis.stat && curVis.stat) curVis = { els: curVis.els.concat(vis.els), stat: true };
+            else curVis = vis;
+          } else if (hero) {
+            curVis = {};
+          }
+        });
+
+        // once the end card covers the scene, the scene steps out
+        tl.set(stage, { opacity: 0 }, END + 0.75);
+
+        window.__timelines = window.__timelines || {};
+        window.__timelines[ID] = tl;
+        if (window.__hfForceTimelineRebind) window.__hfForceTimelineRebind();
+      }
+
+      fontsReady().then(build, build);
+    })();
+  </script>
+</template>

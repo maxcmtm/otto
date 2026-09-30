@@ -1,0 +1,10 @@
+[Unit]
+Description=Otto: weekly Cloudflare IP range refresh, Sun 05:20 (UTC)
+
+[Timer]
+OnCalendar=Sun *-*-* 05:20:00 UTC
+Persistent=true
+Unit=otto-cloudflare-ips.service
+
+[Install]
+WantedBy=timers.target

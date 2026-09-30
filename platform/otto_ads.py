@@ -5,8 +5,10 @@
   otto_ads.py plan    <brand> <YYYY-MM> [--budget 20] [--dry]          # month of campaign flights (the paid Gantt) → campaigns[] drafts + ads-plan md + one rec
   otto_ads.py approve <brand> <YYYY-MM>                                # owner said yes → drafts become approved
   otto_ads.py launch  [--brand <id>] [--dry]                           # approved flights that start today → created on Meta / Google (cron 06:00)
-  otto_ads.py guard   [--dry]                                          # CPL rules, ended flights → pause + P0 recommendation (cron daily)
+  otto_ads.py guard   [--dry]                                          # CPL rules, ended flights → pause + P0 recommendation (cron daily);
+                                                                       # plan downgrades / expiries → live campaigns paused (plan_guard)
   otto_ads.py pause   <campaign-id>                                    # manual pause (remote + state)
+  otto_ads.py resume  <campaign-id>                                    # paused → live again (remote + state); an ended flight → ended
   otto_ads.py release <campaign-id>                                    # clear a compliance hold once the copy passes otto_compliance
   otto_ads.py retry   <campaign-id>                                    # failed → approved; the next launch resumes from campaign.remote
 
@@ -20,14 +22,26 @@ State (data.json, via ap.transaction): ads[brand] = {connections, targets:{cpl},
                               campaigns[] = {id, brand, network, name, objective, start, end, daily_budget, currency, currency_code,
                                              audience, creative, landing_url, status, remote, compliance_hold}
 Campaign status: draft → approved → live → paused/ended · failed · skipped (a boost whose post is not live on Facebook).
+paused_by says who paused it ("kill_switch", "brand", "manual" …): the owner console's kill switch resumes only the
+campaigns it paused itself. While the kill switch is on or the brand is paused, nothing launches — checked again inside
+each campaign's claim, and a campaign that went live while the switch was flipped is paused straight away.
 Nothing spends without `approved`. Compliance: every launch runs otto_compliance on the copy first; a violation puts the
 campaign on compliance hold and files a recommendation (`release` clears it once the copy is fixed).
+Plans (plans.json via ap.plan_of): plan refuses a brand whose plan has no paid ads, plans only the networks the plan has
+(ads_meta / ads_google), takes the Meta ad-matrix preset from the plan (micro still wins under ~€36/day) and treats
+limits.ad_spend_managed_eur_month as a soft cap (ap.ad_band): the first month above it is planned in full and the card says
+so; the second month in a row above it every flight is scaled down to the cap and the card offers the next plan; a plan
+with overage (scale) is planned in full and the card shows the fee on the spend above it (never billed by Otto). The month's
+decision is kept on brands[].ad_band. launch / resume refuse a campaign whose network the plan does not cover. guard (daily) also files
+the one owner card for an expired plan and pauses, through pause() (paused_by "plan"), every live campaign the brand's plan
+no longer covers — a downgrade, an expiry or an ended membership — with a card that says so. A broken plans.json pauses
+nothing: paid work is refused until it is fixed, and the owner gets one P0 card.
 Meta launch is resumable: every created object id is saved into campaign.remote the moment it exists, and a re-run
 continues from there (no duplicate campaigns / ad sets). Reporting counts Meta results per campaign objective (leads,
 purchases, engagements, landing-page views) and reports link clicks separately — clicks are never "results".
 Meta Marketing API v25 + Google Ads REST v21 (GAQL searchStream / googleAds:mutate). Pure stdlib. --dry never calls out.
 """
-import base64, calendar, json, os, re, sys, time, urllib.error, urllib.parse, urllib.request
+import base64, calendar, json, math, os, re, sys, time, urllib.error, urllib.parse, urllib.request
 from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 
@@ -111,8 +125,10 @@ class Skipped(Exception):
     pass
 
 
-def today():
-    return date.today().isoformat()
+def today(b=None):
+    """The brand's local calendar date (flights are brand-local dates; the server's own date is a day off around
+    midnight). Without a brand: UTC."""
+    return datetime.now(ap.brand_tz(b) if b else timezone.utc).date().isoformat()
 
 
 # ---------------- credentials ----------------
@@ -553,24 +569,70 @@ def plan_flights(d, b, ym, budget, bits):
     return flights
 
 
+def _month_total(flights):
+    return sum(f["daily_budget"] * ((date.fromisoformat(f["end"]) - date.fromisoformat(f["start"])).days + 1) for f in flights)
+
+
 def plan(bid, ym, budget=20.0, dry=False):
     snap = ap.load()
     b = ap.brand(snap, bid)
     assert b, f"unknown brand {bid}"
+    why = ap.no_ads_why(snap, bid)
+    if why:                                            # defence in depth: otto_cron already skips such a brand
+        print(f"REFUSED {bid} · {ym}: {why} — nothing planned (paid campaigns need a plan with paid ads)")
+        return []
     existing = [c for c in snap.get("campaigns", []) if c["brand"] == bid and c.get("plan") == ym]
     if existing:
         sys.exit(f"{bid} already has {len(existing)} campaigns planned for {ym}")
+    pl = ap.plan_of(snap, bid)
     bits = profile_bits(bid, b)
     code = ap.brand_currency(snap, bid)
     sym = ap.currency_symbol(code)
     flights = plan_flights(snap, b, ym, budget, bits)
-    total = sum(f["daily_budget"] * ((date.fromisoformat(f["end"]) - date.fromisoformat(f["start"])).days + 1) for f in flights)
+    off = sorted({f["network"] for f in flights if ap.no_ads_why(snap, bid, f["network"])})
+    if off:
+        print(f"note: plan {pl['id']} has no {' / '.join('Meta' if n == 'meta' else 'Google' for n in off)} ads — "
+              f"{sum(1 for f in flights if f['network'] in off)} flight(s) not planned")
+        flights = [f for f in flights if f["network"] not in off]
+    total = _month_total(flights)
+    # the plan's ad-spend band (EUR), a soft cap: the first month above it is planned in full, the second month in a row at
+    # the cap with the next plan offered; a plan with overage is planned in full and shows its fee (ap.ad_band)
+    asked = total
+    total_eur = ap.to_eur(total, code)
+    band = ap.ad_band(snap, bid, ym, total_eur if total_eur is not None else 0.0)
+    if band["mode"] == "capped" and total_eur:
+        k = band["cap_eur"] / total_eur
+        for f in flights:
+            f["daily_budget"] = math.floor(f["daily_budget"] * k * 100) / 100
+        total = _month_total(flights)
+    band.update(asked=round(asked, 2), planned=round(total, 2))
+    if band["mode"] == "grace":
+        print(f"note: ≈{sym}{asked:,.0f} is above plan {pl['id']}'s €{band['cap_eur']:,.0f}/month band — first month above it: "
+              "planned in full, the card says so")
+    elif band["mode"] == "capped":
+        print(f"note: ≈{sym}{asked:,.0f} is above plan {pl['id']}'s €{band['cap_eur']:,.0f}/month band for the second month in a "
+              f"row — planned at ≈{sym}{total:,.0f}, the card offers {band['upgrade_label'] or 'a bigger plan'}")
+    elif band["mode"] == "overage":
+        print(f"note: ≈{sym}{asked:,.0f} planned in full on plan {pl['id']}; {band['overage_pct']:g}% of the spend above "
+              f"€{band['overage_above_eur']:,.0f} ≈ €{band['overage_eur']:,.0f} (shown, not billed automatically)")
+    evergreen = next((f["daily_budget"] for f in flights if f["network"] == "meta" and f.get("stage") == "cold"), None)
+    if evergreen is None:                              # no Meta flight → no Meta ad matrix
+        mx, mx_new, mx_line, gaps = None, False, f"none — plan {pl['id']} has no Meta ads", []
+    else:
+        mx, mx_new, mx_line, gaps = plan_matrix_for(bid, ym, snap, evergreen, code)
+    if not flights:
+        print(f"{bid} · {ym}: nothing to plan on the networks plan {pl['id']} covers")
+        return []
     if dry:
         for f in flights:
             print(f'{f["network"]:6} {f["start"]} → {f["end"]}  {sym}{f["daily_budget"]}/day  {f["objective"]:10} {f["name"]}  → {f["landing_url"]}')
-        print(f"-- {len(flights)} flights · ≈{sym}{total:,.0f} for {ym} (dry)")
+        print(f"-- {len(flights)} flights · ≈{sym}{total:,.0f} for {ym} (dry) · Meta ad matrix: {mx_line}"
+              + (" (skeleton, not written)" if mx_new else ""))
         return flights
     import otto_creative as cre
+    import otto_styles as sty
+    if mx_new:
+        sty.save_matrix(bid, ym, mx)                   # the skeleton the copywriter fills (otto-creative-engine skill)
     created = []
     with ap.transaction() as d:
         if any(c["brand"] == bid and c.get("plan") == ym for c in d.get("campaigns", [])):
@@ -585,18 +647,73 @@ def plan(bid, ym, budget=20.0, dry=False):
             d.setdefault("campaigns", []).append(c); created.append(c)
         held = [c for c in created if c.get("compliance_hold")]
         ap.add_rec_once(d, "P1", f"Approve the {ym} paid plan: {len(created)} campaigns, ≈{sym}{total:,.0f}",
-                        "Evergreen on Meta all month, two 5-day boosts of your best organic posts" + (", one Google Search campaign on brand + category intent" if not bits["restricted"] else "") +
+                        "Evergreen on Meta all month" +
+                        (f" as {sty.size_text(mx)}: one ad set per concept, Meta moves the budget to the concepts that sell"
+                         + (" (creator videos go live as real creators' footage arrives)"
+                            if any(sty.fmt(x) == "creator" for a in sty.live_angles(mx) for x in sty.live_cells(a)) else "")
+                         if mx else "") +
+                        ", two 5-day boosts of your best organic posts" + (", one Google Search campaign on brand + category intent" if not bits["restricted"] else "") +
                         ". Nothing spends until you approve; every campaign has a daily ceiling and a CPL guard." +
+                        (f" Matrix gap{'s' if len(gaps) > 1 else ''} to close before launch: {gaps[0]}" +
+                         (f" (+{len(gaps) - 1} more)" if len(gaps) > 1 else "") + "." if gaps else "") +
                         (f" {len(held)} of them are on compliance hold (restricted category): approving does not start them — they run only "
-                         "after a review and `otto_ads.py release <id>`." if held else ""),
+                         "after a review and `otto_ads.py release <id>`." if held else "") +
+                        band_text(pl, band, sym),
                         "Paid runs on the same calendar as organic", "Approve plan", brand=bid, source="otto_ads",
-                        action="approve_plan", plan=ym)
-    write_plan_md(b, ym, created, sym, total)
-    print(f"planned {len(created)} campaigns for {bid} · {ym} (≈{sym}{total:,.0f}) → drafts + recommendation")
+                        action="approve_plan", plan=ym, **({"band": band} if band["mode"] != "within" else {}))
+        ap.record_band(d, bid, ym, band)
+    write_plan_md(b, ym, created, sym, total, mx, gaps)
+    print(f"planned {len(created)} campaigns for {bid} · {ym} (≈{sym}{total:,.0f}) → drafts + recommendation · Meta ad matrix: {mx_line}")
     return created
 
 
-def write_plan_md(b, ym, camps, cur, total):
+def band_text(pl, band, sym):
+    """The plan card's sentence about the plan's ad-spend band ("" inside it)."""
+    cap = band.get("cap_eur") or 0
+    if band["mode"] == "grace":
+        return (f" This month's ≈{sym}{band['asked']:,.0f} is above your {pl['label']} plan's €{cap:,.0f} a month: Otto plans it in "
+                f"full this once. If next month is above it too, Otto plans €{cap:,.0f}"
+                + (f" and suggests {band['upgrade_label']}" + (f" (up to €{band['upgrade_cap_eur']:,.0f} a month)" if band.get("upgrade_cap_eur") else "")
+                   if band.get("upgrade_label") else "") + ".")
+    if band["mode"] == "capped":
+        return (f" Your {pl['label']} plan covers €{cap:,.0f} of ad spend a month and this is the second month in a row above it, "
+                f"so the ≈{sym}{band['asked']:,.0f} is planned at ≈{sym}{band['planned']:,.0f}."
+                + (f" {band['upgrade_label']} runs the full budget" + (f" (up to €{band['upgrade_cap_eur']:,.0f} a month)."
+                                                                       if band.get("upgrade_cap_eur") else ".")
+                   if band.get("upgrade_label") else " Talk to us about a bigger plan."))
+    if band["mode"] == "overage":
+        return (f" Above €{band['overage_above_eur']:,.0f} a month your {pl['label']} plan adds {band['overage_pct']:g}% of the excess: "
+                f"≈ €{band['overage_eur']:,.0f} for this month's plan. Nothing is charged automatically.")
+    return ""
+
+
+def plan_matrix_for(bid, ym, snap, budget=None, currency="EUR"):
+    """The month's Meta ad matrix: brands/<id>/ads-<ym>.json when it exists, else a fresh skeleton (otto_styles.plan_matrix,
+    written by plan()) that the copywriter fills — the launch standard (6 angles × 6 styles), or the micro floor (4 × 5) when
+    the evergreen's daily budget is under otto_styles.MICRO_BELOW_DAILY_EUR. → (matrix | None, is_new, summary, coverage gaps)."""
+    try:
+        import otto_styles as sty
+        mx = sty.load_matrix(bid, ym)
+        new = mx is None
+        if new:                                        # the plan's preset; the micro floor still wins under ~€36/day
+            preset = ap.matrix_preset(snap, bid, sty.preset_for_budget(budget, currency) if budget is not None else None)
+            if preset == "none":
+                return None, False, f"none — plan {ap.plan_of(snap, bid)['id']} has no ad matrix", []
+            per = sty.PRESETS[preset]["min_styles_per_angle"] if preset == "scale" else None   # scale: more styles than slots
+            mx = sty.plan_matrix(bid, ym=ym, d=snap, preset=preset, n_per_angle=per)
+            refresh = ap.limit(snap, bid, "refresh_per_angle_week")
+            if refresh is not None and refresh != sty.rules_for(mx).get("refresh_per_angle_week"):
+                mx["rules"] = dict(mx.get("rules") or {}, refresh_per_angle_week=refresh)     # the plan's weekly refresh
+        if not mx.get("angles"):
+            return None, False, "none — no angles to build one from yet (strategy.json / competitor research)", []
+        rep = sty.check_matrix(bid, ym, mx)
+        ready = sum(1 for r in rep["cells"] if r["status"] == "ready")
+        return mx, new, f"{mx.get('preset') or 'launch'} · {rep['size']}, {ready} ready", rep["gaps"]
+    except Exception as e:                              # a broken matrix never blocks the plan; it is named
+        return None, False, f"unavailable — {str(e)[:120]}", []
+
+
+def write_plan_md(b, ym, camps, cur, total, mx=None, gaps=()):
     path = BRANDS / b["id"] / f"ads-plan-{ym}.md"
     path.parent.mkdir(parents=True, exist_ok=True)
     lines = [f"# Paid plan — {b['name']} · {ym} · ≈{cur}{total:,.0f}", "", "| id | network | flight | daily | objective | creative | landing | status |",
@@ -607,6 +724,18 @@ def write_plan_md(b, ym, camps, cur, total):
         cr = c["creative"].get("post") or (", ".join(kws[:3]) + "…")
         lines.append(f"| {c['id']} | {c['network']} | {c['start']} → {c['end']} | {cur}{c['daily_budget']} | {c['objective']} | {cr} | "
                      f"{c.get('landing_url') or '—'} | {c['status']}{' · compliance hold' if c.get('compliance_hold') else ''} |")
+    if mx:
+        import otto_styles as sty
+        lines += ["", f"## Meta ad matrix — {sty.size_text(mx)} (brands/{b['id']}/ads-{ym}.json)", "",
+                  "One ad set per concept (campaign budget optimisation); the styles are its ads. Creator videos run once a real "
+                  "creator's footage arrives.", "",
+                  "| concept (ad set) | family | stage | source | styles |", "|---|---|---|---|---|"]
+        for a in sty.live_angles(mx):
+            styles = ", ".join(f"{x.get('style')}{({'video': ' (video)', 'creator': ' (creator)'}).get(sty.fmt(x), '')}"
+                               for x in sty.live_cells(a))
+            lines.append(f"| {a.get('ad_set') or a.get('id')} | {a.get('family') or '—'} | {a.get('stage') or '—'} | "
+                         f"{a.get('source') or '—'} | {styles} |")
+        lines += [""] + [f"- gap: {g}" for g in gaps]
     path.write_text("\n".join(lines) + "\n")
 
 
@@ -731,8 +860,184 @@ def upload_video(ref, m, base, timeout=600):
     raise LaunchError(f"video {ref} still processing after {timeout}s")
 
 
+def _adset_params(c, mode, special, countries, campaign_id, name):
+    """Ad set basics shared by both structures (no budget: ABO adds it, CBO keeps it on the campaign)."""
+    age = c["audience"].get("age", [25, 60])
+    targeting = {"geo_locations": {"countries": countries}}
+    if special:
+        targeting.update({"age_min": 18, "age_max": 65})          # special ad categories: no age narrowing
+    else:
+        targeting.update({"age_min": age[0], "age_max": age[1]})
+        if age[1] and age[1] < 65:
+            targeting["targeting_automation"] = {"advantage_audience": 0}   # v25: honour age_max as a hard limit
+    start = max(datetime.fromisoformat(c["start"] + "T06:00:00+00:00"), datetime.now(timezone.utc) + timedelta(minutes=10))
+    params = {"name": name[:200], "campaign_id": campaign_id, "billing_event": "IMPRESSIONS",
+              "optimization_goal": mode["optimization_goal"], "status": "PAUSED", "targeting": json.dumps(targeting),
+              "start_time": start.strftime("%Y-%m-%dT%H:%M:%S+0000"), "end_time": c["end"] + "T23:59:00+0000"}
+    if mode.get("destination_type"):
+        params["destination_type"] = mode["destination_type"]
+    if mode.get("promoted_object"):
+        params["promoted_object"] = json.dumps(mode["promoted_object"])
+    return params
+
+
+MAX_CONCEPTS, MAX_ADS_PER_SET = 10, 6          # ad sets per campaign · ads per ad set (Meta tests ~3-6 creatives per set well)
+META_CTA = re.compile(r"^[A-Z][A-Z_]{2,30}$")
+# placement asset customisation: the 9:16 render serves Stories / Reels, the 4:5 (or square) render everything else.
+# Field names follow Meta's asset_feed_spec docs; unverified live — a refusal falls back to one image for all placements.
+PLACEMENT_RULES = [
+    ({"publisher_platforms": ["facebook", "instagram", "messenger"], "facebook_positions": ["story", "facebook_reels"],
+      "instagram_positions": ["story", "reels"], "messenger_positions": ["story"]}, "story"),
+    ({"publisher_platforms": ["facebook", "instagram", "audience_network", "messenger"]}, "feed"),
+]
+
+
+def _concepts(cr):
+    """Matrix creatives (otto_creative.build_matrix) → what can launch: ≤MAX_CONCEPTS angles, each with its first
+    ≤MAX_ADS_PER_SET ads that have rendered (not planned) files. [] for angle-bank creatives."""
+    out = []
+    for con in (cr or {}).get("concepts") or []:
+        ads = [a for a in con.get("ads") or [] if a.get("files") and not any(f.get("planned") for f in a["files"])]
+        if ads:
+            out.append(dict(con, ads=ads[:MAX_ADS_PER_SET]))
+    return out[:MAX_CONCEPTS]
+
+
+def _ad_media(ad, m, base, hashes, vids, save):
+    """Upload one ad's files (each file once: hashes / vids map file → Meta id across all concepts and re-runs)."""
+    def h(ref):
+        if ref not in hashes:
+            hashes[ref] = upload_image_bytes(ref, m)
+            save()
+        return hashes[ref]
+    out = {}
+    for f in ad.get("files") or []:
+        if f.get("kind") == "video":
+            if not f.get("poster"):
+                raise LaunchError("video without a poster frame")
+            if f["file"] not in vids:
+                vids[f["file"]] = upload_video(f["file"], m, base)
+                save()
+            out.update(video=vids[f["file"]], poster=h(f["poster"]))
+        elif f.get("cards"):
+            if "cards" not in out or f.get("size") == "feed":
+                out["cards"] = [h(k["file"]) for k in f["cards"]]
+                out["card_texts"] = [k.get("text") or "" for k in f["cards"]]
+        else:
+            out[f.get("size") or "feed"] = h(f["file"])
+    if not any(out.get(k) for k in ("video", "cards", "feed", "square", "story")):
+        raise LaunchError("no file to upload")
+    return out
+
+
+def _concept_creative(act, tok, page, c, ad, media, link, lead_form, cta_default):
+    """One style = one creative: a video (video_data), a carousel (child_attachments) or a single image — with the 9:16
+    render placed on Stories / Reels when the cell has one (not with an instant form: unverified there)."""
+    cta_type = ad.get("cta") if META_CTA.match(str(ad.get("cta") or "")) else cta_default
+    cta = {"type": "SIGN_UP", "value": {"lead_gen_form_id": lead_form}} if lead_form else {"type": cta_type, "value": {"link": link}}
+    msg, title, desc = (ad.get("primary") or "")[:1000], (ad.get("headline") or "")[:255], (ad.get("description") or "").strip()
+    name = f"{c['name']} · {ad['id']}"[:200]
+
+    def post(spec):
+        return pub.graph("POST", f"{act}/adcreatives", tok, name=name, **{k: json.dumps(v) for k, v in spec.items()})["id"]
+
+    if media.get("video"):
+        vd = {"video_id": media["video"], "message": msg, "title": title, "call_to_action": cta, "image_hash": media["poster"]}
+        if desc:
+            vd["link_description"] = desc
+        return post({"object_story_spec": {"page_id": page, "video_data": vd}})
+    if media.get("cards"):
+        kids = [{"link": link, "image_hash": hh, "name": (t or title)[:255]} for hh, t in zip(media["cards"], media["card_texts"])]
+        return post({"object_story_spec": {"page_id": page, "link_data": {"link": link, "message": msg, "child_attachments": kids,
+                                                                            "call_to_action": cta, "multi_share_optimized": False,
+                                                                            "multi_share_end_card": False}}})
+    main = media.get("feed") or media.get("square") or media.get("story")
+    ld = {"link": link, "message": msg, "name": title, "image_hash": main, "call_to_action": cta}
+    if desc:
+        ld["description"] = desc
+    if media.get("story") and media["story"] != main and not lead_form:
+        imgs = {"feed": main, "story": media["story"]}
+        spec = {"images": [{"hash": hh, "adlabels": [{"name": f"{ad['id']}-{k}"}]} for k, hh in imgs.items()],
+                "bodies": [{"text": msg}], "titles": [{"text": title}], "link_urls": [{"website_url": link}],
+                "call_to_action_types": [cta_type], "ad_formats": ["SINGLE_IMAGE"],
+                "asset_customization_rules": [{"customization_spec": cs, "image_label": {"name": f"{ad['id']}-{k}"}, "priority": i}
+                                              for i, (cs, k) in enumerate(PLACEMENT_RULES, 1)]}
+        if desc:
+            spec["descriptions"] = [{"text": desc}]
+        try:
+            return post({"object_story_spec": {"page_id": page}, "asset_feed_spec": spec})
+        except pub.GraphError as e:
+            print(f"  {ad['id']}: placement customisation refused, one image everywhere — {str(e)[:120]}")
+    return post({"object_story_spec": {"page_id": page, "link_data": ld}})
+
+
+def _launch_concepts(c, m, cr, mode, remote, save, acct_cur, special, countries, b, base):
+    """The concept-structured flight: one ad set per angle of the month's matrix, that angle's styles as separate ads,
+    so Meta tests executions inside a concept and concepts against each other.
+    Budget: campaign budget optimisation (CBO) — the flight's daily budget is set on the campaign and Meta moves it to
+    the ad sets that convert. The flights Otto plans are small (€20/day): split evenly over 6+ ad sets (ABO), each would
+    sit below what an ad set needs to leave learning, and the split would be ours, not the auction's. Resumable like the
+    one-set flight: every id is saved in remote (campaign_id, hashes, concepts[<angle>] = {adset_id, ads{cell: ids}})."""
+    tok, act, page = m["access_token"], m["ad_account_id"], m["page_id"]
+    concepts = _concepts(cr)
+    if not concepts:
+        raise LaunchError("the ad matrix has no rendered ad to launch")
+    remote["structure"] = "concepts"
+    if not remote.get("campaign_id"):
+        params = {"name": c["name"], "objective": mode["objective"], "status": "PAUSED", "buying_type": "AUCTION",
+                  "special_ad_categories": json.dumps(special), "daily_budget": minor_units(c["daily_budget"], acct_cur),
+                  "bid_strategy": "LOWEST_COST_WITHOUT_CAP"}       # CBO: the budget lives on the campaign
+        if special:
+            params["special_ad_category_country"] = json.dumps(countries)
+        remote["campaign_id"] = pub.graph("POST", f"{act}/campaigns", tok, **params)["id"]
+    save()
+    link = c.get("landing_url") or ("https://" + b.get("url", "").strip("/") if b.get("url") else "")
+    lead_form, cta_default = mode.get("lead_form"), cr.get("cta", "LEARN_MORE")
+    hashes, vids, done = remote.setdefault("hashes", {}), remote.setdefault("video_map", {}), remote.setdefault("concepts", {})
+    for con in concepts:
+        st = done.setdefault(str(con["angle"]), {})
+        st.setdefault("ads", {})
+        todo = []
+        for ad in con["ads"]:
+            if (st["ads"].get(ad["id"]) or {}).get("ad_id"):
+                continue                                   # created in an earlier run
+            try:
+                todo.append((ad, _ad_media(ad, m, base, hashes, vids, save)))
+            except Exception as e:                          # one bad file drops that ad, not the concept
+                print(f"  {ad['id']}: not uploaded — {str(e)[:160]}")
+        if todo and not st.get("adset_id"):
+            params = _adset_params(c, mode, special, countries, remote["campaign_id"], f"{c['name']} · {con['ad_set']}")
+            st["adset_id"] = pub.graph("POST", f"{act}/adsets", tok, **params)["id"]
+            save()
+        for ad, media in todo:
+            a_st = st["ads"].setdefault(ad["id"], {"style": ad.get("style")})
+            if not a_st.get("creative_id"):
+                a_st["creative_id"] = _concept_creative(act, tok, page, c, ad, media, link, lead_form, cta_default)
+                save()
+            a_st["ad_id"] = pub.graph("POST", f"{act}/ads", tok, name=f"{c['name']} · {ad['id']}"[:200], adset_id=st["adset_id"],
+                                      creative=json.dumps({"creative_id": a_st["creative_id"]}), status="ACTIVE")["id"]
+            save()
+        if st.get("adset_id") and not st.get("active") and any(x.get("ad_id") for x in st["ads"].values()):
+            pub.graph("POST", st["adset_id"], tok, status="ACTIVE")
+            st["active"] = True
+            save()
+    live = [k for k, v in done.items() if v.get("active")]
+    if not live:
+        raise LaunchError("no ad of the matrix could be uploaded")
+    if not remote.get("campaign_active"):
+        pub.graph("POST", remote["campaign_id"], tok, status="ACTIVE")
+        remote["campaign_active"] = True
+    remote.update({"done": True, "mode": {k: v for k, v in mode.items() if k != "promoted_object"}, "ad_sets": len(live),
+                   "ads": sum(1 for k in live for x in done[k]["ads"].values() if x.get("ad_id")),
+                   "images": len(hashes), "videos": len(vids)})
+    save()
+    return remote
+
+
 def launch_meta(d, c, m, base, persist=lambda **kw: None):
-    """Resumable: c["remote"] is persisted after every created object; a re-run continues from it."""
+    """Resumable: c["remote"] is persisted after every created object; a re-run continues from it. A flight whose creatives
+    come from the month's ad matrix is concept-structured (_launch_concepts: CBO, one ad set per angle); otherwise one
+    ad set with its own budget and Meta dynamic creative (or one ad per static with an instant form)."""
     remote = dict(c.get("remote") or {})
     tok, act, page = m["access_token"], m["ad_account_id"], m["page_id"]
     b = ap.brand(d, c["brand"]) or {}
@@ -758,6 +1063,10 @@ def launch_meta(d, c, m, base, persist=lambda **kw: None):
         cr = cre.build(d, c, dry=False, base=base)         # render statics/carousels with copy now
         remote["creatives_built"] = ap.now_iso()
         save(creatives=cr)
+    # the month's ad matrix was built → concept structure (one ad set per angle); a campaign already created as one
+    # ad set stays that way on resume
+    if not boost and (remote.get("structure") == "concepts" or (not remote.get("campaign_id") and _concepts(cr))):
+        return _launch_concepts(c, m, cr, mode, remote, save, acct_cur, special, countries, b, base)
 
     if not remote.get("campaign_id"):
         params = {"name": c["name"], "objective": mode["objective"], "status": "PAUSED", "buying_type": "AUCTION",
@@ -794,23 +1103,8 @@ def launch_meta(d, c, m, base, persist=lambda **kw: None):
     lead_form = mode.get("lead_form")
     dynamic = not boost and not lead_form and (len(hashes) >= 2 or len(cr.get("titles", [])) >= 2)
     if not remote.get("adset_id"):
-        age = c["audience"].get("age", [25, 60])
-        targeting = {"geo_locations": {"countries": countries}}
-        if special:
-            targeting.update({"age_min": 18, "age_max": 65})          # special ad categories: no age narrowing
-        else:
-            targeting.update({"age_min": age[0], "age_max": age[1]})
-            if age[1] and age[1] < 65:
-                targeting["targeting_automation"] = {"advantage_audience": 0}   # v25: honour age_max as a hard limit
-        start = max(datetime.fromisoformat(c["start"] + "T06:00:00+00:00"), datetime.now(timezone.utc) + timedelta(minutes=10))
-        params = {"name": c["name"] + " · set A", "campaign_id": remote["campaign_id"],
-                  "daily_budget": minor_units(c["daily_budget"], acct_cur), "billing_event": "IMPRESSIONS",
-                  "optimization_goal": mode["optimization_goal"], "status": "PAUSED", "targeting": json.dumps(targeting),
-                  "start_time": start.strftime("%Y-%m-%dT%H:%M:%S+0000"), "end_time": c["end"] + "T23:59:00+0000"}
-        if mode.get("destination_type"):
-            params["destination_type"] = mode["destination_type"]
-        if mode.get("promoted_object"):
-            params["promoted_object"] = json.dumps(mode["promoted_object"])
+        params = _adset_params(c, mode, special, countries, remote["campaign_id"], c["name"] + " · set A")
+        params["daily_budget"] = minor_units(c["daily_budget"], acct_cur)
         if dynamic:
             params["is_dynamic_creative"] = "true"
         remote["adset_id"] = pub.graph("POST", f"{act}/adsets", tok, **params)["id"]
@@ -1047,6 +1341,10 @@ def _claim(cid):
         c = ap.campaign(d, cid)
         if c is None or c.get("status") != "approved" or c.get("compliance_hold") or (c.get("remote") or {}).get("done"):
             return None
+        if ap.paused(d, c.get("brand")):              # the kill switch / a brand pause flipped while this run was working
+            return None
+        if ap.no_ads_why(d, c.get("brand"), c.get("network")):   # the plan changed while this run was working
+            return None
         held = ap.parse_iso(c.get("launching_at"))
         if held and held.tzinfo and datetime.now(timezone.utc) - held < timedelta(minutes=LAUNCH_CLAIM_MIN):
             return None
@@ -1064,13 +1362,20 @@ def _persist(cid, **fields):
 def launch(bid=None, dry=False, base=pub.BASE):
     import otto_compliance as comp
     snap = ap.load()                                  # snapshot; every change is a short per-campaign transaction
-    t = today()
+    if ap.paused(snap):                               # owner console kill switch (otto_admin): nothing launches
+        print(f"PAUSED  {ap.paused(snap)} — nothing launches"); return
+    snap["campaigns"] = [c for c in snap.get("campaigns", []) if not ap.paused(snap, c["brand"])]   # paused brands launch nothing
     for c in snap.get("campaigns", []):
+        t = today(ap.brand(snap, c["brand"]))
         if c["status"] != "approved" or (bid and c["brand"] != bid) or not (c["start"] <= t <= c["end"]):
             continue
         if c.get("compliance_hold") or (c.get("remote") or {}).get("done"):
             continue
         tag = f'{c["id"]} {c["network"]} {c["name"]} ({c["start"]}→{c["end"]}, {c.get("currency", "")}{c["daily_budget"]}/day)'
+        why = ap.no_ads_why(snap, c["brand"], c["network"])
+        if why:                                       # defence in depth: otto_cron skips the brand already
+            print(f"SKIPPED {tag} — {why}")
+            continue
         try:
             if c.get("objective") == "engagement" and (c.get("creative") or {}).get("post"):
                 src = boost_post(snap, c)
@@ -1119,6 +1424,16 @@ def launch(bid=None, dry=False, base=pub.BASE):
                 remote = launch_google(snap, c, creds)
             _persist(c["id"], remote=remote, status="live", launched_at=ap.now_iso(), error=None, launching_at=None)
             print(f"  live: {c['id']}")
+            why = ap.paused(ap.load(), c["brand"])
+            if why:                                   # switched off while the launch was in flight: stop the spend now
+                print(f"  {why} — pausing {c['id']} right away")
+                try:
+                    pause(c["id"], by="kill_switch" if "kill switch" in why else "brand")
+                except Exception as e:
+                    with ap.transaction() as d:
+                        ap.add_rec_once(d, "P0", f"Pause campaign {c['id']} by hand", f"It went live while publishing was paused, "
+                                        f"and pausing it failed: {str(e)[:200]}", "It may still be spending", "Pause in Ads Manager",
+                                        brand=c["brand"], source="otto_admin", campaign_id=c["id"])
         except Skipped as e:
             print(f"  skipped: {e}")
             if not dry:
@@ -1159,7 +1474,15 @@ def _remote_pause(c):
         set_google_status(c, google_creds(c["brand"]), "PAUSED")
 
 
-def pause(cid, dry=False):
+def _remote_resume(c):
+    if c["network"] == "meta":
+        set_meta_status(c, meta_creds(c["brand"]), "ACTIVE")
+    else:
+        set_google_status(c, google_creds(c["brand"]), "ENABLED")
+
+
+def pause(cid, dry=False, by="manual"):
+    """Pause a campaign: remote first (raises → the state is NOT changed), then status paused + who paused it."""
     snap = ap.load()
     c = ap.campaign(snap, cid)
     assert c, f"unknown campaign {cid}"
@@ -1167,15 +1490,38 @@ def pause(cid, dry=False):
         _remote_pause(c)                               # raises → state is NOT changed
     if dry:
         print(f"{cid} would be paused"); return
-    _persist(cid, status="paused", paused_at=ap.now_iso())
+    _persist(cid, status="paused", paused_at=ap.now_iso(), paused_by=by)
     print(f"{cid} paused")
+
+
+def resume(cid, dry=False):
+    """paused → live (remote first; raises → the state is NOT changed). A flight whose end date has passed is marked
+    ended instead of spending again; a paused brand or the kill switch refuses. Returns the new status."""
+    snap = ap.load()
+    c = ap.campaign(snap, cid)
+    assert c, f"unknown campaign {cid}"
+    if c.get("status") != "paused":
+        raise LaunchError(f"{cid} is {c.get('status')}, not paused")
+    why = ap.paused(snap, c.get("brand")) or ap.no_ads_why(snap, c.get("brand"), c.get("network"))
+    if why:
+        raise LaunchError(f"{cid} stays paused: {why}")
+    if str(c.get("end") or "9999") < today(ap.brand(snap, c.get("brand"))):
+        if not dry:
+            _persist(cid, status="ended", ended_at=ap.now_iso(), paused_by=None)
+        print(f"{cid} ended while paused — not resumed")
+        return "ended"
+    if dry:
+        print(f"{cid} would be resumed"); return "live"
+    _remote_resume(c)
+    _persist(cid, status="live", resumed_at=ap.now_iso(), paused_by=None)
+    print(f"{cid} resumed")
+    return "live"
 
 
 def guard(dry=False):
     snap = ap.load()
-    t = today()
     for c in snap.get("campaigns", []):
-        if c["status"] == "live" and c["end"] < t:
+        if c["status"] == "live" and c["end"] < today(ap.brand(snap, c["brand"])):
             print(f"ENDED {c['id']} {c['name']}")
             if dry:
                 continue
@@ -1194,6 +1540,63 @@ def guard(dry=False):
             for r in snap.get("recommendations", []):
                 if r.get("source") == "otto_ads" and r["status"] == "proposed" and r.get("action") == "pause_campaign":
                     print(f"auto_pause on for {bid}: would act on {r['id']} ({r.get('campaign_id') or 'no campaign id'})")
+    plan_guard(dry=dry)
+
+
+def plan_guard(dry=False, bids=None):
+    """What plans.json says after a downgrade, an expiry or an ended membership (runs inside guard, daily, whatever the
+    kill switch): the one owner card per expired plan (ap.plan_expiry_notices), then every live campaign whose brand's plan
+    no longer covers its network is paused through pause() (remote first, paused_by "plan"), with one owner card per brand
+    that says so. A campaign that cannot be paused stays live and becomes a P0 "pause it by hand" card (retried tomorrow).
+    A broken plans.json pauses nothing. bids = only these brands. → ids paused."""
+    snap = ap.load()
+    cfg = ap.plans_config()
+    if cfg.get("error"):
+        print(f"plans.json cannot be used ({cfg['error'][:200]}) — no campaign is paused because of plans")
+        if not dry:
+            with ap.transaction() as d:
+                ap.add_rec_once(d, "P0", "Fix plans.json", f"{cfg['error'][:300]}. Until it is fixed every brand runs organic "
+                                "only: no paid campaign is planned or launched (live ones are left alone).",
+                                "Paid work is on hold for every client", "Fix plans.json", source="otto_admin", audience="owner")
+        return []
+    expired = []
+    for b in snap.get("brands", []):
+        p = ap.plan_of(snap, b["id"]) if isinstance(b, dict) and b.get("id") else None
+        if p and p["expired"] and b.get("plan_notice") != f"expired:{p['requested']}:{p['until']}":
+            expired.append(b["id"])
+    if expired and not dry:
+        with ap.transaction() as d:
+            for bid in ap.plan_expiry_notices(d):
+                print(f"PLAN {bid}: plan ended — owner card filed")
+    paused_ids, by_brand = [], {}
+    for c in snap.get("campaigns", []):
+        if not isinstance(c, dict) or c.get("status") != "live" or (bids and c.get("brand") not in bids):
+            continue
+        why = ap.no_ads_why(snap, c.get("brand"), c.get("network"))
+        if not why:
+            continue
+        print(f"{'WOULD PAUSE' if dry else 'PAUSE'} {c['id']} {c.get('name', '')} — {why}")
+        if dry:
+            continue
+        try:
+            pause(c["id"], by="plan")
+        except Exception as e:                        # stays live; the card says so, tomorrow's guard retries
+            print("  pause failed — stays live, retried tomorrow:", e)
+            with ap.transaction() as d:
+                ap.add_rec_once(d, "P0", f"Pause campaign {c['id']} by hand", f"{why}, but pausing the live campaign failed: "
+                                f"{str(e)[:200]}", "It may still be spending", "Pause in Ads Manager",
+                                brand=c.get("brand"), source="otto_admin", campaign_id=c["id"])
+            continue
+        paused_ids.append(c["id"])
+        by_brand.setdefault(c.get("brand"), (why, []))[1].append(c["id"])
+    for bid, (why, ids) in by_brand.items():
+        with ap.transaction() as d:
+            name = (ap.brand(d, bid) or {}).get("name") or bid
+            ap.add_rec(d, "P1", f"{name}: {len(ids)} live campaign{'s' * (len(ids) != 1)} paused — not covered by the plan",
+                       f"{', '.join(ids)} {'were' if len(ids) != 1 else 'was'} paused on Meta / Google because {why}. Nothing was "
+                       "deleted: after an upgrade they can be resumed from the console.", "No spend the plan does not cover",
+                       "Change the plan", brand=bid, source="plans", audience="owner", campaign_ids=ids)
+    return paused_ids
 
 
 if __name__ == "__main__":
@@ -1212,6 +1615,8 @@ if __name__ == "__main__":
         guard(dry="--dry" in a)
     elif cmd == "pause":
         pause(a[1], dry="--dry" in a)
+    elif cmd == "resume":
+        resume(a[1], dry="--dry" in a)
     elif cmd == "release":
         release(a[1])
     elif cmd == "retry":

@@ -27,9 +27,10 @@ bdi.n{unicode-bidi:isolate;direction:ltr}
 .t-paper2{background:var(--surface2);color:var(--ink)}
 .t-dark{background:var(--deep);color:var(--on-deep)}
 .t-accent{background:var(--accent);color:var(--accent-ink)}
-.t-dark .muted,.on-dark .muted{color:rgba(255,255,255,.72)}
-.t-light .muted,.on-light .muted,.t-paper2 .muted{color:rgba(var(--ink-rgb),.64)}
-.t-accent .muted{opacity:.74}
+/* secondary text per ground: otto_render.muted_tokens() keeps it as quiet as the brand colours allow at ≥ 4.5:1 */
+.t-dark .muted,.on-dark .muted{color:var(--mut-dark)}
+.t-light .muted,.on-light .muted,.t-paper2 .muted{color:var(--mut-light)}
+.t-accent .muted{color:var(--mut-accent)}
 
 /* ---------- photo treatment: real photo, gentle grade, brand-tinted shade, fine grain ---------- */
 .photo{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;filter:saturate(.92) contrast(1.03) brightness(.99)}
@@ -67,7 +68,7 @@ em{font-family:var(--f-serif);font-style:italic;font-weight:var(--w-serif);lette
 .serif em{font-size:1em}
 .lede{font:400 calc(30px*var(--k))/1.4 var(--f-text);text-wrap:pretty;letter-spacing:-.006em}
 .body{font:400 calc(26px*var(--k))/1.45 var(--f-text);text-wrap:pretty}
-.small{font:500 calc(19px*var(--k))/1.35 var(--f-text);letter-spacing:.01em}
+.small{font:500 calc(19px*var(--k))/1.35 var(--f-text);letter-spacing:.01em;text-wrap:pretty}
 .num{font-family:var(--f-display);font-weight:var(--w-display);font-variant-numeric:lining-nums tabular-nums;letter-spacing:-.055em;line-height:.8}
 
 /* emphasis by surface */
@@ -105,8 +106,11 @@ html[dir=rtl] .mark{letter-spacing:0;text-transform:none;font-size:calc(25px*var
 .mark .logo-m{display:block;height:calc(40px*var(--k));aspect-ratio:var(--ar,3);background:currentColor;
   -webkit-mask:var(--logo) left center/contain no-repeat;mask:var(--logo) left center/contain no-repeat}
 html[dir=rtl] .mark .logo-m{-webkit-mask-position:right center;mask-position:right center}
-.host{font:500 calc(19px*var(--k))/1 var(--f-text);letter-spacing:.02em;white-space:nowrap;opacity:.78}
-.meta{font:600 calc(17px*var(--k))/1 var(--f-text);letter-spacing:.16em;text-transform:uppercase;white-space:nowrap;opacity:.86}
+.host{font:500 calc(19px*var(--k))/1 var(--f-text);letter-spacing:.02em;white-space:nowrap}
+.t-light .host,.on-light .host,.t-paper2 .host{color:var(--mut-light)}
+.t-dark .host,.on-dark .host{color:var(--mut-dark)}
+.t-accent .host{color:var(--mut-accent)}
+.meta{font:600 calc(17px*var(--k))/1 var(--f-text);letter-spacing:.16em;text-transform:uppercase;white-space:nowrap}
 html[dir=rtl] .meta{letter-spacing:0;font-size:calc(21px*var(--k));text-transform:none}
 .cta{font:600 calc(24px*var(--k))/1 var(--f-text);padding-bottom:9px;border-bottom:2px solid var(--accent);letter-spacing:-.004em;white-space:nowrap}
 html[dir=rtl] .cta{font-size:calc(26px*var(--k));font-weight:700}
@@ -141,3 +145,8 @@ html.em-marker .t-light .stars .on{fill:var(--ink)}
 .pb{display:block;height:.6em}
 /* bright photo under the brand bar (split layouts): a firmer top shade keeps the wordmark legible */
 .split .shade-t{background:linear-gradient(to bottom,rgba(var(--deep-rgb),.62) 0%,rgba(var(--deep-rgb),.3) 11%,rgba(var(--deep-rgb),0) 24%)}
+/* html.photo-top-light (otto_render: the logo corner of the photo's top strip is bright): the brand bar over the photo is
+   ink and the top shade goes — a white wordmark on a yellow packshot or a white wall disappears under any scrim */
+html.photo-top-light body .top-on-photo,html.photo-top-light .split .frame .bar.top,html.photo-top-light .split .bar.top,
+html.photo-top-light .has-hero .bar.top,html.photo-top-light .overlay .bar.top{color:var(--ink)}
+html.photo-top-light .hero .shade-t,html.photo-top-light .split .shade-t,html.photo-top-light .overlay>.shade-t{display:none}

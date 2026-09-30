@@ -3,23 +3,34 @@
 
   otto_render.py demo <brand> <out_dir> [--only a,b]          # every template, realistic copy, brand photos
   otto_render.py one <template> <json-data|file.json> <out> [--brand <id>] [--size 1080x1920|story|square]
-  otto_render.py check <template> <json-data|file.json> [--brand <id>] [--size …]   # does the copy fit? exit 3 if not
+  otto_render.py check <template> <json-data|file.json> [--brand <id>] [--size …]   # does the copy fit? exit 3 if not,
+                                                            # 4 = placeholder / internal data, 5 = image missing or broken
   otto_render.py sheet <out.jpg> <dir-or-image> [...]         # labelled contact sheet of renders
   otto_render.py tokens <brand>                               # the design tokens a brand renders with
   otto_render.py list                                         # templates
 
 Templates (platform/templates/ads/<name>.html; data fields documented at the top of each file):
   editorial · big_number · quote · before_after · myth_fact · checklist · offer · comparison ·
-  carousel_cover · carousel_inner · carousel_cta · founder_note · event
+  carousel_cover · carousel_inner · carousel_cta · founder_note · event · notes_app · search · text_message ·
+  social_post · ugc_caption · review_cards · us_vs_them · product_hero · macro_hero · ingredients
 Plain HTML + CSS with {{key}} (HTML-escaped; inside a tag it is attribute-escaped), {{&key}} (raw, internal),
 {{#each list}}…{{/each}} ({{.}}, {{@n}}, {{@nn}}, {{@first}}, {{@last}}), {{#if}}…{{else}}…{{/if}}, {{#unless}},
 {{> partial}} (_partial.html). A missing key renders as nothing, never as a literal placeholder. In copy,
 *word* becomes the accent <em>, \n a line break, a blank line a paragraph; numbers are bidi-isolated so
 "10,000+" never flips in Hebrew.
 
-Every string is cleaned first: markdown markers, arrows, "(?)", {placeholders}, [TBD]s and emoji go, and a
-field carrying internal data (CPL, CPA, ROAS, budget, lead counts) is dropped with a warning. Copy shrinks
-to fit its box (_fit.js); fit_report() / `check` say when it still does not fit. Sizes: 1080x1350 feed
+Copy gates first, loudly: a real placeholder ({{name}}, {first_name}, [TBD], [insert …], "(?)", XX, lorem ipsum, a field
+that is only "TBD" or starts "TODO:") or internal data (CPL, ROAS, lead counts, budget figures) raises CopyError —
+render / render_set / `check` (exit 4) refuse the ad instead of silently removing text ("Costume: TBD" is copy and
+renders). Then every string is cleaned: markdown markers, arrows and emoji go. Copy shrinks to fit its box (_fit.js);
+fit_report() / `check` say when it still does not fit (exit 3), when an image reference does not resolve or decode
+(exit 5), when text leaves the canvas, which story text sits in the Stories/Reels UI zones and which text is under
+4.5:1 contrast. render() is strict: it shoots and reads that report in one Chrome pass and refuses (FitError, nothing
+written) an ad whose copy still overflows or leaves the canvas, whose image is missing or does not decode, or whose
+style's required fields are empty (strict=False for drafts / QA sheets). Story 9:16 keeps copy inside Meta's unified
+Stories/Reels safe zone (top 14 %, bottom 35 %). Secondary text colours come from muted_tokens() (≥ 4.5:1 on every
+ground for any palette); a bright photo top turns the brand bar over it to ink. An ad's own CTA words follow its Meta
+button: cta_label("SHOP_NOW", lang) → "Shop now" / "לרכישה". Sizes: 1080x1350 feed
 (default), 1080x1920 story (text only between the top 14 % and the bottom 35 %, the Meta Reels/Stories
 safe zone), 1080x1080 square. layout "auto" keeps text off bright photos (ffmpeg luma probe → split).
 
@@ -99,11 +110,14 @@ def _tmp_root():
     return d or None
 
 
-def screenshot(html_text, png_path, size, budget=6000, timeout=120, browser=None):
-    """Write html_text to a temp file and shoot it at exactly size=(w, h). Returns png_path.
+def screenshot(html_text, png_path, size, budget=6000, timeout=120, browser=None, report=False):
+    """Write html_text to a temp file and shoot it at exactly size=(w, h). Returns png_path, or (png_path, fit report)
+    with report=True: the same Chrome pass also dumps the laid-out DOM with the _PROBE report (the pixels are identical).
     No --user-data-dir: headless already runs on a throwaway profile, and a fresh explicit profile makes the
     macOS Chrome app hang on first-run/keychain setup."""
     w, h = size
+    if report:
+        html_text = html_text.replace("</body>", _PROBE + "</body>")
     browser = browser or find_browser()
     with tempfile.TemporaryDirectory(prefix="otto-render-", dir=_tmp_root()) as tmp:
         page = Path(tmp) / "page.html"
@@ -113,7 +127,8 @@ def screenshot(html_text, png_path, size, budget=6000, timeout=120, browser=None
                "--force-device-scale-factor=1", "--font-render-hinting=none", "--allow-file-access-from-files",
                "--run-all-compositor-stages-before-draw", "--default-background-color=00000000",
                "--use-mock-keychain", "--password-store=basic", f"--window-size={w},{h}",
-               f"--virtual-time-budget={int(budget)}", f"--screenshot={png_path}", page.as_uri()]
+               f"--virtual-time-budget={int(budget)}", f"--screenshot={png_path}"] + (["--dump-dom"] if report else []) \
+            + [page.as_uri()]
         if sys.platform.startswith("linux") and hasattr(os, "geteuid") and os.geteuid() == 0:
             cmd.insert(1, "--no-sandbox")
         try:
@@ -122,6 +137,9 @@ def screenshot(html_text, png_path, size, budget=6000, timeout=120, browser=None
             raise RenderError(f"headless Chrome timed out after {timeout}s")
         if not Path(png_path).exists() or Path(png_path).stat().st_size < 200:
             raise RenderError("headless Chrome wrote no screenshot: " + (r.stderr or r.stdout)[-300:])
+    if report:
+        m = re.search(r'<pre id="otto-report"[^>]*>(.*?)</pre>', r.stdout, re.S)
+        return png_path, (json.loads(html.unescape(m.group(1))) if m else {"fitted": False, "overflow": None, "sizes": {}})
     return png_path
 
 
@@ -293,12 +311,26 @@ def fill(src, data):
 
 # ---------------------------------------------------------------- copy hygiene
 
-INTERNAL = re.compile(r"\bCPL\b|\bCPA\b|\bCPM\b|\bCTR\b|\bROAS\b|\bbudget\b|\bKPI\b|\bper lead\b|\bleads?\b|לידים|"
-                      r"תקציב|עלות לליד|\bad ?set\b|\bhypothes|\bplaceholder\b|\bTODO\b|\bTBD\b|lorem ipsum", re.I)
+# Internal data (performance numbers, budgets, lead counts, planning words) never reaches an ad. Narrow on purpose: a
+# word that is also ordinary copy ("it leads to", "lead the way", "budget-friendly", "on a budget") is not internal data;
+# a lead COUNT, a cost per lead or a budget FIGURE is.
+INTERNAL = re.compile(r"\bCPL\b|\bCPA\b|\bCPM\b|\bCTR\b|\bROAS\b|\bKPIs?\b|\bcost per (?:lead|click|result|acquisition)\b|"
+                      r"\bper lead\b|\b\d[\d,.]*\s*(?:new |qualified |more )?leads\b|\bleads? (?:count|cost|volume|goal|target)s?\b|"
+                      r"\b(?:daily|monthly|weekly|ad|campaign|media|total) budget\b|\bbudget\s*[:=]?\s*(?:of\s+)?[$€£₪]?\s?\d|"
+                      r"\d[\d,.]*\s*לידים|עלות לליד|תקציב\s*(?:יומי|חודשי|שבועי|פרסום|קמפיין|של)?\s*[:=]?\s*[₪$€]?\s?\d|"
+                      r"תקציב (?:יומי|חודשי|שבועי|פרסום|קמפיין)|\bad ?sets?\b|\bhypothes", re.I)
 EMOJI = re.compile("[\U0001F000-\U0001FAFF\U00002600-\U000027BF\U00002B00-\U00002BFF️‍⃣]")
 ARROWS = re.compile(r"\s*(?:->|=>|<-|[←-⇿⟰-⟿⤀-⥿⬅-⬇➜-➿])\s*")
-PLACEHOLDER = re.compile(r"\{\{[^}]*\}\}|\{[a-z_][a-z0-9_.]*\}|\[(?:TBD|TODO|placeholder|insert[^\]]*|x+)\]|\(\?\)", re.I)
+# Real placeholders only: template tags, bracketed fill-ins, the "(?)" unconfirmed marker, lorem ipsum, "XX" figures, a
+# field that is nothing but "TBD", or starts with "TBD:" / "TODO:". "Costume: TBD" and "Date TBD" are copy, not placeholders.
+PLACEHOLDER = re.compile(r"\{\{[^}]*\}\}|\{[a-z_][a-z0-9_.]*\}|\[(?:TBD|TBC|TODO|FIXME|placeholder|insert[^\]]*|x+|\.\.\.|…|"
+                         r"(?:brand|product|company|customer|first|last|your|full)?\s*name|price|link|url|cta|headline|"
+                         r"number|date|city|photo|image|logo)\]|\(\?\)|\blorem ipsum\b", re.I)
+PLACEHOLDER_CS = re.compile(r"(?<![\w])XX+(?![\w])|^\s*(?:TBD|TBC|TODO|FIXME)\s*[:\-–—]")
+PLACEHOLDER_FIELD = re.compile(r"\s*(?:TBD|TBC|FIXME|placeholder|lorem ipsum.*|\?+|…|\.\.\.|x{3,})\s*[.!:]?\s*|\s*TODO\s*[.!:]?\s*",
+                               re.I | re.S)
 SKIP_CLEAN = ("photo", "image", "logo", "href", "url", "layout", "theme", "date", "_pos")
+SKIP_PLACEHOLDER = ("photo", "image", "logo", "href", "url", "layout", "theme", "_pos", "mode", "crop", "size")
 ASSET_KEY = re.compile(r"(^|_)(photo|image|img|logo|portrait)(_(?!pos$)[a-z0-9]+)?$", re.I)
 POS_OK = re.compile(r"[\d.%\sa-z-]{1,40}")
 
@@ -339,6 +371,51 @@ def sanitize(data, warn=None, _path=""):
             return None
         return clean_copy(data)
     return data
+
+
+def placeholder_in(s):
+    """The placeholder in one string ('{{name}}', '[TBD]', '(?)', 'XX', a bare 'TBD' field, 'TODO: …'), or None."""
+    s = str(s)
+    m = PLACEHOLDER.search(s) or PLACEHOLDER_CS.search(s)
+    if m:
+        return m.group(0).strip()
+    if s.strip() and PLACEHOLDER_FIELD.fullmatch(s):
+        return s.strip()
+    return None
+
+
+def copy_issues(data, _path=""):
+    """Everything that must stop a render loudly instead of being cleaned away: ["headline: placeholder '[TBD]' in
+    'Big [TBD] sale'", "sub: internal data 'CPL' in …"]. Asset paths, urls and layout switches are not copy."""
+    out = []
+    if isinstance(data, dict):
+        for k, v in data.items():
+            if str(k).startswith("_"):
+                continue
+            if isinstance(v, str) and (any(t in str(k).lower() for t in SKIP_PLACEHOLDER) or ASSET_KEY.search(str(k))):
+                continue
+            out += copy_issues(v, f"{_path}{k}.")
+    elif isinstance(data, (list, tuple)):
+        for i, v in enumerate(data):
+            out += copy_issues(v, f"{_path.rstrip('.')}[{i}].")
+    elif isinstance(data, str):
+        field, short = _path.rstrip(".") or "value", data if len(data) <= 70 else data[:67] + "…"
+        ph = placeholder_in(data)
+        if ph:
+            out.append(f"{field}: placeholder {ph!r} in {short!r}")
+        m = INTERNAL.search(data)
+        if m:
+            out.append(f"{field}: internal data {m.group(0)!r} in {short!r}")
+    return out
+
+
+class CopyError(RenderError):
+    """The copy carries a placeholder or internal data: the ad is not rendered (never silently cleaned). .issues lists
+    every field."""
+    def __init__(self, issues, where=""):
+        self.issues = list(issues)
+        super().__init__(f"{where + ': ' if where else ''}copy not ready — " + "; ".join(self.issues[:6])
+                         + (f" (+{len(self.issues) - 6} more)" if len(self.issues) > 6 else ""))
 
 
 # ---------------------------------------------------------------- colour + brand tokens
@@ -412,6 +489,47 @@ LABELS = {
            "usual": "Der übliche Weg", "vs": "vs", "note": "Ein Wort vom Team", "save": "Platz sichern", "of": "/",
            "verified": "Verifizierte Bewertung", "new": "Neu"},
 }
+# The words on the ad's own CTA (a card's underline / pill) for each Meta button type, per language: the image says what
+# the button does ("Shop now" over a SHOP_NOW button, never "Learn more"). Unknown language → English.
+CTA_LABELS = {
+    "SHOP_NOW": {"en": "Shop now", "he": "לרכישה", "de": "Jetzt shoppen", "fr": "Acheter", "es": "Comprar", "it": "Acquista ora",
+                 "pt": "Comprar agora", "nl": "Nu shoppen", "pl": "Kup teraz", "ro": "Cumpără acum", "hu": "Vásárlás"},
+    "BUY_NOW": {"en": "Buy now", "he": "לרכישה", "de": "Jetzt kaufen", "fr": "Acheter", "es": "Comprar", "it": "Acquista ora",
+                "pt": "Comprar agora", "nl": "Nu kopen", "pl": "Kup teraz", "ro": "Cumpără acum", "hu": "Megveszem"},
+    "ORDER_NOW": {"en": "Order now", "he": "להזמנה", "de": "Jetzt bestellen", "fr": "Commander", "es": "Pedir ahora",
+                  "it": "Ordina ora", "pt": "Encomendar", "nl": "Nu bestellen", "pl": "Zamów teraz", "ro": "Comandă acum",
+                  "hu": "Megrendelem"},
+    "LEARN_MORE": {"en": "Learn more", "he": "לפרטים בלינק", "de": "Mehr erfahren", "fr": "En savoir plus", "es": "Más información",
+                   "it": "Scopri di più", "pt": "Saiba mais", "nl": "Meer informatie", "pl": "Dowiedz się więcej",
+                   "ro": "Află mai multe", "hu": "Tudj meg többet"},
+    "SEE_MORE": {"en": "See more", "he": "לפרטים נוספים", "de": "Mehr ansehen", "fr": "Voir plus", "es": "Ver más"},
+    "SIGN_UP": {"en": "Sign up", "he": "להרשמה", "de": "Jetzt anmelden", "fr": "S’inscrire", "es": "Regístrate", "it": "Iscriviti",
+                "pt": "Inscreva-se", "nl": "Aanmelden", "pl": "Zarejestruj się", "ro": "Înscrie-te", "hu": "Regisztrálok"},
+    "SUBSCRIBE": {"en": "Subscribe", "he": "להרשמה", "de": "Abonnieren", "fr": "S’abonner", "es": "Suscríbete", "it": "Abbonati",
+                  "pt": "Assinar", "nl": "Abonneren", "pl": "Subskrybuj", "ro": "Abonează-te", "hu": "Feliratkozom"},
+    "GET_OFFER": {"en": "Get the offer", "he": "למבצע", "de": "Angebot sichern", "fr": "Profiter de l’offre", "es": "Ver la oferta"},
+    "BOOK_NOW": {"en": "Book now", "he": "לשריון מקום", "de": "Jetzt buchen", "fr": "Réserver", "es": "Reservar"},
+    "BOOK_TRAVEL": {"en": "Book now", "he": "להזמנה", "de": "Jetzt buchen", "fr": "Réserver", "es": "Reservar"},
+    "APPLY_NOW": {"en": "Apply now", "he": "להגשת מועמדות", "de": "Jetzt bewerben", "fr": "Postuler", "es": "Solicitar"},
+    "CONTACT_US": {"en": "Contact us", "he": "צרו קשר", "de": "Kontakt", "fr": "Nous contacter", "es": "Contáctanos"},
+    "GET_QUOTE": {"en": "Get a quote", "he": "לקבלת הצעה", "de": "Angebot anfordern", "fr": "Demander un devis", "es": "Pedir presupuesto"},
+    "DOWNLOAD": {"en": "Download", "he": "להורדה", "de": "Herunterladen", "fr": "Télécharger", "es": "Descargar"},
+    "WATCH_MORE": {"en": "Watch more", "he": "לצפייה", "de": "Mehr ansehen", "fr": "Regarder", "es": "Ver más"},
+    "SEND_MESSAGE": {"en": "Send a message", "he": "שלחו הודעה", "de": "Nachricht senden", "fr": "Envoyer un message",
+                     "es": "Enviar mensaje"},
+    "WHATSAPP_MESSAGE": {"en": "Message us", "he": "דברו איתנו בוואטסאפ", "de": "Schreib uns", "fr": "Écrivez-nous",
+                         "es": "Escríbenos"},
+}
+
+
+def cta_label(code, lang="en"):
+    """Meta button type ("SHOP_NOW") → the ad's own CTA words in the brand language ("Shop now", "לרכישה"); '' if unknown."""
+    row = CTA_LABELS.get(str(code or "").strip().upper())
+    if not row:
+        return ""
+    return row.get(str(lang or "en")[:2].lower()) or row["en"]
+
+
 RTL_LANGS = {"he", "ar", "fa", "ur"}
 FONT_PAIRS = {
     "he": {"display": "Heebo", "text": "Assistant", "serif": "Frank Ruhl Libre", "w_display": 800, "w_serif": 500},
@@ -624,7 +742,30 @@ def brand_tokens(bid=None, **over):
     tok.update({k: v for k, v in over.items() if v is not None})
     if tok["logo"] and not tok["logo_ratio"]:
         tok["logo_ratio"] = logo_ratio(tok["logo"])
+    tok.update(muted_tokens(tok))
     return tok
+
+
+def _soft(fg, ground, need=4.6, most=0.45):
+    """fg blended toward its ground as far as it can go (≤ most) while the text still reads ≥ need:1 on it."""
+    t = most
+    while t > 0 and contrast(mix(fg, ground, t), ground) < need:
+        t = round(t - 0.02, 2)
+    return mix(fg, ground, max(t, 0))
+
+
+def muted_tokens(tok):
+    """Secondary text colours (subs, sources, hosts, fine print) per ground, as quiet as they can be while small text keeps
+    WCAG 4.5:1 — a fixed 64 % ink or 74 % white falls under it on mid-tone brand colours (Grüns green, a teal)."""
+    white, ink, surface, surface2 = "#FFFFFF", tok["ink"], tok["surface"], tok["surface2"]
+    paper = surface2 if contrast(ink, surface2) < contrast(ink, surface) else surface     # the harder of the two papers
+    acc_fg = tok["accent_ink"]
+    mark = tok.get("marker") or tok["accent"]
+    mark_fg = ink if contrast(ink, mark) >= contrast(white, mark) else white
+    return {"mut_light": _soft(ink, paper), "mut_dark": _soft(white, tok["deep"], most=0.35),
+            "mut_large_light": _soft(ink, paper, 3.1, 0.6), "mut_large_dark": _soft(white, tok["deep"], 3.1, 0.5),
+            "mut_accent": _soft(acc_fg, tok["accent"], most=0.3), "mut_marker": _soft(mark_fg, mark, most=0.3),
+            "marker_ink": mark_fg}
 
 
 def _stack(font, kind, rtl):
@@ -641,6 +782,12 @@ def tokens_css(tok):
         "--ink-rgb": _rgb_str(tok["ink"]), "--deep": tok["deep"], "--deep-rgb": _rgb_str(tok["deep"]),
         "--surface": tok["surface"], "--surface2": tok["surface2"], "--on-deep": tok["on_deep"],
         "--accent-rgb": _rgb_str(tok["accent"]),
+        "--mut-light": tok.get("mut_light") or mix(tok["ink"], tok["surface"], 0.3),
+        "--mut-dark": tok.get("mut_dark") or "rgba(255,255,255,.78)",
+        "--mut-accent": tok.get("mut_accent") or tok["accent_ink"], "--mut-marker": tok.get("mut_marker") or tok["ink"],
+        "--marker-ink": tok.get("marker_ink") or tok["ink"],
+        "--mut-large-light": tok.get("mut_large_light") or mix(tok["ink"], tok["surface"], 0.45),
+        "--mut-large-dark": tok.get("mut_large_dark") or "rgba(255,255,255,.6)",
         "--f-display": _stack(tok["font_display"], "sans", rtl), "--f-text": _stack(tok["font_text"], "sans", rtl),
         "--f-serif": _stack(tok["font_serif"], "serif", rtl), "--w-display": str(tok.get("w_display", 700)),
         "--w-serif": str(tok.get("w_serif", 400)),
@@ -716,8 +863,8 @@ def font_css(families, subsets=("latin", "latin-ext")):
 
 # ---------------------------------------------------------------- assets + page assembly
 
-def resolve_asset(v):
-    """Photo/logo reference → URL Chrome can load ('' when missing)."""
+def resolve_asset(v, missing=None):
+    """Photo/logo reference → URL Chrome can load ('' when missing; the reference is appended to `missing`)."""
     if not v:
         return ""
     v = str(v).strip()
@@ -738,6 +885,8 @@ def resolve_asset(v):
         except OSError:
             continue
     print(f"otto_render: image not found: {v}", file=sys.stderr)
+    if missing is not None:
+        missing.append(v)
     return ""
 
 
@@ -870,13 +1019,32 @@ def _logo_mask(tok):
         return ""
 
 
+def _resolve_nested(v, depth=0, missing=None):
+    """Image keys inside objects and lists resolve like top-level ones, two levels deep (templates that must not
+    inherit the card's photo inside {{#each}} guard for it themselves — text_message relies on inheriting it)."""
+    if depth > 2:
+        return
+    items = v if isinstance(v, list) else [v]
+    for it in items:
+        if not isinstance(it, dict):
+            continue
+        for k, x in list(it.items()):
+            if isinstance(x, str) and ASSET_KEY.search(k):
+                it[k] = resolve_asset(x, missing)
+            elif isinstance(x, (dict, list)):
+                _resolve_nested(x, depth + 1, missing)
+
+
 def build_context(data, size, brand, warn=None):
     tok = dict(brand or brand_tokens())
     lang = tok.get("lang", "en")
     d = sanitize(data or {}, warn)
+    missing = []
     for k, v in list(d.items()):
         if isinstance(v, str) and ASSET_KEY.search(k):
-            d[k] = resolve_asset(v)
+            d[k] = resolve_asset(v, missing)
+        elif isinstance(v, (dict, list)):
+            _resolve_nested(v, missing=missing)        # us.photo, reviews[].photo, items[].photo…
     for k in [k for k in d if ASSET_KEY.search(k)] + ["photo"]:
         pos = str(d.get(k + "_pos") or "50% 50%")
         d[k + "_pos"] = pos if POS_OK.fullmatch(pos) else "50% 50%"
@@ -897,11 +1065,18 @@ def build_context(data, size, brand, warn=None):
     labels.update(LABELS.get(lang, {}))
     w, h = size
     fmt = fmt_of(size)
+    # the logo corner of the photo's top strip is bright (a yellow packshot, a white wall): the brand bar over it turns ink
+    top_light = False
+    if d.get("photo") and not cut:
+        rtl_side = tok.get("dir") == "rtl"
+        tl = photo_luma(d["photo"], (0.5, 0.0, 1.0, 0.12) if rtl_side else (0.0, 0.0, 0.5, 0.12))
+        top_light = tl is not None and tl > 0.6
     ctx = {"brand": tok, "L": labels, "W": w, "H": h, "fmt": fmt, "lang": lang, "dir": tok.get("dir", "ltr"),
            "logo_src": resolve_asset(tok.get("logo")), "logo_mask": _logo_mask(tok), "cta": labels["cta"],
            "html_class": f"f-{fmt} em-{tok.get('em_light', 'color')} ems-{tok.get('em_style', 'serif')}"
-                         + (" has-cutout" if cut else "")}
+                         + (" has-cutout" if cut else "") + (" photo-top-light" if top_light else "")}
     ctx.update(d)
+    ctx["_missing"] = missing                          # image references that did not resolve (fit_report lists them)
     if d.get("date"):
         ctx.update(date_parts(d["date"], lang))
     table_cells(ctx)
@@ -940,39 +1115,122 @@ def table_cells(ctx):
 
 
 def render_html(template, data, size=(1080, 1350), brand=None, warn=None):
-    """Template + data → complete HTML page (no browser needed)."""
+    """Template + data → complete HTML page (no browser needed). Raises CopyError when the copy carries a placeholder or
+    internal data — the ad is never rendered with the text silently removed."""
+    return _page(template, data, size, brand, warn)[0]
+
+
+def _page(template, data, size, brand, warn=None):
+    issues = copy_issues(data or {})
+    if issues:
+        raise CopyError(issues, template)
+    src = template_path(template).read_text(encoding="utf-8")
     ctx = build_context(data, size, brand, warn)
-    return fill(template_path(template).read_text(encoding="utf-8"), ctx)
+    return fill(src, ctx), ctx
 
 
-def render(template, data, out_path, size=(1080, 1350), brand=None, budget=6000):
+class FitError(CopyError):
+    """The ad laid out, but not launch-grade: copy still overflowing at the minimum sizes, text outside the canvas, an
+    image reference that does not resolve or decode. Nothing is written (strict render)."""
+
+
+def fit_problems(rep):
+    """A fit report → what makes the render unshippable (overflow, text off the canvas, missing / broken images)."""
+    out = []
+    if rep.get("overflow"):
+        out.append("copy does not fit at the minimum sizes — shorten it")
+    if rep.get("offcanvas"):
+        out.append("text outside the canvas: " + ", ".join(repr(x) for x in rep["offcanvas"][:3]))
+    for k, what in (("missing", "image not found"), ("broken", "image does not decode")):
+        if rep.get(k):
+            out.append(f"{what}: " + ", ".join(dict.fromkeys(rep[k])))
+    return out
+
+
+def required_missing(template, data):
+    """Required fields of the template's style (otto_styles catalogue: "product_hero" needs headline + photo) that the data
+    leaves empty → ["photo"]. [] when the catalogue is unavailable or the template is a carousel card."""
+    try:
+        import otto_styles
+    except Exception:
+        return []
+    st = next((k for k, v in otto_styles.STYLES.items() if v.get("template") == template and not v.get("cards")), None)
+    return otto_styles.missing_fields(st, data or {}) if st else []
+
+
+def render(template, data, out_path, size=(1080, 1350), brand=None, budget=6000, strict=True):
     """Render one ad to out_path (.jpg → JPEG q2 via ffmpeg, .png → PNG). brand = brand_tokens(...) dict or a
-    brand id. Returns the out path. Raises BrowserNotFound / RenderError (callers fall back to the overlay)."""
+    brand id. Returns the out path. Raises CopyError (placeholder / internal data), FitError (strict: the copy overflows
+    or leaves the canvas, an image is missing or broken — nothing is written), BrowserNotFound / RenderError (callers
+    fall back to the overlay; never on a CopyError). strict=False writes the image anyway (drafts, QA sheets)."""
     if isinstance(brand, str):
         brand = brand_tokens(brand)
     size = tuple(int(x) for x in size)
-    page = render_html(template, data, size, brand)
+    page, ctx = _page(template, data, size, brand)
+    miss = required_missing(template, data) if strict else []
+    if miss:                                           # a product hero without its product is not an ad
+        raise FitError([f"missing required field(s): {', '.join(miss)}"], template)
     browser = find_browser()
     with tempfile.TemporaryDirectory(prefix="otto-shot-", dir=_tmp_root()) as tmp:
         png = str(Path(tmp) / "shot.png")
-        screenshot(page, png, size, budget=budget, browser=browser)
+        png, rep = screenshot(page, png, size, budget=budget, browser=browser, report=True)
+        rep["missing"] = list(ctx.get("_missing") or [])
+        problems = fit_problems(rep)
+        if strict and problems:
+            raise FitError(problems, f"{template} {size[0]}x{size[1]}")
         return _finish(png, out_path, size)
 
 
-_PROBE = """<script>(function(){function done(){var d=document.documentElement;if(!d.classList.contains('fitted')){
-return setTimeout(done,50);}var o={fitted:true,overflow:d.classList.contains('overflow'),sizes:{}};
+_PROBE = """<script>(function(){var t=0;function done(){var d=document.documentElement;
+var pend=[].some.call(document.images,function(i){return i.getAttribute('src')&&!i.complete;});
+if(!d.classList.contains('fitted')||((pend||window.PK&&!document.querySelector('.pk-done'))&&t<80)){t++;return setTimeout(done,50);}
+var o={fitted:true,overflow:d.classList.contains('overflow'),sizes:{},broken:[],offcanvas:[],unsafe:[]};
 document.querySelectorAll('[data-fit],[data-fitw]').forEach(function(e,i){o.sizes[(e.className||e.tagName)+'#'+i]=
-parseFloat(getComputedStyle(e).fontSize);});var p=document.createElement('pre');p.id='otto-report';
-p.textContent=JSON.stringify(o);document.body.appendChild(p);}done();})();</script>"""
+parseFloat(getComputedStyle(e).fontSize);});
+[].forEach.call(document.images,function(i){if(i.getAttribute('src')&&i.complete&&!i.naturalWidth)
+o.broken.push((i.getAttribute('src')||'').split('/').pop().slice(0,80));});
+var Rb=d.getBoundingClientRect(),W=Rb.width,H=Rb.height,story=d.classList.contains('f-story'),w=document.createTreeWalker(document.body,4),n;
+while((n=w.nextNode())){var s=n.nodeValue.trim(),p=n.parentElement;if(!s||!p||p.closest('script,style,pre,.holder'))continue;
+var cs=getComputedStyle(p);if(cs.visibility==='hidden'||cs.display==='none'||+cs.opacity===0)continue;
+var r=document.createRange();r.selectNodeContents(n);[].forEach.call(r.getClientRects(),function(b){if(!b.width||!b.height)return;
+var x=s.slice(0,40);if(b.left<-1||b.top<-1||b.right>W+1||b.bottom>H+1){if(o.offcanvas.indexOf(x)<0)o.offcanvas.push(x);}
+else if(story&&(b.top<H*.125||b.bottom>H*.65)&&!p.closest('.photo,.pic')){if(o.unsafe.indexOf(x)<0)o.unsafe.push(x);}});}
+o.low_contrast=lowc();var pr=document.createElement('pre');pr.id='otto-report';pr.hidden=true;pr.textContent=JSON.stringify(o);document.body.appendChild(pr);}
+function rgba(c){var m=/rgba?\(([^)]+)\)/.exec(c||'');if(!m)return null;var p=m[1].split(/[ ,\/]+/).filter(Boolean).map(parseFloat);
+return [p[0],p[1],p[2],p.length>3?p[3]:1];}
+function lum(c){var f=function(v){v/=255;return v<=.03928?v/12.92:Math.pow((v+.055)/1.055,2.4);};return .2126*f(c[0])+.7152*f(c[1])+.0722*f(c[2]);}
+function over(a,b){return [0,1,2].map(function(i){return a[i]*a[3]+b[i]*(1-a[3]);}).concat([1]);}
+function lowc(){var out=[],seen={},w=document.createTreeWalker(document.body,4),n;
+while((n=w.nextNode())){var s=n.nodeValue.trim(),p=n.parentElement;if(!s||!p||p.closest('script,style,pre,.holder,.scr,[aria-hidden=true]'))continue;
+var cs=getComputedStyle(p);if(cs.visibility==='hidden'||cs.display==='none')continue;var r=p.getBoundingClientRect();if(!r.width)continue;
+var fg=rgba(cs.color),op=1,e=p,bg=null,stack=[];if(!fg)continue;
+var cx=r.left+r.width/2,cy=r.top+r.height/2;
+if([].some.call(document.images,function(im){if(im.closest('.holder')||p.contains(im))return false;var b=im.getBoundingClientRect(),v=getComputedStyle(im);
+return v.visibility!=='hidden'&&v.display!=='none'&&b.width>40&&cx>b.left&&cx<b.right&&cy>b.top&&cy<b.bottom;}))continue;
+while(e&&e.nodeType===1){var st=getComputedStyle(e);op*=parseFloat(st.opacity);var bi=st.backgroundImage||'none';
+if(bi!=='none'&&!/gradient\(/.test(bi)){bg='img';break;}
+var b=rgba(st.backgroundColor);if(!(b&&b[3]>0)&&bi!=='none'){b=rgba((/rgba?\([^)]*\)/.exec(bi)||[''])[0]);}
+if(b&&b[3]>0){stack.push(b);if(b[3]>=.99)break;}e=e.parentElement;}
+if(bg==='img'||!stack.length)continue;var base=[255,255,255,1];for(var i=stack.length-1;i>=0;i--)base=over(stack[i],base);
+var f=over([fg[0],fg[1],fg[2],fg[3]*op],base),L1=lum(f),L2=lum(base),ratio=(Math.max(L1,L2)+.05)/(Math.min(L1,L2)+.05);
+var px=parseFloat(cs.fontSize),big=px>=24||(px>=18.6&&parseInt(cs.fontWeight)>=700),need=big?3:4.5;
+if(ratio<need){var k=s.slice(0,30);if(!seen[k]){seen[k]=1;out.push(k+' '+ratio.toFixed(2)+':1 @'+Math.round(px)+'px');}}}
+return out;}
+done();})();</script>"""
 
 
 def fit_report(template, data, size=(1080, 1350), brand=None, budget=6000, browser=None):
-    """Lay an ad out in headless Chrome without shooting it. Returns {"fitted", "overflow", "sizes"}:
-    overflow = the copy still does not fit at the templates' minimum sizes (shorten it)."""
+    """Lay an ad out in headless Chrome without shooting it. Returns {"fitted", "overflow", "sizes", "missing", "broken",
+    "offcanvas", "unsafe", "low_contrast"}: overflow = the copy still does not fit at the templates' minimum sizes (shorten it); missing =
+    image references that do not resolve; broken = images that did not decode; offcanvas = text outside the canvas;
+    unsafe = story text inside the top 12.5 % / bottom 35 % (Meta Stories/Reels UI); low_contrast = text under 4.5:1 (3:1
+    when large) against its solid ground (text over photos and inside native screenshots is not measured). Raises CopyError
+    on a placeholder or internal data in the copy."""
     if isinstance(brand, str):
         brand = brand_tokens(brand)
     size = tuple(int(x) for x in size)
-    page = render_html(template, data, size, brand).replace("</body>", _PROBE + "</body>")
+    page, ctx = _page(template, data, size, brand)
+    page = page.replace("</body>", _PROBE + "</body>")
     browser = browser or find_browser()
     with tempfile.TemporaryDirectory(prefix="otto-check-", dir=_tmp_root()) as tmp:
         f = Path(tmp) / "page.html"
@@ -986,10 +1244,11 @@ def fit_report(template, data, size=(1080, 1350), brand=None, budget=6000, brows
             r = subprocess.run(cmd, capture_output=True, text=True, timeout=120)
         except subprocess.TimeoutExpired:
             raise RenderError("headless Chrome timed out")
-    m = re.search(r'<pre id="otto-report">(.*?)</pre>', r.stdout, re.S)
-    if not m:
-        return {"fitted": False, "overflow": None, "sizes": {}}
-    return json.loads(html.unescape(m.group(1)))
+    m = re.search(r'<pre id="otto-report"[^>]*>(.*?)</pre>', r.stdout, re.S)
+    rep = json.loads(html.unescape(m.group(1))) if m else {"fitted": False, "overflow": None, "sizes": {}}
+    rep["missing"] = list(ctx.get("_missing") or [])
+    rep["missing_fields"] = required_missing(template, data)
+    return rep
 
 
 # ---------------------------------------------------------------- sets (posts, campaigns)
@@ -1080,16 +1339,17 @@ def render_set(obj, brand_id, out_dir, sizes=None, jobs=3):
         cr = obj.get("creatives") or {}
         titles, bodies = cr.get("titles") or [], cr.get("bodies") or []
         desc = (cr.get("descriptions") or [""])[0]
+        cta = cta_label(cr.get("cta"), tok["lang"]) or _lang_label(tok, "cta")     # the words of the Meta button it runs with
         for i, title in enumerate(titles, 1):
             photo = _campaign_photo(obj, i - 1)
             body = bodies[i - 1] if i - 1 < len(bodies) else ""
-            plan.append(("editorial", {"headline": title, "sub": body, "photo": photo, "kicker": desc},
+            plan.append(("editorial", {"headline": title, "sub": body, "photo": photo, "kicker": desc, "cta": cta},
                          SIZES["feed"], out / f"{obj['id']}-{i}-static.jpg", "static"))
             plan.append(("carousel_cover", {"headline": title, "photo": photo, "n": 1, "total": 3},
                          SIZES["feed"], out / f"{obj['id']}-{i}-c1.jpg", "cover"))
             plan.append(("carousel_inner", {"title": desc or title, "body": body, "n": 2, "total": 3},
                          SIZES["feed"], out / f"{obj['id']}-{i}-c2.jpg", "inner"))
-            plan.append(("carousel_cta", {"headline": title, "cta": _lang_label(tok, "cta"), "n": 3, "total": 3},
+            plan.append(("carousel_cta", {"headline": title, "cta": cta, "n": 3, "total": 3},
                          SIZES["feed"], out / f"{obj['id']}-{i}-c3.jpg", "cta"))
     else:
         pid = obj.get("id", "post")
@@ -1129,6 +1389,9 @@ def render_set(obj, brand_id, out_dir, sizes=None, jobs=3):
     if sizes:
         plan = [(t, d, s2, p.with_name(p.stem + ("" if s2 == SIZES["feed"] else f"-{fmt_of(s2)}") + p.suffix), r)
                 for (t, d, _s, p, r) in plan for s2 in sizes]
+    issues = [f"{Path(p).name} {x}" for (t, d, _s, p, r) in plan for x in copy_issues(d)]
+    if issues:                                         # nothing is rendered: never half a set, never text silently removed
+        raise CopyError(issues, obj.get("id") or "set")
 
     def one(item):
         t, d, s, p, role = item
@@ -1187,8 +1450,13 @@ def demo(bid, out_dir, jobs=4, only=None):
     def one(it):
         t, d, size, p, label = it
         t0 = time.time()
-        render(t, d, p, size, tok)
-        print(f"  {p.name}  {size[0]}x{size[1]}  {time.time() - t0:.1f}s")
+        try:
+            render(t, d, p, size, tok)
+            note = ""
+        except FitError as e:                          # the demo still shows it, flagged
+            render(t, d, p, size, tok, strict=False)
+            note = f"  NOT LAUNCH-GRADE: {'; '.join(e.issues)[:160]}"
+        print(f"  {p.name}  {size[0]}x{size[1]}  {time.time() - t0:.1f}s{note}")
         return str(p), label
 
     with ThreadPoolExecutor(max_workers=jobs) as ex:
@@ -1301,9 +1569,14 @@ def main(argv=None):
         tpl, raw = a[1], a[2]
         data = _json_arg(raw)
         bid = a[a.index("--brand") + 1] if "--brand" in a else None
-        rep = fit_report(tpl, data, _size_arg(a), brand_tokens(bid))
+        try:
+            rep = fit_report(tpl, data, _size_arg(a), brand_tokens(bid))
+        except CopyError as e:                        # loud: the copy is not ready, nothing is laid out
+            print(json.dumps({"fitted": False, "copy_issues": e.issues}, ensure_ascii=False, indent=1))
+            print(f"otto_render: {e}", file=sys.stderr)
+            return 4
         print(json.dumps(rep, ensure_ascii=False, indent=1))
-        return 3 if rep.get("overflow") else 0
+        return 3 if rep.get("overflow") else 5 if rep.get("missing") or rep.get("broken") or rep.get("missing_fields") else 0
     elif cmd == "demo":
         bid, out = a[1], a[2]
         only = a[a.index("--only") + 1].split(",") if "--only" in a else None

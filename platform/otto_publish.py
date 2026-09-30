@@ -27,6 +27,8 @@ card check, and copy can change after approval): a violating post goes back to d
 Posts older than --grace minutes past their slot are marked failed ("missed slot") so the
 owner hears about it (otto_watch also alerts) instead of publishing at a random hour.
 Every post is handled in its own try/except and saved on its own. Dry run prints what would go out and touches nothing.
+Owner console (otto_admin): while controls.publishing_paused (the kill switch) is set nothing is published, and a paused brand
+(brands[].paused) is skipped; both are checked again right before the call that makes a post public.
 """
 import json, os, sys, time, urllib.error, urllib.parse, urllib.request
 from datetime import datetime, timedelta, timezone
@@ -187,9 +189,10 @@ def publish_ig(p, c, base, commit=lambda: None):
 def due_posts(d, bid, grace_min):
     now = datetime.now(timezone.utc)
     out = []
-    for p in d["posts"]:
-        if p["status"] not in ("approved", "scheduled") or (bid and p["brand"] != bid):
-            continue
+    for p in d.get("posts", []):
+        if not isinstance(p, dict) or p.get("status") not in ("approved", "scheduled") or not p.get("id") or not p.get("brand") \
+                or (bid and p["brand"] != bid):
+            continue                                  # one malformed record must not stop every brand's publishing
         slot = ap.slot_dt(p, ap.brand(d, p["brand"]))
         if slot is None:
             continue
@@ -207,7 +210,7 @@ def stuck_alerts(d, dry=False):
     """Posts left in "publishing" by an earlier run: may be live already — alert once, never retry."""
     now = datetime.now(timezone.utc)
     for p in d.get("posts", []):
-        if p.get("status") != "publishing" or p.get("stuck_alerted"):
+        if not isinstance(p, dict) or not p.get("id") or p.get("status") != "publishing" or p.get("stuck_alerted"):
             continue
         since = ap.parse_iso(p.get("publishing_at"))
         if since and since.tzinfo and now - since < timedelta(minutes=STUCK_AFTER_MIN):
@@ -300,6 +303,8 @@ def publish_one(p, slot, missed, dry, grace, base):
             q = ap.post(d, pid)
             if q is None or q["status"] not in ("approved", "scheduled"):
                 raise Abort(f"status is now {q and q['status']} — not publishing")
+            if ap.paused(d, q["brand"]):                  # kill switch flipped while this run was working
+                raise Abort(ap.paused(d, q["brand"]))
             q["status"] = "publishing"; q["publishing_at"] = ap.now_iso()
         state["committed"] = True
 
@@ -342,10 +347,14 @@ def publish_one(p, slot, missed, dry, grace, base):
 def run(dry=False, bid=None, grace=180, base=BASE):
     d = ap.load()
     stuck_alerts(d, dry)
+    if ap.paused(d):                                  # owner console kill switch: nothing goes out, nothing is marked missed
+        print(f"PAUSED  {ap.paused(d)} — nothing is published"); return
     due = due_posts(d, bid, grace)
     if not due:
         print("nothing due"); return
     for p, slot, missed in due:
+        if ap.paused(d, p["brand"]):
+            print(f"PAUSED  {p['id']} — {ap.paused(d, p['brand'])}"); continue
         try:
             publish_one(p, slot, missed, dry, grace, base)
         except Exception as e:                 # one bad post never stops the others

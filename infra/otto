@@ -1,0 +1,114 @@
+#!/usr/bin/env bash
+# `otto` — day-to-day control of the Otto server. bootstrap.sh installs a root-owned copy as /usr/local/bin/otto.
+#
+#   otto status                     services, timers, last run of every job, kill switch, live release
+#   otto heartbeats [--json]        last run of every job (heartbeats.json)
+#   otto logs <what> [-f] [-n N]    what = api | telegram | caddy | backup | alert | <job> (publish, cards, …) | deploy
+#   otto run <job> [--brand B] [--dry]   run a job NOW for every active brand (or just B), in the foreground, as otto;
+#                                   --dry prints what it would run. (The timers run brands at their own local time.)
+#   otto run <job> --scheduled      what the timer does: only the brands whose local time it is (through systemd)
+#   otto jobs                       the jobs and when they run (brand / owner local time, or UTC)
+#   otto pause [note] | resume      kill switch: stop / resume ALL publishing and ad launches
+#   otto pause-brand <id> | resume-brand <id>
+#   otto deploy <sha|branch> | rollback | release     (deploy.sh as otto)
+#   otto backup                     run the nightly backup now
+#   otto restore …                  infra/restore.sh (see its header)
+#   otto timers on|off              enable / disable every job timer (off also keeps bootstrap.sh from turning them back on)
+#   otto cutover                    migration done: job timers + Telegram poller on (run it after the old box is stopped)
+#   otto alert-test                 send a test Telegram alert
+#   otto retention plan|hold <id>|release <id>|export <id>|restore <zip> [--apply]   client data after a plan ends
+#                                   (otto_retention.py; the daily `retention` job does the deleting)
+#   otto media-names [--apply]      once: give media published before random names their unguessable names (dry by default)
+set -euo pipefail
+
+REPO=/opt/otto
+P=$REPO/platform
+ENV_FILE=/etc/otto/otto.env
+
+as_otto() {   # run a command as otto with otto.env loaded, from the platform dir
+	if [[ $(id -un) == otto ]]; then
+		(set -a; . "$ENV_FILE"; set +a; cd "$P" && exec "$@")
+	else
+		sudo -u otto bash -c 'set -a; . /etc/otto/otto.env; set +a; cd /opt/otto/platform && exec "$@"' otto "$@"
+	fi
+}
+root() { if [[ $EUID -eq 0 ]]; then "$@"; else sudo "$@"; fi; }
+jobs_list() { as_otto python3 otto_cron.py list | awk '{print $1}'; }
+is_job() { [[ -n ${1:-} ]] && jobs_list | grep -qxF "$1"; }
+
+cmd=${1:-status}
+shift || true
+case $cmd in
+	status)
+		echo "== services"
+		systemctl --no-pager --plain list-units 'otto-api.service' 'otto-telegram.service' 'caddy.service' --all --no-legend |
+			awk '{printf "  %-24s %s %s\n", $1, $3, $4}'
+		echo "== timers (UTC)"
+		systemctl --no-pager list-timers 'otto-*' | sed 's/^/  /' || true
+		echo "== jobs (heartbeats)"
+		as_otto python3 otto_cron.py status | sed 's/^/  /'
+		echo "== kill switch"
+		as_otto python3 -c 'import ap; print("  " + (ap.paused(ap.load()) or "off — publishing runs"))'
+		echo "== release"
+		as_otto "$REPO/infra/deploy.sh" --status | sed 's/^\[deploy\] /  /'
+		failed=$(systemctl --no-pager --plain list-units 'otto-*' --state=failed --no-legend | awk '{print $1}')
+		[[ -z $failed ]] || { echo "== FAILED units (systemctl reset-failed after fixing)"; printf '  %s\n' $failed; }
+		;;
+	heartbeats) as_otto python3 otto_cron.py status "$@" ;;
+	jobs) as_otto python3 otto_cron.py list ;;
+	logs)
+		what=${1:-api}
+		shift || true
+		case $what in
+			api | telegram | backup | cloudflare-ips) unit=otto-$what ;;
+			caddy) unit=caddy ;;
+			alert) unit='otto-alert@*' ;;
+			deploy) root tail -n 50 /var/lib/otto/deploy/history.log; exit 0 ;;
+			*) is_job "$what" || { echo "unknown: $what (api, telegram, caddy, backup, alert, deploy or a job: otto jobs)"; exit 2; }
+			   unit="otto-job@$what" ;;
+		esac
+		root journalctl -u "$unit" --no-pager -n 100 "$@"
+		;;
+	run)
+		job=${1:-}
+		is_job "$job" || { echo "usage: otto run <job> [--brand B] [--dry] | --scheduled   (otto jobs)"; exit 2; }
+		shift
+		if [[ ${1:-} == --scheduled ]]; then
+			echo "starting otto-job@$job (follow: otto logs $job -f)"
+			root systemctl start --no-block "otto-job@$job.service"
+		elif [[ " $* " == *" --brand "* ]]; then
+			as_otto python3 otto_cron.py "$job" "$@"
+		else
+			as_otto python3 otto_cron.py "$job" --all "$@"
+		fi
+		;;
+	pause) as_otto python3 otto_admin.py kill on --note "${*:-paused from the server CLI}" ;;
+	resume) as_otto python3 otto_admin.py kill off ;;
+	pause-brand) as_otto python3 otto_admin.py pause "${1:?brand id}" ;;
+	resume-brand) as_otto python3 otto_admin.py resume "${1:?brand id}" ;;
+	deploy) as_otto "$REPO/infra/deploy.sh" "${1:?commit sha or branch}" ;;
+	rollback) as_otto "$REPO/infra/deploy.sh" --rollback ;;
+	release) as_otto "$REPO/infra/deploy.sh" --status ;;
+	backup) echo "starting otto-backup (follow: otto logs backup -f)"; root systemctl start --no-block otto-backup.service ;;
+	restore) root "$REPO/infra/restore.sh" "$@" ;;
+	timers)
+		case ${1:-} in
+			on) root rm -f /etc/otto/timers-off
+			    for t in /etc/systemd/system/otto-job-*.timer; do root systemctl enable --now "$(basename "$t")" >/dev/null; done; echo "job timers on" ;;
+			off) root touch /etc/otto/timers-off
+			     for t in /etc/systemd/system/otto-job-*.timer; do root systemctl disable --now "$(basename "$t")" >/dev/null; done; echo "job timers off" ;;
+			*) echo "usage: otto timers on|off"; exit 2 ;;
+		esac
+		;;
+	cutover)
+		"$0" timers on
+		root systemctl enable --now otto-telegram.service
+		systemctl is-active --quiet otto-telegram.service && echo "Telegram poller on" || echo "Telegram poller NOT running: is /etc/otto/secrets/telegram.json there? (otto logs telegram)"
+		echo "publishing is still paused until you resume it: owner console → Kill switch, or: otto resume"
+		;;
+	alert-test) as_otto python3 /usr/local/lib/otto/otto_alert.py --test ;;
+	retention) as_otto python3 otto_retention.py "${@:-plan}" ;;
+	media-names) as_otto python3 otto_paths.py migrate-names "$@" ;;
+	-h | --help | help) sed -n '2,20p' "$0" | sed 's/^# \{0,1\}//' ;;
+	*) echo "unknown command: $cmd (otto help)"; exit 2 ;;
+esac

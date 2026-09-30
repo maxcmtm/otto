@@ -1,0 +1,559 @@
+<template>
+  <!-- Otto ad-kit · style "texts" — a text thread between two friends. Incoming bubbles arrive after typing dots,
+       outgoing ones are typed in the composer and sent (whoosh); a photo attachment can be sent too. Generic
+       messaging UI (no platform colours or marks): outgoing bubbles take the brand colour. The thread scrolls like
+       the real thing (bubble heights are measured after the fonts load). -->
+  <script src="__GSAP__"></script>
+  <style>
+    @font-face {
+      font-family: "AdKit Brand";
+      src: url("assets/fonts/brand.woff2") format("woff2");
+      font-weight: 100 900;
+      font-style: normal;
+      font-display: block;
+    }
+    @font-face {
+      font-family: "AdKit UI";
+      src: url("assets/fonts/ui.woff2") format("woff2");
+      font-weight: 100 900;
+      font-style: normal;
+      font-display: block;
+    }
+    #root {
+      /*@TOKENS*/
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+      font-family: "AdKit UI", sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+    #tx-ground {
+      position: absolute;
+      inset: 0;
+      background: var(--ad-ground);
+    }
+    #tx-stage,
+    #tx-cam {
+      position: absolute;
+      inset: 0;
+    }
+    #tx-card {
+      position: absolute;
+      left: 40px;
+      right: 40px;
+      top: 200px;
+      height: 1440px;
+      background: var(--c-surface);
+      border-radius: 60px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08), 0 40px 120px rgba(40, 24, 0, 0.26);
+      overflow: hidden;
+    }
+    #tx-head {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 0;
+      height: 206px;
+      border-bottom: 2px solid var(--c-line);
+      text-align: center;
+    }
+    #tx-avatar {
+      position: absolute;
+      left: 50%;
+      top: 30px;
+      width: 104px;
+      height: 104px;
+      margin-left: -52px;
+      border-radius: 50%;
+      background: var(--c-wash);
+      color: var(--c-ink);
+      font-size: 48px;
+      font-weight: 700;
+      line-height: 104px;
+      text-align: center;
+    }
+    #tx-avatar.tx-brand {
+      background: var(--c-accent);
+      color: var(--c-onAccent);
+      font-family: "AdKit Brand", "AdKit UI", sans-serif;
+      font-weight: 800;
+    }
+    #tx-name {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 146px;
+      font-size: 34px;
+      font-weight: 600;
+      color: var(--c-ink);
+    }
+    #tx-view {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 206px;
+      bottom: 150px;
+      overflow: hidden;
+    }
+    #tx-stack {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 0;
+      padding: 0 34px;
+    }
+    .tx-msg {
+      display: flex;
+      width: 100%;
+    }
+    .tx-msg.tx-me {
+      justify-content: flex-end;
+    }
+    .tx-bub {
+      display: block;
+      max-width: 80%;
+      padding: 26px 40px 28px;
+      border-radius: 50px;
+      font-size: 53px;
+      font-weight: 500;
+      line-height: 1.2;
+      letter-spacing: -0.015em;
+      white-space: pre;
+    }
+    .tx-l {
+      display: block;
+    }
+    .tx-stamp {
+      display: block;
+      width: 100%;
+      padding-top: 26px;
+      text-align: center;
+      font-size: 28px;
+      font-weight: 500;
+      color: var(--c-muted);
+    }
+    .tx-them .tx-bub {
+      background: var(--c-neutral);
+      color: var(--c-ink);
+    }
+    .tx-me .tx-bub {
+      background: var(--c-primary);
+      color: var(--c-onPrimary);
+    }
+    .tx-photo {
+      display: block;
+      width: 640px;
+      border-radius: 40px;
+      overflow: hidden;
+      background: var(--c-neutral);
+    }
+    .tx-photo img {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .tx-dots {
+      position: absolute;
+      left: 34px;
+      width: 160px;
+      height: 112px;
+      border-radius: 50px;
+      background: var(--c-neutral);
+    }
+    .tx-dot {
+      position: absolute;
+      top: 47px;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: var(--c-muted);
+    }
+    #tx-composer {
+      position: absolute;
+      left: 34px;
+      right: 34px;
+      bottom: 30px;
+      height: 92px;
+    }
+    #tx-field {
+      position: absolute;
+      left: 0;
+      right: 116px;
+      top: 0;
+      bottom: 0;
+      border: 2px solid var(--c-line);
+      border-radius: 46px;
+      overflow: hidden;
+    }
+    #tx-ph,
+    #tx-typed {
+      position: absolute;
+      left: 36px;
+      right: 24px;
+      top: 0;
+      line-height: 88px;
+      font-size: 38px;
+      font-weight: 500;
+      white-space: pre;
+    }
+    #tx-ph {
+      color: var(--c-muted);
+      opacity: 0.7;
+    }
+    #tx-typed {
+      color: var(--c-ink);
+    }
+    .tx-ch {
+      position: relative;
+    }
+    .tx-caret {
+      position: absolute;
+      right: -3px;
+      top: 0.08em;
+      width: 4px;
+      height: 1.02em;
+      border-radius: 2px;
+      background: var(--c-primary);
+    }
+    #tx-send {
+      position: absolute;
+      right: 0;
+      top: 0;
+      width: 92px;
+      height: 92px;
+      border-radius: 50%;
+      background: var(--c-line);
+    }
+    #tx-send-on {
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      background: var(--c-primary);
+    }
+    #tx-send svg {
+      position: absolute;
+      left: 22px;
+      top: 22px;
+      width: 48px;
+      height: 48px;
+    }
+    /* 4:5 feed cut */
+    #tx-stage.tx-f45 #tx-card { top: 56px; height: 1238px; }
+    #tx-stage.tx-f45 #tx-head { height: 170px; }
+    #tx-stage.tx-f45 #tx-avatar { top: 24px; width: 88px; height: 88px; margin-left: -44px; line-height: 88px; font-size: 40px; }
+    #tx-stage.tx-f45 #tx-name { top: 122px; font-size: 30px; }
+    #tx-stage.tx-f45 #tx-view { top: 170px; bottom: 140px; }
+    #tx-stage.tx-f45 .tx-bub { font-size: 47px; padding: 22px 36px 24px; }
+    #tx-stage.tx-f45 .tx-photo { width: 540px; }
+  </style>
+
+  <div id="root" data-composition-id="texts" data-width="__W__" data-height="__H__" data-duration="__DUR__">
+    <div id="tx-ground" class="clip" data-start="0" data-duration="__DUR__" data-track-index="0"></div>
+    <div id="tx-stage">
+      <div id="tx-cam">
+        <div id="tx-card">
+          <div id="tx-head">
+            <div id="tx-avatar"></div>
+            <div id="tx-name"></div>
+          </div>
+          <div id="tx-view"><div id="tx-stack"></div></div>
+          <div id="tx-composer">
+            <div id="tx-field">
+              <div id="tx-ph"></div>
+              <div id="tx-typed"></div>
+            </div>
+            <div id="tx-send">
+              <div id="tx-send-on"></div>
+              <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M24 37V12M13 22.5 24 11.5 35 22.5" stroke="#FFFFFF" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      var D = /*@DATA*/null;
+      var ID = "texts";
+      var $ = function (id) {
+        return document.getElementById(id);
+      };
+      var IR = { immediateRender: false };
+
+      function fontsReady() {
+        try {
+          if (document.fonts && document.fonts.load) {
+            return Promise.all([document.fonts.load('500 45px "AdKit UI"'), document.fonts.load('600 34px "AdKit UI"'), document.fonts.load('700 48px "AdKit UI"')]).catch(function () {});
+          }
+        } catch (e) {}
+        return Promise.resolve();
+      }
+
+      function el(tag, cls, text) {
+        var e = document.createElement(tag);
+        if (cls) e.className = cls;
+        if (text != null) e.textContent = text;
+        return e;
+      }
+
+      // balanced lines that fit maxW, measured with the bubble's own font (so bubbles hug their text)
+      function splitLines(text, host, maxW) {
+        var probe = el("span");
+        probe.style.whiteSpace = "pre";
+        probe.style.position = "absolute";
+        probe.style.visibility = "hidden";
+        host.appendChild(probe);
+        var w = function (t) {
+          probe.textContent = t;
+          return probe.offsetWidth;
+        };
+        var words = text.split(" ");
+        var out = [text];
+        if (w(text) > maxW && words.length > 1) {
+          var n = Math.ceil(w(text) / maxW);
+          var best = null;
+          if (n <= 2) {
+            for (var k = 1; k < words.length; k++) {
+              var a = w(words.slice(0, k).join(" "));
+              var b = w(words.slice(k).join(" "));
+              // prefer breaking after punctuation ("it's gummies. / one pack.")
+              var m = Math.max(a, b) * (/[.,?!:;]$/.test(words[k - 1]) ? 0.7 : 1);
+              if (a <= maxW && b <= maxW && (!best || m < best.m)) best = { k: k, m: m };
+            }
+          }
+          if (best) {
+            out = [words.slice(0, best.k).join(" "), words.slice(best.k).join(" ")];
+          } else {
+            var target = w(text) / (n + 0.2);
+            out = [];
+            var cur = "";
+            words.forEach(function (word) {
+              var next = cur ? cur + " " + word : word;
+              if (cur && (w(next) > maxW || w(cur) >= target)) {
+                out.push(cur);
+                cur = word;
+              } else {
+                cur = next;
+              }
+            });
+            if (cur) out.push(cur);
+          }
+        }
+        host.removeChild(probe);
+        return out;
+      }
+
+      function build() {
+        var T = D.content;
+        var S = D.S;
+        var END = D.endAt;
+        var f45 = D.fmt.h < 1600;
+        if (f45) $("tx-stage").className = "tx-f45";
+
+        $("tx-avatar").textContent = T.initial || (T.name || "").charAt(0);
+        if (T.avatar === "brand") $("tx-avatar").className = "tx-brand"; // the brand is the one replying
+        $("tx-name").textContent = T.name || "";
+        $("tx-ph").textContent = T.placeholder || "Message";
+
+        var stack = $("tx-stack");
+        var view = $("tx-view");
+        if (T.stamp) stack.appendChild(el("div", "tx-stamp", T.stamp));
+        var viewH = view.clientHeight;
+        var PAD = 28;
+
+        // ── build every message in normal flow (hidden), then measure ──
+        var msgs = S.messages.map(function (m, i) {
+          var row = el("div", "tx-msg " + (m.from === "me" ? "tx-me" : "tx-them"));
+          var prev = S.messages[i - 1];
+          row.style.marginTop = i === 0 ? "26px" : prev && prev.from === m.from ? "12px" : "28px";
+          var bub;
+          if (m.photo) {
+            bub = el("div", "tx-photo");
+            var a = D.assets[m.photo];
+            var img = el("img");
+            img.src = a.src;
+            img.alt = "";
+            bub.appendChild(img);
+            var pw = f45 ? 540 : 640;
+            bub.style.height = Math.round((pw * a.h) / a.w) + "px";
+          } else {
+            bub = el("div", "tx-bub");
+          }
+          row.appendChild(bub);
+          stack.appendChild(row);
+          if (!m.photo) {
+            var cs = getComputedStyle(bub);
+            var maxW = stack.clientWidth * 0.8 - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight) - 68;
+            splitLines(m.text, bub, maxW).forEach(function (ln) {
+              bub.appendChild(el("span", "tx-l", ln));
+            });
+          }
+          return { m: m, row: row, bub: bub };
+        });
+        msgs.forEach(function (x) {
+          x.top = x.row.offsetTop;
+          x.h = x.row.offsetHeight;
+        });
+
+        // typing-dots bubbles sit in the slot of the incoming message they announce
+        msgs.forEach(function (x) {
+          if (x.m.from !== "them" || x.m.dotsAt == null) return;
+          var d = el("div", "tx-dots");
+          d.style.top = x.top + parseFloat(x.row.style.marginTop) + "px";
+          for (var k = 0; k < 3; k++) {
+            var dot = el("div", "tx-dot");
+            dot.style.left = 40 + k * 30 + "px";
+            d.appendChild(dot);
+          }
+          stack.appendChild(d);
+          x.dots = d;
+        });
+
+        // composer: typed characters per outgoing text message (all stacked in one field, shown in turn)
+        var typed = $("tx-typed");
+        var fieldW = typed.clientWidth;
+        msgs.forEach(function (x) {
+          if (x.m.from !== "me" || !x.m.text || x.m.instant) return;
+          var line = el("div");
+          line.style.position = "absolute";
+          line.style.left = "0";
+          line.style.top = "0";
+          line.style.whiteSpace = "pre";
+          x.chars = Array.from(x.m.text).map(function (ch) {
+            var s = el("span", "tx-ch", ch);
+            var c = el("span", "tx-caret");
+            s.appendChild(c);
+            line.appendChild(s);
+            return { el: s, caret: c };
+          });
+          typed.appendChild(line);
+          gsap.set(line, { opacity: 0 });
+          if (line.offsetWidth > fieldW) line.style.fontSize = Math.floor((38 * fieldW) / line.offsetWidth) + "px";
+          x.line = line;
+        });
+
+        // scroll position that puts a given bottom edge just above the composer
+        var scrollFor = function (bottom) {
+          return Math.min(0, viewH - PAD - bottom);
+        };
+
+        // ── starting states ──
+        var tl = gsap.timeline({ paused: true });
+        msgs.forEach(function (x) {
+          gsap.set(x.row, { opacity: 0 });
+          gsap.set(x.bub, { scale: 0.6, y: 30, transformOrigin: x.m.from === "me" ? "100% 100%" : "0% 100%" });
+          if (x.dots) gsap.set(x.dots, { opacity: 0, scale: 0.6, transformOrigin: "0% 100%" });
+          if (x.chars)
+            x.chars.forEach(function (c) {
+              gsap.set(c.el, { opacity: 0 });
+              gsap.set(c.caret, { opacity: 0 });
+            });
+        });
+        gsap.set(stack, { y: 0 });
+        gsap.set($("tx-send-on"), { opacity: 0 });
+        gsap.set($("tx-send"), { scale: 1, transformOrigin: "50% 50%" });
+        gsap.set($("tx-ph"), { opacity: 0.7 });
+        gsap.set($("tx-card"), { y: 60 });
+        // hook framing: the camera opens tight on the first message, then pulls back to the whole thread as the
+        // reply starts (origin = the first bubble's spot on the canvas)
+        var first = msgs[0];
+        var card = $("tx-card");
+        var Z = f45 ? 1.22 : 1.36;
+        var CW = D.fmt.w;
+        // x: keep the zoomed bubble ~46 px from its frame edge; y: centre on the bubble, but never so low that the
+        // composer peeks in at the bottom edge
+        var bx = card.offsetLeft + 34;
+        var ox = first.m.from === "me" ? CW - (Z * bx - 46) / (Z - 1) : (Z * bx - 46) / (Z - 1);
+        var compTop = card.offsetTop + $("tx-composer").offsetTop;
+        var oy = Math.min(
+          card.offsetTop + view.offsetTop + first.top + first.h * 0.5,
+          (Z * compTop - D.fmt.h - 70) / (Z - 1), // the composer stays below the frame (card still settling from +60)
+          (Z * card.offsetTop) / (Z - 1), // the card's top edge stays in frame
+        );
+        var pullAt = S.messages[1] ? Math.max(0.9, (S.messages[1].typeAt || S.messages[1].dotsAt || S.messages[1].at) - 0.15) : 1.2;
+        gsap.set($("tx-cam"), { scale: Z, y: 0, transformOrigin: ox + "px " + oy + "px" });
+
+        tl.fromTo(card, { y: 60 }, Object.assign({ y: 0, duration: 0.8, ease: "expo.out" }, IR), 0);
+        tl.fromTo($("tx-cam"), { scale: Z }, Object.assign({ scale: Z - 0.03, duration: pullAt, ease: "sine.out" }, IR), 0);
+        tl.fromTo($("tx-cam"), { scale: Z - 0.03 }, Object.assign({ scale: 1, duration: 0.9, ease: "power3.inOut" }, IR), pullAt);
+        tl.fromTo($("tx-cam"), { scale: 1 }, Object.assign({ scale: 1.025, duration: Math.max(0.5, END - pullAt - 0.9), ease: "sine.inOut" }, IR), pullAt + 0.9);
+        tl.fromTo($("tx-cam"), { scale: 1.025, y: 0 }, Object.assign({ scale: 0.93, y: -40, duration: 0.7, ease: "power3.inOut" }, IR), END);
+
+        var scrollY = 0;
+        function scrollTo(y, at, d) {
+          if (Math.abs(y - scrollY) < 0.5) return;
+          tl.fromTo(stack, { y: scrollY }, Object.assign({ y: y, duration: d || 0.42, ease: "power3.out" }, IR), at);
+          scrollY = y;
+          // bubbles that scrolled fully out of the thread view are gone (the view clips them anyway)
+          msgs.forEach(function (x) {
+            if (!x.gone && x.top + x.h + y < -8) {
+              x.gone = true;
+              tl.set(x.row, { opacity: 0 }, at + (d || 0.42));
+            }
+          });
+        }
+        function pop(x, at) {
+          tl.set(x.row, { opacity: 1 }, at);
+          tl.fromTo(x.bub, { scale: 0.6, y: 30 }, Object.assign({ scale: 1, y: 0, duration: 0.42, ease: "expo.out" }, IR), at);
+        }
+
+        msgs.forEach(function (x) {
+          var m = x.m;
+          if (m.from === "them") {
+            if (x.dots) {
+              // typing dots: appear, each dot rises in turn (finite loop), then give way to the bubble
+              tl.set(x.dots, { opacity: 1 }, m.dotsAt);
+              tl.fromTo(x.dots, { scale: 0.6 }, Object.assign({ scale: 1, duration: 0.3, ease: "expo.out" }, IR), m.dotsAt);
+              scrollTo(scrollFor(x.top + parseFloat(x.row.style.marginTop) + 112), m.dotsAt, 0.35);
+              var dots = x.dots.querySelectorAll(".tx-dot");
+              for (var t = m.dotsAt + 0.08, k = 0; t < m.at - 0.12; t += 0.16, k++) {
+                var d = dots[k % 3];
+                tl.fromTo(d, { y: 0, opacity: 0.55 }, Object.assign({ y: -9, opacity: 1, duration: 0.16, ease: "sine.out" }, IR), t);
+                tl.fromTo(d, { y: -9, opacity: 1 }, Object.assign({ y: 0, opacity: 0.55, duration: 0.2, ease: "sine.in" }, IR), t + 0.16);
+              }
+              tl.set(x.dots, { opacity: 0 }, m.at);
+            }
+            pop(x, m.at);
+            scrollTo(scrollFor(x.top + x.h), m.at, 0.4);
+          } else {
+            if (x.chars) {
+              // typed in the composer: placeholder off, send button lights, caret follows the text
+              tl.set($("tx-ph"), { opacity: 0 }, m.typeAt);
+              tl.set(x.line, { opacity: 1 }, m.typeAt);
+              tl.set(x.line, { opacity: 0 }, m.at);
+              tl.set($("tx-send-on"), { opacity: 1 }, m.times[0]);
+              x.chars.forEach(function (c, i) {
+                tl.set(c.el, { opacity: 1 }, m.times[i]);
+                tl.set(c.caret, { opacity: 1 }, m.times[i]);
+                tl.set(c.caret, { opacity: 0 }, i + 1 < x.chars.length ? m.times[i + 1] : m.at);
+              });
+              // send: the field clears, the button gives a press
+              x.chars.forEach(function (c) {
+                tl.set(c.el, { opacity: 0 }, m.at);
+              });
+              tl.set($("tx-send-on"), { opacity: 0 }, m.at + 0.12);
+              tl.set($("tx-ph"), { opacity: 0.7 }, m.at);
+              tl.fromTo($("tx-send"), { scale: 1 }, Object.assign({ scale: 0.86, duration: 0.08, ease: "power2.out" }, IR), m.at - 0.08);
+              tl.fromTo($("tx-send"), { scale: 0.86 }, Object.assign({ scale: 1, duration: 0.3, ease: "expo.out" }, IR), m.at);
+            }
+            pop(x, m.at);
+            scrollTo(scrollFor(x.top + x.h), m.at, 0.45);
+          }
+        });
+
+        // once the end card fully covers the scene, the scene steps out (nothing hidden keeps "rendering" underneath)
+        tl.set($("tx-stage"), { opacity: 0 }, D.endAt + 0.75);
+
+        window.__timelines = window.__timelines || {};
+        window.__timelines[ID] = tl;
+        if (window.__hfForceTimelineRebind) window.__hfForceTimelineRebind();
+      }
+
+      fontsReady().then(build, build);
+    })();
+  </script>
+</template>
