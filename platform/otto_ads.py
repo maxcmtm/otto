@@ -27,6 +27,8 @@ campaigns it paused itself. While the kill switch is on or the brand is paused, 
 each campaign's claim, and a campaign that went live while the switch was flipped is paused straight away.
 Nothing spends without `approved`. Compliance: every launch runs otto_compliance on the copy first; a violation puts the
 campaign on compliance hold and files a recommendation (`release` clears it once the copy is fixed).
+Free trial (plans.json features.ads_launch false): the month is planned and its creatives rendered for preview as usual, but
+launch / resume refuse every campaign of the brand (ap.no_launch_why) until a paid plan replaces the trial.
 Plans (plans.json via ap.plan_of): plan refuses a brand whose plan has no paid ads, plans only the networks the plan has
 (ads_meta / ads_google), takes the Meta ad-matrix preset from the plan (micro still wins under ~€36/day) and treats
 limits.ad_spend_managed_eur_month as a soft cap (ap.ad_band): the first month above it is planned in full and the card says
@@ -41,7 +43,7 @@ continues from there (no duplicate campaigns / ad sets). Reporting counts Meta r
 purchases, engagements, landing-page views) and reports link clicks separately — clicks are never "results".
 Meta Marketing API v25 + Google Ads REST v21 (GAQL searchStream / googleAds:mutate). Pure stdlib. --dry never calls out.
 """
-import base64, calendar, json, math, os, re, sys, time, urllib.error, urllib.parse, urllib.request
+import base64, calendar, json, math, re, sys, time, urllib.error, urllib.parse, urllib.request
 from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 
@@ -1343,7 +1345,7 @@ def _claim(cid):
             return None
         if ap.paused(d, c.get("brand")):              # the kill switch / a brand pause flipped while this run was working
             return None
-        if ap.no_ads_why(d, c.get("brand"), c.get("network")):   # the plan changed while this run was working
+        if ap.no_launch_why(d, c.get("brand"), c.get("network")):   # the plan changed while this run was working
             return None
         held = ap.parse_iso(c.get("launching_at"))
         if held and held.tzinfo and datetime.now(timezone.utc) - held < timedelta(minutes=LAUNCH_CLAIM_MIN):
@@ -1372,7 +1374,7 @@ def launch(bid=None, dry=False, base=pub.BASE):
         if c.get("compliance_hold") or (c.get("remote") or {}).get("done"):
             continue
         tag = f'{c["id"]} {c["network"]} {c["name"]} ({c["start"]}→{c["end"]}, {c.get("currency", "")}{c["daily_budget"]}/day)'
-        why = ap.no_ads_why(snap, c["brand"], c["network"])
+        why = ap.no_launch_why(snap, c["brand"], c["network"])     # no paid ads, or a trial (planned + previewed, never launched)
         if why:                                       # defence in depth: otto_cron skips the brand already
             print(f"SKIPPED {tag} — {why}")
             continue
@@ -1502,7 +1504,7 @@ def resume(cid, dry=False):
     assert c, f"unknown campaign {cid}"
     if c.get("status") != "paused":
         raise LaunchError(f"{cid} is {c.get('status')}, not paused")
-    why = ap.paused(snap, c.get("brand")) or ap.no_ads_why(snap, c.get("brand"), c.get("network"))
+    why = ap.paused(snap, c.get("brand")) or ap.no_launch_why(snap, c.get("brand"), c.get("network"))
     if why:
         raise LaunchError(f"{cid} stays paused: {why}")
     if str(c.get("end") or "9999") < today(ap.brand(snap, c.get("brand"))):
@@ -1572,7 +1574,7 @@ def plan_guard(dry=False, bids=None):
     for c in snap.get("campaigns", []):
         if not isinstance(c, dict) or c.get("status") != "live" or (bids and c.get("brand") not in bids):
             continue
-        why = ap.no_ads_why(snap, c.get("brand"), c.get("network"))
+        why = ap.no_launch_why(snap, c.get("brand"), c.get("network"))
         if not why:
             continue
         print(f"{'WOULD PAUSE' if dry else 'PAUSE'} {c['id']} {c.get('name', '')} — {why}")

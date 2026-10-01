@@ -214,18 +214,20 @@ def _patch(pid, fields, force=False):
 
 
 def run(bid=None, ids=None, limit=6, statuses=("draft", "pending_approval"), dry=False):
+    """→ {"todo", "fired", "saved"} (None for a dry run / nothing to do); main() exits 1 when posts needed an image and not
+    one was saved (the scheduler's heartbeat and alert only see the exit code)."""
     d = ap.load()                                   # snapshot for selection; writes are per-post transactions
     todo = [p for p in d["posts"] if (ids and p["id"] in ids) or
             (not ids and p["status"] in statuses and not p.get("image") and (not bid or p["brand"] == bid))]
     todo = todo[:limit]
     if not todo:
-        print("nothing to generate"); return
+        print("nothing to generate"); return None
     OUT.mkdir(parents=True, exist_ok=True)
     plans = [(p, prompt_for(d, p)) for p in todo]
     for p, pr in plans:
         print(f"{'WOULD FIRE' if dry else 'FIRE'} {p['id']} [{p.get('format','post')}]\n   {pr}\n")
     if dry:
-        return
+        return None
     k = key()
     jobs = []
     for p, pr in plans:
@@ -294,6 +296,19 @@ def run(bid=None, ids=None, limit=6, statuses=("draft", "pending_approval"), dry
     except Exception as e:
         print("carousel step skipped:", e)
     print("DONE", json.dumps(done))
+    return {"todo": len(todo), "fired": len(jobs), "saved": sum(1 for v in done.values() if v)}
+
+
+def main(a):
+    res = run(bid=a[a.index("--brand") + 1] if "--brand" in a else None,
+              ids=set(a[a.index("--ids") + 1].split(",")) if "--ids" in a else None,
+              limit=int(a[a.index("--limit") + 1]) if "--limit" in a else 6,
+              statuses=tuple(a[a.index("--status") + 1].split(",")) if "--status" in a else ("draft", "pending_approval"),
+              dry="--dry" in a)
+    if res and not res["saved"]:
+        print(f"FAILED: {res['todo']} post(s) needed an image, {res['fired']} generation(s) started, none saved")
+        return 1
+    return 0
 
 
 def carousel_slides(p):
@@ -303,9 +318,4 @@ def carousel_slides(p):
 
 
 if __name__ == "__main__":
-    a = sys.argv[1:]
-    run(bid=a[a.index("--brand") + 1] if "--brand" in a else None,
-        ids=set(a[a.index("--ids") + 1].split(",")) if "--ids" in a else None,
-        limit=int(a[a.index("--limit") + 1]) if "--limit" in a else 6,
-        statuses=tuple(a[a.index("--status") + 1].split(",")) if "--status" in a else ("draft", "pending_approval"),
-        dry="--dry" in a)
+    sys.exit(main(sys.argv[1:]))

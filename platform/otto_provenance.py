@@ -198,10 +198,6 @@ def _jpeg_segments(data):
     raise ProvenanceError("JPEG has no image data (no SOS)")
 
 
-def _jpeg_c2pa(data, segs):
-    return any(m == 0xEB and b"c2pa" in data[p:e] for s, e, m, p in segs)
-
-
 def _jpeg_xmp(data, segs):
     for s, e, m, p in segs:
         if m == 0xE1 and data[p:p + len(JPEG_XMP)] == JPEG_XMP:

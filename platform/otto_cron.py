@@ -32,6 +32,7 @@ Jobs — wall-clock times are LOCAL: a per-brand job at the brand's time (brands
   whop-sync     02:20 (UTC)         once        otto_whop.py backfill        (only once api_key + company_id exist)
   track-prune   1st 04:00 (UTC)     once        otto_track.py prune --days 400
   retention     04:40 owner         once        otto_retention.py run   (deletion 90 days after a plan ended, notices, leads)
+  trials        hourly at :05 (UTC) once        otto_trial.py run       (free trials: end them on the hour, reminder e-mails)
 A local job's timer ticks every hour at the job's minute; each tick runs the brands (or the owner job) whose local time has
 reached the job's time today, on the right local weekday / day of month, and that have not run it yet that local day. A tick
 up to 3 hours late still counts (a reboot or an outage catches up); later than that, the day is skipped. Each brand runs once
@@ -41,7 +42,8 @@ In a zone with a half-hour offset the job runs at the first tick inside its hour
 Brands: a per-brand job runs for every brand whose status is "active" (a brand without a status counts as active).
 Onboarding, paused (brands[].paused or status "paused") and any other status sit it out; the heartbeat says why.
 Plans (plans.json via ap.plan_of — PLAN_GATES): a brand whose plan does not include a job's feature sits it out with the
-reason ("plan content has no paid ads" for ads-plan / ads-launch / ads-report; reels, Telegram cards, insights, competitor
+reason ("plan content has no paid ads" for ads-plan / ads-launch / ads-report; a free trial plans and reports paid ads but
+sits ads-launch out: "plan trial plans and previews paid ads but launches none"; reels, Telegram cards, insights, competitor
 sweep, visuals + the monthly plan likewise); a plan with a monthly competitor sweep runs it on the first Monday of the local
 month only (--all / --brand run it anyway); a brand on the ended plan ("none": membership canceled) sits every job out.
 ads-guard runs once for all brands whatever their plan, so a downgrade still pauses live campaigns and ends old flights.
@@ -116,6 +118,9 @@ JOBS = {
 # does not stop it (deletion is a legal promise, not publishing). ----
 JOBS["retention"] = Job("Data retention", None, "04:40", 1440, "retention.log", ONCE, False, 30)
 # ---- end data retention ----
+# ---- free trials (otto_trial.py): hourly, so a trial ends on its hour (not up to a day late) and the day-5 / day-7 / day-8
+# e-mails go out in their window. The kill switch does not stop it (ending a trial pauses work; it never starts any). ----
+JOBS["trials"] = Job("Free trials", "*-*-* *:05:00", None, 60, "trials.log", ONCE, False, 20)
 LEONARDO_JOBS = ("genvisuals", "reels")
 
 # one unit of work: brand id ("*" = a job that runs once), argv, why it is skipped (None = run it), for reels the command
@@ -176,7 +181,7 @@ def when(job):
     j = JOBS[job]
     if j.local:
         return f"{j.local} {'brand' if j.scope == BRAND else 'owner'} time"
-    return {"*-*-* *:00/15:00": "every 15 min (UTC)", "*-*-* *:15:00": "hourly at :15 (UTC)",
+    return {"*-*-* *:00/15:00": "every 15 min (UTC)", "*-*-* *:15:00": "hourly at :15 (UTC)", "*-*-* *:05:00": "hourly at :05 (UTC)",
             "*-*-01 04:00:00": "1st 04:00 (UTC)"}.get(j.calendar) or j.calendar.replace("*-*-* ", "").rsplit(":", 1)[0] + " (UTC)"
 
 
@@ -242,8 +247,8 @@ def plan_skip(job, b, d, today, force=False):
     feat = PLAN_GATES.get(job)
     if not feat:
         return None
-    if feat == "ads":
-        return ap.no_ads_why(d, bid)
+    if feat == "ads":                                # ads-launch: a trial plans + reports paid ads, launches none
+        return ap.no_launch_why(d, bid) if job == "ads-launch" else ap.no_ads_why(d, bid)
     p = ap.plan_of(d, bid)
     if not p["features"].get(feat):
         return f"plan {p['id']} has no {GATE_TEXT[feat]}"
@@ -296,6 +301,8 @@ def once_argv(job, today):
     if job == "retention":
         return [PY, script("otto_retention.py"), "run"]
     # ---- end data retention ----
+    if job == "trials":
+        return [PY, script("otto_trial.py"), "run"]
     raise KeyError(job)
 
 

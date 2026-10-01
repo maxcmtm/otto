@@ -61,8 +61,7 @@ HEALTH = re.compile(r"cbd|hemp|cannab|clinic|medical|dental|dentist|zahnarzt|zah
                     r"supplement|pharma|physio|aesthetic|med ?spa|תרפי|טיפול|מרפא|קליניק|פסיכו", re.I)
 SEVERITIES = ("block", "needs-review", "disclose")
 SHOP_PLATFORM = re.compile(r"shopify|woocommerce|magento|bigcommerce|shopware|prestashop|lightspeed|ccv ?shop", re.I)
-CURRENCY_COUNTRY = {"USD": "US", "GBP": "GB", "ILS": "IL", "CHF": "CH", "PLN": "PL", "HUF": "HU", "RON": "RO", "DKK": "DK",
-                    "SEK": "SE", "NOK": "NO", "CZK": "CZ"}
+CURRENCY_COUNTRY = ap.CURRENCY_COUNTRY
 
 
 def _compile_baselines():

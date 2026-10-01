@@ -26,7 +26,7 @@ projects, one person (or agent) holds every key, and a new client needs manual s
 | Server backups | Hetzner automated backups (7 daily snapshots) | One-click restore of the whole box | +20% (~€3/mo) |
 | Off-site backup | Hetzner Storage Box BX11 (or Backblaze B2), nightly encrypted archive of data.json, brands/, assets, logs | Survives losing the server or the Hetzner account | ~€4/mo |
 | Domain, DNS, TLS, firewall | Cloudflare (buy the domain at Cloudflare Registrar, at cost) | DNS, certificates, WAF and rate limits for the public endpoints in one place, and Access for logins | Free plan + domain ~€10–15/yr |
-| Logins | Cloudflare Access (free up to 50 users): `admin.` for the Otto team, `app.` for clients by email one-time code | Real logins without building auth now; the app learns who is signed in from the verified email header | Free |
+| Logins | Clients: **Sign in with Google** on `app.` (Otto's own OpenID Connect sign-in, `platform/otto_auth.py`; a new sign-up starts a free 7-day trial). The Otto team: Cloudflare Access on `admin.` (free up to 50 users) | Clients sign themselves up without anyone adding them to an allow-list; the owner console stays behind a second, separate login | Free |
 | Code and deploys | GitHub (the existing private repo) + a GitHub Actions workflow: tests pass → deploy over SSH → health check → Telegram message; one command to roll back | No more "tell Maximus to pull and deploy"; every deploy is logged and reversible | Free |
 | Agent runtime (copy, briefs) | OpenClaw installed on the Otto server as its own agent `autopilot-core` (the separation already planned in `platform/ARCHITECTURE.md`); Maximus stays on the old box as developer | Client work stops running inside a personal agent's workspace | Model usage only |
 
@@ -48,7 +48,7 @@ Placeholder `otto.example`, to be replaced with the domain we buy.
 | Host | Serves | Access |
 |---|---|---|
 | `otto.example` | Landing page (`platform/landing.html`) and the public endpoints `/otto-peek`, `/otto-track`, `/otto-onboard`, `/hooks/whop` | Public, rate-limited at Cloudflare and in the API |
-| `app.otto.example` | Client app (`index.html`), onboarding, approvals, `/otto-api/*` | Cloudflare Access, the client's email. Otto maps the email to the client's brand(s). |
+| `app.otto.example` | Client app (`index.html`), onboarding, approvals, `/otto-api/*`, `/auth/*` (Google sign-in) | Google sign-in (not Cloudflare Access): a host-only session cookie; Otto maps the verified Google e-mail to the client's brand(s). |
 | `admin.otto.example` | Owner console (`admin.html`) and admin API | Cloudflare Access, the Otto team only |
 | `status.otto.example` (later) | Public uptime page | Public |
 
@@ -75,7 +75,9 @@ DMARC records sit in the same Cloudflare zone.
 - **See everything:** the owner console at `admin.` shows traffic, leads, customers, MRR, clients, job heartbeats,
   failures and backups.
 - **Stop everything:** the kill switch in the owner console pauses all publishing and ad launches at once.
-- **Access:** add or remove people in Cloudflare Access; nobody shares a password.
+- **Access:** clients sign in with Google (a sign-up is self-serve; `otto_auth.py logout-user <e-mail>` ends someone's
+  sessions, `otto_admin.py members` changes who sees a brand); the Otto team is added or removed in Cloudflare Access
+  (`admin.`). Nobody shares a password.
 - **Recover:** Hetzner snapshots for the box, the Storage Box for data, and `infra/restore.sh` to rebuild a fresh
   server from the latest backup.
 
@@ -84,8 +86,10 @@ DMARC records sit in the same Cloudflare zone.
 1. Buy the domain at Cloudflare Registrar, or move its nameservers to Cloudflare.
 2. Create a Hetzner Cloud project, create a CPX31 (Ubuntu 24.04) with backups on, and add the SSH public key of whoever
    runs the bootstrap.
-3. In Cloudflare Zero Trust, create two Access applications (`admin.` with the team's emails, `app.` with client
-   emails as they sign up).
+3. In Cloudflare Zero Trust, create one Access application: `admin.` with the team's emails. (`app.` is not behind
+   Access: clients sign in with Google there.)
+3b. In Google Cloud, create the OAuth client for "Sign in with Google" (consent screen, scopes `openid email profile`,
+   redirect URI `https://app.<domain>/auth/google/callback`) — the steps are in `docs/AUTH-AND-TRIAL.md`.
 4. In GitHub, add the repository secrets for the deploy workflow (server host, deploy key, Telegram alert chat).
 
 Everything after that is scripted in `infra/` (`bootstrap.sh`, `deploy.sh`, `backup.sh`, `restore.sh`, the Caddyfile,

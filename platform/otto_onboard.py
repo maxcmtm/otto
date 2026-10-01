@@ -36,12 +36,15 @@ answers (every field optional; unknown keys are ignored, bad values raise ValueE
 
 http_create() is the body of POST /otto-api/onboard (otto_api.py wires it after its JSON + Origin checks): per-IP rate
 limit, at most two creates at once, and the client's own peek is never trusted (the server's cached one is).
+A Google sign-in (otto_auth; account = its users[] record) that creates a brand gets the free trial on it
+(otto_trial.brand_on_signup: plan "trial" until the trial's end, status "active", or — trial over, e-mail / domain already
+trialled — the ended plan and "add a card"); the answer carries "trial": {granted, ends_at | why, message}.
 public=True is the unauthenticated /otto-onboard: it may only CREATE a brand (a site that already has one → 409, nothing
 written — otherwise anyone could rename a client, rewrite its scan, proof and strategy, or ban its words), and at most
 PUBLIC_CREATES_PER_HOUR new brands are created that way per hour.
 Stdlib only. Env: the usual OTTO_DATA / OTTO_HTML / OTTO_BRANDS (all brand files go under ap.BRANDS).
 """
-import contextlib, copy, hashlib, io, json, re, sys, threading, time, unicodedata, urllib.parse
+import contextlib, copy, hashlib, io, json, re, sys, threading, time, unicodedata
 from datetime import datetime, timedelta
 from pathlib import Path
 from zoneinfo import ZoneInfo
@@ -56,7 +59,8 @@ Q = "(?)"
 HEX = re.compile(r"^#[0-9A-Fa-f]{6}$")
 SLUG = re.compile(r"^[a-z0-9][a-z0-9-]{1,39}$")
 RESERVED = {"new", "demo", "data", "assets", "templates", "api", "admin", "otto", "brand", "brands", "platform",
-            "shared", "default", "template", "test", "www"}
+            "shared", "default", "template", "test", "www",
+            "oauth", "auth", "account", "users"}     # oauth: google-oauth.json is Otto's own sign-in client, not brand "oauth"'s
 SECOND_LEVEL = {"co", "com", "org", "net", "ac", "gov", "edu", "or", "ne", "ltd", "plc"}
 LEADING_SUBS = {"www", "shop", "store", "app", "my", "en", "de", "home", "web", "m", "go", "get"}
 # hosted-site domains: the business is the subdomain (acme.myshopify.com → acme)
@@ -91,7 +95,10 @@ LEAD_INDUSTRIES = re.compile(r"clinic|education|legal|real estate|coaching|home|
 SHOP_PLATFORM = re.compile(r"shopify|woocommerce|magento|bigcommerce|shopware|prestashop", re.I)   # as otto_ads.is_shop
 SHOP_INDUSTRY = re.compile(r"e-commerce|retail|supplement|nutrition|cbd", re.I)
 RESTRICTED = re.compile(r"cbd|hemp|cannab|clinic|medical|therap|psycholog|legal|finance", re.I)     # the brand-add note
-REVIEW_TIME = "07:35"          # the morning report: the first review rides on it
+REVIEW_TIME = "08:00"          # approval cards (Telegram) and e-mails go out at 08:00 brand time: the first review
+FIRST_REVIEW = {"email": "by e-mail at 08:00, or in the app",
+                "telegram": "in Telegram at 08:00, after the 07:35 morning report, or in the app",
+                "app": "in the app's Review from 08:00"}
 
 
 # ---------------------------------------------------------------------------------------------------------------
@@ -429,7 +436,8 @@ def brand_name(s, host):
 # ---------------------------------------------------------------------------------------------------------------
 
 def first_review_at(tz, now=None):
-    """When the owner's first review lands: the next 07:35 (the morning report) at least six hours from now."""
+    """When the owner's first review lands: the next 08:00 brand time (the approval cards and e-mails; Telegram's 07:35 morning
+    report comes just before) at least six hours from now."""
     now = now or datetime.now(tz)
     h, m = (int(x) for x in REVIEW_TIME.split(":"))
     t = now.replace(hour=h, minute=m, second=0, microsecond=0)
@@ -517,11 +525,13 @@ def _may_update(allow_update, bid):
     return allow_update is True or (not isinstance(allow_update, bool) and bid in (allow_update or ()))
 
 
-def create(site, answers=None, peek=None, dry=False, scan=True, deadline=40.0, now=None, allow_update=True, member=None):
+def create(site, answers=None, peek=None, dry=False, scan=True, deadline=40.0, now=None, allow_update=True, member=None,
+           account=None):
     """Onboard (or re-onboard) one site. See the module docstring. dry=True reads and scans but writes nothing.
     allow_update=False (public onboarding) or a set of brand ids (a signed-in client) raises Exists — before any network
     or write, and again inside the transaction — when the site already has a brand the caller may not change.
-    member = the signed-in client's e-mail: added to brands[].members of the brand it creates (or already belongs to)."""
+    member = the signed-in client's e-mail: added to brands[].members of the brand it creates (or already belongs to).
+    account = the Google sign-in's users[] record (otto_auth): a brand it creates starts its free trial (otto_trial)."""
     url = site_url(site)
     key = host_key(url)
     a = clean_answers(answers)
@@ -562,8 +572,7 @@ def create(site, answers=None, peek=None, dry=False, scan=True, deadline=40.0, n
     # when nothing else is known.
     tld_country = ap.guess_country(key)
     currency = ap.currency_code(((s or {}).get("commerce") or {}).get("currency"))
-    cur_country = {"USD": "US", "GBP": "GB", "ILS": "IL", "CHF": "CH", "PLN": "PL", "HUF": "HU", "RON": "RO", "DKK": "DK",
-                   "SEK": "SE", "NOK": "NO", "CZK": "CZ"}.get(currency or "")
+    cur_country = ap.CURRENCY_COUNTRY.get(currency or "")
     tz_country = {tz_: cc for cc, tz_ in reversed(list(ap.COUNTRY_TZ.items()))}      # tz → country
     country = tld_country or cur_country or tz_country.get(a["tz"]) or ap.guess_country(key, lang)
     if tld_country or (country and tz_country.get(a["tz"]) != country and country in ap.COUNTRY_TZ):
@@ -578,6 +587,7 @@ def create(site, answers=None, peek=None, dry=False, scan=True, deadline=40.0, n
               if a["channels"].get(k)]
 
     # 2 · the brand record, connections and next-step cards: one transaction
+    trial = None
     if dry:
         d = ap.load()
         slug, existing = resolve_slug(d, url)
@@ -599,6 +609,9 @@ def create(site, answers=None, peek=None, dry=False, scan=True, deadline=40.0, n
                 if currency:
                     b["currency"] = currency
                 d.setdefault("brands", []).append(b)
+                if account and account.get("id"):         # a Google sign-up: the free trial (or "add a card") decides the plan
+                    import otto_trial
+                    trial = otto_trial.brand_on_signup(d, b, account["id"], key)
             else:
                 b = existing
                 if a["corrections"].get("name"):
@@ -694,6 +707,12 @@ def create(site, answers=None, peek=None, dry=False, scan=True, deadline=40.0, n
                 files.append(_write(cf, json.dumps(rules, ensure_ascii=False, indent=2) + "\n"))
 
     # 4 · what happens next
+    if trial and trial.get("granted") and not dry:     # the trial's week is planned now, not on the 25th (otto_trial.kickoff)
+        try:
+            import otto_trial
+            otto_trial.kickoff(slug, now=now)
+        except Exception as e:                             # noqa: BLE001 — the hourly trials job retries it
+            print(f"kickoff for {slug} deferred to the trials job: {type(e).__name__}: {e}", file=sys.stderr)
     d = ap.load()
     if dry:
         d = copy.deepcopy(d)
@@ -715,7 +734,7 @@ def create(site, answers=None, peek=None, dry=False, scan=True, deadline=40.0, n
               "detail": f"{len(week) - stories} posts and {stories} stories in the first week"},
              {"id": "first_review", "title": "First review on your phone", "state": "todo",
               "when": review.isoformat(timespec="minutes") if review else None,
-              "detail": review.strftime("%A %d %B, %H:%M") + " with the morning report" if review else ""}]
+              "detail": (review.strftime("%A %d %B") + ", " + FIRST_REVIEW.get(a["approvals"], FIRST_REVIEW["app"])) if review else ""}]
     for k, title, how in (("telegram", "Pair Telegram", "A one-time link opens Otto's bot and pairs your phone."),
                           ("meta", "Connect Instagram and Facebook", "Through Meta's own sign-in. You pick the Page and account."),
                           ("google_ads", "Connect Google Ads", "Through Google's own sign-in, when you want search ads.")):
@@ -727,10 +746,13 @@ def create(site, answers=None, peek=None, dry=False, scan=True, deadline=40.0, n
         comp = otto_compliance.summary(slug, d=d, scan=s, countries=None if b.get("countries") else ([country] if country else None))
     except Exception as e:                                   # noqa: BLE001 — the summary never fails an onboarding
         comp = {"error": f"{type(e).__name__}: {e}"[:160]}
-    return {"ok": True, "dry": dry, "brand": slug, "name": b.get("name") or name, "created": created,
+    out = {"ok": True, "dry": dry, "brand": slug, "name": b.get("name") or name, "created": created,
             "status": b.get("status") or "onboarding", "tz": b.get("tz") or tz, "files": files, "scan": scan_info,
             "first_review": review.isoformat(timespec="minutes") if review else None, "first_week": week,
             "pillars": b.get("pillars") or pillars_for(industry), "next_steps": steps, "compliance": comp}
+    if trial is not None:
+        out["trial"] = trial
+    return out
 
 
 # ---------------------------------------------------------------------------------------------------------------
@@ -746,12 +768,13 @@ _public_creates = []         # timestamps of public creates in the last hour
 _busy = threading.BoundedSemaphore(2)   # a create runs a 5-page scan: at most two at once
 
 
-def http_create(raw, ip, cached_peek=None, deadline=25.0, public=False, bids=None, user=None):
+def http_create(raw, ip, cached_peek=None, deadline=25.0, public=False, bids=None, user=None, account=None):
     """Body of POST /otto-api/onboard, after otto_api's Content-Type + Origin checks. raw = request body (bytes),
     cached_peek = callable(url) → the server's own cached /otto-peek result or None. → (status code, JSON object).
     public=True (/otto-onboard, no login): create only — an existing brand answers 409 — and a global hourly cap.
     bids = the brand ids a signed-in client belongs to (None = the owner / admin, who may update any brand); such a
-    client may update only those, and becomes a member (user) of a brand they create."""
+    client may update only those, and becomes a member (user) of a brand they create. account = a Google sign-in's users[]
+    record: a brand it creates gets the free trial (otto_trial)."""
     allow_update = False if public else True if bids is None else set(bids)
     if raw is None or len(raw) > MAX_BODY:
         return 413, {"error": "request too large"}
@@ -795,7 +818,7 @@ def http_create(raw, ip, cached_peek=None, deadline=25.0, public=False, bids=Non
             except Exception:
                 peek = None
         return 200, create(url, req.get("answers"), peek=peek, deadline=deadline, allow_update=allow_update,
-                           member=user if bids is not None else None)
+                           member=user if bids is not None else None, account=account if bids is not None else None)
     except Exists as e:
         return 409, {"error": str(e)}
     except ValueError as e:

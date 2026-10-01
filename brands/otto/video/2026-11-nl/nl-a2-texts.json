@@ -1,0 +1,55 @@
+{
+  "id": "nl-a2-texts",
+  "style": "texts",
+  "formats": [
+    "9x16"
+  ],
+  "music": {
+    "bpm": 120,
+    "mood": "calm",
+    "key": "C"
+  },
+  "scene": {
+    "ground": "wash"
+  },
+  "thread": {
+    "name": "Otto",
+    "initial": "O",
+    "avatar": "brand",
+    "stamp": "Voorbeeld · vandaag 07:35",
+    "placeholder": "Bericht",
+    "messages": [
+      {
+        "from": "them",
+        "text": "Goedemorgen. Gisteren: €18 aan advertenties, 4 aanvragen."
+      },
+      {
+        "from": "them",
+        "text": "Best gelopen: de reel over je lunchmenu."
+      },
+      {
+        "from": "them",
+        "text": "Er staan 3 posts voor deze week klaar. Wil je ze zien?"
+      },
+      {
+        "from": "me",
+        "text": "Ja, laat maar zien"
+      },
+      {
+        "from": "them",
+        "text": "Hier zijn ze. Tik op goedkeuren of vraag om een wijziging."
+      }
+    ]
+  },
+  "endcard": {
+    "headline": "Om 07:35 weet je het.",
+    "accent": "07:35",
+    "sub": "Wat het kostte, wat het opleverde, wat op je wacht.",
+    "fine": "Voorbeeldbericht. Advertentiebudget betaal je rechtstreeks aan Meta.",
+    "products": [
+      "pack"
+    ],
+    "logo": "logo_white",
+    "ground": "primary"
+  }
+}

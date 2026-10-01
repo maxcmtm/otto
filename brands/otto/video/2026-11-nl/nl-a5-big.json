@@ -1,0 +1,44 @@
+{
+  "id": "nl-a5-big",
+  "style": "big",
+  "formats": [
+    "9x16"
+  ],
+  "music": {
+    "bpm": 120,
+    "mood": "punchy",
+    "key": "C"
+  },
+  "scene": {
+    "ground": "primary"
+  },
+  "big": {
+    "hero": "month",
+    "phrases": [
+      {
+        "big": "7 dagen",
+        "rest": "gratis."
+      },
+      {
+        "big": "0 creditcards",
+        "rest": "nodig."
+      },
+      {
+        "big": "24 uur",
+        "rest": "tot je eerste posts.",
+        "product": "review_nl"
+      }
+    ]
+  },
+  "endcard": {
+    "headline": "Probeer Otto 7 dagen.",
+    "accent": "7 dagen.",
+    "sub": "Gratis, geen creditcard nodig.",
+    "fine": "Er wordt niets automatisch afgeschreven.",
+    "products": [
+      "month"
+    ],
+    "logo": "logo",
+    "ground": "bg"
+  }
+}

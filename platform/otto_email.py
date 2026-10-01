@@ -199,11 +199,8 @@ def action_base(cfg=None):
 def app_url(cfg=None):
     """The client app (behind the sign-in): app.<domain>/ on the new server, the old box's /otto/ otherwise."""
     cfg = safe_config() if cfg is None else cfg
-    v = str(cfg.get("app_url") or os.environ.get("OTTO_APP_URL") or "").strip()
-    if not v and (os.environ.get("OTTO_DOMAIN") or "").strip():
-        v = f"https://app.{os.environ['OTTO_DOMAIN'].strip()}/"
-    v = v or (os.environ.get("OTTO_PUBLIC_BASE") or paths.BASE)
-    return v if v.endswith("/") else v + "/"
+    v = str(cfg.get("app_url") or "").strip()
+    return (v if v.endswith("/") else v + "/") if v else paths.app_url()
 
 
 def act_url(token, cfg=None):
@@ -551,7 +548,7 @@ def button(label, url, primary=False, full=True):
     width = 'width="100%" ' if full else ""
     return (f'<table role="presentation" {width}cellpadding="0" cellspacing="0" border="0"><tr>'
             f'<td class="{cls}" align="center" bgcolor="{bg}" style="background:{bg};border-radius:10px;mso-padding-alt:12px 18px;">'
-            f'<a href="{esc(url)}" target="_blank" style="display:block;padding:12px 18px;border-radius:10px;text-decoration:none;'
+            f'<a href="{esc(url)}" target="_blank" style="display:block;padding:12px 12px;border-radius:10px;text-decoration:none;'
             f'{fstyle(15, 20, 600, fg)}">{esc(label)}</a></td></tr></table>')
 
 
@@ -596,7 +593,7 @@ def layout(subject, preheader, brand_name, title, lead, blocks, foot_html):
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" class="o-bg" style="background:{L['bg']};">
 <tr><td align="center" style="padding:28px 12px 44px;">
 <!--[if mso]><table role="presentation" width="600" align="center" cellpadding="0" cellspacing="0" border="0"><tr><td><![endif]-->
-<table role="presentation" class="o-shell" width="600" cellpadding="0" cellspacing="0" border="0" style="width:600px;max-width:600px;">
+<table role="presentation" class="o-shell" width="600" cellpadding="0" cellspacing="0" border="0" style="width:100%;max-width:600px;">
 <tr><td class="o-px" style="padding:0 24px 22px;">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr>
 <td class="o-ink" style="{fstyle(17, 22, 700, L['ink'], 'letter-spacing:-0.02em;')}">Otto</td>
@@ -762,6 +759,15 @@ def render_recs(b, rows):
     return subject, body, "\n".join(lines) + "\n"
 
 
+def _day_mon(s):
+    """"2026-11-01" → "1 Nov" (anything else as it is)."""
+    try:
+        dt = datetime.strptime(str(s)[:10], "%Y-%m-%d")
+        return f"{dt.day} {dt:%b}"
+    except (TypeError, ValueError):
+        return str(s or "")
+
+
 def render_plan(b, r, campaigns, links):
     """The monthly paid-plan approval card as an e-mail → (subject, html, text)."""
     name = b.get("name") or b["id"]
@@ -776,7 +782,7 @@ def render_plan(b, r, campaigns, links):
         cur = ap.currency_symbol(c.get("currency_code") or c.get("currency"))
         rows.append(f'<tr><td class="o-ink o-line" dir="auto" style="padding:10px 0;border-top:1px solid {L["line"]};{fstyle(14, 19, 500, L["ink"])}">'
                     f'{esc(short(c.get("name"), 60))}<div class="o-ink3" style="{fstyle(12, 17, 400, L["ink3"], "padding-top:2px;")}">'
-                    f'{esc({"meta": "Meta", "google": "Google"}.get(c.get("network"), c.get("network") or ""))} · {esc(c.get("start") or "")} to {esc(c.get("end") or "")}'
+                    f'{esc({"meta": "Meta", "google": "Google"}.get(c.get("network"), c.get("network") or ""))} · {esc(_day_mon(c.get("start")))} to {esc(_day_mon(c.get("end")))}'
                     + (" · on hold for a copy review" if c.get("compliance_hold") else "") + '</div></td>'
                     f'<td class="o-ink2 o-line" align="right" valign="top" style="padding:10px 0 10px 12px;border-top:1px solid {L["line"]};white-space:nowrap;{fstyle(14, 19, 500, L["ink2"])}">'
                     f'{esc(cur)}{ap.num(c.get("daily_budget")) or 0:,.0f}/day</td></tr>')
@@ -791,7 +797,7 @@ def render_plan(b, r, campaigns, links):
     body = layout(subject, short(r.get("title"), 110), name, title, lead, blocks, footer(b))
     lines = [f"{name} — {title}", "", re.sub(r"<[^>]+>", "", lead), "", short(r.get("why"), 700), ""]
     for c in campaigns[:8]:
-        lines.append(f"- {c.get('name')} · {c.get('network')} · {c.get('start')} to {c.get('end')} · "
+        lines.append(f"- {c.get('name')} · {c.get('network')} · {_day_mon(c.get('start'))} to {_day_mon(c.get('end'))} · "
                      f"{ap.currency_symbol(c.get('currency_code') or c.get('currency'))}{ap.num(c.get('daily_budget')) or 0:,.0f}/day")
     lines += [""] + [f"{lab}: {url}" for lab, url, _, _ in links] + ["", f"See it in the app: {app_link('settings')}"]
     return subject, body, "\n".join(lines) + "\n"
@@ -1303,6 +1309,7 @@ PAGE_CSS = ("*{box-sizing:border-box;margin:0;padding:0}"
             "button,.btn{display:block;width:100%;height:50px;border:0;border-radius:12px;font-family:inherit;font-size:17px;font-weight:600;line-height:50px;"
             "letter-spacing:-.01em;text-align:center;text-decoration:none;cursor:pointer;-webkit-tap-highlight-color:transparent}"
             "button{background:var(--acc);color:#fff}button:active{background:var(--accp)}"
+            ":focus-visible{outline:2px solid var(--acc);outline-offset:3px}"
             ".btn{background:var(--sec);color:var(--ink);margin-top:10px}"
             ".note{font-size:13px;line-height:18px;color:var(--ink3);margin-top:16px;text-align:center;text-wrap:pretty}"
             ".st{width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin-bottom:18px;"
@@ -1451,6 +1458,8 @@ def http_act(method, token, form=None, ip="", origin_ok=True, now=None):
         h, c = message_page("Nothing to do here", esc(late) + " You can change it in the app.", name)
         return 409, h, c, None
     title, label = VERB[(p["k"], p["a"])]
+    if p["k"] == "rec" and p["a"] == "approve" and is_plan_card(item) and plan_month(item):
+        title, label = f"Approve the {month_label(plan_month(item))} paid plan?", "Approve the plan"
     img = None
     if p["k"] == "post":
         img = image_url(item, verify=False)
@@ -1459,7 +1468,7 @@ def http_act(method, token, form=None, ip="", origin_ok=True, now=None):
                 else "Otto fills the slot with something else.")
     else:
         what = (f'<div class="card"><div><p class="meta">{esc({"P0": "Urgent", "P1": "Recommended"}.get(item.get("priority"), "Recommended"))}</p>'
-                f'<p class="hook" dir="auto">{esc(item.get("title"))}</p>'
+                f'<p class="hook" dir="auto">{esc(PLAN_RE.sub(lambda m: "Approve the " + month_label(m.group(1)) + " paid plan", item.get("title") or ""))}</p>'
                 + (f'<p class="cap" dir="auto">{esc(short(item.get("why"), 360))}</p>' if item.get("why") else "") + '</div></div>')
         lead = ("Nothing spends until you approve; every campaign keeps its daily ceiling." if is_plan_card(item) and p["a"] == "approve"
                 else "Otto gets on with it." if p["a"] == "approve" else "Otto puts it away. You can bring it back in the app.")
@@ -1468,7 +1477,8 @@ def http_act(method, token, form=None, ip="", origin_ok=True, now=None):
             + f'<form method="post"><input type="hidden" name="t" value="{esc(token)}">'
             f'<input type="hidden" name="f" value="{esc(form_nonce(p, secret, now))}"><button type="submit">{esc(label)}</button></form>'
             + f'<a class="btn" href="{esc(app_link(("post=" + urllib.parse.quote(item["id"])) if p["k"] == "post" else "today"))}">Open in the app instead</a>'
-            + f'<p class="note">This button works once. The link expires {exp:%a} {exp.day} {exp:%b}, {exp:%H:%M}.</p>')
+            + f'<p class="note">This button works once. The link expires {exp:%a} {exp.day} {exp:%b}, {exp:%H:%M}'
+            + (f' {esc(tz_note(b))}' if tz_note(b) else "") + '.</p>')
     h, c = page(title, body, _origin(img) if img else None)
     return 200, h, c, None
 
@@ -1530,9 +1540,10 @@ def _act(p, secret, now):
     except Exception as e:
         print(f"rec action {snap['id']} failed: {type(e).__name__}: {e}")
         with ap.transaction() as d:
-            q = ap.rec(d, snap["id"])
-            if q is not None:
-                q["action_error"] = str(e)[:300]
+            ap.rec_action_failed(d, snap, f"{type(e).__name__}: {e}", "by e-mail")
+        h, c = message_page("Approved, not started yet", "Your approval is saved, but Otto could not start it just now. Otto's "
+                            "team has been told and will finish it; nothing spends meanwhile.", name)
+        return 200, h, c, line + " · action FAILED"
     if out:
         with ap.transaction() as d:
             q = ap.rec(d, snap["id"])

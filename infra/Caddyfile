@@ -14,9 +14,10 @@
 # Trust: every request reaches this box through Cloudflare (ufw opens 80/443 to Cloudflare's ranges only). The API trusts
 # three headers and all three are set here on every proxied request, never passed through from the browser:
 #   X-Real-IP        = CF-Connecting-IP when the peer is one of Cloudflare's ranges, else the peer's own address
-#   X-Otto-User      = Cf-Access-Authenticated-User-Email (Cloudflare Access) when the peer is Cloudflare, on app. and admin.
-#                      only (empty otherwise; the apex never names a user). The API scopes /otto-api/data per user
-#                      (brands[].members) and gates /otto-api/admin* on it (OTTO_ADMIN_USERS).
+#   X-Otto-User      = Cf-Access-Authenticated-User-Email (Cloudflare Access) when the peer is Cloudflare, on admin. only
+#                      (empty otherwise: the apex never names a user, and app. is not behind Access — clients sign in with
+#                      Google there, the API's own session cookie, otto_auth). The API gates /otto-api/admin* on it
+#                      (OTTO_ADMIN_USERS); a Google session never opens the console.
 #   X-Otto-Proxy-Key = OTTO_PROXY_KEY
 # Rate limits for the public endpoints live in Cloudflare (WAF → rate limiting rules, infra/README.md) and in the API itself.
 
@@ -43,7 +44,8 @@ import /etc/caddy/otto.d/*.caddy
 	# no access log on purpose: Cloudflare has the traffic view, and a log here would hold visitor IPs and Access tokens
 }
 
-# Signed-in hosts (app., admin.): the Access e-mail becomes X-Otto-User.
+# admin. (Cloudflare Access): the Access e-mail becomes X-Otto-User. app. does not import this — its users sign in with Google
+# (/auth/* below), and the API refuses a request whose session and X-Otto-User disagree.
 (otto_signed_in) {
 	vars @cloudflare {
 		otto_user {http.request.header.Cf-Access-Authenticated-User-Email}
@@ -51,7 +53,7 @@ import /etc/caddy/otto.d/*.caddy
 }
 
 # The API. A route keeps the order as written: the peer's own address first, CF-Connecting-IP over it only when the peer is
-# Cloudflare. X-Otto-User is {vars.otto_user}: set on app./admin. from Cloudflare only (otto_signed_in), empty elsewhere.
+# Cloudflare. X-Otto-User is {vars.otto_user}: set on admin. from Cloudflare only (otto_signed_in), empty elsewhere.
 (otto_api) {
 	route {
 		vars otto_ip {remote_host}
@@ -179,14 +181,27 @@ import /etc/caddy/otto.d/*.caddy
 	}
 }
 
-# ---------------------------------------------------------------- app.otto.example — client app (Cloudflare Access: clients)
+# ---------------------------------------------------------------- app.otto.example — client app (Google sign-in, not Access)
+# Not behind Cloudflare Access: clients sign in with Google (otto_auth — /auth/google/start → Google → /auth/google/callback,
+# a host-only __Host-otto_sid cookie for this host). The app, onboarding and legal pages are public files; everything a client
+# owns comes from /otto-api/*, which answers 401 without a session.
 app.{$OTTO_DOMAIN} {
 	import otto_common
-	import otto_signed_in
 
 	@get method GET HEAD
 	@post method POST
 
+	# Google sign-in: start + callback (GET), who am I (GET), sign out (POST)
+	handle /auth/* {
+		request_body {
+			max_size 4KB
+		}
+		@auth method GET POST
+		handle @auth {
+			import otto_api
+		}
+		respond 405
+	}
 	# the owner console API lives on admin. only; Whop only on the apex
 	handle /otto-api/admin* {
 		respond 404

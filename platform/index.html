@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <!-- CSP: script-src lists the sha256 of every inline script element in this page. After editing one, the browser refuses it and its console prints the new hash: replace the old one here (or recompute all of them). -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-wjHOi8yIPllHkT54xnBQAhSiW285lPzD2i8rCGHk010='; style-src 'self' 'unsafe-inline'; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-src 'none'; worker-src 'none'; manifest-src 'self'; img-src 'self' data: blob: https:; media-src 'self' blob: https:">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-rgwUMbOQCybpBFEp3Vesh1bwa0KlIQaGNyGlHvZcgck='; style-src 'self' 'unsafe-inline'; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-src 'none'; worker-src 'none'; manifest-src 'self'; img-src 'self' data: blob: https:; media-src 'self' blob: https:">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="color-scheme" content="light dark">
 <meta name="theme-color" content="#F5F7FB" media="(prefers-color-scheme: light)">
@@ -387,6 +387,15 @@ html.dragging,html.dragging *{cursor:grabbing!important;-webkit-user-select:none
 .gate-s{font:400 17px/24px var(--font);letter-spacing:-.01em;color:var(--ink-2);margin-top:10px;text-wrap:pretty}
 .gate-a{display:grid;gap:10px;margin-top:28px}
 .gate-n{font:400 14px/20px var(--font);color:var(--ink-3);margin-top:18px;text-wrap:pretty}
+/* "Continue with Google", per Google's sign-in branding guidelines: white, a 1px #747775 border, the four-colour G, Roboto */
+.gbtn{display:inline-flex;align-items:center;justify-content:center;gap:10px;height:44px;padding:0 16px;border-radius:22px;background:#FFFFFF;box-shadow:inset 0 0 0 1px #747775;color:#1F1F1F;font:500 15px/20px Roboto,var(--font);letter-spacing:.1px;white-space:nowrap}
+.gbtn svg{width:20px;height:20px;flex:none}
+.gbtn:active{background:#F2F2F2}
+@media (hover:hover){.gbtn:hover{box-shadow:inset 0 0 0 1px #747775,0 1px 2px rgba(60,64,67,.3),0 1px 3px 1px rgba(60,64,67,.15)}}
+/* the free trial: one calm line under Today's date, and the Account group */
+.trial-l{font:400 13px/18px var(--font);color:var(--ink-2);margin-top:4px}
+.trial-l button,.lnk{color:var(--accent);font:inherit;padding:0;background:none;border:0;cursor:pointer}
+.side-acct{padding:0 10px 10px;font:400 12px/16px var(--font);color:var(--ink-3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .empty-t{font:600 20px/25px var(--font);letter-spacing:-.017em}
 .empty-s{font:400 15px/20px var(--font);color:var(--ink-2);margin-top:6px;text-wrap:balance}
 .err-card{padding:20px 16px;display:grid;gap:4px;justify-items:start}
@@ -618,6 +627,7 @@ html[data-vt=close]::view-transition-old(sheet):only-child{animation:vt-sink .28
       <a href="#posts" data-view="posts"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="7.5" width="12.5" height="12.5" rx="2.5"/><path d="M8 4.25h9.25A2.75 2.75 0 0 1 20 7v9.25"/></svg>Posts</a>
       <a href="#settings" data-view="settings"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h8.5M17.5 8H20M4 16h2.5M11.5 16H20"/><circle cx="15" cy="8" r="2.25"/><circle cx="9" cy="16" r="2.25"/></svg>Settings</a>
     </nav>
+    <p class="side-acct" id="side-acct" hidden></p>
     <p class="side-foot" id="side-foot"></p>
   </aside>
 
@@ -635,6 +645,7 @@ html[data-vt=close]::view-transition-old(sheet):only-child{animation:vt-sink .28
         <header class="lt">
           <p class="lt-eye" id="t-date">&nbsp;</p>
           <h1 class="lt-h" id="h-today" tabindex="-1">Today</h1>
+          <p class="trial-l" id="trial-l" hidden></p>
           <div class="act-slot" id="act-slot"><span class="sk sk-pill" aria-hidden="true"></span><button type="button" class="act tap" id="activity" hidden><i class="pd" aria-hidden="true"></i><span class="act-t"></span><svg class="i chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m9.5 6 6 6-6 6"/></svg></button></div>
         </header>
         <div id="today-body" aria-busy="true">
@@ -861,7 +872,7 @@ function campPill(c){
 }
 
 /* Client-facing filter: internal strategy notes never reach the owner's screen. */
-const INTERNAL = /\b(native|mcp|openclaw|pricing|otto|phase|leonardo|video_generate|pilot)\b|€/i;
+const INTERNAL = /\b(native|mcp|openclaw|pricing|otto|phase|leonardo|video_generate|pilot)\b/i;
 const QUEUE_DUP = /\bapprove\b.*\bposts?\b|\breview (the )?queue\b|waiting for (your )?review/i;
 function pickRec(d){
   const recs = (d.recommendations || []).filter(r => r.status !== "dismissed" && r.status !== "done")
@@ -956,6 +967,11 @@ function renderChrome(){
   refreshCounts();
   $$(".chip-mode").forEach(c => c.hidden = LIVE);
   $("side-foot").textContent = updatedText();
+  const tb = trialBrand(), tl = $("trial-l"), n = tb ? N(tb.plan_view.trial.days_left) : 0;
+  tl.hidden = !tb;
+  if(tb) tl.innerHTML = `${n} ${n === 1 ? "day" : "days"} left in your trial · <button type="button" data-billing>Add a card</button>`;
+  const sa = $("side-acct"); sa.hidden = !(ME && ME.signed_in && ME.email);
+  if(!sa.hidden) sa.innerHTML = `${esc(ME.email)}${ME.via === "google" ? ` · <button type="button" class="lnk" data-signout>Sign out</button>` : ""}`;
 }
 function refreshCounts(){
   const n = pendingList().length, b = $("tab-badge"), c = $("side-cnt");
@@ -1013,7 +1029,8 @@ function bannersH(){
   const out = [], meta = (DATA.connections || []).filter(c => /instagram|facebook|meta/i.test(c.service || ""));
   const broken = meta.filter(c => /expired|error|disconnected|revoked|invalid/i.test(c.status || ""));
   const bn = (t, cls, label, go) => `<div class="card banner ${cls}"><i class="bd" aria-hidden="true"></i><p class="bt">${esc(t)}</p><button type="button" class="tbtn tap" data-go="${esc(go)}">${esc(label)}</button></div>`;
-  if(broken.length) out.push(bn(`${/instagram/i.test(broken[0].service) ? "Instagram" : "Facebook"} disconnected. Posts are paused until you reconnect.`, "bad", "Reconnect", "settings"));
+  const sv = String(broken.length ? broken[0].service : "");
+  if(broken.length) out.push(bn(`${/instagram/i.test(sv) && /facebook/i.test(sv) ? "Instagram and Facebook" : /instagram/i.test(sv) ? "Instagram" : "Facebook"} disconnected. Posts are paused until you reconnect.`, "bad", "Reconnect", "settings"));
   else if(meta.some(c => c.status !== "connected")) out.push(bn("Connect Instagram and Facebook so Otto can publish.", "warn", "Connect", "settings"));
   const failed = posts().filter(p => p.status === "failed");
   if(failed.length) out.push(bn(failed.length === 1 ? `A post couldn't publish: “${short(H(failed[0]), 48)}”` : `${numw(failed.length)} posts couldn't publish.`, "bad", "View", failed.length === 1 ? "open:" + failed[0].id : "posts"));
@@ -1325,7 +1342,8 @@ function connPill(s){
   return pillH(own({not_connected: "Not connected", planned: "Planned"}, s) || cap1(String(s || "").replace(/_/g, " ")), "quiet");
 }
 /* the plan (plans.json → /otto-api/data brands[].plan_view): what is included and this month's use, one quiet link at most */
-const PRICING_URL = "/pilot-landing.html#pricing";
+// the landing's pricing: the apex on the new server (this page is app.<domain>), /pilot-landing.html on the old box
+const PRICING_URL = /^app\./.test(location.hostname) ? `${location.protocol}//${location.hostname.slice(4)}/#pricing` : "/pilot-landing.html#pricing";
 function planGroup(B){
   const P = B.filter(b => b.plan_view && typeof b.plan_view === "object");
   if(!P.length) return "";
@@ -1334,21 +1352,25 @@ function planGroup(B){
   const use = (u, w, money) => !u ? "" : (money ? "€" : "") + n(u.used) + (u.limit != null ? " of " + (money ? "€" : "") + n(u.limit) : "") + " " + w;
   const rows = P.map(b => {
     const v = b.plan_view, U = v.usage || {};
-    const inc = v.ended ? "Publishing is paused while there is no plan. Nothing has been deleted." : (Array.isArray(v.included) ? v.included : []).join(" · ");
+    const del = /^\d{4}-\d{2}-\d{2}/.test(v.delete_on || "") ? dayMon(new Date(String(v.delete_on).slice(0, 10) + "T12:00:00")) : "";
+    const inc = v.ended ? `Publishing is paused while there is no plan. Nothing has been deleted; if no plan starts again, your data is deleted ${del ? "on " + del : "90 days after the plan ended"}.`
+      : (Array.isArray(v.included) ? v.included : []).join(" · ");
     const month = [use(U.posts, "posts"), use(U.reels, "reels"), use(U.ad_budget_eur, "ad budget", true)].filter(Boolean).join(" · ");
     return lineH(many ? `<b style="font-weight:600">${esc(b.name)}</b>` : "Your plan", "", esc(v.label) + (v.until && !v.expired ? ` <span class="ph">until ${esc(dayMon(new Date(v.until + "T12:00:00")))}</span>` : ""), true)
       + (inc ? `<div class="line"><span class="rt"><span class="rt-m wrap">${esc(inc)}</span></span></div>` : "")
       + (month && !v.ended ? lineH("This month", "", esc(month), true) : "");
   }).join("");
-  const add = P.some(b => !b.plan_view.paid_ads && !b.plan_view.ended) ? `<p class="hint"><a href="${PRICING_URL}" target="_blank" rel="noopener">Add paid campaigns</a></p>` : "";
+  const trial = P.some(b => (b.plan_view.trial || {}).state === "running");
+  const add = trial ? `<p class="hint"><button type="button" class="lnk" data-billing>Add a card to keep going after the trial</button></p>`
+    : P.some(b => !b.plan_view.paid_ads && !b.plan_view.ended) ? `<p class="hint"><a href="${PRICING_URL}" target="_blank" rel="noopener">Add paid campaigns</a></p>` : "";
   return `<section class="grp"><h2 class="grp-h"><span>Plan</span></h2><div class="list">${rows}</div>${add}</section>`;
 }
 /* how approvals reach each brand (brands[].approvals → POST /otto-api/action {kind:"brand", approvals}); no field = Telegram */
 const APPR = [["email", "Email"], ["telegram", "Telegram"], ["app", "App only"]];
-const APPR_HINT = {email: "Each morning, one short e-mail with the posts to approve. Approve and Skip work in one tap; Change opens the post here.",
+const APPR_HINT = {email: "Each morning, one short email with the posts to approve. Approve and Skip work in one tap; Change opens the post here.",
   telegram: "Cards in Telegram, once your phone is paired with Otto's bot.",
   app: "Nothing is sent. Posts wait for you in Review.",
-  both: "E-mail and Telegram. Pick one to keep only that."};
+  both: "Email and Telegram. Pick one to keep only that."};
 function apprOf(b){
   const v = b.approvals == null ? "telegram" : b.approvals;
   if(Array.isArray(v)){ const s = [...new Set(v.map(String))].filter(x => x === "email" || x === "telegram"); return s.length > 1 ? "both" : s[0] || "app"; }
@@ -1379,7 +1401,7 @@ async function setApprovals(bid, v){
   b.approvals = v; paintAppr(bid); haptic();
   try{
     adopt(await send({kind: "brand", id: bid, approvals: v}));
-    toast(v === "app" ? "Approvals stay in the app" : `Approvals by ${v === "email" ? "e-mail" : "Telegram"}`);
+    toast(v === "app" ? "Approvals stay in the app" : `Approvals by ${v === "email" ? "email" : "Telegram"}`);
   }catch(e){ b.approvals = prev; paintAppr(bid); toast("Couldn't save. " + errText(e), {err: true}); }
 }
 function renderSettings(){
@@ -1396,7 +1418,9 @@ function renderSettings(){
       const y = net => last && last[net] ? last[net].yesterday : null;
       const m = y("meta"), g = y("google"), cur = (a.targets || {}).currency || "€";
       const cnt = s => camps.filter(c => c.brand === b.id && c.status === s).length;
-      const conn = a.connections || {};
+      // the ads report's own flags, or connections[] ("connected" once the brand's credentials are installed: server overlay)
+      const cx = pre => (d.connections || []).some(c => c.id === pre + "-" + b.id && c.status === "connected");
+      const conn = {meta: !!(a.connections || {}).meta || cx("meta"), google: !!(a.connections || {}).google || cx("gads")};
       const net = (name, v, unit, on) => v
         ? lineH(`${name}, yesterday`, "", `${esc(cur)}${Math.round(N(v.spend))} · ${Math.round(N(v.results))} ${unit} · ${v.cpl != null ? esc(cur) + Math.round(N(v.cpl) * 100) / 100 + " each" : "no cost data"}`, true)
         : lineH(name, "", on ? pillH("Connected", "ok") : pillH("Not connected", "quiet"));
@@ -1424,10 +1448,53 @@ function renderSettings(){
     .sort((x, z) => JOB_ORDER.indexOf(x.job) - JOB_ORDER.indexOf(z.job))
     .map(({job, a}) => lineH(job, esc((a.feed || []).find(t => t && !PERSONA.test(t)) || JOB_DEFAULT[job]))).join("");
   h += groupH("Activity", rows);
+  h += accountGroup();
   h += groupH("About", lineH("Data", LIVE ? "Live from your account" : "Preview. Changes made here are not saved.", LIVE ? pillH("Live", "ok") : pillH("Preview", "quiet"))
     + (updatedText() ? lineH("Last update", "", esc(updatedText().replace(/^Updated /, "")), true) : ""));
   $("settings-body").innerHTML = h;
 }
+
+/* ================= account: Google sign-in, the free trial, "add a card" (GET /auth/me) ================= */
+let ME = null;
+async function loadMe(){
+  try{
+    const r = await fetch("/auth/me", {cache: "no-store", credentials: "same-origin"});
+    if(r.ok && /json/.test(r.headers.get("content-type") || "")) ME = await r.json();
+  }catch(_){}
+  if(DATA) scheduleRender();
+  return ME;
+}
+function trialBrand(){ return brands().find(b => b.plan_view && (b.plan_view.trial || {}).state === "running") || null; }
+const GLOGO = `<svg viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>`;
+function gbtnH(){ return `<a class="gbtn tap" href="/auth/google/start?next=${encodeURIComponent(location.pathname + location.search + location.hash)}">${GLOGO}<span>Continue with Google</span></a>`; }
+const eurM = v => v == null ? "" : `€${N(v).toLocaleString("en-GB")} a month`;
+const httpsUrl = u => /^https:\/\/[^\s"'<>]+$/.test(String(u || ""));
+function accountGroup(){
+  if(!ME || !ME.signed_in || !ME.email) return "";
+  const t = ME.trial || {}, n = N(t.days_left);
+  const st = t.state === "running" ? `Free trial · ${n} ${n === 1 ? "day" : "days"} left` : t.state === "converted" ? "Paid" : "";
+  return groupH("Account", lineH(esc(ME.email), ME.via === "google" ? "Signed in with Google" : "Signed in", st ? esc(st) : "", true)
+    + (ME.via === "google" ? `<div class="line"><button type="button" class="btn gray block tap" data-signout>Sign out</button></div>` : ""));
+}
+async function openBilling(opener){
+  if(!ME) await loadMe();
+  const offers = ((ME && ME.checkout) || []).filter(o => o && o.label), email = ME && (ME.billing_email || ME.email);
+  const tb = trialBrand(), t = tb && tb.plan_view.trial;
+  const rows = offers.map(o => lineH(`<b style="font-weight:600">${esc(o.label)}</b>`, esc((o.lines || []).slice(0, 2).join(" · ")), esc(eurM(o.monthly_eur)), true)
+    + `<div class="line">${httpsUrl(o.checkout_url) ? `<a class="btn pri block tap" href="${esc(o.checkout_url)}" target="_blank" rel="noopener">Continue with ${esc(o.label)}</a>` : `<span class="rt"><span class="rt-m">${esc(o.label)} is not on sale yet.</span></span>`}</div>`).join("");
+  const lead = t && t.ends_at ? `Your trial runs until ${dayMon(new Date(t.ends_at))}. Choose a plan to keep going after it. Nothing is charged until you check out.` : "Choose a plan to continue.";
+  present(makeSheet({id: "billing", size: "auto", title: "Add a card", opener,
+    body: `<p class="hint">${esc(lead)}</p><div class="list">${rows || lineH("Plans", "Plans open soon.", "")}</div>` + (email ? `<p class="hint">Check out with ${esc(email)}: that is how Otto matches your payment to your account.</p>` : "")}));
+}
+async function signOut(){
+  try{ await fetch("/auth/logout", {method: "POST", headers: {"Content-Type": "application/json"}, body: "{}", credentials: "same-origin"}); }catch(_){}
+  location.replace(location.pathname);
+}
+document.addEventListener("click", e => {
+  const b = e.target.closest && e.target.closest("[data-billing],[data-signout]"); if(!b) return;
+  e.preventDefault();
+  if(b.hasAttribute("data-signout")) signOut(); else openBilling(b);
+});
 
 /* ================= views (tabs) ================= */
 const VIEWS = ["today", "review", "calendar", "posts", "settings"];
@@ -1468,7 +1535,14 @@ function onViewScroll(){
   $("topbar").classList.toggle("compact", h.getBoundingClientRect().bottom < topH + 2);
 }
 VIEWS.forEach(k => $("v-" + k).addEventListener("scroll", onViewScroll, {passive: true}));
-addEventListener("hashchange", () => { const v = viewFromHash(); if(v) setView(v); else { DEEP = deepLink(); if(DEEP && DATA && !STACK.length) openDeep(); } });
+addEventListener("hashchange", async () => {
+  if(location.hash === "#billing" && DATA){ history.replaceState(null, "", "#" + VIEW); return openBilling(); }
+  const v = viewFromHash(); if(v) return setView(v);
+  // a second approval-e-mail link opened in this tab while a sheet is up: close what is open, then show that post
+  DEEP = deepLink(); if(!DEEP || !DATA) return;
+  while(STACK.length) await closeSheet(STACK[STACK.length - 1], {refocus: false});
+  if(DEEP) openDeep();
+});
 
 /* ================= actions ================= */
 const INFLIGHT = new Map();                   // id -> status we asked for (re-applied over fresher server data)
@@ -1477,9 +1551,9 @@ function enqueue(id, fn){ const p = (QUEUE.get(id) || Promise.resolve()).catch((
 async function send(body){
   if(!LIVE){ await new Promise(r => setTimeout(r, 140)); return null; }      // preview: local only, nothing is saved
   const r = await fetch(API + "/action", {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify(body), credentials: "same-origin", redirect: "manual"});
-  if(r.type === "opaqueredirect" || r.status === 401){ gate("signin"); throw new Error("your session has ended; sign in again"); }
+  if(r.type === "opaqueredirect" || r.status === 401 || r.status === 402){ load(true); throw new Error(r.status === 402 ? "your trial has ended" : "your session has ended; sign in again"); }
   let j = null; try{ j = await r.json(); }catch(_){}
-  if(!r.ok || !j) throw new Error((j && j.error) || "the server answered " + r.status);
+  if(!r.ok || !j){ const e = new Error((j && j.error) || "the server answered " + r.status); if(j && j.saved) e.saved = true; throw e; }
   return j.data || null;
 }
 const errText = e => /fetch|network|load failed/i.test(String(e && e.message)) ? "Check your connection and try again." : cap1(String((e && e.message) || "Something went wrong")) + ".";
@@ -1558,8 +1632,16 @@ async function recAct(id, status){
   scheduleRender();
   toast(status === "done" ? "Marked as done" : "Hidden for now", status === "dismissed" ? {undo: () => { r.status = prev; scheduleRender();
     send({kind: "rec", id, status: "proposed"}).then(adopt, e => toast("Couldn't undo. " + errText(e), {err: true})); }} : {});
-  try{ adopt(await send({kind: "rec", id, status})); }
-  catch(e){ r.status = prev; scheduleRender(); toast("Couldn't save. " + errText(e), {err: true}); }
+  try{
+    const data = await send({kind: "rec", id, status});
+    adopt(data);
+    const q = data && (data.recommendations || []).find(x => x.id === id);
+    if(q && q.action_result) toast(cap1(String(q.action_result)) + ".");          // e.g. "2 campaign(s) approved for October 2026"
+  }
+  catch(e){
+    if(e.saved){ r.status = "approved"; scheduleRender(); toast(String(e.message), {err: true, ms: 8000}); return; }
+    r.status = prev; scheduleRender(); toast("Couldn't save. " + errText(e), {err: true});
+  }
 }
 
 /* row motion: fly off in the decision's direction, then collapse while the rows below move up */
@@ -1985,7 +2067,7 @@ function timelineH(){
     if(p.status === "publishing") ev.push({t: toDate(p.publishing_at) || now, h: `Publishing ${q(p)} to ${esc(plat(p.platform))}`, cls: "now"});
     if((t = today(p.decided_at))){
       const verb = own({approved: "approved", scheduled: "approved", publishing: "approved", published: "approved", skipped: "skipped", draft: "asked for changes to", pending_approval: "moved back to review"}, p.status);
-      if(verb) ev.push({t, h: `You ${verb} ${q(p)}${p.approved_via === "telegram" ? " in Telegram" : ""}`});
+      if(verb) ev.push({t, h: `You ${verb} ${q(p)}${p.approved_via === "telegram" ? " in Telegram" : p.approved_via === "email" ? " by email" : ""}`});
     }
     if(p.status === "failed" && (t = today(p.slot))) ev.push({t, h: `Couldn't publish ${q(p)}`, cls: "bad"});
     if((p.status === "approved" || p.status === "scheduled") && (t = today(p.slot)) && t > now) ev.push({t, h: `${q(p)} goes out on ${esc(plat(p.platform))}`, cls: "later"});
@@ -2158,6 +2240,7 @@ function boot(d, live){
   render();
   if(DEMO) requestAnimationFrame(() => runDemo(DEMO));
   else if(DEEP) requestAnimationFrame(openDeep);
+  else if(location.hash === "#billing" && live) requestAnimationFrame(() => { history.replaceState(null, "", "#today"); openBilling(); });
 }
 /* Nothing of the client's to show: signed out (401, or the sign-in page answered instead of the API), signed in with no
    brand yet (403), or Otto can't be reached. The app is hidden, never filled with someone else's or sample data. */
@@ -2171,10 +2254,29 @@ const GATES = {
     a: `<a class="btn pri lg block tap" href="onboarding.html">Continue setup</a><button type="button" class="btn gray lg block tap" data-gate="reload">Try again</button>`,
     n: "Already finished? Linking your brand to your sign-in can take a few minutes after payment."},
   offline: {h: "Otto can't be reached right now.", s: "Your posts and approvals are safe. Check your connection; this page tries again on its own.",
-    a: `<button type="button" class="btn pri lg block tap" data-gate="retry">Try again</button>`, n: ""}
+    a: `<button type="button" class="btn pri lg block tap" data-gate="retry">Try again</button>`, n: ""},
+  signin_google: {h: "Sign in to Otto", s: "Use the Google account you set Otto up with.", a: "",
+    n: "New to Otto? The same button starts a free 7-day trial. No card needed."},
+  paywall: {h: "Your free trial has ended.", s: "", a: "", n: ""}
 };
-function gate(kind){
-  const g = GATES[kind] || GATES.offline;
+/* 402 from /otto-api/data: every brand of this sign-in came from a trial that ended without a card. The data stays on the
+   server; this screen offers the plans (Whop checkout, the Google e-mail prefilled) and checks again after payment. */
+function paywallH(pay){
+  const offers = (Array.isArray(pay.checkout) ? pay.checkout : []).filter(o => o && o.label);
+  return offers.map((o, i) => httpsUrl(o.checkout_url)
+      ? `<a class="btn ${i ? "gray" : "pri"} lg block tap" href="${esc(o.checkout_url)}" target="_blank" rel="noopener">Continue with ${esc(o.label)}${o.monthly_eur != null ? " · " + esc(eurM(o.monthly_eur)) : ""}</a>`
+      : `<button type="button" class="btn gray lg block" disabled>${esc(o.label)}: not on sale yet</button>`).join("")
+    + `<button type="button" class="btn gray lg block tap" data-gate="retry">I've added a card</button>`
+    + `<button type="button" class="btn gray lg block tap" data-signout>Sign out</button>`;
+}
+function gate(kind, info){
+  let g = GATES[kind] || GATES.offline;
+  if(kind === "signin_google") g = Object.assign({}, g, {a: gbtnH()});
+  if(kind === "paywall"){
+    const pay = info || {}, kept = /^\d{4}-\d{2}-\d{2}/.test(pay.kept_until || "") ? dayMon(new Date(pay.kept_until)) : "";
+    g = {h: pay.code === "no_trial" ? "Add a card to start." : "Your free trial has ended.", s: String(pay.message || ""), a: paywallH(pay),
+         n: [pay.billing_email ? `Check out with ${pay.billing_email}: that is how Otto matches your payment.` : "", kept ? `Your work is kept until ${kept}.` : ""].filter(Boolean).join(" ")};
+  }
   while(STACK.length){ const st = STACK.pop(); st.layer.remove(); }
   document.documentElement.classList.remove("sheet-open");
   const first = GATE !== kind; GATE = kind; LIVE = false;
@@ -2193,7 +2295,11 @@ $("gate").addEventListener("click", e => {
 addEventListener("online", () => { if(GATE === "offline") load(true); });
 async function fetchData(){
   const r = await fetch(API + "/data", {cache: "no-store", credentials: "same-origin", redirect: "manual"});
-  if(r.type === "opaqueredirect" || r.status === 401) return {gate: "signin"};
+  if(r.type === "opaqueredirect") return {gate: "signin"};
+  if(r.status === 401 || r.status === 402){                                        // Google sign-in / the trial's paywall
+    let j = null; try{ j = await r.json(); }catch(_){}
+    return r.status === 402 ? {gate: "paywall", info: j || {}} : {gate: j && j.google ? "signin_google" : "signin"};
+  }
   if(r.status === 403) return {gate: "setup"};
   if(!r.ok) return {down: true};
   if(!/json/.test(r.headers.get("content-type") || "")) return {gate: "signin"};     // a sign-in page answered instead of the API
@@ -2201,13 +2307,13 @@ async function fetchData(){
   return d && typeof d === "object" && !Array.isArray(d) ? {data: d} : {down: true};
 }
 function refresh(){
-  return fetchData().then(o => { if(o.gate) gate(o.gate); else if(o.data) adopt(o.data); }).catch(() => {});
+  return fetchData().then(o => { if(o.gate) gate(o.gate, o.info); else if(o.data) adopt(o.data); }).catch(() => {});
 }
 async function load(again){
   let o = {down: true};
   try{ o = await fetchData(); }catch(_){}
-  if(o.data){ clearInterval(GATE_T); GATE = null; document.title = "Otto"; return boot(o.data, true); }
-  if(o.gate) return gate(o.gate);
+  if(o.data){ clearInterval(GATE_T); GATE = null; document.title = "Otto"; if(!ME) loadMe(); return boot(o.data, true); }
+  if(o.gate) return gate(o.gate, o.info);
   if(again) return gate("offline");
   // Otto's API is down. On a developer's machine the local snapshot is fine to look at (labelled Preview); a client gets
   // the offline state: the embedded block is a neutral, empty document by default and is never shown as their data.

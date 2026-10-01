@@ -214,6 +214,23 @@ class TokenTest(unittest.TestCase):
         self.assertEqual(f.stat().st_mode & 0o777, 0o600)
         self.assertGreaterEqual(len(k1), 64)
 
+    def test_app_url_is_one_rule_for_every_module(self):
+        # regression (integration review): otto_watch linked the owner's report / alerts to OTTO_PUBLIC_BASE — the landing on
+        # the new server — while the e-mails used app.<OTTO_DOMAIN>; both now use otto_paths.app_url()
+        import otto_paths, otto_watch
+        write_cfg({k: v for k, v in BASE_CFG.items() if k != "app_url"})
+        self.assertEqual(otto_email.app_url(), "https://otto.example/")                   # OTTO_PUBLIC_BASE (the old box)
+        os.environ["OTTO_DOMAIN"] = "otto.example"
+        try:
+            self.assertEqual((otto_email.app_url(), otto_paths.app_url()), ("https://app.otto.example/",) * 2)
+            os.environ["OTTO_APP_URL"] = "https://clients.otto.example"
+            self.assertEqual(otto_email.app_url(), "https://clients.otto.example/")
+        finally:
+            os.environ.pop("OTTO_DOMAIN", None)
+            os.environ.pop("OTTO_APP_URL", None)
+        self.assertEqual(otto_email.app_url({"app_url": "https://cfg.example/x"}), "https://cfg.example/x/", "email.json wins")
+        self.assertIn("otto_paths.app_url()", Path(otto_watch.__file__).read_text())
+
     def test_form_nonce(self):
         t = otto_email.make_token("noord", "post", "nb-001", "approve", ANNA, now=NOW)
         p, s = otto_email.read_token(t, NOW)
@@ -564,6 +581,27 @@ class ActTest(unittest.TestCase):
         self.assertIn("2 campaign(s) approved for November", r["action_result"])
         self.assertEqual({(c["status"], c["approved_via"]) for c in d["campaigns"]}, {("approved", "email")})
         self.assertIn("campaign(s) approved", line)
+
+    def test_a_failed_plan_approval_is_not_reported_as_done(self):
+        # regression (integration review): otto_ads.approve raising was swallowed — the page said "Approved … Otto gets on with
+        # it" while no campaign was approved, and only a field nobody reads (action_error) knew
+        import otto_ads
+        orig = otto_ads.approve
+        otto_ads.approve = lambda *a, **kw: (_ for _ in ()).throw(OSError("disk full"))
+        try:
+            code, h, _, line = quiet(self.post, self.tok(item="rec-001", kind="rec"))
+        finally:
+            otto_ads.approve = orig
+        self.assertEqual(code, 200, h)
+        self.assertIn("not started yet", h)
+        self.assertNotIn("gets on with it", h)
+        self.assertIn("FAILED", line)
+        d = ap.load()
+        self.assertEqual(ap.rec(d, "rec-001")["action_error"], "OSError: disk full")
+        self.assertEqual({c["status"] for c in d["campaigns"]}, {"draft"})
+        card = next(r for r in d["recommendations"] if r.get("rec") == "rec-001")
+        self.assertEqual((card["priority"], card["audience"], card["source"]), ("P0", "owner", "otto_admin"))
+        self.assertFalse(otto_api.rec_visible(card, {"noord"}), "the owner's card, never the client's")
 
     def test_rec_dismiss_and_visibility(self):
         code, _, _, _ = self.post(self.tok(item="rec-002", kind="rec", action="dismiss"))

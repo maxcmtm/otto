@@ -22,6 +22,20 @@ Privacy: Do Not Track (DNT: 1) or Global Privacy Control (Sec-GPC: 1, or "anon":
 Validation: allowlisted event names and fields only, strict formats and lengths, ≤ 20 events per request, e-mail-like utm values
   dropped. Rate limit: 60 events / minute per client (keyed by the hashed IP; an IPv6 client by its /64), 3000 / minute overall; the file stops growing
   at $OTTO_EVENTS_MAX_MB (default 512).
+Meta Conversions API (Otto's own ad measurement, server-side; no Meta script ever runs in the visitor's browser):
+  only when $OTTO_SECRETS/meta-capi.json exists with a pixel_id and an access_token ({"pixel_id", "access_token",
+  "test_event_code"?, "site_url"?}) AND the request carries the consent cookie otto_consent=v1.granted (set by
+  assets/consent.js when the visitor presses Accept) AND no DNT / GPC signal. Then, after the events are stored:
+  scan_start → ViewContent, scan_result with ok → Lead, a CTA click whose kind is get_started / start_trial / trial / signup
+  (cta id "<kind>@<where>", CAPI_CTA_KINDS) → InitiateCheckout, posted in a background thread. Sign-up itself is never taken
+  from the public beacon (it could be spoofed): the server code that completes a sign-up calls
+  capi_track("signup" → CompleteRegistration | "trial_start" → StartTrial, ip, request headers) with the same rules.
+  Sent: event name, time, an event id, the page URL (Origin + path), and user_data = the client IP address and user agent
+  (Meta needs them to match the event; neither is stored by us), the Meta click id from the otto_fbc cookie (set only
+  after consent, only from a ?fbclid= link), sha256 of the day's visitor code (external_id) and sha256 of the country code.
+  Never sent: the scanned domain, referrer, utm tags, anything typed. No file, no id or no consent → no network call at all.
+  otto_track.py capi-status         # is forwarding configured? (no network call)
+  otto_track.py capi-test           # send one ViewContent test event (needs "test_event_code"; shows in Events Manager → Test events)
 """
 import hashlib, ipaddress, json, os, re, secrets, sys, threading, time
 from datetime import datetime, timedelta, timezone
@@ -279,7 +293,196 @@ def ingest(body, ip, headers, now=None):
         lines.append(row)
     if not _append(lines):
         return 507, {"error": "analytics storage full"}
+    capi_forward(lines, ip, headers, ua=ua, cc=cc)          # Meta CAPI: only with meta-capi.json AND the consent cookie
     return 204, None
+
+
+# ---------------- Meta Conversions API (consented events only; see the module docstring) ----------------
+
+CAPI_FILE = "meta-capi.json"
+CAPI_GRAPH = "https://graph.facebook.com/" + os.environ.get("GRAPH_API_VERSION", "v25.0")
+CAPI_TIMEOUT = 6
+CAPI_MAX_THREADS = 4                       # a slow Graph API never piles up threads: past this, events are dropped
+CONSENT_COOKIE, CONSENT_GRANTED, FBC_COOKIE = "otto_consent", "v1.granted", "otto_fbc"
+_PIXEL = re.compile(r"^\d{5,20}$")
+_TOKEN = re.compile(r"^[A-Za-z0-9_|.-]{20,600}$")
+_TEST_CODE = re.compile(r"^[A-Za-z0-9_-]{1,64}$")
+_FBC = re.compile(r"^fb\.1\.\d{10,13}\.[A-Za-z0-9_-]{10,500}$")
+_ORIGIN = re.compile(r"^https?://[a-z0-9.-]{1,253}(?::\d{1,5})?$")
+CAPI_CTA_KINDS = ("get_started", "start_trial", "trial", "signup", "sign_up")      # landing CTA kinds → InitiateCheckout
+# server-confirmed moments (capi_track only; not accepted from the public beacon) → Meta standard events
+CAPI_SERVER_EVENTS = {"signup": ("CompleteRegistration", {"content_name": "sign-up", "status": "completed"}),
+                      "trial_start": ("StartTrial", {"content_name": "trial"})}
+CAPI_METHODS = ("google", "email", "apple", "microsoft")
+_capi_cache = {"key": None, "cfg": None}
+_capi_threads = []
+_capi_lock = threading.Lock()
+
+
+def _secrets_dir():
+    return Path(os.environ.get("OTTO_SECRETS") or Path(__file__).resolve().parent.parent.parent / "otto-secrets")
+
+
+def capi_config():
+    """The Conversions API settings, or None (no file, an empty / malformed pixel_id or token = forwarding is off).
+    Re-read only when the file changes."""
+    f = _secrets_dir() / CAPI_FILE
+    try:
+        st = f.stat()
+    except OSError:
+        return None
+    key = (str(f), st.st_mtime_ns, st.st_size)
+    if _capi_cache["key"] == key:
+        return _capi_cache["cfg"]
+    cfg = None
+    try:
+        raw = json.loads(f.read_text())
+        pid, tok = str(raw.get("pixel_id") or "").strip(), str(raw.get("access_token") or "").strip()
+        if _PIXEL.match(pid) and _TOKEN.match(tok):
+            code = str(raw.get("test_event_code") or "").strip()
+            site = str(raw.get("site_url") or "").strip().rstrip("/").lower()
+            cfg = {"pixel_id": pid, "access_token": tok, "test_event_code": code if _TEST_CODE.match(code) else "",
+                   "site_url": site if _ORIGIN.match(site) else ""}
+        elif pid or tok:
+            print(f"otto_track: {f.name} has no valid pixel_id / access_token — Meta forwarding is off", file=sys.stderr)
+    except Exception as e:                                     # noqa: BLE001 — a broken file means off, never a crash
+        print(f"otto_track: {f.name} unreadable ({type(e).__name__}) — Meta forwarding is off", file=sys.stderr)
+    _capi_cache.update(key=key, cfg=cfg)
+    return cfg
+
+
+def _cookies(headers):
+    out = {}
+    for part in str(headers.get("Cookie") or "")[:4096].split(";"):
+        k, sep, v = part.strip().partition("=")
+        if sep and k and k not in out:
+            out[k] = v.strip().strip('"')
+    return out
+
+
+def capi_consent(headers):
+    """(granted, fbc or None) from the request's first-party cookies. Anything but exactly v1.granted is no."""
+    c = _cookies(headers)
+    granted = c.get(CONSENT_COOKIE) == CONSENT_GRANTED
+    fbc = c.get(FBC_COOKIE) if granted else None
+    return granted, (fbc if fbc and _FBC.match(fbc) else None)
+
+
+def _sha(s):
+    return hashlib.sha256(str(s).strip().lower().encode()).hexdigest()
+
+
+def capi_event(row, ip, ua, fbc, cc, source_url, now=None):
+    """One stored row → one CAPI event (dict), or None when the row is not an event Meta gets."""
+    e = row.get("e")
+    if e == "scan_start":
+        name, custom = "ViewContent", {"content_name": "website scan", "content_category": "scan"}
+    elif e == "scan_result" and row.get("ok") is True:
+        name, custom = "Lead", {"content_name": "scan result", "content_category": "scan"}
+    elif e == "cta" and str(row.get("id") or "").split("@")[0] in CAPI_CTA_KINDS:
+        name, custom = "InitiateCheckout", {"content_name": str(row["id"]).split("@")[0].replace("_", " "), "content_category": "checkout"}
+    elif e in CAPI_SERVER_EVENTS and row.get("_server"):
+        name, custom = CAPI_SERVER_EVENTS[e][0], dict(CAPI_SERVER_EVENTS[e][1])
+        if row.get("method") in CAPI_METHODS:
+            custom["content_category"] = row["method"]
+        if isinstance(row.get("value"), (int, float)) and not isinstance(row.get("value"), bool) and 0 <= row["value"] <= 100000 \
+                and re.fullmatch(r"[A-Z]{3}", str(row.get("currency") or "")):
+            custom.update(value=round(float(row["value"]), 2), currency=row["currency"])
+    else:
+        return None
+    ident = row.get("domain") or row.get("id") or row.get("ref") or ""
+    user = {"client_user_agent": ua}
+    try:
+        user["client_ip_address"] = str(ipaddress.ip_address(str(ip).strip()))
+    except ValueError:
+        pass
+    if fbc:
+        user["fbc"] = fbc
+    if row.get("v"):
+        user["external_id"] = [_sha(row["v"])]
+    if cc:
+        user["country"] = [_sha(cc)]
+    return {"event_name": name, "event_time": int(now or time.time()), "action_source": "website",
+            "event_id": hashlib.sha256(f"{row.get('s') or row.get('v')}|{name}|{ident}".encode()).hexdigest()[:32],
+            "event_source_url": source_url, "user_data": user, "custom_data": custom}
+
+
+def capi_forward(rows, ip, headers, ua=None, cc=None, wait=False):
+    """Stored rows → Meta, when (and only when) forwarding is configured and the visitor consented. Returns the number of
+    events handed to the sender (0 = nothing sent). The HTTP call runs in a background thread unless wait=True."""
+    cfg = capi_config()
+    if not cfg:
+        return 0
+    granted, fbc = capi_consent(headers)
+    if not granted:
+        return 0
+    ua = str(ua if ua is not None else headers.get("User-Agent") or "")[:400]
+    origin = str(headers.get("Origin") or "").strip().rstrip("/").lower()
+    base = origin if _ORIGIN.match(origin) else cfg["site_url"]
+    if not ua or not base:
+        return 0                                               # a website event without a user agent or a URL is rejected by Meta
+    evs = [x for x in (capi_event(r, ip, ua, fbc, cc, base + str(r.get("p") or "/")) for r in rows) if x]
+    if not evs:
+        return 0
+    if wait:
+        _capi_send(cfg, evs)
+        return len(evs)
+    with _capi_lock:
+        _capi_threads[:] = [t for t in _capi_threads if t.is_alive()]
+        if len(_capi_threads) >= CAPI_MAX_THREADS:
+            print("otto_track: Meta CAPI busy — events dropped", file=sys.stderr)
+            return 0
+        t = threading.Thread(target=_capi_send, args=(cfg, evs), daemon=True, name="otto-capi")
+        _capi_threads.append(t)
+    t.start()
+    return len(evs)
+
+
+def capi_track(event, ip, headers, path="/", ref=None, method=None, value=None, currency=None, wait=False):
+    """A server-confirmed moment → Meta, under the same rules as the beacon (meta-capi.json + the consent cookie on this
+    request, never with DNT / GPC). event: "signup" (CompleteRegistration) or "trial_start" (StartTrial). ref: the
+    account or order id, used only (hashed) for Meta's de-duplication, never sent as such. Returns the events handed on."""
+    if event not in CAPI_SERVER_EVENTS:
+        return 0
+    if str(headers.get("DNT") or "").strip() == "1" or str(headers.get("Sec-GPC") or "").strip() == "1":
+        return 0
+    path = str(path or "/").split("?")[0].split("#")[0]
+    path = path if _PATH.match(path) else "/"
+    ua = str(headers.get("User-Agent") or "")[:400]
+    cc = str(headers.get("X-Country") or headers.get("CF-IPCountry") or "").strip().upper()
+    cc = cc if re.fullmatch(r"[A-Z]{2}", cc) and cc not in ("XX", "ZZ", "T1", "A1", "A2") else None
+    row = {"e": event, "_server": True, "v": visitor_id(ip, ua), "p": path,
+           "ref": hashlib.sha256(str(ref).encode()).hexdigest()[:24] if ref else None,
+           "method": method, "value": value, "currency": str(currency or "").upper() or None}
+    return capi_forward([row], ip, headers, ua=ua, cc=cc, wait=wait)
+
+
+def capi_join(timeout=10):
+    """Wait for the background sends (tests, CLI)."""
+    for t in list(_capi_threads):
+        t.join(timeout)
+
+
+def _capi_send(cfg, evs):
+    import urllib.error, urllib.parse, urllib.request
+    form = {"data": json.dumps(evs, separators=(",", ":")), "access_token": cfg["access_token"]}
+    if cfg.get("test_event_code"):
+        form["test_event_code"] = cfg["test_event_code"]
+    req = urllib.request.Request(f"{CAPI_GRAPH}/{cfg['pixel_id']}/events", data=urllib.parse.urlencode(form).encode(),
+                                 headers={"Content-Type": "application/x-www-form-urlencoded"}, method="POST")
+    try:
+        with urllib.request.urlopen(req, timeout=CAPI_TIMEOUT) as r:
+            body = r.read(4096)
+        return json.loads(body or b"{}")
+    except urllib.error.HTTPError as e:
+        try:
+            msg = (json.loads(e.read(4096) or b"{}").get("error") or {}).get("message") or ""
+        except Exception:                                      # noqa: BLE001
+            msg = ""
+        print(f"otto_track: Meta CAPI HTTP {e.code} {msg.replace(cfg['access_token'], '…')[:160]}", file=sys.stderr)
+    except Exception as e:                                     # noqa: BLE001 — never let a Meta outage touch the beacon
+        print(f"otto_track: Meta CAPI {type(e).__name__}", file=sys.stderr)
+    return None
 
 
 # ---------------- reading (used by otto_admin) ----------------
@@ -371,5 +574,17 @@ if __name__ == "__main__":
             print(json.dumps(e, ensure_ascii=False))
     elif a[:1] == ["prune"]:
         print(f"dropped {prune(int(a[a.index('--days') + 1]) if '--days' in a else 400)} events")
+    elif a[:1] in (["capi-status"], ["capi-test"]):
+        cfg = capi_config()
+        if not cfg:
+            sys.exit(f"Meta forwarding is OFF: no valid {_secrets_dir() / CAPI_FILE} (pixel_id + access_token)")
+        print(f"Meta forwarding is ON for consented visitors · pixel …{cfg['pixel_id'][-4:]} · "
+              f"test code {'set' if cfg['test_event_code'] else 'not set'} · site {cfg['site_url'] or '(from the Origin header)'}")
+        if a[0] == "capi-test":
+            if not cfg["test_event_code"]:
+                sys.exit("add \"test_event_code\" (Events Manager → Test events) to send a test event")
+            ev = capi_event({"e": "scan_start", "v": secrets.token_hex(8), "s": "capitest", "p": "/", "domain": "example.com"},
+                            "127.0.0.1", "otto_track capi-test", None, None, (cfg["site_url"] or "https://example.com") + "/")
+            print(json.dumps(_capi_send(cfg, [ev])))
     else:
         print(__doc__)

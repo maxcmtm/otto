@@ -1,0 +1,47 @@
+{
+  "id": "nl-a1-versus",
+  "style": "versus",
+  "formats": [
+    "9x16"
+  ],
+  "music": {
+    "bpm": 120,
+    "mood": "calm",
+    "key": "F"
+  },
+  "scene": {
+    "ground": "bg"
+  },
+  "versus": {
+    "vs": "vs",
+    "left": {
+      "label": "Zelf maken",
+      "rows": [
+        "Filmen",
+        "Knippen",
+        "Ondertitelen"
+      ]
+    },
+    "right": {
+      "label": "Otto",
+      "image": "review_nl",
+      "rows": [
+        "Van je site",
+        "Klaar",
+        "Goedkeuren"
+      ]
+    },
+    "footer": "Jij tikt. Otto doet de rest."
+  },
+  "endcard": {
+    "headline": "Je website, als reel.",
+    "accent": "als reel.",
+    "sub": "Otto maakt reels van wat al op je site staat.",
+    "fine": "7 dagen gratis proberen, geen creditcard nodig.",
+    "products": [
+      "review_nl"
+    ],
+    "logo": "logo_white",
+    "ground": "night"
+  }
+}

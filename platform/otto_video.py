@@ -19,7 +19,7 @@ contains a generated scene or a synthetic voice is marked as compositeSynthetic 
 tags + XMP uuid box + <mp4>.provenance.json) before it is made public, and post.media_ai[<ref>] records what is synthetic.
 Needs ffmpeg + ffprobe on PATH and a TTF font (OTTO_FONT or the defaults in otto_creative.py).
 """
-import hashlib, json, os, re, shutil, subprocess, sys, tempfile, textwrap, urllib.request
+import hashlib, json, os, re, shutil, subprocess, sys, tempfile, urllib.request
 from pathlib import Path
 
 import ap

@@ -184,7 +184,7 @@ class CreateTest(unittest.TestCase):
         # the first week: after the first review, inside seven days
         self.assertTrue(res["first_week"])
         review = datetime.fromisoformat(res["first_review"])
-        self.assertEqual(review.strftime("%H:%M"), "07:35")
+        self.assertEqual(review.strftime("%H:%M"), "08:00")   # the 08:00 approval cards / e-mails (QA round 2)
         for x in res["first_week"]:
             self.assertRegex(x["slot"], r"T\d\d:\d\d[+-]\d\d:\d\d$", "slots carry the brand's UTC offset, like first_review")
             t = datetime.fromisoformat(x["slot"]).replace(tzinfo=review.tzinfo)

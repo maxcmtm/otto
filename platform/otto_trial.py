@@ -1,0 +1,694 @@
+#!/usr/bin/env python3
+"""Otto free trial — 7 days, no card, one per Google account and per website domain; after it, a card (Whop checkout).
+
+  otto_trial.py run [--now ISO] [--dry]      # the hourly job (otto_cron "trials"): ends trials, sends the reminder e-mails
+  otto_trial.py status [--json]              # every trial: who (masked), brand, ends, days left, reminders, converted
+  otto_trial.py offers <email>               # the "add a card" links that e-mail would get (Whop checkout, e-mail prefilled)
+
+Sign-up (otto_auth, first Google login): start_for_new_user gives the user trial_started_at = now, trial_ends_at = now +
+trial_days (plans.json: the plan named by defaults.trial, "trial", trial_days 7) and status "trial" — unless that e-mail had a
+trial before (the ledger, below): then status "none" and no trial. Users: data.json users[] {id, email, name, google_sub, hd,
+created_at, last_login_at, trial_started_at, trial_ends_at, status trial | active | expired | none, brands (ids it created),
+trial_reminders {day5, day7, day8}, paid_at}.
+First brand (signed-in onboarding, otto_onboard.create → brand_on_signup): with the trial running and the site's domain never
+trialled, the brand starts on the trial plan with plan_until = the trial's last day (brand-local; the fallback — this job ends
+it on the hour), status "active" (its jobs run during the trial), the user as member, brands[].trial = {user, started_at,
+ends_at}. Otherwise — trial over, e-mail or domain already trialled, a second brand, trials switched off — the brand starts on
+the ended plan ("none") with brands[].trial.denied = why, and the app shows the "add a card" screen. The ledger (data.json
+trial_ledger[]: "e:" / "d:" + SHA-256 of the lower-case e-mail / site host) outlives deleted users and brands, so a trial is
+given once per Google account e-mail and once per website domain.
+During the trial: the trial plan inherits Starter; paid ads are planned and rendered for preview, never launched
+(features.ads_launch false → ap.no_launch_why).
+The job (hourly): a brand whose trial ended without a paid plan moves to the ended plan ("none": publishing and ads pause;
+ap.set_plan with effective = the trial's end, so otto_retention's 90 days count from the trial's end) with one owner card; the
+user becomes "expired". Reminder e-mails to the user (otto_email.deliver: its transport, or the outbox): day5 "2 days left"
+(48 hours before the end), day7 "ends today / tomorrow" (24 hours before), day8 "paused, your work is kept for 90 days — add
+a card to continue" (after the end) — each once (claimed in data.json before sending; a failed send is retried next hour;
+a reminder whose window has passed is never sent late, and day8 not more than 7 days late). Users without any brand, whose
+trial is over and who have not signed in for 90 days, are removed (their sessions end); the ledger keeps the hashes only,
+for LEDGER_DAYS (3 years), then drops them.
+Paying: the "add a card" screen offers plans.json trial.checkout_plans (Starter, Growth) as Whop checkout links —
+https://whop.com/checkout/<whop plan id>?email=<the verified Google e-mail>&email.disabled=1 (Whop prefills and locks the
+e-mail field; whop.json "checkout_base" changes the host). A plan with no whop_plan_ids yet has no link (the screen says so).
+When Whop reports a running membership whose e-mail equals a signed-in user's verified Google e-mail, autolink() ties it to
+that user's trial brand (otto_whop.link: member, plan from whop_plan_ids, plan_until cleared, trial converted, user active) —
+safe because Google verified the address and the checkout locked it. Idempotent: a linked membership is never linked again.
+Everything else stays the owner's manual link (console → Customers → link).
+Stdlib only; every data.json write goes through ap.transaction().
+"""
+import hashlib, html, json, math, os, re, sys, urllib.parse
+from datetime import datetime, timedelta, timezone
+from pathlib import Path
+from zoneinfo import ZoneInfo
+
+import ap
+
+DEFAULT_DAYS = 7
+RETENTION_DAYS = 90
+USER_IDLE_DAYS = 90
+LEDGER_DAYS = 3 * 365          # the "one trial per e-mail / domain" hashes (Privacy Policy: [3 YEARS] — Max decides)
+DAY8_LATE = timedelta(days=7)
+REMINDERS = (("day8", timedelta(0)), ("day7", timedelta(days=1)), ("day5", timedelta(days=2)))   # sent when this much is left
+RUNNING = ("active", "trialing", "past_due")
+WHOP_CHECKOUT = "https://whop.com/checkout/"
+
+
+def utcnow():
+    return datetime.now(timezone.utc)
+
+
+def iso(dt):
+    return dt.astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+
+
+def _dt(v):
+    dt = ap.parse_iso(v)
+    return (dt if dt.tzinfo else dt.replace(tzinfo=timezone.utc)) if dt else None
+
+
+def trial_plan():
+    """(plan id, resolved plan) of the free trial, or (None, None) when plans.json has no defaults.trial."""
+    pid = ap.trial_plan_id()
+    return (pid, ap.plans_config()["plans"][pid]) if pid else (None, None)
+
+
+def trial_days():
+    _, p = trial_plan()
+    return int((p or {}).get("trial_days") or DEFAULT_DAYS)
+
+
+def ended_plan():
+    return ap.plans_config()["defaults"]["ended"]
+
+
+def owner_tz():
+    for name in (os.environ.get("OTTO_OWNER_TZ"), os.environ.get("OTTO_TZ"), ap.DEFAULT_TZ):
+        try:
+            if name:
+                return ZoneInfo(name)
+        except Exception:
+            continue
+    return ZoneInfo(ap.DEFAULT_TZ)
+
+
+def users(d):
+    return [u for u in d.get("users") or [] if isinstance(u, dict) and u.get("id")]
+
+
+def user_by_email(d, email):
+    e = str(email or "").strip().lower()
+    return next((u for u in users(d) if str(u.get("email") or "").lower() == e), None) if e else None
+
+
+def mask(e):
+    e = str(e or "")
+    if "@" not in e:
+        return "•••"
+    a, dom = e.split("@", 1)
+    return (a[:1] or "•") + "•••@" + dom
+
+
+# ------------------------------------------------------------------------------------------------------------ the ledger
+
+def ledger_key(kind, value):
+    return f"{kind}:" + hashlib.sha256(str(value or "").strip().lower().encode()).hexdigest()
+
+
+def ledger_has(d, kind, value):
+    k = ledger_key(kind, value)
+    return any(isinstance(x, dict) and x.get("k") == k for x in d.get("trial_ledger") or [])
+
+
+def ledger_add(d, kind, value, now=None):
+    if value and not ledger_has(d, kind, value):
+        d.setdefault("trial_ledger", []).append({"k": ledger_key(kind, value), "at": iso(now or utcnow())})
+
+
+# ------------------------------------------------------------------------------------------------------------ sign-up + first brand
+
+def start_for_new_user(d, u, now=None):
+    """A first Google login (inside otto_auth's transaction): the trial clock starts now, once per e-mail."""
+    now = now or utcnow()
+    u.setdefault("brands", [])
+    if trial_plan()[0] is None:
+        u.update(status="none", trial_denied="off")
+    elif ledger_has(d, "e", u["email"]):
+        u.update(status="none", trial_denied="email")
+    else:
+        u.update(status="trial", trial_started_at=iso(now), trial_ends_at=iso(now + timedelta(days=trial_days())))
+        ledger_add(d, "e", u["email"], now)
+    return u
+
+
+DENIED = {"off": "Free trials are not available right now.",
+          "email": "This Google account already had its free trial.",
+          "domain": "This website already had a free trial.",
+          "ended": "Your free trial has ended.",
+          "one_brand": "The free trial covers one business."}
+
+
+def brand_on_signup(d, b, uid, host, now=None):
+    """A brand a signed-in user just created (inside otto_onboard's transaction): the trial plan while the user's trial runs
+    and the domain never had one; the ended plan otherwise. → {"granted": bool, "ends_at"?, "why"?, "message"}."""
+    now = now or utcnow()
+    u = next((x for x in users(d) if x.get("id") == uid), None)
+    tp, ended = trial_plan()[0], ended_plan()
+    b.pop("plan_billing", None)
+    b["status"] = "active"
+    why = None
+    ends = _dt((u or {}).get("trial_ends_at"))
+    if tp is None:
+        why = "off"
+    elif u is None or u.get("status") != "trial" or ends is None:
+        why = (u or {}).get("trial_denied") or ("ended" if ends else "email")
+    elif now >= ends:
+        why = "ended"
+    elif any(isinstance(x, dict) and x.get("id") != b["id"] and (x.get("trial") or {}).get("user") == uid
+             and not (x.get("trial") or {}).get("denied") for x in d.get("brands") or []):
+        why = "one_brand"
+    elif ledger_has(d, "d", host):
+        why = "domain"
+    if u is not None and b["id"] not in (u.get("brands") or []):
+        u["brands"] = list(u.get("brands") or []) + [b["id"]]
+    if why is None:
+        b["plan"] = tp
+        b["plan_until"] = ends.astimezone(ap.brand_tz(b)).date().isoformat()
+        b["trial"] = {"user": uid, "started_at": u["trial_started_at"], "ends_at": u["trial_ends_at"]}
+        ledger_add(d, "d", host, now)
+        return {"granted": True, "ends_at": u["trial_ends_at"], "days": trial_days(),
+                "message": f"Your free trial runs until {when_text(ends, ap.brand_tz(b))}. No card needed until then."}
+    b["plan"] = ended
+    b.pop("plan_until", None)
+    b["trial"] = {"user": uid, "denied": why, "at": iso(now)}
+    b["plan_history"] = (b.get("plan_history") or [])[-19:] + [{"at": iso(now), "by": "trial", "via": "trial", "from": None,
+                                                                "to": ended, "until": None, "note": f"no free trial ({why})"}]
+    return {"granted": False, "why": why, "message": DENIED.get(why, DENIED["ended"]) + " Add a card to start."}
+
+
+def when_day(dt, tz):
+    loc = dt.astimezone(tz)
+    return f"{loc:%a} {loc.day} {loc:%b}"
+
+
+def when_text(dt, tz):
+    loc = dt.astimezone(tz)
+    return f"{loc:%a} {loc.day} {loc:%b}, {loc:%H:%M}"
+
+
+# ------------------------------------------------------------------------------------------------------------ the app's view
+
+def plan_lines(p):
+    """A plan in three short lines for the "add a card" screen."""
+    f, L = p["features"], p["limits"]
+    out = []
+    if L.get("posts_per_month"):
+        out.append(f"{L['posts_per_month']} posts a month, {L.get('reels_per_month') or 0} of them reels")
+    nets = " and ".join(n for n, k in (("Meta", "ads_meta"), ("Google", "ads_google")) if f.get(k))
+    if nets:
+        cap = L.get("ad_spend_managed_eur_month")
+        out.append(f"Paid campaigns on {nets}" + (f", ad spend up to €{cap:,.0f} a month" if cap else ""))
+    if f.get("ad_matrix") and ap.PRESET_TEXT.get(L.get("ad_matrix_preset")):
+        out.append(f"Monthly ad matrix: {ap.PRESET_TEXT[L['ad_matrix_preset']]}")
+    return out
+
+
+def checkout_base():
+    try:
+        import otto_whop
+        v = str(otto_whop.config().get("checkout_base") or "").strip()
+    except Exception:
+        v = ""
+    v = v if re.match(r"^https://[A-Za-z0-9.-]+/", v) else WHOP_CHECKOUT
+    return v if v.endswith("/") else v + "/"
+
+
+def checkout_offers(email=None):
+    """[{plan, label, monthly_eur, yearly_eur, draft, lines, whop_plan, checkout_url}] — plans.json trial.checkout_plans
+    (default Starter and Growth). checkout_url is None while the plan has no Whop plan id."""
+    cfg = ap.plans_config()
+    _, tp = trial_plan()
+    ids = (tp or {}).get("checkout_plans") or [x for x in ("starter", "growth") if x in cfg["plans"]]
+    base, out = checkout_base(), []
+    for pid in ids:
+        p = cfg["plans"].get(pid)
+        if not p:
+            continue
+        whop = (p.get("whop_plan_ids") or [None])[0]
+        url = None
+        if whop:
+            url = base + urllib.parse.quote(whop, safe="")
+            if email:
+                url += "?" + urllib.parse.urlencode({"email": email, "email.disabled": "1"})
+        out.append({"plan": pid, "label": p["label"], "monthly_eur": p.get("monthly_eur"), "yearly_eur": p.get("yearly_eur"),
+                    "draft": p.get("status") == "draft", "lines": plan_lines(p), "whop_plan": whop, "checkout_url": url})
+    return out
+
+
+def trial_state(u, now=None):
+    """{state running | ended | converted | none, started_at, ends_at, days_left, hours_left, denied}."""
+    now = now or utcnow()
+    ends = _dt(u.get("trial_ends_at"))
+    st = u.get("status")
+    out = {"started_at": u.get("trial_started_at"), "ends_at": u.get("trial_ends_at"), "denied": u.get("trial_denied")}
+    if st == "active" and u.get("paid_at"):
+        out["state"] = "converted"
+    elif ends is None:
+        out["state"] = "none"
+    elif now < ends:
+        left = (ends - now).total_seconds()
+        out.update(state="running", days_left=max(1, math.ceil(left / 86400)), hours_left=max(1, math.ceil(left / 3600)))
+    else:
+        out["state"] = "ended"
+    return out
+
+
+def account_view(d, u, now=None):
+    """GET /auth/me for a signed-in user: who, the trial, their brands, the "add a card" offers while they need one."""
+    now = now or utcnow()
+    tr = trial_state(u, now)
+    bids = sorted(ap.member_brands(d, u["email"], domains=domain_ok(u)))
+    brands = [{"id": b["id"], "name": b.get("name") or b["id"], "plan": ap.plan_of(d, b["id"])["id"],
+               "trial_ended": ap.trial_ended(d, b["id"])} for b in d.get("brands") or [] if isinstance(b, dict) and b.get("id") in bids]
+    needs_card = tr["state"] != "converted" and (tr["state"] in ("running", "ended", "none") or any(x["trial_ended"] for x in brands))
+    return {"signed_in": True, "email": u["email"], "name": u.get("name") or "", "status": u.get("status") or "none",
+            "trial": tr, "brands": brands, "checkout": checkout_offers(u["email"]) if needs_card else [],
+            "billing_email": u["email"]}
+
+
+def domain_ok(u):
+    """A Google sign-in counts for "@domain" members only when it is a Google Workspace account of that domain (hd)."""
+    e = str(u.get("email") or "")
+    return bool(u.get("hd")) and "@" in e and e.rsplit("@", 1)[1].lower() == str(u.get("hd")).lower()
+
+
+def paywall(d, bids, u=None, now=None):
+    """The 402 answer when every brand the caller belongs to came from a trial that ended without a card (else None)."""
+    bids = set(bids or ())
+    if not bids or not all(ap.trial_ended(d, bid) for bid in bids):
+        return None
+    now = now or utcnow()
+    rows, ended_at, why = [], None, None
+    for bid in sorted(bids):
+        b = ap.brand(d, bid) or {}
+        tr = b.get("trial") or {}
+        why = why or tr.get("denied")
+        e = _dt(tr.get("ended_at") or tr.get("ends_at"))
+        ended_at = max(ended_at, e) if ended_at and e else (e or ended_at)
+        rows.append({"id": bid, "name": b.get("name") or bid})
+    email = (u or {}).get("email")
+    return {"error": "trial ended" if not why else "no free trial", "code": "trial_ended" if not why else "no_trial",
+            "why": why, "message": (f"Your free trial ended on {when_day(ended_at, owner_tz())}. Your work is kept: add a "
+                                    "card to continue where you left off." if ended_at and not why else
+                                    DENIED.get(why, DENIED["ended"]) + " Add a card to start."),
+            "ended_at": iso(ended_at) if ended_at else None,
+            "kept_until": iso(ended_at + timedelta(days=RETENTION_DAYS)) if ended_at else None,
+            "brands": rows, "checkout": checkout_offers(email), "billing_email": email}
+
+
+# ------------------------------------------------------------------------------------------------------------ Whop: pay → link
+
+def _brand_for(d, u, billing):
+    """The user's brand a new membership belongs to: a trial brand of theirs (ended first, then running) that no running
+    membership is linked to yet."""
+    taken = {c.get("brand_id") for c in (billing.get("customers") or {}).values()
+             if isinstance(c, dict) and c.get("brand_id") and c.get("status") in RUNNING}
+    mine = [b for b in d.get("brands") or [] if isinstance(b, dict) and b.get("id") in (u.get("brands") or [])
+            and (b.get("trial") or {}).get("user") == u["id"] and b["id"] not in taken]
+    mine.sort(key=lambda b: (not ap.trial_ended(d, b["id"]), b.get("plan") != ap.trial_plan_id()))
+    return mine[0]["id"] if mine else None
+
+
+def autolink(c, by="auto: verified Google e-mail"):
+    """A Whop customer (billing.json record) whose e-mail equals a signed-in user's verified Google e-mail → otto_whop.link
+    to that user's trial brand. Only a running membership on a plan plans.json maps; never one that is linked already.
+    → the linked customer (otto_whop.link's answer) or None."""
+    import otto_whop
+    email = str((c or {}).get("email") or "").strip().lower()
+    if not email or c.get("brand_id") or c.get("status") not in RUNNING or not ap.plan_for_whop(c.get("plan_id")):
+        return None
+    d = ap.load()
+    u = user_by_email(d, email)
+    if u is None or not u.get("google_sub"):
+        return None
+    fresh = (otto_whop.load().get("customers") or {}).get(c.get("id")) or {}
+    if fresh.get("brand_id"):
+        return None                                            # linked meanwhile (a retry of the same event, the console)
+    bid = _brand_for(d, u, otto_whop.load())
+    if not bid:
+        return None
+    return otto_whop.link(c["id"], bid, by=by)
+
+
+def link_pending(u):
+    """At onboarding: a membership bought with this user's e-mail before the brand existed is linked now. → customer or None."""
+    import otto_whop
+    email = str((u or {}).get("email") or "").lower()
+    for c in (otto_whop.load().get("customers") or {}).values():
+        if isinstance(c, dict) and str(c.get("email") or "").lower() == email and not c.get("brand_id"):
+            out = autolink(c)
+            if out:
+                return out
+    return None
+
+
+# ------------------------------------------------------------------------------------------------------------ reminder e-mails
+
+def _tz_for(d, u):
+    for b in d.get("brands") or []:
+        if isinstance(b, dict) and b.get("id") in (u.get("brands") or []):
+            return ap.brand_tz(b), b.get("name") or b["id"], b["id"]
+    return owner_tz(), "", "account"
+
+
+def due_reminder(u, now):
+    """The reminder this user is due now, or None (the latest window only; each once)."""
+    if u.get("status") not in ("trial", "expired") or u.get("paid_at"):
+        return None
+    ends = _dt(u.get("trial_ends_at"))
+    if ends is None:
+        return None
+    left = ends - now
+    sent = u.get("trial_reminders") if isinstance(u.get("trial_reminders"), dict) else {}
+    for key, window in REMINDERS:
+        if left <= window:
+            if key in sent or (key == "day8" and now - ends > DAY8_LATE):
+                return None
+            return key
+    return None
+
+
+def render(key, u, d, now):
+    """→ (subject, html, text) of one reminder."""
+    import otto_email as em
+    tz, name, _ = _tz_for(d, u)
+    ends = _dt(u["trial_ends_at"])
+    loc_end, loc_now = ends.astimezone(tz), now.astimezone(tz)
+    when = when_text(ends, tz)
+    link = em.app_url() + "#billing"
+    who = name or "your business"
+    kept = (ends + timedelta(days=RETENTION_DAYS)).astimezone(tz)
+    offers = [o for o in checkout_offers(u["email"]) if o.get("monthly_eur") is not None]
+    price = (" Plans start at €" + f"{min(o['monthly_eur'] for o in offers):g}" + " a month.") if offers else ""
+    if key == "day5":
+        subject = "2 days left in your Otto trial"
+        title = "2 days left in your free trial"
+        lead = (f"Your free trial of Otto ends on {when}. To keep {who} publishing without a break, choose a plan and add a card."
+                f"{price} You pay only when you check out — nothing is charged automatically.")
+        cta = "Add a card"
+    elif key == "day7":
+        today = loc_end.date() == loc_now.date()
+        subject = f"Your Otto trial ends {'today' if today else 'tomorrow'}"
+        title = f"Your free trial ends {'today' if today else 'tomorrow'}"
+        lead = (f"At {loc_end:%H:%M} ({loc_end:%a} {loc_end.day} {loc_end:%b}) publishing and ads pause for {who}. Add a card now and "
+                f"nothing stops.{price}")
+        cta = "Add a card"
+    else:
+        subject = f"Your Otto trial has ended — {who} is paused" if name else "Your Otto trial has ended"
+        title = "Your free trial has ended"
+        lead = ((f"Publishing and ads are paused for {who}. Your work — brand profile, plan, posts and ad previews — is kept for "
+                 f"90 days, until {kept:%a} {kept.day} {kept:%b}. Add a card to continue where you left off.") if name else
+                "Add a card whenever you're ready to start: Otto sets up your first week as soon as you do.")
+        cta = "Add a card to continue"
+    E = em.esc
+    btn = em.button(cta, link, primary=True)
+    lines = "".join(f'<p style="{em.fstyle(14, 20, 400, em.L["ink2"])}">{E(o["label"])}'
+                    f'{" · €" + format(o["monthly_eur"], "g") + " a month" if o.get("monthly_eur") is not None else ""}'
+                    f'{" — " + E("; ".join(o["lines"][:2])) if o["lines"] else ""}</p>' for o in checkout_offers(u["email"]))
+    blocks = [em.card(lines + '<div style="margin-top:14px;">' + btn + "</div>") if lines else em.card(btn)]
+    foot = (f"You get this because you started a free Otto trial with {E(u['email'])}. There is no card on file, so nothing is "
+            "charged unless you check out. Use the same e-mail at checkout: that is how Otto knows the payment is yours.")
+    html_body = em.layout(subject, lead[:120], name, title, E(lead), blocks, foot)
+    text = f"{title}\n\n{lead}\n\n{cta}: {link}\n\n" + "".join(
+        f"- {o['label']}{' · €' + format(o['monthly_eur'], 'g') + ' a month' if o.get('monthly_eur') is not None else ''}\n"
+        for o in checkout_offers(u["email"])) + f"\nYou get this because you started a free Otto trial with {u['email']}.\n"
+    return subject, html_body, text
+
+
+# ------------------------------------------------------------------------------------------------------------ the job
+
+def _trial_end(b):
+    """When this trial brand's trial ends: brands[].trial.ends_at, else (a trial set by hand) the day after plan_until."""
+    tr = b.get("trial") if isinstance(b.get("trial"), dict) else {}
+    end = _dt(tr.get("ends_at"))
+    if end is None:
+        until = ap._plan_date(b.get("plan_until"))
+        end = datetime.combine(until + timedelta(days=1), datetime.min.time(), ap.brand_tz(b)) if until else None
+    return end
+
+
+def _expire_due(d, now):
+    tp = ap.trial_plan_id()
+    due = [b for b in d.get("brands") or [] if isinstance(b, dict) and tp and b.get("plan") == tp
+           and not (b.get("trial") or {}).get("converted_at") and _trial_end(b) and now >= _trial_end(b)]
+    return due or [u for u in users(d) if u.get("status") == "trial" and _dt(u.get("trial_ends_at")) and now >= _dt(u["trial_ends_at"])]
+
+
+def expire(now=None, out=print):
+    """Trials past their end: brands → the ended plan (effective = the trial's end), users → expired. → brand ids ended."""
+    now = now or utcnow()
+    tp, ended = ap.trial_plan_id(), ended_plan()
+    done = []
+    if not _expire_due(ap.load(), now):                          # the usual hour: nothing to end, nothing written
+        return done
+    with ap.transaction() as d:
+        for b in d.get("brands") or []:
+            if not isinstance(b, dict) or not b.get("id") or b.get("plan") != tp or tp is None:
+                continue
+            tr = b.get("trial") if isinstance(b.get("trial"), dict) else {}
+            end = _trial_end(b)                                # a trial brand made by hand: the day after its plan_until
+            if end is None or now < end or tr.get("converted_at"):
+                continue
+            ap.set_plan(d, b["id"], ended, until=None, by="trial", via="trial", note="the free trial ended without a card",
+                        effective=iso(end))
+            tr["ended_at"] = iso(end)
+            b["trial"] = tr
+            name = b.get("name") or b["id"]
+            u = next((x for x in users(d) if x.get("id") == tr.get("user")), None)
+            ap.add_rec(d, "P2", f"{name}: free trial ended without a card",
+                       f"The 7-day trial of {name}" + (f" ({mask(u.get('email'))})" if u else "") + f" ended on {iso(end)[:10]}. "
+                       "Publishing and ads are paused and the client got the “add a card” e-mail. Nothing was deleted: the data "
+                       "is kept 90 days (otto_retention). Linking a Whop membership resumes it.",
+                       "A trial that did not convert", "Follow up if it was a good fit", brand=b["id"], source="trials",
+                       audience="owner", action="trial")
+            done.append(b["id"])
+        for u in users(d):
+            end = _dt(u.get("trial_ends_at"))
+            if u.get("status") == "trial" and end and now >= end:
+                u["status"] = "expired"
+    for bid in done:
+        out(f"{bid}: trial ended — plan {ended}, publishing and ads paused")
+    return done
+
+
+def send_reminders(now=None, out=print, dry=False):
+    import otto_email as em
+    now = now or utcnow()
+    sent, failed = [], []
+    for u in users(ap.load()):
+        key = due_reminder(u, now)
+        if not key:
+            continue
+        if dry:
+            out(f"{mask(u.get('email'))}: would send {key}")
+            continue
+        if em.suppressed(u["email"]):
+            out(f"{mask(u['email'])}: {key} skipped (the address bounced earlier)")
+            continue
+        with ap.transaction() as d:                              # claim: two runs never send the same reminder twice
+            cur = next((x for x in users(d) if x.get("id") == u["id"]), None)
+            if cur is None or due_reminder(cur, now) != key:
+                continue
+            cur.setdefault("trial_reminders", {})[key] = {"claimed": iso(now)}
+            snap = json.loads(json.dumps(cur))
+            subject, body, text = render(key, snap, d, now)
+            bid = _tz_for(d, snap)[2]
+        try:
+            res = em.deliver(snap["email"], subject, body, text, "trial", bid)
+        except Exception as e:                                   # noqa: BLE001 — retried next hour
+            with ap.transaction() as d:
+                cur = next((x for x in users(d) if x.get("id") == u["id"]), None)
+                if cur is not None:
+                    (cur.get("trial_reminders") or {}).pop(key, None)
+            failed.append(u["id"])
+            out(f"{mask(u['email'])}: {key} FAILED ({type(e).__name__}: {str(e)[:120]}) — retried next hour")
+            continue
+        with ap.transaction() as d:
+            cur = next((x for x in users(d) if x.get("id") == u["id"]), None)
+            if cur is not None:
+                cur.setdefault("trial_reminders", {})[key] = {"sent": iso(now), "via": res.get("transport")}
+        sent.append((u["id"], key))
+        out(f"{mask(u['email'])}: {key} sent via {res.get('transport')}")
+    return sent, failed
+
+
+def prune_users(now=None, out=print):
+    """Users with no brand, no trial running and no sign-in for USER_IDLE_DAYS days are removed (the ledger keeps hashes)."""
+    now = now or utcnow()
+    gone = []
+
+    def idle(d, u, live):
+        last = _dt(u.get("last_login_at")) or _dt(u.get("created_at"))
+        owns = [x for x in u.get("brands") or [] if x in live] or ap.member_brands(d, u.get("email"))
+        return not owns and u.get("status") != "trial" and last and now - last > timedelta(days=USER_IDLE_DAYS)
+
+    snap = ap.load()
+    live0 = {b.get("id") for b in snap.get("brands") or [] if isinstance(b, dict)}
+    old_ledger = any(isinstance(x, dict) and (_dt(x.get("at")) or now) <= now - timedelta(days=LEDGER_DAYS)
+                     for x in snap.get("trial_ledger") or [])
+    if not old_ledger and not any(idle(snap, u, live0) for u in users(snap)):
+        return gone
+    with ap.transaction() as d:
+        keep = []
+        live = {b.get("id") for b in d.get("brands") or [] if isinstance(b, dict)}
+        for u in d.get("users") or []:
+            if not isinstance(u, dict):
+                continue
+            if u.get("id") and idle(d, u, live):
+                gone.append(u["id"])
+                continue
+            keep.append(u)
+        if gone:
+            d["users"] = keep
+        led = d.get("trial_ledger") or []
+        fresh = [x for x in led if isinstance(x, dict) and (_dt(x.get("at")) or now) > now - timedelta(days=LEDGER_DAYS)]
+        if len(fresh) != len(led):
+            d["trial_ledger"] = fresh
+    if gone:
+        try:
+            import otto_auth
+            otto_auth.delete_user_sessions(gone)
+        except Exception:                                        # noqa: BLE001
+            pass
+        out(f"removed {len(gone)} idle account(s) without a brand")
+    return gone
+
+
+def _months(start, end):
+    """Every YYYY-MM from start's month to end's month (both dates)."""
+    y, m, out = start.year, start.month, []
+    while (y, m) <= (end.year, end.month):
+        out.append(f"{y:04d}-{m:02d}")
+        y, m = (y + 1, 1) if m == 12 else (y, m + 1)
+    return out
+
+
+def kickoff(bid, now=None, out=print):
+    """A trial is worth nothing if its seven days are empty: the monthly plan only runs on the 25th for the next month.
+    Plan every month the trial overlaps (future slots only — otto_plan skips past ones) right away, and flag the brand
+    for the copywriter (skills/otto-autopilot: kickoff.copy_needed → write the first 7 days first, then visuals).
+    Local and cheap (no network, no image generation). Idempotent: a done kickoff is never redone. → months planned."""
+    import otto_plan
+    now = now or utcnow()
+    d = ap.load()
+    b = ap.brand(d, bid)
+    if not b or (b.get("kickoff") or {}).get("done"):
+        return []
+    tz = ap.brand_tz(b)
+    end = _dt((b.get("trial") or {}).get("ends_at")) or (now + timedelta(days=trial_days()))
+    months, planned = _months(now.astimezone(tz).date(), end.astimezone(tz).date()), []
+    for ym in months:
+        if any(p.get("brand") == bid and p.get("plan") == ym for p in d.get("posts") or []):
+            continue                                       # already planned (the 25th ran, or a hand build)
+        try:
+            otto_plan.build(bid, ym)
+            planned.append(ym)
+        except SystemExit as e:                            # otto_plan refuses (exists / plan has no organic): say why, go on
+            out(f"{bid} {ym}: {e}")
+    with ap.transaction() as d2:
+        b2 = ap.brand(d2, bid)
+        if b2 is None:
+            return planned
+        b2["kickoff"] = {"done": True, "at": iso(now), "months": months, "planned": planned, "copy_needed": True}
+        ap.add_rec_once(d2, "P1", f"New trial: write the first week for {b2.get('name') or bid}",
+                        f"{b2.get('name') or bid} started a {trial_days()}-day free trial. The posts are planned ({', '.join(months)}); "
+                        "write the copy for the next 7 days first, then the visuals, so the trial shows real work on day one.",
+                        "A trial with an empty app does not convert", "Write copy", brand=bid, source="otto_trial",
+                        audience="owner")
+    out(f"{bid}: trial kickoff planned {', '.join(planned) or 'nothing new'} (months {', '.join(months)})")
+    return planned
+
+
+def copy_done(bid):
+    """The copywriter finished the first week (clears kickoff.copy_needed)."""
+    with ap.transaction() as d:
+        b = ap.brand(d, bid)
+        assert b, f"unknown brand {bid}"
+        (b.setdefault("kickoff", {}))["copy_needed"] = False
+
+
+def run(now=None, out=print, dry=False):
+    """The hourly job. → exit code (1 when a reminder could not be sent: it is retried next hour)."""
+    now = now or utcnow()
+    if ap.plans_config().get("error"):
+        out(f"plans.json is unreadable ({ap.plans_config()['error'][:120]}) — no trial is ended today")
+        return 1
+    if dry:
+        d = ap.load()
+        tp = ap.trial_plan_id()
+        for b in d.get("brands") or []:
+            end = _dt((b.get("trial") or {}).get("ends_at")) if isinstance(b, dict) else None
+            if b.get("plan") == tp and end and now >= end:
+                out(f"{b['id']}: would end its trial")
+        send_reminders(now, out, dry=True)
+        return 0
+    for b in list(ap.load().get("brands") or []):          # catch-up: a kickoff the onboarding request could not finish
+        if isinstance(b, dict) and b.get("trial") and not (b.get("trial") or {}).get("denied") \
+                and not (b.get("kickoff") or {}).get("done") and b.get("plan") == ap.trial_plan_id():
+            try:
+                kickoff(b["id"], now, out)
+            except Exception as e:                         # noqa: BLE001 — one brand never stops the job
+                out(f"{b['id']}: kickoff failed: {type(e).__name__}: {e}")
+    expire(now, out)
+    _, failed = send_reminders(now, out)
+    prune_users(now, out)
+    return 1 if failed else 0
+
+
+def status_rows(d=None, now=None):
+    d = d if d is not None else ap.load()
+    now = now or utcnow()
+    rows = []
+    for u in users(d):
+        if not u.get("trial_started_at") and u.get("status") == "none":
+            continue
+        tr = trial_state(u, now)
+        rows.append({"user": u["id"], "email": mask(u.get("email")), "status": u.get("status"), "state": tr["state"],
+                     "started_at": u.get("trial_started_at"), "ends_at": u.get("trial_ends_at"), "days_left": tr.get("days_left"),
+                     "brands": list(u.get("brands") or []), "reminders": sorted((u.get("trial_reminders") or {}).keys()),
+                     "paid_at": u.get("paid_at")})
+    return rows
+
+
+def main(a):
+    cmd = a[0] if a else ""
+    now = None
+    if "--now" in a and a.index("--now") + 1 < len(a):
+        now = _dt(a[a.index("--now") + 1])
+    if cmd == "run":
+        return run(now, dry="--dry" in a)
+    if cmd == "status":
+        rows = status_rows(now=now)
+        if "--json" in a:
+            print(json.dumps(rows, ensure_ascii=False, indent=1))
+        else:
+            for r in rows:
+                print(f"{r['email']:28} {r['state']:9} ends {str(r['ends_at'])[:16]:16} left {r['days_left'] or '—':>2}  "
+                      f"{','.join(r['brands']) or '—':20} reminders {','.join(r['reminders']) or '—'}")
+            print(f"-- {len(rows)} trial account(s)")
+        return 0
+    if cmd == "kickoff" and len(a) > 1:
+        kickoff(a[1], now)
+        return 0
+    if cmd == "copy-done" and len(a) > 1:
+        copy_done(a[1])
+        print(f"{a[1]}: first-week copy marked done")
+        return 0
+    if cmd == "offers" and len(a) > 1:
+        print(json.dumps(checkout_offers(a[1]), ensure_ascii=False, indent=1))
+        return 0
+    print(__doc__)
+    return 2
+
+
+if __name__ == "__main__":
+    sys.exit(main(sys.argv[1:]))

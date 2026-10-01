@@ -156,6 +156,21 @@ class NamingTest(unittest.TestCase):
         self.assertFalse((TMP / "public" / "posts" / "hg-005.jpg").exists())
         self.assertEqual(quiet(genvisuals.save_image, "hg-001", JPEG), quiet(genvisuals.save_image, "hg-001", JPEG))
 
+    def test_genvisuals_failing_everything_exits_non_zero(self):
+        # regression (integration review): every Leonardo call failing (revoked key, outage) printed "ERR" and exited 0, so the
+        # scheduler's heartbeat said ok and no alert went out
+        with ap.transaction(sync=False) as d:
+            ap.add_post(d, "hg", "A", "ig", "2031-01-01T09:00", "needs a picture")
+        real = (genvisuals.post_json, genvisuals.key, genvisuals.time.sleep)
+        genvisuals.post_json = lambda *a, **kw: (_ for _ in ()).throw(OSError("HTTP Error 401: Unauthorized"))
+        genvisuals.key, genvisuals.time.sleep = (lambda: "k"), (lambda s: None)
+        try:
+            self.assertEqual(quiet(genvisuals.main, ["--brand", "hg", "--limit", "1"]), 1)
+            self.assertEqual(quiet(genvisuals.main, ["--brand", "hg", "--limit", "1", "--dry"]), 0)
+            self.assertEqual(quiet(genvisuals.main, ["--brand", "nobody"]), 0, "nothing to generate is not a failure")
+        finally:
+            genvisuals.post_json, genvisuals.key, genvisuals.time.sleep = real
+
     def test_campaign_files_share_one_recorded_token(self):
         c = {"id": "cp-009", "brand": "hg"}
         nm = otto_creative._namer(c)

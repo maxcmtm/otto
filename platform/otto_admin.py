@@ -6,6 +6,7 @@
   otto_admin.py kill on|off [--note "…"]           # global kill switch: no post publishes, no ad launches, live campaigns
                                                    # are paused (off resumes only the ones the switch paused)
   otto_admin.py pause|resume <brand> [--note "…"]  # one brand (publishing + ad launches; pause also pauses its live campaigns)
+  otto_admin.py activate <brand> [--note "…"]      # a client outside Whop (brand-add, comped): onboarding → active
   otto_admin.py campaign <cp-id> approve|reject [--note "…"]
   otto_admin.py rescan <brand>                     # re-read the brand's website in the background (scan.json only)
   otto_admin.py lead <lead-id> new|contacted|won|lost [--note "…"]
@@ -21,7 +22,7 @@ api-errors.log and actions.log next to data.json · which otto-secrets files exi
 
 Definitions (the console's footnotes say the same):
   visitors     distinct visitors per day on the landing (the visitor id changes every UTC day), plus anonymous (Do Not Track) views
-  scanned      visitors who ran a scan · get started = visitors who clicked a checkout button (all go to the Whop checkout)
+  scanned      visitors who ran a scan · get started = visitors who clicked a checkout or "Start free 7-day trial" button
   checkouts    Whop memberships created (including unfinished "drafted" checkouts) · paying = customers who started in the window
   onboarded    paying customers tied to a brand in data.json (linked by hand, or matched by domain)
   lead         a scanned domain (d:<domain>), or a visitor who clicked Get started / reached onboarding without scanning
@@ -30,6 +31,10 @@ Definitions (the console's footnotes say the same):
   approvals    brands[].approvals (otto_email): the channel (Email / Telegram / App only), who approval e-mails go to (masked),
                the last digest / recommendation e-mail, the last send error, bounces the provider reported, and the outbox
                (e-mails written to disk while no mail transport is configured)
+  trials       Google sign-ups (users[], otto_auth) and their free trials (otto_trial): trials running with days left, converted
+               (a paid plan replaced the trial), expired (ended without a card), no trial (e-mail / domain already trialled);
+               conversion = converted ÷ (converted + expired) among trials that finished in the window; trial funnel =
+               visitors → scans → sign-ups → trials started → paid, all in the window
   plan         brands[].plan resolved through plans.json (ap.plan_view): label, what is included, and this month's usage
                against the limits — posts + reels planned (not skipped, every format counts), paid budget Otto manages
                (approved / live / paused / ended flights in the month, EUR) against ad_spend_managed_eur_month
@@ -43,6 +48,7 @@ from pathlib import Path
 
 import ap
 import otto_email
+import otto_paths
 import otto_track as track
 import otto_whop as whop
 
@@ -50,7 +56,7 @@ HERE = Path(__file__).parent
 ADMIN_HTML = HERE / "admin.html"
 LEAD_ROWS, LEAD_STATUSES = 300, ("new", "contacted", "won", "lost")
 WINDOWS = (7, 30, 90)
-PUBLIC_BASE = "/".join((os.environ.get("OTTO_PUBLIC_BASE") or "https://dash.monyflow.work/otto/").split("/")[:3])   # scheme://host
+PUBLIC_BASE = "/".join(otto_paths.BASE.split("/")[:3])           # scheme://host of OTTO_PUBLIC_BASE (otto_paths.BASE)
 LANDING_SECTIONS = ["top", "work", "story", "reads", "plans", "asks", "publishes", "reports", "replaces", "watch", "pricing", "faq", "final"]
 SECTION_LABELS = {"top": "Hero and scan", "work": "Pilot work", "story": "How it works", "reads": "Reads", "plans": "Plans",
                   "asks": "Asks (review)", "publishes": "Publishes", "reports": "Reports", "replaces": "What Otto replaces",
@@ -218,7 +224,7 @@ def index_events(events, win_start):
             cid = e.get("id") or ""
             if inwin:
                 T["ctas"][cid] += 1
-            if cid.startswith("get_started"):
+            if cid.startswith(("get_started", "start_trial")):     # the Whop checkout, or "Start free 7-day trial"
                 info["gs"] += 1
         elif typ in ("scan_start", "scan_result"):
             dom = e.get("domain")
@@ -413,7 +419,11 @@ def brand_health(d, sysinfo, customers, now):
         hist = [h for h in (b.get("plan_history") if isinstance(b.get("plan_history"), list) else []) if isinstance(h, dict)]
         pv.update(changed=hist[-1] if hist else None, history=hist[-5:][::-1])
         uncovered = [c["id"] for c in camps if c.get("status") == "live" and ap.no_ads_why(d, bid, c.get("network"))]
-        if pv["ended"]:
+        tr = b.get("trial") if isinstance(b.get("trial"), dict) else {}
+        if pv["ended"] and tr and not tr.get("converted_at"):
+            issues.append("Free trial ended without a card: publishing and ads are paused" if not tr.get("denied") else
+                          f"No free trial ({tr.get('denied')}): waiting for a card")
+        elif pv["ended"]:
             issues.append("No active plan: publishing and ad launches are paused (membership ended)")
         elif pv["expired"]:
             issues.append(f"The {pv['requested']} plan ended {pv['until']}: on {pv['label']} now")
@@ -576,6 +586,29 @@ def _email_setup(eh, brands):
                    "\"api_key\"}. Turn open and click tracking off at the provider. Test: otto_email.py send-cards --brand <id> --dry."}
 
 
+def whop_webhook_url():
+    """Where Whop must send its webhook: https://<apex>/hooks/whop — Caddy's only Whop route (infra/Caddyfile; /otto-api/* is
+    404 on the apex). The apex is OTTO_DOMAIN, else the host of OTTO_PUBLIC_BASE."""
+    dom = (os.environ.get("OTTO_DOMAIN") or "").strip().strip("/")
+    return f"https://{dom}/hooks/whop" if dom else f"{PUBLIC_BASE}/hooks/whop"
+
+
+def _google_setup():
+    try:
+        import otto_auth
+        ok = otto_auth.configured()
+    except Exception:                                        # noqa: BLE001 — setup info only
+        ok = False
+    dom = (os.environ.get("OTTO_DOMAIN") or "").strip() or "<your domain>"
+    return {"key": "google_signin", "label": "Google sign-in (client app)", "status": "connected" if ok else "missing",
+            "detail": "Clients sign in with Google on app. and start a free trial" if ok else
+                      "Not set up: the app's sign-in answers “Google sign-in isn't set up yet” and hides the button",
+            "how": "Google Cloud console → APIs & Services → OAuth consent screen (External, scopes openid email profile) → "
+                   f"Credentials → OAuth client ID (Web application), redirect URI https://app.{dom}/auth/google/callback. Put "
+                   "{\"client_id\", \"client_secret\"} into /etc/otto/secrets/google-oauth.json (chmod 600), then "
+                   "systemctl restart otto-api. docs/AUTH-AND-TRIAL.md has every step."}
+
+
 def setup_items(d, sysinfo, billing_meta, events_meta):
     s = sysinfo.get("secrets", {})
     plans_cfg = ap.plans_config()
@@ -594,7 +627,7 @@ def setup_items(d, sysinfo, billing_meta, events_meta):
          "detail": ("Receiving events" if billing_meta.get("last_webhook_at") else
                     "Secret is configured; no event received yet" if billing_meta.get("webhook_secret") else "Not connected yet"),
          "at": billing_meta.get("last_webhook_at"),
-         "how": f"Whop dashboard → Developer → Webhooks → Create webhook. URL: {PUBLIC_BASE}/otto-api/whop · events: membership.*, "
+         "how": f"Whop dashboard → Developer → Webhooks → Create webhook. URL: {whop_webhook_url()} · events: membership.*, "
                 "payment.*, refund.*, dispute.* · copy its secret (ws_…) into otto-secrets/whop.json as \"otto_webhook_secret\"."},
         {"key": "whop_api", "label": "Whop API key (backfill)", "status": "connected" if billing_meta.get("api_key") and billing_meta.get("company_id")
             else "missing",
@@ -608,10 +641,12 @@ def setup_items(d, sysinfo, billing_meta, events_meta):
          "detail": (f"Events file is {events_meta.get('size_mb')} MB of {cap_mb:.0f} MB: new events are refused past it. "
                     "Run python3 otto_track.py prune --days 400" if full else
                     "Receiving events" if events_meta.get("last") else "No events received yet"), "at": events_meta.get("last"),
-         "how": "nginx: location = /otto-track → 127.0.0.1:8161 with a rate limit (docs/ADMIN.md). The beacon is already in the landing."},
+         "how": "Caddy sends /otto-track (apex and app.) to the API (infra/Caddyfile); the rate limit is a Cloudflare WAF rule "
+                "(infra/README.md) plus the API's own. The beacon is already in the landing."},
         {"key": "country", "label": "Visitor country (optional)", "status": "connected" if events_meta.get("country") else "optional",
-         "detail": "Countries are recorded" if events_meta.get("country") else "nginx does not send a country header",
-         "how": "With the nginx GeoIP2 module: proxy_set_header X-Country $geoip2_data_country_code; on /otto-track."},
+         "detail": "Countries are recorded" if events_meta.get("country") else "Cloudflare does not send a country header yet",
+         "how": "Cloudflare dashboard → the zone → Network → IP Geolocation: on. Cloudflare then adds CF-IPCountry, which Caddy "
+                "passes to the API unchanged; otto_track keeps only the two-letter code."},
         {"key": "meta", "label": "Meta (Facebook + Instagram)", "status": "connected" if brands and meta_n == len(brands) else
             "partial" if meta_n else "missing", "detail": f"{meta_n} of {len(brands)} brands connected",
          "how": "otto-secrets/meta-<brand>.json per brand (page token, page_id, ig_user_id, ad_account_id). See crons.md."},
@@ -620,19 +655,24 @@ def setup_items(d, sysinfo, billing_meta, events_meta):
          "how": "otto-secrets/google-<brand>.json per brand (client_id, client_secret, refresh_token, developer_token, customer_id)."},
         {"key": "telegram", "label": "Telegram bot", "status": "connected" if s.get("telegram.json") else "missing",
          "detail": "Owner bot configured" if s.get("telegram.json") else "No bot token yet",
-         "how": "otto-secrets/telegram.json {bot_token, owner_chat_id}; systemctl --user enable --now otto-telegram."},
+         "how": "/etc/otto/secrets/telegram.json {bot_token, owner_chat_id}; systemctl enable --now otto-telegram."},
         _email_setup(sysinfo.get("email") if isinstance(sysinfo.get("email"), dict) else {}, brands),
-        {"key": "admin_auth", "label": "Console access", "status": "connected" if sysinfo.get("admin_users") else "optional",
-         "detail": "Limited to named users" if sysinfo.get("admin_users") else "Same login as the app (nginx auth)",
-         "how": "Set OTTO_ADMIN_USERS (a user list, or * for anyone nginx lets in; without it the console refuses every proxied "
-                "request) and have nginx pass the signed-in user as X-Otto-User, overwriting any header the browser sent."},
+        _google_setup(),
+        {"key": "admin_auth", "label": "Console access", "status": "connected" if sysinfo.get("admin_users") else "missing",
+         "detail": "Limited to named users" if sysinfo.get("admin_users") else "OTTO_ADMIN_USERS is not set: the console refuses "
+                                                                                "every request that comes through Caddy",
+         "how": "admin.<domain> sits behind Cloudflare Access (the Otto team's e-mails, one-time PIN). Put the same lower-case "
+                "e-mails in OTTO_ADMIN_USERS in /etc/otto/otto.env and systemctl restart otto-api. Caddy passes Access's verified "
+                "e-mail as X-Otto-User (admin. only, with OTTO_PROXY_KEY); a Google sign-in on app. never opens the console."},
         {"key": "tenants", "label": "Client logins",
          "status": "optional" if sysinfo.get("single_tenant") else "missing" if unowned else "connected",
          "detail": ("Single login (OTTO_SINGLE_TENANT=1): everyone signed in sees every brand" if sysinfo.get("single_tenant") else
                     f"{len(unowned)} brand{'s' * (len(unowned) != 1)} with no client login yet: " + ", ".join(unowned[:6]) if unowned
                     else "Every brand has at least one client login"),
-         "how": "A client sees only brands whose members list has their sign-in e-mail. Linking a Whop customer to a brand adds "
-                "the payer; Clients → open the brand → Who can sign in (or otto_admin.py members <brand> --add a@x.com,@company.com) adds anyone else."},
+         "how": "A client signs in with Google on app. and sees only brands whose members list has that e-mail (a new sign-up "
+                "becomes the member of the brand it creates; \"@company.com\" counts only for that company's Google Workspace "
+                "accounts). Linking a Whop customer to a brand adds the payer; Clients → open the brand → Who can sign in (or "
+                "otto_admin.py members <brand> --add a@x.com,@company.com) adds anyone else."},
         {"key": "plans", "label": "Plans (plans.json)", "status": "missing" if plans_cfg.get("error") else
             "waiting" if unsold or drafts else "connected",
          "detail": (f"Cannot be used: {plans_cfg['error'][:200]}" if plans_cfg.get("error") else
@@ -668,6 +708,7 @@ def clean_state(d):
     d["campaigns"] = _records(d.get("campaigns"))
     d["connections"] = _records(d.get("connections"), ())
     d["taste_log"] = _records(d.get("taste_log"), ())
+    d["users"] = _records(d.get("users"))
     for k in ("controls", "ads"):
         if not isinstance(d.get(k), dict):
             d.pop(k, None)
@@ -749,7 +790,7 @@ def build(d, events, billing, overlay, sysinfo, now=None, window=30, sample=Fals
                    "series": [levels[x][1] for x in win_days], "better": "up", "unit": "EUR"}
 
     # ---- funnel ----
-    steps = [("visitors", "Visitors"), ("scanned", "Scanned a site"), ("get_started", "Clicked Get started"),
+    steps = [("visitors", "Visitors"), ("scanned", "Scanned a site"), ("get_started", "Clicked Get started / Start trial"),
              ("checkouts", "Whop checkouts"), ("paying", "Paying"), ("onboarded", "Onboarded brands")]
     fsteps, prev_n, top = [], None, None
     for key, label in steps:
@@ -872,6 +913,7 @@ def build(d, events, billing, overlay, sysinfo, now=None, window=30, sample=Fals
         "kill_switch": ks or None,
         "kpis": kpis,
         "funnel": {"steps": fsteps, "by_day": by_day, "by_week": by_week},
+        "trials": trials_block(d, now, win_start, total("visitors", win_days), sum(scans_by_day[x] for x in win_days)),
         "traffic": traffic,
         "leads": leads_out,
         "revenue": revenue,
@@ -886,6 +928,56 @@ def build(d, events, billing, overlay, sysinfo, now=None, window=30, sample=Fals
                       "past_due": revenue["past_due"],
                       "stale_crons": sum(1 for c in cron_rows(sysinfo, now) if c["status"] in ("late", "stale"))},
     }
+
+
+def trials_block(d, now, win_start, visitors=0, scans=0):
+    """The console's Trials section (otto_trial): trials running (days left, reminders sent), converted / expired / no trial,
+    the trial → paid conversion rate, and the trial funnel for the window: visitors → scans → sign-ups → trials → paid."""
+    import math
+    tp = ap.trial_plan_id()
+    users = {u["id"]: u for u in d.get("users") or [] if isinstance(u, dict) and u.get("id")}
+    in_win = lambda v: bool(v) and str(v)[:10] >= win_start
+    rows, conv, exp, denied, conv_w, exp_w, soon = [], 0, 0, 0, 0, 0, 0
+    for b in d.get("brands") or []:
+        tr = b.get("trial") if isinstance(b, dict) else None
+        if not isinstance(tr, dict):
+            continue
+        if tr.get("denied"):
+            denied += 1
+            continue
+        if tr.get("converted_at"):
+            conv += 1
+            conv_w += in_win(tr["converted_at"])
+            continue
+        end = ap.parse_iso(tr.get("ends_at"))
+        end = end if end is None or end.tzinfo else end.replace(tzinfo=timezone.utc)
+        if b.get("plan") == tp and end and now < end:
+            u = users.get(tr.get("user")) or {}
+            left = (end - now).total_seconds()
+            soon += left <= 2 * 86400
+            rows.append({"brand": b["id"], "name": b.get("name") or b["id"], "email": whop.mask_email(u.get("email")),
+                         "started_at": tr.get("started_at"), "ends_at": tr.get("ends_at"), "days_left": max(1, math.ceil(left / 86400)),
+                         "reminders": sorted(k for k, v in (u.get("trial_reminders") or {}).items() if isinstance(v, dict) and v.get("sent"))})
+        else:
+            exp += 1
+            exp_w += in_win(tr.get("ended_at") or tr.get("ends_at"))
+    us = list(users.values())
+    signups = sum(1 for u in us if in_win(u.get("created_at")))
+    started = sum(1 for u in us if in_win(u.get("trial_started_at")))
+    paid = sum(1 for u in us if u.get("trial_started_at") and in_win(u.get("paid_at")))
+    sent = Counter(k for u in us for k, v in (u.get("trial_reminders") or {}).items() if isinstance(v, dict) and v.get("sent"))
+    steps, prev, top = [], None, None
+    for key, label, n in (("visitors", "Visitors", visitors), ("scanned", "Scanned a site", scans), ("signups", "Signed up with Google", signups),
+                          ("trials", "Started a trial", started), ("paid", "Paid after the trial", paid)):
+        top = n if top is None else top
+        steps.append({"key": key, "label": label, "n": n, "step_rate": pct(n, prev) if prev is not None else None,
+                      "overall_rate": pct(n, top)})
+        prev = n
+    return {"enabled": tp is not None, "active": sorted(rows, key=lambda r: r["ends_at"] or ""),
+            "counts": {"active": len(rows), "ending_48h": soon, "converted": conv, "expired": exp, "no_trial": denied,
+                       "signups": signups, "converted_window": conv_w, "expired_window": exp_w, "accounts": len(us)},
+            "conversion_rate": pct(conv_w, conv_w + exp_w), "conversion_rate_all": pct(conv, conv + exp),
+            "reminders": {k: sent.get(k, 0) for k in ("day5", "day7", "day8")}, "funnel": steps}
 
 
 def plans_catalogue():
@@ -967,7 +1059,7 @@ def snapshot(window=30, now=None):
 # ============================================================================================
 
 ACTIONS = ("kill_switch", "pause_brand", "resume_brand", "campaign", "rescan", "lead", "link_customer", "whop_sync", "members",
-           "plan")
+           "plan", "activate")
 RESCAN_GAP_MIN = 10
 
 
@@ -1181,19 +1273,14 @@ def act(req, who="admin", pause_live=True):
         cid, bid = str(req.get("customer") or ""), str(req.get("brand") or "")
         if bid and ap.brand(ap.load(), bid) is None:
             raise KeyError(bid)
-        c = whop.link(cid, bid, by=who)
+        c = whop.link(cid, bid, by=who)                      # also makes the payer a member (whop.link, like the CLI)
         email = ap.norm_member(c.get("email")) if bid else None
-        if email:                                            # the payer can now sign in to the app and see this brand
-            with ap.transaction() as d:
-                b = ap.brand(d, bid)
-                if b is not None and email not in (b.get("members") or []):
-                    b["members"] = list(b.get("members") or []) + [email]
         ps = c.get("plan_sync") or {}
         log_action(who, f"link-customer {cid} -> {bid or 'none'}" + (" (+member)" if email else "")
-                   + (f" plan {ps['from']} -> {ps['to']}" if ps.get("changed") else ""))
+                   + (f" plan {ps['from']} -> {ps['to']}" if ps.get("changed") else "") + (" activated" if ps.get("activated") else ""))
         plan_msg = (f" Plan: {ps['from']} → {ps['to']}." + (" Its live campaigns the new plan does not cover are being paused."
                                                           if ps.get("live") else "") if ps.get("changed")
-                    else f" Plan unchanged: {ps['why']}." if ps else "")
+                    else f" Plan unchanged: {ps['why']}." if ps else "") + (" Onboarding done: its jobs start." if ps.get("activated") else "")
         return {"ok": True, "message": (f"{cid} linked to {bid}." + (" They can sign in to see it." if email else "") + plan_msg) if bid
                 else f"{cid} unlinked (the brand keeps its plan)."}
 
@@ -1232,10 +1319,16 @@ def act(req, who="admin", pause_live=True):
             # a new plan starts without the old plan's end date unless one is given; the same plan keeps it
             until = (str(req.get("until") or "").strip() or None) if "until" in req else (ap.KEEP if cur["requested"] == pid else None)
             before, after = ap.set_plan(d, bid, pid, until=until, by=who, via="admin", note=note)
+            bb = ap.brand(d, bid)
+            activated = bb.get("status") == "onboarding" and pid != "none"      # a plan set by hand = a comped/approved client
+            if activated:
+                bb["status"] = "active"; bb["activated_at"] = now; bb["activated_by"] = who
             live = [(c["id"], bid) for c in d.get("campaigns", []) if c.get("brand") == bid and c.get("status") == "live"
                     and ap.no_ads_why(d, bid, c.get("network"))]
             name = (ap.brand(d, bid) or {}).get("name") or bid
         msg = f"{name}: {before['label']} → {after['label']}" + (f" until {after['until']}" if after["until"] and not after["expired"] else "") + "."
+        if activated:
+            msg += " The brand was still in onboarding, so it is active now: its jobs start on their next run."
         if after["expired"]:
             msg += f" The end date {after['until']} has passed, so it runs as {after['label']} now."
         if ap.plan_ended(ap.load(), bid):
@@ -1253,6 +1346,22 @@ def act(req, who="admin", pause_live=True):
         log_action(who, f"plan {bid} {before['id']} -> {pid}" + (f" until={after['until']}" if after["until"] else "")
                    + (f" live={len(live)} failed={len(failed)}" if live else "") + (f" note={_q(note)}" if note else ""))
         return {"ok": True, "message": msg, "plan": ap.plan_view(ap.load(), bid), "paused_campaigns": done, "failed_campaigns": failed}
+
+    if a == "activate":
+        # a client that did not come through Whop (brand-add, a comped seat): onboarding → active, nothing else changes
+        bid = str(req.get("brand") or "")
+        with ap.transaction() as d:
+            bb = ap.brand(d, bid)
+            if bb is None:
+                raise KeyError(bid)
+            if bb.get("status") == "active":
+                return {"ok": True, "message": f"{bb.get('name') or bid} is already active."}
+            if bb.get("status") != "onboarding":
+                raise ValueError(f"{bid} is {bb.get('status')}: resume it instead (resume_brand)")
+            bb["status"] = "active"; bb["activated_at"] = now; bb["activated_by"] = who
+            name = bb.get("name") or bid
+        log_action(who, f"activate {bid}" + (f" note={_q(note)}" if note else ""))
+        return {"ok": True, "message": f"{name} is active: its jobs start on their next run."}
 
     if a == "whop_sync":
         cfg = whop.config()
@@ -1505,6 +1614,28 @@ def sample_inputs(now):
                          "bounces": [{"to": "h•••@atelier-brume.example", "type": "hard", "at": mins(60 * 26), "brands": ["brume"],
                                       "why": "The server was unable to deliver your message (mailbox unavailable)", "source": "postmark"}],
                          "bounce_sync": {"at": mins(40), "found": 0, "transport": "postmark"}}}
+    # free trials (otto_trial): Google sign-ups on invented .example businesses — two running, one converted, one ended
+    trials = [("lindenhof", "Lindenhof Bakery", 5, None, "trial"), ("saltpier", "Salt Pier Surf", 2, None, "trial"),
+              ("kaffeklubb", "Kaffe Klubb", 19, "starter", "starter"), ("ateliernord", "Atelier Nord", 13, None, "none")]
+    for i, (bid, name, ago, conv, plan) in enumerate(trials):
+        start = now - timedelta(days=ago, hours=3)
+        end = start + timedelta(days=7)
+        uid = f"u-sample{i}"
+        tr = {"user": uid, "started_at": iso(start), "ends_at": iso(end)}
+        if conv:
+            tr.update(converted_at=iso(start + timedelta(days=6)), converted_to=conv)
+        elif plan == "none":
+            tr["ended_at"] = iso(end)
+        d["brands"].append({"id": bid, "name": name, "url": f"{bid}.example", "status": "active", "tz": "Europe/Berlin", "currency": "EUR",
+                            "plan": plan, "approvals": "email", "members": [f"owner@{bid}.example"], "trial": tr,
+                            **({"plan_until": end.date().isoformat()} if plan == "trial" else {})})
+        sent = {k: {"sent": iso(t)} for k, t in (("day5", end - timedelta(days=2)), ("day7", end - timedelta(days=1)), ("day8", end))
+                if t <= now and not (conv and k == "day8")}
+        d.setdefault("users", []).append({"id": uid, "email": f"owner@{bid}.example", "name": name, "google_sub": f"10{i}",
+                                          "created_at": iso(start), "last_login_at": iso(now - timedelta(hours=i + 1)),
+                                          "trial_started_at": iso(start), "trial_ends_at": iso(end), "brands": [bid],
+                                          "status": "active" if conv else "trial" if now < end else "expired", "trial_reminders": sent,
+                                          **({"paid_at": tr["converted_at"]} if conv else {})})
     return d, events, billing, overlay, sysinfo
 
 
@@ -1564,6 +1695,8 @@ def main(a):
         print(act({"action": "kill_switch", "state": a[1], "note": _opt(a, "--note")}, who)["message"])
     elif cmd in ("pause", "resume"):
         print(act({"action": f"{cmd}_brand", "brand": a[1], "note": _opt(a, "--note")}, who)["message"])
+    elif cmd == "activate":
+        print(act({"action": "activate", "brand": a[1], "note": _opt(a, "--note")}, who)["message"])
     elif cmd == "campaign":
         print(act({"action": "campaign", "id": a[1], "decision": a[2], "note": _opt(a, "--note")}, who)["message"])
     elif cmd == "rescan":

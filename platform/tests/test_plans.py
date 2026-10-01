@@ -513,6 +513,18 @@ class MonthLimitsTest(unittest.TestCase):
         days = sorted({p["slot"][:10] for p in created})
         self.assertGreaterEqual(days[-1], "2031-03-25", "thinned evenly, not cut at the end of the month")
 
+    def test_hand_added_posts_count_like_the_console_counts_them(self):
+        # regression (integration review): the build counted only posts tagged plan=<month>; a post added by hand (ap.py add,
+        # the first week) has no tag, so the month ended above the limit the console measures (ap.plan_usage)
+        edit(lambda d: [ap.add_post(d, "t-growth", "A", "ig", f"2031-03-{i + 1:02d}T07:00", "by hand", format="reel" if i < 3 else "post")
+                        for i in range(10)])
+        with ap.transaction(sync=False) as d:
+            created = quiet(otto_plan._build, d, "t-growth", "2031-03", 20, ("fb", "ig"), False, False, True)
+        self.assertEqual(len(created), 60, quiet.out)
+        self.assertEqual(sum(1 for p in created if p["format"] == "reel"), 5, "8 reels a month, 3 already there")
+        u = ap.plan_usage(ap.load(), "t-growth", today=date(2031, 3, 1))
+        self.assertEqual((u["posts"], u["reels"]), (70, 8))
+
 
 # ============================================================================================
 # the ad matrix preset + video gating
@@ -561,6 +573,17 @@ class MatrixPresetTest(unittest.TestCase):
         self.assertIn("has no ad matrix", quiet.out)
         self.assertIsNone(otto_styles.load_matrix("t-content", "2031-06"))
         self.assertIn("scale", otto_styles.PRESETS)
+
+    def test_matrix_size_and_ad_band_use_one_exchange_rate(self):
+        # regression (integration review): otto_styles had its own FX table (USD 1.08 per EUR) next to otto_whop.FX_EUR (0.86 EUR
+        # per USD) — $40/day was "launch" for the matrix and €34 for the plan's band
+        for amount, cur in ((40, "USD"), (45, "USD"), (30, "GBP"), (150, "ILS"), (9000, "HUF"), (36, "EUR"), (35.99, "EUR")):
+            eur = ap.to_eur(amount, cur)
+            self.assertEqual(otto_styles.preset_for_budget(amount, cur), "micro" if eur < otto_styles.MICRO_BELOW_DAILY_EUR else "launch",
+                             (amount, cur, eur))
+        self.assertEqual(otto_styles.preset_for_budget(100, "BGN"), "launch", "a currency FX_EUR lacks still converts")
+        import otto_compliance
+        self.assertIs(otto_compliance.CURRENCY_COUNTRY, ap.CURRENCY_COUNTRY)
 
     def test_ads_plan_writes_the_plans_matrix_with_its_refresh(self):
         matrix_brand("t-growth")
@@ -621,6 +644,27 @@ class WhopPlanTest(_Fakes, unittest.TestCase):
         self.assertNotIn("plan_billing", b)
         h = b["plan_history"][-1]
         self.assertEqual((h["via"], h["membership"], h["whop_plan"], h["by"]), ("whop", "mem_F", FOUNDING_WHOP, "max"))
+
+    def test_a_paid_link_takes_an_onboarding_brand_active(self):
+        # regression (journey): a public sign-up stays "onboarding" and otto_cron runs "active" brands only — linking its paid
+        # membership left it out of every job forever
+        edit(lambda d: d["brands"].append(brand("t-signup", "starter", plan_billing="not_billed", status="onboarding")))
+        self.assertEqual(otto_cron.brand_skip(ap.brand(ap.load(), "t-signup"), "publish"), "onboarding")
+        self.customer("mem_S", plan_id=FOUNDING_WHOP)
+        c = otto_whop.link("mem_S", "t-signup")
+        self.assertTrue(c["plan_sync"]["activated"])
+        b = ap.brand(ap.load(), "t-signup")
+        self.assertEqual((b["status"], b["plan"]), ("active", "founding"))
+        self.assertIsNone(otto_cron.brand_skip(b, "publish"))
+        self.assertEqual(b["members"], ["mem_s@gmail.com"], "the CLI link makes the payer a member, like the console")
+        self.assertEqual(c["member_added"], "mem_s@gmail.com")
+        edit(lambda d: ap.brand(d, "t-signup").update(status="paused", paused={"at": "x", "by": "max"}))
+        otto_whop.link("mem_S", "t-signup")
+        self.assertEqual(ap.brand(ap.load(), "t-signup")["status"], "paused", "a console pause is never undone by billing")
+        self.customer("mem_X", plan_id=FOUNDING_WHOP, status="canceled")
+        edit(lambda d: d["brands"].append(brand("t-signup-2", "starter", status="onboarding")))
+        otto_whop.link("mem_X", "t-signup-2")
+        self.assertEqual(ap.brand(ap.load(), "t-signup-2")["status"], "onboarding", "an ended membership activates nothing")
 
     def test_a_subscription_plan_mapped_in_plans_json(self):
         plans_file(lambda cfg: cfg["plans"]["growth"].update(whop_plan_ids=["plan_growth_test"]))
@@ -742,7 +786,8 @@ class AdminPlanTest(_Fakes, unittest.TestCase):
                          for i in range(70)],
                         d["campaigns"].append(camp("cp-1", "t-content", start=-400, end=400))))
         s = otto_admin.build(ap.load(), [], {}, {}, {}, now=now)
-        self.assertEqual([p["id"] for p in s["plans"]["items"]], ["starter", "growth", "scale", "agency", "founding", "content", "none"])
+        self.assertEqual([p["id"] for p in s["plans"]["items"]],
+                         ["starter", "growth", "scale", "agency", "founding", "trial", "content", "none"])
         self.assertIsNone(s["plans"]["error"])
         b = {x["id"]: x for x in s["brands"]}
         P = b["t-starter"]["plan"]
@@ -783,3 +828,25 @@ class IsolationTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class ActivationAndDefaultsTest(unittest.TestCase):
+    """Closing the round-2 judgment calls: a client outside Whop can be activated; defaults match plans.json."""
+
+    def test_new_brands_default_to_starter_and_email(self):
+        self.assertEqual(ap.PLAN_DEFAULTS["new"], "starter")
+
+    def test_activate_and_plan_by_hand_take_an_onboarding_brand_active(self):
+        import otto_admin
+        with ap.transaction(sync=False) as d:
+            for bid in ("t-act1", "t-act2"):
+                d["brands"] = [b for b in d.get("brands", []) if b.get("id") != bid]
+                d["brands"].append({"id": bid, "name": bid, "url": f"{bid}.example", "lang": "EN", "tz": "UTC",
+                                    "status": "onboarding", "pillars": ["A"], "compliance": "", "plan": "starter"})
+        out = otto_admin.act({"action": "activate", "brand": "t-act1"}, who="test")
+        self.assertIn("active", out["message"])
+        self.assertEqual(ap.brand(ap.load(), "t-act1")["status"], "active")
+        self.assertIn("already active", otto_admin.act({"action": "activate", "brand": "t-act1"}, who="test")["message"])
+        out = otto_admin.act({"action": "plan", "brand": "t-act2", "plan": "growth"}, who="test")
+        self.assertEqual(ap.brand(ap.load(), "t-act2")["status"], "active")
+        self.assertIn("active now", out["message"])

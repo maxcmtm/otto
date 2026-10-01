@@ -11,11 +11,12 @@ Only numeric metric values are compared / summed (Graph can hand back None, dict
 Sending: the brand owner's Telegram bot ($OTTO_SECRETS/telegram.json, same as the approval cards — on a per-client instance
 that is the client, not Max); only without a bot config does it fall back to the OpenClaw CLI (Max's chat).
 """
-import json, os, subprocess, sys
+import json, subprocess, sys
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 import ap
+import otto_paths
 import otto_publish
 
 HERE = Path(__file__).parent
@@ -23,7 +24,7 @@ HIST = ap.DATA.parent / "metrics_history.jsonl"      # next to data.json (OTTO_D
 STATE = ap.DATA.parent / ".watch-state.json"
 OCLAW = "/home/ubuntu/.npm-global/bin/openclaw"
 TARGET = "590113904"
-DASH = os.environ.get("OTTO_PUBLIC_BASE") or "https://dash.monyflow.work/otto/"   # the app URL (new domain: app.<domain>/)
+DASH = otto_paths.app_url()          # the client app: app.<OTTO_DOMAIN>/ on the new server (OTTO_PUBLIC_BASE is the landing there)
 DROP_PCT = 30          # alert when a metric falls >=30% vs 7-day average
 MIN_BASE = 50          # ...only if the 7-day average is at least this (avoid zero-noise)
 

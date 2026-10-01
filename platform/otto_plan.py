@@ -172,9 +172,13 @@ def _build(d, bid, ym, per_week, platforms, dry, replace, stories):
 
     if past:
         print(f"note: {past} slot(s) in {ym} are already past ({tz.key}) — not planned")
+    # what the month already holds, counted as the plan's usage is (ap.plan_usage: every post whose slot is in the month, not
+    # skipped — a hand-added post without the "plan" tag included), so the build never plans past what the console measures
+    usage = ap.plan_usage(d, bid, today=date(*(int(x) for x in ym.split("-")), 1))
     # the plan promises reels_per_month explainer reels (none without the reels feature) — top up if the mix fell short,
     # turn extras back into posts
     want = (lims.get("reels_per_month") if lims.get("reels_per_month") is not None else 4) if feats.get("reels") else 0
+    want = max(0, int(want) - usage["reels"])
     reels = [x for x in plan if x["format"] == "reel"]
     if len(reels) < want:
         for x in [x for x in plan if x["format"] == "post" and x["platform"] == "ig"][:want - len(reels)]:
@@ -183,12 +187,12 @@ def _build(d, bid, ym, per_week, platforms, dry, replace, stories):
         x["format"] = "post"
     cap = lims.get("posts_per_month")
     if cap is not None:
-        kept = [p for p in d["posts"] if p["brand"] == bid and p.get("plan") == ym and p.get("status") != "skipped"]
-        room = max(0, int(cap) - len(kept))
+        kept = usage["posts"]
+        room = max(0, int(cap) - kept)
         if len(plan) > room:
             plan = thin(plan, room)
-            print(f"note: plan {p_plan['id']} allows {int(cap)} posts a month — {ym} planned at {len(kept) + len(plan)}"
-                  + (f" ({len(kept)} already there)" if kept else ""))
+            print(f"note: plan {p_plan['id']} allows {int(cap)} posts a month — {ym} planned at {kept + len(plan)}"
+                  + (f" ({kept} already there)" if kept else ""))
     if dry:
         for p in plan:
             print(f'{p["slot"]}  {p["platform"]:2}  {p["format"]:8}  {p["pillar"]}')

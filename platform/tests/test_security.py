@@ -267,6 +267,18 @@ class ScanGuardTest(unittest.TestCase):
                 otto_scan.check_url(bad)
         self.assertEqual(otto_scan.check_url("https://WWW.Grüns.de./x")[1:], ("www.xn--grns-1ra.de", 443))
 
+    def test_bracketed_hosts_never_escape_as_value_errors(self):
+        # regression (CI on Python 3.12, the server's version): urlsplit raises ValueError for "[not-an-ip]" hosts there (and
+        # for unbalanced brackets everywhere) — check_url let it escape instead of Blocked, and host_of() crashed a whole
+        # scan on one odd link of the client's site
+        for bad in ("https://[a.com]/", "https://[x/", "http://[::1/x"):
+            with self.assertRaises(otto_scan.Blocked, msg=bad):
+                otto_scan.check_url(bad)
+        self.assertNotIn(otto_scan.host_of("https://[x/about"), ("x", "[x"))
+        links = [("https://[a.com]/about", "About", "a", {}), ("https://[x/team", "Team", "a", {}),
+                 ("https://shop.example/about-us", "About us", "a", {})]
+        self.assertEqual(otto_scan.pick_internal("https://shop.example/", links, 5), ["https://shop.example/about-us"])
+
     def test_every_resolved_address_must_be_public(self):
         real = socket.getaddrinfo
         answers = {"mixed.example": ["93.184.216.34", "10.0.0.5"], "v6private.example": ["2606:4700::1", "fd00::1"]}
@@ -1197,6 +1209,22 @@ class PathsTest(unittest.TestCase):
             with self.assertRaises(otto_paths.AssetError, msg=bad):
                 otto_paths.clean_rel(bad)
         self.assertEqual(otto_paths.clean_rel("./assets/posts/a.jpg"), "assets/posts/a.jpg")
+
+    def test_the_new_domain_is_one_setting(self):
+        # regression (integration review): with only OTTO_DOMAIN set, the API still allowed nothing but dash.monyflow.work
+        # (every POST from app.<domain> → 403) and media URLs pointed at the old box; OTTO_PUBLIC_BASE / OTTO_ALLOWED_ORIGINS win
+        code = ("import otto_paths, otto_api, otto_admin, otto_email; print(otto_paths.BASE); print(sorted(otto_api.ALLOWED_ORIGINS)); "
+                "print(otto_admin.PUBLIC_BASE); print(otto_email.app_url({}))")
+        env = {k: v for k, v in os.environ.items() if not k.startswith("OTTO_")}
+        env.update(OTTO_DATA=str(TMP / "data.json"), OTTO_HTML=str(TMP / "index.html"), OTTO_SECRETS=str(TMP / "secrets"))
+        run = lambda **kw: subprocess.run([sys.executable, "-c", code], cwd=str(PLATFORM), env=dict(env, **kw), capture_output=True,
+                                          text=True, timeout=60).stdout.splitlines()
+        self.assertEqual(run(OTTO_DOMAIN="otto.example"),
+                         ["https://otto.example/", str(["https://admin.otto.example", "https://app.otto.example", "https://otto.example"]),
+                          "https://otto.example", "https://app.otto.example/"])
+        self.assertEqual(run(OTTO_DOMAIN="otto.example", OTTO_PUBLIC_BASE="https://cdn.otto.example/", OTTO_ALLOWED_ORIGINS="https://x.example")[:2],
+                         ["https://cdn.otto.example/", str(["https://x.example"])])
+        self.assertEqual(run()[:3], ["https://dash.monyflow.work/otto/", str(["https://dash.monyflow.work"]), "https://dash.monyflow.work"])
 
 
 # ============================================================================================

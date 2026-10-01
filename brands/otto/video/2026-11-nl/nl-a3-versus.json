@@ -1,0 +1,47 @@
+{
+  "id": "nl-a3-versus",
+  "style": "versus",
+  "formats": [
+    "9x16"
+  ],
+  "music": {
+    "bpm": 120,
+    "mood": "calm",
+    "key": "F"
+  },
+  "scene": {
+    "ground": "bg"
+  },
+  "versus": {
+    "vs": "vs",
+    "left": {
+      "label": "Vertaald",
+      "rows": [
+        "‘Super excited!’",
+        "Thanksgiving-post",
+        "Prijzen in dollars"
+      ]
+    },
+    "right": {
+      "label": "Otto",
+      "image": "review_nl",
+      "rows": [
+        "‘Nieuw bij ons’",
+        "Sinterklaas",
+        "Prijzen in euro"
+      ]
+    },
+    "footer": "Voor jouw klanten, in jouw taal."
+  },
+  "endcard": {
+    "headline": "Klinkt als jouw zaak.",
+    "accent": "jouw zaak.",
+    "sub": "Otto leest je website en schrijft zoals jij praat.",
+    "fine": "7 dagen gratis proberen, geen creditcard nodig.",
+    "products": [
+      "review_nl"
+    ],
+    "logo": "logo_white",
+    "ground": "night"
+  }
+}

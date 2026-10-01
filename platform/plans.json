@@ -2,14 +2,15 @@
   "_note": "Otto plans: the single source of truth for what each client brand gets (read by ap.plan_of / ap.entitled / ap.limit; re-read when this file changes, no code change or restart needed). Values follow research/EU-LAUNCH-AND-PRICING-2026-09.md §4.1-4.6. DRAFT: every price (monthly_eur, yearly_eur, extra_brand_eur, founding_bridge) is \"status\": \"draft\" until Max approves it; the landing page is not wired to this file. whop_plan_ids stay [] until the subscriptions exist on Whop (founding is the only plan sold today). Yearly = two months free (10 x monthly). A plan with \"inherits\" takes its parent's features and limits and overrides only what it names (prices, public, upgrade_to, overage and founding_bridge are never inherited). Limits are per brand; null = no limit. posts_per_month counts every organic item (feed posts, carousels, stories and reels); reels_per_month is the reel part of it. ad_spend_managed_eur_month is the plan's band for the monthly paid budget Otto plans (EUR, converted from the brand's currency). It is a SOFT cap: the first month above it is planned in full and the plan card says so; the second month in a row above it is planned at the cap and the card offers upgrade_to. A plan with overage (scale) is never capped: above overage.above_eur_month it shows overage.pct % of the excess (computed and shown, never billed automatically). ad_matrix_preset: none | micro | launch | scale (otto_styles.PRESETS; a daily budget under ~EUR 36 still gets micro). competitor_sweep: false | monthly (the first Monday of the month) | weekly. video_ads_per_month counts Otto-made faceless video ads; creator videos need creator_briefs. public = shown on the pricing page.",
   "yearly_rule": "two months free",
   "defaults": {
-    "_note": "legacy = a brand record without a plan (created before plans existed) · new = what onboarding / brand-add write; while that plan has no whop_plan_ids the brand is also flagged plan_billing \"not_billed\" (not billed yet) until a Whop membership is linked · after_expiry = when brands[].plan_until has passed · unknown = a plan id not in this file (fail-safe: no paid ads) · ended = a canceled / expired Whop membership (publishing paused; otto_retention deletes the brand's data 90 days later unless a plan starts again)",
+    "_note": "legacy = a brand record without a plan (created before plans existed) · new = what onboarding / brand-add write; while that plan has no whop_plan_ids the brand is also flagged plan_billing \"not_billed\" (not billed yet) until a Whop membership is linked · after_expiry = when brands[].plan_until has passed · unknown = a plan id not in this file (fail-safe: no paid ads) · ended = a canceled / expired Whop membership (publishing paused; otto_retention deletes the brand's data 90 days later unless a plan starts again) · trial = the free trial a new Google sign-up gets on its first brand (otto_trial, docs/AUTH-AND-TRIAL.md); remove it to switch trials off",
     "legacy": "founding",
     "new": "starter",
     "after_expiry": "content",
     "unknown": "content",
-    "ended": "none"
+    "ended": "none",
+    "trial": "trial"
   },
-  "order": ["starter", "growth", "scale", "agency", "founding", "content", "none"],
+  "order": ["starter", "growth", "scale", "agency", "founding", "trial", "content", "none"],
   "plans": {
     "content": {
       "label": "Content",
@@ -149,6 +150,25 @@
         "starter_eur": 79,
         "locked_months": 12,
         "seat_cap": 50
+      }
+    },
+    "trial": {
+      "label": "Free trial",
+      "inherits": "starter",
+      "public": false,
+      "_note": "The free trial of a new Google sign-up (otto_trial, docs/AUTH-AND-TRIAL.md): trial_days days, no card, one per Google account and per website domain. Starter's organic, stories, reels, monthly competitor sweep and reports run for real; the monthly ad matrix is planned and rendered for preview, but ads_launch false means no campaign launches (otto_ads launch / otto_cron ads-launch refuse with the reason), and video ads are capped at 3 previews. after_expiry none: when the trial ends without a card the brand pauses (publishing + ads), the data is kept 90 days (otto_retention). checkout_plans = what the \"Add a card\" screen offers (their whop_plan_ids make the Whop checkout links; prices come from those plans).",
+      "trial_days": 7,
+      "after_expiry": "none",
+      "checkout_plans": ["starter", "growth"],
+      "monthly_eur": null,
+      "yearly_eur": null,
+      "whop_plan_ids": [],
+      "upgrade_to": "starter",
+      "features": {
+        "ads_launch": false
+      },
+      "limits": {
+        "video_ads_per_month": 3
       }
     },
     "none": {

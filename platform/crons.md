@@ -33,9 +33,12 @@ day, success or not — a failure alerts and `otto run <job> --brand B` repeats 
 | `whop-sync` | 02:20 UTC | `otto_whop.py backfill` | once, when api_key + company_id exist |
 | `track-prune` | 1st 04:00 UTC | `otto_track.py prune --days 400` | once |
 | `retention` | 04:40 owner | `otto_retention.py run` (client data 90 days after the plan ended, owner notices 14 and 3 days before, export first; exports after 30 days; leads after `OTTO_LEAD_RETENTION_DAYS`) | once (the kill switch does not stop it) |
+| `trials` | hourly :05 UTC | `otto_trial.py run` (free trials: a trial that ended without a card → plan `none`; the day-5 / day-7 / day-8 e-mails, once each; idle accounts without a brand after 90 days) | once (the kill switch does not stop it) |
 
 "Active" = `brands[].status == "active"` (or no status); onboarding and paused brands (`brands[].paused` / status `paused`) are
-skipped and the heartbeat says why. Plans (`plans.json`, `otto_cron.PLAN_GATES`): a brand whose plan lacks a job's feature sits it
+skipped and the heartbeat says why. A sign-up leaves "onboarding" when its running Whop membership is linked (`otto_whop.link` /
+the console's link: the brand gets its plan and status "active"). A Google sign-up's first brand starts "active" on the free trial
+(`otto_trial`): its jobs run for 7 days, `ads-launch` sits out ("plan trial plans and previews paid ads but launches none"). Plans (`plans.json`, `otto_cron.PLAN_GATES`): a brand whose plan lacks a job's feature sits it
 out with the reason — `ads-plan` / `ads-launch` / `ads-report` say "plan content has no paid ads", likewise reels, Telegram cards,
 insights, visuals and the monthly plan; a monthly competitor sweep runs on the first Monday of the month only; a brand on plan
 `none` (membership ended) sits every job out. Approvals channel (`brands[].approvals`, `otto_cron.CHANNEL_GATES`): `cards` runs

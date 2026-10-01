@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <!-- CSP: script-src lists the sha256 of every inline script element in this page. After editing one, the browser refuses it and its console prints the new hash: replace the old one here (or recompute all of them). -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-WE/PxVHLqMPEBLxw3Rp4WNT2sGZYKKI+U54xHA6xTTE=' 'sha256-5JgXI8VC0fNDhAjC+tkjz7MAlj0D1XCgpGyo4OPVlws=' 'sha256-aSX2oKbxkP7TlL0D9exZPRdwV+onWN7wyzlAcQ8IwNM='; style-src 'self' 'unsafe-inline'; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-src 'none'; worker-src 'none'; manifest-src 'self'; img-src 'self' data: https:; media-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-WE/PxVHLqMPEBLxw3Rp4WNT2sGZYKKI+U54xHA6xTTE=' 'sha256-U7yxsqVvhxbXj+55PML1vKTrS9NgA0yPL/HJJk1qH2E=' 'sha256-aSX2oKbxkP7TlL0D9exZPRdwV+onWN7wyzlAcQ8IwNM='; style-src 'self' 'unsafe-inline'; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-src 'none'; worker-src 'none'; manifest-src 'self'; img-src 'self' data: https:; media-src 'none'">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <script>
 /* Head script: js + motion flags before first paint. */
@@ -333,6 +333,9 @@ html.motion .st.is-in{animation:st-in var(--dur-slow) var(--ease-out) both}
 .seg span{display:inline-flex;align-items:center;height:32px;padding:0 14px;border-radius:8px;font:500 14px/1 var(--sans);color:var(--ink-2);transition:background-color var(--dur-base),color var(--dur-fast),box-shadow var(--dur-base)}
 .seg input:checked+span{background:var(--surface);color:var(--ink);box-shadow:var(--shadow-1)}
 .seg input:focus-visible+span{outline:2px solid var(--accent);outline-offset:1px}
+.seg span{white-space:nowrap}
+.cc-ctl.is-seg{flex-wrap:wrap;row-gap:10px}
+@media (max-width:480px){.cc-ctl.is-seg .seg{display:flex;width:100%}.cc-ctl.is-seg .seg label{flex:1 1 auto;min-width:0}.cc-ctl.is-seg .seg span{width:100%;justify-content:center;padding:0 8px}}
 
 /* ============ Step 3 · Four questions ============ */
 .qs{display:grid;gap:12px}
@@ -371,6 +374,15 @@ html.motion .st.is-in{animation:st-in var(--dur-slow) var(--ease-out) both}
   .cc-found{grid-column:1/-1;margin-top:4px}
 }
 .promise{display:grid;gap:10px;padding:16px 18px;border-radius:var(--r-panel);background:var(--surface-2);max-width:520px}
+/* "Continue with Google", per Google's sign-in branding guidelines: white, 1px #747775 border, the four-colour G, 40px high */
+.gbtn{display:inline-flex;align-items:center;gap:10px;height:40px;padding:0 12px;margin-top:24px;border-radius:4px;background:#FFFFFF;box-shadow:inset 0 0 0 1px #747775;color:#1F1F1F;font:500 14px/20px Roboto,-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;letter-spacing:.25px;white-space:nowrap;transition:background-color var(--dur-fast),box-shadow var(--dur-fast)}
+.gbtn svg{width:20px;height:20px;flex:none}
+.gbtn:active{background:#F2F2F2}
+@media (hover:hover){.gbtn:hover{box-shadow:inset 0 0 0 1px #747775,0 1px 2px rgba(60,64,67,.3),0 1px 3px 1px rgba(60,64,67,.15)}}
+.gate-note{margin-top:14px}
+.acct{display:none;font-size:13px;color:var(--ink-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:260px}
+@media (min-width:900px){.acct{display:block}}
+.trial-line{margin-top:6px;display:block;color:var(--ink-2)}
 .promise li{display:flex;gap:10px;font-size:14px;line-height:1.45;color:var(--ink-2)}
 .promise .i{width:18px;height:18px;margin-top:1px;stroke-width:1.8;color:var(--ink-2)}
 
@@ -443,12 +455,35 @@ footer .wrap{display:flex;flex-wrap:wrap;gap:8px 20px}
     <span class="brand"><span class="mark" aria-hidden="true"></span>Otto<small>Setup</small></span>
     <nav class="rail" id="rail" aria-label="Setup steps"></nav>
     <span class="saved is-off" id="saved" aria-live="polite"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg><span id="saved-t">Saved on this device</span></span>
+    <span class="acct" id="acct" hidden></span>
     <span class="bar-count" id="bar-count">Step 1 of 5</span>
   </div>
   <div class="wrap prog" id="prog" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
 </header>
 
 <main id="main" tabindex="-1">
+
+<!-- ============ 0 · Sign in (app.<domain>, when Google sign-in is on and nobody is signed in) ============ -->
+<section class="st" id="s0" data-step="0" aria-labelledby="s0-h" hidden>
+  <div class="wrap st-grid">
+    <div class="st-text">
+      <p class="kick">Free 7-day trial · No card</p>
+      <h1 class="t1" id="s0-h" tabindex="-1">Start your free trial.</h1>
+      <p class="lead">Sign in with Google so Otto can save your setup and send your approvals to you. <b>Nothing to pay for 7 days, and no card needed.</b></p>
+      <a class="gbtn" id="gsi" href="/auth/google/start?next=%2Fonboarding.html"><svg viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg><span>Continue with Google</span></a>
+      <p class="note gate-note" id="s0-site"></p>
+      <p class="act-legal">By continuing, you confirm you’re setting Otto up for a business and agree to the <a href="legal/terms.html" target="_blank" rel="noopener">Terms</a>. Otto receives your name and e-mail address from Google, nothing else (<a href="legal/privacy.html" target="_blank" rel="noopener">Privacy</a>). One free trial per business.</p>
+    </div>
+    <div class="st-body">
+      <ul class="promise">
+        <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg><span>Otto reads your website and sets up your first week of posts.</span></li>
+        <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg><span>Nothing is published until you approve it.</span></li>
+        <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg><span>Your paid ads are planned for you to see; they launch once you choose a plan.</span></li>
+        <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg><span>After 7 days, add a card to keep going. If you don’t, Otto pauses and keeps your work for 90 days. Nothing is charged automatically.</span></li>
+      </ul>
+    </div>
+  </div>
+</section>
 
 <!-- ============ 1 · Your site ============ -->
 <section class="st" id="s1" data-step="1" aria-labelledby="s1-h">
@@ -706,9 +741,10 @@ function chrome() {
   $$('#prog i').forEach(function (el, i) { el.className = i + 1 < S.step ? 'done' : i + 1 === S.step ? 'on' : ''; });
   $('#bar-count').textContent = 'Step ' + S.step + ' of 5';
 }
-var RENDER = {};
+var RENDER = {}, GATED = false;
 function go(n, opt) {
   opt = opt || {};
+  if (GATED) return;                          // signed out on the app host: the sign-in screen stays until Google sends them back
   n = Math.max(1, Math.min(5, n));
   if (n > S.reached) S.reached = n;
   var from = S.step; S.step = n; save(true);
@@ -1034,7 +1070,9 @@ $('#go4').addEventListener('click', function () { go(4); });
 var G = {
   tg: '<svg class="gly" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="M20.5 4.2 3.8 10.7c-.9.4-.9 1.1 0 1.4l4.2 1.3 1.6 5c.2.6.6.7 1 .3l2.4-2.2 4.4 3.3c.6.4 1.1.2 1.3-.6l2.9-13.7c.2-1-.4-1.5-1.1-1.3Z"/><path d="m8 13.4 9.4-6"/></svg>',
   ig: '<svg class="gly" viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="5" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="12" cy="12" r="3.9" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="17.2" cy="6.8" r="1.1" fill="currentColor"/></svg>',
-  ads: '<svg class="gly" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="10.5" cy="10.5" r="6"/><path d="m15 15 5 5"/></svg>'
+  ads: '<svg class="gly" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="10.5" cy="10.5" r="6"/><path d="m15 15 5 5"/></svg>',
+  mail: '<svg class="gly" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><rect x="3.5" y="5.5" width="17" height="13" rx="2.5"/><path d="m4.5 7 7.5 6 7.5-6"/></svg>',
+  app: '<svg class="gly" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><rect x="6.5" y="3" width="11" height="18" rx="2.5"/><path d="M10.5 17.8h3"/></svg>'
 };
 function handle(url) { return String(url || '').replace(/^https?:\/\/(www\.)?/, '').replace(/\/$/, ''); }
 RENDER[4] = function () {
@@ -1043,12 +1081,12 @@ RENDER[4] = function () {
   var metaFound = [s.instagram, s.facebook].filter(Boolean).map(handle);
   var np = '<span class="pill">Not connected</span>';
   $('#conn').innerHTML =
-    '<div class="cc"><span class="cc-ic">' + G.tg + '</span><div class="cc-h"><b>How you approve posts</b>' + (S.approvals === 'telegram' ? '<span class="pill">Not paired</span>' : '') + '</div>' +
+    '<div class="cc"><span class="cc-ic">' + (S.approvals === 'email' ? G.mail : S.approvals === 'app' ? G.app : G.tg) + '</span><div class="cc-h"><b>How you approve posts</b>' + (S.approvals === 'telegram' ? '<span class="pill">Not paired</span>' : '') + '</div>' +
       '<p class="cc-d">Posts arrive ready to approve, change or skip with one tap. Nothing goes out without your OK.</p>' +
-      '<div class="cc-how"><div class="cc-ctl"><span id="appr-l">Approve by</span><div class="seg" role="radiogroup" aria-labelledby="appr-l">' +
+      '<div class="cc-how"><div class="cc-ctl is-seg"><span id="appr-l">Approve by</span><div class="seg" role="radiogroup" aria-labelledby="appr-l">' +
         '<label><input type="radio" name="appr" value="email"' + (S.approvals === 'email' ? ' checked' : '') + '><span>Email</span></label>' +
         '<label><input type="radio" name="appr" value="telegram"' + (S.approvals === 'telegram' ? ' checked' : '') + '><span>Telegram</span></label>' +
-        '<label><input type="radio" name="appr" value="app"' + (S.approvals === 'app' ? ' checked' : '') + '><span>The Otto app</span></label></div></div>' +
+        '<label><input type="radio" name="appr" value="app"' + (S.approvals === 'app' ? ' checked' : '') + '><span>The app</span></label></div></div>' +
         '<p>' + (S.approvals === 'telegram' ? '<b>Next:</b> after setup you get a one-time link that opens Otto’s bot in Telegram and pairs your phone. Until then, everything waits in the app.'
               : S.approvals === 'email' ? 'Each morning at 08:00, one email with the posts due in the next 3 days: Approve or Skip in one tap, Change opens the post in the app. You can switch in Settings.'
               : 'Everything waits in the app. You can switch to email or Telegram later in Settings.') + '</p></div></div>' +
@@ -1089,7 +1127,7 @@ function pattern(ind) {     // otto_plan.mix_pattern: largest remainder, then sp
   return seq;
 }
 function at(day, hm) { var t = new Date(day); t.setHours(+hm.slice(0, 2), +hm.slice(3), 0, 0); return t; }
-function firstReview(now) { now = now || new Date(); var t = at(now, '07:35'); while (t - now < 6 * 3600e3) t.setDate(t.getDate() + 1); return t; }
+function firstReview(now) { now = now || new Date(); var t = at(now, '08:00'); while (t - now < 6 * 3600e3) t.setDate(t.getDate() + 1); return t; }   /* the 08:00 approval cards / e-mails */
 function isoWeek(dt) { var t = new Date(Date.UTC(dt.getFullYear(), dt.getMonth(), dt.getDate())), n = t.getUTCDay() || 7; t.setUTCDate(t.getUTCDate() + 4 - n); var y = new Date(Date.UTC(t.getUTCFullYear(), 0, 1)); return Math.ceil(((t - y) / 864e5 + 1) / 7); }
 function localWeek() {       // mirrors otto_plan's slot logic when the server hasn't answered
   var v = V(), start = firstReview(), end = new Date(start.getTime() + 7 * 864e5), pil = pillarsFor(v.industry), pat = pattern(v.industry);
@@ -1123,8 +1161,9 @@ RENDER[5] = function () {
   var start = W7.start, first = items.filter(function (x) { return x.t - start <= 48 * 3600e3; });
   var fd = []; first.forEach(function (x) { var k = LONG[x.t.getDay()]; if (fd.indexOf(k) < 0) fd.push(k); });
   var firstDays = fd.join(' and ');
-  $('#s5-lead').innerHTML = dayWord(start) + ' at 07:35, your first posts are on your phone, ready for a tap. <b>Nothing goes out without your approval.</b>';
-  $('#notif').innerHTML = '<span class="mark" aria-hidden="true"></span><div><b>Otto · ' + esc(res && res.name || v.name) + '</b><span>' + (first.length ? first.length + (first.length === 1 ? ' post ready' : ' posts ready') + ' for review' : 'Your first posts are ready for review') + '</span></div><time>' + esc(dayWord(start)) + ' 07:35</time>';
+  var mail = S.approvals === 'email', when = '08:00';
+  $('#s5-lead').innerHTML = dayWord(start) + ' at ' + when + ', your first posts ' + (mail ? 'arrive by email' : S.approvals === 'app' ? 'are waiting in the app' : 'are on your phone') + ', ready for a tap. <b>Nothing goes out without your approval.</b>';
+  $('#notif').innerHTML = '<span class="mark" aria-hidden="true"></span><div><b>Otto · ' + esc(res && res.name || v.name) + '</b><span>' + (first.length ? first.length + (first.length === 1 ? ' post' : ' posts') + (mail ? ' to approve by email' : ' ready for review') : 'Your first posts are ready for review') + '</span></div><time>' + esc(dayWord(start)) + ' ' + when + '</time>';
   // the week strip
   var days = [], d0 = new Date(start); d0.setHours(0, 0, 0, 0);
   for (var j = 0; j < 7; j++) { var x = new Date(d0); x.setDate(d0.getDate() + j); days.push(x); }
@@ -1140,8 +1179,8 @@ RENDER[5] = function () {
   var metaOn = S.ch.meta;
   $('#tl').innerHTML = [
     ['Today', 'Otto reads the rest of <strong>' + esc(S.site || 'your site') + '</strong>, writes your brand profile and plans the month.'],
-    [dayWord(start) + (S.approvals === 'email' ? ' 08:00' : ' 07:35'), 'Your first review: <strong>' + first.length + (first.length === 1 ? ' post' : ' posts') + (firstDays ? ' for ' + esc(firstDays) : '') + '</strong> to approve, change or skip' + (S.approvals === 'telegram' ? ', in Telegram once paired, or in the app.' : S.approvals === 'email' ? ', by email at 08:00, or in the app.' : ', in the app.')],
-    ['Every morning', 'A short report at 07:35: what went out, what it cost, what it brought in.'],
+    [dayWord(start) + ' 08:00', 'Your first review: <strong>' + first.length + (first.length === 1 ? ' post' : ' posts') + (firstDays ? ' for ' + esc(firstDays) : '') + '</strong> to approve, change or skip' + (S.approvals === 'telegram' ? ', in Telegram once paired (after the 07:35 morning report), or in the app.' : S.approvals === 'email' ? ', by email at 08:00, or in the app.' : ', in the app.')],
+    S.approvals === 'telegram' ? ['Every morning', 'A short report at 07:35: what went out, what it cost, what it brought in.'] : ['Every day', 'The app’s Today tab shows what went out and how it did.'],
     [metaOn ? 'When you connect' : 'Later', metaOn ? 'Approved posts publish to Instagram and Facebook in their slots. Until then they wait for you.' : 'Switch on Instagram and Facebook in Otto whenever you want posts to go out.']
   ].map(function (r) { return '<li><b>' + r[0] + '</b><span>' + r[1] + '</span></li>'; }).join('');
   renderSetup();
@@ -1150,7 +1189,7 @@ function renderSetup() {
   var el = $('#setup'), s = S.submit || { status: 'sending' }, v = V();
   el.className = 'setup is-' + (s.status === 'ok' ? 'ok' : s.status === 'local' || s.status === 'exists' ? 'local' : s.status === 'error' ? 'err' : 'work');
   if (s.status === 'sending') el.innerHTML = '<span class="spin" aria-hidden="true"></span><div><b>Setting up ' + esc(v.name) + '</b>Reading the rest of the site and writing your brand profile. This takes a moment.</div>';
-  else if (s.status === 'ok') { var r = s.res || {}; el.innerHTML = CK + '<div><b>' + esc(r.name || v.name) + ' is set up</b>' + (r.scan && r.scan.source === 'site' ? N(r.scan.pages) + ' pages read. ' : '') + 'Brand profile, strategy and your answers are saved on Otto’s server.</div>'; }
+  else if (s.status === 'ok') { var r = s.res || {}, tr = r.trial || null; el.innerHTML = CK + '<div><b>' + esc(r.name || v.name) + ' is set up</b>' + (r.scan && r.scan.source === 'site' ? N(r.scan.pages) + ' pages read. ' : '') + 'Brand profile, strategy and your answers are saved on Otto’s server.' + (tr ? '<span class="trial-line">' + esc(tr.message || '') + (tr.granted ? '' : ' <a class="link" href="index.html#billing" id="add-card">Add a card</a>') + '</span>' : '') + '</div>'; }
   else if (s.status === 'exists') el.innerHTML = '<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10.5" width="14" height="10" rx="2.5"/><path d="M8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5"/></svg><div><b>' + esc(S.site) + ' is already set up with Otto</b>' + (s.signedIn ? 'It belongs to another sign-in. Ask whoever set it up to add you.' : 'Sign in to Otto to change it.') + ' Your answers are still on this device.</div>';
   else if (s.status === 'local') el.innerHTML = '<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="3.5" width="12" height="17" rx="2.5"/><path d="M10.5 17.5h3"/></svg><div><b>Saved on this device</b>Otto will finish setup when you connect.' + (s.detail ? ' <span class="ink-3">' + esc(s.detail) + '</span>' : '') + '</div>';
   else el.innerHTML = '<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5v5.5M12 16.2v.3"/></svg><div><b>Otto couldn’t save this</b>' + esc(s.detail || 'Something went wrong.') + ' Your answers are still on this device.<br><button class="btn btn-quiet btn-sm" type="button" id="retry">Try again</button></div>';
@@ -1192,6 +1231,44 @@ async function submit(force) {
 }
 $('#edit-answers').addEventListener('click', function () { go(3); });
 $('#open-app').addEventListener('click', function () { store('otto.site', S.site); });
+/* The app lives next to this page on app.<domain> and on the old box (/otto/), but a buyer who arrives from the Whop checkout
+   is on the apex, where index.html is the landing: send them to the app's own host there. */
+(function () {
+  var host = location.hostname;
+  if (/^(app|admin)\./.test(host) || /\/otto\//.test(location.pathname) || /^(localhost|127\.0\.0\.1|\[::1\])$/.test(host) || location.protocol === 'file:') return;
+  $('#open-app').href = location.protocol + '//app.' + host.replace(/^www\./, '') + '/';
+})();
+
+/* ---------- sign-in (app.<domain>): /auth/me decides. Signed out with Google sign-in on → the sign-in screen (step 0);
+   signed in → who and the trial's days in the bar. On the apex, the old box or locally without the API it answers nothing
+   and the public setup runs as before. ---------- */
+function gate(on) {
+  GATED = on;
+  $('#s0').hidden = !on;
+  if (on) $$('.st').forEach(function (s) { if (s.id !== 's0') s.hidden = true; });
+  $('#rail').hidden = on; $('#prog').hidden = on;
+  $('#bar-count').textContent = on ? 'Free trial' : 'Step ' + S.step + ' of 5';
+  var nxt = location.pathname + (S.site ? '?site=' + encodeURIComponent(S.site) : location.search);
+  $('#gsi').href = '/auth/google/start?next=' + encodeURIComponent(nxt);
+  $('#s0-site').textContent = S.site ? 'Then Otto reads ' + S.site + ' and sets up your first week.' : '';
+  if (on) { W.scrollTo(0, 0); $('#s0-h').focus({ preventScroll: true }); }
+}
+(async function authCheck() {
+  var me = null;
+  try {
+    var ctl = new AbortController(), to = setTimeout(function () { ctl.abort(); }, 5000);
+    var r = await fetch('/auth/me', { cache: 'no-store', credentials: 'same-origin', signal: ctl.signal });
+    clearTimeout(to);
+    if (r.ok && (r.headers.get('content-type') || '').indexOf('json') > -1) me = await r.json();
+  } catch (e) {}
+  if (!me) return;
+  if (me.google && !me.signed_in) return gate(true);
+  if (me.signed_in && me.email) {
+    var t = me.trial || {}, a = $('#acct');
+    a.textContent = me.email + (t.state === 'running' ? ' · ' + N(t.days_left) + (N(t.days_left) === 1 ? ' day' : ' days') + ' left in your trial' : '');
+    a.hidden = false;
+  }
+})();
 
 /* ---------- start ---------- */
 var start = HASH.indexOf(location.hash.slice(1)) + 1;

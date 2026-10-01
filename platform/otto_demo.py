@@ -14,7 +14,7 @@ followers grow with reach × follow_rate; site clicks = reach × ctr_org + paid 
 day `paid_start` at `budget`/day with CPC drifting down as the CPL guard prunes losers; orders = clicks ×
 cvr; revenue = orders × aov. Assumptions are brand-tunable in the "assumptions" block.
 """
-import json, math, random, sys
+import json, random, sys
 from datetime import date, timedelta
 from pathlib import Path
 
@@ -58,7 +58,7 @@ def journey(bid, days=90, seed=7, out=None):
     A = dict(DEFAULTS.get(bid) or GENERIC)
     if not A["currency"]:
         A["currency"] = ap.currency_symbol(ap.brand_currency(data, bid)).strip()
-    brand = next((b for b in data.get("brands", []) if b["id"] == bid), {"id": bid, "name": bid})
+    brand = ap.brand(data, bid) or {"id": bid, "name": bid}
     posts = [p for p in data.get("posts", []) if p.get("brand") == bid]
     plans = sorted({p["plan"] for p in posts if p.get("plan")})
     month1 = [p for p in posts if plans and p.get("plan") == plans[0]]

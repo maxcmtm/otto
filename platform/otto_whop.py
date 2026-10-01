@@ -33,12 +33,19 @@ price × 30 / period_days; FX for non-EUR payments is a fixed approximate table 
 Plans: a customer linked to a brand (brand_id, set only by `link` / the console's link — a domain match the console shows is
 never used for this) gives that brand its Otto plan, data.json brands[].plan: the Whop plan id is looked up in plans.json
 whop_plan_ids (ap.plan_for_whop) while the membership runs (active / trialing / past_due; "canceling" runs until the period
-ends) and clears the "not billed yet" flag (brands[].plan_billing); a canceled / expired membership moves the brand to
+ends), clears the "not billed yet" flag (brands[].plan_billing) and takes a brand still "onboarding" (the public sign-up) to
+status "active", so its jobs start (otto_cron runs active brands only); a canceled / expired membership moves the brand to
 plans.json defaults.ended ("none": publishing paused; otto_retention deletes the brand's data 90 days later unless a plan
 starts again) with one owner card. A Whop plan that plans.json does not map leaves the brand's plan as it is (and says so). It
 runs on `link`, on every membership / payment event of a linked customer, and after a backfill; a change of plan to another
 Whop plan clears brands[].plan_until. When a brand loses paid ads with campaigns live, `otto_ads.py guard` is started in the
 background (SPAWN) so they are paused now, not at the next daily guard.
+Free trial (otto_trial): a running membership on a mapped plan whose e-mail equals a signed-in user's verified Google e-mail
+(users[], otto_auth) and that is not linked yet is linked to that user's trial brand on arrival (otto_trial.autolink → link:
+the plan, plan_until cleared, the trial converted, the user active). The trial's checkout locks the e-mail field to that
+address (whop.json "checkout_base" changes the checkout host, default https://whop.com/checkout/). Anything else — another
+e-mail, an unmapped plan, a customer already linked — stays the owner's manual link. Idempotent: a linked customer is
+never linked again.
 """
 import base64, fcntl, hashlib, hmac, json, os, re, subprocess, sys, time, urllib.error, urllib.parse, urllib.request
 from contextlib import contextmanager
@@ -98,7 +105,7 @@ def config():
     plans = dict(PLANS)
     if isinstance(raw.get("plans"), dict):
         plans.update({k: v for k, v in raw["plans"].items() if isinstance(v, dict)})
-    return {"api_key": os.environ.get("WHOP_API_KEY") or pick("api_key", "apiKey"),
+    return {"api_key": os.environ.get("WHOP_API_KEY") or pick("api_key", "apiKey"), "checkout_base": pick("checkout_base"),
             "company_id": os.environ.get("WHOP_COMPANY_ID") or pick("company_id", "account_id", "companyId"),
             "webhook_secrets": [s.strip() for s in secrets_ if s and s.strip()],
             "api_base": (pick("api_base") or API_BASE).rstrip("/"), "plans": plans, "file": f.exists()}
@@ -356,7 +363,7 @@ def handle_event(evt, event_id=None, source="webhook"):
     etype = str(evt.get("type") or evt.get("action") or evt.get("event") or "")[:80]
     data = evt.get("data") if isinstance(evt.get("data"), dict) else {}
     eid = str(event_id or evt.get("id") or "")[:120]
-    linked = None
+    linked = cust = None
     with transaction() as b:
         if eid and eid in b["seen"]:
             return {"duplicate": True, "type": etype}
@@ -381,8 +388,21 @@ def handle_event(evt, event_id=None, source="webhook"):
             del b["seen"][:-KEEP_SEEN]
         if source == "webhook":
             b["last_webhook_at"] = ap.now_iso()
+        cust = dict(linked) if linked else None
         linked = dict(linked) if linked and linked.get("brand_id") else None
     out = {"type": etype, "ref": ref}
+    if cust and not linked:                                   # a trial user paid with their verified Google e-mail
+        try:
+            import otto_trial
+            res = otto_trial.autolink(cust)
+        except Exception as e:                                # noqa: BLE001 — the event is stored; the owner can link by hand
+            print(f"trial auto-link failed: {type(e).__name__}: {e}", file=sys.stderr)
+            res = None
+        if res and res.get("brand_id"):
+            out["auto_linked"] = res["brand_id"]
+            ps = res.get("plan_sync") or {}
+            if ps.get("changed"):
+                out["plan"] = {"brand": ps["brand"], "from": ps["from"], "to": ps["to"]}
     if linked:                                                # outside the billing lock: data.json has its own
         res = sync_plan(linked, by="whop")
         if res and res.get("changed"):
@@ -523,8 +543,9 @@ def customer_rows(b=None, cfg=None):
 
 
 def link(customer_id, brand_id, by="cli"):
-    """Tie a customer to a brand ("" unlinks) and give the brand the membership's plan (sync_plan). Unlinking leaves the
-    brand's plan as it is. → the customer, with "plan_sync" (sync_plan's answer) when a brand was linked."""
+    """Tie a customer to a brand ("" unlinks), make the payer a member of it (brands[].members: they sign in to the app and
+    get the approval e-mails) and give the brand the membership's plan (sync_plan). Unlinking leaves the brand's plan and
+    members as they are. → the customer, with "plan_sync" (sync_plan's answer) and "member_added" when a brand was linked."""
     with transaction() as b:
         c = b["customers"].get(customer_id)
         if c is None:
@@ -537,6 +558,13 @@ def link(customer_id, brand_id, by="cli"):
             c.pop("brand_link", None)
         c = dict(c)
     if brand_id:
+        email = ap.norm_member(c.get("email"))
+        if email and not email.startswith("@"):
+            with ap.transaction() as d:
+                b = ap.brand(d, brand_id)
+                if b is not None and email not in (b.get("members") or []):
+                    b["members"] = list(b.get("members") or []) + [email]
+                    c["member_added"] = email
         res = sync_plan(c, by=by)
         c["plan_sync"] = res
         if res and res.get("changed"):
@@ -578,9 +606,13 @@ def sync_plan(c, by="whop"):
         cur = ap.plan_of(d, bid)
         res = {"brand": bid, "changed": False, "from": cur["id"], "to": cur["id"], "why": why, "live": []}
         ended = ap.plans_config()["defaults"]["ended"]
-        if target is not None and target != ended and b.get("plan_billing"):
-            b.pop("plan_billing", None)                        # a running membership pays for it now: billed
-            res["billed"] = True
+        if target is not None and target != ended:
+            if b.get("plan_billing"):
+                b.pop("plan_billing", None)                    # a running membership pays for it now: billed
+                res["billed"] = True
+            if b.get("status") == "onboarding":                # paid and linked: otto_cron runs "active" brands only
+                b["status"] = "active"
+                res["activated"] = True
         if target is None or b.get("plan") == target:        # the same plan: nothing to do (an owner-set plan_until stays)
             return res
         keep = cur["requested"] == target                    # a legacy record made explicit keeps its pilot end date

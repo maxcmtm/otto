@@ -1,0 +1,44 @@
+{
+  "id": "nl-a6-big",
+  "style": "big",
+  "formats": [
+    "9x16"
+  ],
+  "music": {
+    "bpm": 120,
+    "mood": "punchy",
+    "key": "C"
+  },
+  "scene": {
+    "ground": "primary"
+  },
+  "big": {
+    "hero": "month",
+    "phrases": [
+      {
+        "big": "Sinterklaas.",
+        "rest": "Gepland."
+      },
+      {
+        "big": "Kerst.",
+        "rest": "Gepland."
+      },
+      {
+        "big": "Jij?",
+        "rest": "Aan het werk.",
+        "product": "month"
+      }
+    ]
+  },
+  "endcard": {
+    "headline": "Jouw december, al gepland.",
+    "accent": "al gepland.",
+    "sub": "Posts, reels en advertenties door Otto.",
+    "fine": "7 dagen gratis proberen, geen creditcard nodig.",
+    "products": [
+      "month"
+    ],
+    "logo": "logo",
+    "ground": "bg"
+  }
+}

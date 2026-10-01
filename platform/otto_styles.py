@@ -63,9 +63,8 @@ HERE = Path(__file__).resolve().parent
 REPO = HERE.parent
 TEMPLATES = Path(os.environ.get("OTTO_TEMPLATES") or HERE / "templates" / "ads")
 SIZES = {"feed": (1080, 1350), "story": (1080, 1920), "square": (1080, 1080)}
-# style families: the static families of the catalogue + the two video families a cell can be (research: 11 families)
+# style families of the catalogue (a video cell counts as "faceless_video" or "ugc_video": cell_family(); research: 11 families)
 FAMILIES = ("native", "people", "proof", "comparison", "product", "offer", "editorial", "ugc_video")
-CELL_FAMILIES = FAMILIES + ("faceless_video",)
 ANGLE_FAMILIES = ("pain", "identity", "enemy", "experience", "offer", "moment")
 KINDS = ("competitor", "objection", "proof", "benefit", "offer", "audience", "education")
 STAGES = ("cold", "warm", "hot")
@@ -178,7 +177,6 @@ ALIASES = {"notes": "notes_app", "google": "search", "google_search": "search", 
 # faceless motion versions: the HyperFrames ad kit (motion/ad-kit: text-overlay POV) and the otto_motion reel (voiceover b-roll).
 # There is deliberately no "ugc" kit: a person talking is the creator format — real footage, never generated.
 VIDEO_KITS = {"notes": "ad-kit", "search": "ad-kit", "texts": "ad-kit", "versus": "ad-kit", "big": "ad-kit", "reel": "otto_motion"}
-KIT_ORDER = ["notes", "search", "texts", "versus", "big", "reel"]          # the faceless slot prefers text-overlay POV kits
 NEEDS = {"photo": "a brand photo (brands/<id>/assets/, the scanned site images or a post image)",
          "product_image": "a product cutout / packshot (brands/<id>/assets/ or strategy.json assets.product)",
          "person_photo": "a real person photo (strategy.json assets.people or a site photo of a person)",
@@ -229,9 +227,8 @@ MICRO_RULES = dict(LAUNCH_RULES, min_angles=4, angle_families=["pain", "identity
 # SCALE (plans.json "scale"): the launch families and slots with 8 executions per concept (the plan sets the weekly refresh)
 SCALE_RULES = dict(LAUNCH_RULES, min_styles_per_angle=8, min_styles_total=14, refresh_per_angle_week=2)
 PRESETS = {"launch": LAUNCH_RULES, "micro": MICRO_RULES, "scale": SCALE_RULES}
-DEFAULT_RULES = LAUNCH_RULES
 # below this daily budget (in EUR) 36 creatives are too thin (~€1 per creative per day): the micro floor applies.
-# Judgement call, tunable; EUR_PER is a rough rate table only used to pick the plan size.
+# Judgement call, tunable; EUR_PER is a rough rate table, only the fallback for a currency otto_whop.FX_EUR lacks.
 MICRO_BELOW_DAILY_EUR = 36.0
 EUR_PER = {"EUR": 1, "USD": 1.08, "GBP": 0.85, "CHF": 0.95, "ILS": 4.0, "PLN": 4.3, "CZK": 25.0, "HUF": 395.0, "RON": 5.0,
            "SEK": 11.3, "NOK": 11.6, "DKK": 7.46, "BGN": 1.96, "CAD": 1.5, "AUD": 1.65}
@@ -421,11 +418,17 @@ def size_text(m):
 
 
 def preset_for_budget(daily, currency="EUR"):
-    """'micro' when the flight's daily budget is below MICRO_BELOW_DAILY_EUR (rough EUR conversion), else 'launch'."""
+    """'micro' when the flight's daily budget is below MICRO_BELOW_DAILY_EUR, else 'launch'. EUR through ap.to_eur — the table
+    the plan's ad-spend band uses (otto_whop.FX_EUR), so the matrix size and the band never disagree; EUR_PER only for a
+    currency that table does not have."""
     try:
-        eur = float(daily) / EUR_PER.get(str(currency or "EUR").upper(), 1.0)
+        daily = float(daily)
     except (TypeError, ValueError):
         return "launch"
+    cur = str(currency or "EUR").upper()
+    eur = ap.to_eur(daily, cur)
+    if eur is None:
+        eur = daily / EUR_PER.get(cur, 1.0)
     return "micro" if eur < MICRO_BELOW_DAILY_EUR else "launch"
 
 

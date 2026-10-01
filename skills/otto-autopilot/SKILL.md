@@ -27,6 +27,17 @@ as soon as it is written; nothing that is not public is ever handed to Meta.
 9. `otto_plan.py fill … --pending` (or `ap.py set <id> '{"status":"pending_approval"}'`) for week 1 → `otto_telegram.py send-cards` (format below).
 10. **Owner touch #2 — connect channels:** Meta OAuth (Page + IG) → `otto-secrets/meta-<slug>.json`; Telegram already paired. Until credentials exist the publisher waits and says so.
 
+### 0b. Free-trial kickoff (self-serve sign-ups — highest priority work of the day)
+A Google sign-up that onboards gets a 7-day trial (otto_trial) and its weeks are planned on the spot
+(`otto_trial.kickoff`: every month the trial overlaps, future slots only). The brand then carries
+`kickoff.copy_needed: true` and an owner card "New trial: write the first week for <Name>". Before anything else that day:
+1. Steps 3 (profile inference) and 7 (Quill) for the posts in the **next 7 days** first, then the rest of the month.
+2. Step 8 visuals for those 7 days (`genvisuals.py --brand <slug> --limit 12`), step 9 to put them in front of the client
+   (their approvals channel: e-mail by default).
+3. `otto_trial.py copy-done <slug>` → clears the flag; resolve the owner card.
+The trial plan previews paid ads (matrix planned and rendered) but never launches them; don't promise a live campaign
+before a card is on file. A trial that ends unpaid pauses itself (no action needed); its data is kept 90 days.
+
 ## 1. Daily (every day, no owner action unless a card arrives)
 | when (IL) | what | how |
 |---|---|---|

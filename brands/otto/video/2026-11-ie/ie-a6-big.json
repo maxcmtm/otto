@@ -1,0 +1,44 @@
+{
+  "id": "ie-a6-big",
+  "style": "big",
+  "formats": [
+    "9x16"
+  ],
+  "music": {
+    "bpm": 120,
+    "mood": "punchy",
+    "key": "C"
+  },
+  "scene": {
+    "ground": "primary"
+  },
+  "big": {
+    "hero": "month",
+    "phrases": [
+      {
+        "big": "Christmas.",
+        "rest": "Planned."
+      },
+      {
+        "big": "New Year.",
+        "rest": "Planned."
+      },
+      {
+        "big": "You?",
+        "rest": "Working.",
+        "product": "month"
+      }
+    ]
+  },
+  "endcard": {
+    "headline": "December, already planned.",
+    "accent": "already planned.",
+    "sub": "Posts, reels and ads, made by Otto.",
+    "fine": "Try it free for 7 days, no card needed.",
+    "products": [
+      "month"
+    ],
+    "logo": "logo",
+    "ground": "bg"
+  }
+}

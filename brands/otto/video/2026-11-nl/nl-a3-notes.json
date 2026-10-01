@@ -1,0 +1,36 @@
+{
+  "id": "nl-a3-notes",
+  "style": "notes",
+  "formats": [
+    "9x16"
+  ],
+  "music": {
+    "bpm": 120,
+    "mood": "calm",
+    "key": "F"
+  },
+  "scene": {
+    "ground": "primary"
+  },
+  "note": {
+    "meta": "Dinsdag, 22:15",
+    "title": "Woorden die mijn klanten nooit gebruiken",
+    "struck": [
+      "super excited",
+      "next level",
+      "unieke beleving"
+    ],
+    "keep": "gewoon: nieuw bij ons, vanaf zaterdag"
+  },
+  "endcard": {
+    "headline": "Nederlands. Niet vertaald.",
+    "accent": "Niet vertaald.",
+    "sub": "Posts, reels en advertenties die klinken als jouw zaak.",
+    "fine": "Otto schrijft in het Nederlands, voor jouw klanten.",
+    "products": [
+      "review_nl"
+    ],
+    "logo": "logo",
+    "ground": "bg"
+  }
+}

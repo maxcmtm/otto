@@ -10,9 +10,10 @@
   otto_retention.py export <brand>                       # the brand's content as a zip in OTTO_EXPORTS now (Terms 17.2)
   otto_retention.py restore <zip> [--apply]              # put an exported brand back (a returning client); dry by default
 
-Timeline. A plan ends when the brand moves to plans.json defaults.ended ("none": a canceled / expired Whop membership, or the
-owner console): the date of that brands[].plan_history entry (UTC). A brand found on "none" without such an entry counts from
-the day this job first saw it (brands[].retention.source "first_seen"). delete_on = ended + 90 days. Owner notices 14 and 3
+Timeline. A plan ends when the brand moves to plans.json defaults.ended ("none": a canceled / expired Whop membership, the
+owner console, or a free trial that ended without a card): the date of that brands[].plan_history entry (UTC) — its
+"effective" date when it names one (otto_trial: the trial's end, whenever the hourly job got to it). A brand found on
+"none" without such an entry counts from the day this job first saw it (brands[].retention.source "first_seen"). delete_on = ended + 90 days. Owner notices 14 and 3
 days before: an owner recommendation (never shown to the client), a Telegram message to the owner chat (otto_telegram) and an
 e-mail to OTTO_OWNER_EMAIL, else the OTTO_ADMIN_USERS addresses (otto_email: its transport, or the outbox) — each when
 configured. A deletion never comes sooner than 3 days after the 3-day notice (a brand already past its date when this job
@@ -28,11 +29,13 @@ the records go and the list of files to remove is written to .retention-journal.
 the journal entry is dropped (a crash resumes from the journal on the next run):
 - data.json: the brand and every record of it — posts, campaigns, recommendations, taste_log, edit_requests, connections
   (meta-<id>, tg-<id>, … and legacy ones by the brand's name), the brand's key in metrics / ads / competitors / growth (any
-  top-level object keyed by brand id), every other top-level list's entries with "brand": <id>, seq prefix:<id>;
+  top-level object keyed by brand id), every other top-level list's entries with "brand": <id>, seq prefix:<id>; and the
+  Google sign-in account (users[], otto_auth) that created it once it has no other brand (its sessions stop working; the
+  trial ledger keeps only hashes);
 - files: brands/<id>/; its media in OTTO_ASSETS and in the public dir (with .jpg / .png twins and .provenance.json sidecars,
   and every file named after one of its posts or campaigns) unless another brand's record or a page shipped with the release
   names the same file; reels/<post>/ scene caches; assets/site/<id>/; motion projects <id>-<post>; its per-brand secrets
-  (<service>-<id>.json in OTTO_SECRETS: meta-, google-, …); its e-mails in the outbox;
+  (<service>-<id>.json in OTTO_SECRETS: meta-, google-, …; never Otto's own google-oauth.json); its e-mails in the outbox;
 - its lead: the brand's own domain in leads.json, and in the scan events of events.jsonl (the event stays, without the domain);
   its per-brand entries in .email-state.json and heartbeats.json; its figures in metrics_history.jsonl;
 - actions.log keeps every line (who did what, when) with its content stripped (note=…, ip=…).
@@ -65,6 +68,7 @@ FORMAT = "otto-brand-export/1"
 EXPORT_RE = re.compile(r"^otto-export-[A-Za-z0-9_.-]+-(\d{8})T\d{6}Z\.zip$")
 ASSET_REF = re.compile(r"^assets/[A-Za-z0-9_@%.+/-]+$")
 STRIP = re.compile(r' (note|ip)=("(?:[^"\\]|\\.)*"|\S+)')
+SYSTEM_SECRETS = {"google-oauth.json"}         # Otto's own Google sign-in client, never a brand's token file (brand "oauth")
 
 
 # ---------------------------------------------------------------- paths (read when used: tests and the server set them)
@@ -186,7 +190,7 @@ def ended_on(b, ended):
     job first saw the brand there (brands[].retention.ended), else (None, "first_seen") — the caller uses today."""
     hist = [h for h in (b.get("plan_history") or []) if isinstance(h, dict)]
     if hist and hist[-1].get("to") == ended:
-        day = _day(hist[-1].get("at"))
+        day = _day(hist[-1].get("effective")) or _day(hist[-1].get("at"))
         if day:
             return day, "plan_history"
     st = b.get("retention") if isinstance(b.get("retention"), dict) else {}
@@ -280,6 +284,18 @@ def purge_records(d, bid):
         counts[k] = counts.get(k, 0) + 1
     for k in sl["seq"]:
         d["seq"].pop(k, None)
+    live = {x.get("id") for x in d.get("brands") or [] if isinstance(x, dict)}
+    users, gone = [], 0
+    for u in d.get("users") or []:                  # the sign-in account that created it (otto_trial), once it has no brand left
+        if isinstance(u, dict) and bid in (u.get("brands") or []):
+            u["brands"] = [x for x in u["brands"] if x != bid]
+            if not [x for x in u["brands"] if x in live] and not ap.member_brands(d, u.get("email")):
+                gone += 1
+                continue
+        users.append(u)
+    if gone:
+        d["users"] = users
+        counts["users"] = gone
     return counts
 
 
@@ -363,7 +379,8 @@ def inventory(d, bid):
     files = {f for f in files if not any(f.is_relative_to(x) for x in dirs)}
     sd = secrets_dir()
     secret_re = re.compile(rf"^[a-z]+-{re.escape(bid)}\.json$")
-    secrets_ = sorted(f for f in sd.iterdir() if f.is_file() and secret_re.match(f.name)) if sd.is_dir() else []
+    secrets_ = sorted(f for f in sd.iterdir() if f.is_file() and secret_re.match(f.name) and f.name not in SYSTEM_SECRETS) \
+        if sd.is_dir() else []
     ob = outbox_dir()
     ob_re = re.compile(rf"^\d{{8}}T\d{{6}}-{re.escape(re.sub(r'[^a-z0-9-]', '', bid)[:40])}-[a-z]+-[0-9a-f]{{8}}-[0-9a-f]{{4}}\.eml$")
     outbox = sorted(f for f in ob.iterdir() if f.is_file() and ob_re.match(f.name)) if ob.is_dir() else []
@@ -998,6 +1015,14 @@ def run(today=None, out=print):
     except Exception as e:                                      # noqa: BLE001
         out(f"journal: {type(e).__name__}: {e}")
         failed = True
+    try:                                # before the deletions: an export made below is never pruned by this same run (its
+        gone = prune_exports(today)     # stamp is the wall clock, `today` may be a --today well ahead of it)
+        if gone:
+            audit(f"exports removed {len(gone)} (older than {EXPORT_KEEP_DAYS} days)")
+            out(f"exports removed: {', '.join(gone)}")
+    except Exception as e:                                      # noqa: BLE001
+        out(f"prune: FAILED {type(e).__name__}: {str(e)[:200]}")
+        failed = True
     cfg = ap.plans_config()
     if cfg.get("error"):
         out(f"plans.json is unreadable ({cfg['error'][:120]}) — no notice, no deletion today")
@@ -1027,10 +1052,6 @@ def run(today=None, out=print):
                 out(f"{bid}: FAILED {type(e).__name__}: {str(e)[:200]}")
                 failed = True
     try:
-        gone = prune_exports(today)
-        if gone:
-            audit(f"exports removed {len(gone)} (older than {EXPORT_KEEP_DAYS} days)")
-            out(f"exports removed: {', '.join(gone)}")
         prune_leads(today, out)
     except Exception as e:                                      # noqa: BLE001
         out(f"prune: FAILED {type(e).__name__}: {str(e)[:200]}")

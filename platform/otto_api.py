@@ -22,6 +22,12 @@ POST /otto-track                    -> landing analytics beacon, PUBLIC (otto_tr
                                        per client, hashed visitor id with a daily salt, no raw IP stored, DNT/GPC honoured) → 204
 POST /otto-api/whop                 -> Whop webhook, PUBLIC in nginx (otto_whop: Standard Webhooks signature, 5-minute window,
                                        each event once) — no Origin check, the signature is the authentication
+GET  /auth/google/start?next=/path   -> Google sign-in (otto_auth: OIDC code flow + PKCE + state + nonce) → 302 to Google
+GET  /auth/google/callback          -> code exchanged at Google (TLS), ID token verified (RS256 / JWKS, iss, aud, exp, nonce,
+                                       email_verified) → user (first login = sign-up + free trial, otto_trial) → session cookie
+                                       → 303 to next. Without google-oauth.json both answer 503 "Google sign-in isn't set up yet".
+POST /auth/logout                   -> ends the session, clears the cookie (Origin rule as below; no body needed)
+GET  /auth/me                       -> {signed_in, google (sign-in configured), email, name, status, trial, brands, checkout}
 GET  /otto-api/admin/snapshot?days=30   -> owner console data (otto_admin.snapshot; cached 15 s)
 POST /otto-api/admin  {"action":"kill_switch","state":"on","note":"…"} | {"action":"pause_brand"|"resume_brand","brand":…}
                       | {"action":"campaign","id":…,"decision":"approve"|"reject"} | {"action":"rescan","brand":…}
@@ -36,7 +42,8 @@ Hardening:
     IPv6 client by its /64 (otto_track.rate_key).
   * CORS: Access-Control-Allow-Origin only on /otto-peek (the public landing). /otto-api/* sends none.
   * POST: Content-Type must be application/json and Origin (or Referer) must be one of OTTO_ALLOWED_ORIGINS
-    (default https://dash.monyflow.work). A proxied request (any PROXY_HEADERS header) with neither header is refused.
+    (default: the apex, app. and admin. of OTTO_DOMAIN; without it the old box, https://dash.monyflow.work). A proxied request
+    (any PROXY_HEADERS header) with neither header is refused.
     Every proxy location in front of this port MUST set X-Real-IP itself (overwriting the client's); Caddy and Cloudflare do
     not by default (Caddy: `header_up X-Real-IP {remote_host}`, or CF-Connecting-IP when only Cloudflare can reach it).
   * Status changes follow ap.POST_TRANSITIONS / ap.REC_TRANSITIONS: published / publishing / failed posts
@@ -53,6 +60,14 @@ Hardening:
     console), metrics / ads / growth / competitors for those ids, connections, taste log, edit requests — and nothing else
     (no fleet, controls, counters). /otto-api/action and /decide answer 404 for another brand's id; /otto-api/onboard
     makes the signed-in user a member of a brand it creates and refuses (409) a site that is someone else's brand.
+  * Who is signed in — one source per request, never both: (a) the Google session cookie (otto_auth; app.<domain>, where
+    Caddy sends no X-Otto-User any more) — the session's verified e-mail is the user; it is scoped to its member brands
+    (brands[].members; "@domain" entries only for a Google Workspace account of that domain) even on OTTO_SINGLE_TENANT or a
+    direct local call, and sees everything only when that exact address is in OTTO_ADMIN_USERS ("*" never counts for a
+    session); a request carrying both a session and a different X-Otto-User is refused (401). (b) Otherwise the proxy's
+    X-Otto-User (Cloudflare Access on admin.) under the OTTO_PROXY_KEY rule below. The console API (/otto-api/admin*) takes
+    only (b): a session never opens it. A client whose every brand came from a free trial that ended without a card gets
+    402 {"code": "trial_ended" | "no_trial", checkout: […]} from /data, /action and /decide (the data is kept).
     Everything is visible to: admins (OTTO_ADMIN_USERS, or "*"), OTTO_SINGLE_TENANT=1 (today's one-login box), and a
     direct local call. The proxy must overwrite X-Otto-User; OTTO_PROXY_KEY (sent by the proxy as X-Otto-Proxy-Key)
     makes the name count only on requests that came through it. A proxied request with no X-Otto-User gets 401; a user
@@ -74,10 +89,12 @@ from pathlib import Path
 
 import ap  # same directory — reuse load/transaction
 import otto_admin
+import otto_auth
 import otto_email
 import otto_onboard
 import otto_scan
 import otto_track
+import otto_trial
 import otto_whop
 
 HERE = Path(__file__).parent
@@ -86,8 +103,9 @@ PORT = 8161
 
 POST_STATUSES = ap.STATUSES
 REC_STATUSES = ap.REC_STATUSES
-ALLOWED_ORIGINS = {o.strip().rstrip("/") for o in
-                   (os.environ.get("OTTO_ALLOWED_ORIGINS") or "https://dash.monyflow.work").split(",") if o.strip()}
+_DOMAIN = (os.environ.get("OTTO_DOMAIN") or "").strip()
+ALLOWED_ORIGINS = {o.strip().rstrip("/") for o in (os.environ.get("OTTO_ALLOWED_ORIGINS") or (    # the new server: its three hosts
+    f"https://{_DOMAIN},https://app.{_DOMAIN},https://admin.{_DOMAIN}" if _DOMAIN else "https://dash.monyflow.work")).split(",") if o.strip()}
 
 _peek_lock = threading.Lock()
 _peek_sem = threading.BoundedSemaphore(4)
@@ -138,6 +156,10 @@ class NoUser(Exception):
     """A proxied request that does not say who is signed in (and the box is not single-tenant)."""
 
 
+class Ambiguous(Exception):
+    """A session cookie and a different proxy-named user on one request: never guess which one counts."""
+
+
 def admin_users():
     return {u.strip().lower() for u in (os.environ.get("OTTO_ADMIN_USERS") or "").split(",") if u.strip()}
 
@@ -148,8 +170,11 @@ def single_tenant():
 
 OWNER_REC_SOURCES = {"otto_admin"}       # console-filed operational cards ("pause cp-003 by hand") stay with the owner
 CLIENT_LIST_KEYS = ("posts", "campaigns", "taste_log")
-# owner-side brand fields a client never gets: sign-ins, the console's pause / re-scan notes, who changed the plan and why
-CLIENT_HIDDEN_BRAND_KEYS = ("members", "paused", "rescan", "plan_history", "plan_notice", "plan_billing", "ad_band")
+# owner-side brand fields a client never gets: sign-ins, the console's pause / re-scan notes, who changed the plan and why, the
+# retention job's countdown and a legal hold (otto_retention)
+CLIENT_HIDDEN_BRAND_KEYS = ("members", "paused", "rescan", "plan_history", "plan_notice", "plan_billing", "ad_band", "retention",
+                            "retention_hold", "trial", "activated_by", "activated_at")
+HIDDEN_BRAND_KEY = re.compile(r"^retention|notice")      # every retention / notice field, whatever a later module names it
 CLIENT_DICT_KEYS = ("metrics", "ads", "competitors", "growth")
 
 
@@ -166,7 +191,7 @@ def client_view(d, bids):
     brands = [b for b in d.get("brands", []) if isinstance(b, dict) and b.get("id") in bids]
     names = {str(b.get("name") or "").strip().lower() for b in brands} - {""}
     out = {"generated": d.get("generated"), "scope": "client",
-           "brands": [dict({k: v for k, v in b.items() if k not in CLIENT_HIDDEN_BRAND_KEYS},
+           "brands": [dict({k: v for k, v in b.items() if k not in CLIENT_HIDDEN_BRAND_KEYS and not HIDDEN_BRAND_KEY.search(k)},
                            **({"paused": True} if b.get("paused") else {})) for b in brands]}
     for k in CLIENT_LIST_KEYS:
         out[k] = [x for x in d.get(k) or [] if isinstance(x, dict) and x.get("brand") in bids]
@@ -180,18 +205,53 @@ def client_view(d, bids):
     own = lambda c: str(c.get("id") or "").split("-", 1)[-1]           # "meta-<brand id>", "tg-<brand id>" …
     out["connections"] = [c for c in d.get("connections") or [] if isinstance(c, dict) and (
         own(c) in bids or (own(c) not in all_ids and str(c.get("brand") or "").strip().lower() in names))]   # legacy: by name
+    out["connections"] = [installed_state(c) for c in out["connections"]]
     return out
 
 
-def with_plans(d):
+def installed_state(c):
+    """A connection shows "connected" once its credentials are installed (meta-<brand>.json / google-<brand>.json in
+    OTTO_SECRETS): tokens arrive out of band today, so connections[] alone would say "not connected" forever."""
+    cid = str(c.get("id") or "")
+    kind, _, bid = cid.partition("-")
+    f = {"meta": f"meta-{bid}.json", "gads": f"google-{bid}.json"}.get(kind)
+    secrets = Path(os.environ.get("OTTO_SECRETS") or Path(__file__).resolve().parent.parent.parent / "otto-secrets")
+    if f and bid and c.get("status") != "connected" and (secrets / f).is_file():
+        return dict(c, status="connected")
+    return c
+
+
+def with_plans(d, full=None):
     """Each brand of the answer carries plan_view (ap.plan_view: label, what is included, this month's usage) for the app's
-    Settings. A plan that cannot be resolved never fails the request."""
+    Settings, and plan_view.trial {state, ends_at, days_left} while it came from a free trial. A plan that cannot be resolved
+    never fails the request. full = the whole data.json when d is a client view (the trial record is not in it)."""
+    src = full if full is not None else d
+    now = otto_trial.utcnow()
     for b in d.get("brands") or []:
         if isinstance(b, dict) and b.get("id"):
             try:
-                b["plan_view"] = {k: v for k, v in ap.plan_view(d, b["id"]).items() if k not in ("config_error", "not_billed", "band")}
+                b["plan_view"] = {k: v for k, v in ap.plan_view(src, b["id"]).items() if k not in ("config_error", "not_billed", "band")}
+                full_b = ap.brand(src, b["id"]) or {}
+                rt = full_b.get("retention")
+                if b["plan_view"].get("ended") and isinstance(rt, dict) and rt.get("delete_on"):
+                    b["plan_view"]["delete_on"] = str(rt["delete_on"])[:10]      # the date only: the notices stay the owner's
+                tr = full_b.get("trial")
+                if isinstance(tr, dict):
+                    end = otto_trial._dt(tr.get("ends_at"))
+                    state = ("converted" if tr.get("converted_at") else "denied" if tr.get("denied") else
+                             "running" if end and now < end else "ended")
+                    b["plan_view"]["trial"] = {"state": state, "ends_at": tr.get("ends_at"), "denied": tr.get("denied"),
+                                               "days_left": max(1, -(-int((end - now).total_seconds()) // 86400))
+                                               if state == "running" else None}
             except Exception as e:                            # the app works without it
                 _log_error("/otto-api/data", 200, f"plan_view {b['id']}: {type(e).__name__}: {e}")
+    return d
+
+
+def owner_view(d):
+    """data.json as the owner / admin gets it: everything, with the same installed-credentials overlay on connections as
+    the client's view (installed_state), so both say "connected" for the same brand."""
+    d["connections"] = [installed_state(c) if isinstance(c, dict) else c for c in d.get("connections") or []]
     return d
 
 
@@ -216,6 +276,7 @@ def apply_action(kind, item_id, status, note=None, bids=None):
     if not isinstance(item_id, str) or not item_id.strip():
         raise ValueError("id must be a string")
     note = str(note).strip()[:500] if note else ""
+    snap = None
     with ap.transaction() as d:
         item = ap.post(d, item_id) if kind == "post" else ap.rec(d, item_id)
         if item is None or (bids is not None and not (item.get("brand") in bids if kind == "post" else rec_visible(item, bids))):
@@ -224,14 +285,68 @@ def apply_action(kind, item_id, status, note=None, bids=None):
             ap.decide(d, item_id, DASHBOARD_DECISIONS[status], "dashboard")      # status + taste log
         else:
             ap.check_transition(kind, item.get("status"), status)
-            item["status"] = status
+            acts = kind == "rec" and status in ("approved", "done") and item.get("status") == "proposed" and has_rec_action(item)
+            item["status"] = "approved" if acts else status        # an action card is "approved" until its action ran
             item["approved_via"] = "dashboard"
             item["decided_at"] = ap.now_iso()
+            snap = dict(item) if acts else None
         if kind == "post" and status == "draft" and note:
             item["edit_note"] = note
             d.setdefault("edit_requests", []).append({"post": item_id, "note": note, "ts": ap.now_iso(), "via": "dashboard"})
     _log(f"dashboard {kind} {item_id} -> {status}" + (" (edit note)" if note else ""))
+    if snap is not None:
+        run_dashboard_rec(snap, status)
     return ap.load()
+
+
+class ActionFailed(Exception):
+    """The approval is saved, but what it starts failed (the owner has a P0 card). str(e) is for the client."""
+
+
+def has_rec_action(r):
+    """A recommendation whose approval runs code — the same cards e-mail and Telegram act on (otto_ads: the monthly paid
+    plan, a pause-campaign card)."""
+    return isinstance(r, dict) and r.get("source") == "otto_ads" and (
+        otto_email.is_plan_card(r) or r.get("action") in ("approve_plan", "pause_campaign"))
+
+
+def run_rec_action(r, via="dashboard"):
+    """What approving a recommendation does in code, as the e-mail (otto_email.run_rec_action) and Telegram paths do it,
+    recorded as approved from the app. → a short result, or None for an informational card."""
+    if r.get("source") != "otto_ads":
+        return None
+    import otto_ads
+    if otto_email.is_plan_card(r):
+        ym = otto_email.plan_month(r)
+        if not (ym and r.get("brand")):
+            return None
+        n = otto_ads.approve(r["brand"], ym, via=via)
+        return f"{n} campaign(s) approved for {otto_email.month_label(ym)}"
+    return otto_ads.rec_action(r)
+
+
+def run_dashboard_rec(snap, status):
+    """Run an approved card's action outside the data lock; the card ends "done" with action_result, or stays "approved"
+    with action_error + the owner's P0 card (ap.rec_action_failed) and ActionFailed for the app."""
+    import contextlib, io
+    try:
+        with contextlib.redirect_stdout(io.StringIO()):
+            out = run_rec_action(snap)
+    except Exception as e:
+        _log_error("/otto-api/action", 502, f"rec action {snap.get('id')}: {type(e).__name__}: {e}")
+        with ap.transaction() as d:
+            ap.rec_action_failed(d, snap, f"{type(e).__name__}: {e}", "in the app")
+        _log(f"dashboard rec {snap.get('id')} action FAILED")
+        raise ActionFailed("Your approval is saved, but Otto could not start it just now. Otto's team has been told and will "
+                           "finish it; nothing spends meanwhile.")
+    with ap.transaction() as d:
+        q = ap.rec(d, snap["id"])
+        if q is not None:
+            if out:
+                q["action_result"] = out
+            q["status"] = "done" if (out or status == "done") else "approved"
+    if out:
+        _log(f"dashboard rec {snap['id']} · {out}")
 
 
 def apply_decision(item_id, decision, via, bids=None):
@@ -363,9 +478,32 @@ class Handler(BaseHTTPRequestHandler):
             return ""
         return (self.headers.get("X-Otto-User") or "").strip().lower()[:200]
 
+    def _session(self):
+        """The Google session of this request (otto_auth.current: {"user", "token", "refresh"}) or None; read once. A slid
+        session re-sends its cookie on this response."""
+        if not hasattr(self, "_sess"):
+            try:
+                self._sess = otto_auth.current(self.headers.get("Cookie"))
+            except Exception as e:                            # an unreadable session store signs nobody in
+                _log_error(self.path.split("?")[0], 500, f"session: {type(e).__name__}: {e}")
+                self._sess = None
+            if self._sess and self._sess.get("refresh"):
+                self._extra.append(otto_auth.refresh_cookie(self._sess["token"]))
+        return self._sess
+
     def _scope(self):
         """(bids, user): bids None = sees everything (admin, single tenant, direct local call), else the set of brand ids
-        the signed-in user is a member of (possibly empty). Raises NoUser for a proxied call that names nobody."""
+        the signed-in user is a member of (possibly empty). Raises NoUser for a proxied call that names nobody, Ambiguous
+        for a session and a different proxy user on one request. A Google session always scopes (see the module doc)."""
+        sess = self._session()
+        if sess:
+            email = str(sess["user"].get("email") or "").lower()
+            proxy = self._user()
+            if proxy and proxy != email:
+                raise Ambiguous()
+            if email in admin_users():                         # an exact address; "*" never makes a session an admin
+                return None, email
+            return ap.member_brands(ap.load(), email, domains=otto_trial.domain_ok(sess["user"])), email
         if single_tenant() or self._direct_local():
             return None, self._user() or None
         user, admins = self._user(), admin_users()
@@ -375,14 +513,24 @@ class Handler(BaseHTTPRequestHandler):
             raise NoUser()
         return ap.member_brands(ap.load(), user), user
 
-    def _no_user(self):
-        return self._send(401, {"error": "sign in first (the proxy must name the signed-in user in X-Otto-User; "
-                                         "a single-login box sets OTTO_SINGLE_TENANT=1)"})
+    def _no_user(self, ambiguous=False):
+        if ambiguous:
+            return self._send(401, {"error": "two different sign-ins on one request — sign out and sign in again", "signin": True})
+        return self._send(401, {"error": "sign in first", "signin": True, "google": otto_auth.configured()})
+
+    def _paywall(self, bids):
+        """402 when every brand of a scoped caller came from a free trial that ended without a card (otto_trial.paywall)."""
+        if not bids:
+            return None
+        sess = self._session()
+        return otto_trial.paywall(ap.load(), bids, sess["user"] if sess else None)
 
     def _admin_ok(self):
         """Fail-closed: behind the proxy the console needs OTTO_ADMIN_USERS ("*" = anyone the proxy authenticated);
         a direct local call (CLI, tests) is allowed."""
         users = admin_users()
+        if otto_auth.session_token_from(self.headers.get("Cookie")) and not self._user():
+            return False                                      # a Google session never opens the console (admin. is Access)
         if "*" in users:
             return True
         if not users:
@@ -401,6 +549,10 @@ class Handler(BaseHTTPRequestHandler):
 
     def _who(self):
         return otto_admin.clean_who(self._user())
+
+    def setup(self):
+        super().setup()
+        self._extra = []                                      # extra response headers (a slid session's cookie)
 
     def _length(self):
         """Content-Length as an int; -1 when it is missing, negative or not a number (never read until EOF)."""
@@ -429,11 +581,59 @@ class Handler(BaseHTTPRequestHandler):
         self.send_header("Content-Type", "application/json; charset=utf-8")
         self.send_header("Cache-Control", "no-store")
         self.send_header("X-Content-Type-Options", "nosniff")
+        for k, v in self._pop_extra():
+            self.send_header(k, v)
         if self._public():
             self.send_header("Access-Control-Allow-Origin", "*")
         self.send_header("Content-Length", str(len(body)))
         self.end_headers()
         self.wfile.write(body)
+
+    def _pop_extra(self):
+        out, self._extra = list(getattr(self, "_extra", [])), []
+        return out
+
+    def _reply(self, r):
+        """An otto_auth.Reply (redirect, page or JSON): never cached, never framed, no referrer (the callback URL carries the
+        code), its own CSP for pages; an actions.log line when it has one."""
+        if r.log:
+            _log(f"{r.log} ip={self._client_ip()}")
+        if r.event:
+            self._measure(*r.event)
+        self.send_response(r.code)
+        self.send_header("Cache-Control", "no-store")
+        self.send_header("X-Content-Type-Options", "nosniff")
+        self.send_header("X-Frame-Options", "DENY")
+        self.send_header("Referrer-Policy", "no-referrer")
+        self.send_header("X-Robots-Tag", "noindex, nofollow")
+        for k, v in list(r.headers) + self._pop_extra():
+            self.send_header(k, v)
+        self.send_header("Content-Type", r.ctype)
+        self.send_header("Content-Length", str(len(r.body)))
+        self.end_headers()
+        self.wfile.write(r.body)
+
+    def _measure(self, event, ref):
+        """A server-confirmed sign-up / trial start → Meta, only under otto_track's rules (meta-capi.json + the visitor's
+        consent cookie on this request, never with DNT / GPC); never fails the request."""
+        try:
+            otto_track.capi_track(event, self._client_ip(), self.headers, path=urllib.parse.urlsplit(self.path).path, ref=ref)
+        except Exception as e:
+            _log_error(self.path.split("?")[0], 200, f"capi {event}: {type(e).__name__}")
+
+    def _me(self):
+        """GET /auth/me: who is signed in (Google session, else the proxy's user) and what they may buy."""
+        try:
+            sess = self._session()
+            google = otto_auth.configured()
+            if sess:
+                return self._send(200, dict(otto_trial.account_view(ap.load(), sess["user"]), google=google, via="google"))
+            proxy = self._user()
+            if proxy and not self._direct_local():
+                return self._send(200, {"signed_in": True, "email": proxy, "via": "proxy", "google": google, "checkout": []})
+            return self._send(200, {"signed_in": False, "google": google})
+        except Exception as e:
+            self._fail("/auth/me", e)
 
     def _client_ip(self):
         return (self.headers.get("X-Real-IP") or self.client_address[0]).strip()
@@ -461,19 +661,44 @@ class Handler(BaseHTTPRequestHandler):
         self.send_header("Access-Control-Allow-Headers", "Content-Type")
         self.end_headers()
 
+    def _begin(self):
+        """Per-request state (a keep-alive connection must never carry one request's session into the next)."""
+        self._extra = []
+        self.__dict__.pop("_sess", None)
+
     def do_GET(self):
+        self._begin()
         u = urllib.parse.urlsplit(self.path)
         path = u.path.rstrip("/")
+        if path == "/auth/google/start":
+            try:
+                return self._reply(otto_auth.start(u.query, otto_track.rate_key(self._client_ip())))
+            except Exception as e:
+                return self._fail(path, e)
+        if path == "/auth/google/callback":
+            try:
+                return self._reply(otto_auth.callback(u.query, self.headers.get("Cookie"), otto_track.rate_key(self._client_ip())))
+            except Exception as e:
+                return self._fail(path, e)
+        if path == "/auth/me":
+            return self._me()
         if path == "/otto-api/data":
             try:
                 bids, user = self._scope()
             except NoUser:
                 return self._no_user()
+            except Ambiguous:
+                return self._no_user(ambiguous=True)
             if bids is None:
-                return self._send(200, with_plans(ap.load()))
+                return self._send(200, with_plans(owner_view(ap.load())))
             if not bids:
-                return self._send(403, {"error": "no brand is linked to this login yet"})
-            self._send(200, with_plans(client_view(ap.load(), bids)))
+                return self._send(403, {"error": "no brand is linked to this login yet", "code": "no_brand",
+                                        "onboarding": "/onboarding.html" if self._session() else None})
+            pw = self._paywall(bids)
+            if pw:
+                return self._send(402, pw)
+            d = ap.load()
+            self._send(200, with_plans(client_view(d, bids), full=d))
         elif path == "/otto-api/admin/snapshot":
             if not self._admin_ok():
                 return self._not_admin()
@@ -503,6 +728,7 @@ class Handler(BaseHTTPRequestHandler):
             self._send(404, {"error": "not found"})
 
     def do_POST(self):
+        self._begin()
         path = urllib.parse.urlsplit(self.path).path.rstrip("/")
         if path == "/otto-track":
             return self._track()
@@ -510,6 +736,15 @@ class Handler(BaseHTTPRequestHandler):
             return self._whop()
         if path == "/otto-email/act":
             return self._email_post()
+        if path == "/auth/logout":
+            if not self._origin_ok():
+                return self._send(403, {"error": "cross-origin request refused"})
+            if self._length() > MAX_JSON:
+                return self._send(413, {"error": "request too large"})
+            try:
+                return self._reply(otto_auth.logout(self.headers.get("Cookie")))
+            except Exception as e:
+                return self._fail(path, e)
         if path not in ("/otto-api/action", "/otto-api/decide", "/otto-api/admin", "/otto-api/onboard", "/otto-onboard"):
             return self._send(404, {"error": "not found"})
         ctype = (self.headers.get("Content-Type") or "").split(";")[0].strip().lower()
@@ -528,8 +763,14 @@ class Handler(BaseHTTPRequestHandler):
             bids, user = self._scope()
         except NoUser:
             return self._no_user()
+        except Ambiguous:
+            return self._no_user(ambiguous=True)
         if path == "/otto-api/onboard":
             return self._onboard(bids=bids, user=user)
+        if path in ("/otto-api/action", "/otto-api/decide"):
+            pw = self._paywall(bids)
+            if pw:
+                return self._send(402, pw)
         n = self._length()
         if n > MAX_JSON:
             return self._send(413, {"error": f"request too large (at most {MAX_JSON} bytes)"})
@@ -552,7 +793,10 @@ class Handler(BaseHTTPRequestHandler):
                 data = apply_brand(req.get("id"), req, bids=bids)
             else:
                 data = apply_action(req.get("kind"), req.get("id"), req.get("status"), req.get("note"), bids=bids)
-            self._send(200, {"ok": True, "data": with_plans(data if bids is None else client_view(data, bids))})
+            self._send(200, {"ok": True, "data": with_plans(owner_view(data)) if bids is None
+                             else with_plans(client_view(data, bids), full=data)})
+        except ActionFailed as e:
+            self._send(502, {"error": str(e), "saved": True})
         except KeyError as e:
             self._send(404, {"error": f"unknown id {str(e)[:80]}"})
         except (ValueError, AssertionError, RecursionError) as e:     # JSONDecodeError is a ValueError
@@ -619,13 +863,26 @@ class Handler(BaseHTTPRequestHandler):
             return self._send(413, {"error": "request too large"})
         if n <= 0:
             return self._send(400, {"error": "JSON body required"})
+        sess = None if public else self._session()
         try:
             code, obj = otto_onboard.http_create(self.rfile.read(n), otto_track.rate_key(self._client_ip()), cached_peek=_cached_peek,
-                                                 public=public, bids=bids, user=user)
+                                                 public=public, bids=bids, user=user, account=sess["user"] if sess else None)
         except Exception as e:
             return self._fail("/otto-onboard" if public else "/otto-api/onboard", e)
         if code == 200:
-            _log(f"onboard {obj['brand']} {'created' if obj['created'] else 'updated'}{' (public)' if public else ''} ip={self._client_ip()}")
+            tr = obj.get("trial")
+            if tr and tr.get("granted") and sess:
+                self._measure("trial_start", obj["brand"])
+            _log(f"onboard {obj['brand']} {'created' if obj['created'] else 'updated'}{' (public)' if public else ''}"
+                 + (f" trial={'granted' if tr.get('granted') else tr.get('why')}" if tr else "") + f" ip={self._client_ip()}")
+            if sess and obj.get("created"):
+                try:                                          # paid on Whop before the brand existed: link it now
+                    linked = otto_trial.link_pending(sess["user"])
+                    if linked:
+                        obj["linked"] = {"membership": linked.get("id"), "plan": (linked.get("plan_sync") or {}).get("to")}
+                        _log(f"onboard {obj['brand']} linked to Whop {linked.get('id')} (verified e-mail)")
+                except Exception as e:
+                    _log_error("/otto-api/onboard", 200, f"link_pending: {type(e).__name__}: {e}")
         self._send(code, obj)
 
     def _track(self):

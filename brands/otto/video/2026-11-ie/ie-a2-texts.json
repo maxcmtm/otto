@@ -1,0 +1,55 @@
+{
+  "id": "ie-a2-texts",
+  "style": "texts",
+  "formats": [
+    "9x16"
+  ],
+  "music": {
+    "bpm": 120,
+    "mood": "calm",
+    "key": "C"
+  },
+  "scene": {
+    "ground": "wash"
+  },
+  "thread": {
+    "name": "Otto",
+    "initial": "O",
+    "avatar": "brand",
+    "stamp": "Sample · Today 7:35 AM",
+    "placeholder": "Message",
+    "messages": [
+      {
+        "from": "them",
+        "text": "Morning. Yesterday: €14 on ads, 3 enquiries."
+      },
+      {
+        "from": "them",
+        "text": "Best ad: the boiler service reel."
+      },
+      {
+        "from": "them",
+        "text": "2 posts for this week are ready. Want a look?"
+      },
+      {
+        "from": "me",
+        "text": "Go on"
+      },
+      {
+        "from": "them",
+        "text": "Here they are. Tap approve or ask for a change."
+      }
+    ]
+  },
+  "endcard": {
+    "headline": "Know by 7:35.",
+    "accent": "7:35",
+    "sub": "What it cost, what came in, what's waiting.",
+    "fine": "Sample message. You pay Meta directly for your ads.",
+    "products": [
+      "pack"
+    ],
+    "logo": "logo_white",
+    "ground": "primary"
+  }
+}

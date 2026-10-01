@@ -1,0 +1,115 @@
+{
+  "notes": "Otto's own November 2026 concepts (COMPETITORS-2026-09 §6 + EU-LAUNCH §5.3), with the ad copy per market. The full per-market matrices are ads-2026-11-nl.json and ads-2026-11-ie.json. Dutch copy was written in Dutch, not translated; Irish English was written for Irish owners.",
+  "angles": [
+    {
+      "rank": 1,
+      "id": "a2",
+      "angle": "The 7:35 message: one message every morning with what yesterday cost and what it brought in",
+      "source": "competitor-research",
+      "ad": {
+        "nl": {
+          "headline": "Om 07:35 weet je hoe je ervoor staat",
+          "primary": "Om 07:35 krijg je één bericht: wat je advertenties gisteren kostten, wat ze opleverden en welke posts op je wachten. Goedkeuren doe je met één tik.",
+          "description": "Posts, reels en advertenties, gemaakt door Otto"
+        },
+        "ie": {
+          "headline": "One message at 7:35",
+          "primary": "Every morning at 7:35, Otto tells you what your ads cost yesterday, what came in, and which posts are waiting for you. Approving is one tap.",
+          "description": "Posts, reels and ads, made by Otto"
+        }
+      }
+    },
+    {
+      "rank": 2,
+      "id": "a1",
+      "angle": "Your website, as a reel: Otto makes reels from the business's own website",
+      "source": "competitor-research",
+      "ad": {
+        "nl": {
+          "headline": "Reels zonder te filmen",
+          "primary": "Je weet dat reels werken. Je hebt alleen geen avond om te filmen, knippen en ondertitelen. Otto maakt ze van je eigen website. Jij keurt ze goed.",
+          "description": "Posts, reels en advertenties door Otto"
+        },
+        "ie": {
+          "headline": "Reels, without the filming",
+          "primary": "You know reels work. You just don't have an evening to film, cut and caption them. Otto makes them from your own website. You approve them.",
+          "description": "Posts, reels and ads, made by Otto"
+        }
+      }
+    },
+    {
+      "rank": 3,
+      "id": "a3",
+      "angle": "Local, not translated: written in the owner's language for their town",
+      "source": "competitor-research",
+      "ad": {
+        "nl": {
+          "headline": "Nederlands. Niet vertaald.",
+          "primary": "Een post over je lunchmenu moet klinken als jouw zaak in Haarlem, niet als een vertaling. Otto schrijft in het Nederlands, voor jouw klanten.",
+          "description": "Voor webshops, horeca en salons"
+        },
+        "ie": {
+          "headline": "Written for Cork. Not for California.",
+          "primary": "Your posts should sound like you, not like a brand from somewhere else. Otto writes in Irish English, for your town and your customers.",
+          "description": "For trades, cafés and clinics"
+        }
+      }
+    },
+    {
+      "rank": 4,
+      "id": "a4",
+      "angle": "For owners who would rather run the business than post about it",
+      "source": "profile",
+      "ad": {
+        "nl": {
+          "headline": "Jij onderneemt. Otto post.",
+          "primary": "Otto plant je maand, schrijft je posts, maakt je reels en draait je advertenties. Jij tikt op goedkeuren. Ongeveer een half uur per week.",
+          "description": "Voor ondernemers zonder marketingteam"
+        },
+        "ie": {
+          "headline": "You run the business. Otto runs the marketing.",
+          "primary": "Otto plans your month, writes your posts, makes your reels and runs your ads. You tap approve. About half an hour a week.",
+          "description": "For owners without a marketing team"
+        }
+      }
+    },
+    {
+      "rank": 5,
+      "id": "a5",
+      "angle": "Free 7-day trial, no card; founding pilot €197 as the pay-once alternative",
+      "source": "profile",
+      "ad": {
+        "nl": {
+          "headline": "Probeer Otto 7 dagen gratis",
+          "primary": "Probeer Otto 7 dagen gratis. Log in met Google, geef je websiteadres op en binnen 24 uur staan je eerste posts klaar om goed te keuren. Geen creditcard nodig.",
+          "description": "7 dagen gratis, geen creditcard"
+        },
+        "ie": {
+          "headline": "Try Otto free for 7 days",
+          "primary": "Try Otto free for 7 days. Sign in with Google, add your website, and your first posts are ready for your approval within 24 hours. No card needed.",
+          "description": "7 days free, no card"
+        }
+      }
+    },
+    {
+      "rank": 6,
+      "id": "a6",
+      "angle": "December planned in November",
+      "source": "profile",
+      "ad": {
+        "nl": {
+          "headline": "In november al klaar voor december",
+          "primary": "Sinterklaas, kerst, oud en nieuw. Otto plant je decembermaand nu, zodat jij in december gewoon kunt werken. Jij keurt alles vooraf goed.",
+          "description": "Posts, reels en advertenties voor december"
+        },
+        "ie": {
+          "headline": "December, sorted before the rush",
+          "primary": "Christmas is your busiest month and your least free one. Otto plans December now, so you can just work it. You approve everything in advance.",
+          "description": "Posts, reels and ads for December"
+        }
+      }
+    }
+  ],
+  "formats": {},
+  "updated": "2026-09-30"
+}

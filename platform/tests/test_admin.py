@@ -19,7 +19,7 @@ TMP = Path(tempfile.mkdtemp(prefix="otto-admin-test-"))
 ENV = {"OTTO_DATA": str(TMP / "data.json"), "OTTO_HTML": str(TMP / "index.html"), "OTTO_BRANDS": str(TMP / "brands"),
        "OTTO_SECRETS": str(TMP / "secrets"), "OTTO_ASSETS": str(TMP / "assets"), "OTTO_PUBLIC_ASSETS": "",
        "OTTO_EVENTS": str(TMP / "events.jsonl"), "OTTO_BILLING": str(TMP / "billing.json"), "OTTO_LEADS": str(TMP / "leads.json")}
-CLEAR = ("WHOP_API_KEY", "WHOP_WEBHOOK_SECRET", "WHOP_COMPANY_ID", "OTTO_ADMIN_USERS")
+CLEAR = ("WHOP_API_KEY", "WHOP_WEBHOOK_SECRET", "WHOP_COMPANY_ID", "OTTO_ADMIN_USERS", "OTTO_DOMAIN")
 ORIGIN = "https://dash.monyflow.work"
 SECRET = "ws_test_secret_do_not_use"
 
@@ -437,6 +437,22 @@ class SnapshotTest(unittest.TestCase):
         self.assertEqual((setup["whop_webhook"], setup["whop_api"], setup["analytics"]), ("waiting", "connected", "connected"))
         self.assertEqual(s["window"], 7)
         self.assertEqual(s["traffic"]["visitors"], 1)
+
+    def test_whop_webhook_url_matches_the_proxy(self):
+        # regression (integration review): on the new server Caddy takes Whop only at https://<domain>/hooks/whop and answers
+        # 404 for /otto-api/* on the apex, but the console told the owner to point Whop at <OTTO_PUBLIC_BASE>/otto-api/whop
+        how = lambda: next(x for x in otto_admin.snapshot()["setup"] if x["key"] == "whop_webhook")["how"]
+        # QA round 2: every setup text follows the new infra (Caddy + Cloudflare): /hooks/whop on the apex, whatever the host
+        self.assertIn(f"URL: {otto_admin.PUBLIC_BASE}/hooks/whop ", how(), "without OTTO_DOMAIN: the public base's host")
+        self.assertNotIn("nginx", json.dumps(otto_admin.snapshot()["setup"]), "no setup text talks about nginx any more")
+        os.environ["OTTO_DOMAIN"] = "otto.example"
+        try:
+            self.assertIn("URL: https://otto.example/hooks/whop ", how())
+        finally:
+            os.environ.pop("OTTO_DOMAIN", None)
+        caddy = (PLATFORM.parent / "infra" / "Caddyfile").read_text()
+        self.assertIn("handle /hooks/whop", caddy)
+        self.assertIn("rewrite * /otto-api/whop", caddy)
 
     def test_empty_workspace_says_not_connected(self):
         s = otto_admin.snapshot()

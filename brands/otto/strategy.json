@@ -1,0 +1,328 @@
+{
+  "brand": "otto",
+  "currency": "EUR",
+  "language": "en",
+  "languages": [
+    "nl",
+    "en"
+  ],
+  "markets": [
+    "NL",
+    "IE"
+  ],
+  "tz": "Europe/Amsterdam",
+  "personas": [
+    {
+      "id": "p-nl-shop",
+      "market": "NL",
+      "vertical": "e-commerce (Shopify and similar; no supplements)",
+      "label": "Sanne, 34, webshop owner, Utrecht",
+      "situation": "Runs a Shopify shop (homeware and gifts) alone or with one packer. Posts at 23:00 when she remembers; boosted a post once and never knew what it brought in. December is make-or-break.",
+      "awareness": "problem-aware",
+      "words": [
+        "Ik post als ik eraan denk.",
+        "Ik weet niet wat die advertenties opleveren."
+      ]
+    },
+    {
+      "id": "p-nl-horeca",
+      "market": "NL",
+      "vertical": "hospitality (café, lunchroom, restaurant, B&B)",
+      "label": "Joris, 41, café-lunchroom owner, Haarlem",
+      "situation": "Closes at six and does Instagram after. Knows reels work, never films them. Quiet Tuesdays, a new winter menu, locals and day-trippers.",
+      "awareness": "problem-aware",
+      "words": [
+        "Om zes uur dicht, en dan moet Instagram nog.",
+        "Reels? Wanneer dan?"
+      ]
+    },
+    {
+      "id": "p-nl-salon",
+      "market": "NL",
+      "vertical": "salons (hair, nails, massage; non-medical) and local services",
+      "label": "Fatima, 38, salon owner, Rotterdam",
+      "situation": "Hair and nails, three chairs. Gaps midweek, full Saturdays. No time for content between clients; wants her page to sound like her salon, not like a chain.",
+      "awareness": "solution-aware",
+      "words": [
+        "Mijn agenda moet vol, niet mijn avond."
+      ]
+    },
+    {
+      "id": "p-ie-trades",
+      "market": "IE",
+      "vertical": "trades and local services",
+      "label": "Declan, 45, plumbing and heating, Cork",
+      "situation": "Three vans, work mostly by word of mouth, which is uneven. Jobs done, nothing posted. Boiler season is when a steady page would pay.",
+      "awareness": "problem-aware",
+      "words": [
+        "I'm under a sink all day.",
+        "Posting is the last thing on my mind."
+      ]
+    },
+    {
+      "id": "p-ie-hosp",
+      "market": "IE",
+      "vertical": "hospitality and tourism",
+      "label": "Aoife, 37, café with rooms, near Galway",
+      "situation": "Summer sells itself, November does not. Wants Christmas bookings and locals midweek; has the photos on her website but no time for reels.",
+      "awareness": "problem-aware",
+      "words": [
+        "Summer sells itself. November doesn't."
+      ]
+    },
+    {
+      "id": "p-ie-clinic",
+      "market": "IE",
+      "vertical": "dental and physio clinics",
+      "label": "Niamh, 42, physiotherapy clinic owner, Limerick",
+      "situation": "Owns a four-room physio clinic. Worried about health ad rules and anything going out that overclaims. A new clinician starts in January; slots to fill.",
+      "awareness": "solution-aware",
+      "words": [
+        "I can't have anything going out that says something it shouldn't."
+      ]
+    }
+  ],
+  "pains": [
+    {
+      "text": "Posting when you remember: no plan, the page goes quiet for weeks",
+      "persona": "p-nl-shop",
+      "source": "brand-profile.md"
+    },
+    {
+      "text": "Reels work, but there is no evening to film, cut and caption them",
+      "persona": "p-nl-horeca",
+      "source": "brand-profile.md"
+    },
+    {
+      "text": "Ads spend money and nobody says plainly what came back",
+      "persona": "p-ie-trades",
+      "source": "brand-profile.md"
+    },
+    {
+      "text": "AI tools still leave the idea, the prompt, the fixing and the posting to you",
+      "persona": "p-nl-salon",
+      "source": "COMPETITORS-2026-09 §5"
+    },
+    {
+      "text": "Copy that reads like a translation, or like it was written for another country",
+      "persona": "p-nl-shop",
+      "source": "COMPETITORS-2026-09 §4 gap 2"
+    },
+    {
+      "text": "Fear that software posts something wrong in your name",
+      "persona": "p-ie-clinic",
+      "source": "COMPETITORS-2026-09 §5 objections"
+    }
+  ],
+  "objections": [
+    {
+      "text": "Will it look fake or say something wrong?",
+      "answer": "Nothing goes out without your tap; Otto builds on your own website; regulated claims get a compliance hold.",
+      "proof_id": "pr4"
+    },
+    {
+      "text": "My business is too specific.",
+      "answer": "Otto reads your site, prices and competitors and asks at most four questions; every skip and edit teaches it.",
+      "proof_id": "pr5"
+    },
+    {
+      "text": "Is it really Dutch?",
+      "answer": "Written in Dutch for your town, not translated from English.",
+      "proof_id": "pr9"
+    },
+    {
+      "text": "I don't want to pay for something I haven't tried.",
+      "answer": "7 days free, no card; nothing is charged automatically. Prefer to pay once: the founding pilot, €197.",
+      "proof_id": "pr11"
+    },
+    {
+      "text": "What about my accounts?",
+      "answer": "Official Meta login, revocable any time; Otto never sees your password.",
+      "proof_id": "pr8"
+    },
+    {
+      "text": "Does it bring anything in?",
+      "answer": "Ads show numbers in week one, organic in 60-90 days; the 07:35 report shows both every morning.",
+      "proof_id": "pr1"
+    }
+  ],
+  "offers": [
+    {
+      "id": "o1",
+      "name": "Free trial",
+      "price": "€0 for 7 days",
+      "terms": "Sign in with Google, no card; one trial per business and per website. Otto sets up from the website: the first week of posts, stories and reels, approvals by e-mail, in Telegram or in the app, the 07:35 report, paid ads planned for preview (they launch once a plan is chosen). E-mail two days before the end; nothing is charged automatically; the brand pauses if no plan is chosen.",
+      "deadline": null,
+      "stage": "hot",
+      "source": "platform/landing.html (pricing, 30.09.2026 evening); platform/plans.json 'trial'; docs/AUTH-AND-TRIAL.md"
+    },
+    {
+      "id": "o2",
+      "name": "Founding pilot (pay once)",
+      "price": "€197 once, excl. VAT",
+      "terms": "The landing's 'Prefer to pay once?' option through Whop: a pilot month with Growth features; setup and founding terms carry over. Capped at 50 seats; show a seats-left count only when it is the live number.",
+      "deadline": null,
+      "stage": "hot",
+      "source": "platform/landing.html; EU-LAUNCH §4.4"
+    }
+  ],
+  "proof_bank": [
+    {
+      "id": "pr1",
+      "claim": "At 07:35 every morning Otto tells you what yesterday cost and what it brought in.",
+      "source": "platform/landing.html hero + Reports section"
+    },
+    {
+      "id": "pr2",
+      "claim": "Founding pilot (pay once): €197 once, excl. VAT, for 50 posts, 12 stories and 4 explainer reels for one brand.",
+      "source": "platform/landing.html pricing"
+    },
+    {
+      "id": "pr3",
+      "claim": "The first posts are ready for approval within 24 hours of sign-up.",
+      "source": "platform/landing.html pricing, 'What happens next'"
+    },
+    {
+      "id": "pr4",
+      "claim": "Nothing goes out without your approval; every post waits for your tap.",
+      "source": "platform/landing.html FAQ"
+    },
+    {
+      "id": "pr5",
+      "claim": "Otto reads your website, builds your brand profile and asks you at most four questions.",
+      "source": "platform/landing.html Reads section"
+    },
+    {
+      "id": "pr6",
+      "claim": "About 30 minutes of your time each week.",
+      "source": "platform/landing.html comparison table"
+    },
+    {
+      "id": "pr7",
+      "claim": "Alerts within the hour when something drops, with a fix already drafted.",
+      "source": "platform/landing.html Reports section"
+    },
+    {
+      "id": "pr8",
+      "claim": "Social accounts connect once through their official login; access can be revoked at any time.",
+      "source": "platform/landing.html FAQ"
+    },
+    {
+      "id": "pr9",
+      "claim": "Otto writes client content in Dutch, English, German, French, Spanish, Italian, Portuguese and Hebrew.",
+      "source": "research/EU-LAUNCH-AND-PRICING-2026-09.md §6.4 (engine languages)"
+    },
+    {
+      "id": "pr10",
+      "claim": "Reels are made from the business's own website (4 a month on Starter and in the founding pilot).",
+      "source": "platform/landing.html pricing"
+    },
+    {
+      "id": "pr11",
+      "claim": "Free for 7 days: sign in with Google, no card, nothing is charged automatically.",
+      "source": "platform/landing.html pricing (30.09.2026)"
+    }
+  ],
+  "cta_by_stage": {
+    "cold": "Scan your website: free, no signup (LEARN_MORE)",
+    "warm": "See what Otto reads from your site (LEARN_MORE)",
+    "hot": "Start free 7-day trial (SIGN_UP); pay-once alternative: founding pilot €197"
+  },
+  "landing_by_stage": {
+    "cold": "(?)",
+    "warm": "(?)",
+    "hot": "(?)"
+  },
+  "events": [],
+  "targets": {
+    "cpl": 8,
+    "cpa": 225,
+    "roas": null,
+    "notes": "cpl = cost per scan result shown (the Lead event), target €8 at launch (EU-LAUNCH §5.3: CPC €0.9-1.7, 15-25% of visitors scan). cpa = cost per paying founder, plan with €150-300 (target €225). See docs/GO-TO-MARKET-NL-IE.md."
+  },
+  "angles": [
+    {
+      "id": "a1",
+      "family": "pain",
+      "angle": "Your website, as a reel: reels work, nobody has an evening to film them; Otto makes them from the site",
+      "persona": "p-nl-horeca",
+      "stage": "cold",
+      "source": "competitor-research",
+      "status": "testing",
+      "markets": [
+        "NL",
+        "IE"
+      ]
+    },
+    {
+      "id": "a2",
+      "family": "experience",
+      "angle": "The 7:35 message: one message every morning with what yesterday cost and what it brought in, and what waits for your tap",
+      "persona": "p-ie-trades",
+      "stage": "warm",
+      "source": "competitor-research",
+      "status": "testing",
+      "markets": [
+        "NL",
+        "IE"
+      ]
+    },
+    {
+      "id": "a3",
+      "family": "enemy",
+      "angle": "Local, not translated: copy written in the owner's language for their town, against generic tools that translate",
+      "persona": "p-nl-shop",
+      "stage": "cold",
+      "source": "competitor-research",
+      "status": "testing",
+      "markets": [
+        "NL",
+        "IE"
+      ]
+    },
+    {
+      "id": "a4",
+      "family": "identity",
+      "angle": "For owners who would rather run the business than post about it: you tap yes, Otto does the rest",
+      "persona": "p-nl-salon",
+      "stage": "cold",
+      "source": "profile",
+      "status": "testing",
+      "markets": [
+        "NL",
+        "IE"
+      ]
+    },
+    {
+      "id": "a5",
+      "family": "offer",
+      "angle": "The free 7-day trial: sign in with Google, no card, first posts within 24 hours; founding pilot €197 as the pay-once alternative",
+      "persona": "p-nl-shop",
+      "stage": "hot",
+      "source": "profile",
+      "status": "testing",
+      "markets": [
+        "NL",
+        "IE"
+      ]
+    },
+    {
+      "id": "a6",
+      "family": "moment",
+      "angle": "December planned in November: Sinterklaas and Christmas (NL), the Christmas season (IE), approved before the rush",
+      "persona": "p-ie-hosp",
+      "stage": "warm",
+      "source": "profile",
+      "status": "testing",
+      "markets": [
+        "NL",
+        "IE"
+      ]
+    }
+  ],
+  "ask": [
+    "Which domain do the ads send people to? Buy it and move to the Hetzner box first (docs/HOSTING.md); then fill landing_by_stage with UTM'd URLs.",
+    "Recruit the six creator-owners per market from the founding pilots (brief: brands/otto/creator-briefs-2026-11.md); film after two weeks of real use.",
+    "Add verbatim reviews to proof_bank only with written consent; until then no review styles run."
+  ]
+}

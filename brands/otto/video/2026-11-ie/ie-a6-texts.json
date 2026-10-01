@@ -1,0 +1,51 @@
+{
+  "id": "ie-a6-texts",
+  "style": "texts",
+  "formats": [
+    "9x16"
+  ],
+  "music": {
+    "bpm": 120,
+    "mood": "calm",
+    "key": "C"
+  },
+  "scene": {
+    "ground": "wash"
+  },
+  "thread": {
+    "name": "Otto",
+    "initial": "O",
+    "avatar": "brand",
+    "stamp": "Sample · 20 November",
+    "placeholder": "Message",
+    "messages": [
+      {
+        "from": "them",
+        "text": "Your December is ready to review."
+      },
+      {
+        "from": "them",
+        "text": "The Christmas menu, gift vouchers and your holiday opening hours are in."
+      },
+      {
+        "from": "me",
+        "text": "Show me"
+      },
+      {
+        "from": "them",
+        "text": "Here's the plan. Tap approve or ask for a change."
+      }
+    ]
+  },
+  "endcard": {
+    "headline": "December, sorted.",
+    "accent": "sorted.",
+    "sub": "You approve it all in advance.",
+    "fine": "Try it free for 7 days, no card needed.",
+    "products": [
+      "month"
+    ],
+    "logo": "logo_white",
+    "ground": "primary"
+  }
+}

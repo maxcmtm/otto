@@ -27,7 +27,6 @@ HERE = Path(__file__).parent
 MARKER = "growth_review_sent"
 SENDING = "growth_review_sending"                   # claim while the message is on its way (a parallel run stops)
 HIST = ap.DATA.parent / "metrics_history.jsonl"      # written by otto_watch next to data.json
-KEYS = ["reach", "engagement", "clicks", "posts", "followers", "spend", "results", "cpl", "decisions"]
 
 
 def ym_of(iso):

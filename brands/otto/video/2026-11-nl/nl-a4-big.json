@@ -1,0 +1,44 @@
+{
+  "id": "nl-a4-big",
+  "style": "big",
+  "formats": [
+    "9x16"
+  ],
+  "music": {
+    "bpm": 120,
+    "mood": "punchy",
+    "key": "C"
+  },
+  "scene": {
+    "ground": "primary"
+  },
+  "big": {
+    "hero": "hero",
+    "phrases": [
+      {
+        "big": "30 minuten",
+        "rest": "per week, zo ongeveer."
+      },
+      {
+        "big": "Max. 4 vragen",
+        "rest": "bij de start."
+      },
+      {
+        "big": "1 tik",
+        "rest": "per post.",
+        "product": "review_nl"
+      }
+    ]
+  },
+  "endcard": {
+    "headline": "Jij onderneemt. Otto post.",
+    "accent": "Otto post.",
+    "sub": "Posts, reels en advertenties, klaar om goed te keuren.",
+    "fine": "7 dagen gratis proberen, geen creditcard nodig.",
+    "products": [
+      "month"
+    ],
+    "logo": "logo",
+    "ground": "bg"
+  }
+}

@@ -21,7 +21,6 @@ filled from the scan, inference sections marked for the creative engine to compl
 import http.client, ipaddress, json, os, re, socket, ssl, sys, threading, time, unicodedata, urllib.parse, zlib
 from collections import Counter
 from datetime import datetime, timezone
-from html import unescape
 from html.parser import HTMLParser
 from pathlib import Path
 
@@ -126,7 +125,10 @@ def normalize_url(u):
 
 
 def host_of(u):
-    return (urllib.parse.urlsplit(u).hostname or "").lower()
+    try:
+        return (urllib.parse.urlsplit(u).hostname or "").lower()
+    except ValueError:                  # Python ≥ 3.11.4 refuses "https://[not-an-ip]/…" (a link on a scanned page): no host
+        return ""
 
 
 def ip_ok(ip):
@@ -142,7 +144,10 @@ def ip_ok(ip):
 
 def check_url(u):
     """→ (split, ascii host, port) or raises Blocked."""
-    p = urllib.parse.urlsplit(u)
+    try:
+        p = urllib.parse.urlsplit(u)
+    except ValueError:                  # unbalanced brackets; on Python ≥ 3.11.4 also "[a.com]" (not an IP) — never a host
+        raise Blocked("bad url")
     if p.scheme not in ("http", "https"):
         raise Blocked(f"scheme {p.scheme or '?'} not allowed")
     try:
@@ -165,6 +170,8 @@ def check_url(u):
             ipaddress.ip_address(host)                        # an IPv6 literal ("::1") is checked like any address
         except ValueError:
             raise Blocked("bad host")                         # quotes, brackets, @, spaces … are never a host name
+    if "[" in p.netloc and ":" not in host:                   # "[a.com]" is no IPv6 literal: refused on every Python (3.9's
+        raise Blocked("bad host")                             # urlsplit strips the brackets, 3.12's raises)
     if host == "localhost" or host.endswith(BLOCKED_SUFFIXES):
         raise Blocked("local host name")
     return p, host, port or (443 if p.scheme == "https" else 80)
@@ -554,7 +561,7 @@ def detect_platform(html):
 
 def lang_code(v):
     """'de-AT' / 'pt_BR' → 'de' / 'pt'; None for anything that is not a language code (the page wrote it)."""
-    c = re.split(r"[-_]", str(v or "").strip().lower(), 1)[0]
+    c = re.split(r"[-_]", str(v or "").strip().lower(), maxsplit=1)[0]
     return c if re.fullmatch(r"[a-z]{2,3}", c) else None
 
 
@@ -1091,7 +1098,10 @@ def save_logo(s, out, deadline=None):
     there. Only real logo files — never the og:image / touch-icon fallbacks, which are photos or app icons —
     complete (never cut at the size limit), and for SVG only a document svg_safe() accepts."""
     url = web_url((s.get("visual") or {}).get("logo")) or ""
-    ext = urllib.parse.urlsplit(url).path.lower().rsplit(".", 1)[-1]
+    try:
+        ext = urllib.parse.urlsplit(url).path.lower().rsplit(".", 1)[-1]
+    except ValueError:                  # a logo url Python ≥ 3.11.4 cannot split ("https://[x]/logo.png"): no logo
+        return None
     if not url or ext not in ("svg", "png") or any(out.glob("logo.*")):
         return None
     if url == (s.get("identity") or {}).get("og_image"):

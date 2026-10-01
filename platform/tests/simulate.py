@@ -782,7 +782,8 @@ def step_scan(b):
 
 def step_onboard(b):
     with R.step(b["slug"], "onboard"):
-        code, out, _ = cli("ap.py", "brand-add", b["slug"], b["name"], b["domain"], b["lang_arg"], b["pillars"])
+        code, out, _ = cli("ap.py", "brand-add", b["slug"], b["name"], b["domain"], b["lang_arg"], b["pillars"],
+                           "--approvals", "telegram")    # the simulated owners approve in Telegram (new brands default to e-mail)
         R.check(code == 0, f"brand-add failed: {out[-300:]}")
         br = M["ap"].brand(data(), b["slug"])
         if not R.check(br is not None, "brand not in data.json"):

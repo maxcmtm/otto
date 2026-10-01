@@ -26,7 +26,8 @@ PAGES = {
     "privacy": ("Privacy", "What personal data Otto collects, why, how long it is kept, where it goes and your rights."),
     "dpa": ("DPA", "Otto's data processing agreement (GDPR Art. 28) with its security measures and sub-processors."),
     "subprocessors": ("Sub-processors", "The companies that process personal data for Otto, what for and where."),
-    "cookies": ("Cookies", "Otto's websites set no tracking cookies. What they store and which other hosts they contact."),
+    "cookies": ("Cookies", "What Otto's websites store in your browser, the one optional choice (ad measurement with Meta) and "
+                           "which other hosts they contact."),
     "ai": ("AI transparency", "What in Otto's output is made with AI, how it is marked, and who approves it."),
     "company": ("Company", "Company information for Otto: legal name, address, registration and contact."),
 }

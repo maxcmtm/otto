@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <!-- CSP: script-src lists the sha256 of every inline script element in this page. After editing one, the browser refuses it and its console prints the new hash: replace the old one here (or recompute all of them). -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-cWwCZMELdYHZn9EkmuHS8lvrKoP8XuH2traw+QmSh6M=' 'sha256-Qz3Zry9sNTkn0VyeVLB26JkM8Ey6RZFdVxdUi2FKJW0=' 'sha256-mHLbEIA/D0ZEN5cXN2TPAqzR1E/Zb9fc5agvrtYBPFs=' 'sha256-zZnaKxwuwR4k5BluDud3aC/soMTBNy7EEUtg2OnBxV8='; style-src 'self' 'unsafe-inline'; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-src 'none'; worker-src 'none'; manifest-src 'self'; img-src 'self' data: https:; media-src 'self'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-cWwCZMELdYHZn9EkmuHS8lvrKoP8XuH2traw+QmSh6M=' 'sha256-Qz3Zry9sNTkn0VyeVLB26JkM8Ey6RZFdVxdUi2FKJW0=' 'sha256-q2hXY81/rCDUaT0LDof8xyMd0leygDq5tjBATI1sO2U=' 'sha256-6BX7DfMhAB7okHUJV0PASswVoPSQq79Tjk5cR8Va7e8='; style-src 'self' 'unsafe-inline'; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-src 'none'; worker-src 'none'; manifest-src 'self'; img-src 'self' data: https:; media-src 'self'">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <script>
 /* Head script, under 1KB: base for the deployed copy, js/motion flags, render tier, libraries. */
@@ -26,6 +26,7 @@ w.__ottoLibs=Promise.all(L.map(function(s){return new Promise(function(y,x){var 
 <meta name="theme-color" content="#0C0D0F" media="(prefers-color-scheme: dark)">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 rx=%278%27 fill=%27%232447F0%27/%3E%3Crect x=%278%27 y=%278%27 width=%2716%27 height=%2716%27 rx=%274%27 fill=%27none%27 stroke=%27white%27 stroke-width=%272%27 opacity=%27.9%27/%3E%3C/svg%3E">
 <link rel="preload" href="assets/landing/mona-sans-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="assets/consent.css"><script src="assets/consent.js" defer></script>
 <script type="importmap">{"imports":{"three":"./assets/vendor/three@0.186.1/build/three.module.js","three/addons/":"./assets/vendor/three@0.186.1/examples/jsm/"},"integrity":{"./assets/vendor/three@0.186.1/build/three.module.js":"sha384-m8JoFX52V6NGv2usipnlLJKnJfL7IE8dbniPDDCSGSQv3Hm4n6PjfV6syVwfuoRc","./assets/vendor/three@0.186.1/build/three.core.js":"sha384-mdKeCwPEcbDvzaxwhm+MVuLoMou+E7jQqrs4tmu/n8HBYPGI1kZt0MkJxlMR4zFM","./assets/vendor/three@0.186.1/examples/jsm/renderers/CSS3DRenderer.js":"sha384-6I827Bd2N6ydzREj76AdVsj8rVhZzdZShpXYLd4SUcLOD1RNUdg6qrGM3K4qmBXF","./assets/vendor/three@0.186.1/examples/jsm/environments/RoomEnvironment.js":"sha384-/H49oz0ZtMgJNgMZ+OhhuMuKBOsaiC3kY0/PZSvgJJXAOJJwmSBJjzlV5lJul3MB"}}</script>
 <style>
 @font-face{font-family:"Mona Sans";src:url("assets/landing/mona-sans-latin.woff2") format("woff2");font-weight:400 800;font-stretch:100%;font-style:normal;font-display:swap}
@@ -844,13 +845,13 @@ html.motion .rv-play{transition:opacity var(--dur-slow) var(--ease-out),transfor
 {"@context":"https://schema.org","@graph":[
  {"@type":"SoftwareApplication","name":"Otto","applicationCategory":"BusinessApplication","operatingSystem":"Web, Telegram","description":"Otto plans, writes, designs and publishes your marketing, and asks you only for the decisions. Every post waits for your approval on your phone.","offers":{"@type":"Offer","price":"197","priceCurrency":"EUR","description":"Founding pilot, one-time","url":"https://whop.com/checkout/plan_joHl1qsZoiJc9"}},
  {"@type":"FAQPage","mainEntity":[
-  {"@type":"Question","name":"Does anything publish without my approval?","acceptedAnswer":{"@type":"Answer","text":"No. Every post waits for your approval, in Telegram or in the dashboard, whichever is closer. You can let trusted pillars publish automatically later; it is off by default."}},
+  {"@type":"Question","name":"Does anything publish without my approval?","acceptedAnswer":{"@type":"Answer","text":"No. Every post waits for your approval, by email, in Telegram or in the app, whichever is closer. You can let trusted pillars publish automatically later; it is off by default."}},
   {"@type":"Question","name":"How is this different from a scheduler plus ChatGPT?","acceptedAnswer":{"@type":"Answer","text":"With those tools you do the work: you think of the idea, write the prompt, fix the output, make the visual, pick the slot, press publish and check the stats. Otto does all of that and comes to you only with finished posts and decisions."}},
   {"@type":"Question","name":"Will the content actually sound like my brand?","acceptedAnswer":{"@type":"Answer","text":"Otto builds your brand profile from your own site: your colours, your wording, your real customer reviews. It asks you at most four questions to fill the gaps. Every post and visual follows that profile, and every post you approve or skip teaches it more."}},
   {"@type":"Question","name":"What if I’m not around to approve?","acceptedAnswer":{"@type":"Answer","text":"Nothing breaks. Otto reminds you before a post is due and moves it to a new slot if you don’t answer. Your morning briefing lists what is waiting."}},
-  {"@type":"Question","name":"Which channels and languages?","acceptedAnswer":{"@type":"Answer","text":"Facebook and Instagram today, LinkedIn on request. Content in English, German and Hebrew, including right-to-left layouts. One of the brands running on Otto today publishes in Hebrew."}},
-  {"@type":"Question","name":"What do I need to bring?","acceptedAnswer":{"@type":"Answer","text":"Your website address, your social accounts connected once through their official login (you can revoke access at any time), and Telegram on your phone."}},
-  {"@type":"Question","name":"What happens after the pilot?","acceptedAnswer":{"@type":"Answer","text":"You keep your setup, and your founding terms carry over when Otto moves to monthly plans."}}
+  {"@type":"Question","name":"Which channels and languages?","acceptedAnswer":{"@type":"Answer","text":"Facebook and Instagram today, LinkedIn on request. Content in English and Dutch, written for your market rather than translated, and in German, French, Spanish, Italian, Portuguese and Hebrew, including right-to-left layouts. One of the brands running on Otto today publishes in Hebrew."}},
+  {"@type":"Question","name":"What do I need to bring?","acceptedAnswer":{"@type":"Answer","text":"Your website address, your social accounts connected once through their official login (you can revoke access at any time), and an email address for approvals (or Telegram, if you prefer)."}},
+  {"@type":"Question","name":"What happens after the free trial?","acceptedAnswer":{"@type":"Answer","text":"Otto e-mails you two days before your 7-day trial ends. Choose a plan and add a card to keep going; your setup and everything Otto made stay. If you don't, publishing pauses and your work is kept for 90 days. Nothing is ever charged automatically."}}
  ]}
 ]}
 </script>
@@ -869,8 +870,8 @@ html.motion .rv-play{transition:opacity var(--dur-slow) var(--ease-out),transfor
       <a href="#faq">FAQ</a>
     </nav>
     <div class="nav-cta">
-      <a class="nav-login" href="https://dash.monyflow.work/otto/">Log in</a>
-      <a class="btn btn-primary btn-sm" href="https://whop.com/checkout/plan_joHl1qsZoiJc9">Get started</a>
+      <a class="nav-login" href="/" data-login>Log in</a>
+      <a class="btn btn-primary btn-sm" href="/auth/google/start?next=%2Fonboarding.html" data-trial>Start free trial</a>
       <details class="menu" id="menu">
         <summary aria-label="Menu"><span class="menu-ico" aria-hidden="true"></span></summary>
         <div class="menu-sheet">
@@ -879,8 +880,8 @@ html.motion .rv-play{transition:opacity var(--dur-slow) var(--ease-out),transfor
           <a href="#watch">Watch</a>
           <a href="#pricing">Pricing</a>
           <a href="#faq">FAQ</a>
-          <a class="btn btn-primary" href="https://whop.com/checkout/plan_joHl1qsZoiJc9">Get started</a>
-          <a class="menu-login" href="https://dash.monyflow.work/otto/">Log in</a>
+          <a class="btn btn-primary" href="/auth/google/start?next=%2Fonboarding.html" data-trial>Start free 7-day trial</a>
+          <a class="menu-login" href="/" data-login>Log in</a>
         </div>
       </details>
     </div>
@@ -1392,32 +1393,34 @@ html.motion .rv-play{transition:opacity var(--dur-slow) var(--ease-out),transfor
 <!-- ============ 6 · Offer ============ -->
 <section class="sec" id="pricing" aria-labelledby="price-h" style="padding-top:0">
   <div class="wrap">
-    <h2 class="h2" id="price-h" data-rv>Start with the founding pilot. <span class="ink-2">One payment, no subscription.</span></h2>
+    <h2 class="h2" id="price-h" data-rv>Try Otto free for 7 days. <span class="ink-2">No card needed.</span></h2>
     <div class="offer-grid">
       <div class="offer" data-rv>
-        <p class="offer-n">Founding pilot</p>
-        <div class="amt"><span class="n"><small>€</small>197</span><span class="per">one-time</span></div>
-        <p class="vat">Prices in euro, excluding VAT.</p>
-        <p class="offer-d">Otto set up from your website, a month of posts with visuals, approvals in Telegram, a morning briefing and alerts when something drops. Live within 24 hours.</p>
+        <p class="offer-n">Free trial</p>
+        <div class="amt"><span class="n"><small>€</small>0</span><span class="per">for 7 days</span></div>
+        <p class="vat">No card. Nothing is charged when it ends.</p>
+        <p class="offer-d">Otto set up from your website, your first week of posts with visuals, approvals by email or Telegram, and your paid ads planned for you to see. Live within 24 hours.</p>
         <ul>
-          <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>50 posts, 12 stories and 4 explainer reels for one brand</li>
+          <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>Posts, stories and reels for one brand, made from your website</li>
           <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>Facebook and Instagram, LinkedIn on request</li>
-          <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>Approve in Telegram or the dashboard</li>
-          <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>Morning briefing and alerts within the hour</li>
+          <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>Approve by email, in Telegram or in the app</li>
+          <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>Your paid ads planned and shown; they launch once you choose a plan</li>
           <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>Competitor research for your market</li>
-          <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>Your setup and founding terms carry over to the monthly plans</li>
+          <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>Everything carries over when you add a card</li>
         </ul>
-        <a class="btn btn-primary" href="https://whop.com/checkout/plan_joHl1qsZoiJc9">Get started</a>
-        <p class="offer-s">Secure checkout through Whop.</p>
+        <a class="btn btn-primary" href="/auth/google/start?next=%2Fonboarding.html" data-trial>Start free 7-day trial</a>
+        <p class="offer-s">Continue with Google. One trial per business.</p>
+        <p class="offer-s">Prefer to pay once? <a class="link" href="https://whop.com/checkout/plan_joHl1qsZoiJc9">Founding pilot, €197 one-time</a>, through Whop.</p>
       </div>
       <div class="after" data-rv style="--rd:1">
         <h3>What happens next</h3>
-        <p class="asub">Monthly plans open once the pilot ends.</p>
+        <p class="asub">Seven days, then you decide.</p>
         <ol class="tl">
-          <li><b>Today</b><span>You pay once through Whop and send your website address.</span></li>
+          <li><b>Today</b><span>You sign in with Google and give Otto your website address. No card.</span></li>
           <li><b>First questions</b><span>Otto reads your site, builds your brand profile and asks you at most four questions.</span></li>
-          <li><b>Within 24 hours</b><span>Your first posts arrive in Telegram, ready for your tap.</span></li>
+          <li><b>Within 24 hours</b><span>Your first posts arrive by email or in Telegram, ready for your tap.</span></li>
           <li><b>Every morning</b><span>A short report at 07:35, and alerts within the hour when something drops.</span></li>
+          <li><b>Before day 7</b><span>Otto e-mails you two days before the trial ends. Add a card to keep going; nothing is charged automatically.</span></li>
         </ol>
       </div>
     </div>
@@ -1433,13 +1436,13 @@ html.motion .rv-play{transition:opacity var(--dur-slow) var(--ease-out),transfor
       <p class="body" data-rv>Still unsure? <a class="link" href="#top" data-focus="hero-url">Scan your site first</a>. It’s free and takes a minute.</p>
     </div>
     <div class="faq" data-rv>
-      <details><summary>Does anything publish without my approval?</summary><div class="fa">No. Every post waits for your approval, in Telegram or in the dashboard, whichever is closer. You can let trusted pillars publish automatically later; it is off by default.</div></details>
+      <details><summary>Does anything publish without my approval?</summary><div class="fa">No. Every post waits for your approval, by email, in Telegram or in the app, whichever is closer. You can let trusted pillars publish automatically later; it is off by default.</div></details>
       <details><summary>How is this different from a scheduler plus ChatGPT?</summary><div class="fa">With those tools you do the work: you think of the idea, write the prompt, fix the output, make the visual, pick the slot, press publish and check the stats. Otto does all of that and comes to you only with finished posts and decisions.</div></details>
       <details><summary>Will the content actually sound like my brand?</summary><div class="fa">Otto builds your brand profile from your own site: your colours, your wording, your real customer reviews. It asks you at most four questions to fill the gaps. Every post and visual follows that profile, and every post you approve or skip teaches it more.</div></details>
       <details><summary>What if I’m not around to approve?</summary><div class="fa">Nothing breaks. Otto reminds you before a post is due and moves it to a new slot if you don’t answer. Your morning briefing lists what is waiting.</div></details>
-      <details><summary>Which channels and languages?</summary><div class="fa">Facebook and Instagram today, LinkedIn on request. Content in English, German and Hebrew, including right-to-left layouts. One of the brands running on Otto today publishes in Hebrew.</div></details>
-      <details><summary>What do I need to bring?</summary><div class="fa">Your website address, your social accounts connected once through their official login (you can revoke access at any time), and Telegram on your phone.</div></details>
-      <details><summary>What happens after the pilot?</summary><div class="fa">You keep your setup, and your founding terms carry over when Otto moves to monthly plans.</div></details>
+      <details><summary>Which channels and languages?</summary><div class="fa">Facebook and Instagram today, LinkedIn on request. Content in English and Dutch, written for your market rather than translated, and in German, French, Spanish, Italian, Portuguese and Hebrew, including right-to-left layouts. One of the brands running on Otto today publishes in Hebrew.</div></details>
+      <details><summary>What do I need to bring?</summary><div class="fa">Your website address, your social accounts connected once through their official login (you can revoke access at any time), and an email address for approvals (or Telegram, if you prefer).</div></details>
+      <details><summary>What happens after the free trial?</summary><div class="fa">Otto e-mails you two days before your 7-day trial ends. Choose a plan and add a card to keep going; your setup and everything Otto made stay. If you don’t, publishing pauses and your work is kept for 90 days. Nothing is ever charged automatically.</div></details>
     </div>
   </div>
 </section>
@@ -1448,10 +1451,10 @@ html.motion .rv-play{transition:opacity var(--dur-slow) var(--ease-out),transfor
 <section class="final" id="final" aria-labelledby="final-h">
   <div class="wrap final-grid">
     <div class="final-copy">
-      <h2 class="h2" id="final-h" data-rv>Try Otto for a month.</h2>
-      <p class="body lead" data-rv>€197 once. Set up from your website and live within 24 hours.</p>
+      <h2 class="h2" id="final-h" data-rv>Try Otto free for 7 days.</h2>
+      <p class="body lead" data-rv>No card. Set up from your website and live within 24 hours.</p>
       <div class="final-cta" data-rv>
-        <a class="btn btn-primary" href="https://whop.com/checkout/plan_joHl1qsZoiJc9">Get started</a>
+        <a class="btn btn-primary" href="/auth/google/start?next=%2Fonboarding.html" data-trial>Start free 7-day trial</a>
         <a class="link link-ink" href="#top" data-focus="hero-url">Or scan your site first</a>
       </div>
     </div>
@@ -1478,8 +1481,8 @@ html.motion .rv-play{transition:opacity var(--dur-slow) var(--ease-out),transfor
 
 </main>
 
-<div class="dock" id="dock"><div class="t"><b>Founding pilot</b>€197 one-time</div><a class="btn btn-primary" href="https://whop.com/checkout/plan_joHl1qsZoiJc9">Get started</a></div>
-<footer><div class="wrap"><span>Otto · 2026</span><span>Prices in euro, excluding VAT.</span><span class="f-r"><a href="#faq">FAQ</a><a href="https://dash.monyflow.work/otto/">Log in</a></span><nav class="f-legal" aria-label="Legal"><a href="legal/terms.html">Terms</a><a href="legal/privacy.html">Privacy</a><a href="legal/dpa.html">Data processing agreement</a><a href="legal/subprocessors.html">Sub-processors</a><a href="legal/cookies.html">Cookies</a><a href="legal/ai.html">AI transparency</a><a href="legal/company.html">Company</a></nav></div></footer>
+<div class="dock" id="dock"><div class="t"><b>Free for 7 days</b>No card needed</div><a class="btn btn-primary" href="/auth/google/start?next=%2Fonboarding.html" data-trial>Start free trial</a></div>
+<footer><div class="wrap"><span>Otto · 2026</span><span>Prices in euro, excluding VAT.</span><span class="f-r"><a href="#faq">FAQ</a><a href="/" data-login>Log in</a></span><nav class="f-legal" aria-label="Legal"><a href="legal/terms.html">Terms</a><a href="legal/privacy.html">Privacy</a><a href="legal/dpa.html">Data processing agreement</a><a href="legal/subprocessors.html">Sub-processors</a><a href="legal/cookies.html">Cookies</a><a href="legal/ai.html">AI transparency</a><a href="legal/company.html">Company</a><a href="legal/cookies.html#your-choices" data-privacy-choices>Privacy choices</a></nav></div></footer>
 
 <script>
 /* Otto landing. Everything is authored finished in HTML/CSS; this script only adds behaviour.
@@ -1665,6 +1668,25 @@ function scrollToProfile() {
   else scrollToEl(W.innerWidth < 768 ? $('#w-scan') : $('#reads'));
 }
 function ss(k, v) { try { if (v == null) sessionStorage.removeItem(k); else sessionStorage.setItem(k, v); } catch (e) {} }
+/* The client app lives on app.<domain> (its own Google sign-in); the old box serves it at /otto/. "Log in" goes there, and
+   "Start free 7-day trial" goes to its Google sign-in with the scanned domain handed to onboarding (?site=). */
+function appBase() {
+  var host = location.hostname;
+  if (host === 'dash.monyflow.work') return '/otto/';
+  if (/^(localhost|127\.0\.0\.1|\[::1\])$/.test(host) || /^app\./.test(host)) return '/';
+  return 'https://app.' + host.replace(/^www\./, '') + '/';
+}
+function trialHref() {
+  var site = ''; try { site = sessionStorage.getItem('otto.site') || ''; } catch (e) {}
+  site = /^[a-z0-9.-]{3,253}$/i.test(site) ? site.toLowerCase() : '';
+  return appBase() + 'auth/google/start?next=' + encodeURIComponent('/onboarding.html' + (site ? '?site=' + site : ''));
+}
+$$('[data-login]').forEach(function (a) { a.href = appBase(); });
+$$('[data-trial]').forEach(function (a) {
+  a.href = trialHref();
+  a.addEventListener('pointerdown', function () { a.href = trialHref(); });
+  a.addEventListener('focus', function () { a.href = trialHref(); });
+});
 async function peekOnce(domain) {
   var ctl = new AbortController(), to = setTimeout(function () { ctl.abort(); }, 20000);
   try {
@@ -2268,7 +2290,7 @@ function startTiers() {
 })();
 </script>
 <script>
-/* First-party analytics (POST /otto-track): no cookies, no storage, no third parties, no personal data. Do Not Track or
+/* First-party analytics (POST /otto-track): no analytics cookies (the consent banner only stores the visitor's choice), no third parties, no personal data. Do Not Track or
    Global Privacy Control → one anonymous page view and nothing else. Events: view, scroll depth, sections seen, CTA clicks,
    scan (domain only), FAQ opens, film plays. Batched; flushed every 2 s and when the page is hidden. */
 (function (W, d) {
@@ -2337,13 +2359,14 @@ function startTiers() {
     var a = e.target.closest && e.target.closest('a, button'); if (!a) return;
     var href = a.getAttribute('href') || '', kind = null;
     if (/whop\.com\/checkout/.test(href)) kind = 'get_started';
+    else if (/\/auth\/google\/start/.test(href)) kind = 'start_trial';
     else if (a.dataset.focus === 'hero-url') kind = 'scan_first';
-    else if (/\/otto\/?$/.test(href)) kind = 'login';
+    else if (a.hasAttribute('data-login') || /\/otto\/?$/.test(href)) kind = 'login';
     else if (a.closest('#nav, #menu') && href.charAt(0) === '#' && href.length > 1) kind = 'nav:' + href.slice(1).toLowerCase().replace(/[^a-z0-9-]/g, '').slice(0, 24);
     if (!kind) return;
     var where = a.closest('#menu') ? 'menu' : a.closest('#nav') ? 'nav' : a.closest('#dock') ? 'dock' : ((a.closest('section[id]') || {}).id || 'page');
     track('cta', { id: (kind + '@' + where).toLowerCase().slice(0, 48) });
-    if (kind === 'get_started') flush();
+    if (kind === 'get_started' || kind === 'start_trial') flush();
   }, true);
 
   d.addEventListener('toggle', function (e) {

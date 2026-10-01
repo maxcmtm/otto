@@ -1,0 +1,44 @@
+{
+  "id": "nl-a2-big",
+  "style": "big",
+  "formats": [
+    "9x16"
+  ],
+  "music": {
+    "bpm": 120,
+    "mood": "punchy",
+    "key": "C"
+  },
+  "scene": {
+    "ground": "primary"
+  },
+  "big": {
+    "hero": "hero",
+    "phrases": [
+      {
+        "big": "07:35",
+        "rest": "elke ochtend."
+      },
+      {
+        "big": "1 bericht",
+        "rest": "wat het kostte en opleverde."
+      },
+      {
+        "big": "1 tik",
+        "rest": "om goed te keuren.",
+        "product": "pack"
+      }
+    ]
+  },
+  "endcard": {
+    "headline": "Eén bericht. Elke ochtend.",
+    "accent": "Elke ochtend.",
+    "sub": "Posts, reels en advertenties door Otto.",
+    "fine": "7 dagen gratis proberen, geen creditcard nodig.",
+    "products": [
+      "pack"
+    ],
+    "logo": "logo",
+    "ground": "bg"
+  }
+}

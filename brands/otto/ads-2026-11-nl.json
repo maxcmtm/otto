@@ -1,0 +1,1396 @@
+{
+ "brand": "otto",
+ "month": "2026-11",
+ "market": "NL",
+ "lang": "nl",
+ "countries": [
+  "NL"
+ ],
+ "preset": "launch",
+ "rules": {
+  "allowed_names": [
+   "Instagram",
+   "Facebook",
+   "Google"
+  ]
+ },
+ "notes": "Otto's eigen lanceringsmatrix voor Nederland, november 2026 (docs/GO-TO-MARKET-NL-IE.md). Aanbod: 7 dagen gratis (Google-login, geen creditcard), founding pilot €197 als eenmalig alternatief. Copy in het Nederlands geschreven, niet vertaald; elke regel gecontroleerd tegen de NL-baselines (otto_compliance). Voorbeeldcijfers in het 07:35-bericht zijn gemarkeerd als voorbeeld. Creator-cellen wachten op echte opnames van klanten van Otto (brands/otto/creator-briefs-2026-11.md). Renderen: zie het GTM-document, 'Rendering Otto's own ads'.",
+ "angles": [
+  {
+   "id": "a1",
+   "name": "Reels zonder te filmen",
+   "family": "pain",
+   "angle": "Je website als reel: reels werken, maar niemand heeft een avond om te filmen, knippen en ondertitelen; Otto maakt ze van je eigen website (COMPETITORS §6 concept 2)",
+   "source": "competitor-research",
+   "persona": "p-nl-horeca",
+   "stage": "cold",
+   "kinds": [
+    "objection",
+    "benefit",
+    "audience"
+   ],
+   "ad_set": "NL · a1 · Reels zonder te filmen",
+   "headlines": [
+    "Reels zonder te filmen",
+    "Je website als reel"
+   ],
+   "primaries": [
+    "Je weet dat reels werken. Alleen heb je geen avond over om te filmen, te knippen en ondertitels te typen. Otto maakt ze van je eigen website. Jij keurt ze goed met één tik.",
+    "Je menukaart, je producten, je openingstijden: het staat allemaal al op je website. Otto maakt er reels van voor Instagram en Facebook. Jij hoeft niets te filmen.",
+    "Probeer het 7 dagen gratis: Otto maakt je eerste reels van wat al op je site staat. Niets gaat online zonder jouw goedkeuring."
+   ],
+   "description": "Posts, reels en advertenties door Otto",
+   "cta": "LEARN_MORE",
+   "ads": [
+    {
+     "id": "nl-a1-creator",
+     "style": "ugc_talking_head",
+     "slot": "creator",
+     "format": "creator",
+     "size": "story",
+     "creator": {
+      "persona": "Eigenaar van een café of lunchroom (klant van Otto)",
+      "hook": "Ik heb nog nooit een reel gefilmd. Deze ook niet.",
+      "script": "Ik heb nog nooit een reel gefilmd. Deze ook niet. Otto heeft hem gemaakt van onze eigen website: de soep van de dag, het brood, de openingstijden. Ik kreeg hem 's ochtends binnen, heb hem bekeken en op goedkeuren getikt. Om zes uur gaan wij dicht, en dan wil ik naar huis. Niet nog achter Instagram zitten.",
+      "shot_list": [
+       "0-2 s: eigenaar achter de toonbank, telefoon in de hand, kijkt in de camera: de hook",
+       "2-8 s: over de schouder: de reel van Otto speelt op de telefoon, scherm leesbaar",
+       "8-12 s: duim tikt op Approve",
+       "12-20 s: stoelen op tafel bij sluitingstijd, de laatste zin in de camera",
+       "Tekst in beeld de hele tijd: 'Reel gemaakt door Otto, van onze eigen website'"
+      ],
+      "length": "20-25 s, 9:16, geluid aan, Nederlandse ondertitels",
+      "disclosure": "Betaalde samenwerking met Otto",
+      "on_screen": "Reel gemaakt door Otto, van onze eigen website",
+      "notes": "Echte ondernemer die Otto zelf gebruikt, geen acteur. Zeg alleen wat voor jouw zaak klopt; eigen woorden mogen. Geen cijfers noemen die niet in je eigen rapport staan (anders blurren). Label 'Betaalde samenwerking met Otto' vanaf de eerste seconde; plaatsen als partnership-advertentie."
+     },
+     "brief": "Café-eigenaar laat de reel zien die Otto van zijn website maakte en keurt hem goed. Zelf opgenomen met een telefoon, 9:16, bij daglicht in de zaak. Real footage of the real owner only; no generated or look-alike people.",
+     "added": "2026-11-02"
+    },
+    {
+     "id": "nl-a1-notes",
+     "style": "notes_app",
+     "slot": "faceless",
+     "format": "video",
+     "size": "story",
+     "video": {
+      "kit": "notes",
+      "data": "video/2026-11-nl/nl-a1-notes.json"
+     },
+     "data": {
+      "note": {
+       "meta": "Zondag, 21:40",
+       "title": "Wat ik niet meer doe voor een reel",
+       "struck": [
+        "filmen tijdens de lunchdrukte",
+        "knippen tot middernacht",
+        "ondertitels typen"
+       ],
+       "keep": "op goedkeuren tikken"
+      },
+      "endcard": {
+       "headline": "Reels zonder te filmen.",
+       "accent": "zonder te filmen.",
+       "sub": "Otto maakt ze van je eigen website.",
+       "fine": "7 dagen gratis proberen, geen creditcard nodig.",
+       "products": [
+        "month"
+       ],
+       "logo": "logo"
+      }
+     },
+     "brief": "Faceless notes-video (ad-kit): een notitie in de stem van de eigenaar, drie dingen doorgestreept op de beat, de laatste regel blijft staan. Eindkaart met de maand-telefoon.",
+     "added": "2026-11-02"
+    },
+    {
+     "id": "nl-a1-versus",
+     "style": "us_vs_them",
+     "slot": "comparison",
+     "format": "video",
+     "size": "story",
+     "video": {
+      "kit": "versus",
+      "data": "video/2026-11-nl/nl-a1-versus.json"
+     },
+     "data": {
+      "versus": {
+       "vs": "vs",
+       "left": {
+        "label": "Zelf maken",
+        "rows": [
+         "Filmen",
+         "Knippen",
+         "Ondertitelen"
+        ]
+       },
+       "right": {
+        "label": "Otto",
+        "image": "review_nl",
+        "rows": [
+         "Van je site",
+         "Klaar",
+         "Goedkeuren"
+        ]
+       },
+       "footer": "Jij tikt. Otto doet de rest."
+      },
+      "endcard": {
+       "headline": "Je website, als reel.",
+       "accent": "als reel.",
+       "sub": "Otto maakt reels van wat al op je site staat.",
+       "fine": "7 dagen gratis proberen, geen creditcard nodig.",
+       "products": [
+        "review_nl"
+       ],
+       "logo": "logo_white"
+      }
+     },
+     "brief": "Faceless versus-video: zelf een reel maken tegenover Otto, drie rijen, eerlijk (de algemene manier, geen merk).",
+     "added": "2026-11-02"
+    },
+    {
+     "id": "nl-a1-product",
+     "style": "product_hero",
+     "slot": "product",
+     "format": "image",
+     "size": [
+      "feed",
+      "story"
+     ],
+     "data": {
+      "headline": "Je website, *als reel*",
+      "photo": "otto-phone-review-nl-cutout.png",
+      "callouts": [
+       "Gemaakt van je eigen site",
+       "Klaar om goed te keuren",
+       "7 dagen gratis proberen"
+      ],
+      "kicker": "Reels door Otto",
+      "theme": "light",
+      "callout_style": "line"
+     },
+     "brief": "De telefoon met een Nederlandse post in Otto's reviewscherm, drie callouts.",
+     "added": "2026-11-02"
+    },
+    {
+     "id": "nl-a1-search",
+     "style": "search",
+     "slot": "native",
+     "format": "image",
+     "size": [
+      "feed",
+      "story"
+     ],
+     "data": {
+      "query": "reels maken zonder",
+      "mode": "autocomplete",
+      "suggestions": [
+       "reels maken zonder te filmen",
+       "reels maken zonder ervaring",
+       "reels maken zonder gezicht",
+       "reels maken zonder te monteren"
+      ],
+      "headline": "Zoek je dit ook? *Otto maakt ze voor je.*",
+      "theme": "light"
+     },
+     "brief": "Zoekbalk (generiek, geen zoekmachine-logo) met wat eigenaren echt typen.",
+     "added": "2026-11-02"
+    },
+    {
+     "id": "nl-a1-number",
+     "style": "big_number",
+     "slot": "proof_humor",
+     "format": "image",
+     "size": [
+      "feed",
+      "story"
+     ],
+     "data": {
+      "number": "24",
+      "suffix": "uur",
+      "label": "en je eerste posts en reels staan klaar, gemaakt van wat al op je website staat",
+      "kicker": "Gratis proefweek",
+      "source": "Otto: 7 dagen gratis, geen creditcard nodig",
+      "theme": "dark"
+     },
+     "brief": "Eén bewezen getal uit het aanbod (pr3: eerste posts binnen 24 uur).",
+     "added": "2026-11-02"
+    }
+   ]
+  },
+  {
+   "id": "a2",
+   "name": "Het bericht van 07:35",
+   "family": "experience",
+   "angle": "Het bericht van 07:35: elke ochtend één bericht met wat gisteren kostte en opleverde, en wat op je goedkeuring wacht (COMPETITORS §6 concept 1)",
+   "source": "competitor-research",
+   "persona": "p-nl-shop",
+   "stage": "warm",
+   "kinds": [
+    "benefit",
+    "proof",
+    "objection"
+   ],
+   "ad_set": "NL · a2 · Het bericht van 07:35",
+   "headlines": [
+    "Om 07:35 weet je hoe je ervoor staat",
+    "Eén bericht. Elke ochtend."
+   ],
+   "primaries": [
+    "Om 07:35 krijg je één bericht: wat je advertenties gisteren kostten, wat ze opleverden en welke posts op je wachten. Goedkeuren doe je met één tik.",
+    "Veel bureaus sturen je één keer per maand een pdf. Otto stuurt je elke ochtend om 07:35 één bericht. Lees het bij je koffie.",
+    "Loopt er iets terug, dan hoor je het binnen een uur, met een voorstel om het op te lossen. Jij beslist."
+   ],
+   "description": "Je marketing in één bericht",
+   "cta": "LEARN_MORE",
+   "ads": [
+    {
+     "id": "nl-a2-creator",
+     "style": "ugc_talking_head",
+     "slot": "creator",
+     "format": "creator",
+     "size": "story",
+     "creator": {
+      "persona": "Eigenaar van een webshop (klant van Otto)",
+      "hook": "Dit is het eerste wat ik 's ochtends lees.",
+      "script": "Dit is het eerste wat ik 's ochtends lees, bij mijn koffie. Om 07:35 laat Otto me weten wat mijn advertenties gisteren kostten en wat ze opleverden. Daaronder staan de posts voor vandaag. Ik lees het, tik op goedkeuren en ga orders inpakken. Vroeger wist ik niet wat ik uitgaf.",
+      "shot_list": [
+       "0-2 s: keukentafel, koffie, telefoon licht op om 07:35: de hook in de camera",
+       "2-9 s: close-up van het eigen 07:35-bericht (eigen cijfers of geblurd)",
+       "9-13 s: duim tikt op Approve",
+       "13-22 s: inpaktafel, dozen, de laatste zin",
+       "Tekst in beeld: 'Elke ochtend om 07:35'"
+      ],
+      "length": "20-25 s, 9:16, geluid aan, Nederlandse ondertitels",
+      "disclosure": "Betaalde samenwerking met Otto",
+      "on_screen": "Elke ochtend om 07:35",
+      "notes": "Echte ondernemer die Otto zelf gebruikt, geen acteur. Zeg alleen wat voor jouw zaak klopt; eigen woorden mogen. Geen cijfers noemen die niet in je eigen rapport staan (anders blurren). Label 'Betaalde samenwerking met Otto' vanaf de eerste seconde; plaatsen als partnership-advertentie."
+     },
+     "brief": "Webshop-eigenaar laat haar eigen ochtendbericht zien. Alleen echte cijfers van haar eigen account, of geblurd. Real footage of the real owner only; no generated or look-alike people.",
+     "added": "2026-11-02"
+    },
+    {
+     "id": "nl-a2-texts",
+     "style": "text_message",
+     "slot": "faceless",
+     "format": "video",
+     "size": "story",
+     "video": {
+      "kit": "texts",
+      "data": "video/2026-11-nl/nl-a2-texts.json"
+     },
+     "data": {
+      "thread": {
+       "name": "Otto",
+       "initial": "O",
+       "avatar": "brand",
+       "stamp": "Voorbeeld · vandaag 07:35",
+       "placeholder": "Bericht",
+       "messages": [
+        {
+         "from": "them",
+         "text": "Goedemorgen. Gisteren: €18 aan advertenties, 4 aanvragen."
+        },
+        {
+         "from": "them",
+         "text": "Best gelopen: de reel over je lunchmenu."
+        },
+        {
+         "from": "them",
+         "text": "Er staan 3 posts voor deze week klaar. Wil je ze zien?"
+        },
+        {
+         "from": "me",
+         "text": "Ja, laat maar zien"
+        },
+        {
+         "from": "them",
+         "text": "Hier zijn ze. Tik op goedkeuren of vraag om een wijziging."
+        }
+       ]
+      },
+      "endcard": {
+       "headline": "Om 07:35 weet je het.",
+       "accent": "07:35",
+       "sub": "Wat het kostte, wat het opleverde, wat op je wacht.",
+       "fine": "Voorbeeldbericht. Advertentiebudget betaal je rechtstreeks aan Meta.",
+       "products": [
+        "pack"
+       ],
+       "logo": "logo_white"
+      }
+     },
+     "brief": "Faceless chat-video: Otto (merk-avatar) stuurt het ochtendbericht, de eigenaar antwoordt. Cijfers gemarkeerd als voorbeeld.",
+     "added": "2026-11-02"
+    },
+    {
+     "id": "nl-a2-big",
+     "style": "big_number",
+     "slot": "proof_humor",
+     "format": "video",
+     "size": "story",
+     "video": {
+      "kit": "big",
+      "data": "video/2026-11-nl/nl-a2-big.json"
+     },
+     "data": {
+      "big": {
+       "hero": "hero",
+       "phrases": [
+        {
+         "big": "07:35",
+         "rest": "elke ochtend."
+        },
+        {
+         "big": "1 bericht",
+         "rest": "wat het kostte en opleverde."
+        },
+        {
+         "big": "1 tik",
+         "rest": "om goed te keuren.",
+         "product": "pack"
+        }
+       ]
+      },
+      "endcard": {
+       "headline": "Eén bericht. Elke ochtend.",
+       "accent": "Elke ochtend.",
+       "sub": "Posts, reels en advertenties door Otto.",
+       "fine": "7 dagen gratis proberen, geen creditcard nodig.",
+       "products": [
+        "pack"
+       ],
+       "logo": "logo"
+      }
+     },
+     "brief": "Faceless big-video: de telefoon met het rapport groot, drie korte zinnen op de beat.",
+     "added": "2026-11-02"
+    },
+    {
+     "id": "nl-a2-compare",
+     "style": "comparison",
+     "slot": "comparison",
+     "format": "image",
+     "size": "feed",
+     "data": {
+      "title": "Maandrapport of *ochtendbericht*?",
+      "kicker": "Rapportage",
+      "columns": [
+       {
+        "name": "Maandrapport"
+       },
+       {
+        "name": "Otto om 07:35",
+        "highlight": true
+       }
+      ],
+      "rows": [
+       {
+        "label": "Hoe vaak",
+        "values": [
+         "1× per maand",
+         "Elke ochtend"
+        ]
+       },
+       {
+        "label": "Wat je krijgt",
+        "values": [
+         "Een lange pdf",
+         "Eén kort bericht"
+        ]
+       },
+       {
+        "label": "Als er iets terugloopt",
+        "values": [
+         "Vaak pas volgende maand",
+         "Binnen een uur"
+        ]
+       },
+       {
+        "label": "Wie beslist",
+        "values": [
+         "Jij, achteraf",
+         "Jij, meteen"
+        ]
+       }
+      ],
+      "footnote": "Otto: rapport om 07:35, meldingen binnen een uur.",
+      "theme": "light"
+     },
+     "brief": "Tabel: het gebruikelijke maandrapport tegenover het ochtendbericht. Eerlijk, geen prijzen.",
+     "added": "2026-11-02"
+    },
+    {
+     "id": "nl-a2-macro",
+     "style": "macro_hero",
+     "slot": "product",
+     "format": "image",
+     "size": [
+      "feed",
+      "story"
+     ],
+     "data": {
+      "photo": "otto-phone-report-cutout.png",
+      "word": "*07:35*",
+      "sub": "Wat het gisteren kostte en opleverde. Elke ochtend.",
+      "kicker": "Ochtendrapport",
+      "crop": "right",
+      "theme": "light"
+     },
+     "brief": "De rapport-telefoon heel groot, één woord: de tijd.",
+     "added": "2026-11-02"
+    },
+    {
+     "id": "nl-a2-notes",
+     "style": "notes_app",
+     "slot": "native",
+     "format": "image",
+     "size": [
+      "feed",
+      "story"
+     ],
+     "data": {
+      "title": "Mijn ochtend",
+      "items": [
+       "07:30 koffie",
+       "07:35 bericht van Otto lezen",
+       "07:36 drie posts goedkeuren",
+       "07:40 aan het werk"
+      ],
+      "mode": "bullets",
+      "date_label": "Vandaag om 07:41",
+      "footer": "Marketing: *klaar voor achten*",
+      "headline": "Zo ziet *07:35* eruit",
+      "theme": "light"
+     },
+     "brief": "Notitie in de stem van de eigenaar: de ochtend in vier regels.",
+     "added": "2026-11-02"
+    }
+   ]
+  },
+  {
+   "id": "a3",
+   "name": "Lokaal, niet vertaald",
+   "family": "enemy",
+   "angle": "Lokaal, niet vertaald: geschreven in het Nederlands voor jouw stad, tegenover algemene tools die vertalen (COMPETITORS §4 gap 2, §6 concept 3)",
+   "source": "competitor-research",
+   "persona": "p-nl-salon",
+   "stage": "cold",
+   "kinds": [
+    "competitor",
+    "objection",
+    "audience"
+   ],
+   "ad_set": "NL · a3 · Lokaal, niet vertaald",
+   "headlines": [
+    "Nederlands. Niet vertaald.",
+    "Klinkt als jouw zaak"
+   ],
+   "primaries": [
+    "Een post over je lunchmenu moet klinken als jouw zaak in Haarlem, niet als een vertaling uit het Engels. Otto schrijft in het Nederlands, voor jouw klanten.",
+    "‘Wij zijn super excited om te delen…’ Herkenbaar? Zo klinkt vertaalde marketing. Otto schrijft zoals jij praat, in het Nederlands.",
+    "Otto leest je website, je prijzen en je reviews, en schrijft posts, reels en advertenties die klinken als jij. Niets gaat online zonder jouw goedkeuring."
+   ],
+   "description": "Voor webshops, horeca en salons",
+   "cta": "LEARN_MORE",
+   "ads": [
+    {
+     "id": "nl-a3-creator",
+     "style": "ugc_talking_head",
+     "slot": "creator",
+     "format": "creator",
+     "size": "story",
+     "creator": {
+      "persona": "Eigenaar van een kapsalon of nagelsalon (klant van Otto)",
+      "hook": "Dit klonk echt niet als mijn salon.",
+      "script": "Ik heb een keer zo'n AI-tool geprobeerd. Alles klonk als een vertaling. ‘Wij zijn zo excited!’ Zo praat ik niet. Otto heeft eerst mijn website gelezen en schrijft nu zoals ik het zou zeggen. Klopt er iets niet, dan pas ik het aan en dat onthoudt Otto. Het klinkt nu gewoon als mijn salon.",
+      "shot_list": [
+       "0-2 s: eigenaar aan de stoel, kijkt in de camera: de hook",
+       "2-8 s: telefoon, een oude vertaalde tekst (eigen voorbeeld) doorgestreept in beeld",
+       "8-15 s: Otto's post in het reviewscherm, eigenaar leest hem hardop voor",
+       "15-22 s: tikt op Approve, gaat verder met een klant (klant niet herkenbaar in beeld)",
+       "Tekst in beeld: 'Geschreven in het Nederlands. Niet vertaald.'"
+      ],
+      "length": "20-25 s, 9:16, geluid aan, Nederlandse ondertitels",
+      "disclosure": "Betaalde samenwerking met Otto",
+      "on_screen": "Geschreven in het Nederlands. Niet vertaald.",
+      "notes": "Echte ondernemer die Otto zelf gebruikt, geen acteur. Zeg alleen wat voor jouw zaak klopt; eigen woorden mogen. Geen cijfers noemen die niet in je eigen rapport staan (anders blurren). Label 'Betaalde samenwerking met Otto' vanaf de eerste seconde; plaatsen als partnership-advertentie."
+     },
+     "brief": "Salon-eigenaar vergelijkt een vertaald klinkende tekst met Otto's post in haar eigen woorden. Geen klanten herkenbaar zonder hun toestemming. Real footage of the real owner only; no generated or look-alike people.",
+     "added": "2026-11-02"
+    },
+    {
+     "id": "nl-a3-notes",
+     "style": "notes_app",
+     "slot": "faceless",
+     "format": "video",
+     "size": "story",
+     "video": {
+      "kit": "notes",
+      "data": "video/2026-11-nl/nl-a3-notes.json"
+     },
+     "data": {
+      "note": {
+       "meta": "Dinsdag, 22:15",
+       "title": "Woorden die mijn klanten nooit gebruiken",
+       "struck": [
+        "super excited",
+        "next level",
+        "unieke beleving"
+       ],
+       "keep": "gewoon: nieuw bij ons, vanaf zaterdag"
+      },
+      "endcard": {
+       "headline": "Nederlands. Niet vertaald.",
+       "accent": "Niet vertaald.",
+       "sub": "Posts, reels en advertenties die klinken als jouw zaak.",
+       "fine": "Otto schrijft in het Nederlands, voor jouw klanten.",
+       "products": [
+        "review_nl"
+       ],
+       "logo": "logo"
+      }
+     },
+     "brief": "Faceless notes-video: marketingwoorden die geen klant gebruikt, doorgestreept; de gewone zin blijft staan.",
+     "added": "2026-11-02"
+    },
+    {
+     "id": "nl-a3-versus",
+     "style": "us_vs_them",
+     "slot": "comparison",
+     "format": "video",
+     "size": "story",
+     "video": {
+      "kit": "versus",
+      "data": "video/2026-11-nl/nl-a3-versus.json"
+     },
+     "data": {
+      "versus": {
+       "vs": "vs",
+       "left": {
+        "label": "Vertaald",
+        "rows": [
+         "‘Super excited!’",
+         "Thanksgiving-post",
+         "Prijzen in dollars"
+        ]
+       },
+       "right": {
+        "label": "Otto",
+        "image": "review_nl",
+        "rows": [
+         "‘Nieuw bij ons’",
+         "Sinterklaas",
+         "Prijzen in euro"
+        ]
+       },
+       "footer": "Voor jouw klanten, in jouw taal."
+      },
+      "endcard": {
+       "headline": "Klinkt als jouw zaak.",
+       "accent": "jouw zaak.",
+       "sub": "Otto leest je website en schrijft zoals jij praat.",
+       "fine": "7 dagen gratis proberen, geen creditcard nodig.",
+       "products": [
+        "review_nl"
+       ],
+       "logo": "logo_white"
+      }
+     },
+     "brief": "Faceless versus-video: vertaalde marketing tegenover Otto, drie rijen.",
+     "added": "2026-11-02"
+    },
+    {
+     "id": "nl-a3-product",
+     "style": "product_hero",
+     "slot": "product",
+     "format": "image",
+     "size": [
+      "feed",
+      "story"
+     ],
+     "data": {
+      "headline": "Klinkt als *jouw zaak*",
+      "photo": "otto-phone-review-nl-cutout.png",
+      "callouts": [
+       "Geschreven in het Nederlands",
+       "Op basis van je eigen website",
+       "Jij keurt alles goed"
+      ],
+      "kicker": "Posts door Otto",
+      "theme": "brand"
+     },
+     "brief": "Reviewscherm met een Nederlandse post op het merkdonker, drie callouts.",
+     "added": "2026-11-02"
+    },
+    {
+     "id": "nl-a3-post",
+     "style": "social_post",
+     "slot": "native",
+     "format": "image",
+     "size": [
+      "feed",
+      "story"
+     ],
+     "data": {
+      "name": "Otto",
+      "handle": "Voor ondernemers",
+      "avatar_logo": true,
+      "text": "Een post over je lunchmenu hoort te klinken als jouw zaak in Haarlem. Niet als een vertaling uit het Engels. Daarom schrijft Otto in het Nederlands, op basis van je eigen website.",
+      "headline": "*Lokaal*, niet vertaald",
+      "theme": "light",
+      "ui": "light"
+     },
+     "brief": "Een tekstpost van Otto zelf (het merk), geen verzonnen klant.",
+     "added": "2026-11-02"
+    },
+    {
+     "id": "nl-a3-carousel",
+     "style": "carousel",
+     "slot": "proof_humor",
+     "format": "image",
+     "size": "feed",
+     "data": {
+      "cover": {
+       "headline": "3 zinnen die verraden dat je post *vertaald* is",
+       "kicker": "Voor ondernemers",
+       "swipe": "Swipe"
+      },
+      "slides": [
+       {
+        "title": "‘Wij zijn super excited’",
+        "body": "Zo praat niemand in Nederland over een nieuw menu. Zeg gewoon wat er nieuw is."
+       },
+       {
+        "title": "‘Check onze nieuwe collectie out’",
+        "body": "Half Engels, half Nederlands. Kies één taal: die van je klant."
+       },
+       {
+        "title": "‘Happy Thanksgiving!’",
+        "body": "Haak in op wat je klanten vieren: Sinterklaas, Koningsdag, de eerste terrasdag."
+       }
+      ],
+      "end": {
+       "headline": "Otto schrijft zoals jij praat",
+       "cta": "Scan je website",
+       "sub": "Gratis, zonder account"
+      }
+     },
+     "brief": "Leerzame carrousel om te bewaren: drie vertaal-missers, één vraag.",
+     "added": "2026-11-02"
+    }
+   ]
+  },
+  {
+   "id": "a4",
+   "name": "Jij onderneemt, Otto post",
+   "family": "identity",
+   "angle": "Voor ondernemers die liever ondernemen dan posten (webshops, horeca, salons): jij tikt op goedkeuren, Otto doet de rest",
+   "source": "profile",
+   "persona": "p-nl-shop",
+   "stage": "cold",
+   "kinds": [
+    "audience",
+    "benefit"
+   ],
+   "ad_set": "NL · a4 · Jij onderneemt, Otto post",
+   "headlines": [
+    "Jij onderneemt. Otto post.",
+    "Voor ondernemers zonder marketingteam"
+   ],
+   "primaries": [
+    "Otto plant je maand, schrijft je posts, maakt je reels en draait je advertenties. Jij tikt op goedkeuren. Ongeveer een half uur per week.",
+    "Voor de webshop die om elf uur 's avonds nog moet posten. Voor het café dat om zes uur dichtgaat. Voor de salon met een volle agenda. Otto doet je marketing, jij beslist.",
+    "Log in, geef je websiteadres op, beantwoord maximaal vier vragen en binnen 24 uur staan je eerste posts klaar om goed te keuren."
+   ],
+   "description": "Posts, reels en advertenties door Otto",
+   "cta": "LEARN_MORE",
+   "ads": [
+    {
+     "id": "nl-a4-creator",
+     "style": "ugc_talking_head",
+     "slot": "creator",
+     "format": "creator",
+     "size": "story",
+     "creator": {
+      "persona": "Eigenaar van een webshop (klant van Otto)",
+      "hook": "Om elf uur 's avonds zat ik nog captions te schrijven.",
+      "script": "Om elf uur 's avonds zat ik nog captions te schrijven, na een hele dag inpakken. Nu plant Otto mijn maand. De posts, de reels, de advertenties: het staat klaar op mijn telefoon en ik tik op goedkeuren. 's Avonds pak ik gewoon dozen in. Of niet.",
+      "shot_list": [
+       "0-2 s: avond, keukentafel, laptop, eigenaar kijkt in de camera: de hook",
+       "2-9 s: de maandkalender in Otto op de telefoon",
+       "9-13 s: duim tikt op Approve bij drie posts",
+       "13-20 s: inpaktafel, dan de bank; de laatste zin met een glimlach",
+       "Tekst in beeld: 'Jij onderneemt. Otto post.'"
+      ],
+      "length": "18-22 s, 9:16, geluid aan, Nederlandse ondertitels",
+      "disclosure": "Betaalde samenwerking met Otto",
+      "on_screen": "Jij onderneemt. Otto post.",
+      "notes": "Echte ondernemer die Otto zelf gebruikt, geen acteur. Zeg alleen wat voor jouw zaak klopt; eigen woorden mogen. Geen cijfers noemen die niet in je eigen rapport staan (anders blurren). Label 'Betaalde samenwerking met Otto' vanaf de eerste seconde; plaatsen als partnership-advertentie."
+     },
+     "brief": "Webshop-eigenaar over haar avonden voor en na Otto. Tweede opname op dezelfde draaidag als nl-a2-creator. Real footage of the real owner only; no generated or look-alike people.",
+     "added": "2026-11-02"
+    },
+    {
+     "id": "nl-a4-big",
+     "style": "big_number",
+     "slot": "faceless",
+     "format": "video",
+     "size": "story",
+     "video": {
+      "kit": "big",
+      "data": "video/2026-11-nl/nl-a4-big.json"
+     },
+     "data": {
+      "big": {
+       "hero": "hero",
+       "phrases": [
+        {
+         "big": "30 minuten",
+         "rest": "per week, zo ongeveer."
+        },
+        {
+         "big": "Max. 4 vragen",
+         "rest": "bij de start."
+        },
+        {
+         "big": "1 tik",
+         "rest": "per post.",
+         "product": "review_nl"
+        }
+       ]
+      },
+      "endcard": {
+       "headline": "Jij onderneemt. Otto post.",
+       "accent": "Otto post.",
+       "sub": "Posts, reels en advertenties, klaar om goed te keuren.",
+       "fine": "7 dagen gratis proberen, geen creditcard nodig.",
+       "products": [
+        "month"
+       ],
+       "logo": "logo"
+      }
+     },
+     "brief": "Faceless big-video: drie getallen uit de landing (30 min, 4 vragen, 1 tik) op de beat.",
+     "added": "2026-11-02"
+    },
+    {
+     "id": "nl-a4-versus",
+     "style": "us_vs_them",
+     "slot": "comparison",
+     "format": "video",
+     "size": "story",
+     "video": {
+      "kit": "versus",
+      "data": "video/2026-11-nl/nl-a4-versus.json"
+     },
+     "data": {
+      "versus": {
+       "vs": "vs",
+       "left": {
+        "label": "Zelf doen",
+        "rows": [
+         "’s Avonds posten",
+         "Gokken met advertenties",
+         "Geen tijd voor reels"
+        ]
+       },
+       "right": {
+        "label": "Met Otto",
+        "image": "month",
+        "rows": [
+         "Maand gepland",
+         "Rapport om 07:35",
+         "Reels, klaar"
+        ]
+       },
+       "footer": "Jij tikt op goedkeuren."
+      },
+      "endcard": {
+       "headline": "Je maand staat klaar.",
+       "accent": "klaar.",
+       "sub": "Posts, stories en reels, vooruit gepland.",
+       "fine": "7 dagen gratis proberen, geen creditcard nodig.",
+       "products": [
+        "month"
+       ],
+       "logo": "logo_white"
+      }
+     },
+     "brief": "Faceless versus-video: zelf doen tegenover Otto.",
+     "added": "2026-11-02"
+    },
+    {
+     "id": "nl-a4-product",
+     "style": "product_hero",
+     "slot": "product",
+     "format": "image",
+     "size": [
+      "feed",
+      "story"
+     ],
+     "data": {
+      "headline": "Jij onderneemt. *Otto post.*",
+      "photo": "otto-phone-month-cutout.png",
+      "callouts": [
+       "Posts, stories en reels",
+       "Als je klanten online zijn",
+       "Jij keurt alles goed"
+      ],
+      "kicker": "Je maand, klaar",
+      "theme": "light"
+     },
+     "brief": "De maand-telefoon, drie callouts uit het aanbod.",
+     "added": "2026-11-02"
+    },
+    {
+     "id": "nl-a4-search",
+     "style": "search",
+     "slot": "native",
+     "format": "image",
+     "size": [
+      "feed",
+      "story"
+     ],
+     "data": {
+      "query": "geen tijd voor social media",
+      "mode": "autocomplete",
+      "suggestions": [
+       "geen tijd voor social media als ondernemer",
+       "geen tijd voor social media webshop",
+       "geen tijd voor social media horeca",
+       "geen tijd voor social media kapsalon"
+      ],
+      "headline": "Herkenbaar? *Otto neemt het over.*",
+      "theme": "light"
+     },
+     "brief": "Zoekbalk met de vraag die eigenaren echt typen, per branche.",
+     "added": "2026-11-02"
+    },
+    {
+     "id": "nl-a4-checklist",
+     "style": "checklist",
+     "slot": "proof_humor",
+     "format": "image",
+     "size": "feed",
+     "data": {
+      "title": "Wat jij nog doet",
+      "kicker": "Met Otto",
+      "items": [
+       {
+        "text": "Je websiteadres sturen",
+        "note": "Eén keer"
+       },
+       {
+        "text": "Maximaal vier vragen beantwoorden",
+        "note": "Bij de start"
+       },
+       {
+        "text": "Op goedkeuren tikken",
+        "note": "Ongeveer een half uur per week"
+       }
+      ],
+      "footnote": "De rest doet Otto: plannen, schrijven, ontwerpen, publiceren en rapporteren.",
+      "theme": "light"
+     },
+     "brief": "Checklist: alles wat de eigenaar zelf nog doet (pr5, pr6).",
+     "added": "2026-11-02"
+    }
+   ]
+  },
+  {
+   "id": "a5",
+   "name": "7 dagen gratis",
+   "family": "offer",
+   "angle": "Het aanbod: Otto 7 dagen gratis, inloggen met Google, geen creditcard, niets wordt automatisch afgeschreven; liever één keer betalen = founding pilot €197",
+   "source": "profile",
+   "persona": "p-nl-salon",
+   "stage": "hot",
+   "kinds": [
+    "offer",
+    "objection"
+   ],
+   "ad_set": "NL · a5 · 7 dagen gratis",
+   "headlines": [
+    "Probeer Otto 7 dagen gratis",
+    "Geen creditcard nodig"
+   ],
+   "primaries": [
+    "Probeer Otto 7 dagen gratis. Log in met Google, geef je websiteadres op en binnen 24 uur staan je eerste posts klaar om goed te keuren. Geen creditcard nodig.",
+    "Na 7 dagen kies je zelf of je doorgaat. Er wordt niets automatisch afgeschreven, en kies je een plan, dan gaat alles wat Otto maakte gewoon door.",
+    "Liever één keer betalen? De founding pilot is €197 eenmalig, excl. btw. Je advertentiebudget betaal je apart en rechtstreeks aan Meta."
+   ],
+   "description": "7 dagen gratis, geen creditcard",
+   "cta": "SIGN_UP",
+   "ads": [
+    {
+     "id": "nl-a5-creator",
+     "style": "ugc_talking_head",
+     "slot": "creator",
+     "format": "creator",
+     "size": "story",
+     "creator": {
+      "persona": "Eigenaar van een kapsalon of nagelsalon (klant van Otto)",
+      "hook": "Ik wilde niet meteen betalen voor iets wat ik nog niet kende.",
+      "script": "Ik wilde niet meteen betalen voor iets wat ik nog niet kende. Dus heb ik Otto een week gratis geprobeerd, zonder creditcard. Binnen een dag stonden mijn eerste posts klaar, zoals ik het zelf zou zeggen. Nu keur ik ze goed tussen twee klanten door.",
+      "shot_list": [
+       "0-2 s: eigenaar bij de balie, kijkt in de camera: de hook",
+       "2-8 s: telefoon: de eerste posts in Otto",
+       "8-12 s: tikt op Approve tussen twee afspraken (agenda niet leesbaar)",
+       "12-18 s: terug aan het werk",
+       "Tekst in beeld: '7 dagen gratis, geen creditcard'"
+      ],
+      "length": "15-20 s, 9:16, geluid aan, Nederlandse ondertitels",
+      "disclosure": "Betaalde samenwerking met Otto",
+      "on_screen": "7 dagen gratis, geen creditcard",
+      "notes": "Echte ondernemer die Otto zelf gebruikt, geen acteur. Zeg alleen wat voor jouw zaak klopt; eigen woorden mogen. Geen cijfers noemen die niet in je eigen rapport staan (anders blurren). Label 'Betaalde samenwerking met Otto' vanaf de eerste seconde; plaatsen als partnership-advertentie."
+     },
+     "brief": "Salon-eigenaar over de drempel: eerst gratis proberen. Tweede opname op dezelfde draaidag als nl-a3-creator. Alleen als ze echt de proefweek deed. Real footage of the real owner only; no generated or look-alike people.",
+     "added": "2026-11-02"
+    },
+    {
+     "id": "nl-a5-big",
+     "style": "big_number",
+     "slot": "faceless",
+     "format": "video",
+     "size": "story",
+     "video": {
+      "kit": "big",
+      "data": "video/2026-11-nl/nl-a5-big.json"
+     },
+     "data": {
+      "big": {
+       "hero": "month",
+       "phrases": [
+        {
+         "big": "7 dagen",
+         "rest": "gratis."
+        },
+        {
+         "big": "0 creditcards",
+         "rest": "nodig."
+        },
+        {
+         "big": "24 uur",
+         "rest": "tot je eerste posts.",
+         "product": "review_nl"
+        }
+       ]
+      },
+      "endcard": {
+       "headline": "Probeer Otto 7 dagen.",
+       "accent": "7 dagen.",
+       "sub": "Gratis, geen creditcard nodig.",
+       "fine": "Er wordt niets automatisch afgeschreven.",
+       "products": [
+        "month"
+       ],
+       "logo": "logo"
+      }
+     },
+     "brief": "Faceless big-video met het aanbod in drie klappen.",
+     "added": "2026-11-02"
+    },
+    {
+     "id": "nl-a5-texts",
+     "style": "text_message",
+     "slot": "native",
+     "format": "video",
+     "size": "story",
+     "video": {
+      "kit": "texts",
+      "data": "video/2026-11-nl/nl-a5-texts.json"
+     },
+     "data": {
+      "thread": {
+       "name": "Otto",
+       "initial": "O",
+       "avatar": "brand",
+       "stamp": "Vandaag 10:12",
+       "placeholder": "Bericht",
+       "messages": [
+        {
+         "from": "me",
+         "text": "Wat gebeurt er na de 7 dagen?"
+        },
+        {
+         "from": "them",
+         "text": "Twee dagen voor het einde krijg je een mail. Kies je een plan, dan gaat alles gewoon door."
+        },
+        {
+         "from": "me",
+         "text": "En als ik niets doe?"
+        },
+        {
+         "from": "them",
+         "text": "Dan stopt het. Er wordt niets afgeschreven."
+        }
+       ]
+      },
+      "endcard": {
+       "headline": "7 dagen gratis.",
+       "accent": "gratis.",
+       "sub": "Binnen 24 uur je eerste posts.",
+       "fine": "Geen creditcard nodig. Eén proefperiode per bedrijf.",
+       "products": [
+        "month"
+       ],
+       "logo": "logo_white"
+      }
+     },
+     "brief": "Faceless chat-video: de twee vragen die iedereen stelt, beantwoord door Otto zelf (het merk).",
+     "added": "2026-11-02"
+    },
+    {
+     "id": "nl-a5-versus",
+     "style": "us_vs_them",
+     "slot": "comparison",
+     "format": "video",
+     "size": "story",
+     "video": {
+      "kit": "versus",
+      "data": "video/2026-11-nl/nl-a5-versus.json"
+     },
+     "data": {
+      "versus": {
+       "vs": "vs",
+       "left": {
+        "label": "Zelf doen",
+        "rows": [
+         "Je avonden",
+         "Zelf filmen",
+         "Gokken"
+        ]
+       },
+       "right": {
+        "label": "Otto, 7 dagen gratis",
+        "image": "month",
+        "rows": [
+         "Posts klaar",
+         "Reels erbij",
+         "Rapport om 07:35"
+        ]
+       },
+       "footer": "Geen creditcard nodig."
+      },
+      "endcard": {
+       "headline": "Probeer Otto gratis.",
+       "accent": "gratis.",
+       "sub": "7 dagen, geen creditcard.",
+       "fine": "Er wordt niets automatisch afgeschreven.",
+       "products": [
+        "month"
+       ],
+       "logo": "logo_white"
+      }
+     },
+     "brief": "Faceless versus-video: zelf doen tegenover de proefweek.",
+     "added": "2026-11-02"
+    },
+    {
+     "id": "nl-a5-offer",
+     "style": "offer",
+     "slot": "price",
+     "format": "image",
+     "size": [
+      "feed",
+      "story"
+     ],
+     "data": {
+      "name": "Gratis proefweek",
+      "price": "Gratis",
+      "price_note": "7 dagen, geen creditcard",
+      "features": [
+       "Je eerste week posts, stories en reels",
+       "Goedkeuren per e-mail, in Telegram of in de app",
+       "Om 07:35 je rapport",
+       "Je advertenties gepland om te bekijken"
+      ],
+      "cta": "Aanmelden",
+      "terms": "Inloggen met Google. Eén proefperiode per bedrijf; er wordt niets automatisch afgeschreven. Liever één keer betalen: founding pilot €197 eenmalig, excl. btw. Advertentiebudget betaal je apart aan Meta.",
+      "kicker": "Proefweek",
+      "photo": "otto-phone-month-cutout.png",
+      "theme": "accent"
+     },
+     "brief": "De prijskaart: het echte aanbod (gratis proefweek), wat erin zit, één knop.",
+     "added": "2026-11-02"
+    },
+    {
+     "id": "nl-a5-product",
+     "style": "product_hero",
+     "slot": "product",
+     "format": "image",
+     "size": [
+      "feed",
+      "story"
+     ],
+     "data": {
+      "headline": "7 dagen *gratis*",
+      "photo": "otto-phone-review-nl-cutout.png",
+      "callouts": [
+       "Geen creditcard nodig",
+       "Posts in het Nederlands",
+       "Eerste posts binnen 24 uur"
+      ],
+      "price": "Gratis",
+      "price_note": "7 dagen, daarna kies je zelf",
+      "kicker": "Proefweek",
+      "theme": "brand"
+     },
+     "brief": "Reviewscherm met het aanbod, drie callouts.",
+     "added": "2026-11-02"
+    },
+    {
+     "id": "nl-a5-notes",
+     "style": "notes_app",
+     "slot": "native",
+     "format": "image",
+     "size": [
+      "feed",
+      "story"
+     ],
+     "data": {
+      "title": "Wat je in de proefweek krijgt",
+      "mode": "checklist",
+      "items": [
+       {
+        "text": "Je eerste week posts en stories",
+        "checked": true
+       },
+       {
+        "text": "Reels van je eigen website",
+        "checked": true
+       },
+       {
+        "text": "Goedkeuren per e-mail of in de app",
+        "checked": true
+       },
+       {
+        "text": "Elke ochtend om 07:35 je rapport",
+        "checked": true
+       },
+       {
+        "text": "Je advertenties gepland om te bekijken",
+        "checked": true
+       }
+      ],
+      "date_label": "Vandaag om 09:12",
+      "footer": "*7 dagen gratis*, geen creditcard",
+      "headline": "Eerst proberen, *dan beslissen*",
+      "theme": "light"
+     },
+     "brief": "Notitie als checklist van de proefweek.",
+     "added": "2026-11-02"
+    }
+   ]
+  },
+  {
+   "id": "a6",
+   "name": "December al gepland",
+   "family": "moment",
+   "angle": "December gepland in november: Sinterklaas, kerst en oud en nieuw vooraf goedgekeurd, zodat de eigenaar in december kan werken",
+   "source": "profile",
+   "persona": "p-nl-horeca",
+   "stage": "warm",
+   "kinds": [
+    "benefit",
+    "audience"
+   ],
+   "ad_set": "NL · a6 · December al gepland",
+   "headlines": [
+    "In november al klaar voor december",
+    "Jouw december, al gepland"
+   ],
+   "primaries": [
+    "Sinterklaas, kerst, oud en nieuw. Otto plant je decembermaand nu, zodat jij in december gewoon kunt werken. Jij keurt alles vooraf goed.",
+    "December is je drukste maand, en dan heb je de minste tijd. Laat Otto in november je posts, reels en advertenties klaarzetten. Jij tikt alleen op goedkeuren.",
+    "Cadeaubonnen, openingstijden rond de feestdagen, je kerstmenu: Otto zet het in je planning, op de uren dat je klanten online zijn."
+   ],
+   "description": "Posts, reels en advertenties voor december",
+   "cta": "LEARN_MORE",
+   "ads": [
+    {
+     "id": "nl-a6-creator",
+     "style": "ugc_talking_head",
+     "slot": "creator",
+     "format": "creator",
+     "size": "story",
+     "creator": {
+      "persona": "Eigenaar van een café of lunchroom (klant van Otto)",
+      "hook": "In december heb ik geen tijd. Dus staat december nu al klaar.",
+      "script": "In december heb ik geen tijd. Dus staat december nu al klaar. Otto heeft de kerstlunch, de cadeaubonnen en de openingstijden rond de feestdagen ingepland. Ik heb alles in één keer bekeken en goedgekeurd. In december ben ik gewoon met de zaak bezig.",
+      "shot_list": [
+       "0-2 s: eigenaar hangt kerstverlichting op in de zaak: de hook",
+       "2-9 s: telefoon: Otto's decemberkalender, scrollend",
+       "9-13 s: tikt op Approve",
+       "13-20 s: drukke lunch, eigenaar aan het werk",
+       "Tekst in beeld: 'December, al gepland'"
+      ],
+      "length": "18-22 s, 9:16, geluid aan, Nederlandse ondertitels",
+      "disclosure": "Betaalde samenwerking met Otto",
+      "on_screen": "December, al gepland",
+      "notes": "Echte ondernemer die Otto zelf gebruikt, geen acteur. Zeg alleen wat voor jouw zaak klopt; eigen woorden mogen. Geen cijfers noemen die niet in je eigen rapport staan (anders blurren). Label 'Betaalde samenwerking met Otto' vanaf de eerste seconde; plaatsen als partnership-advertentie."
+     },
+     "brief": "Café-eigenaar laat zijn al goedgekeurde decembermaand zien. Tweede opname op dezelfde draaidag als nl-a1-creator. Real footage of the real owner only; no generated or look-alike people.",
+     "added": "2026-11-02"
+    },
+    {
+     "id": "nl-a6-texts",
+     "style": "text_message",
+     "slot": "faceless",
+     "format": "video",
+     "size": "story",
+     "video": {
+      "kit": "texts",
+      "data": "video/2026-11-nl/nl-a6-texts.json"
+     },
+     "data": {
+      "thread": {
+       "name": "Otto",
+       "initial": "O",
+       "avatar": "brand",
+       "stamp": "Voorbeeld · 20 november",
+       "placeholder": "Bericht",
+       "messages": [
+        {
+         "from": "them",
+         "text": "Je decembermaand staat klaar om te bekijken."
+        },
+        {
+         "from": "them",
+         "text": "Sinterklaas, de kerstlunch, cadeaubonnen en je openingstijden rond de feestdagen."
+        },
+        {
+         "from": "me",
+         "text": "Laat maar zien"
+        },
+        {
+         "from": "them",
+         "text": "Hier is de planning. Tik op goedkeuren of vraag om een wijziging."
+        }
+       ]
+      },
+      "endcard": {
+       "headline": "December, al gepland.",
+       "accent": "al gepland.",
+       "sub": "Jij keurt alles vooraf goed.",
+       "fine": "7 dagen gratis proberen, geen creditcard nodig.",
+       "products": [
+        "month"
+       ],
+       "logo": "logo_white"
+      }
+     },
+     "brief": "Faceless chat-video: Otto meldt dat december klaarstaat.",
+     "added": "2026-11-02"
+    },
+    {
+     "id": "nl-a6-big",
+     "style": "big_number",
+     "slot": "proof_humor",
+     "format": "video",
+     "size": "story",
+     "video": {
+      "kit": "big",
+      "data": "video/2026-11-nl/nl-a6-big.json"
+     },
+     "data": {
+      "big": {
+       "hero": "month",
+       "phrases": [
+        {
+         "big": "Sinterklaas.",
+         "rest": "Gepland."
+        },
+        {
+         "big": "Kerst.",
+         "rest": "Gepland."
+        },
+        {
+         "big": "Jij?",
+         "rest": "Aan het werk.",
+         "product": "month"
+        }
+       ]
+      },
+      "endcard": {
+       "headline": "Jouw december, al gepland.",
+       "accent": "al gepland.",
+       "sub": "Posts, reels en advertenties door Otto.",
+       "fine": "7 dagen gratis proberen, geen creditcard nodig.",
+       "products": [
+        "month"
+       ],
+       "logo": "logo"
+      }
+     },
+     "brief": "Faceless big-video: de feestdagen afgevinkt, op de beat.",
+     "added": "2026-11-02"
+    },
+    {
+     "id": "nl-a6-before",
+     "style": "before_after",
+     "slot": "comparison",
+     "format": "image",
+     "size": "feed",
+     "data": {
+      "before": "December: elke avond nog snel iets posten",
+      "after": "November: de hele maand in één keer goedgekeurd",
+      "before_label": "Zonder Otto",
+      "after_label": "Met Otto",
+      "kicker": "De feestdagen"
+     },
+     "brief": "Voor en na: de routine, niet de persoon.",
+     "added": "2026-11-02"
+    },
+    {
+     "id": "nl-a6-product",
+     "style": "product_hero",
+     "slot": "product",
+     "format": "image",
+     "size": [
+      "feed",
+      "story"
+     ],
+     "data": {
+      "headline": "December, *al gepland*",
+      "photo": "otto-phone-month-cutout.png",
+      "callouts": [
+       "Sinterklaas en kerst gepland",
+       "Ook je cadeaubonnen",
+       "Jij keurt vooraf goed"
+      ],
+      "kicker": "Feestdagen",
+      "theme": "brand"
+     },
+     "brief": "De maand-telefoon op het merkdonker.",
+     "added": "2026-11-02"
+    },
+    {
+     "id": "nl-a6-search",
+     "style": "search",
+     "slot": "native",
+     "format": "image",
+     "size": [
+      "feed",
+      "story"
+     ],
+     "data": {
+      "query": "kerst social media ideeën",
+      "mode": "autocomplete",
+      "suggestions": [
+       "kerst social media ideeën horeca",
+       "kerst social media ideeën webshop",
+       "kerst social media ideeën kapsalon",
+       "kerst social media ideeën voor bedrijven"
+      ],
+      "headline": "Nog geen idee voor december? *Otto wel.*",
+      "theme": "light"
+     },
+     "brief": "Zoekbalk: de decembervraag van eigenaren.",
+     "added": "2026-11-02"
+    }
+   ]
+  }
+ ]
+}

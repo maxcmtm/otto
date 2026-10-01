@@ -1,0 +1,36 @@
+{
+  "id": "nl-a1-notes",
+  "style": "notes",
+  "formats": [
+    "9x16"
+  ],
+  "music": {
+    "bpm": 120,
+    "mood": "calm",
+    "key": "F"
+  },
+  "scene": {
+    "ground": "primary"
+  },
+  "note": {
+    "meta": "Zondag, 21:40",
+    "title": "Wat ik niet meer doe voor een reel",
+    "struck": [
+      "filmen tijdens de lunchdrukte",
+      "knippen tot middernacht",
+      "ondertitels typen"
+    ],
+    "keep": "op goedkeuren tikken"
+  },
+  "endcard": {
+    "headline": "Reels zonder te filmen.",
+    "accent": "zonder te filmen.",
+    "sub": "Otto maakt ze van je eigen website.",
+    "fine": "7 dagen gratis proberen, geen creditcard nodig.",
+    "products": [
+      "month"
+    ],
+    "logo": "logo",
+    "ground": "bg"
+  }
+}

@@ -33,12 +33,15 @@ Access (e-mail one-time code) — nobody shares a password, keys go straight int
 4. SSL/TLS → Overview: **Full (strict)**. SSL/TLS → Edge Certificates: Always Use HTTPS **on**, minimum TLS 1.2.
 5. SSL/TLS → Origin Server → **Create certificate**: hostnames `otto.example` and `*.otto.example`, 15 years. Keep the page
    open: the certificate and the private key are needed in step 11 (the key is shown only once).
-6. Zero Trust → Access → Applications → **Add a self-hosted application**, twice:
-   - `admin.otto.example` — policy "Allow", selector Emails = the Otto team.
-   - `app.otto.example` — policy "Allow", Emails = the team, plus each client's e-mail as they sign up. The API only shows a
-     signed-in e-mail the brands it is a member of (`brands[].members`; signing in and onboarding adds it). Owner-console
-     users are `OTTO_ADMIN_USERS` in otto.env.
-   Login method: One-time PIN. The bare `otto.example` must **not** be behind Access (landing, onboarding, webhooks).
+6. Zero Trust → Access → Applications → **Add a self-hosted application** for `admin.otto.example` only — policy "Allow",
+   selector Emails = the Otto team; login method One-time PIN. Owner-console users are `OTTO_ADMIN_USERS` in otto.env.
+   `app.otto.example` and the bare `otto.example` must **not** be behind Access: clients sign in to `app.` with Google
+   (Otto's own sign-in, `platform/otto_auth.py`; the API shows a signed-in e-mail only the brands it is a member of), and
+   the apex carries the landing, onboarding and webhooks. If an older setup has an Access application on `app.`, delete it.
+6b. Google sign-in (client app): Google Cloud console → OAuth consent screen + an OAuth client (Web application) with the
+   redirect URI `https://app.otto.example/auth/google/callback` → `/etc/otto/secrets/google-oauth.json`
+   (`{"client_id": "…", "client_secret": "…"}`, owner otto, mode 600) → `systemctl restart otto-api`. Every click is in
+   `docs/AUTH-AND-TRIAL.md`. Until then the app's sign-in says "Google sign-in isn't set up yet".
 7. Security → WAF → Rate limiting rules → one rule: when the host is `otto.example` and the path is one of `/otto-peek`,
    `/otto-track`, `/otto-onboard`, `/otto-api/onboard`, `/hooks/whop`, `/otto-email/act` → 20 requests per 10 seconds per IP
    → Block.
@@ -174,12 +177,18 @@ resume it. Lost the whole server: Hetzner → server → Backups → restore a s
   `OTTO_TLS=letsencrypt OTTO_ACME_EMAIL=you@yourmail.com bash /opt/otto/infra/bootstrap.sh`.
 - **Trust.** Caddy drops any `X-Otto-User` / `X-Real-IP` / `X-Otto-Proxy-Key` a browser sends and sets all three itself:
   `X-Real-IP` = `CF-Connecting-IP` when the connection comes from Cloudflare's ranges (refreshed weekly with the firewall),
-  else the peer address; `X-Otto-User` = Cloudflare Access's e-mail header, from Cloudflare only and only on `app.` /
-  `admin.` (the apex never names a user); `X-Otto-Proxy-Key` = `OTTO_PROXY_KEY`, a random value bootstrap puts in both
+  else the peer address; `X-Otto-User` = Cloudflare Access's e-mail header, from Cloudflare only and only on `admin.`
+  (the apex and `app.` never name a user: `app.` signs clients in with Google — a host-only `__Host-otto_sid` session cookie,
+  `/var/lib/otto/sessions.json` keeps only SHA-256 hashes of the session ids); `X-Otto-Proxy-Key` = `OTTO_PROXY_KEY`, a random value bootstrap puts in both
   `/etc/otto/otto.env` and `/etc/otto/caddy.env` (the API believes a user name only next to it). `/otto-api/admin*` exists
   only on `admin.`, the Whop webhook only on the apex (`/hooks/whop`). Never set `OTTO_SINGLE_TENANT`, `OTTO_FALLBACK=full`
   or `OTTO_ADMIN_USERS=*` here — those are for the old single-login box (section 7); bootstrap warns if it finds them.
 - **Owner console users**: `OTTO_ADMIN_USERS` in `/etc/otto/otto.env` (lower-case Access e-mails; then `systemctl restart otto-api`).
+  A Google sign-in never opens the console; an address listed here that also signs in to `app.` with Google sees every brand
+  there.
+- **Client sign-in and trials**: `otto_auth.py status` (configured? how many sessions), `otto_auth.py logout-user <e-mail>`
+  (ends someone's sessions), `otto_trial.py status` (every free trial, days left, reminders), the hourly `trials` job
+  (`otto logs trials`). docs/AUTH-AND-TRIAL.md.
 - **Pages**: the app page is published with its embedded data block emptied — the live data only ever comes from the API,
   per signed-in user.
 - **Jobs and schedule**: `platform/crons.md` and `platform/otto_cron.py` (`otto jobs`). Heartbeats: `/var/lib/otto/heartbeats.json`.

@@ -252,6 +252,11 @@ class NoticeTest(unittest.TestCase):
         import otto_api                                          # the client never sees them
         view = otto_api.client_view(D(), {"gone"})
         self.assertFalse([r for r in view["recommendations"] if r.get("source") == "retention"])
+        # regression (integration review): the brand record itself carried the owner's countdown (and a legal hold) to the client
+        self.assertNotIn("retention", view["brands"][0])
+        with ap.transaction(sync=False) as d:
+            d["brands"][0]["retention_hold"] = "dispute with the client, see mail 2026-08-20"
+        self.assertNotIn("dispute", json.dumps(otto_api.client_view(D(), {"gone"})))
         log = (TMP / "actions.log").read_text()
         self.assertIn("retention notice-14 gone", log)
         self.assertIn("retention notice-3 gone", log)
@@ -576,6 +581,15 @@ class LeadsAndExportsTest(unittest.TestCase):
             os.environ.pop("OTTO_LEAD_RETENTION_DAYS", None)
         self.assertEqual(otto_retention.lead_days(), 730)
         self.assertEqual(sorted(json.loads((TMP / "leads.json").read_text())["leads"]), ["d:recent-lead.example", "v:2026-08-01:beef1234"])
+
+    def test_a_run_ahead_of_the_clock_keeps_the_export_it_just_made(self):
+        # regression (journey): the export is stamped with the wall clock; a run with a --today more than 30 days ahead pruned
+        # the deleted client's only export in the same run
+        day = date.today() + timedelta(days=400)
+        run(day)                                                   # the 3-day notice (the date passed long ago)
+        self.assertEqual(run(day + timedelta(days=3)), 0, quiet.out)
+        self.assertIsNone(B("gone"))
+        self.assertEqual(len(list((TMP / "exports").glob("otto-export-gone-*.zip"))), 1, "the export of a deleted brand was pruned")
 
     def test_exports_are_kept_30_days(self):
         (TMP / "exports").mkdir()

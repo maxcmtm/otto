@@ -1,0 +1,21 @@
+{
+  "notes": "Otto's own look for otto_render (brand tokens override). The scan cannot infer it: Otto's domain is not bought yet (docs/HOSTING.md) and the live landing sits on a shared box. Values are the landing's tokens (research/DESIGN-DIRECTION.md §4, platform/landing.html :root). Mona Sans is the landing's self-hosted face (platform/assets/landing/mona-sans-latin.woff2, weights 400-800). otto_render's FONT_SPECS has no entry for Mona Sans, so a plain Google fetch would load weight 400 only: seed the font cache from the landing's woff2 before rendering (see docs/GO-TO-MARKET-NL-IE.md, 'Rendering Otto's own ads'). lang is the market's: 'nl' for the NL matrix, 'en' for IE.",
+  "lang": "en",
+  "font_display": "Mona Sans",
+  "font_text": "Mona Sans",
+  "font_serif": "Mona Sans",
+  "w_display": 650,
+  "w_serif": 600,
+  "em_style": "brand",
+  "primary": "#2447F0",
+  "accent": "#2447F0",
+  "accent_ink": "#FFFFFF",
+  "accent_on_dark": "#6E88FF",
+  "accent_text": "#2447F0",
+  "ink": "#10182B",
+  "deep": "#10182B",
+  "surface": "#F5F7FB",
+  "surface2": "#EEF1F6",
+  "host": "",
+  "currency": "EUR"
+}

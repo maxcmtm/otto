@@ -106,6 +106,9 @@ table.facts th{width:12em;min-width:9em;font-weight:600;color:var(--ink-2)}
 .foot{display:flex;flex-wrap:wrap;gap:8px 24px;margin-top:24px;padding-block:24px calc(40px + env(safe-area-inset-bottom,0px));border-top:var(--hair) solid var(--line);font-size:14px;color:var(--ink-2)}
 
 @media (max-width:600px){
+  /* the pages run no script, so a sideways-scrolling row can't bring the current page into view: wrap it instead */
+  .tabs{flex-wrap:wrap;overflow:visible;gap:4px 2px;padding-bottom:10px}
+  .tabs a{min-height:34px;padding:0 11px;font-size:14px}
   body{font-size:16.5px}
   .doc{padding-top:28px}
   .doc h2{margin-top:44px}

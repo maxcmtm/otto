@@ -11,6 +11,7 @@ These terms are the contract between [COMPANY LEGAL NAME] ("Otto", "we", "us") a
 **The short version.** It does not replace the terms below.
 
 - Otto is for businesses. When you sign up, you confirm that you are acting for a business, not as a consumer.
+- You can try Otto free for 7 days, without a card. Nothing is charged at the end of the trial: to continue, you choose a plan and pay yourself.
 - Nothing is published and no ad money is spent without your approval. You are the publisher and the advertiser.
 - Your ad spend goes from your own ad accounts straight to Meta and Google. We never hold it.
 - You pay monthly or yearly and can cancel any time. Your plan then runs to the end of the period you paid for.
@@ -44,7 +45,7 @@ These terms are the contract between [COMPANY LEGAL NAME] ("Otto", "we", "us") a
 
 ## 3. Your account
 
-3.1 You buy a plan through Whop and then set Otto up with your website address and a few answers. You sign in to the Otto app with a one-time code sent to your e-mail address. You decide which e-mail addresses may use your brand in Otto, you are responsible for what they do there, and you remove people who should no longer have access.
+3.1 You sign in to the Otto app with your Google account ("Sign in with Google"). You start with the free trial in sections 8.7 to 8.12, or buy a plan through Whop, and set Otto up with your website address and a few answers. You decide which e-mail addresses may use your brand in Otto, you are responsible for what they do there, and you remove people who should no longer have access.
 
 3.2 Set Otto up only for a website, a business and social accounts that you own or are authorised to manage. On the Agency plan you confirm that you have your clients' authority, and you are responsible for your clients' use of Otto as if it were your own.
 
@@ -127,6 +128,20 @@ These terms are the contract between [COMPANY LEGAL NAME] ("Otto", "we", "us") a
 8.5 If a payment fails, Whop tries again. If it is still unpaid [7] days after it was due, we pause publishing and new campaigns for your brand and pause your live campaigns. Nothing is deleted, and everything resumes once you have paid.
 
 8.6 We tell you at least 30 days before a price change applies to you. It applies from your first renewal after those 30 days, and you can cancel before then.
+
+### Free trial
+
+8.7 A new account can try Otto free for 7 days (the "trial"). The trial starts when you first sign in with Google and ends 7 days later, at the same time of day. You do not give us a card or any payment details for the trial.
+
+8.8 There is one trial per business: one per Google account and one per website. A second account, a second brand or a website that already had a trial does not get another one. We may refuse or end a trial that is used to get around this, or in breach of section 7.
+
+8.9 During the trial Otto works as on the Starter plan, with two limits: paid campaigns are planned and shown to you but not launched, and Otto makes at most 3 video ads. Section 4 applies as always: nothing is published without your approval.
+
+8.10 When the trial ends without a plan, Otto stops publishing and making new content for your brand; posts already published stay on your accounts. We keep your brand's data for 90 days after the end of the trial so you can continue where you left off, and then delete it as described in section 17.3. We e-mail you 2 days before the end, on the last day, and when it has ended.
+
+8.11 We never charge you when the trial ends: we have no card to charge. To continue, you choose a plan and pay through Whop yourself; your subscription starts on that day (section 8.3). Use the e-mail address you sign in with at checkout, so that we can match your payment to your account.
+
+8.12 The trial is free, so nothing is refunded for it. The money-back guarantee in section 9 applies to your first payment after it. [REVIEW: a trial can be started with a private Google account. Does the business-only statement in section 1.1, confirmed at sign-up, still hold for the trial in NL and IE?]
 
 ## 9. Money-back guarantee
 
@@ -218,7 +233,7 @@ You will compensate us for third-party claims, fines and reasonable legal costs 
 
 17.2 While your plan is active, and for 90 days after it ends, you can ask for an export of your brand profile, content calendar, posts, creatives and reports (data files and media). We send it within 30 days.
 
-17.3 90 days after your plan ends, we delete your brand's data from Otto's live systems, unless you started a new plan in the meantime. Encrypted backups roll over, so the data disappears from them within about 8 weeks after that. We keep billing records for as long as tax law requires. Posts and campaigns on your own accounts stay there.
+17.3 90 days after your plan or your free trial ends, we delete your brand's data from Otto's live systems, unless you started a new plan in the meantime. Encrypted backups roll over, so the data disappears from them within about 8 weeks after that. We keep billing records for as long as tax law requires. Posts and campaigns on your own accounts stay there.
 
 ## 18. Confidentiality
 

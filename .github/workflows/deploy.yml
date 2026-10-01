@@ -40,6 +40,12 @@ jobs:
         with:
           ref: ${{ inputs.ref || github.sha }}
 
+      # the server's Python (Ubuntu 24.04 → 3.12, infra/bootstrap.sh): the suite must pass on what production runs, whatever
+      # ubuntu-latest ships next. Keep this in step with the server when it moves.
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
       - name: ffmpeg and fonts
         run: |
           sudo apt-get update -q

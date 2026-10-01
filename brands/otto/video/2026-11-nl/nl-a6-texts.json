@@ -1,0 +1,51 @@
+{
+  "id": "nl-a6-texts",
+  "style": "texts",
+  "formats": [
+    "9x16"
+  ],
+  "music": {
+    "bpm": 120,
+    "mood": "calm",
+    "key": "C"
+  },
+  "scene": {
+    "ground": "wash"
+  },
+  "thread": {
+    "name": "Otto",
+    "initial": "O",
+    "avatar": "brand",
+    "stamp": "Voorbeeld · 20 november",
+    "placeholder": "Bericht",
+    "messages": [
+      {
+        "from": "them",
+        "text": "Je decembermaand staat klaar om te bekijken."
+      },
+      {
+        "from": "them",
+        "text": "Sinterklaas, de kerstlunch, cadeaubonnen en je openingstijden rond de feestdagen."
+      },
+      {
+        "from": "me",
+        "text": "Laat maar zien"
+      },
+      {
+        "from": "them",
+        "text": "Hier is de planning. Tik op goedkeuren of vraag om een wijziging."
+      }
+    ]
+  },
+  "endcard": {
+    "headline": "December, al gepland.",
+    "accent": "al gepland.",
+    "sub": "Jij keurt alles vooraf goed.",
+    "fine": "7 dagen gratis proberen, geen creditcard nodig.",
+    "products": [
+      "month"
+    ],
+    "logo": "logo_white",
+    "ground": "primary"
+  }
+}

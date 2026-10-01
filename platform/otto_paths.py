@@ -25,13 +25,26 @@ from pathlib import Path
 
 HERE = Path(__file__).parent
 ASSETS = Path(os.environ.get("OTTO_ASSETS") or HERE / "assets")
-BASE = os.environ.get("OTTO_PUBLIC_BASE") or "https://dash.monyflow.work/otto/"
+_DOMAIN = (os.environ.get("OTTO_DOMAIN") or "").strip()
+# OTTO_PUBLIC_BASE (infra/bootstrap.sh sets https://<OTTO_DOMAIN>/); else the apex of OTTO_DOMAIN; else the old box's /otto/
+BASE = os.environ.get("OTTO_PUBLIC_BASE") or (f"https://{_DOMAIN}/" if _DOMAIN else "https://dash.monyflow.work/otto/")
 DEFAULT_PUBLIC = Path("/srv/pulse/otto/assets")
 _http_ok = {}
 
 
 class AssetError(Exception):
     pass
+
+
+def app_url():
+    """The client app (behind the sign-in), from the environment: OTTO_APP_URL, else https://app.<OTTO_DOMAIN>/ (the new
+    server, where OTTO_PUBLIC_BASE is the apex: the landing), else OTTO_PUBLIC_BASE / BASE (the old box serves it at /otto/)."""
+    v = (os.environ.get("OTTO_APP_URL") or "").strip()
+    dom = (os.environ.get("OTTO_DOMAIN") or "").strip()
+    if not v and dom:
+        v = f"https://app.{dom}/"
+    v = v or os.environ.get("OTTO_PUBLIC_BASE") or BASE
+    return v if v.endswith("/") else v + "/"
 
 
 # ---------- unguessable names ----------

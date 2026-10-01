@@ -1,0 +1,16 @@
+[
+  {"name": "Native (native.no)", "site": "https://native.no", "type": "direct", "fb": "", "ig": "https://www.instagram.com/native.no/", "tiktok": "",
+   "note": "YC F26, Oslo. Owns 'autopilot', 'Paste your website. Walk away.', '$79 vs a $3,500 agency'. Advertises in GB/US/IE/AU, barely in NL (COMPETITORS-2026-09 §1.4)."},
+  {"name": "Holo (tryholo.ai)", "site": "https://tryholo.ai", "type": "direct", "fb": "", "ig": "https://www.instagram.com/tryholo.ai/", "tiktok": "",
+   "note": "Vilnius; ~770-880 active Meta ads across Europe in local languages (163 reaching NL)."},
+  {"name": "Blaze (blaze.ai)", "site": "https://www.blaze.ai", "type": "direct", "fb": "", "ig": "https://www.instagram.com/blaze_ai_app/", "tiktok": ""},
+  {"name": "Predis.ai", "site": "https://predis.ai", "type": "adjacent", "fb": "", "ig": "", "tiktok": ""},
+  {"name": "Marky", "site": "https://www.mymarky.ai", "type": "adjacent", "fb": "", "ig": "", "tiktok": ""},
+  {"name": "Ocoya", "site": "https://www.ocoya.com", "type": "adjacent", "fb": "", "ig": "", "tiktok": ""},
+  {"name": "Metricool", "site": "https://metricool.com", "type": "adjacent", "fb": "", "ig": "", "tiktok": ""},
+  {"name": "Hootsuite", "site": "https://www.hootsuite.com", "type": "adjacent", "fb": "", "ig": "", "tiktok": ""},
+  {"name": "AdCreative.ai", "site": "https://www.adcreative.ai", "type": "adjacent", "fb": "", "ig": "", "tiktok": ""},
+  {"name": "Pomelli", "site": "https://labs.google/pomelli", "type": "alternative", "fb": "", "ig": "", "tiktok": ""},
+  {"name": "ChatGPT", "site": "https://chatgpt.com", "type": "alternative", "fb": "", "ig": "", "tiktok": "",
+   "note": "Listed so no ad names it: compare against 'doing it yourself', not a product."}
+]

@@ -4,7 +4,7 @@
 >
 > Words in [SQUARE BRACKETS] are placeholders to fill in. Notes marked Review, Decision, Verify or Engineering are for the reviewing lawyer and for Max; remove every one of them before publishing.
 
-Version: Draft 0.1 · 30 September 2026 · In force from [EFFECTIVE DATE]
+Version: Draft 0.2 · 30 September 2026 · In force from [EFFECTIVE DATE]
 
 This policy explains what personal data [COMPANY LEGAL NAME] ("Otto", "we") collects when you visit our website, buy Otto or use it; why we collect it; how long we keep it; who else receives it; and what your rights are.
 
@@ -19,9 +19,11 @@ It covers the data for which we decide the purposes, as **controller**. When Ott
 
 ## The short version
 
-- Our website sets no cookies and uses no third-party analytics or advertising pixels. We count visits with our own tool, which never stores your IP address.
+- Our website runs no third-party analytics or advertising scripts. We count visits with our own tool, which uses no cookies and never stores your IP address.
+- Only if you press Accept on our landing page, our server tells Meta when you scan a website, see the result, or start signing up or checking out, so we can measure our own ads. Reject, and nothing goes to Meta. You can change your answer at any time under Privacy choices.
 - If your browser sends Do Not Track or Global Privacy Control, we record one anonymous page view and nothing else.
-- For clients, we keep the data needed to run Otto for them, and we delete a brand's data 90 days after its plan ends.
+- You sign in to the Otto app with your Google account. From Google we receive only your e-mail address, your name and your Google account ID: no password, and nothing from your Gmail, Drive or contacts.
+- For clients, we keep the data needed to run Otto for them, and we delete a brand's data 90 days after its plan or free trial ends.
 - Our servers are in Germany. Our AI providers are mostly in the United States; those transfers are covered by the EU's standard contractual clauses or the EU–US Data Privacy Framework.
 - We do not sell personal data and do not use it for advertising profiles.
 
@@ -29,9 +31,11 @@ It covers the data for which we decide the purposes, as **controller**. When Ott
 
 | Who | What we collect | Why | Legal basis (GDPR) | How long |
 |---|---|---|---|---|
-| Visitors to our website | Page path, referrer site (the domain only), campaign tags (utm), device type, and what you do on the page: scroll depth, sections seen, buttons clicked, questions opened, films played. A visitor code that changes every day. | To see which parts of the site work and improve it | Legitimate interest, Art. 6(1)(f) | 400 days |
+| Visitors to our website | Page path, referrer site (the domain only), campaign tags (utm), device type, and what you do on the page: scroll depth, sections seen, buttons clicked, questions opened, films played, your answer to the ad-measurement question. A visitor code that changes every day. | To see which parts of the site work and improve it | Legitimate interest, Art. 6(1)(f) | 400 days |
+| Visitors who accept ad measurement | For a few moments (scan started, scan result shown, sign-up or checkout started, and, once sign-up opens, sign-up completed or trial started): the moment's name and time, the page address, IP address and browser type, the Meta click ID if you came from a Meta ad, one-way hashes of the daily visitor code and of the country code. Sent to Meta; we store nothing extra. | To measure which of our own ads work and to let Meta optimise their delivery | Consent, Art. 6(1)(a), with consent for the cookie under the ePrivacy rules | We keep nothing beyond the statistics above. Cookies: `otto_consent` 180 days, `otto_fbc` 90 days. Meta: under its own policy (section "Ad measurement with Meta") |
 | People who use the website scan | The website address typed into the scan box, and the preview our server makes of that public website | To show the preview; to hand it to setup; to understand interest in Otto and follow up with the business | Legitimate interest, Art. 6(1)(f); steps before a contract, Art. 6(1)(b) | Preview: 1 hour, in memory. Scanned address as a lead: [24 MONTHS] after the last activity |
 | Clients (the business owner and their team) | E-mail addresses used to sign in, names if you give them, your Telegram user if you use Telegram, your answers in setup, your approvals, skips and edit requests, messages to support | To provide Otto under our contract, to support you, and to keep an audit trail of who approved what | Contract, Art. 6(1)(b); legitimate interest in security and accountability, Art. 6(1)(f) | While your plan is active, then 90 days (section "How long we keep data") |
+| People who sign in with Google (clients, their team, and people trying Otto) | From Google: your e-mail address and that Google has verified it, your name, your Google account ID, and for a Google Workspace account your organisation's domain. From us: when you signed up and last signed in, the dates of your free trial and which trial e-mails we sent, and a session record (a one-way hash of the random code in your browser's sign-in cookie, and when it expires). We do not receive your Google password, keep your profile picture, or keep any Google access token. | To sign you in and keep you signed in; to run your free trial and send its e-mails; to match your payment to your account; to give each business one free trial | Contract and steps before a contract, Art. 6(1)(b); legitimate interest in giving one free trial per business, Art. 6(1)(f) | Account: as long as you have a brand with us, then deleted with the brand (90 days after its plan or trial ends); an account without a brand: 90 days after your last sign-in. Sign-in sessions: 30 days after last use, or when you sign out. A one-way hash of your e-mail address and of your website's domain: [3 YEARS] |
 | Buyers | Name, e-mail, plan, amounts, payment status and dates, Whop membership and payment IDs. We do not receive card numbers. | Billing, refunds, tax records | Contract, Art. 6(1)(b); legal obligation, Art. 6(1)(c) | As long as tax law requires, [7 YEARS] |
 | Anyone who contacts us | Your message and contact details | To answer you | Legitimate interest, Art. 6(1)(f), or steps before a contract | [2 YEARS] after the conversation ends |
 | Creators who appear in client videos | Name, the footage, and your consent and release | To use the footage in the client's ads as agreed with you | Contract with you or your consent, Art. 6(1)(b) or (a) [REVIEW: who contracts with the creator, Otto or the client, decides who is controller here] | For as long as the release allows, then deleted |
@@ -48,7 +52,19 @@ If your browser sends **Do Not Track** or **Global Privacy Control**, the page s
 
 We keep these records for 400 days and delete older ones every month. We use them only as statistics about our own website: not to profile you, not for advertising, and they are not shared with anyone. You can object at any time; switching on Global Privacy Control in your browser does it automatically.
 
-[REVIEW: the ePrivacy rule on accessing information on a device (Art. 5(3) of Directive 2002/58, the Dutch Telecommunicatiewet art. 11.7a, Irish S.I. 336/2011 reg. 5), read with EDPB Guidelines 2/2023: is our beacon, which stores nothing and reads only the screen width, touch capability and the DNT and GPC signals, exempt from consent? The research note lists a cookie banner as a pre-launch item; this draft assumes none is needed because nothing is stored and nothing identifying is read.]
+[REVIEW: the ePrivacy rule on accessing information on a device (Art. 5(3) of Directive 2002/58, the Dutch Telecommunicatiewet art. 11.7a, Irish S.I. 336/2011 reg. 5), read with EDPB Guidelines 2/2023: is our statistics beacon, which stores nothing and reads only the screen width, touch capability and the DNT and GPC signals, exempt from consent? This draft assumes it is. The consent question on the landing page covers only ad measurement with Meta (next section); if the lawyer decides the statistics need consent too, they can move under the same question.]
+
+## Ad measurement with Meta
+
+We advertise Otto on Facebook and Instagram. The landing page asks whether we may measure those ads. **Reject** and **Accept** are equal buttons, and the page works the same whichever you press. Your answer is stored in a cookie (`otto_consent`) so that we do not ask again; **Privacy choices** at the bottom of the landing page shows it and lets you change it, and withdrawing takes effect at once.
+
+Only if you press Accept, our server sends Meta a message through Meta's Conversions API when you start a website scan, when Otto shows you the result, and when you press a button that starts checkout, sign-up or a trial. Once sign-up opens on our site, it also does so when our server confirms that you completed sign-up or that your trial started; for those two it uses a one-way hash of your account number only to avoid counting the same sign-up twice. The message holds: the name and time of the moment, a random event number, the page address, your IP address and browser type, the Meta click ID if you came to our page from a Meta ad (kept for 90 days in the `otto_fbc` cookie, which is set only after Accept), and one-way hashes (SHA-256) of our daily visitor code and of your country code. It never holds the website address you scanned, anything you typed, the referring site or campaign tags. No Meta code runs in your browser. If your browser sends Do Not Track or Global Privacy Control, nothing is sent to Meta, whatever you answered.
+
+For collecting these moments on our page and passing them to Meta, we and Meta Platforms Ireland Ltd are joint controllers (Court of Justice of the EU, C-40/17 *Fashion ID*), under Meta's Business Tools Terms and its Controller Addendum; you can exercise your rights with either of us, and we answer questions about this part. What Meta then does with the data (matching it to a Facebook or Instagram account, measuring and optimising our ads) is Meta's own processing as a separate controller, described in Meta's privacy policy (facebook.com/privacy/policy). Meta may transfer data to Meta Platforms, Inc. in the United States under the EU–US Data Privacy Framework. We receive back only aggregated results: how many people our ads reached and how many of these moments followed.
+
+[REVIEW: confirm the joint-controller wording and the Art. 26 essence to be made available; confirm that Meta Platforms, Inc. is certified under the Data Privacy Framework; confirm the legal basis (consent) for the Conversions API route, which reads no information from the device other than our own first-party cookies.]
+
+[ENGINEERING: forwarding starts only when the server holds the Meta dataset settings (`meta-capi.json`); until then nothing is sent, even after Accept. See `platform/otto_track.py`.]
 
 ## The website scan
 
@@ -60,7 +76,7 @@ We keep the scanned address as a possible lead, with our own notes on it. We do 
 
 To run Otto for your business, we keep your brand profile, your answers, your content calendar, the posts and ads Otto makes, your approvals and skips (Otto learns your taste from them), your connection to Meta and Google (access tokens, never passwords), your ad budgets and results, and the reports we send you. Most of this is business data. The personal data in it — for example a reviewer's name quoted from your website, or a creator in a video — we process on your behalf as your processor under the [DPA](dpa.html).
 
-For our own purposes we also keep: who signed in and when (through Cloudflare Access), an audit trail of approvals and of every action our team takes in our owner console (who, what, when), error records of our system (without the content of requests), and billing records received from Whop.
+For our own purposes we also keep: who signed in and when (Sign in with Google for the app; Cloudflare Access for our team's owner console), an audit trail of approvals and of every action our team takes in our owner console (who, what, when), error records of our system (without the content of requests), and billing records received from Whop.
 
 We may combine usage statistics across all clients, so that no client or person can be identified, to improve Otto (for example which ad styles get more clicks). We do not use client content to train AI models.
 
@@ -73,9 +89,12 @@ Payments go through Whop. Whop collects your payment details directly, under its
 We use a small number of companies to run Otto. They process data only on our instructions and under data processing terms. The full, current list, with what each one does and where, is on our [Sub-processors](subprocessors.html) page. In short:
 
 - **Hetzner** (Germany): our servers and backups.
-- **Cloudflare** (USA, global network): delivery and protection of our websites, and sign-in to the Otto app.
+- **Cloudflare** (USA, global network): delivery and protection of our websites, and our team's sign-in to the owner console.
+- **Google** (Google Ireland Limited, with Google LLC in the USA): Sign in with Google. You sign in on Google's own page and Google tells us who you are. [REVIEW: Google is an independent controller for your Google account; we list it as a sub-processor for this authentication step.]
 - **AI providers**: Anthropic (USA) for writing and strategy; Leonardo.ai (Australia) for images, including OpenAI's GPT Image models through Leonardo; ElevenLabs (USA) and Higgsfield (USA) for synthetic voice-over and video.
 - **Telegram**, if you choose it for approvals, and [EMAIL PROVIDER] for e-mails.
+
+If you accept ad measurement on our landing page, **Meta Platforms Ireland Ltd** receives the messages described in "Ad measurement with Meta" above, as joint controller with us for that step; it is not our sub-processor.
 
 When you connect Meta or Google, Otto publishes and runs ads in your accounts on your instruction. Meta and Google are not our sub-processors: they are your providers, under your own contract with them.
 
@@ -90,16 +109,19 @@ Our servers and backups are in Germany. Some of the providers above are in the U
 ## How long we keep data
 
 - Website statistics: 400 days. The daily salt: one day.
+- Your answer to the ad-measurement question (`otto_consent` cookie, in your browser): 180 days, then we ask again. The Meta click ID (`otto_fbc` cookie, only after Accept): 90 days, deleted at once if you withdraw.
 - Scan previews: up to one hour, in memory only.
 - Leads from the scan box: [24 MONTHS] after the last activity.
-- Client brand data: while the plan is active, then 90 days (so a client who comes back does not start again), then deleted.
+- Client brand data: while the plan is active, then 90 days (so a client who comes back does not start again), then deleted. After a free trial that ended without a plan: 90 days from the end of the trial.
+- Your sign-in account: as long as you have a brand with us, then deleted with it; without a brand, 90 days after your last sign-in. Sign-in sessions: 30 days after last use, or at once when you sign out.
+- To give each business one free trial: a one-way hash (SHA-256) of the e-mail address and of the website domain that had a trial, without anything else, for [3 YEARS]. [DECISION: the period; the system keeps the hashes for 3 years.]
 - Billing records: as long as tax law requires, [7 YEARS].
 - System logs: 8 weeks. Our web server keeps no access logs; Cloudflare keeps its own logs under its policy.
 - Backups: encrypted; daily copies for 14 days and weekly copies for 8 weeks, plus server snapshots for 7 days. Deleted data leaves the backups within about 8 weeks.
 
 ## Your rights
 
-You can ask us for access to your personal data, for a copy in a portable format, for correction or deletion, and for restriction of its use. You can object at any time to processing based on our legitimate interest, and withdraw any consent you gave, without affecting what happened before. Send your request to [PRIVACY EMAIL]. We answer within one month and may ask you to confirm who you are.
+You can ask us for access to your personal data, for a copy in a portable format, for correction or deletion, and for restriction of its use. You can object at any time to processing based on our legitimate interest, and withdraw any consent you gave, without affecting what happened before; for ad measurement, use Privacy choices at the bottom of our landing page. Send your request to [PRIVACY EMAIL]. We answer within one month and may ask you to confirm who you are.
 
 If your request is about data we process for one of our clients (for example a review of yours on a client's website), we pass it to that client and help them answer.
 
@@ -107,7 +129,7 @@ You also have the right to complain to a data protection authority, for example 
 
 ## Security
 
-We protect data with measures we describe in detail in the security annex of our [DPA](dpa.html): servers in Germany reached only through Cloudflare, sign-in by one-time codes, encrypted connections, encrypted backups, restricted staff access and an audit trail.
+We protect data with measures we describe in detail in the security annex of our [DPA](dpa.html): servers in Germany reached only through Cloudflare, Sign in with Google for clients (Otto stores no passwords and checks Google's signed answer) and one-time codes for our team, encrypted connections, encrypted backups, restricted staff access and an audit trail.
 
 ## Automated decisions
 

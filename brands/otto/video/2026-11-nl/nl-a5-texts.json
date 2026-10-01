@@ -1,0 +1,51 @@
+{
+  "id": "nl-a5-texts",
+  "style": "texts",
+  "formats": [
+    "9x16"
+  ],
+  "music": {
+    "bpm": 120,
+    "mood": "calm",
+    "key": "C"
+  },
+  "scene": {
+    "ground": "wash"
+  },
+  "thread": {
+    "name": "Otto",
+    "initial": "O",
+    "avatar": "brand",
+    "stamp": "Vandaag 10:12",
+    "placeholder": "Bericht",
+    "messages": [
+      {
+        "from": "me",
+        "text": "Wat gebeurt er na de 7 dagen?"
+      },
+      {
+        "from": "them",
+        "text": "Twee dagen voor het einde krijg je een mail. Kies je een plan, dan gaat alles gewoon door."
+      },
+      {
+        "from": "me",
+        "text": "En als ik niets doe?"
+      },
+      {
+        "from": "them",
+        "text": "Dan stopt het. Er wordt niets afgeschreven."
+      }
+    ]
+  },
+  "endcard": {
+    "headline": "7 dagen gratis.",
+    "accent": "gratis.",
+    "sub": "Binnen 24 uur je eerste posts.",
+    "fine": "Geen creditcard nodig. Eén proefperiode per bedrijf.",
+    "products": [
+      "month"
+    ],
+    "logo": "logo_white",
+    "ground": "primary"
+  }
+}

@@ -7,7 +7,7 @@ Every test runs against a throwaway fixture: data.json built from index.html's f
 index.html, a copy of brands/, and a temp secrets / public-assets dir. No network is used (Graph / Telegram
 calls are mocked; the SSRF test runs a local http.server).
 """
-import http.server, json, os, re, shutil, subprocess, sys, tempfile, threading, time, unittest, urllib.error, urllib.parse, urllib.request
+import http.server, json, os, re, shutil, subprocess, sys, tempfile, threading, unittest, urllib.error, urllib.parse, urllib.request
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
@@ -471,6 +471,25 @@ class TelegramTest(unittest.TestCase):
         self.assertIn("on it", [kw.get("text", "") for m, kw in self.calls if m == "answerCallbackQuery"][-1])
         otto_telegram.handle_callback(self.cq(f"otto:rec:{info['id']}:approve"))
         self.assertNotIn("on it", [kw.get("text", "") for m, kw in self.calls if m == "answerCallbackQuery"][-1])
+
+    def test_a_failed_rec_action_is_said_and_reaches_the_owner(self):
+        # regression (integration review): an action that raised was answered "✅ Approved" and only kept in action_error
+        with ap.transaction(sync=False) as d:
+            d.setdefault("campaigns", []).append({"id": "cp-t2", "brand": "cmtm", "plan": "2031-02", "status": "draft", "network": "meta"})
+            r = ap.add_rec(d, "P1", "Approve the 2031-02 paid plan: 1 campaigns, ≈€1", "w", "i", "c", brand="cmtm",
+                           source="otto_ads", action="approve_plan", plan="2031-02")
+        orig = otto_ads.approve
+        otto_ads.approve = lambda *a, **kw: (_ for _ in ()).throw(OSError("disk full"))
+        try:
+            quiet(otto_telegram.handle_callback, self.cq(f"otto:rec:{r['id']}:approve"))
+        finally:
+            otto_ads.approve = orig
+        self.assertIn("not started yet", [kw.get("text", "") for m, kw in self.calls if m == "answerCallbackQuery"][-1])
+        d = ap.load()
+        self.assertEqual(ap.campaign(d, "cp-t2")["status"], "draft")
+        self.assertEqual(ap.rec(d, r["id"])["action_error"], "OSError: disk full")
+        card = next(x for x in d["recommendations"] if x.get("rec") == r["id"])
+        self.assertEqual((card["priority"], card["audience"]), ("P0", "owner"))
 
 
 class ApiTest(unittest.TestCase):

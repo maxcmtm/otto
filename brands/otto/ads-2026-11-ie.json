@@ -1,0 +1,1392 @@
+{
+ "brand": "otto",
+ "month": "2026-11",
+ "market": "IE",
+ "lang": "en",
+ "countries": [
+  "IE"
+ ],
+ "preset": "launch",
+ "rules": {
+  "allowed_names": [
+   "Instagram",
+   "Facebook",
+   "Google"
+  ]
+ },
+ "notes": "Otto's own launch matrix for Ireland, November 2026 (docs/GO-TO-MARKET-NL-IE.md). Offer: 7 days free (Google sign-in, no card), founding pilot €197 as the pay-once alternative. Written in Irish English for Irish owners; every line checked against the IE baselines (otto_compliance). Sample figures in the 7:35 message are marked as a sample. Creator cells wait for real footage from Otto clients (brands/otto/creator-briefs-2026-11.md). Rendering: see the GTM doc, 'Rendering Otto's own ads'.",
+ "angles": [
+  {
+   "id": "a1",
+   "name": "Reels without the filming",
+   "family": "pain",
+   "angle": "Your website, as a reel: reels work, nobody has an evening to film, cut and caption them; Otto makes them from the site (COMPETITORS §6 concept 2)",
+   "source": "competitor-research",
+   "persona": "p-ie-hosp",
+   "stage": "cold",
+   "kinds": [
+    "objection",
+    "benefit",
+    "audience"
+   ],
+   "ad_set": "IE · a1 · Reels without the filming",
+   "headlines": [
+    "Reels, without the filming",
+    "Your website, as a reel"
+   ],
+   "primaries": [
+    "You know reels work. You just don't have an evening to film, cut and caption them. Otto makes them from your own website. You approve them with a tap.",
+    "Your menu, your rooms, your last few jobs: it's all on your website already. Otto turns it into reels for Instagram and Facebook. No filming.",
+    "Try it free for 7 days: Otto makes your first reels from what's already on your site. Nothing goes out until you say so."
+   ],
+   "description": "Posts, reels and ads, made by Otto",
+   "cta": "LEARN_MORE",
+   "ads": [
+    {
+     "id": "ie-a1-creator",
+     "style": "ugc_talking_head",
+     "slot": "creator",
+     "format": "creator",
+     "size": "story",
+     "creator": {
+      "persona": "Owner of a café with rooms or a B&B (Otto client)",
+      "hook": "I've never filmed a reel in my life. Didn't film this one either.",
+      "script": "I've never filmed a reel in my life. Didn't film this one either. Otto made it from our website: the rooms, the breakfast, the view from the front door. It landed on my phone in the morning, I had a look and tapped approve. Summer sells itself. It's November I need the help with.",
+      "shot_list": [
+       "0-2 s: owner at the front door or the breakfast room, phone in hand, to camera: the hook",
+       "2-8 s: over the shoulder: Otto's reel playing on the phone, screen readable",
+       "8-12 s: thumb taps Approve",
+       "12-20 s: the quiet November dining room, last line to camera",
+       "On screen throughout: 'Reel made by Otto, from our own website'"
+      ],
+      "length": "20-25 s, 9:16, sound on, captions",
+      "disclosure": "#Ad · Paid partnership with Otto",
+      "on_screen": "Reel made by Otto, from our own website",
+      "notes": "A real owner who uses Otto, not an actor. Only say what's true for your business; your own words are grand. No figures that aren't in your own report (blur them otherwise). '#Ad' on screen from the first second; run as a partnership ad."
+     },
+     "brief": "B&B or café owner shows the reel Otto made from the website and approves it. Self-shot on a phone, 9:16, daylight. Real footage of the real owner only; no generated or look-alike people.",
+     "added": "2026-11-02"
+    },
+    {
+     "id": "ie-a1-notes",
+     "style": "notes_app",
+     "slot": "faceless",
+     "format": "video",
+     "size": "story",
+     "video": {
+      "kit": "notes",
+      "data": "video/2026-11-ie/ie-a1-notes.json"
+     },
+     "data": {
+      "note": {
+       "meta": "Sunday, 9:40 PM",
+       "title": "Things I've stopped doing for a reel",
+       "struck": [
+        "filming during the breakfast rush",
+        "editing till midnight",
+        "typing out captions"
+       ],
+       "keep": "tapping approve"
+      },
+      "endcard": {
+       "headline": "Reels, without the filming.",
+       "accent": "without the filming.",
+       "sub": "Otto makes them from your own website.",
+       "fine": "Try it free for 7 days, no card needed.",
+       "products": [
+        "month"
+       ],
+       "logo": "logo"
+      }
+     },
+     "brief": "Faceless notes video (ad-kit): the owner's note, three things struck on the beat, the last line kept.",
+     "added": "2026-11-02"
+    },
+    {
+     "id": "ie-a1-versus",
+     "style": "us_vs_them",
+     "slot": "comparison",
+     "format": "video",
+     "size": "story",
+     "video": {
+      "kit": "versus",
+      "data": "video/2026-11-ie/ie-a1-versus.json"
+     },
+     "data": {
+      "versus": {
+       "vs": "vs",
+       "left": {
+        "label": "DIY reel",
+        "rows": [
+         "Film it",
+         "Cut it",
+         "Caption it"
+        ]
+       },
+       "right": {
+        "label": "Otto",
+        "image": "review_ie",
+        "rows": [
+         "From your site",
+         "Ready to go",
+         "You approve"
+        ]
+       },
+       "footer": "You tap. Otto does the rest."
+      },
+      "endcard": {
+       "headline": "Your website, as a reel.",
+       "accent": "as a reel.",
+       "sub": "Otto makes reels from what's already on your site.",
+       "fine": "Try it free for 7 days, no card needed.",
+       "products": [
+        "review_ie"
+       ],
+       "logo": "logo_white"
+      }
+     },
+     "brief": "Faceless versus video: making a reel yourself against Otto, three rows, fair.",
+     "added": "2026-11-02"
+    },
+    {
+     "id": "ie-a1-product",
+     "style": "product_hero",
+     "slot": "product",
+     "format": "image",
+     "size": [
+      "feed",
+      "story"
+     ],
+     "data": {
+      "headline": "Your website, *as a reel*",
+      "photo": "otto-phone-review-ie-cutout.png",
+      "callouts": [
+       "Made from your own site",
+       "Ready for your approval",
+       "Free for 7 days"
+      ],
+      "kicker": "Reels by Otto",
+      "theme": "light",
+      "callout_style": "line"
+     },
+     "brief": "The phone with an Irish post in Otto's Review screen, three callouts.",
+     "added": "2026-11-02"
+    },
+    {
+     "id": "ie-a1-search",
+     "style": "search",
+     "slot": "native",
+     "format": "image",
+     "size": [
+      "feed",
+      "story"
+     ],
+     "data": {
+      "query": "how to make reels for my business",
+      "mode": "autocomplete",
+      "suggestions": [
+       "how to make reels for my business without filming",
+       "how to make reels for my business fast",
+       "how to make reels for my business with no time",
+       "how to make reels for my business ideas"
+      ],
+      "headline": "Sound familiar? *Otto makes them for you.*",
+      "theme": "light"
+     },
+     "brief": "A generic search bar with what owners actually type.",
+     "added": "2026-11-02"
+    },
+    {
+     "id": "ie-a1-number",
+     "style": "big_number",
+     "slot": "proof_humor",
+     "format": "image",
+     "size": [
+      "feed",
+      "story"
+     ],
+     "data": {
+      "number": "24",
+      "suffix": "hours",
+      "label": "and your first posts and reels are ready, made from what's already on your website",
+      "kicker": "Free week",
+      "source": "Otto: 7 days free, no card needed",
+      "theme": "dark"
+     },
+     "brief": "One proven number from the offer (pr3: first posts within 24 hours).",
+     "added": "2026-11-02"
+    }
+   ]
+  },
+  {
+   "id": "a2",
+   "name": "The 7:35 message",
+   "family": "experience",
+   "angle": "The 7:35 message: one message every morning with what yesterday cost and what came in, and what waits for your tap (COMPETITORS §6 concept 1)",
+   "source": "competitor-research",
+   "persona": "p-ie-trades",
+   "stage": "warm",
+   "kinds": [
+    "benefit",
+    "proof",
+    "objection"
+   ],
+   "ad_set": "IE · a2 · The 7:35 message",
+   "headlines": [
+    "One message at 7:35",
+    "Know by 7:35 every morning"
+   ],
+   "primaries": [
+    "Every morning at 7:35, Otto tells you what your ads cost yesterday, what came in, and which posts are waiting for you. Approving is one tap.",
+    "Many agencies send you a PDF once a month. Otto sends you one message every morning at 7:35. Read it with your tea.",
+    "If something drops, you hear about it within the hour, with a fix already drafted. You decide."
+   ],
+   "description": "Your marketing, in one message",
+   "cta": "LEARN_MORE",
+   "ads": [
+    {
+     "id": "ie-a2-creator",
+     "style": "ugc_talking_head",
+     "slot": "creator",
+     "format": "creator",
+     "size": "story",
+     "creator": {
+      "persona": "Plumbing and heating business owner (Otto client)",
+      "hook": "This is the only marketing I do all day. It takes a minute.",
+      "script": "This is the only marketing I do all day, and it takes about a minute. At 7:35 Otto sends me what the ads cost yesterday and what came in off them. Then there's a couple of posts waiting for me. I have a look in the van, tap approve, and I'm gone. Before, I'd no idea what I was spending.",
+      "shot_list": [
+       "0-2 s: in the van before the first job, to camera: the hook",
+       "2-9 s: close-up of his own 7:35 message (own numbers, or blurred)",
+       "9-13 s: thumb taps Approve",
+       "13-20 s: pulls out of the yard; last line through the window",
+       "On screen: 'Every morning at 7:35'"
+      ],
+      "length": "18-22 s, 9:16, sound on, captions",
+      "disclosure": "#Ad · Paid partnership with Otto",
+      "on_screen": "Every morning at 7:35",
+      "notes": "A real owner who uses Otto, not an actor. Only say what's true for your business; your own words are grand. No figures that aren't in your own report (blur them otherwise). '#Ad' on screen from the first second; run as a partnership ad."
+     },
+     "brief": "A plumber shows his own 7:35 message in the van. Real numbers from his own account only, or blurred. Real footage of the real owner only; no generated or look-alike people.",
+     "added": "2026-11-02"
+    },
+    {
+     "id": "ie-a2-texts",
+     "style": "text_message",
+     "slot": "faceless",
+     "format": "video",
+     "size": "story",
+     "video": {
+      "kit": "texts",
+      "data": "video/2026-11-ie/ie-a2-texts.json"
+     },
+     "data": {
+      "thread": {
+       "name": "Otto",
+       "initial": "O",
+       "avatar": "brand",
+       "stamp": "Sample · Today 7:35 AM",
+       "placeholder": "Message",
+       "messages": [
+        {
+         "from": "them",
+         "text": "Morning. Yesterday: €14 on ads, 3 enquiries."
+        },
+        {
+         "from": "them",
+         "text": "Best ad: the boiler service reel."
+        },
+        {
+         "from": "them",
+         "text": "2 posts for this week are ready. Want a look?"
+        },
+        {
+         "from": "me",
+         "text": "Go on"
+        },
+        {
+         "from": "them",
+         "text": "Here they are. Tap approve or ask for a change."
+        }
+       ]
+      },
+      "endcard": {
+       "headline": "Know by 7:35.",
+       "accent": "7:35",
+       "sub": "What it cost, what came in, what's waiting.",
+       "fine": "Sample message. You pay Meta directly for your ads.",
+       "products": [
+        "pack"
+       ],
+       "logo": "logo_white"
+      }
+     },
+     "brief": "Faceless chat video: Otto (brand avatar) sends the morning message, the owner replies. Figures marked as a sample.",
+     "added": "2026-11-02"
+    },
+    {
+     "id": "ie-a2-big",
+     "style": "big_number",
+     "slot": "proof_humor",
+     "format": "video",
+     "size": "story",
+     "video": {
+      "kit": "big",
+      "data": "video/2026-11-ie/ie-a2-big.json"
+     },
+     "data": {
+      "big": {
+       "hero": "hero",
+       "phrases": [
+        {
+         "big": "7:35",
+         "rest": "every morning."
+        },
+        {
+         "big": "1 message",
+         "rest": "what it cost, what came in."
+        },
+        {
+         "big": "1 tap",
+         "rest": "to approve.",
+         "product": "pack"
+        }
+       ]
+      },
+      "endcard": {
+       "headline": "One message. Every morning.",
+       "accent": "Every morning.",
+       "sub": "Posts, reels and ads, made by Otto.",
+       "fine": "Try it free for 7 days, no card needed.",
+       "products": [
+        "pack"
+       ],
+       "logo": "logo"
+      }
+     },
+     "brief": "Faceless big video: the report phone, three short lines on the beat.",
+     "added": "2026-11-02"
+    },
+    {
+     "id": "ie-a2-compare",
+     "style": "comparison",
+     "slot": "comparison",
+     "format": "image",
+     "size": "feed",
+     "data": {
+      "title": "Monthly report or *morning message*?",
+      "kicker": "Reporting",
+      "columns": [
+       {
+        "name": "Monthly report"
+       },
+       {
+        "name": "Otto at 7:35",
+        "highlight": true
+       }
+      ],
+      "rows": [
+       {
+        "label": "How often",
+        "values": [
+         "Once a month",
+         "Every morning"
+        ]
+       },
+       {
+        "label": "What you get",
+        "values": [
+         "A long PDF",
+         "One short message"
+        ]
+       },
+       {
+        "label": "When something drops",
+        "values": [
+         "Often next month",
+         "Within the hour"
+        ]
+       },
+       {
+        "label": "Who decides",
+        "values": [
+         "You, later",
+         "You, now"
+        ]
+       }
+      ],
+      "footnote": "Otto: a report at 7:35, alerts within the hour.",
+      "theme": "light"
+     },
+     "brief": "Table: the usual monthly report against the morning message. Fair, no prices.",
+     "added": "2026-11-02"
+    },
+    {
+     "id": "ie-a2-macro",
+     "style": "macro_hero",
+     "slot": "product",
+     "format": "image",
+     "size": [
+      "feed",
+      "story"
+     ],
+     "data": {
+      "photo": "otto-phone-report-cutout.png",
+      "word": "*7:35*",
+      "sub": "What yesterday cost and what came in. Every morning.",
+      "kicker": "Morning report",
+      "crop": "right",
+      "theme": "light"
+     },
+     "brief": "The report phone, huge, one word: the time.",
+     "added": "2026-11-02"
+    },
+    {
+     "id": "ie-a2-notes",
+     "style": "notes_app",
+     "slot": "native",
+     "format": "image",
+     "size": [
+      "feed",
+      "story"
+     ],
+     "data": {
+      "title": "My morning",
+      "items": [
+       "7:30 tea",
+       "7:35 read Otto's message",
+       "7:36 approve two posts",
+       "7:40 first job"
+      ],
+      "mode": "bullets",
+      "date_label": "Today at 7:41 AM",
+      "footer": "Marketing: *done before eight*",
+      "headline": "This is what *7:35* looks like",
+      "theme": "light"
+     },
+     "brief": "A note in the owner's voice: the morning in four lines.",
+     "added": "2026-11-02"
+    }
+   ]
+  },
+  {
+   "id": "a3",
+   "name": "Local, not generic",
+   "family": "enemy",
+   "angle": "Local, not translated or generic: written in Irish English for the owner's town, against generic tools written for somewhere else (COMPETITORS §4 gap 2, §6 concept 3)",
+   "source": "competitor-research",
+   "persona": "p-ie-clinic",
+   "stage": "cold",
+   "kinds": [
+    "competitor",
+    "objection",
+    "audience"
+   ],
+   "ad_set": "IE · a3 · Local, not generic",
+   "headlines": [
+    "Written for Cork. Not California.",
+    "Sounds like your business"
+   ],
+   "primaries": [
+    "Your posts should sound like you, not like a brand from somewhere else. Otto writes in Irish English, for your town and your customers.",
+    "‘Awesome deals, folks!’ Not how anyone in Galway talks. Otto reads your website and writes the way you'd say it: colour with a u, prices in euro, your town's name.",
+    "Otto reads your website, your prices and your reviews, then writes posts, reels and ads that sound like you. Nothing goes out without your say-so."
+   ],
+   "description": "For trades, cafés and clinics",
+   "cta": "LEARN_MORE",
+   "ads": [
+    {
+     "id": "ie-a3-creator",
+     "style": "ugc_talking_head",
+     "slot": "creator",
+     "format": "creator",
+     "size": "story",
+     "creator": {
+      "persona": "Owner of a physiotherapy or dental clinic (Otto client)",
+      "hook": "I can't have anything going out that says something it shouldn't.",
+      "script": "I can't have anything going out that says something it shouldn't. Otto read our website first and writes the way we talk to patients. Nothing goes up until I've approved it, and anything that could break the advertising rules is held for me to check. It sounds like the clinic, not like an American ad.",
+      "shot_list": [
+       "0-2 s: owner in the clinic reception, to camera: the hook",
+       "2-9 s: phone: a post in Otto's Review screen",
+       "9-14 s: a held post with its note, then Approve on another",
+       "14-22 s: back to the treatment room door (no patients identifiable)",
+       "On screen: 'Nothing goes out without my approval'"
+      ],
+      "length": "20-25 s, 9:16, sound on, captions",
+      "disclosure": "#Ad · Paid partnership with Otto",
+      "on_screen": "Nothing goes out without my approval",
+      "notes": "A real owner who uses Otto, not an actor. Only say what's true for your business; your own words are grand. No figures that aren't in your own report (blur them otherwise). '#Ad' on screen from the first second; run as a partnership ad. Clinics: no treatment claims, no results, no patient stories."
+     },
+     "brief": "Clinic owner on control and tone. No health claims on camera, no patients identifiable, no before/after. Real footage of the real owner only; no generated or look-alike people.",
+     "added": "2026-11-02"
+    },
+    {
+     "id": "ie-a3-notes",
+     "style": "notes_app",
+     "slot": "faceless",
+     "format": "video",
+     "size": "story",
+     "video": {
+      "kit": "notes",
+      "data": "video/2026-11-ie/ie-a3-notes.json"
+     },
+     "data": {
+      "note": {
+       "meta": "Tuesday, 10:15 PM",
+       "title": "Words my customers never use",
+       "struck": [
+        "awesome",
+        "y'all",
+        "super stoked"
+       ],
+       "keep": "just: new this week, in Limerick"
+      },
+      "endcard": {
+       "headline": "Sounds like your business.",
+       "accent": "your business.",
+       "sub": "Posts, reels and ads in Irish English.",
+       "fine": "Otto writes for your town and your customers.",
+       "products": [
+        "review_ie"
+       ],
+       "logo": "logo"
+      }
+     },
+     "brief": "Faceless notes video: words no Irish customer uses, struck; the plain line stays.",
+     "added": "2026-11-02"
+    },
+    {
+     "id": "ie-a3-versus",
+     "style": "us_vs_them",
+     "slot": "comparison",
+     "format": "video",
+     "size": "story",
+     "video": {
+      "kit": "versus",
+      "data": "video/2026-11-ie/ie-a3-versus.json"
+     },
+     "data": {
+      "versus": {
+       "vs": "vs",
+       "left": {
+        "label": "Written for the US",
+        "rows": [
+         "‘Awesome deals!’",
+         "Thanksgiving post",
+         "Prices in dollars"
+        ]
+       },
+       "right": {
+        "label": "Otto",
+        "image": "review_ie",
+        "rows": [
+         "‘New this week’",
+         "Christmas in Cork",
+         "Prices in euro"
+        ]
+       },
+       "footer": "For your customers, in your words."
+      },
+      "endcard": {
+       "headline": "Written for Cork.",
+       "accent": "Cork.",
+       "sub": "Otto reads your website and writes the way you talk.",
+       "fine": "Try it free for 7 days, no card needed.",
+       "products": [
+        "review_ie"
+       ],
+       "logo": "logo_white"
+      }
+     },
+     "brief": "Faceless versus video: copy written for another country against Otto, three rows.",
+     "added": "2026-11-02"
+    },
+    {
+     "id": "ie-a3-product",
+     "style": "product_hero",
+     "slot": "product",
+     "format": "image",
+     "size": [
+      "feed",
+      "story"
+     ],
+     "data": {
+      "headline": "Sounds like *your business*",
+      "photo": "otto-phone-review-ie-cutout.png",
+      "callouts": [
+       "Written in Irish English",
+       "Built on your own website",
+       "You approve every post"
+      ],
+      "kicker": "Posts by Otto",
+      "theme": "brand"
+     },
+     "brief": "Review screen with an Irish post on the brand dark ground, three callouts.",
+     "added": "2026-11-02"
+    },
+    {
+     "id": "ie-a3-post",
+     "style": "social_post",
+     "slot": "native",
+     "format": "image",
+     "size": [
+      "feed",
+      "story"
+     ],
+     "data": {
+      "name": "Otto",
+      "handle": "For small businesses",
+      "avatar_logo": true,
+      "text": "A post about your boiler service should sound like a plumber in Cork, not a brand in California. That's why Otto writes in Irish English, from your own website.",
+      "headline": "*Local*, not generic",
+      "theme": "light",
+      "ui": "light"
+     },
+     "brief": "A text post by Otto itself (the brand), never an invented customer.",
+     "added": "2026-11-02"
+    },
+    {
+     "id": "ie-a3-myth",
+     "style": "myth_fact",
+     "slot": "proof_humor",
+     "format": "image",
+     "size": "feed",
+     "data": {
+      "myth": "AI marketing always sounds generic.",
+      "fact": "Otto builds your brand profile from your own website, your wording and your reviews, then asks you at most four questions.",
+      "kicker": "About AI marketing",
+      "source": "How Otto sets up a new brand",
+      "theme": "light"
+     },
+     "brief": "Myth struck out, the fact from the proof bank (pr5).",
+     "added": "2026-11-02"
+    }
+   ]
+  },
+  {
+   "id": "a4",
+   "name": "You run it, Otto posts",
+   "family": "identity",
+   "angle": "For owners who'd rather run the business than post about it (trades, hospitality, clinics): you tap approve, Otto does the rest",
+   "source": "profile",
+   "persona": "p-ie-trades",
+   "stage": "cold",
+   "kinds": [
+    "audience",
+    "benefit"
+   ],
+   "ad_set": "IE · a4 · You run it, Otto posts",
+   "headlines": [
+    "You run the business. Otto posts.",
+    "For owners with no marketing team"
+   ],
+   "primaries": [
+    "Otto plans your month, writes your posts, makes your reels and runs your ads. You tap approve. About half an hour a week.",
+    "For the plumber who's under a sink all day. For the café that closes at five. For the clinic with a full diary. Otto does the marketing, you make the calls.",
+    "Sign in, add your website, answer four questions at most, and your first posts are ready for your approval within 24 hours."
+   ],
+   "description": "Posts, reels and ads, made by Otto",
+   "cta": "LEARN_MORE",
+   "ads": [
+    {
+     "id": "ie-a4-creator",
+     "style": "ugc_talking_head",
+     "slot": "creator",
+     "format": "creator",
+     "size": "story",
+     "creator": {
+      "persona": "Plumbing and heating business owner (Otto client)",
+      "hook": "Evenings were for quotes and invoices. Not Instagram.",
+      "script": "Evenings were for quotes and invoices, not Instagram. Now Otto plans the month. It writes the posts from our website, makes the reels and sets up the ads. I get them on my phone and tap approve. Half an hour a week, if that.",
+      "shot_list": [
+       "0-2 s: kitchen table, invoices, to camera: the hook",
+       "2-9 s: phone: Otto's month calendar",
+       "9-13 s: taps Approve on two posts",
+       "13-20 s: on a job the next morning; last line",
+       "On screen: 'You run the business. Otto posts.'"
+      ],
+      "length": "18-22 s, 9:16, sound on, captions",
+      "disclosure": "#Ad · Paid partnership with Otto",
+      "on_screen": "You run the business. Otto posts.",
+      "notes": "A real owner who uses Otto, not an actor. Only say what's true for your business; your own words are grand. No figures that aren't in your own report (blur them otherwise). '#Ad' on screen from the first second; run as a partnership ad."
+     },
+     "brief": "Plumber on his evenings before and after Otto. Second take on the same shoot day as ie-a2-creator. Real footage of the real owner only; no generated or look-alike people.",
+     "added": "2026-11-02"
+    },
+    {
+     "id": "ie-a4-big",
+     "style": "big_number",
+     "slot": "faceless",
+     "format": "video",
+     "size": "story",
+     "video": {
+      "kit": "big",
+      "data": "video/2026-11-ie/ie-a4-big.json"
+     },
+     "data": {
+      "big": {
+       "hero": "hero",
+       "phrases": [
+        {
+         "big": "30 min",
+         "rest": "a week, roughly."
+        },
+        {
+         "big": "4 questions",
+         "rest": "at the start, max."
+        },
+        {
+         "big": "1 tap",
+         "rest": "per post.",
+         "product": "review_ie"
+        }
+       ]
+      },
+      "endcard": {
+       "headline": "You run it. Otto posts.",
+       "accent": "Otto posts.",
+       "sub": "Posts, reels and ads, ready for your approval.",
+       "fine": "Try it free for 7 days, no card needed.",
+       "products": [
+        "month"
+       ],
+       "logo": "logo"
+      }
+     },
+     "brief": "Faceless big video: three numbers from the landing (30 min, 4 questions, 1 tap).",
+     "added": "2026-11-02"
+    },
+    {
+     "id": "ie-a4-versus",
+     "style": "us_vs_them",
+     "slot": "comparison",
+     "format": "video",
+     "size": "story",
+     "video": {
+      "kit": "versus",
+      "data": "video/2026-11-ie/ie-a4-versus.json"
+     },
+     "data": {
+      "versus": {
+       "vs": "vs",
+       "left": {
+        "label": "On your own",
+        "rows": [
+         "Posting at 11pm",
+         "Guessing on ads",
+         "No time for reels"
+        ]
+       },
+       "right": {
+        "label": "With Otto",
+        "image": "month",
+        "rows": [
+         "Month planned",
+         "Report at 7:35",
+         "Reels, ready"
+        ]
+       },
+       "footer": "You tap approve."
+      },
+      "endcard": {
+       "headline": "Your month, ready.",
+       "accent": "ready.",
+       "sub": "Posts, stories and reels, planned ahead.",
+       "fine": "Try it free for 7 days, no card needed.",
+       "products": [
+        "month"
+       ],
+       "logo": "logo_white"
+      }
+     },
+     "brief": "Faceless versus video: on your own against Otto.",
+     "added": "2026-11-02"
+    },
+    {
+     "id": "ie-a4-product",
+     "style": "product_hero",
+     "slot": "product",
+     "format": "image",
+     "size": [
+      "feed",
+      "story"
+     ],
+     "data": {
+      "headline": "You run the business. *Otto posts.*",
+      "photo": "otto-phone-month-cutout.png",
+      "callouts": [
+       "Posts, stories and reels",
+       "Timed for your customers",
+       "You approve everything"
+      ],
+      "kicker": "Your month, ready",
+      "theme": "light"
+     },
+     "brief": "The month phone, three callouts from the offer.",
+     "added": "2026-11-02"
+    },
+    {
+     "id": "ie-a4-search",
+     "style": "search",
+     "slot": "native",
+     "format": "image",
+     "size": [
+      "feed",
+      "story"
+     ],
+     "data": {
+      "query": "no time for social media",
+      "mode": "autocomplete",
+      "suggestions": [
+       "no time for social media small business",
+       "no time for social media plumber",
+       "no time for social media café",
+       "no time for social media clinic"
+      ],
+      "headline": "Sound familiar? *Otto takes it on.*",
+      "theme": "light"
+     },
+     "brief": "Search bar with the question owners actually type, by vertical.",
+     "added": "2026-11-02"
+    },
+    {
+     "id": "ie-a4-checklist",
+     "style": "checklist",
+     "slot": "proof_humor",
+     "format": "image",
+     "size": "feed",
+     "data": {
+      "title": "What you still do",
+      "kicker": "With Otto",
+      "items": [
+       {
+        "text": "Send your website address",
+        "note": "Once"
+       },
+       {
+        "text": "Answer four questions at most",
+        "note": "At the start"
+       },
+       {
+        "text": "Tap approve",
+        "note": "About half an hour a week"
+       }
+      ],
+      "footnote": "Otto does the rest: planning, writing, design, posting and the morning report.",
+      "theme": "light"
+     },
+     "brief": "Checklist: everything the owner still does (pr5, pr6).",
+     "added": "2026-11-02"
+    }
+   ]
+  },
+  {
+   "id": "a5",
+   "name": "7 days free",
+   "family": "offer",
+   "angle": "The offer: Otto free for 7 days, sign in with Google, no card, nothing charged automatically; prefer to pay once = founding pilot €197",
+   "source": "profile",
+   "persona": "p-ie-clinic",
+   "stage": "hot",
+   "kinds": [
+    "offer",
+    "objection"
+   ],
+   "ad_set": "IE · a5 · 7 days free",
+   "headlines": [
+    "Try Otto free for 7 days",
+    "No card needed"
+   ],
+   "primaries": [
+    "Try Otto free for 7 days. Sign in with Google, add your website, and your first posts are ready for your approval within 24 hours. No card needed.",
+    "After 7 days you decide. Nothing is charged automatically, and if you pick a plan, everything Otto made carries on.",
+    "Prefer to pay once? The founding pilot is €197 once, excl. VAT. You pay Meta directly for your ads, separately."
+   ],
+   "description": "7 days free, no card",
+   "cta": "SIGN_UP",
+   "ads": [
+    {
+     "id": "ie-a5-creator",
+     "style": "ugc_talking_head",
+     "slot": "creator",
+     "format": "creator",
+     "size": "story",
+     "creator": {
+      "persona": "Owner of a physiotherapy or dental clinic (Otto client)",
+      "hook": "I didn't want to pay for something I hadn't tried.",
+      "script": "I didn't want to pay for something I hadn't tried, so I gave Otto the free week, no card. Within a day the first posts were ready, in the way we'd say it, and nothing went up until I'd approved it. Now I approve them between patients.",
+      "shot_list": [
+       "0-2 s: clinic front desk, to camera: the hook",
+       "2-8 s: phone: the first posts in Otto",
+       "8-12 s: taps Approve between appointments (diary not readable)",
+       "12-18 s: back to work",
+       "On screen: '7 days free, no card'"
+      ],
+      "length": "15-20 s, 9:16, sound on, captions",
+      "disclosure": "#Ad · Paid partnership with Otto",
+      "on_screen": "7 days free, no card",
+      "notes": "A real owner who uses Otto, not an actor. Only say what's true for your business; your own words are grand. No figures that aren't in your own report (blur them otherwise). '#Ad' on screen from the first second; run as a partnership ad. Clinics: no treatment claims, no results, no patient stories."
+     },
+     "brief": "Clinic owner on trying before paying. Second take on the same shoot day as ie-a3-creator. Only if she really did the free week. Real footage of the real owner only; no generated or look-alike people.",
+     "added": "2026-11-02"
+    },
+    {
+     "id": "ie-a5-big",
+     "style": "big_number",
+     "slot": "faceless",
+     "format": "video",
+     "size": "story",
+     "video": {
+      "kit": "big",
+      "data": "video/2026-11-ie/ie-a5-big.json"
+     },
+     "data": {
+      "big": {
+       "hero": "month",
+       "phrases": [
+        {
+         "big": "7 days",
+         "rest": "free."
+        },
+        {
+         "big": "0 cards",
+         "rest": "needed."
+        },
+        {
+         "big": "24 hours",
+         "rest": "to your first posts.",
+         "product": "review_ie"
+        }
+       ]
+      },
+      "endcard": {
+       "headline": "Try Otto for 7 days.",
+       "accent": "7 days.",
+       "sub": "Free, no card needed.",
+       "fine": "Nothing is charged automatically.",
+       "products": [
+        "month"
+       ],
+       "logo": "logo"
+      }
+     },
+     "brief": "Faceless big video: the offer in three hits.",
+     "added": "2026-11-02"
+    },
+    {
+     "id": "ie-a5-texts",
+     "style": "text_message",
+     "slot": "native",
+     "format": "video",
+     "size": "story",
+     "video": {
+      "kit": "texts",
+      "data": "video/2026-11-ie/ie-a5-texts.json"
+     },
+     "data": {
+      "thread": {
+       "name": "Otto",
+       "initial": "O",
+       "avatar": "brand",
+       "stamp": "Today 10:12 AM",
+       "placeholder": "Message",
+       "messages": [
+        {
+         "from": "me",
+         "text": "What happens after the 7 days?"
+        },
+        {
+         "from": "them",
+         "text": "You get an e-mail two days before the end. Pick a plan and everything carries on."
+        },
+        {
+         "from": "me",
+         "text": "And if I do nothing?"
+        },
+        {
+         "from": "them",
+         "text": "Then it stops. Nothing is charged."
+        }
+       ]
+      },
+      "endcard": {
+       "headline": "7 days free.",
+       "accent": "free.",
+       "sub": "First posts within 24 hours.",
+       "fine": "No card needed. One trial per business.",
+       "products": [
+        "month"
+       ],
+       "logo": "logo_white"
+      }
+     },
+     "brief": "Faceless chat video: the two questions everyone asks, answered by Otto itself (the brand).",
+     "added": "2026-11-02"
+    },
+    {
+     "id": "ie-a5-versus",
+     "style": "us_vs_them",
+     "slot": "comparison",
+     "format": "video",
+     "size": "story",
+     "video": {
+      "kit": "versus",
+      "data": "video/2026-11-ie/ie-a5-versus.json"
+     },
+     "data": {
+      "versus": {
+       "vs": "vs",
+       "left": {
+        "label": "DIY",
+        "rows": [
+         "Your evenings",
+         "Filming reels",
+         "Guessing"
+        ]
+       },
+       "right": {
+        "label": "Otto, 7 days free",
+        "image": "month",
+        "rows": [
+         "Posts ready",
+         "Reels included",
+         "Report at 7:35"
+        ]
+       },
+       "footer": "No card needed."
+      },
+      "endcard": {
+       "headline": "Try Otto free.",
+       "accent": "free.",
+       "sub": "7 days, no card.",
+       "fine": "Nothing is charged automatically.",
+       "products": [
+        "month"
+       ],
+       "logo": "logo_white"
+      }
+     },
+     "brief": "Faceless versus video: doing it yourself against the free week.",
+     "added": "2026-11-02"
+    },
+    {
+     "id": "ie-a5-offer",
+     "style": "offer",
+     "slot": "price",
+     "format": "image",
+     "size": [
+      "feed",
+      "story"
+     ],
+     "data": {
+      "name": "Free trial",
+      "price": "Free",
+      "price_note": "7 days, no card",
+      "features": [
+       "Your first week of posts, stories and reels",
+       "Approve by e-mail, in Telegram or in the app",
+       "Your report at 7:35",
+       "Your ads planned for you to see"
+      ],
+      "cta": "Sign up",
+      "terms": "Sign in with Google. One trial per business; nothing is charged automatically. Prefer to pay once: founding pilot €197 once, excl. VAT. You pay Meta directly for your ads.",
+      "kicker": "Free week",
+      "photo": "otto-phone-month-cutout.png",
+      "theme": "accent"
+     },
+     "brief": "The price card: the real offer (free week), what's in it, one button.",
+     "added": "2026-11-02"
+    },
+    {
+     "id": "ie-a5-product",
+     "style": "product_hero",
+     "slot": "product",
+     "format": "image",
+     "size": [
+      "feed",
+      "story"
+     ],
+     "data": {
+      "headline": "7 days *free*",
+      "photo": "otto-phone-review-ie-cutout.png",
+      "callouts": [
+       "No card needed",
+       "Written in Irish English",
+       "First posts within 24 hours"
+      ],
+      "price": "Free",
+      "price_note": "7 days, then you decide",
+      "kicker": "Free week",
+      "theme": "brand"
+     },
+     "brief": "Review screen with the offer, three callouts.",
+     "added": "2026-11-02"
+    },
+    {
+     "id": "ie-a5-notes",
+     "style": "notes_app",
+     "slot": "native",
+     "format": "image",
+     "size": [
+      "feed",
+      "story"
+     ],
+     "data": {
+      "title": "What you get in the free week",
+      "mode": "checklist",
+      "items": [
+       {
+        "text": "Your first week of posts and stories",
+        "checked": true
+       },
+       {
+        "text": "Reels from your own website",
+        "checked": true
+       },
+       {
+        "text": "Approve by e-mail or in the app",
+        "checked": true
+       },
+       {
+        "text": "Your report every morning at 7:35",
+        "checked": true
+       },
+       {
+        "text": "Your ads planned for you to see",
+        "checked": true
+       }
+      ],
+      "date_label": "Today at 9:12 AM",
+      "footer": "*7 days free*, no card",
+      "headline": "Try it first, *then decide*",
+      "theme": "light"
+     },
+     "brief": "A note as a checklist of the free week.",
+     "added": "2026-11-02"
+    }
+   ]
+  },
+  {
+   "id": "a6",
+   "name": "December, sorted",
+   "family": "moment",
+   "angle": "December planned in November: the Christmas season approved before the rush, so the owner can just work it",
+   "source": "profile",
+   "persona": "p-ie-hosp",
+   "stage": "warm",
+   "kinds": [
+    "benefit",
+    "audience"
+   ],
+   "ad_set": "IE · a6 · December, sorted",
+   "headlines": [
+    "December, sorted before the rush",
+    "Christmas, planned in November"
+   ],
+   "primaries": [
+    "Christmas is your busiest month and your least free one. Otto plans December now, so you can just work it. You approve everything in advance.",
+    "Gift vouchers, Christmas opening hours, the festive menu: Otto puts it all in your plan, at the hours your customers are online.",
+    "Let Otto line up December's posts, reels and ads in November. You tap approve and get on with the busiest weeks of the year."
+   ],
+   "description": "Posts, reels and ads for December",
+   "cta": "LEARN_MORE",
+   "ads": [
+    {
+     "id": "ie-a6-creator",
+     "style": "ugc_talking_head",
+     "slot": "creator",
+     "format": "creator",
+     "size": "story",
+     "creator": {
+      "persona": "Owner of a café with rooms or a B&B (Otto client)",
+      "hook": "In December I've no time. So December's done already.",
+      "script": "In December I've no time, so December's done already. Otto planned the Christmas menu, the gift vouchers and our opening hours over the holidays. I went through it all in one go and approved it. Now I can just work December.",
+      "shot_list": [
+       "0-2 s: owner putting up the Christmas tree in the dining room: the hook",
+       "2-9 s: phone: Otto's December calendar, scrolling",
+       "9-13 s: taps Approve",
+       "13-20 s: a busy breakfast service; last line",
+       "On screen: 'December, already planned'"
+      ],
+      "length": "18-22 s, 9:16, sound on, captions",
+      "disclosure": "#Ad · Paid partnership with Otto",
+      "on_screen": "December, already planned",
+      "notes": "A real owner who uses Otto, not an actor. Only say what's true for your business; your own words are grand. No figures that aren't in your own report (blur them otherwise). '#Ad' on screen from the first second; run as a partnership ad."
+     },
+     "brief": "Café or B&B owner shows December, already approved. Second take on the same shoot day as ie-a1-creator. Real footage of the real owner only; no generated or look-alike people.",
+     "added": "2026-11-02"
+    },
+    {
+     "id": "ie-a6-texts",
+     "style": "text_message",
+     "slot": "native",
+     "format": "video",
+     "size": "story",
+     "video": {
+      "kit": "texts",
+      "data": "video/2026-11-ie/ie-a6-texts.json"
+     },
+     "data": {
+      "thread": {
+       "name": "Otto",
+       "initial": "O",
+       "avatar": "brand",
+       "stamp": "Sample · 20 November",
+       "placeholder": "Message",
+       "messages": [
+        {
+         "from": "them",
+         "text": "Your December is ready to review."
+        },
+        {
+         "from": "them",
+         "text": "The Christmas menu, gift vouchers and your holiday opening hours are in."
+        },
+        {
+         "from": "me",
+         "text": "Show me"
+        },
+        {
+         "from": "them",
+         "text": "Here's the plan. Tap approve or ask for a change."
+        }
+       ]
+      },
+      "endcard": {
+       "headline": "December, sorted.",
+       "accent": "sorted.",
+       "sub": "You approve it all in advance.",
+       "fine": "Try it free for 7 days, no card needed.",
+       "products": [
+        "month"
+       ],
+       "logo": "logo_white"
+      }
+     },
+     "brief": "Faceless chat video: Otto says December is ready.",
+     "added": "2026-11-02"
+    },
+    {
+     "id": "ie-a6-big",
+     "style": "big_number",
+     "slot": "faceless",
+     "format": "video",
+     "size": "story",
+     "video": {
+      "kit": "big",
+      "data": "video/2026-11-ie/ie-a6-big.json"
+     },
+     "data": {
+      "big": {
+       "hero": "month",
+       "phrases": [
+        {
+         "big": "Christmas.",
+         "rest": "Planned."
+        },
+        {
+         "big": "New Year.",
+         "rest": "Planned."
+        },
+        {
+         "big": "You?",
+         "rest": "Working.",
+         "product": "month"
+        }
+       ]
+      },
+      "endcard": {
+       "headline": "December, already planned.",
+       "accent": "already planned.",
+       "sub": "Posts, reels and ads, made by Otto.",
+       "fine": "Try it free for 7 days, no card needed.",
+       "products": [
+        "month"
+       ],
+       "logo": "logo"
+      }
+     },
+     "brief": "Faceless big video: the holidays ticked off on the beat.",
+     "added": "2026-11-02"
+    },
+    {
+     "id": "ie-a6-before",
+     "style": "before_after",
+     "slot": "comparison",
+     "format": "image",
+     "size": "feed",
+     "data": {
+      "before": "December: posting something quick every evening",
+      "after": "November: the whole month approved in one go",
+      "before_label": "Without Otto",
+      "after_label": "With Otto",
+      "kicker": "The holidays"
+     },
+     "brief": "Before and after: the routine, not the person.",
+     "added": "2026-11-02"
+    },
+    {
+     "id": "ie-a6-product",
+     "style": "product_hero",
+     "slot": "product",
+     "format": "image",
+     "size": [
+      "feed",
+      "story"
+     ],
+     "data": {
+      "headline": "December, *already planned*",
+      "photo": "otto-phone-month-cutout.png",
+      "callouts": [
+       "Christmas menu and vouchers",
+       "Holiday opening hours",
+       "You approve it all first"
+      ],
+      "kicker": "The holidays",
+      "theme": "brand"
+     },
+     "brief": "The month phone on the brand dark ground.",
+     "added": "2026-11-02"
+    },
+    {
+     "id": "ie-a6-carousel",
+     "style": "carousel",
+     "slot": "proof_humor",
+     "format": "image",
+     "size": "feed",
+     "data": {
+      "cover": {
+       "headline": "4 posts every local business can make *this December*",
+       "kicker": "For owners",
+       "swipe": "Swipe"
+      },
+      "slides": [
+       {
+        "title": "Your Christmas opening hours",
+        "body": "The most-asked question in December. Post it early and pin it."
+       },
+       {
+        "title": "Gift vouchers",
+        "body": "The last-minute present people are glad to find. Say how to buy one."
+       },
+       {
+        "title": "The people behind it",
+        "body": "A photo of the team getting ready for the busiest weeks."
+       },
+       {
+        "title": "Thank you",
+        "body": "A short thank-you to your regulars before the year closes."
+       }
+      ],
+      "end": {
+       "headline": "Otto plans all four for you",
+       "cta": "Scan your website",
+       "sub": "Free, no signup"
+      }
+     },
+     "brief": "Educational carousel for saves: four December posts, one ask.",
+     "added": "2026-11-02"
+    }
+   ]
+  }
+ ]
+}

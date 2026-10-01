@@ -210,18 +210,19 @@ def norm_member(v):
     return v if EMAIL.fullmatch(v) else None
 
 
-def is_member(b, user):
-    """True when the signed-in user (an e-mail from the proxy) is on brands[].members (exactly, or by "@domain")."""
+def is_member(b, user, domains=True):
+    """True when the signed-in user (an e-mail from the proxy or a Google sign-in) is on brands[].members (exactly, or by
+    "@domain" when domains is true — a Google sign-in passes domains only for a Workspace account of that domain)."""
     user = str(user or "").strip().lower()
     if not user or "@" not in user:
         return False
     members = {str(m).strip().lower() for m in (b or {}).get("members") or []}
-    return user in members or "@" + user.rsplit("@", 1)[1] in members
+    return user in members or (bool(domains) and "@" + user.rsplit("@", 1)[1] in members)
 
 
-def member_brands(d, user):
+def member_brands(d, user, domains=True):
     """Ids of the brands this signed-in user may see and act on."""
-    return {b["id"] for b in d.get("brands", []) if isinstance(b, dict) and b.get("id") and is_member(b, user)}
+    return {b["id"] for b in d.get("brands", []) if isinstance(b, dict) and b.get("id") and is_member(b, user, domains)}
 
 
 def post(d, pid):
@@ -301,6 +302,19 @@ def add_rec_once(d, prio, title, why, impact, cta, **fields):
     return add_rec(d, prio, title, why, impact, cta, **fields)
 
 
+def rec_action_failed(d, r, err, via):
+    """An approved recommendation whose action raised (the paid plan's approval, a pause): the error stays on the card
+    (action_error) and one owner card says so — whoever approved was just told "approved", so the failure must not stay silent."""
+    q = rec(d, (r or {}).get("id"))
+    if q is not None:
+        q["action_error"] = str(err)[:300]
+    return add_rec_once(d, "P0", f"Approved but not applied: {str((r or {}).get('title') or '')[:60]}",
+                        f"{(r or {}).get('id')} was approved {via}, but what it starts failed: {str(err)[:240]}. Nothing it starts "
+                        "has started; run it by hand (e.g. otto_ads.py approve <brand> <month>) once the cause is fixed.",
+                        "Whoever approved it believes it is running", "Apply it by hand", brand=(r or {}).get("brand"),
+                        source="otto_admin", audience="owner", rec=(r or {}).get("id"))
+
+
 def paused(d, bid=None):
     """Why publishing and ad launches are stopped right now, or None. The owner console (otto_admin) sets
     controls.publishing_paused (the global kill switch) and brands[].paused; otto_publish and otto_ads launch honour both.
@@ -330,6 +344,10 @@ def paused(d, bid=None):
 # and shows overage.pct % of the spend above overage.above_eur_month. brands[].ad_band keeps the last months' decisions.
 # An unreadable or invalid plans.json never pauses anything: plan_of answers SAFE_PLAN (organic only, config_error set),
 # so paid work is refused / skipped with the reason and the guard leaves live campaigns alone.
+# Free trial (otto_trial, docs/AUTH-AND-TRIAL.md): defaults.trial names the trial plan (optional — without it there is no
+# trial). A plan may name its own "after_expiry" (the trial: "none", so a trial whose plan_until passed never falls back to
+# the free Content plan), and the optional feature "ads_launch" (default true) set to false plans and renders paid ads for
+# preview but launches none (no_launch_why: otto_ads launch / resume and otto_cron ads-launch refuse with the reason).
 
 FEATURES = ("organic", "stories", "reels", "ads_meta", "ads_google", "ad_matrix", "video_ads", "creator_briefs",
             "competitor_sweep", "reports", "telegram", "multi_brand")
@@ -337,11 +355,12 @@ LIMITS = ("brands", "posts_per_month", "reels_per_month", "ad_matrix_preset", "a
           "video_ads_per_month", "refresh_per_angle_week")
 PRESET_ORDER = ("none", "micro", "launch", "scale")
 SWEEPS = (False, "monthly", "weekly")
-PLAN_DEFAULTS = {"legacy": "founding", "new": "content", "after_expiry": "content", "unknown": "content", "ended": "none"}
+OPTIONAL_FEATURES = {"ads_launch": True}      # feature → the value a plan that does not name it gets (plans from before it)
+PLAN_DEFAULTS = {"legacy": "founding", "new": "starter", "after_expiry": "content", "unknown": "content", "ended": "none"}
 SAFE_PLAN = {"label": "Content (plans.json unreadable)", "upgrade_to": None, "overage": None, "public": False,
              "features": {"organic": True, "stories": True, "reels": True, "ads_meta": False, "ads_google": False, "ad_matrix": False,
                           "video_ads": False, "creator_briefs": False, "competitor_sweep": "monthly", "reports": True,
-                          "telegram": True, "multi_brand": False},
+                          "telegram": True, "multi_brand": False, "ads_launch": False},
              "limits": {"brands": 1, "posts_per_month": 66, "reels_per_month": 4, "ad_matrix_preset": "none",
                         "ad_spend_managed_eur_month": 0, "video_ads_per_month": 0, "refresh_per_angle_week": 0}}
 _plans_cache = {"key": None, "cfg": None}
@@ -375,6 +394,10 @@ def _plan_problems(raw):
             if p.get(k) is not None and not isinstance(p[k], dict):
                 raise ValueError(f"plan {pid!r}: {k} must be an object")
             box.update(p.get(k) or {})
+        for f, dv in OPTIONAL_FEATURES.items():
+            feats.setdefault(f, dv)
+            if not isinstance(feats[f], bool):
+                raise ValueError(f"plan {pid!r}: feature {f!r} must be true or false")
         for f in FEATURES:
             if f not in feats:
                 raise ValueError(f"plan {pid!r}: feature {f!r} missing")
@@ -397,6 +420,14 @@ def _plan_problems(raw):
             raise ValueError(f"plan {pid!r}: whop_plan_ids must be a list of Whop plan ids")
         if p.get("upgrade_to") is not None and p["upgrade_to"] not in src:
             raise ValueError(f"plan {pid!r}: upgrade_to names unknown plan {p['upgrade_to']!r}")
+        if p.get("after_expiry") is not None and p["after_expiry"] not in src:
+            raise ValueError(f"plan {pid!r}: after_expiry names unknown plan {p['after_expiry']!r}")
+        cp = p.get("checkout_plans")
+        if cp is not None and not (isinstance(cp, list) and all(isinstance(x, str) and x in src for x in cp)):
+            raise ValueError(f"plan {pid!r}: checkout_plans must list known plan ids")
+        td = p.get("trial_days")
+        if td is not None and (isinstance(td, bool) or not isinstance(td, int) or not 1 <= td <= 90):
+            raise ValueError(f"plan {pid!r}: trial_days must be a whole number of days (1-90)")
         ov = p.get("overage")
         if ov is not None and not (isinstance(ov, dict) and all(isinstance(ov.get(k), (int, float)) and not isinstance(ov.get(k), bool)
                                                                  and ov[k] >= 0 for k in ("above_eur_month", "pct"))):
@@ -483,8 +514,8 @@ def plan_of(d, bid, today=None):
     until = _plan_date(b.get("plan_until"))
     today = today or datetime.now(brand_tz(b)).date()
     expired = bool(until and today > until and pid != dflt["ended"])
-    if expired:
-        pid, source = dflt["after_expiry"], "expired"
+    if expired:                                               # the plan's own after_expiry (the trial: "none"), else the default
+        pid, source = ((cfg["plans"].get(pid) or {}).get("after_expiry") or dflt["after_expiry"]), "expired"
     if cfg.get("error"):
         base, pid, source = SAFE_PLAN, dflt["unknown"], "config_error"
     elif pid in cfg["plans"]:
@@ -499,10 +530,32 @@ def plan_of(d, bid, today=None):
 
 
 def plan_ended(d, bid):
-    """True when the brand sits on the "ended" plan (a canceled / expired membership): publishing is paused."""
+    """True when the brand sits on the "ended" plan (a canceled / expired membership): publishing is paused. A plan whose
+    plan_until passed into the ended plan (the free trial's after_expiry) counts too — before otto_trial moves it there."""
     b = brand(d, bid) or {}
     raw = b.get("plan")
-    return isinstance(raw, str) and raw.strip() == plans_config()["defaults"]["ended"]
+    ended = plans_config()["defaults"]["ended"]
+    if isinstance(raw, str) and raw.strip() == ended:
+        return True
+    if not b or not b.get("plan_until"):
+        return False
+    p = plan_of(d, bid)
+    return p["source"] == "expired" and p["id"] == ended
+
+
+def trial_plan_id():
+    """The free trial's plan id (plans.json defaults.trial), or None when no trial is configured."""
+    cfg = plans_config()
+    t = (cfg.get("defaults") or {}).get("trial")
+    return t if t and t in cfg["plans"] else None
+
+
+def trial_ended(d, bid):
+    """The brand came from a free trial that ended without a paid plan: on the ended plan with brands[].trial and never
+    converted. The client app answers 402 (paywall) for it; its data is kept (otto_retention counts 90 days)."""
+    b = brand(d, bid) or {}
+    tr = b.get("trial")
+    return isinstance(tr, dict) and not tr.get("converted_at") and plan_ended(d, bid)
 
 
 AD_FEATURE = {"meta": "ads_meta", "google": "ads_google"}
@@ -531,6 +584,19 @@ def no_ads_why(d, bid, network=None):
         return f"plan {p['id']} has no paid ads"
     if network and not p["features"].get(AD_FEATURE.get(network, network)):
         return f"plan {p['id']} has no {'Meta' if network == 'meta' else 'Google'} ads"
+    return None
+
+
+def no_launch_why(d, bid, network=None):
+    """Why a campaign of this brand may not go live (launch, resume) — no_ads_why, or a plan that plans and previews paid
+    ads without launching them (features.ads_launch false: the free trial) — or None."""
+    why = no_ads_why(d, bid, network)
+    if why:
+        return why
+    p = plan_of(d, bid)
+    if p["features"].get("ads_launch") is False:
+        return (f"plan {p['id']} plans and previews paid ads but launches none (free trial: campaigns launch once a card "
+                "is on file)")
     return None
 
 
@@ -630,6 +696,13 @@ def set_plan(d, bid, plan_id, until=KEEP, by="admin", via="admin", note="", **ex
         raise KeyError(bid)
     before = plan_of(d, bid)
     b["plan"] = plan_id
+    tr = b.get("trial")
+    if isinstance(tr, dict) and not tr.get("converted_at") and plan_id not in (trial_plan_id(), cfg["defaults"]["ended"]):
+        tr["converted_at"], tr["converted_to"] = now_iso(), plan_id       # a trial brand on a paid plan (Whop, the console)
+        for u in d.get("users") or []:
+            if isinstance(u, dict) and u.get("id") == tr.get("user"):
+                u["status"] = "active"
+                u.setdefault("paid_at", tr["converted_at"])
     if until is not KEEP:
         if until in (None, ""):
             b.pop("plan_until", None)
@@ -654,7 +727,7 @@ def plan_expiry_notices(d, today=None):
         if not isinstance(b, dict) or not b.get("id"):
             continue
         p = plan_of(d, b["id"], today)
-        if not p["expired"]:
+        if not p["expired"] or p["requested"] == trial_plan_id():      # a trial's end is otto_trial's card, not this one
             continue
         key = f"expired:{p['requested']}:{p['until']}"
         if b.get("plan_notice") == key:
@@ -723,15 +796,22 @@ def plan_view(d, bid, today=None):
         inc.append(f"{L['reels_per_month']} reels a month" if L.get("reels_per_month") is not None else "Reels")
     if f.get("competitor_sweep"):
         inc.append(f"{str(f['competitor_sweep']).capitalize()} competitor sweep")
-    if f.get("telegram"):
-        inc.append("Approvals in Telegram")
-    if f.get("reports"):
-        inc.append("Morning report and weekly insights")
+    b = brand(d, bid) or {}
+    chans = approval_channels(b)
+    tele = bool(f.get("telegram")) and "telegram" in chans     # the plan allows Telegram and the brand approves there
+    if f.get("organic"):                                      # approvals: how this brand's posts reach it (brands[].approvals)
+        how = [w for w, on in (("by e-mail", "email" in chans), ("in Telegram", tele)) if on]
+        inc.append("Approvals " + (" and ".join(how) if how else "in the app"))
+    if f.get("reports"):                                      # the 07:35 morning report is a Telegram message
+        inc.append("Weekly insights" + (" and the 07:35 morning report in Telegram" if tele else ""))
     nets = " and ".join(n for n, k in (("Meta", "ads_meta"), ("Google", "ads_google")) if f.get(k))
     if nets:
         cap, ov = L.get("ad_spend_managed_eur_month"), p.get("overage")
-        inc.append(f"Paid campaigns on {nets}" + (f", ad spend up to €{cap:,.0f} a month" if cap else "")
-                   + (f" (above €{ov['above_eur_month']:,.0f}: {ov['pct']:g}% of the excess)" if ov else ""))
+        if f.get("ads_launch") is False:
+            inc.append(f"Paid campaigns on {nets} planned and previewed (they launch once a card is on file)")
+        else:
+            inc.append(f"Paid campaigns on {nets}" + (f", ad spend up to €{cap:,.0f} a month" if cap else "")
+                       + (f" (above €{ov['above_eur_month']:,.0f}: {ov['pct']:g}% of the excess)" if ov else ""))
     if f.get("ad_matrix") and PRESET_TEXT.get(L.get("ad_matrix_preset")):
         inc.append(f"Monthly ad matrix: {PRESET_TEXT[L['ad_matrix_preset']]}")
     if f.get("video_ads"):
@@ -750,7 +830,6 @@ def plan_view(d, bid, today=None):
         if ov and u["ad_budget_eur"] > ov["above_eur_month"]:
             overage = {"above_eur": ov["above_eur_month"], "pct": ov["pct"], "excess_eur": round(u["ad_budget_eur"] - ov["above_eur_month"], 2),
                        "fee_eur": round((u["ad_budget_eur"] - ov["above_eur_month"]) * ov["pct"] / 100, 2)}
-    b = brand(d, bid) or {}
     band = (b["ad_band"] if isinstance(b.get("ad_band"), dict) else {}).get(u["month"])
     band = band if isinstance(band, dict) else None
     up = plans_config()["plans"].get(p.get("upgrade_to") or "") or {}
@@ -759,6 +838,18 @@ def plan_view(d, bid, today=None):
             "limits": dict(L), "features": dict(f), "usage": usage, "month": u["month"], "config_error": p["config_error"],
             "overage": overage, "band": band, "not_billed": b.get("plan_billing") == "not_billed",
             "upgrade_to": p.get("upgrade_to"), "upgrade_label": up.get("label")}
+
+
+def approval_channels(b):
+    """otto_email.approval_channels (the push channels of brands[].approvals; [] = the app only), without the import cost
+    when otto_email cannot load."""
+    try:
+        import otto_email
+        return otto_email.approval_channels(b)
+    except Exception:                                         # noqa: BLE001 — a plan view never fails over it
+        raw = (b or {}).get("approvals", "telegram")
+        raw = raw if isinstance(raw, list) else [raw]
+        return [c for c in ("email", "telegram") if c in {str(x).strip().lower() for x in raw}]
 
 
 def can_transition(kind, cur, new):
@@ -893,6 +984,7 @@ COUNTRY_TZ = {"DE": "Europe/Berlin", "AT": "Europe/Vienna", "CH": "Europe/Zurich
               "CZ": "Europe/Prague", "GR": "Europe/Athens", "US": "America/New_York"}
 COUNTRY_CURRENCY = {"IL": "ILS", "GB": "GBP", "CH": "CHF", "PL": "PLN", "HU": "HUF", "RO": "RON", "DK": "DKK", "SE": "SEK",
                     "NO": "NOK", "CZ": "CZK", "US": "USD"}
+CURRENCY_COUNTRY = {cur: cc for cc, cur in COUNTRY_CURRENCY.items()}     # a price in USD says US; EUR says nothing
 LANG_COUNTRY = {"de": "DE", "he": "IL", "pt": "PT", "nl": "NL", "it": "IT", "fr": "FR", "es": "ES", "pl": "PL", "hu": "HU", "ro": "RO"}
 
 
@@ -996,7 +1088,7 @@ def main():
         print(f'{pid} updated: {", ".join(fields)}')
     elif args[0] == "brand-add":
         opts = {}
-        for k in ("--tz", "--countries", "--currency", "--plan"):
+        for k in ("--tz", "--countries", "--currency", "--plan", "--approvals"):
             if k in args:
                 i = args.index(k)
                 opts[k] = args[i + 1]
@@ -1011,7 +1103,7 @@ def main():
         plan_id = opts.get("--plan") or plan_id
         assert plan_id in plans_config()["plans"], f"unknown plan {plan_id} ({plans_config().get('error') or 'see plans.json'})"
         b = {"id": bid, "name": name, "url": url, "lang": lang, "tz": tz, "status": "onboarding", "pillars": pillars, "compliance": "",
-             "plan": plan_id}
+             "plan": plan_id, "approvals": opts.get("--approvals") or "email"}   # EU default; Telegram is opt-in
         if billing and "--plan" not in opts:
             b["plan_billing"] = billing                  # not billed yet: no Whop plan sells it; a Whop link clears it
         if countries:

@@ -1,0 +1,47 @@
+{
+  "id": "nl-a4-versus",
+  "style": "versus",
+  "formats": [
+    "9x16"
+  ],
+  "music": {
+    "bpm": 120,
+    "mood": "calm",
+    "key": "F"
+  },
+  "scene": {
+    "ground": "bg"
+  },
+  "versus": {
+    "vs": "vs",
+    "left": {
+      "label": "Zelf doen",
+      "rows": [
+        "’s Avonds posten",
+        "Gokken met advertenties",
+        "Geen tijd voor reels"
+      ]
+    },
+    "right": {
+      "label": "Met Otto",
+      "image": "month",
+      "rows": [
+        "Maand gepland",
+        "Rapport om 07:35",
+        "Reels, klaar"
+      ]
+    },
+    "footer": "Jij tikt op goedkeuren."
+  },
+  "endcard": {
+    "headline": "Je maand staat klaar.",
+    "accent": "klaar.",
+    "sub": "Posts, stories en reels, vooruit gepland.",
+    "fine": "7 dagen gratis proberen, geen creditcard nodig.",
+    "products": [
+      "month"
+    ],
+    "logo": "logo_white",
+    "ground": "night"
+  }
+}

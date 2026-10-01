@@ -1,0 +1,47 @@
+{
+  "id": "ie-a1-versus",
+  "style": "versus",
+  "formats": [
+    "9x16"
+  ],
+  "music": {
+    "bpm": 120,
+    "mood": "calm",
+    "key": "F"
+  },
+  "scene": {
+    "ground": "bg"
+  },
+  "versus": {
+    "vs": "vs",
+    "left": {
+      "label": "DIY reel",
+      "rows": [
+        "Film it",
+        "Cut it",
+        "Caption it"
+      ]
+    },
+    "right": {
+      "label": "Otto",
+      "image": "review_ie",
+      "rows": [
+        "From your site",
+        "Ready to go",
+        "You approve"
+      ]
+    },
+    "footer": "You tap. Otto does the rest."
+  },
+  "endcard": {
+    "headline": "Your website, as a reel.",
+    "accent": "as a reel.",
+    "sub": "Otto makes reels from what's already on your site.",
+    "fine": "Try it free for 7 days, no card needed.",
+    "products": [
+      "review_ie"
+    ],
+    "logo": "logo_white",
+    "ground": "night"
+  }
+}

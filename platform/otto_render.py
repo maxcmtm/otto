@@ -564,6 +564,7 @@ BRAND_SANS = {
     "Onest": ("Onest:wght@400..900", 800), "Instrument Sans": ("Instrument+Sans:wght@400..700", 700),
     "Syne": ("Syne:wght@400..800", 800), "Unbounded": ("Unbounded:wght@400..900", 800),
     "Bricolage Grotesque": ("Bricolage+Grotesque:wght@400..800", 800),
+    "Mona Sans": ("Mona+Sans:wght@400..800", 800),
 }
 FONT_SPECS.update({k: v[0] for k, v in BRAND_SANS.items()})
 _SANS_KEY = {k.replace(" ", "").lower(): k for k in BRAND_SANS}
@@ -1196,7 +1197,7 @@ var r=document.createRange();r.selectNodeContents(n);[].forEach.call(r.getClient
 var x=s.slice(0,40);if(b.left<-1||b.top<-1||b.right>W+1||b.bottom>H+1){if(o.offcanvas.indexOf(x)<0)o.offcanvas.push(x);}
 else if(story&&(b.top<H*.125||b.bottom>H*.65)&&!p.closest('.photo,.pic')){if(o.unsafe.indexOf(x)<0)o.unsafe.push(x);}});}
 o.low_contrast=lowc();var pr=document.createElement('pre');pr.id='otto-report';pr.hidden=true;pr.textContent=JSON.stringify(o);document.body.appendChild(pr);}
-function rgba(c){var m=/rgba?\(([^)]+)\)/.exec(c||'');if(!m)return null;var p=m[1].split(/[ ,\/]+/).filter(Boolean).map(parseFloat);
+function rgba(c){var m=/rgba?\\(([^)]+)\\)/.exec(c||'');if(!m)return null;var p=m[1].split(/[ ,\\/]+/).filter(Boolean).map(parseFloat);
 return [p[0],p[1],p[2],p.length>3?p[3]:1];}
 function lum(c){var f=function(v){v/=255;return v<=.03928?v/12.92:Math.pow((v+.055)/1.055,2.4);};return .2126*f(c[0])+.7152*f(c[1])+.0722*f(c[2]);}
 function over(a,b){return [0,1,2].map(function(i){return a[i]*a[3]+b[i]*(1-a[3]);}).concat([1]);}
@@ -1208,8 +1209,8 @@ var cx=r.left+r.width/2,cy=r.top+r.height/2;
 if([].some.call(document.images,function(im){if(im.closest('.holder')||p.contains(im))return false;var b=im.getBoundingClientRect(),v=getComputedStyle(im);
 return v.visibility!=='hidden'&&v.display!=='none'&&b.width>40&&cx>b.left&&cx<b.right&&cy>b.top&&cy<b.bottom;}))continue;
 while(e&&e.nodeType===1){var st=getComputedStyle(e);op*=parseFloat(st.opacity);var bi=st.backgroundImage||'none';
-if(bi!=='none'&&!/gradient\(/.test(bi)){bg='img';break;}
-var b=rgba(st.backgroundColor);if(!(b&&b[3]>0)&&bi!=='none'){b=rgba((/rgba?\([^)]*\)/.exec(bi)||[''])[0]);}
+if(bi!=='none'&&!/gradient\\(/.test(bi)){bg='img';break;}
+var b=rgba(st.backgroundColor);if(!(b&&b[3]>0)&&bi!=='none'){b=rgba((/rgba?\\([^)]*\\)/.exec(bi)||[''])[0]);}
 if(b&&b[3]>0){stack.push(b);if(b[3]>=.99)break;}e=e.parentElement;}
 if(bg==='img'||!stack.length)continue;var base=[255,255,255,1];for(var i=stack.length-1;i>=0;i--)base=over(stack[i],base);
 var f=over([fg[0],fg[1],fg[2],fg[3]*op],base),L1=lum(f),L2=lum(base),ratio=(Math.max(L1,L2)+.05)/(Math.min(L1,L2)+.05);
@@ -1261,12 +1262,6 @@ def _sentences(text, lo=15, hi=140):
     parts = re.split(r"(?<=[.!?])\s+|\n+", text or "")
     return [s.strip() for s in parts if lo <= len(s.strip()) <= hi and not s.strip().startswith("#")
             and not DSHEA_LINE.match(s.strip())]                  # the FDA disclaimer is never display copy
-
-
-def _post_image(ref):
-    if not ref:
-        return ""
-    return resolve_asset(ref)
 
 
 def _campaign_photo(c, i):

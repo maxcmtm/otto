@@ -441,6 +441,8 @@ systemctl enable --now otto-backup.timer otto-cloudflare-ips.timer >/dev/null 2>
 # ------------------------------------------------------------------ what is left for a human
 [[ -s /etc/otto/secrets/telegram.json ]] ||
 	todo "Telegram (approvals + alerts): create /etc/otto/secrets/telegram.json = {\"bot_token\": \"…\", \"owner_chat_id\": \"…\"} (owner otto, mode 600), then: systemctl start otto-telegram && otto alert-test"
+[[ -s /etc/otto/secrets/google-oauth.json ]] ||
+	todo "Google sign-in for clients (app.$OTTO_DOMAIN): create a Google OAuth client (Web application, redirect URI https://app.$OTTO_DOMAIN/auth/google/callback; docs/AUTH-AND-TRIAL.md), save {\"client_id\": \"…\", \"client_secret\": \"…\"} as /etc/otto/secrets/google-oauth.json (owner otto, mode 600), then: systemctl restart otto-api"
 [[ -s /etc/otto/backup.pub && -n ${OTTO_BACKUP_REMOTE:-} && -s ${RCLONE_CONFIG:-/nonexistent} ]] ||
 	todo "Backups: age public key → /etc/otto/backup.pub; rclone remote → /etc/otto/secrets/rclone.conf; OTTO_BACKUP_REMOTE in $ENVF; then: otto backup (infra/README.md → Backups)"
 

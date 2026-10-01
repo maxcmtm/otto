@@ -307,29 +307,28 @@ def handle_rec(cq, rid, action):
             snapshot = dict(r)
     except Skip as e:
         api("answerCallbackQuery", callback_query_id=cq["id"], text=str(e)); return
-    result = None
+    result = failed = None
     if new == "approved":
         try:
             result = run_rec_action(snapshot)
         except Exception as e:
-            result = None
+            result, failed = None, f"{type(e).__name__}: {e}"
             print(f"rec action {rid} failed: {e}")
             with ap.transaction() as d:
-                q = ap.rec(d, rid)
-                if q is not None:
-                    q["action_error"] = str(e)[:300]
+                ap.rec_action_failed(d, snapshot, failed, "in Telegram")
         if result:
             with ap.transaction() as d:
                 q = ap.rec(d, rid)
                 if q is not None:
                     q["action_result"] = result; q["status"] = "done"
     if new == "approved":
-        answer = "✅ Approved — on it" if result else "✅ Approved"
+        answer = "✅ Approved — on it" if result else "✅ Approved, not started yet — the team is on it" if failed else "✅ Approved"
     else:
         answer = "Dismissed"
     api("answerCallbackQuery", callback_query_id=cq["id"], text=answer)
     api("editMessageReplyMarkup", chat_id=chat, message_id=cq["message"]["message_id"], reply_markup={"inline_keyboard": []})
-    tail = ("\n\n✅ Approved" + (f" — {result}" if result else "")) if new == "approved" else "\n\n— Not now"
+    tail = ("\n\n✅ Approved" + (f" — {result}" if result else " — not started yet: it failed, the team has been told" if failed else "")) \
+        if new == "approved" else "\n\n— Not now"
     api("editMessageText", chat_id=chat, message_id=cq["message"]["message_id"], text=(cq["message"].get("text", "") + tail)[:4000])
 
 

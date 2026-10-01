@@ -1,0 +1,39 @@
+{
+  "name": "Otto",
+  "slug": "otto",
+  "site": "",
+  "assetRoot": "../assets",
+  "fonts": {
+    "brand": {
+      "file": "mona-sans-latin.woff2",
+      "weight": "400 800",
+      "tracking": "-0.03em"
+    },
+    "ui": null
+  },
+  "colors": {
+    "bg": "#F5F7FB",
+    "surface": "#FFFFFF",
+    "ink": "#10182B",
+    "muted": "#5B6478",
+    "line": "rgba(16, 24, 43, 0.12)",
+    "primary": "#2447F0",
+    "primaryDeep": "#1631B8",
+    "onPrimary": "#FFFFFF",
+    "accent": "#C9D4FF",
+    "onAccent": "#10182B",
+    "night": "#10182B",
+    "neutral": "#EEF1F6",
+    "wash": "#EDF1FF"
+  },
+  "assets": {
+    "pack": "otto-phone-report-cutout.png",
+    "hero": "otto-phone-report-cutout.png",
+    "month": "otto-phone-month-cutout.png",
+    "review_nl": "otto-phone-review-nl-cutout.png",
+    "review_ie": "otto-phone-review-ie-cutout.png",
+    "logo": "../logo.svg",
+    "logo_white": "../logo-white.svg"
+  },
+  "legal": {}
+}
