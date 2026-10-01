@@ -983,7 +983,7 @@ def build(d, events, billing, overlay, sysinfo, now=None, window=30, sample=Fals
         "kill_switch": ks or None,
         "kpis": kpis,
         "funnel": {"steps": fsteps, "by_day": by_day, "by_week": by_week},
-        "trials": trials_block(d, now, win_start, total("visitors", win_days), sum(scans_by_day[x] for x in win_days)),
+        "trials": trials_block(d, now, win_start, total("visitors", win_days), total("scanned", win_days)),   # people, as in the funnel
         "traffic": traffic,
         "leads": leads_out,
         "revenue": revenue,

@@ -40,7 +40,11 @@ PAGE_KEYS = ["about", "story", "team", "product", "shop", "collection", "service
 SKIP_TAGS = {"script", "style", "noscript", "svg", "template", "iframe"}
 GENERIC_FONTS = {"inherit", "initial", "sans-serif", "serif", "monospace", "system-ui", "-apple-system",
                  "blinkmacsystemfont", "segoe ui", "roboto", "helvetica neue", "helvetica", "arial",
-                 "ui-sans-serif", "ui-serif", "cursive", "fantasy", "var(--font-sans)", "unset"}
+                 "ui-sans-serif", "ui-serif", "ui-monospace", "ui-rounded", "cursive", "fantasy", "emoji", "math", "fangsong",
+                 "var(--font-sans)", "unset", "revert", "sfmono-regular", "menlo", "consolas", "courier new", "courier",
+                 "apple color emoji", "segoe ui emoji", "segoe ui symbol", "noto color emoji"}
+# icon fonts (glyphs, not a typeface the brand writes in): Font Awesome, Material Icons / Symbols, "HemaSvgIcons", icomoon …
+ICON_FONT = re.compile(r"icon|awesome|material.?symbols|glyph|dashicons|fontello|ionic|feather|remixicon|bootstrap.?icons", re.I)
 TRUST_WORDS = ["gmp", "iso 9001", "iso ", "fda", "lab tested", "lab-tested", "third-party", "third party",
                "certified", "certificate", "guarantee", "money-back", "money back", "free shipping",
                "kostenloser versand", "משלוח חינם", "secure checkout", "ssl", "since 19", "since 20",
@@ -502,14 +506,15 @@ def fonts_from(css_texts, links):
     for t in css_texts:
         for fam in re.findall(r"font-family\s*:\s*([^;}]+)", t, re.I):
             first = fam.split(",")[0].strip().strip("'\"").strip()
-            if first and first.lower() not in GENERIC_FONTS and not first.startswith("var(") and len(first) < 40:
+            if first and first.lower() not in GENERIC_FONTS and not first.startswith("var(") and len(first) < 40 \
+                    and not ICON_FONT.search(first):
                 c[first] += 1
     for href, *_ in links:
         if "fonts.googleapis.com" in href:
             for group in re.findall(r"family=([^&]+)", urllib.parse.unquote(href)):
                 for fam in group.split("|"):
                     name = fam.split(":")[0].replace("+", " ").strip()
-                    if name:
+                    if name and not ICON_FONT.search(name):
                         c[name] += 5
     out = [pretty_font(f) for f, _ in c.most_common(8) if "fallback" not in f.lower()]
     return [f for f in out if FONT_NAME.fullmatch(f)][:5]           # a family name, never CSS or markup from the page
