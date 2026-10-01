@@ -3,7 +3,8 @@
   1. approving a suggestion in the app runs its action (the monthly paid plan → otto_ads.approve) like e-mail and Telegram do
      — tenant-checked, same transitions, a failure → the owner's P0 card and an honest error to the app;
   2. the plan's "what's included" follows the brand's approvals channel (e-mail / Telegram / app);
-  3. no owner-console setup text talks about nginx or /otto-api/whop (Caddy + Cloudflare, /hooks/whop);
+  3. no owner-console setup text talks about nginx or /otto-api/whop (Caddy + Cloudflare: /hooks/stripe, legacy /hooks/whop),
+     and nothing a client sees offers a Whop checkout any more (Stripe on Otto's own Billing page);
   4. the first review is 08:00 (the approval cards / e-mails), worded for the brand's channel;
   5. no retention / notice field of a brand reaches a client;
   6. the owner's full /otto-api/data applies the installed-credentials overlay on connections;
@@ -141,8 +142,9 @@ class Fixes(unittest.TestCase):
         inc = lambda approvals: (ap.brand(d, "alpha").update(approvals=approvals), ap.plan_view(d, "alpha")["included"])[1]
         e = inc("email")
         self.assertIn("Approvals by e-mail", e)
-        self.assertIn("Weekly insights", e)
+        self.assertIn("Weekly insights and the 07:35 morning report by e-mail", e, "e-mail clients get the 07:35 report too")
         self.assertFalse(any("Telegram" in x for x in e), e)
+        self.assertIn("Weekly insights", inc("app"), "the app only: nothing is pushed")
         t = inc("telegram")
         self.assertIn("Approvals in Telegram", t)
         self.assertIn("Weekly insights and the 07:35 morning report in Telegram", t)
@@ -155,20 +157,26 @@ class Fixes(unittest.TestCase):
         blob = json.dumps(otto_admin.build(ap.load(), [], {}, {}, {})["setup"])
         self.assertNotIn("nginx", blob)
         self.assertNotIn("/otto-api/whop", blob)
-        self.assertIn("/hooks/whop", blob)
+        self.assertIn("/hooks/stripe", blob)
+        self.assertIn("/hooks/whop", blob, "the legacy founders' webhook is still documented")
+        for page in ("index.html", "landing.html", "onboarding.html", "billing.html"):
+            self.assertNotIn("whop.com", (PLATFORM / page).read_text(), f"{page} still sends someone to Whop")
         self.assertIn("CF-IPCountry", blob)
 
-    def test_4_first_review_is_08_00_worded_for_the_channel(self):
+    def test_4_first_review_is_worded_and_timed_for_the_channel(self):
         from datetime import datetime
         from zoneinfo import ZoneInfo
         tz = ZoneInfo("Europe/Amsterdam")
         self.assertEqual(otto_onboard.first_review_at(tz, datetime(2031, 1, 6, 9, 0, tzinfo=tz)).strftime("%a %H:%M"), "Tue 08:00")
-        for appr, words in (("email", "by e-mail at 08:00"), ("telegram", "after the 07:35 morning report"), ("app", "Review from 08:00")):
+        self.assertEqual(otto_onboard.first_review_at(tz, datetime(2031, 1, 6, 9, 0, tzinfo=tz), "email").strftime("%a %H:%M"), "Tue 07:35")
+        # e-mail and Telegram approvals come with the 07:35 morning report; the app's Review fills at 08:00
+        for appr, words, at in (("email", "by e-mail in the 07:35 morning report", "07:35"),
+                                ("telegram", "after the 07:35 morning report", "07:35"), ("app", "Review from 08:00", "08:00")):
             with contextlib.redirect_stdout(io.StringIO()):
                 res = otto_onboard.create(f"{appr}-shop.example", {"approvals": appr}, dry=True, scan=False)
             step = next(s for s in res["next_steps"] if s["id"] == "first_review")
             self.assertIn(words, step["detail"], appr)
-            self.assertTrue(step["when"][11:16] == "08:00", step["when"])
+            self.assertTrue(step["when"][11:16] == at, step["when"])
             self.assertNotIn("with the morning report", step["detail"])
 
     def test_5_no_retention_or_notice_field_reaches_a_client(self):

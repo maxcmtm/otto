@@ -90,7 +90,7 @@ put() {   # atomic copy: $1 src → $2 dst (0644)
 publish_pages() {
 	local p=$REPO/platform f tmp
 	mkdir -p "$WEB/site" "$WEB/app" "$WEB/admin" "$WEB/static/assets" || return 1
-	# apex: landing + onboarding (a buyer arrives from the Whop redirect before having a login)
+	# apex: landing + onboarding (the public onboarding, before having a login)
 	put "$p/landing.html" "$WEB/site/index.html" || return 1
 	put "$p/onboarding.html" "$WEB/site/onboarding.html" || return 1
 	# legal pages (tools/legal.py renders them from docs/legal/*.md): /legal/*.html on the apex, and on app. because
@@ -107,7 +107,7 @@ publish_pages() {
 	cp "$p/index.html" "$tmp" &&
 		(cd "$p" && OTTO_HTML="$tmp" OTTO_FALLBACK=neutral python3 ap.py sync-fallback >/dev/null) &&
 		chmod 0644 "$tmp" && mv -f "$tmp" "$WEB/app/index.html" || { rm -f "$tmp"; return 1; }
-	for f in onboarding.html approve.html ads.html analytics.html; do
+	for f in onboarding.html billing.html approve.html ads.html analytics.html; do
 		if [[ -f $p/$f ]]; then put "$p/$f" "$WEB/app/$f" || return 1; fi
 	done
 	# admin.: the owner console (its bundled sample is invented businesses on .example domains)

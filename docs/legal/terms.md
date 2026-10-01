@@ -20,7 +20,7 @@ These terms are the contract between [COMPANY LEGAL NAME] ("Otto", "we", "us") a
 
 ## 1. Who these terms are for
 
-1.1 Otto is a service for businesses. By buying Otto or setting it up, you confirm that you act in the course of a trade, business or profession, and that you have authority to accept these terms for that business. Otto is not offered to consumers. [REVIEW: is this exclusion effective in NL (Book 6 and 7 BW) and IE (Consumer Rights Act 2022) when the Whop checkout is open to anyone? Should we require a VAT ID or company number at checkout as evidence?]
+1.1 Otto is a service for businesses. By buying Otto or setting it up, you confirm that you act in the course of a trade, business or profession, and that you have authority to accept these terms for that business. Otto is not offered to consumers. [REVIEW: is this exclusion effective in NL (Book 6 and 7 BW) and IE (Consumer Rights Act 2022) when the checkout is open to anyone? The checkout asks for a billing address and offers a VAT ID field and says Otto is for businesses; should the VAT ID be required (Stripe can require it where it is supported)?]
 
 1.2 These terms consist of this document, the [Data Processing Agreement](dpa.html) (which is part of the contract), and the description of your plan on our pricing page when you bought it. If the DPA and these terms conflict on personal data, the DPA wins. Our [Privacy Policy](privacy.html), [Cookie notice](cookies.html) and [AI transparency statement](ai.html) explain how we work; they are information, not contract terms.
 
@@ -45,7 +45,7 @@ These terms are the contract between [COMPANY LEGAL NAME] ("Otto", "we", "us") a
 
 ## 3. Your account
 
-3.1 You sign in to the Otto app with your Google account ("Sign in with Google"). You start with the free trial in sections 8.7 to 8.12, or buy a plan through Whop, and set Otto up with your website address and a few answers. You decide which e-mail addresses may use your brand in Otto, you are responsible for what they do there, and you remove people who should no longer have access.
+3.1 You sign in to the Otto app with your Google account ("Sign in with Google"). You start with the free trial in sections 8.7 to 8.12, or buy a plan on the Billing page in the app, and set Otto up with your website address and a few answers. You decide which e-mail addresses may use your brand in Otto, you are responsible for what they do there, and you remove people who should no longer have access.
 
 3.2 Set Otto up only for a website, a business and social accounts that you own or are authorised to manage. On the Agency plan you confirm that you have your clients' authority, and you are responsible for your clients' use of Otto as if it were your own.
 
@@ -75,7 +75,7 @@ These terms are the contract between [COMPANY LEGAL NAME] ("Otto", "we", "us") a
 
 5.4 You keep your ad accounts in good standing: verified, with a valid payment method, and in line with Meta's and Google's terms and advertising policies. The platforms may reject ads, restrict accounts or limit some categories (for example health and wellness). We tell you when we see that happen. Otto does not run political, electoral or social-issue ads.
 
-5.5 Each plan includes managing ad spend up to a monthly band. In the first month your planned spend is above the band, Otto still plans the full budget and tells you. If it is above the band two months in a row, Otto plans up to the band and offers you the next plan. On Scale there is no band: above €15,000 of ad spend in a month we charge 2% of the spend above €15,000. We show that fee in the app before we charge it. [DECISION: how the Scale overage is billed (a Whop charge or an invoice). Today the engine computes it and never charges it automatically.]
+5.5 Each plan includes managing ad spend up to a monthly band. In the first month your planned spend is above the band, Otto still plans the full budget and tells you. If it is above the band two months in a row, Otto plans up to the band and offers you the next plan. On Scale there is no band: above €15,000 of ad spend in a month we charge 2% of the spend above €15,000. We show that fee in the app before we charge it. [DECISION: how the Scale overage is billed (an extra item on the next Stripe invoice, or a separate invoice). Today the engine computes it and never charges it automatically.]
 
 5.6 Otto pauses a campaign when a limit you set is reached (for example your cost per lead), when its planned dates end, when your plan no longer includes paid ads, when your subscription ends, or when we use the pause in section 13. A pause can fail on the platform's side. When that happens we tell you straight away, so you can pause the campaign yourself in your account.
 
@@ -119,13 +119,15 @@ These terms are the contract between [COMPANY LEGAL NAME] ("Otto", "we", "us") a
 
 8.1 Prices are in euro and exclude VAT. The price that applies is the one on our pricing page when you buy.
 
-8.2 We sell through Whop (whop.com). Whop processes your payment and its name appears on your card statement. Under Whop's seller terms, Whop is the merchant of record only for card-network rules and payment settlement, and, where its "collect and remit" tax service is on, for VAT on sales in the EU and the UK. We remain the supplier of Otto and are responsible for the service, support and refunds. Whop's own terms and privacy policy apply to the checkout. [VERIFY with Whop before launch: how B2B reverse charge works for EU customers with a valid VAT ID, and what the invoice says. See research/EU-LAUNCH-AND-PRICING-2026-09.md §6.3 and §9.]
+8.2 We sell Otto ourselves: we are the seller, and the contract and every invoice are between you and us. You pay on the Billing page in the Otto app. Stripe Payments Europe, Ltd. ("Stripe") processes the payment for us as our payment service provider; the payment form is Stripe's and runs inside our page, so your card or bank details go to Stripe and never to us. You can pay by card, SEPA Direct Debit, iDEAL or Bancontact (iDEAL and Bancontact set up a SEPA Direct Debit mandate for the renewals). Our name appears on your card or bank statement. [VERIFY before launch: the statement descriptor set in Stripe, and that every method listed here is switched on.]
+
+8.2a VAT. Prices exclude VAT. We add VAT where it is due, worked out by Stripe Tax from your billing address and VAT ID. If you are a business in another EU country than ours and give a valid VAT ID at checkout (or later on the Billing page), the reverse charge applies: we charge no VAT and you account for it. If you are in [OUR COUNTRY OF ESTABLISHMENT], we charge local VAT. You confirm that the VAT ID and address you give are correct and yours. [VERIFY with the accountant: our VAT registration, the reverse-charge wording on invoices, and the treatment of Irish customers. See research/EU-LAUNCH-AND-PRICING-2026-09.md §6.3, §9 and the 1 Oct 2026 decision.]
 
 8.3 Subscriptions are paid in advance and renew automatically at the end of each month or year until you cancel.
 
-8.4 You receive a receipt for every payment. [DECISION: who issues the VAT invoice (Whop or us), and in which format, so that reverse-charge invoices are correct.]
+8.4 We issue a VAT invoice for every payment, generated in our name through Stripe Invoicing, and e-mail you a receipt. You find every invoice (online and as a PDF) on the Billing page. [DECISION: invoice numbering series and the legal details printed on invoices (company name, address, KvK / CRO number, VAT number) — set in Stripe before launch.]
 
-8.5 If a payment fails, Whop tries again. If it is still unpaid [7] days after it was due, we pause publishing and new campaigns for your brand and pause your live campaigns. Nothing is deleted, and everything resumes once you have paid.
+8.5 If a payment fails, we tell you in the app and by e-mail, and our payment service provider tries again over the next [2] weeks; you can update your payment method on the Billing page at any time, and we then retry at once. Otto keeps working while we retry. If the payment still fails after the last attempt, your subscription ends: we pause publishing and new campaigns for your brand and pause your live campaigns (section 10.3). Nothing is deleted, and everything resumes once you subscribe again. [DECISION: the retry schedule in Stripe (Smart Retries, up to 2 weeks) and "cancel the subscription" after the last retry.]
 
 8.6 We tell you at least 30 days before a price change applies to you. It applies from your first renewal after those 30 days, and you can cancel before then.
 
@@ -139,23 +141,23 @@ These terms are the contract between [COMPANY LEGAL NAME] ("Otto", "we", "us") a
 
 8.10 When the trial ends without a plan, Otto stops publishing and making new content for your brand; posts already published stay on your accounts. We keep your brand's data for 90 days after the end of the trial so you can continue where you left off, and then delete it as described in section 17.3. We e-mail you 2 days before the end, on the last day, and when it has ended.
 
-8.11 We never charge you when the trial ends: we have no card to charge. To continue, you choose a plan and pay through Whop yourself; your subscription starts on that day (section 8.3). Use the e-mail address you sign in with at checkout, so that we can match your payment to your account.
+8.11 If you do not choose a plan, nothing is charged when the trial ends: we have no payment details. If you choose a plan and add a payment method while the trial is still running, your subscription starts when the trial ends and your first payment is taken then, never before; you can cancel on the Billing page until then and nothing is charged. If you choose a plan after the trial, your subscription starts and is paid on that day (section 8.3).
 
 8.12 The trial is free, so nothing is refunded for it. The money-back guarantee in section 9 applies to your first payment after it. [REVIEW: a trial can be started with a private Google account. Does the business-only statement in section 1.1, confirmed at sign-up, still hold for the trial in NL and IE?]
 
 ## 9. Money-back guarantee
 
-9.1 If Otto is not right for you, ask for a refund within 14 days of your first payment and we refund that payment in full. You do not need to give a reason.
+9.1 If Otto is not right for you, ask for a refund within 14 days of your first payment and we refund that payment in full. You do not need to give a reason. When you chose a plan during the free trial, your first payment is the one taken when the trial ends, and the 14 days count from then.
 
 9.2 The guarantee applies once per business, to the first payment for your first plan, monthly or yearly. It does not apply to renewals, add-ons, upgrades or later plans. [DECISION: does it also apply to the €197 founding seat? This draft assumes yes.]
 
-9.3 To ask for a refund, e-mail [CONTACT EMAIL] or use the refund request in Whop. We send the refund through Whop to the payment method you used, normally within [10] business days.
+9.3 To ask for a refund, e-mail [CONTACT EMAIL]. We refund through our payment service provider to the payment method you used, normally within [10] business days, and send you a credit note.
 
 9.4 After a refund your plan ends at once: publishing stops and live campaigns are paused. Posts already published stay on your accounts and remain yours. Money you paid to Meta or Google for ads is outside our control and cannot be refunded by us.
 
 ## 10. Cancelling
 
-10.1 You can cancel at any time in Whop (your membership) or by e-mail to [CONTACT EMAIL]. The cancellation takes effect at the end of the period you have paid for, and Otto keeps working until then.
+10.1 You can cancel at any time on the Billing page in the app (Cancel subscription) or by e-mail to [CONTACT EMAIL]. The cancellation takes effect at the end of the period you have paid for, and Otto keeps working until then; until that date you can undo it on the same page. You change your plan on the Billing page too: a higher plan starts at once and you pay the difference for the rest of the period; a lower plan starts at the end of the period.
 
 10.2 Apart from the guarantee in section 9, or where the law requires it, we do not refund the rest of a period. [DECISION: any partial refund when a yearly plan is cancelled early? This draft says no.]
 

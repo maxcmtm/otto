@@ -11,9 +11,9 @@ The design is `docs/HOSTING.md`. This is how to set it up and run it. `otto.exam
 | Web server (Caddy; the config is `infra/Caddyfile`) | `otto.example` landing + public endpoints · `app.` client app · `admin.` owner console |
 | Services | `otto-api`, `otto-telegram`, one timer per engine job (`otto-job-*`), `otto-backup`, `otto-cloudflare-ips` |
 
-Jobs run on local clocks: a client's approval cards at 08:00 *its* time (`brands[].tz`), its visuals at 18:00, its paid report
-at 07:35, and so on; the owner's morning report, recommendation cards and growth ledger at the owner's time (`OTTO_OWNER_TZ`
-in otto.env). Summer/winter time needs nothing. The full table is in `platform/crons.md` (`otto jobs` on the server).
+Jobs run on local clocks: a client's morning report (with its approvals) at 07:35 *its* time (`brands[].tz`), its paid
+numbers at 07:15, its visuals at 18:00, and so on; the metrics snapshot, recommendation cards and growth ledger at the owner's
+time (`OTTO_OWNER_TZ` in otto.env). Summer/winter time needs nothing. The full table is in `platform/crons.md` (`otto jobs` on the server).
 
 Everything reaches the server through Cloudflare; the firewall only lets Cloudflare in on 80/443. Logins are Cloudflare
 Access (e-mail one-time code) — nobody shares a password, keys go straight into the accounts or onto the server.
@@ -43,7 +43,7 @@ Access (e-mail one-time code) — nobody shares a password, keys go straight int
    (`{"client_id": "…", "client_secret": "…"}`, owner otto, mode 600) → `systemctl restart otto-api`. Every click is in
    `docs/AUTH-AND-TRIAL.md`. Until then the app's sign-in says "Google sign-in isn't set up yet".
 7. Security → WAF → Rate limiting rules → one rule: when the host is `otto.example` and the path is one of `/otto-peek`,
-   `/otto-track`, `/otto-onboard`, `/otto-api/onboard`, `/hooks/whop`, `/otto-email/act` → 20 requests per 10 seconds per IP
+   `/otto-track`, `/otto-onboard`, `/otto-api/onboard`, `/hooks/stripe`, `/hooks/whop`, `/billing/offers`, `/otto-email/act` → 20 requests per 10 seconds per IP
    → Block.
    (The API has its own limits too; this stops floods before they reach the server.)
 
@@ -74,7 +74,8 @@ Access (e-mail one-time code) — nobody shares a password, keys go straight int
     At the end it prints what is still missing, plus the two values GitHub needs (`OTTO_HOST`, `OTTO_KNOWN_HOSTS`).
 12. Secrets (all JSON, owner otto, mode 600 — create each with `sudo -u otto nano /etc/otto/secrets/<file>`):
     `telegram.json` `{"bot_token": "…", "owner_chat_id": "…"}` · `leonardo.json` `{"api_key": "…"}` · `elevenlabs.json` ·
-    `whop.json` (docs/ADMIN.md) · `meta-<brand>.json` / `google-<brand>.json` per client (platform/crons.md) ·
+    `stripe.json` (payments: `{"secret_key", "publishable_key", "webhook_secrets": ["whsec_…"]}`, docs/BILLING.md; until it exists
+    every billing screen says "Payments aren't set up yet") · `whop.json` (legacy founders only, docs/ADMIN.md) · `meta-<brand>.json` / `google-<brand>.json` per client (platform/crons.md) ·
     `email.json` (approval e-mails, docs/ADMIN.md: `link_secret`, `from`, SMTP host/port/user/pass with STARTTLS, or
     `"provider": "postmark" | "resend"` + `api_key`; until it exists every approval e-mail is written to
     `/var/lib/otto/outbox/` and the console says so). Then
@@ -88,10 +89,14 @@ Access (e-mail one-time code) — nobody shares a password, keys go straight int
     `TELEGRAM_BOT_TOKEN` + `TELEGRAM_CHAT_ID`. Delete `otto-deploy` and `otto-deploy.pub` from your computer.
 15. Actions → deploy → Run workflow (or push to `main`). A green run and a Telegram message mean deploys work.
 
-**Whop**
+**Stripe** (payments; every step in docs/BILLING.md)
 
-16. Webhook URL: `https://otto.example/hooks/whop` (events and secret: docs/ADMIN.md). Checkout redirect after purchase:
-    `https://otto.example/onboarding.html?site={custom field if any}` — the buyer lands on onboarding before having a login.
+16. Stripe account in EUR (Payment methods: cards, SEPA Direct Debit, iDEAL, Bancontact; Stripe Tax; branding; prices into
+    `platform/plans.json` `stripe_price_ids`). Webhook endpoint `https://otto.example/hooks/stripe` with the events listed in
+    docs/BILLING.md; its signing secret and the keys go into `/etc/otto/secrets/stripe.json`, then `systemctl restart otto-api`
+    and owner console → Controls → *Check Stripe setup*. Clients pay on `https://app.otto.example/billing.html` (Stripe's form
+    embedded; nobody is sent to a Stripe page). The legacy Whop webhook (`https://otto.example/hooks/whop`, docs/ADMIN.md) stays
+    only for the founding seats sold on Whop; there is no Whop checkout any more.
 
 A new server starts with **publishing paused** (kill switch on). When all is ready: owner console → Kill switch → Resume,
 or `otto resume`.
@@ -112,7 +117,8 @@ or `otto resume`.
      may run per bot);
    - export again (step 3) and restore again with `--migrate` (brings over the last hours);
    - new box: `otto cutover` (timers + poller on), then resume publishing (owner console, or `otto resume`);
-   - Whop: change the webhook URL to `https://otto.example/hooks/whop`. Telegram needs nothing (Otto polls, no webhook).
+   - Stripe: create the webhook endpoint `https://otto.example/hooks/stripe` (docs/BILLING.md); legacy Whop: change its webhook
+     URL to `https://otto.example/hooks/whop`. Telegram needs nothing (Otto polls, no webhook).
 7. Leave the old box read-only for a week, then remove its Otto crons, nginx locations and `/srv/pulse/otto`.
 
 ## 3. Daily control
@@ -181,7 +187,8 @@ resume it. Lost the whole server: Hetzner → server → Backups → restore a s
   (the apex and `app.` never name a user: `app.` signs clients in with Google — a host-only `__Host-otto_sid` session cookie,
   `/var/lib/otto/sessions.json` keeps only SHA-256 hashes of the session ids); `X-Otto-Proxy-Key` = `OTTO_PROXY_KEY`, a random value bootstrap puts in both
   `/etc/otto/otto.env` and `/etc/otto/caddy.env` (the API believes a user name only next to it). `/otto-api/admin*` exists
-  only on `admin.`, the Whop webhook only on the apex (`/hooks/whop`). Never set `OTTO_SINGLE_TENANT`, `OTTO_FALLBACK=full`
+  only on `admin.`, the Stripe webhook (`/hooks/stripe`) and the legacy Whop webhook (`/hooks/whop`) only on the apex,
+  `/billing/*` (a Google session) only on `app.`, and `billing.html` is the only page allowed to load js.stripe.com. Never set `OTTO_SINGLE_TENANT`, `OTTO_FALLBACK=full`
   or `OTTO_ADMIN_USERS=*` here — those are for the old single-login box (section 7); bootstrap warns if it finds them.
 - **Owner console users**: `OTTO_ADMIN_USERS` in `/etc/otto/otto.env` (lower-case Access e-mails; then `systemctl restart otto-api`).
   A Google sign-in never opens the console; an address listed here that also signs in to `app.` with Google sees every brand

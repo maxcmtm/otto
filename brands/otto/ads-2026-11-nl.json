@@ -239,7 +239,7 @@
    "primaries": [
     "Om 07:35 krijg je één bericht: wat je advertenties gisteren kostten, wat ze opleverden en welke posts op je wachten. Goedkeuren doe je met één tik.",
     "Veel bureaus sturen je één keer per maand een pdf. Otto stuurt je elke ochtend om 07:35 één bericht. Lees het bij je koffie.",
-    "Loopt er iets terug, dan hoor je het binnen een uur, met een voorstel om het op te lossen. Jij beslist."
+    "Loopt er iets terug, dan staat het de volgende ochtend in je rapport. Jij beslist wat er gebeurt."
    ],
    "description": "Je marketing in één bericht",
    "cta": "LEARN_MORE",
@@ -403,7 +403,7 @@
         "label": "Als er iets terugloopt",
         "values": [
          "Vaak pas volgende maand",
-         "Binnen een uur"
+         "De volgende ochtend"
         ]
        },
        {
@@ -414,7 +414,7 @@
         ]
        }
       ],
-      "footnote": "Otto: rapport om 07:35, meldingen binnen een uur.",
+      "footnote": "Otto: elke ochtend om 07:35 een rapport.",
       "theme": "light"
      },
      "brief": "Tabel: het gebruikelijke maandrapport tegenover het ochtendbericht. Eerlijk, geen prijzen.",

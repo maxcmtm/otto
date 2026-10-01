@@ -35,6 +35,25 @@ Native barely advertises there: 2 of its 86 ads reached Germany, France, the Net
 Italy combined on 29.09 [O2][A9]. Ireland is where every part of Otto works as built (English, EUR), and where Native has
 already sold the category to owners.
 
+### Decision 1.10 (1 Oct 2026): Stripe instead of Whop
+
+Max: "I don't think it's smart to move the users to Whop … we build everything ourselves; I'll arrange Stripe as the payment
+processor." Every "Whop" in this report now reads **Stripe, with Otto as the seller**: clients pay inside Otto's own Billing
+page (Stripe's embedded form), manage plan, card, VAT ID and invoices there, and get invoices / receipts from Stripe in
+Otto's branding. Whop stays only for the founding seats already sold on it. Implementation and setup: `docs/BILLING.md`.
+
+| Per payment, EUR customer | Stripe card (EEA) | Stripe SEPA / iDEAL | Whop (§5.1, conservative) |
+|---|---|---|---|
+| Fees | 1.5 % + €0.25, + Billing 0.7 % + Tax 0.5 % [S1] | €0.35 / €0.29, + 1.2 % [S1][S2] | ≈ 7.2 % + €0.26 [W1] |
+| Growth €249 / month | €6.97 (2.8 %) | €3.34 (1.3 %) | €18.19 (7.3 %) |
+| Starter €99 / month | €2.92 (2.9 %) | €1.54 (1.6 %) | €7.39 (7.5 %) |
+
+Premium / business cards cost 2.8 % + €0.25 at Stripe (Growth: €10.21, 4.1 %). Net effect on §5: the payment line drops
+from about 7 % to about 2–4 % of revenue. What changes: Whop was merchant of record for EU / UK VAT; now Otto is the seller
+and Stripe Tax computes the VAT (B2B reverse charge with a valid VAT ID). The selling entity must be in a Stripe-supported
+country (Israel is not [S3]) — a decision for Max and the accountant before launch. §9's "ask Whop about reverse charge"
+becomes "confirm the reverse-charge invoice wording with the accountant".
+
 ---
 
 ## 2. Max's two options, answered
@@ -689,6 +708,9 @@ because the page blocked direct access.
 - [R22] UK DMCC subscriptions: https://www.legal500.com/intelligence/united-kingdom/consumer-protection/the-dmcca-subscription-contracts-the-timeline-just-got-shorter (14.09.2026) ; https://www.lewissilkin.com/en/insights/2026/04/02/consumer-law-update-subscriptions-regime-delayed-again-to-spring-2027-102mops
 
 **Payments and VAT**
+- [S1] Stripe pricing, Netherlands (accessed 01.10.2026): https://stripe.com/en-nl/pricing
+- [S2] Stripe local payment methods pricing (accessed 01.10.2026): https://stripe.com/en-nl/pricing/local-payment-methods
+- [S3] Stripe supported countries (accessed 01.10.2026): https://stripe.com/global
 - [W1] Whop fees: https://docs.whop.com/payments-and-billing/fees/fees
 - [W2] Whop Seller Terms (updated 14.07.2026): https://whop.com/seller-terms/
 - [W3] Whop taxes: https://docs.whop.com/payments-and-billing/fees/taxes

@@ -1,17 +1,18 @@
 #!/usr/bin/env python3
 """One client's whole life through the real modules, together — the integration test the per-module suites cannot be.
 
-A Dutch coffee roaster (koffiezon.nl) signs up on the public onboarding route, lands on Starter "not billed yet", pays for
-Growth on Whop (signed webhook) and is linked by the owner, gets its month planned inside the plan's limits, has a disease
+A Dutch coffee roaster (koffiezon.nl) signs up on the public onboarding route, lands on Starter "not billed yet", signs in
+with Google and pays for Growth on Otto's Billing page (Stripe Embedded Checkout against a fake Stripe, signed webhooks) and,
+paid before any brand was hers, is linked by the owner, gets its month planned inside the plan's limits, has a disease
 claim held by the NL / EU baselines, approves a post from the e-mail digest (GET shows, POST acts), is published through a
 fake Graph with an unguessable, AI-marked image, gets its paid month planned (matrix preset from the plan, Google because
 Growth has it), approves that plan from its e-mail and launches (one campaign, one ad set per angle), shows up in the owner
-console (plan usage, e-mail health, heartbeats), sits out the kill switch, is downgraded to Starter (Google pauses), cancels
-on Whop (plan none, everything pauses), gets the 14 / 3-day retention notices and is deleted 90 days later with an export —
+console (plan usage, e-mail health, heartbeats), sits out the kill switch, is downgraded to Starter (Google pauses), whose
+Stripe subscription ends after the failed retries (plan none, everything pauses), gets the 14 / 3-day retention notices and is deleted 90 days later with an export —
 while another client in the same data.json is never touched.
 
-Stdlib unittest; the only network is the 127.0.0.1 API server started here; Meta, Google, the scanner and the renderer are
-fakes; nothing outside a throwaway workspace (every OTTO_* path points into it, module-level paths are pinned).
+Stdlib unittest; the only network is 127.0.0.1 (the API server and the fake Stripe / Google sign-in started here); Meta,
+Google, Stripe, the scanner and the renderer are fakes; nothing outside a throwaway workspace (every OTTO_* path points into it, module-level paths are pinned).
 
   cd platform && python3 tests/test_journey.py
   cd platform && python3 -m unittest discover -s tests          # with the other suites
@@ -22,6 +23,9 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 PLATFORM = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import fake_google as FG                                                       # noqa: E402
+import fake_stripe as FS                                                       # noqa: E402
 TMP = Path(tempfile.mkdtemp(prefix="otto-journey-test-"))
 BASE = "https://app.otto.example/otto/"
 ENV = {"OTTO_DATA": str(TMP / "data.json"), "OTTO_HTML": str(TMP / "index.html"), "OTTO_BRANDS": str(TMP / "brands"),
@@ -30,14 +34,15 @@ ENV = {"OTTO_DATA": str(TMP / "data.json"), "OTTO_HTML": str(TMP / "index.html")
        "OTTO_LEADS": str(TMP / "leads.json"), "OTTO_OUTBOX": str(TMP / "outbox"), "OTTO_EMAIL_STATE": str(TMP / ".email-state.json"),
        "OTTO_HEARTBEATS": str(TMP / "heartbeats.json"), "OTTO_LOCKS": str(TMP / "locks"), "OTTO_EXPORTS": str(TMP / "exports"),
        "OTTO_MOTION_ROOT": str(TMP / "motion"), "OTTO_PLANS": str(TMP / "plans.json"), "OTTO_CRON_BIN": str(TMP / "bin"),
-       "OTTO_OWNER_EMAIL": "owner@otto.example", "WHOP_WEBHOOK_SECRET": "ws_journey_secret_do_not_use"}
+       "OTTO_OWNER_EMAIL": "owner@otto.example", "OTTO_SESSIONS": str(TMP / "sessions.json")}
+STRIPE_WH = "whsec_journey_secret_do_not_use"
 CLEAR = ("OTTO_ADMIN_USERS", "OTTO_SINGLE_TENANT", "OTTO_PROXY_KEY", "OTTO_DOMAIN", "OTTO_APP_URL", "OTTO_EMAIL_BASE",
-         "OTTO_FALLBACK", "TELEGRAM_BOT_TOKEN", "OTTO_OWNER_CHAT_ID", "WHOP_API_KEY", "WHOP_COMPANY_ID", "OTTO_RENDERER",
+         "OTTO_FALLBACK", "TELEGRAM_BOT_TOKEN", "OTTO_OWNER_CHAT_ID", "WHOP_API_KEY", "WHOP_COMPANY_ID", "WHOP_WEBHOOK_SECRET", "OTTO_RENDERER",
+         "OTTO_STRIPE_SECRET_KEY", "OTTO_STRIPE_PUBLISHABLE_KEY", "OTTO_STRIPE_WEBHOOK_SECRET",
          "OTTO_CRON_NOW", "OTTO_TZ", "LEONARDO_API_KEY")
 SITE, BID = "koffiezon.nl", "koffiezon"
 EVA = "eva@koffiezon.nl"
-GROWTH_WHOP = "plan_journey_growth"
-MEMBERSHIP = "mem_journey_1"
+GROWTH_PRICE = "price_growth_m"           # tests/fake_stripe.py knows it (EUR 249 a month)
 TOKEN_NAME = re.compile(r"-[0-9a-f]{32}\.(?:jpe?g|png|mp4)$")
 
 # a JPEG the provenance writer can parse (SOI, APP0 / JFIF, SOS … EOI); nothing here decodes pixels
@@ -182,8 +187,8 @@ def brand_month(offset=0):
 
 _SAVED, S = {}, {}
 MODS = ("ap", "otto_paths", "otto_scan", "otto_strategy", "otto_plan", "otto_compliance", "otto_onboard", "otto_api", "otto_admin",
-        "otto_whop", "otto_email", "otto_publish", "otto_ads", "otto_creative", "otto_styles", "otto_cron", "otto_retention",
-        "otto_provenance", "genvisuals", "otto_telegram", "otto_track", "otto_render")
+        "otto_whop", "otto_billing", "otto_stripe", "otto_auth", "otto_email", "otto_publish", "otto_ads", "otto_creative",
+        "otto_styles", "otto_cron", "otto_retention", "otto_provenance", "genvisuals", "otto_telegram", "otto_track", "otto_render")
 PINS = [("ap", "DATA", "data.json"), ("ap", "HTML", "index.html"), ("ap", "BRANDS", "brands"), ("otto_paths", "ASSETS", "assets"),
         ("otto_paths", "BASE", None), ("otto_scan", "BRANDS", "brands"), ("otto_strategy", "BRANDS", "brands"),
         ("otto_plan", "BRANDS", "brands"), ("otto_ads", "BRANDS", "brands"), ("otto_ads", "SECRETS", "secrets"),
@@ -198,7 +203,7 @@ def setUpModule():
     for d in ("brands/keep/assets", "secrets", "assets/posts", "public/posts", "bin", "outbox", "motion"):
         (TMP / d).mkdir(parents=True, exist_ok=True)
     plans = json.loads((PLATFORM / "plans.json").read_text())
-    plans["plans"]["growth"]["whop_plan_ids"] = [GROWTH_WHOP]                 # Growth is sold on Whop; Starter is not (yet)
+    plans["plans"]["growth"]["stripe_price_ids"] = {"monthly": GROWTH_PRICE, "yearly": None}   # Growth is on sale; Starter not yet
     (TMP / "plans.json").write_text(json.dumps(plans, indent=1))
     (TMP / "data.json").write_text(json.dumps(other_seed(), ensure_ascii=False, indent=1))
     (TMP / "index.html").write_text('<html><script id="fallback-data" type="application/json">{}</script></html>')
@@ -226,14 +231,19 @@ def setUpModule():
     # fakes: the scanner (no network), Meta, Google, the renderer, background spawns
     S["graph"], S["google"], S["render"], S["spawned"] = FakeGraph(), FakeGoogle(), [], []
     _SAVED["fakes"] = (otto_scan.scan, otto_scan.host_status, otto_publish.graph, otto_ads.google_call, otto_render.render,
-                       otto_whop.SPAWN, otto_admin.SPAWN, otto_ads.notify)
+                       otto_whop.SPAWN, otto_billing.SPAWN, otto_admin.SPAWN, otto_ads.notify)
     otto_scan.scan = lambda url, pages=5, page_limit=1_200_000, deadline=None: (
         copy.deepcopy(scan_doc()) if otto_onboard.host_key(url) == SITE else {"url": url, "error": "HTTP 403"})
     otto_scan.host_status = lambda url: "ok"
     otto_publish.graph = S["graph"].graph
     otto_ads.google_call = S["google"].call
     otto_render.render = fake_render(S["render"])
-    otto_whop.SPAWN = lambda args: S["spawned"].append(list(args))
+    otto_whop.SPAWN = otto_billing.SPAWN = lambda args: S["spawned"].append(list(args))
+    S["stripe"], S["gsignin"] = FS.FakeStripe(), FG.FakeGoogle()               # Stripe's API and Google's sign-in, both local fakes
+    os.environ["OTTO_STRIPE_API_BASE"] = S["stripe"].base
+    (TMP / "secrets" / "stripe.json").write_text(json.dumps({"secret_key": FS.KEY, "publishable_key": "pk_test_journey",
+                                                             "webhook_secrets": [STRIPE_WH]}))
+    (TMP / "secrets" / "google-oauth.json").write_text(json.dumps(S["gsignin"].config()))
     otto_admin.SPAWN = lambda args, log: S["spawned"].append(list(args))
     otto_ads.notify = lambda text: True
     otto_ads._acct.clear()
@@ -254,7 +264,11 @@ def tearDownModule():
         S["srv"].shutdown(); S["srv"].server_close()
     if "fakes" in _SAVED:
         (otto_scan.scan, otto_scan.host_status, otto_publish.graph, otto_ads.google_call, otto_render.render,
-         otto_whop.SPAWN, otto_admin.SPAWN, otto_ads.notify) = _SAVED["fakes"]
+         otto_whop.SPAWN, otto_billing.SPAWN, otto_admin.SPAWN, otto_ads.notify) = _SAVED["fakes"]
+    for k in ("stripe", "gsignin"):
+        if k in S:
+            S[k].close()
+    os.environ.pop("OTTO_STRIPE_API_BASE", None)
     g = globals()
     for m, a, v in _SAVED.get("pins", []):
         setattr(g[m], a, v)
@@ -288,12 +302,10 @@ def admin(req):
     return api("/otto-api/admin", "POST", req)
 
 
-def whop_event(etype, data, wid):
-    body = json.dumps({"type": etype, "data": data}).encode()
-    ts = str(int(time.time()))
-    sig = otto_whop.sign(os.environ["WHOP_WEBHOOK_SECRET"], wid, ts, body)
-    return api("/otto-api/whop", "POST", body, {"webhook-id": wid, "webhook-timestamp": ts, "webhook-signature": sig,
-                                                  "Content-Type": "application/json"})
+def stripe_event(evt):
+    """A Stripe event as Stripe sends it: the raw body signed with the endpoint secret (Stripe-Signature t=…,v1=…)."""
+    body = json.dumps(evt).encode()
+    return api("/hooks/stripe", "POST", body, {"Stripe-Signature": otto_stripe.sign(STRIPE_WH, body), "Content-Type": "application/json"})
 
 
 def brand():
@@ -306,9 +318,18 @@ def outbox():
 
 
 def mail_links(f):
+    """(message, plain text, {English button name: url}) — the labels are read in any client language (otto_i18n)."""
+    import otto_i18n
     msg = email.message_from_bytes(Path(f).read_bytes(), policy=email.policy.default)
     text = msg.get_body(("plain",)).get_content()
-    return msg, text, dict(re.findall(r"^(Approve|Skip|Approve plan|Not now|Change)\s*:\s*(\S+)", text, re.M))
+    names = {}
+    for lang in otto_i18n.CATALOGS:
+        t = otto_i18n.Tr(lang)
+        for key, en in (("btn.approve", "Approve"), ("btn.skip", "Skip"), ("btn.approve_plan", "Approve plan"),
+                        ("btn.not_now", "Not now"), ("btn.change", "Change")):
+            names.setdefault(t(key), en)
+    pat = "|".join(sorted(map(re.escape, names), key=len, reverse=True))
+    return msg, text, {names[k]: v for k, v in re.findall(rf"^({pat})\s*:\s*(\S+)", text, re.M)}
 
 
 def one_tap(url):
@@ -368,24 +389,37 @@ class Journey(unittest.TestCase):
         tasks, _ = otto_cron.plan("publish", ap.load(), force=True, only=BID)
         self.assertEqual(tasks[0].skip, "onboarding")
 
-    # ------------------------------------------------------------------ 2 · Whop webhook + owner link → Growth
-    def test_02_whop_growth_and_link(self):
-        mem = {"id": MEMBERSHIP, "status": "active", "plan": {"id": GROWTH_WHOP}, "user": {"email": EVA, "name": "Eva"},
-               "created_at": int(time.time()) - 60, "renewal_period_end": int(time.time()) + 30 * 86400, "currency": "eur",
-               "metadata": {"website": SITE}}
-        code, out = whop_event("membership.activated", mem, "msg_journey_1")
+    # ------------------------------------------------------------------ 2 · Stripe checkout + signed webhooks + owner link → Growth
+    def test_02_stripe_growth_and_link(self):
+        st, _, sid, _ = FG.sign_in(S["base"], S["gsignin"], EVA, "70001")         # Eva signs in with Google (a fake Google)
+        self.assertTrue(st == 303 and sid, st)
+        cookie = {"Cookie": f"otto_sid={sid}", "Origin": next(iter(otto_api.ALLOWED_ORIGINS))}
+        code, co = api("/billing/checkout", "POST", {"plan": "growth", "interval": "month"}, cookie)
+        self.assertEqual((code, co.get("ui")), (200, "embedded"), co)
+        p = S["stripe"].last("POST", "/v1/checkout/sessions")["params"]
+        self.assertEqual((p["line_items[0][price]"], p["customer_email"], p["automatic_tax[enabled]"]), (GROWTH_PRICE, EVA, "true"))
+        self.assertEqual(otto_stripe.read_ref(p["client_reference_id"])["brand"], None, "the public brand is not hers yet")
+        session, sub = S["stripe"].complete(co["session"], status="active")     # she pays inside the embedded form
+        S["sub"] = sub["id"]
+        done = S["stripe"].event("checkout.session.completed", session)
+        code, out = stripe_event(done)
         self.assertEqual(code, 200, out)
-        self.assertEqual(ap.plan_of(ap.load(), BID)["id"], "starter", "an unlinked membership changes no brand")
-        code, out = whop_event("membership.activated", mem, "msg_journey_1")
-        self.assertTrue(out.get("duplicate"), "Whop retries: each webhook id is processed once")
-        code, out = admin({"action": "link_customer", "customer": MEMBERSHIP, "brand": BID})
+        code, out = stripe_event(S["stripe"].event("customer.subscription.created", sub))
+        self.assertEqual(code, 200, out)
+        self.assertEqual(ap.plan_of(ap.load(), BID)["id"], "starter", "a subscription without a brand changes no brand")
+        code, out = stripe_event(done)
+        self.assertTrue(out.get("duplicate"), "Stripe retries: each event id is applied once")
+        code, out = api("/billing/checkout", "POST", {"plan": "growth"}, {"Origin": next(iter(otto_api.ALLOWED_ORIGINS)),
+                                                                          "X-Otto-User": EVA, "X-Real-IP": "203.0.113.9"})
+        self.assertEqual(code, 401, "billing needs the Google session, not a proxy name")
+        code, out = admin({"action": "link_customer", "customer": sub["id"], "brand": BID})
         self.assertEqual(code, 200, out)
         self.assertIn("starter → growth", out["message"])
         b = brand()
         self.assertEqual(b["plan"], "growth")
         self.assertNotIn("plan_billing", b, "a running membership pays for it: billed")
         self.assertEqual(b["members"], [EVA], "the payer can sign in")
-        self.assertEqual(b["plan_history"][-1]["via"], "whop")
+        self.assertEqual(b["plan_history"][-1]["via"], "stripe")
         self.assertEqual(b["status"], "active", "a paid, linked brand leaves onboarding (otherwise no job ever runs for it)")
         tasks, _ = otto_cron.plan("publish", ap.load(), force=True, only=BID)
         self.assertIsNone(tasks[0].skip)
@@ -458,6 +492,8 @@ class Journey(unittest.TestCase):
         self.assertEqual(len(files), 1)
         msg, text, links = mail_links(files[0])
         self.assertEqual(msg["To"], EVA)
+        self.assertIn("to approve", msg["Subject"], "English until the client picks Dutch (brands[].comms_lang)")
+        self.assertIn("Vers gebrand op dinsdag", text, "the post itself stays in the shop's own language")
         self.assertNotIn("hoofdpijn", text, "the held post never reaches the owner")
         self.assertIn(otto_paths.media_url(ref, BASE, verify=False), text)
         S["approve_url"] = links["Approve"]
@@ -650,11 +686,16 @@ class Journey(unittest.TestCase):
         with self.assertRaises(otto_ads.LaunchError):
             quiet(otto_ads.resume, goog["id"])
 
-    # ------------------------------------------------------------------ 12 · Whop cancellation → plan none
-    def test_12_whop_cancellation(self):
-        mem = {"id": MEMBERSHIP, "status": "canceled", "plan": {"id": GROWTH_WHOP}, "user": {"email": EVA},
-               "canceled_at": int(time.time()), "updated_at": int(time.time()) + 5}
-        code, out = whop_event("membership.deactivated", mem, "msg_journey_2")
+    # ------------------------------------------------------------------ 12 · payment fails, Stripe's retries end → plan none
+    def test_12_stripe_retries_end(self):
+        inv = S["stripe"].invoice(S["sub"], status="open")
+        code, out = stripe_event(S["stripe"].event("invoice.payment_failed", inv))
+        self.assertEqual(code, 200, out)
+        self.assertEqual(otto_billing.load()["customers"][S["sub"]]["status"], "past_due")
+        self.assertTrue(any(r.get("source") == "billing" and r.get("brand") == BID for r in ap.load()["recommendations"]),
+                        "the owner is told while Stripe retries")
+        sub = dict(S["stripe"].subs[S["sub"]], status="canceled", ended_at=int(time.time()))
+        code, out = stripe_event(S["stripe"].event("customer.subscription.deleted", sub))
         self.assertEqual(code, 200, out)
         self.assertEqual(out["plan"]["to"], "none", out)
         self.assertTrue(S["spawned"] and S["spawned"][-1][-1] == "guard", "live campaigns the plan no longer covers: guard now")
@@ -663,7 +704,7 @@ class Journey(unittest.TestCase):
         ever = ap.campaign(d, S["camps"]["meta"])
         self.assertEqual((ever["status"], ever["paused_by"]), ("paused", "plan"), quiet.last)
         self.assertIn("no active plan", ap.paused(d, BID))
-        self.assertTrue(any(r.get("brand") == BID and "membership ended" in r["title"] for r in d["recommendations"]))
+        self.assertTrue(any(r.get("brand") == BID and "subscription ended" in r["title"] for r in d["recommendations"]))
         tasks, _ = otto_cron.plan("email-cards", d, force=True, only=BID)
         self.assertEqual(tasks[0].skip, "no active plan (membership ended)")
         self.assertEqual(otto_email.email_brands(d, None), [], "no e-mail for an ended plan")
@@ -703,7 +744,7 @@ class Journey(unittest.TestCase):
             self.assertEqual(man["brand"], BID)
             self.assertIn(f"media/{S['image']}", z.namelist())
             self.assertTrue(json.loads(z.read("data.json"))["lists"]["posts"])
-        self.assertTrue(json.loads((TMP / "billing.json").read_text())["customers"][MEMBERSHIP], "billing records stay")
+        self.assertTrue(json.loads((TMP / "billing.json").read_text())["customers"][S["sub"]], "billing records stay")
 
     # ------------------------------------------------------------------ 14 · the other client, untouched
     def test_14_other_client_untouched(self):

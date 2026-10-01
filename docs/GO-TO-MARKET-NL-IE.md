@@ -45,7 +45,7 @@ on it. Sources are listed in §13.
 | 2 | Domain bought, production on the Hetzner box, `OTTO_ALLOWED_ORIGINS` set | HOSTING.md: not on a shared box with paying customers | Max |
 | 3 | Landing FAQ lists **Dutch** as a content language (today it says English, German, Hebrew) | The NL ads promise Dutch | Landing owner |
 | 4 | E-mail approvals working for NL/IE trials (the landing now promises e-mail, Telegram or app) | 98 % of Dutch people use messaging, Telegram is a minority (EU §6.2) | Product |
-| 5 | **The 07:35 report and approval cards in Dutch for Dutch brands** — or run the IE (English) version of the texts video in NL | Our NL "7:35" ads show the message in Dutch; `otto_ads.report` writes English today | Product (small change) |
+| 5 | ~~The 07:35 report and approval cards in Dutch for Dutch brands~~ **Done 1.10:** the 07:35 report goes out by e-mail and Telegram; English by default, Dutch or German when the client chooses it (`brands[].comms_lang`). The NL ads should say the language is a choice | Our NL "7:35" ads show the message in Dutch | Done |
 | 6 | **Whop monthly plans (Starter, Growth) in EUR** with iDEAL and SEPA on and "collect and remit" tax mode — the trial's "add a card" screen needs them (`plans.json` trial → checkout_plans), otherwise no trial can convert; keep the founding plan | EU §8; without it the funnel ends at the trial | Max |
 | 6b | **One call in the trial sign-up:** `otto_track.capi_track("trial_start", ip, request.headers, path="/", ref=<account id>, method="google")` where the trial is created (`otto_trial` / `otto_auth`), so Meta can optimise on real trial starts | §5.4 | Auth/trial engineer |
 | 7 | Dutch native review of the NL matrix and the NL landing copy | EU §8: the team cannot judge Dutch copy | Dutch reviewer |
@@ -260,7 +260,7 @@ Renderer follow-up (for the renderer's owner, not done here): add `"Mona Sans": 
 | Trial start | Google sign-in completes, trial created | server (`otto_trial`) | **StartTrial** (and CompleteRegistration) via `otto_track.capi_track` (§1.2 item 6b) | 60–70 % of trial clicks (est.) → ~25 % of scans · ≤ €30 per trial |
 | Paid | Card added before day 7 (Whop), or the pay-once founding pilot | Whop webhook (`otto_whop`) | – (server-to-server, no consent context) | **18–25 % of trials** (18.2 % of no-card trials convert, EU §5.3 [A8]) → ~5 % of scans |
 | Onboarding | Brand set up, first posts ready | `otto_onboard` | – | ≥ 80 % approve a first post within 24 h |
-| Habit | The 07:35 report read, posts approved | app / Telegram | – | report opened ≥ 5 of 7 days in week 1 |
+| Habit | A decision taken from the 07:35 report | one-tap links / app (no open tracking, by design) | – | a decision (approve, skip or change) within 2 hours of 07:35 on ≥ 5 of 7 mornings in week 1 |
 | Retention | Month 2 on the plan | Whop | – | ≥ 85 % of paying customers (est.) |
 
 ### 5.2 What €1,500 per market should produce (30 days)
@@ -480,14 +480,14 @@ The consent banner is already bilingual: on `/nl` it shows Dutch because of `lan
 | Funnel | Visitor → scan · scan → checkout · checkout → paid | 20 % · 15 % · 35–50 % |
 | Creative | Link CTR · share of spend on video | ≥ 0.8 % · ≥ 50 % |
 | Activation | First post approved ≤ 24 h after sign-up | ≥ 80 % of trials |
-| Habit | 07:35 report opened | ≥ 5 of 7 mornings in week 1 |
+| Habit | Decision from the 07:35 report within 2 hours | ≥ 5 of 7 mornings in week 1 |
 | Conversion and retention | Trials that pay · paying customers still on a plan in month 2 | ≥ 20 % · ≥ 85 % (est.) |
 | Organic | LinkedIn: founder posts · average reactions · profile visits → scans | 22 weekday posts · ≥ 50 · tracked by `utm_source=linkedin` |
 | Partners | Agencies in a pilot (after approval) | 10 by day 60 |
 | Quality | Ads rejected by Meta · compliance holds · NL copy edits by the reviewer | 0 · 0 at launch · all resolved before a line runs |
 
 Where each number comes from: first-party analytics in the owner console (`/otto-track`), Whop (purchases), Meta Ads Manager
-(delivery), Otto's own app data (activation, report opens).
+(delivery), Otto's own app data (activation, decisions taken from the morning report; e-mail opens are not tracked).
 
 ---
 

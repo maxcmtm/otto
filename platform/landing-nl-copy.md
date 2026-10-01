@@ -69,9 +69,9 @@ Voorbeeldkaartje: *Otto · twee dagen later · Voorbeeld* — De Instagram-post 
 [BOUWER: de Engelse pagina noemt hier ook een Google-bedrijfsupdate, een zoekadvertentie en een e-mail. Noem alleen de kanalen die in de plannen zitten die we verkopen (Starter: Facebook en Instagram; Growth: plus Google-zoekadvertenties), anders spreekt de FAQ de pagina tegen.]
 
 **5. Rapporteert.** Elke ochtend om 07:35 een rapport. Wat het gisteren kostte en wat het opleverde.
-Otto vergelijkt bereik, klikken en aanvragen met je eigen gemiddelden, meldt het als er iets terugloopt (met een oplossing erbij) en houdt elke week je concurrenten in de gaten. Eén minuut lezen, één tik en het is geregeld.
+Otto vergelijkt bereik, klikken en aanvragen met je eigen gemiddelden, zet het in je rapport als er iets terugloopt en houdt elke week je concurrenten in de gaten. Eén minuut lezen, één tik en het is geregeld.
 Rapportkaart (alles "Voorbeeld"): Ochtendrapport · dinsdag · 07:35 · Gisteren uitgegeven · Aanvragen · Kosten per aanvraag · Gemiddelde · Bereik, laatste 14 dagen · Beste advertentie · *Drie posts wachten op je.*
-Melding: *Voorbeeld: je wintercampagne krijgt 34% minder klikken dan je 7-daags gemiddelde.* · Knoppen: *Pas de oplossing toe* · *Niet nu*
+In het ochtendrapport: *Voorbeeld: je wintercampagne krijgt 34% minder klikken dan je 7-daags gemiddelde.* · Knoppen: *Pauzeer advertentieset B* · *Niet nu*
 Concurrenten: *Je concurrenten deze week · elke maandag*
 
 ## Wat Otto vervangt
@@ -105,15 +105,15 @@ Concurrenten: *Je concurrenten deze week · elke maandag*
   - Alles gaat mee als je een betaalmethode toevoegt
 - Knop: **Probeer 7 dagen gratis**
 - Onder de knop: Doorgaan met Google. Eén proefperiode per bedrijf.
-- Eenmalig alternatief: *Liever één keer betalen? De founding pilot, €197 eenmalig (excl. btw), via Whop.* [BOUWER: alleen zolang de founding pilot te koop is.]
-- Betalen: *Betalen kan met iDEAL, creditcard of SEPA-incasso.* [BOUWER: alleen de methoden noemen die in Whop aanstaan.]
+- Eenmalig alternatief: *Liever één keer betalen? De founding pilot, €197 eenmalig (excl. btw).* [BOUWER: alleen zolang de founding pilot te koop is — de regel verschijnt vanzelf zodra /billing/offers founding.on meldt.]
+- Betalen: *Betalen kan met iDEAL, creditcard of SEPA-incasso.* [BOUWER: alleen de methoden noemen die in Stripe aanstaan (docs/BILLING.md).]
 - Advertentiebudget: *Je advertentiebudget betaal je apart en rechtstreeks aan Meta; dat geld loopt nooit via Otto.*
 
 **Wat er daarna gebeurt: zeven dagen, dan beslis jij**
 - **Vandaag** — Je logt in met Google en geeft je websiteadres op. Geen creditcard.
 - **Eerste vragen** — Otto leest je site, bouwt je merkprofiel en stelt je maximaal vier vragen.
 - **Binnen 24 uur** — Je eerste posts komen per e-mail of in Telegram binnen, klaar voor jouw goedkeuring.
-- **Elke ochtend** — Een kort rapport om 07:35, en een melding binnen een uur als er iets terugloopt.
+- **Elke ochtend** — Een kort rapport om 07:35 dat laat zien wat er terugliep.
 - **Voor dag 7** — Twee dagen voor het einde krijg je een mail. Voeg een betaalmethode toe om door te gaan; er wordt niets automatisch afgeschreven.
 
 ## Vragen

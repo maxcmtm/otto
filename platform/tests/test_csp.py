@@ -40,10 +40,26 @@ class CspTest(unittest.TestCase):
             html = (PLATFORM / name).read_text()
             for m in re.finditer(r'<(script|link|img|source|video|audio|iframe)\b[^>]*?\b(?:src|href)="((?:https?:)?//[^"]*)"', html):
                 tag = html[m.start():html.index(">", m.start()) + 1]
-                ok = m.group(1) == "link" and re.search(r'rel="(canonical|alternate)"', tag)
+                ok = (m.group(1) == "link" and re.search(r'rel="(canonical|alternate)"', tag)) or \
+                    (m.group(1) == "script" and m.group(2) in csp.EXTERNAL.get(name, []))
                 self.assertTrue(ok, f"{name} loads {m.group(2)}")
             for m in re.finditer(r'url\(\s*["\']?((?:https?:)?//[^"\')]+)', html):
                 self.fail(f"{name} loads {m.group(1)} from CSS")
+
+    def test_only_the_billing_page_talks_to_stripe(self):
+        """Stripe.js (js.stripe.com) and Stripe's frames are allowed on billing.html only; every other page keeps
+        frame-src 'none' and connect-src 'self'."""
+        for name in csp.PAGES:
+            pol = re.search(r'<meta http-equiv="Content-Security-Policy" content="([^"]*)">', (PLATFORM / name).read_text()).group(1)
+            if name == "billing.html":
+                for want in ("https://js.stripe.com", "https://checkout.stripe.com", "https://api.stripe.com", "https://hooks.stripe.com"):
+                    self.assertIn(want, pol)
+                self.assertNotIn("'unsafe-eval'", pol)
+                self.assertFalse(re.search(r"script-src[^;]*\*(?!\.js\.stripe\.com)", pol), "no wildcard script host")
+            else:
+                self.assertNotIn("stripe", pol, f"{name} must not allow Stripe")
+                self.assertIn("frame-src 'none'", pol)
+                self.assertIn("connect-src 'self';", pol)
 
 if __name__ == "__main__":
     unittest.main()

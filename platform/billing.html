@@ -1,0 +1,449 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<!-- CSP: script-src lists the sha256 of every inline script element in this page. After editing one, the browser refuses it and its console prints the new hash: replace the old one here (or recompute all of them). -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-OSTWHjy1qrVNvIGs3Y2CGcAz2DzO5qsYZ/5xgZ1NsYQ=' https://js.stripe.com https://*.js.stripe.com; style-src 'self' 'unsafe-inline'; font-src 'self'; connect-src 'self' https://api.stripe.com https://checkout.stripe.com; object-src 'none'; base-uri 'self'; form-action 'self'; frame-src https://js.stripe.com https://*.js.stripe.com https://hooks.stripe.com https://checkout.stripe.com; worker-src 'none'; manifest-src 'self'; img-src 'self' data: https://*.stripe.com; media-src 'none'">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="referrer" content="same-origin">
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#F5F7FB" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0C0D0F" media="(prefers-color-scheme: dark)">
+<title>Otto · Billing</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 rx=%278%27 fill=%27%2310182B%27/%3E%3Crect x=%278%27 y=%278%27 width=%2716%27 height=%2716%27 rx=%274%27 fill=%27none%27 stroke=%27white%27 stroke-width=%272.5%27/%3E%3C/svg%3E">
+<!-- Otto's own Billing page (app.<domain>/billing.html). Stripe is only the payment processor: the payment form is Stripe's
+     Embedded Checkout and the card form is Stripe's Payment Element, both iframes mounted inside this page (PCI SAQ A: card
+     data never touches Otto). This is the only page that loads Stripe.js, from js.stripe.com as Stripe requires; its CSP
+     allows exactly js.stripe.com, Stripe's frames (js.stripe.com, hooks.stripe.com, checkout.stripe.com) and api.stripe.com.
+     Everything else — plan, next charge, plan changes, cancel / resume, VAT ID, invoices — is Otto's own UI on /billing/*. -->
+<style>
+:root{
+  color-scheme:light dark;
+  --bg:#F5F7FB;--surface:#FFFFFF;--surface-2:#EEF1F6;
+  --ink:#10182B;--ink-2:#5B6478;--ink-3:#7A8397;
+  --line:#E4E8F1;--hair:1px;
+  --accent:#2447F0;--accent-fill:#2447F0;--accent-tint:#EDF1FF;--on-accent:#FFFFFF;
+  --green:#0B7A4B;--green-tint:#E5F6EE;--amber:#B45309;--amber-tint:#FFF4E2;--red:#B4231F;--red-tint:#FDEBEA;
+  --shadow-2:0 6px 16px -4px rgba(16,24,43,.12),0 2px 4px rgba(16,24,43,.06);
+  --font:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI Variable","Segoe UI",Roboto,system-ui,sans-serif;
+  --dur-fast:140ms;--dur-med:360ms;--spring-snappy:cubic-bezier(.22,1,.36,1);
+}
+@media (min-resolution:2dppx){:root{--hair:.5px}}
+@media (prefers-color-scheme:dark){:root{
+  --bg:#0C0D0F;--surface:#16171A;--surface-2:#1E2024;
+  --ink:#F2F3F5;--ink-2:#A3A8B3;--ink-3:#8D95A5;--line:#2A2C31;
+  --accent:#6E88FF;--accent-fill:#4461F5;--accent-tint:#1B2240;
+  --green:#34C77B;--green-tint:rgba(52,199,123,.14);--amber:#F5A524;--amber-tint:rgba(245,165,36,.14);--red:#FF6B61;--red-tint:rgba(255,107,97,.14);
+  --shadow-2:0 8px 24px -6px rgba(0,0,0,.55);
+}}
+*{box-sizing:border-box;margin:0;padding:0}
+html{background:var(--bg);-webkit-text-size-adjust:100%}
+body{font:400 15px/1.4 var(--font);letter-spacing:-.01em;color:var(--ink);background:var(--bg);-webkit-font-smoothing:antialiased;min-height:100vh;min-height:100dvh}
+button{font:inherit;color:inherit;letter-spacing:inherit;background:none;border:0;cursor:pointer}
+a{color:var(--accent);text-decoration:none}
+a:hover{text-decoration:underline;text-underline-offset:3px}
+[hidden]{display:none!important}
+:focus{outline:none}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:6px}
+.top{position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:12px;padding:calc(10px + env(safe-area-inset-top,0px)) 20px 10px;background:color-mix(in srgb,var(--bg) 82%,transparent);-webkit-backdrop-filter:blur(20px) saturate(180%);backdrop-filter:blur(20px) saturate(180%);box-shadow:inset 0 calc(-1 * var(--hair)) 0 var(--line)}
+.mark{width:22px;height:22px;border-radius:6.5px;background:var(--ink);position:relative;flex:none}
+.mark::after{content:"";position:absolute;inset:5.5px;border-radius:2.5px;border:1.5px solid var(--bg)}
+.wm{font:600 17px/1 var(--font);letter-spacing:-.022em;color:var(--ink)}
+.home{display:flex;align-items:center;gap:8px;color:var(--ink)}
+.home:hover{text-decoration:none}
+.top .back{margin-left:auto;font:500 15px/20px var(--font)}
+.page{max-width:640px;margin:0 auto;padding:28px 20px calc(64px + env(safe-area-inset-bottom,0px))}
+h1{font:700 34px/41px var(--font);letter-spacing:-.021em}
+.sub{font:400 15px/20px var(--font);color:var(--ink-2);margin-top:4px;text-wrap:pretty}
+.grp{margin-top:28px}
+.grp-h{display:flex;align-items:baseline;gap:8px;padding:0 2px 8px;font:600 13px/18px var(--font);color:var(--ink-2)}
+.grp-h .r{margin-left:auto;font-weight:400;color:var(--ink-3)}
+.card,.list{background:var(--surface);border:var(--hair) solid var(--line);border-radius:14px;overflow:hidden}
+.card{padding:18px 16px}
+.line{display:flex;align-items:center;gap:12px;min-height:48px;padding:10px 16px;position:relative}
+.line+.line::before{content:"";position:absolute;top:0;left:16px;right:0;height:var(--hair);background:var(--line)}
+.rt{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.rt-t{font:500 15px/20px var(--font);letter-spacing:-.012em}
+.rt-m{font:400 13px/18px var(--font);color:var(--ink-2);text-wrap:pretty}
+.v{flex:none;font:400 15px/20px var(--font);color:var(--ink-2);text-align:right}
+.big{font:700 22px/28px var(--font);letter-spacing:-.02em}
+.price{font:600 17px/22px var(--font)}
+.price small{font:400 13px/18px var(--font);color:var(--ink-3)}
+.hint{font:400 13px/18px var(--font);color:var(--ink-3);padding:10px 2px 0;text-wrap:pretty}
+.pill{display:inline-flex;align-items:center;gap:5px;height:22px;padding:0 8px;border-radius:999px;font:500 12px/1 var(--font);letter-spacing:0;white-space:nowrap;vertical-align:2px}
+.pill.ok{background:var(--green-tint);color:var(--green)}
+.pill.bad{background:var(--red-tint);color:var(--red)}
+.pill.warn{background:var(--amber-tint);color:var(--amber)}
+.pill.acc{background:var(--accent-tint);color:var(--accent)}
+.pill.quiet{color:var(--ink-3);box-shadow:inset 0 0 0 var(--hair) var(--line)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:44px;padding:0 20px;border-radius:999px;font:600 15px/1 var(--font);letter-spacing:-.01em;white-space:nowrap;transition:transform var(--dur-med) var(--spring-snappy),background-color var(--dur-fast),opacity var(--dur-fast)}
+.btn:active{transform:scale(.97)}
+.btn:hover{text-decoration:none}
+.btn.pri{background:var(--accent-fill);color:var(--on-accent)}
+.btn.pri:hover{background:color-mix(in srgb,var(--accent-fill) 92%,#000)}
+.btn.gray{background:var(--surface-2);color:var(--ink)}
+.btn.bad{background:var(--red-tint);color:var(--red)}
+.btn.sm{height:32px;padding:0 14px;font-size:14px;font-weight:500}
+.btn.block{width:100%}
+.btn[disabled]{opacity:.35;pointer-events:none}
+.lnk{color:var(--accent);font:inherit;padding:0}
+.lnk:hover{text-decoration:underline;text-underline-offset:3px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.acts{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+.banner{display:flex;gap:12px;align-items:flex-start;padding:14px 16px;border-radius:14px;margin-top:20px;font:400 14px/20px var(--font)}
+.banner.bad{background:var(--red-tint);color:var(--ink)}
+.banner.warn{background:var(--amber-tint);color:var(--ink)}
+.banner.ok{background:var(--green-tint);color:var(--ink)}
+.banner b{font-weight:600}
+.banner .btn{margin-left:auto;flex:none}
+.seg{display:inline-flex;padding:2px;border-radius:10px;background:var(--surface-2);gap:2px}
+.seg button{height:32px;padding:0 14px;border-radius:8px;font:500 14px/1 var(--font);color:var(--ink-2)}
+.seg button[aria-pressed=true]{background:var(--surface);color:var(--ink);font-weight:600;box-shadow:0 3px 8px rgba(16,24,43,.10),0 1px 1px rgba(16,24,43,.04)}
+.plans{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));margin-top:12px}
+.plan{display:flex;flex-direction:column;gap:6px;padding:16px;border-radius:14px;background:var(--surface);border:var(--hair) solid var(--line)}
+.plan.cur{box-shadow:inset 0 0 0 2px var(--accent)}
+.plan h3{font:600 17px/22px var(--font)}
+.plan ul{list-style:none;display:flex;flex-direction:column;gap:2px;margin:4px 0 8px;font:400 13px/18px var(--font);color:var(--ink-2)}
+.plan .btn{margin-top:auto}
+.confirm{margin-top:12px;padding:14px 16px;border-radius:12px;background:var(--surface-2);font:400 14px/20px var(--font)}
+.confirm .row{margin-top:10px}
+.inp{height:44px;padding:0 14px;border-radius:10px;border:var(--hair) solid var(--line);background:var(--surface);color:var(--ink);font:400 16px/1 var(--font);min-width:0;flex:1}
+.inp:focus{outline:2px solid var(--accent);outline-offset:0}
+#checkout{margin-top:16px;min-height:120px;border-radius:14px;overflow:hidden}
+#pm-el{margin-top:12px}
+.err{color:var(--red);font:400 13px/18px var(--font);margin-top:8px}
+.center{text-align:center;padding:40px 0}
+.spin{width:28px;height:28px;border-radius:50%;border:2.5px solid var(--line);border-top-color:var(--accent);margin:0 auto 14px;animation:spin .9s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.spin{animation-duration:3s}.btn{transition:none}}
+.inv a{font:500 14px/20px var(--font)}
+.toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);max-width:calc(100% - 40px);padding:12px 16px;border-radius:12px;background:var(--ink);color:var(--bg);font:500 14px/20px var(--font);box-shadow:var(--shadow-2);opacity:0;pointer-events:none;transition:opacity var(--dur-fast)}
+.toast.on{opacity:1}
+.gbtn{display:inline-flex;align-items:center;gap:10px;height:44px;padding:0 18px;border-radius:999px;background:var(--surface);color:var(--ink);font:600 15px/1 var(--font);box-shadow:inset 0 0 0 var(--hair) var(--line)}
+.gbtn:hover{text-decoration:none}
+.sr{position:absolute!important;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+</style>
+</head>
+<body>
+<header class="top">
+  <a class="home" href="./" aria-label="Otto app"><span class="mark" aria-hidden="true"></span><span class="wm">Otto</span></a>
+  <a class="back" href="./#settings">Back to Otto</a>
+</header>
+<main class="page" id="main" aria-live="polite">
+  <h1 id="h">Billing</h1>
+  <p class="sub" id="sub">Loading…</p>
+  <div id="view"></div>
+</main>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<script src="https://js.stripe.com/v3/"></script>
+<script>
+"use strict";
+/* Otto Billing page. State comes only from Otto's API (/billing/*), which only ever learns it from Stripe's signed webhooks or
+   Stripe's API — the redirect back from a payment just shows "confirming" until the server says the plan is on. */
+const $ = id => document.getElementById(id);
+const Q = new URLSearchParams(location.search);
+const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"}[c]));
+const money = (v, cur) => v == null ? "" : new Intl.NumberFormat("en-IE", {style: "currency", currency: cur || "EUR", minimumFractionDigits: v % 1 ? 2 : 0, maximumFractionDigits: 2}).format(v);
+const day = iso => iso ? new Date(iso).toLocaleDateString("en-GB", {day: "numeric", month: "short", year: "numeric"}) : "";
+const https = u => /^https:\/\/[^\s"'<>]+$/.test(String(u || "")) ? u : null;
+const IV = {month: "a month", year: "a year", one_time: "one-time"};
+let ACC = null, BRAND = Q.get("brand") || "", IVAL = Q.get("interval") === "year" ? "year" : "month", OPEN = {};
+let STRIPE = null, EMBED = null, ELEMENTS = null, BUSY = false;
+
+function toast(t){ const el = $("toast"); el.textContent = t; el.classList.add("on"); clearTimeout(toast.t); toast.t = setTimeout(() => el.classList.remove("on"), 3600); }
+function head(h, sub){ $("h").textContent = h; $("sub").textContent = sub || ""; document.title = "Otto · " + h; }
+function view(html){ $("view").innerHTML = html; }
+async function api(path, body){
+  let r, j = null;
+  try{
+    r = await fetch(path, body === undefined ? {credentials: "same-origin", cache: "no-store"}
+      : {method: "POST", credentials: "same-origin", headers: {"Content-Type": "application/json"}, body: JSON.stringify(body)});
+    try{ j = await r.json(); }catch(_){}
+  }catch(_){ return {status: 0, j: {error: "Check your connection and try again."}}; }
+  return {status: r.status, j: j || {}};
+}
+function stripe(){
+  if(STRIPE) return STRIPE;
+  if(!window.Stripe || !ACC || !ACC.publishable_key) return null;
+  STRIPE = window.Stripe(ACC.publishable_key);
+  return STRIPE;
+}
+function appearance(){
+  const dark = matchMedia("(prefers-color-scheme: dark)").matches, cs = getComputedStyle(document.documentElement);
+  const v = n => cs.getPropertyValue(n).trim();
+  return {theme: dark ? "night" : "stripe", variables: {colorPrimary: v("--accent-fill"), colorBackground: v("--surface"), colorText: v("--ink"),
+    colorDanger: v("--red"), fontFamily: v("--font"), borderRadius: "10px", spacingUnit: "4px"}};
+}
+function setUrl(q){
+  const u = new URLSearchParams();
+  Object.entries(q).forEach(([k, v]) => { if(v) u.set(k, v); });
+  history.replaceState(null, "", location.pathname + (u.toString() ? "?" + u : ""));
+}
+function destroyEmbed(){ if(EMBED){ try{ EMBED.destroy(); }catch(_){} EMBED = null; } }
+
+/* ---------- entry ---------- */
+async function load(){
+  const r = await api("/billing/account" + (BRAND ? "?brand=" + encodeURIComponent(BRAND) : ""));
+  if(r.status === 401) return signin();
+  if(r.status === 404 && BRAND){ BRAND = ""; setUrl({}); return load(); }
+  if(r.status !== 200) return failed(r.j.error);
+  ACC = r.j;
+  if(ACC.brand) BRAND = ACC.brand.id;
+  return ACC;
+}
+async function start(){
+  if(!await load()) return;
+  if(Q.get("session_id")) return confirming(Q.get("session_id"));
+  if(Q.get("setup_intent") && Q.get("redirect_status")) toast(Q.get("redirect_status") === "succeeded" ? "Payment method saved." : "The payment method was not saved.");
+  const s = ACC.subscription, running = s && ["active", "trialing", "past_due"].includes(s.status);
+  if(Q.get("plan") && ACC.configured && (!running || Q.get("plan") === "founding" && !ACC.legacy)) return checkout(Q.get("plan"), Q.get("interval") || IVAL);
+  account();
+}
+function signin(){
+  head("Billing", "Sign in to choose a plan, add a card or see your invoices.");
+  const next = location.pathname + location.search;
+  view(`<div class="grp"><a class="gbtn" href="/auth/google/start?next=${encodeURIComponent(next)}">Continue with Google</a></div>`);
+}
+function failed(msg){
+  head("Billing", "");
+  view(`<div class="banner bad"><div>${esc(msg || "Billing could not be loaded.")} <button type="button" class="lnk" data-reload>Try again</button></div></div>`);
+}
+function notSetUp(){
+  return `<div class="banner warn"><div><b>Payments aren't set up yet.</b> Otto's team is switching card payments on. Nothing is charged; your trial and your work are unaffected.</div></div>`;
+}
+
+/* ---------- the account ---------- */
+function brandPicker(){
+  const B = (ACC && ACC.brands) || [];
+  if(B.length < 2) return "";
+  return `<div class="grp"><label class="grp-h" for="bp">Business</label><select class="inp" id="bp" style="width:100%">${B.map(b => `<option value="${esc(b.id)}"${b.id === BRAND ? " selected" : ""}>${esc(b.name)}</option>`).join("")}</select></div>`;
+}
+function statusPills(s){
+  const p = [];
+  if(s.status === "past_due") p.push(`<span class="pill bad">Payment failed</span>`);
+  else if(s.status === "trialing") p.push(`<span class="pill acc">Trial until ${esc(day(s.trial_end))}</span>`);
+  else if(s.status === "active") p.push(`<span class="pill ok">Active</span>`);
+  else if(s.status === "canceled") p.push(`<span class="pill quiet">Ended</span>`);
+  if(s.cancel_at_period_end && s.status !== "canceled") p.push(`<span class="pill warn">Ends ${esc(day(s.period_end || s.trial_end))}</span>`);
+  if(s.pending) p.push(`<span class="pill quiet">${esc(s.pending.label || s.pending.plan)} from ${esc(day(s.pending.at))}</span>`);
+  return p.join(" ");
+}
+function account(){
+  destroyEmbed();
+  OPEN.pm = false; ELEMENTS = null;
+  const s = ACC.subscription, running = s && ["active", "trialing", "past_due"].includes(s.status);
+  head("Billing", ACC.brand ? ACC.brand.name : "Your plan, payment method and invoices.");
+  let h = brandPicker();
+  if(!ACC.configured) h += notSetUp();
+  if(running && s.status === "past_due"){
+    const open = (ACC.invoices || []).find(i => i.status === "open" && https(i.url));
+    h += `<div class="banner bad"><div><b>Your last payment didn't go through.</b> Update your payment method and Otto retries the charge right away. Publishing continues while we retry.${open ? ` Or <a href="${esc(open.url)}" target="_blank" rel="noopener">pay the open invoice</a>.` : ""}</div><button type="button" class="btn pri sm" data-pm>Update</button></div>`;
+  }
+  if(ACC.legacy){
+    h += `<div class="grp"><div class="grp-h">Your plan</div><div class="card"><div class="big">Founding pilot</div><p class="rt-m">Your founding seat (bought on Whop) is ${ACC.legacy.status === "active" ? "active" : esc(ACC.legacy.status)}. When you're ready for a monthly plan, choose it below.</p></div></div>`;
+  }
+  if(running){
+    const per = s.interval === "year" ? "a year" : s.interval === "one_time" ? "one-time" : "a month";
+    const next = s.cancel_at_period_end ? `Ends on ${day(s.period_end || s.trial_end)}. Otto keeps working until then.`
+      : s.status === "trialing" ? `First charge on ${day(s.trial_end)}, when your trial ends.`
+      : s.renews ? `Next charge on ${day(s.renews)}.` : "";
+    h += `<div class="grp"><div class="grp-h">Your plan</div><div class="card">
+      <div class="row" style="justify-content:space-between"><div class="big">${esc(s.label || s.plan || "Your plan")}</div><div>${statusPills(s)}</div></div>
+      <p class="price" style="margin-top:4px">${esc(money(s.amount, s.currency))} <small>${esc(per)} · excl. VAT</small></p>
+      <p class="rt-m" style="margin-top:6px">${esc(next)}${s.pending ? ` You move to ${esc(s.pending.label || s.pending.plan)}${s.pending.interval === "year" ? " (yearly)" : s.pending.interval === "month" ? " (monthly)" : ""} on ${esc(day(s.pending.at))}.` : ""}</p>
+      <div class="acts">${s.kind === "one_time" ? "" : `<button type="button" class="btn gray" data-open="change">Change plan</button>`}
+        ${s.kind === "one_time" ? "" : s.cancel_at_period_end ? `<button type="button" class="btn pri" data-resume>Keep my subscription</button>` : `<button type="button" class="btn gray" data-open="cancel">Cancel subscription</button>`}
+        ${s.pending ? `<button type="button" class="btn gray" data-keep>Stay on ${esc(s.label || s.plan)}</button>` : ""}</div>
+      ${OPEN.cancel ? `<div class="confirm"><b>Cancel at the end of this period?</b> Otto keeps publishing until ${esc(day(s.period_end || s.trial_end))}; after that publishing pauses and your work is kept for 90 days.<div class="row"><button type="button" class="btn bad" data-cancel>Cancel subscription</button><button type="button" class="btn gray" data-open="cancel">Keep it</button></div></div>` : ""}
+    </div></div>`;
+    if(OPEN.change) h += plansH("change", s);
+  } else {
+    if(ACC.trial) h += `<div class="banner ok"><div><b>Your free trial runs until ${esc(day(ACC.trial.ends_at))}.</b> Choose a plan now and keep going without a break: your first charge is when the trial ends, never before.</div></div>`;
+    else if(s && s.status === "canceled") h += `<div class="banner warn"><div><b>Your subscription has ended.</b> Choose a plan to start publishing again; your work is still here.</div></div>`;
+    h += plansH("buy");
+    if(ACC.founding && ACC.founding.on && !ACC.legacy) h += `<p class="hint">Prefer to pay once? <a href="?plan=founding${BRAND ? "&brand=" + encodeURIComponent(BRAND) : ""}">${esc(ACC.founding.label || "Founding pilot")}, ${esc(money(ACC.founding.price_eur))} one-time</a>.</p>`;
+  }
+  if(ACC.has_customer) h += pmH() + vatH();
+  if((ACC.invoices || []).length) h += invoicesH();
+  if(ACC.portal) h += `<p class="hint"><button type="button" class="lnk" data-portal>Manage in Stripe's portal instead</button></p>`;
+  h += `<p class="hint">Payments are processed by Stripe. Otto never sees your card or bank details. Questions about a charge: reply to any Otto e-mail.</p>`;
+  view(h);
+}
+function planCard(o, mode, cur){
+  const has = IVAL === "year" ? o.year : o.month;
+  const price = IVAL === "year" ? o.yearly_eur : o.monthly_eur;
+  const isCur = cur && cur.plan === o.plan && cur.interval === IVAL;
+  let btn;
+  if(!ACC.configured) btn = `<button type="button" class="btn gray block" disabled>Payments aren't set up yet</button>`;
+  else if(!has) btn = `<button type="button" class="btn gray block" disabled>Not on sale yet</button>`;
+  else if(isCur) btn = `<button type="button" class="btn gray block" disabled>Your plan</button>`;
+  else btn = `<button type="button" class="btn ${o.plan === "growth" ? "pri" : "gray"} block" data-${mode === "change" ? "switch" : "buy"}="${esc(o.plan)}">${mode === "change" ? "Switch to " : "Continue with "}${esc(o.label)}</button>`;
+  return `<div class="plan${isCur ? " cur" : ""}"><h3>${esc(o.label)}</h3><p class="price">${price != null ? esc(money(price)) + ` <small>${IVAL === "year" ? "a year" : "a month"} · excl. VAT</small>` : "&nbsp;"}</p>
+    ${IVAL === "year" && o.monthly_eur ? `<p class="rt-m">Two months free</p>` : ""}${btn}</div>`;
+}
+function plansH(mode, cur){
+  const O = (ACC.offers || []).filter(o => o.plan !== "founding");
+  const conf = OPEN.switch ? (() => {
+    const o = O.find(x => x.plan === OPEN.switch); if(!o || !cur) return "";
+    const up = (o.monthly_eur || 0) > (curPrice(cur) || 0) || (o.monthly_eur === curPrice(cur) && IVAL === "year");
+    return `<div class="confirm"><b>Switch to ${esc(o.label)} (${IVAL === "year" ? "yearly" : "monthly"})?</b> ${up ? "It starts now. You pay the prorated difference today, and the new price from your next charge." : `It starts at the end of this period (${esc(day(cur.period_end))}). Nothing changes until then.`}
+      <div class="row"><button type="button" class="btn pri" data-switch-go="${esc(o.plan)}">Switch</button><button type="button" class="btn gray" data-switch-cancel>Not now</button></div></div>`;
+  })() : "";
+  return `<div class="grp"><div class="grp-h">${mode === "change" ? "Change plan" : "Choose a plan"}<span class="r"><span class="seg" role="group" aria-label="Billing period"><button type="button" data-iv="month" aria-pressed="${IVAL === "month"}">Monthly</button><button type="button" data-iv="year" aria-pressed="${IVAL === "year"}">Yearly</button></span></span></div>
+    <div class="plans">${O.map(o => planCard(o, mode, cur)).join("") || `<div class="card rt-m">Plans open soon.</div>`}</div>${conf}
+    <p class="hint">${mode === "change" ? "Upgrades start right away (you pay the difference today); downgrades start at the end of the period you've paid for." : "Prices exclude VAT. Otto is for businesses: add your VAT ID at checkout and the EU reverse charge applies."}</p></div>`;
+}
+function curPrice(cur){ const o = (ACC.offers || []).find(x => x.plan === cur.plan); return o ? o.monthly_eur : 0; }
+function pmH(){
+  const m = ACC.payment_method;
+  const t = m ? (m.type === "card" ? `${esc(String(m.brand || "Card").replace(/^./, c => c.toUpperCase()))} •••• ${esc(m.last4 || "")}${m.exp ? ` <span class="rt-m">expires ${esc(m.exp)}</span>` : ""}` : `${esc(m.brand || m.type)}${m.last4 ? " •••• " + esc(m.last4) : ""}`) : "None on file";
+  return `<div class="grp"><div class="grp-h">Payment method</div><div class="list"><div class="line"><div class="rt"><div class="rt-t">${t}</div></div><button type="button" class="btn gray sm" data-pm>${m ? "Update" : "Add"}</button></div></div>
+    <div id="pm-box" hidden><div class="card" style="margin-top:12px"><div id="pm-el"></div><div class="err" id="pm-err" role="alert"></div><div class="row" style="margin-top:14px"><button type="button" class="btn pri" id="pm-save">Save payment method</button><button type="button" class="btn gray" data-pm-close>Cancel</button></div></div></div></div>`;
+}
+function vatH(){
+  const t = (ACC.tax_ids || [])[0];
+  return `<div class="grp"><div class="grp-h">VAT ID</div><div class="list"><div class="line"><div class="rt"><div class="rt-t">${t ? esc(t.value) : "None on file"}</div>${t && t.status ? `<div class="rt-m">${t.status === "verified" ? "Verified · reverse charge applies" : t.status === "pending" ? "Being verified" : "Could not be verified"}</div>` : `<div class="rt-m">Add it to apply the EU reverse charge on your next invoice.</div>`}</div><button type="button" class="btn gray sm" data-open="vat">${t ? "Change" : "Add"}</button></div>
+    ${OPEN.vat ? `<div class="line"><form class="row" style="width:100%" id="vat-f"><label class="sr" for="vat-in">VAT ID</label><input class="inp" id="vat-in" autocomplete="off" spellcheck="false" placeholder="NL123456789B01" value="${esc(t ? t.value : "")}"><button class="btn pri sm" type="submit">Save</button></form></div>` : ""}</div></div>`;
+}
+function invoicesH(){
+  const st = {paid: ["Paid", "ok"], open: ["Open", "warn"], void: ["Void", "quiet"], uncollectible: ["Unpaid", "bad"], failed: ["Failed", "bad"], refunded: ["Refunded", "quiet"]};
+  return `<div class="grp"><div class="grp-h">Invoices</div><div class="list inv">${ACC.invoices.map(i => {
+    const [l, k] = st[i.status] || [i.status || "", "quiet"];
+    return `<div class="line"><div class="rt"><div class="rt-t">${esc(day(i.at))} · ${esc(money(i.amount, i.currency))}</div><div class="rt-m">${esc(i.number || "")} <span class="pill ${k}">${esc(l)}</span></div></div>
+      ${https(i.url) ? `<a href="${esc(i.url)}" target="_blank" rel="noopener">View</a>` : ""}${https(i.pdf) ? `<a href="${esc(i.pdf)}" target="_blank" rel="noopener">PDF</a>` : ""}</div>`;
+  }).join("")}</div></div>`;
+}
+
+/* ---------- paying: Stripe Embedded Checkout inside this page ---------- */
+async function checkout(plan, interval){
+  destroyEmbed();
+  const O = (ACC.offers || []).find(o => o.plan === plan), founding = plan === "founding";
+  IVAL = interval === "year" ? "year" : "month";
+  const label = founding ? ((ACC.founding && ACC.founding.label) || "Founding pilot") : (O ? O.label : plan);
+  head(label, ACC.brand ? `For ${ACC.brand.name}` : "");
+  if(!ACC.configured){ view(notSetUp() + `<p class="hint"><a href="billing.html">Back to Billing</a></p>`); return; }
+  const price = founding ? (ACC.founding || {}).price_eur : O && (IVAL === "year" ? O.yearly_eur : O.monthly_eur);
+  const both = O && O.month && O.year;
+  view(`${brandPicker()}<div class="grp"><div class="card"><div class="row" style="justify-content:space-between"><p class="price">${esc(money(price))} <small>${founding ? "one-time" : IVAL === "year" ? "a year" : "a month"} · excl. VAT</small></p>
+      ${both ? `<span class="seg" role="group" aria-label="Billing period"><button type="button" data-civ="month" aria-pressed="${IVAL === "month"}">Monthly</button><button type="button" data-civ="year" aria-pressed="${IVAL === "year"}">Yearly</button></span>` : ""}</div>
+      ${ACC.trial && !founding ? `<p class="rt-m" style="margin-top:6px">Your trial runs until ${esc(day(ACC.trial.ends_at))}. You won't be charged before then.</p>` : ""}
+      <p class="rt-m" style="margin-top:6px">Otto is for businesses. Add your company's VAT ID in the form to apply the EU reverse charge. Pay by card, SEPA Direct Debit, iDEAL or Bancontact.</p></div>
+    <div id="checkout" aria-label="Payment form"><div class="center"><div class="spin" aria-hidden="true"></div><p class="rt-m">Loading the secure payment form…</p></div></div>
+    <div class="err" id="co-err" role="alert"></div>
+    <p class="hint"><a href="billing.html${BRAND ? "?brand=" + encodeURIComponent(BRAND) : ""}" data-back>Back to Billing</a> · Payments are processed by Stripe; Otto never sees your card details.</p></div>`);
+  setUrl({plan, interval: founding ? "" : IVAL, brand: BRAND});
+  const r = await api("/billing/checkout", {plan, interval: founding ? "one_time" : IVAL, brand: BRAND || undefined});
+  if(r.status !== 200){
+    if(r.j.code === "subscribed"){ setUrl({brand: BRAND}); OPEN = {change: true}; return account(); }
+    $("checkout").innerHTML = ""; $("co-err").textContent = r.j.error || "The payment form could not load. Try again in a minute.";
+    return;
+  }
+  if(r.j.ui === "hosted" && https(r.j.url)){ location.assign(r.j.url); return; }
+  const s = stripe();
+  if(!s){ $("checkout").innerHTML = ""; $("co-err").textContent = "The payment form could not load (a blocker may stop js.stripe.com). Allow it and reload."; return; }
+  try{
+    const init = s.initEmbeddedCheckout ? s.initEmbeddedCheckout.bind(s) : s.createEmbeddedCheckoutPage.bind(s);
+    EMBED = await init({fetchClientSecret: () => Promise.resolve(r.j.client_secret)});
+    $("checkout").innerHTML = "";
+    EMBED.mount("#checkout");
+  }catch(e){ $("checkout").innerHTML = ""; $("co-err").textContent = "The payment form could not load. Reload the page to try again."; }
+}
+
+/* ---------- after paying: wait for Stripe's webhook to reach Otto ---------- */
+async function confirming(sid){
+  head("Confirming your payment", "This takes a few seconds.");
+  view(`<div class="center"><div class="spin" aria-hidden="true"></div><p class="rt-m" id="cf-m">Waiting for the payment to be confirmed…</p></div>`);
+  for(let i = 0; i < 40; i++){
+    const r = await api("/billing/status?session_id=" + encodeURIComponent(sid));
+    const st = r.status === 200 ? r.j.state : null;
+    if(st === "active"){
+      await load();
+      head("You're all set", "");
+      const s = ACC.subscription || {};
+      view(`<div class="banner ok"><div><b>${esc(s.label || "Your plan")} is on.</b> ${s.status === "trialing" ? `Your first charge is on ${esc(day(s.trial_end))}, when the trial ends.` : "A receipt is on its way to " + esc(ACC.email) + "."}</div></div>
+        <div class="acts"><a class="btn pri" href="./">Open Otto</a><a class="btn gray" href="billing.html${BRAND ? "?brand=" + encodeURIComponent(BRAND) : ""}">Billing</a></div>`);
+      setUrl({brand: BRAND});
+      return;
+    }
+    if(st === "open" || st === "expired"){
+      head("Payment not completed", "");
+      view(`<div class="banner warn"><div>The payment wasn't completed, so nothing was charged.</div></div><div class="acts"><a class="btn pri" href="billing.html">Choose a plan</a></div>`);
+      return;
+    }
+    if(r.status === 401) return signin();
+    await new Promise(res => setTimeout(res, i < 10 ? 1500 : 3000));
+  }
+  head("Payment received", "");
+  view(`<div class="banner ok"><div><b>Thank you.</b> Your plan switches on as soon as the payment is confirmed (a bank debit can take a few days). You'll get an e-mail; there's nothing else to do.</div></div><div class="acts"><a class="btn pri" href="./">Open Otto</a></div>`);
+}
+
+/* ---------- payment method: Stripe's Payment Element (SetupIntent) inside this page ---------- */
+async function openPm(){
+  OPEN.pm = true;
+  const box = $("pm-box"); if(box) box.hidden = false;
+  const r = await api("/billing/payment-method", {brand: BRAND});
+  if(r.status !== 200){ $("pm-err").textContent = r.j.error || "Could not start. Try again."; return; }
+  const s = stripe();
+  if(!s){ $("pm-err").textContent = "The card form could not load (a blocker may stop js.stripe.com)."; return; }
+  ELEMENTS = s.elements({clientSecret: r.j.client_secret, appearance: appearance()});
+  const el = ELEMENTS.create("payment", {layout: "tabs"});
+  el.on("loaderror", () => { const e = $("pm-err"); if(e) e.textContent = "The card form could not load. Reload the page and try again."; });
+  el.mount("#pm-el");
+  ELEMENTS.ret = r.j.return_url;
+}
+async function savePm(btn){
+  if(!ELEMENTS || BUSY) return;
+  BUSY = true; btn.disabled = true; $("pm-err").textContent = "";
+  const {error} = await STRIPE.confirmSetup({elements: ELEMENTS, redirect: "if_required", confirmParams: {return_url: ELEMENTS.ret || location.href}});
+  BUSY = false; btn.disabled = false;
+  if(error){ $("pm-err").textContent = error.message || "The payment method was not saved."; return; }
+  OPEN.pm = false; ELEMENTS = null;
+  toast("Payment method saved. It's used for your next charge.");
+  setTimeout(async () => { await load(); account(); }, 2500);
+}
+
+/* ---------- actions ---------- */
+async function post(path, body, okMsg){
+  if(BUSY) return null;
+  BUSY = true;
+  const r = await api(path, Object.assign({brand: BRAND}, body || {}));
+  BUSY = false;
+  if(r.status !== 200){ toast(r.j.error || "Something went wrong. Try again."); return null; }
+  toast(r.j.message || okMsg || "Done.");
+  OPEN = {};
+  await load(); account();
+  return r.j;
+}
+document.addEventListener("click", async e => {
+  const t = e.target.closest("button,a"); if(!t) return;
+  const d = t.dataset;
+  if(d.reload !== undefined) return location.reload();
+  if(d.iv){ IVAL = d.iv; return account(); }
+  if(d.civ){ return checkout(new URLSearchParams(location.search).get("plan") || Q.get("plan"), d.civ); }
+  if(d.buy){ return checkout(d.buy, IVAL); }
+  if(d.back !== undefined && EMBED){ e.preventDefault(); destroyEmbed(); setUrl({brand: BRAND}); return account(); }
+  if(d.open){ OPEN[d.open] = !OPEN[d.open]; if(d.open === "change") OPEN.switch = null; return account(); }
+  if(d.switch){ OPEN.switch = d.switch; return account(); }
+  if(d.switchCancel !== undefined){ OPEN.switch = null; return account(); }
+  if(d.switchGo){ t.disabled = true; return post("/billing/change", {plan: d.switchGo, interval: IVAL}); }
+  if(d.keep !== undefined){ const s = ACC.subscription; return post("/billing/change", {plan: s.plan, interval: s.interval}); }
+  if(d.cancel !== undefined){ t.disabled = true; return post("/billing/cancel"); }
+  if(d.resume !== undefined){ t.disabled = true; return post("/billing/resume"); }
+  if(d.pm !== undefined){ if(!$("pm-box")) return toast("Choose a plan first: the payment method is added at checkout."); if(!OPEN.pm) openPm(); return $("pm-box").scrollIntoView({behavior: "smooth", block: "center"}); }
+  if(d.pmClose !== undefined){ OPEN.pm = false; ELEMENTS = null; return account(); }
+  if(t.id === "pm-save") return savePm(t);
+  if(d.portal !== undefined){ const r = await api("/billing/portal", {brand: BRAND}); if(r.status === 200 && https(r.j.url)) location.assign(r.j.url); else toast(r.j.error || "Not available."); }
+});
+document.addEventListener("change", async e => {
+  if(e.target.id === "bp"){ BRAND = e.target.value; OPEN = {}; destroyEmbed(); setUrl({brand: BRAND}); if(await load()) account(); }
+});
+document.addEventListener("submit", e => {
+  if(e.target.id !== "vat-f") return;
+  e.preventDefault();
+  post("/billing/tax-id", {value: $("vat-in").value.trim()});
+});
+start();
+</script>
+</body>
+</html>

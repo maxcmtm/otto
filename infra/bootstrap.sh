@@ -158,7 +158,7 @@ env_default OTTO_ADMIN_USERS "${admins:-owner@example.invalid}" \
 	"owner console users = the Cloudflare Access e-mails of the Otto team (comma list, lower case). Replace the placeholder."
 env_default OTTO_PROXY_KEY "$(python3 -c 'import secrets; print(secrets.token_hex(32))')" \
 	"shared with Caddy (/etc/otto/caddy.env): the API believes X-Otto-User only on requests carrying this key. Random, per server."
-env_default OTTO_OWNER_TZ Asia/Jerusalem "the owner's clock: owner jobs (morning report, recommendation cards, growth) run on it; brand jobs use brands[].tz"
+env_default OTTO_OWNER_TZ Asia/Jerusalem "the owner's clock: owner jobs (metrics snapshot, recommendation cards, growth) run on it; brand jobs (the 07:35 morning report too) use brands[].tz"
 [[ ${#chrome[@]} -gt 0 ]] && env_default OTTO_CHROME /usr/bin/google-chrome-stable
 env_default OTTO_FONT /usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf
 env_default OTTO_FONT_CACHE /var/cache/otto/fonts

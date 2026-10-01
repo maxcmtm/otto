@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <!-- CSP: script-src lists the sha256 of every inline script element in this page. After editing one, the browser refuses it and its console prints the new hash: replace the old one here (or recompute all of them). -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-WE/PxVHLqMPEBLxw3Rp4WNT2sGZYKKI+U54xHA6xTTE=' 'sha256-U7yxsqVvhxbXj+55PML1vKTrS9NgA0yPL/HJJk1qH2E=' 'sha256-aSX2oKbxkP7TlL0D9exZPRdwV+onWN7wyzlAcQ8IwNM='; style-src 'self' 'unsafe-inline'; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-src 'none'; worker-src 'none'; manifest-src 'self'; img-src 'self' data: https:; media-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-WE/PxVHLqMPEBLxw3Rp4WNT2sGZYKKI+U54xHA6xTTE=' 'sha256-ua911lBrwcvDFc5Q6aE26GDhJ/ywJfiKFyqF1oyCNxE=' 'sha256-aSX2oKbxkP7TlL0D9exZPRdwV+onWN7wyzlAcQ8IwNM='; style-src 'self' 'unsafe-inline'; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-src 'none'; worker-src 'none'; manifest-src 'self'; img-src 'self' data: https:; media-src 'none'">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <script>
 /* Head script: js + motion flags before first paint. */
@@ -658,7 +658,7 @@ var CK = '<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12.5
 function fresh(site) {
   return { v: 1, step: 1, reached: 1, site: site || '', peek: null, peekMs: null, peekAt: null, peekErr: null,
            cor: {}, ans: { goal: null, goal_note: '', budget: null, objection: '', never_say: '' },
-           ch: { meta: true, google_ads: false, telegram: false }, approvals: 'email', chTouched: {}, submit: null };
+           ch: { meta: true, google_ads: false, telegram: false }, approvals: 'email', comms_lang: 'en', chTouched: {}, submit: null };
 }
 var S = fresh();
 function store(k, v) { try { if (v == null) sessionStorage.removeItem(k); else sessionStorage.setItem(k, v); return true; } catch (e) { return false; } }
@@ -1088,8 +1088,12 @@ RENDER[4] = function () {
         '<label><input type="radio" name="appr" value="telegram"' + (S.approvals === 'telegram' ? ' checked' : '') + '><span>Telegram</span></label>' +
         '<label><input type="radio" name="appr" value="app"' + (S.approvals === 'app' ? ' checked' : '') + '><span>The app</span></label></div></div>' +
         '<p>' + (S.approvals === 'telegram' ? '<b>Next:</b> after setup you get a one-time link that opens Otto’s bot in Telegram and pairs your phone. Until then, everything waits in the app.'
-              : S.approvals === 'email' ? 'Each morning at 08:00, one email with the posts due in the next 3 days: Approve or Skip in one tap, Change opens the post in the app. You can switch in Settings.'
-              : 'Everything waits in the app. You can switch to email or Telegram later in Settings.') + '</p></div></div>' +
+              : S.approvals === 'email' ? 'Each morning at 07:35, one email: what went out yesterday, what it cost and brought in, and the posts due in the next 3 days. Approve or Skip in one tap, Change opens the post in the app. You can switch in Settings.'
+              : 'Everything waits in the app. You can switch to email or Telegram later in Settings.') + '</p>' +
+      '<div class="cc-ctl is-seg"><span id="clang-l">Language for e-mails and reports</span><div class="seg" role="radiogroup" aria-labelledby="clang-l">' +
+        [['en', 'English'], ['nl', 'Nederlands'], ['de', 'Deutsch']].map(function (x) {
+          return '<label lang="' + x[0] + '"><input type="radio" name="clang" value="' + x[0] + '"' + ((S.comms_lang || 'en') === x[0] ? ' checked' : '') + '><span>' + x[1] + '</span></label>';
+        }).join('') + '</div></div></div></div>' +
     '<div class="cc"><span class="cc-ic">' + G.ig + '</span><div class="cc-h"><b>Instagram and Facebook</b>' + np + '</div>' +
       '<p class="cc-d">Posts, stories and reels, and the numbers behind them.</p>' + (metaFound.length ? '<p class="cc-found">Found on your site: ' + esc(metaFound.join(' · ')) + '</p>' : '') +
       '<div class="cc-how"><div class="cc-ctl"><label class="lbl" for="ch-meta">Plan posts for Instagram and Facebook</label><span class="sw-t"><input type="checkbox" role="switch" id="ch-meta"' + (S.ch.meta ? ' checked' : '') + '><span></span></span></div>' +
@@ -1104,6 +1108,7 @@ RENDER[4] = function () {
 $('#conn').addEventListener('change', function (e) {
   var t = e.target;
   if (t.name === 'appr') { S.approvals = t.value; S.ch.telegram = t.value === 'telegram'; RENDER[4](); $('#conn input[name=appr]:checked').focus(); }
+  if (t.name === 'clang') S.comms_lang = t.value;     /* what Otto sends you; the posts keep your customers' language */
   if (t.id === 'ch-meta') { S.ch.meta = t.checked; S.chTouched.meta = true; }
   if (t.id === 'ch-gads') { S.ch.google_ads = t.checked; S.chTouched.google_ads = true; }
   save();
@@ -1127,7 +1132,8 @@ function pattern(ind) {     // otto_plan.mix_pattern: largest remainder, then sp
   return seq;
 }
 function at(day, hm) { var t = new Date(day); t.setHours(+hm.slice(0, 2), +hm.slice(3), 0, 0); return t; }
-function firstReview(now) { now = now || new Date(); var t = at(now, '08:00'); while (t - now < 6 * 3600e3) t.setDate(t.getDate() + 1); return t; }   /* the 08:00 approval cards / e-mails */
+function reviewTime() { return S.approvals === 'app' ? '08:00' : '07:35'; }   /* e-mail / Telegram approvals come with the 07:35 morning report; the app's Review fills at 08:00 */
+function firstReview(now) { now = now || new Date(); var t = at(now, reviewTime()); while (t - now < 6 * 3600e3) t.setDate(t.getDate() + 1); return t; }
 function isoWeek(dt) { var t = new Date(Date.UTC(dt.getFullYear(), dt.getMonth(), dt.getDate())), n = t.getUTCDay() || 7; t.setUTCDate(t.getUTCDate() + 4 - n); var y = new Date(Date.UTC(t.getUTCFullYear(), 0, 1)); return Math.ceil(((t - y) / 864e5 + 1) / 7); }
 function localWeek() {       // mirrors otto_plan's slot logic when the server hasn't answered
   var v = V(), start = firstReview(), end = new Date(start.getTime() + 7 * 864e5), pil = pillarsFor(v.industry), pat = pattern(v.industry);
@@ -1161,7 +1167,7 @@ RENDER[5] = function () {
   var start = W7.start, first = items.filter(function (x) { return x.t - start <= 48 * 3600e3; });
   var fd = []; first.forEach(function (x) { var k = LONG[x.t.getDay()]; if (fd.indexOf(k) < 0) fd.push(k); });
   var firstDays = fd.join(' and ');
-  var mail = S.approvals === 'email', when = '08:00';
+  var mail = S.approvals === 'email', when = reviewTime();
   $('#s5-lead').innerHTML = dayWord(start) + ' at ' + when + ', your first posts ' + (mail ? 'arrive by email' : S.approvals === 'app' ? 'are waiting in the app' : 'are on your phone') + ', ready for a tap. <b>Nothing goes out without your approval.</b>';
   $('#notif').innerHTML = '<span class="mark" aria-hidden="true"></span><div><b>Otto · ' + esc(res && res.name || v.name) + '</b><span>' + (first.length ? first.length + (first.length === 1 ? ' post' : ' posts') + (mail ? ' to approve by email' : ' ready for review') : 'Your first posts are ready for review') + '</span></div><time>' + esc(dayWord(start)) + ' ' + when + '</time>';
   // the week strip
@@ -1179,8 +1185,8 @@ RENDER[5] = function () {
   var metaOn = S.ch.meta;
   $('#tl').innerHTML = [
     ['Today', 'Otto reads the rest of <strong>' + esc(S.site || 'your site') + '</strong>, writes your brand profile and plans the month.'],
-    [dayWord(start) + ' 08:00', 'Your first review: <strong>' + first.length + (first.length === 1 ? ' post' : ' posts') + (firstDays ? ' for ' + esc(firstDays) : '') + '</strong> to approve, change or skip' + (S.approvals === 'telegram' ? ', in Telegram once paired (after the 07:35 morning report), or in the app.' : S.approvals === 'email' ? ', by email at 08:00, or in the app.' : ', in the app.')],
-    S.approvals === 'telegram' ? ['Every morning', 'A short report at 07:35: what went out, what it cost, what it brought in.'] : ['Every day', 'The app’s Today tab shows what went out and how it did.'],
+    [dayWord(start) + ' ' + when, 'Your first review: <strong>' + first.length + (first.length === 1 ? ' post' : ' posts') + (firstDays ? ' for ' + esc(firstDays) : '') + '</strong> to approve, change or skip' + (S.approvals === 'telegram' ? ', in Telegram once paired (right after the 07:35 morning report), or in the app.' : S.approvals === 'email' ? ', in your 07:35 morning email, or in the app.' : ', in the app.')],
+    S.approvals !== 'app' ? ['Every morning', 'A short report at 07:35' + (mail ? ' by email' : ' in Telegram') + ': what went out, what it cost, what it brought in, and what waits for your tap.'] : ['Every day', 'The app’s Today tab shows what went out and how it did.'],
     [metaOn ? 'When you connect' : 'Later', metaOn ? 'Approved posts publish to Instagram and Facebook in their slots. Until then they wait for you.' : 'Switch on Instagram and Facebook in Otto whenever you want posts to go out.']
   ].map(function (r) { return '<li><b>' + r[0] + '</b><span>' + r[1] + '</span></li>'; }).join('');
   renderSetup();
@@ -1198,7 +1204,8 @@ function renderSetup() {
 function payload() {
   var a = S.ans, tz = ''; try { tz = Intl.DateTimeFormat().resolvedOptions().timeZone || ''; } catch (e) {}
   return { site: S.site, answers: { goal: a.goal, goal_note: a.goal_note, budget: a.budget, objection: a.objection, never_say: a.never_say, tz: tz,
-    corrections: S.cor, channels: { meta: !!S.ch.meta, google_ads: !!S.ch.google_ads, telegram: S.approvals === 'telegram' }, approvals: S.approvals } };
+    corrections: S.cor, channels: { meta: !!S.ch.meta, google_ads: !!S.ch.google_ads, telegram: S.approvals === 'telegram' }, approvals: S.approvals,
+    comms_lang: S.comms_lang || 'en' } };
 }
 var sending = false;
 async function submit(force) {
@@ -1231,8 +1238,8 @@ async function submit(force) {
 }
 $('#edit-answers').addEventListener('click', function () { go(3); });
 $('#open-app').addEventListener('click', function () { store('otto.site', S.site); });
-/* The app lives next to this page on app.<domain> and on the old box (/otto/), but a buyer who arrives from the Whop checkout
-   is on the apex, where index.html is the landing: send them to the app's own host there. */
+/* The app lives next to this page on app.<domain> and on the old box (/otto/), but a visitor who arrives from the landing's
+   public onboarding is on the apex, where index.html is the landing: send them to the app's own host there. */
 (function () {
   var host = location.hostname;
   if (/^(app|admin)\./.test(host) || /\/otto\//.test(location.pathname) || /^(localhost|127\.0\.0\.1|\[::1\])$/.test(host) || location.protocol === 'file:') return;

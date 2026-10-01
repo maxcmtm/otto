@@ -239,7 +239,7 @@
    "primaries": [
     "Every morning at 7:35, Otto tells you what your ads cost yesterday, what came in, and which posts are waiting for you. Approving is one tap.",
     "Many agencies send you a PDF once a month. Otto sends you one message every morning at 7:35. Read it with your tea.",
-    "If something drops, you hear about it within the hour, with a fix already drafted. You decide."
+    "If something drops, it's in the next morning's report. You decide what happens."
    ],
    "description": "Your marketing, in one message",
    "cta": "LEARN_MORE",
@@ -403,7 +403,7 @@
         "label": "When something drops",
         "values": [
          "Often next month",
-         "Within the hour"
+         "The next morning"
         ]
        },
        {
@@ -414,7 +414,7 @@
         ]
        }
       ],
-      "footnote": "Otto: a report at 7:35, alerts within the hour.",
+      "footnote": "Otto: a report at 7:35, every morning.",
       "theme": "light"
      },
      "brief": "Table: the usual monthly report against the morning message. Fair, no prices.",

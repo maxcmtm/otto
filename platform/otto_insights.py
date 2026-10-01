@@ -174,7 +174,11 @@ def run(dry=False, bid=None, days=7):
                     ap.add_rec_once(d, "P1", f"Double down on “{best}” next week",
                                     f"Top post: “{top.get('hook','')[:70]}” — reach {_n(top['metrics'].get('reach')):,}, "
                                     f"saves {_n(top['metrics'].get('saves'))}. {best} carries {len([p for p in scored[:5] if p['pillar']==best])} of the top 5.",
-                                    "Next batch iterates on proven angles", "Approve plan tweak", brand=b["id"], source="otto_insights")
+                                    "Next batch iterates on proven angles", "Approve plan tweak", brand=b["id"], source="otto_insights",
+                                    i18n={"key": "rec.double_down", "args": {
+                                        "pillar": best, "hook": top.get("hook", "")[:70], "reach": _n(top['metrics'].get('reach')),
+                                        "saves": _n(top['metrics'].get('saves')),
+                                        "k": len([p for p in scored[:5] if p['pillar'] == best])}})
                 print(f"{b['id']}: winner pillar → {best}")
             else:
                 print(f"{b['id']}: {len(scored)} posts with metrics — winners need 3+")

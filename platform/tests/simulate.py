@@ -367,6 +367,26 @@ def _connect(self, addr):
     return _conn(self, addr)
 _s.getaddrinfo = _getaddrinfo
 _s.socket.connect = _connect
+# the simulated clock in CLI subprocesses (otto_plan.py build, ap.py …): OTTO_SIM_CLOCK, set by cli() from FakeClock. Without
+# it a subprocess plans against the real date, and once the real date reaches the simulated month the results drift.
+import os as _os
+_clk = _os.environ.get("OTTO_SIM_CLOCK")
+if _clk:
+    import datetime as _dtm
+    _RD, _RDate = _dtm.datetime, _dtm.date
+    _NOW = _RD.fromisoformat(_clk.replace("Z", "+00:00")).astimezone(_dtm.timezone.utc)
+    class _SimDT(_RD):
+        @classmethod
+        def now(cls, tz=None):
+            return _NOW.astimezone(tz) if tz else _NOW.replace(tzinfo=None)
+        @classmethod
+        def utcnow(cls):
+            return _NOW.replace(tzinfo=None)
+    class _SimDate(_RDate):
+        @classmethod
+        def today(cls):
+            return _NOW.date()
+    _dtm.datetime, _dtm.date = _SimDT, _SimDate
 '''
 
 
@@ -654,6 +674,8 @@ IDS = {}        # slug -> {"posts": [...], ...}
 
 def cli(*args, timeout=180, env=None):
     e = dict(os.environ, **WSP.env)
+    if FakeClock.now is not None:                           # the subprocess lives on the simulated clock too (GUARD)
+        e["OTTO_SIM_CLOCK"] = FakeClock.now.isoformat()
     e.update(env or {})
     t0 = time.time()
     r = subprocess.run([sys.executable] + [str(a) for a in args], cwd=str(PLATFORM), env=e, capture_output=True, text=True, timeout=timeout)
@@ -692,10 +714,13 @@ def load_engine():
         os.environ[k] = v
     import ap, otto_paths, otto_scan, otto_strategy, otto_competitors, otto_plan, otto_creative, otto_compliance, otto_telegram
     import otto_publish, otto_ads, otto_insights, otto_watch, otto_growth, otto_demo, otto_motion, otto_video, genvisuals, otto_api
+    import otto_i18n, otto_report, otto_email
     for m in (ap, otto_paths, otto_scan, otto_strategy, otto_competitors, otto_plan, otto_creative, otto_compliance, otto_telegram,
-              otto_publish, otto_ads, otto_insights, otto_watch, otto_growth, otto_demo, otto_motion, otto_video, genvisuals, otto_api):
+              otto_publish, otto_ads, otto_insights, otto_watch, otto_growth, otto_demo, otto_motion, otto_video, genvisuals, otto_api,
+              otto_i18n, otto_report, otto_email):
         M[m.__name__] = m
-    install_clock([ap, otto_publish, otto_telegram, otto_watch, otto_insights, otto_ads, otto_growth, otto_competitors, otto_scan])
+    install_clock([ap, otto_publish, otto_telegram, otto_watch, otto_insights, otto_ads, otto_growth, otto_competitors, otto_scan,
+                   otto_report])
     # fakes: Meta Graph, Telegram, OpenClaw sender, Google (urlopen)
     otto_publish.graph = META.graph
     otto_telegram.api = TG.api
@@ -794,7 +819,7 @@ def step_onboard(b):
         R.check(lang == e["primary"], f"brand_lang = {lang} (expected {e['primary']})")
         code, out, _ = cli("ap.py", "brand-add", b["slug"], b["name"], b["domain"], b["lang_arg"])
         R.check(code != 0 and "exists" in out, "second brand-add with the same slug was not refused")
-        with M["ap"].transaction(sync=False) as dd:  # a paying Growth client (Whop link), so the whole engine runs —
+        with M["ap"].transaction(sync=False) as dd:  # a paying Growth client (a linked subscription), so the engine runs —
             bb = M["ap"].brand(dd, b["slug"])        # Starter/Content limits are covered by tests/test_plans.py
             bb["plan"] = "growth"; bb.pop("plan_billing", None)
             if b.get("landing"):                  # what the onboarding agent records after the owner's answers
@@ -1110,7 +1135,8 @@ def step_approvals(biz):
             n0 = len(TG.calls)
             call(tg.handle_callback, cq(carded[1], "approve"))
             answer = [c[1].get("text", "") for c in TG.calls[n0:] if c[0] == "answerCallbackQuery"]
-            R.check(answer and "Already" in answer[-1], f"double tap answered {answer}")
+            t = M["otto_i18n"].Tr.for_brand(ap.brand(data(), slug))           # the client's language (Dutch, German, …)
+            R.check(answer and answer[-1].startswith(t("tg.already", state="").strip()), f"double tap answered {answer}")
             call(tg.handle_callback, cq(carded[2], "approve", user=7))
             R.check(ap.post(data(), carded[2])["status"] == "pending_approval", "a non-owner tap changed state")
             rest = carded[2:]
@@ -1291,7 +1317,8 @@ def step_ads(biz, ym):
                 n0 = len(TG.calls)
                 call(tg.handle_callback, cq(f"rec:{rec['id']}".replace("rec:", "rec:"), "approve", photo=False))
                 ans = [c[1].get("text", "") for c in TG.calls[n0:] if c[0] == "answerCallbackQuery"]
-                R.check(ans and "on it" in ans[-1], f"approving the plan card did not run approve(): {ans}")
+                t = M["otto_i18n"].Tr.for_brand(M["ap"].brand(data(), slug))
+                R.check(ans and ans[-1] == t("tg.rec.on_it"), f"approving the plan card did not run approve(): {ans}")
     FakeClock.set("2026-10-01T03:00:00Z")          # 06:00 IL launch cron, day 1
     for b in biz:
         slug = b["slug"]
@@ -1438,8 +1465,10 @@ def step_watch(biz):
     for b in biz:
         with R.step(b["slug"], "watch"):
             R.check(code == 0, f"watch exited {code}: {out[-200:]}")
-            if b["slug"] == "spreebogen":
-                R.check("never confirmed" in alerts, "no alert for the post stuck in publishing")
+            if b["slug"] == "spreebogen":                                         # a German brand: its alert is German
+                unq = lambda x: re.sub(r"[“”‘’„]", "", x)
+                frag = unq(M["otto_i18n"].Tr.for_brand(ap.brand(data(), "spreebogen"))("alert.stuck", hook=""))[:40].strip()
+                R.check(frag in unq(alerts), "no alert for the post stuck in publishing")
             if target and b["slug"] == target[0]:
                 hook = ap.post(data(), target[1])["hook"][:30]
                 R.check(hook[:20] in alerts, f"publisher down: approved post {target[1]} is 2+ h past its slot and the hourly guard said nothing "
@@ -1710,11 +1739,13 @@ def inject_parallel(ym):
 def inject_mid_month():
     ap = M["ap"]
     with R.step("INJECT", "mid-month onboarding"):
-        real_now = _real_datetime.now(timezone.utc)           # the subprocess plans against the real clock
-        code, out, _ = cli("otto_plan.py", "build", "studiolume", real_now.strftime("%Y-%m"))
-        ps = [p for p in posts_of("studiolume") if p.get("plan") == real_now.strftime("%Y-%m")]
+        # a month nothing else in the simulation plans, built on its 29th (the subprocess's clock: OTTO_SIM_CLOCK)
+        sim_now = _real_datetime(2027, 1, 29, 7, 0, tzinfo=timezone.utc)
+        code, out, _ = cli("otto_plan.py", "build", "studiolume", "2027-01", env={"OTTO_SIM_CLOCK": sim_now.isoformat()})
+        R.check(code == 0, f"plan build exited {code}: {out[-200:]}")
+        ps = [p for p in posts_of("studiolume") if p.get("plan") == "2027-01"]
         br = ap.brand(data(), "studiolume")
-        past = [p for p in ps if ap.slot_dt(p, br) < real_now]
+        past = [p for p in ps if ap.slot_dt(p, br) < sim_now]
         R.check(not past, f"building the current month on the 29th created {len(past)} of {len(ps)} posts with slots already in the past "
                           f"(they can only ever be 'missed')", "WARN")
         R.mark("PASS", f"{len(ps)} posts, {len(past)} in the past")

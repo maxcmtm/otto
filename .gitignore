@@ -45,11 +45,13 @@ motion/*/.media/
 
 # engine runtime state (server only)
 platform/data.json.lock
-# owner console runtime state (otto_track / otto_whop / otto_admin): analytics events, billing, lead notes, logs
+# owner console runtime state (otto_track / otto_billing / otto_stripe / otto_whop / otto_admin): analytics events, billing
+# (and the key that signs checkout references), lead notes, logs
 platform/events.jsonl
 platform/.track-salt
 platform/billing.json
 platform/billing.json.lock
+platform/.billing-ref-secret
 platform/leads.json
 platform/leads.json.lock
 platform/*.log

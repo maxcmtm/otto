@@ -14,16 +14,22 @@ Jobs — wall-clock times are LOCAL: a per-brand job at the brand's time (brands
 (OTTO_OWNER_TZ, else OTTO_TZ, else Asia/Jerusalem). The old crontab's IL times, now DST-proof and right for every market:
   publish       every 15 min (UTC)  per brand   otto_publish.py --brand B                        kill switch
   watch         hourly at :15 (UTC) once        otto_watch.py watch
-  watch-report  07:30 owner         once        otto_watch.py report         (the owner's morning digest, all brands)
+  watch-report  07:30 owner         once        otto_watch.py snapshot       (the daily metrics snapshot: drop alerts, growth)
+  morning-report 07:35 brand        per brand   otto_report.py send --brand B               approvals channel: email and/or
+                                                (the 7:35 message: yesterday, paid vs budget, today, decisions — by e-mail   telegram
+                                                with the approvals inside, in Telegram followed by the cards; plan: reports)
   cards         08:00 brand         per brand   otto_telegram.py send-cards --brand B       approvals channel: telegram
+                                                (catch-up: the 07:35 report already sent the cards it could)
   recs          18:30 owner         once        otto_telegram.py send-recs   (recommendation cards go to the owner)
   email-cards   08:00 brand         per brand   otto_email.py send-cards --brand B          approvals channel: email
+                                                (catch-up: the 07:35 report e-mail already carried the posts due)
   email-recs    18:30 brand         per brand   otto_email.py send-recs --brand B           approvals channel: email
   genvisuals    18:00 brand         per brand   genvisuals.py --brand B --limit 12
   reels         18:30 brand         per brand   otto_video.py missing --brand B → otto_video.py render <id> for each id
   ads-launch    06:00 brand         per brand   otto_ads.py launch --brand B                     kill switch
   ads-guard     06:05 owner         once        otto_ads.py guard            (keeps pausing ended campaigns, kill switch or not)
-  ads-report    07:35 brand         per brand   otto_ads.py report --brand B
+  ads-report    07:15 brand         per brand   otto_ads.py report --brand B [--no-send]    (pulls yesterday's paid numbers
+                                                for the 07:35 report; --no-send when the brand's Telegram report carries them)
   growth        05:10 owner         once        otto_growth.py rollup [--send on the owner's days 1-3: the month marker sends once]
   competitors   Mon 06:00 brand     per brand   otto_competitors.py sweep B [--country C]
   insights      Fri 06:00 brand     per brand   otto_insights.py --brand B
@@ -48,8 +54,8 @@ sweep, visuals + the monthly plan likewise); a plan with a monthly competitor sw
 month only (--all / --brand run it anyway); a brand on the ended plan ("none": membership canceled) sits every job out.
 ads-guard runs once for all brands whatever their plan, so a downgrade still pauses live campaigns and ends old flights.
 Approvals channel (brands[].approvals, otto_email.approval_channels): "cards" runs for brands whose approvals include telegram
-(a brand without the field = telegram, as before), "email-cards" / "email-recs" for brands whose approvals include email;
-"app" sends nothing. The heartbeat names the channel as the reason.
+(a brand without the field = telegram, as before), "email-cards" / "email-recs" for brands whose approvals include email,
+"morning-report" for brands with either; "app" sends nothing. The heartbeat names the channel as the reason.
 Kill switch: while controls.publishing_paused is set, publish and ads-launch run nothing (checked again before every brand,
 so flipping it mid-run stops the rest). Everything else keeps running.
 Nothing to do is not a failure: plan-month / ads-plan skip a brand whose next month is already planned, ads-plan skips a
@@ -95,7 +101,8 @@ Job = namedtuple("Job", "label calendar local every log scope kill timeout")
 JOBS = {
     "publish": Job("Publisher", "*-*-* *:00/15:00", None, 15, "publish.log", BRAND, True, 20),
     "watch": Job("Hourly guard", "*-*-* *:15:00", None, 60, "watch.log", ONCE, False, 20),
-    "watch-report": Job("Morning report", None, "07:30", 1440, "watch.log", ONCE, False, 20),
+    "watch-report": Job("Metrics snapshot", None, "07:30", 1440, "watch.log", ONCE, False, 20),
+    "morning-report": Job("Morning report", None, "07:35", 1440, "report.log", BRAND, False, 30),
     "cards": Job("Approval cards", None, "08:00", 1440, "telegram.log", BRAND, False, 30),
     "recs": Job("Recommendation cards", None, "18:30", 1440, "telegram.log", ONCE, False, 20),
     "email-cards": Job("Approval e-mails", None, "08:00", 1440, "email.log", BRAND, False, 20),
@@ -104,7 +111,7 @@ JOBS = {
     "reels": Job("Reels", None, "18:30", 1440, "reels.log", BRAND, False, 180),
     "ads-launch": Job("Paid launch", None, "06:00", 1440, "ads.log", BRAND, True, 30),
     "ads-guard": Job("Paid guard", None, "06:05", 1440, "ads.log", ONCE, False, 30),
-    "ads-report": Job("Paid report", None, "07:35", 1440, "ads.log", BRAND, False, 30),
+    "ads-report": Job("Paid numbers", None, "07:15", 1440, "ads.log", BRAND, False, 30),
     "growth": Job("Growth ledger", None, "05:10", 1440, "growth.log", ONCE, False, 20),
     "competitors": Job("Competitor sweep", None, "Mon 06:00", 10080, "competitors.log", BRAND, False, 45),
     "insights": Job("Insights", None, "Fri 06:00", 10080, "insights.log", BRAND, False, 30),
@@ -233,7 +240,8 @@ def brand_skip(b, job):
 # plans.json gates: job → the plan feature it needs ("ads" = paid ads on any network). ads-guard is not here on purpose.
 PLAN_GATES = {"ads-plan": "ads", "ads-launch": "ads", "ads-report": "ads", "reels": "reels", "cards": "telegram",
               "insights": "reports", "competitors": "competitor_sweep", "genvisuals": "organic", "plan-month": "organic",
-              "email-cards": "organic", "email-recs": "organic"}     # e-mail approvals come with every plan that makes content
+              "email-cards": "organic", "email-recs": "organic",     # e-mail approvals come with every plan that makes content
+              "morning-report": "reports"}
 GATE_TEXT = {"reels": "reels", "telegram": "Telegram approvals", "reports": "reports", "competitor_sweep": "competitor sweep",
              "organic": "organic content"}
 
@@ -257,8 +265,8 @@ def plan_skip(job, b, d, today, force=False):
     return None
 
 
-# approvals channel gates: job → the channel brands[].approvals must include
-CHANNEL_GATES = {"cards": "telegram", "email-cards": "email", "email-recs": "email"}
+# approvals channel gates: job → the channel(s) brands[].approvals must include (a tuple: any of them)
+CHANNEL_GATES = {"cards": "telegram", "email-cards": "email", "email-recs": "email", "morning-report": ("email", "telegram")}
 
 
 def channel_skip(job, b):
@@ -267,7 +275,7 @@ def channel_skip(job, b):
     if not need:
         return None
     import otto_email
-    if need in otto_email.approval_channels(b):
+    if set(need if isinstance(need, tuple) else (need,)) & set(otto_email.approval_channels(b)):
         return None
     return f"approvals {'in the app only' if not otto_email.approval_channels(b) else 'by ' + otto_email.approvals_label(b).lower()}" \
            " (brands[].approvals)"
@@ -286,7 +294,7 @@ def once_argv(job, today):
     if job == "watch":
         return [PY, script("otto_watch.py"), "watch"]
     if job == "watch-report":
-        return [PY, script("otto_watch.py"), "report"]
+        return [PY, script("otto_watch.py"), "snapshot"]
     if job == "recs":
         return [PY, script("otto_telegram.py"), "send-recs"]
     if job == "ads-guard":
@@ -325,8 +333,12 @@ def brand_task(job, b, d, today, brands_dir, day=None):
         return T([PY, script("otto_video.py"), "missing", "--brand", bid], expand=[PY, script("otto_video.py"), "render"])
     if job == "ads-launch":
         return T([PY, script("otto_ads.py"), "launch", "--brand", bid])
-    if job == "ads-report":
-        return T([PY, script("otto_ads.py"), "report", "--brand", bid])
+    if job == "morning-report":
+        return T([PY, script("otto_report.py"), "send", "--brand", bid])
+    if job == "ads-report":                          # the Telegram morning report carries the paid numbers: no 2nd message
+        import otto_email
+        quiet = "telegram" in otto_email.approval_channels(b) and all(ap.plan_of(d, bid)["features"].get(f) for f in ("reports", "telegram"))
+        return T([PY, script("otto_ads.py"), "report", "--brand", bid] + (["--no-send"] if quiet else []))
     if job == "insights":
         return T([PY, script("otto_insights.py"), "--brand", bid])
     if job == "competitors":

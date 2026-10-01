@@ -6,7 +6,7 @@
   otto_admin.py kill on|off [--note "…"]           # global kill switch: no post publishes, no ad launches, live campaigns
                                                    # are paused (off resumes only the ones the switch paused)
   otto_admin.py pause|resume <brand> [--note "…"]  # one brand (publishing + ad launches; pause also pauses its live campaigns)
-  otto_admin.py activate <brand> [--note "…"]      # a client outside Whop (brand-add, comped): onboarding → active
+  otto_admin.py activate <brand> [--note "…"]      # a client outside paid billing (brand-add, comped): onboarding → active
   otto_admin.py campaign <cp-id> approve|reject [--note "…"]
   otto_admin.py rescan <brand>                     # re-read the brand's website in the background (scan.json only)
   otto_admin.py lead <lead-id> new|contacted|won|lost [--note "…"]
@@ -17,17 +17,23 @@
   otto_admin.py plans                              # the plans in plans.json and every brand's plan + usage this month
 
 Sources (all read-only here, except the controls): data.json (ap.load) · landing events ($OTTO_EVENTS, otto_track) ·
-billing ($OTTO_BILLING, otto_whop) · lead notes ($OTTO_LEADS, default leads.json next to data.json) · cron logs, publish.log,
+billing ($OTTO_BILLING, otto_billing: Stripe + the legacy Whop founders) · lead notes ($OTTO_LEADS, default leads.json next to data.json) · cron logs, publish.log,
 api-errors.log and actions.log next to data.json · which otto-secrets files exist (never their contents).
 
 Definitions (the console's footnotes say the same):
   visitors     distinct visitors per day on the landing (the visitor id changes every UTC day), plus anonymous (Do Not Track) views
   scanned      visitors who ran a scan · get started = visitors who clicked a checkout or "Start free 7-day trial" button
-  checkouts    Whop memberships created (including unfinished "drafted" checkouts) · paying = customers who started in the window
+  checkouts    customer records created (Stripe Checkout Sessions completed or still unpaid, legacy Whop memberships incl.
+               "drafted") · paying = customers who started in the window
   onboarded    paying customers tied to a brand in data.json (linked by hand, or matched by domain)
   lead         a scanned domain (d:<domain>), or a visitor who clicked Get started / reached onboarding without scanning
                (v:<day>:<id>); "paid" when a customer's e-mail domain, website or brand matches the lead's domain
-  MRR          EUR, active + past_due customers on renewal plans (one-time founding seats add 0) · churn = cancellations
+  MRR          EUR (otto_billing.metrics), active + past_due subscriptions: monthly = the amount, yearly = amount / 12; one-time
+               founding seats add 0 · churn = cancellations · legacy Whop founders are listed read-only (no Whop sync)
+  comms_lang   brands[].comms_lang (otto_i18n): the language of what Otto sends the client (e-mails, the 07:35 report, one-tap
+               pages, Telegram cards) — English unless the client or the owner chose Nederlands / Deutsch; shown next to the
+               content language (what the posts are written in), which it never changes. The owner sets it with
+               {"action": "comms_lang", "brand": …, "lang": "en|nl|de"}.
   approvals    brands[].approvals (otto_email): the channel (Email / Telegram / App only), who approval e-mails go to (masked),
                the last digest / recommendation e-mail, the last send error, bounces the provider reported, and the outbox
                (e-mails written to disk while no mail transport is configured)
@@ -47,8 +53,11 @@ from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 
 import ap
+import otto_billing
 import otto_email
+import otto_i18n
 import otto_paths
+import otto_stripe
 import otto_track as track
 import otto_whop as whop
 
@@ -224,7 +233,7 @@ def index_events(events, win_start):
             cid = e.get("id") or ""
             if inwin:
                 T["ctas"][cid] += 1
-            if cid.startswith(("get_started", "start_trial")):     # the Whop checkout, or "Start free 7-day trial"
+            if cid.startswith(("get_started", "start_trial")):     # a checkout button, or "Start free 7-day trial"
                 info["gs"] += 1
         elif typ in ("scan_start", "scan_result"):
             dom = e.get("domain")
@@ -262,7 +271,7 @@ def brand_domains(d):
 
 def customer_domains(c, brands_by_id):
     out = set()
-    dom = whop.email_domain(c.get("email"))
+    dom = otto_billing.email_domain(c.get("email"))
     if dom and dom not in FREEMAIL:
         out.add(base_domain(dom))
     if c.get("website"):
@@ -341,6 +350,13 @@ def _compliance(d, bid):
         return otto_compliance.summary(bid, d=d)
     except Exception as e:                                   # noqa: BLE001
         return {"error": f"{type(e).__name__}: {e}"[:160]}
+
+
+def _content_lang(b):
+    try:
+        return ap.brand_lang(b)
+    except Exception:                                        # noqa: BLE001 — a hand-edited lang never takes the console down
+        return None
 
 
 def brand_health(d, sysinfo, customers, now):
@@ -451,7 +467,7 @@ def brand_health(d, sysinfo, customers, now):
                           f"€{band.get('overage_above_eur') or band.get('cap_eur') or 0:,.0f} ≈ €{band.get('overage_eur') or 0:,.0f} "
                           "this month (invoice by hand)")
         if pv.get("not_billed") and not pv["ended"]:
-            issues.append(f"Not billed yet: on {pv['label']} without a Whop membership")
+            issues.append(f"Not billed yet: on {pv['label']} without a subscription")
         pv["uncovered_live"] = uncovered
         eh = sysinfo.get("email") if isinstance(sysinfo.get("email"), dict) else {}
         try:
@@ -497,6 +513,9 @@ def brand_health(d, sysinfo, customers, now):
             "last_activity": max(stamps) if stamps else None, "connections": conn,
             "customers": [c["id"] for c in cust], "last_scan": (sysinfo.get("scans") or {}).get(bid),
             "rescan": b.get("rescan"), "plan": pv, "approvals": appr, "compliance": _compliance(d, bid),
+            "comms_lang": {"value": otto_i18n.lang_of(b), "label": otto_i18n.COMMS_LANGS[otto_i18n.lang_of(b)],
+                           "set": isinstance(b.get("comms_lang"), str) and bool(b.get("comms_lang")),
+                           "changed": b.get("comms_lang_set"), "content_lang": _content_lang(b)},
         })
     order = {"blocked": 0, "attention": 1, "ok": 2}
     return sorted(out, key=lambda x: (order[x["health"]], x["name"].lower()))
@@ -593,6 +612,80 @@ def whop_webhook_url():
     return f"https://{dom}/hooks/whop" if dom else f"{PUBLIC_BASE}/hooks/whop"
 
 
+def stripe_webhook_url():
+    """Where Stripe must send its events: https://<apex>/hooks/stripe (infra/Caddyfile; public, POST only)."""
+    dom = (os.environ.get("OTTO_DOMAIN") or "").strip().strip("/")
+    return f"https://{dom}/hooks/stripe" if dom else f"{PUBLIC_BASE}/hooks/stripe"
+
+
+def _billing_setup(billing_meta, plans_cfg, legacy_n):
+    """The Stripe rows of Setup (keys, webhook, prices, Stripe Tax, branding, the optional portal) and the legacy Whop row.
+    billing_meta = {"stripe": otto_stripe.status(), "whop": otto_whop.status()} (a flat dict = the old Whop-only shape)."""
+    sm = billing_meta.get("stripe") if isinstance(billing_meta.get("stripe"), dict) else {}
+    wm = billing_meta.get("whop") if isinstance(billing_meta.get("whop"), dict) else \
+        ({} if "stripe" in billing_meta else billing_meta)
+    chk = sm.get("check") if isinstance(sm.get("check"), dict) else {}
+    sellable = [pid for pid in (plans_cfg.get("order") or []) if pid in plans_cfg["plans"] and plans_cfg["plans"][pid].get("public")
+                and plans_cfg["plans"][pid].get("monthly_eur") is not None]
+    priced = {pid: [k for k in ("monthly", "yearly") if (plans_cfg["plans"][pid].get("stripe_price_ids") or {}).get(k)] for pid in sellable}
+    full = [pid for pid, ks in priced.items() if len(ks) == 2]
+    none = [pid for pid, ks in priced.items() if not ks]
+    bad_prices = {k: v for k, v in (chk.get("prices") or {}).items() if v != "ok"}
+    found = (plans_cfg["plans"].get("founding") or {}).get("stripe_price_ids") or {}
+    checked = f" · checked {chk['at'][:16].replace('T', ' ')}" if chk.get("at") else " · not checked yet (Controls → Check Stripe setup)"
+    events = ", ".join(otto_stripe.EVENTS)
+    return [
+        {"key": "stripe_keys", "label": "Stripe keys", "status": "connected" if sm.get("ready") else "missing",
+         "detail": ((f"{'Live' if sm.get('mode') == 'live' else 'Test'} mode · {sm.get('checkout_ui') or 'embedded'} checkout on the "
+                     "Billing page") if sm.get("ready") else
+                    "Not set up: every billing screen says “Payments aren't set up yet”" + (" (publishable key missing)" if sm.get("secret_key") else "")),
+         "how": "Stripe dashboard (account in EUR) → Developers → API keys: a restricted key (or the secret key) and the publishable "
+                "key into otto-secrets/stripe.json {\"secret_key\", \"publishable_key\"} (chmod 600), then systemctl restart otto-api. "
+                "Test-mode keys (sk_test_ / pk_test_) first. docs/BILLING.md has every step."},
+        {"key": "stripe_webhook", "label": "Stripe webhook", "status": "connected" if sm.get("last_webhook_at") else
+            "waiting" if sm.get("webhook_secret") else "missing",
+         "detail": ("Receiving events" if sm.get("last_webhook_at") else "Secret is configured; no event received yet"
+                    if sm.get("webhook_secret") else "Not connected yet: subscriptions would never switch a plan on"),
+         "at": sm.get("last_webhook_at"),
+         "how": f"Stripe dashboard → Developers → Webhooks → Add endpoint. URL: {stripe_webhook_url()} · events: {events} · copy "
+                "its signing secret (whsec_…) into otto-secrets/stripe.json \"webhook_secrets\": [\"whsec_…\"] (keep the old one in the "
+                "list while you roll a secret)."},
+        {"key": "stripe_prices", "label": "Stripe prices (plans.json)",
+         "status": "missing" if not full and sellable else "partial" if none or len(full) < len(sellable) or bad_prices else "connected",
+         "detail": (f"On sale: {', '.join(full) or 'none'}" + (f" · not on sale yet: {', '.join(none)}" if none else "")
+                    + (f" · founding seat: {'on' if found.get('one_time') else 'off'}")
+                    + (f" · problems: {'; '.join(f'{k} {v}' for k, v in list(bad_prices.items())[:3])}" if bad_prices else "") + checked),
+         "how": "Stripe → Product catalog: one product per plan (Starter, Growth, Scale, Agency), each with a monthly and a yearly EUR "
+                "price, tax behaviour exclusive. Put the price ids (price_…) into plans.json stripe_price_ids {monthly, yearly}; "
+                "founding.stripe_price_ids.one_time switches the €197 seat on (off while null)."},
+        {"key": "stripe_tax", "label": "Stripe Tax (EU VAT, reverse charge)",
+         "status": "connected" if chk.get("tax") == "active" else "missing" if chk.get("at") else "waiting",
+         "detail": ("Active" if chk.get("tax") == "active" else f"Status: {chk.get('tax') or 'unknown'}" if chk.get("at")
+                    else "Not checked yet") + checked,
+         "how": "Stripe → Settings → Tax: head office address, preset product tax code “Software as a service (SaaS) – business use”, "
+                "prices exclusive of tax, a registration for the Netherlands (and OSS if ever needed). Checkout collects the VAT ID; "
+                "a valid EU VAT ID outside the Netherlands gets the reverse charge automatically."},
+        {"key": "stripe_branding", "label": "Invoices and receipts look like Otto",
+         "status": "connected" if chk.get("branding") else "waiting",
+         "detail": ("Branding set" if chk.get("branding") else "Icon / logo or colours not set in Stripe") + checked,
+         "how": "Stripe → Settings → Business → Branding: Otto icon and logo, brand colour #2447F0, accent #10182B; public business name "
+                "“Otto”; Settings → Customer emails: successful payments + refunds on; optional custom domain for invoice links "
+                "(Settings → Custom domains, e.g. pay.<domain>)."},
+        {"key": "stripe_portal", "label": "Stripe Customer Portal (fallback)", "status": "connected" if sm.get("portal_fallback") else "optional",
+         "detail": "On: the Billing page also offers Stripe's portal" if sm.get("portal_fallback") else
+                   "Off: clients manage plan, card, VAT ID and invoices on Otto's own Billing page",
+         "how": "Only if wanted: Stripe → Settings → Billing → Customer portal (cancel at period end, switch plans, invoices), then "
+                "\"portal_fallback\": true in stripe.json."},
+        {"key": "whop_legacy", "label": "Legacy Whop founders", "status": "optional",
+         "detail": f"{legacy_n} founding seat{'s' * (legacy_n != 1)} bought on Whop · " + (
+             "webhook receiving events" if wm.get("last_webhook_at") else "webhook secret set" if wm.get("webhook_secret") else "no webhook")
+             + " · no new Whop checkout is offered anywhere",
+         "at": wm.get("last_webhook_at"),
+         "how": f"Read-only. Whop keeps reporting refunds / disputes of those seats to {whop_webhook_url()} "
+                "(otto-secrets/whop.json \"otto_webhook_secret\"); python3 otto_whop.py backfill re-reads them with the API key."},
+    ]
+
+
 def _google_setup():
     try:
         import otto_auth
@@ -614,7 +707,9 @@ def setup_items(d, sysinfo, billing_meta, events_meta):
     plans_cfg = ap.plans_config()
     public = [pid for pid in plans_cfg["order"] if plans_cfg["plans"][pid].get("public")]
     drafts = [pid for pid in public if plans_cfg["plans"][pid].get("status") == "draft"]
-    unsold = [pid for pid in public if not plans_cfg["plans"][pid]["whop_plan_ids"]]
+    unsold = [pid for pid in public if not any((plans_cfg["plans"][pid].get("stripe_price_ids") or {}).values())
+              and not plans_cfg["plans"][pid]["whop_plan_ids"]]
+    legacy_n = int(sysinfo.get("legacy_whop") or 0)
     brands = d.get("brands", [])
     unowned = [b["id"] for b in brands if not b.get("members")]
     cap_mb = float(os.environ.get("OTTO_EVENTS_MAX_MB") or 512)
@@ -622,20 +717,7 @@ def setup_items(d, sysinfo, billing_meta, events_meta):
     meta_n = sum(1 for b in brands if s.get(f"meta-{b['id']}.json"))
     google_n = sum(1 for b in brands if s.get(f"google-{b['id']}.json"))
     items = [
-        {"key": "whop_webhook", "label": "Whop webhook", "status": "connected" if billing_meta.get("last_webhook_at") else
-            "waiting" if billing_meta.get("webhook_secret") else "missing",
-         "detail": ("Receiving events" if billing_meta.get("last_webhook_at") else
-                    "Secret is configured; no event received yet" if billing_meta.get("webhook_secret") else "Not connected yet"),
-         "at": billing_meta.get("last_webhook_at"),
-         "how": f"Whop dashboard → Developer → Webhooks → Create webhook. URL: {whop_webhook_url()} · events: membership.*, "
-                "payment.*, refund.*, dispute.* · copy its secret (ws_…) into otto-secrets/whop.json as \"otto_webhook_secret\"."},
-        {"key": "whop_api", "label": "Whop API key (backfill)", "status": "connected" if billing_meta.get("api_key") and billing_meta.get("company_id")
-            else "missing",
-         "detail": ("Backfilled" if billing_meta.get("last_backfill_at") else
-                    "Key present; run a backfill" if billing_meta.get("api_key") else "Not connected yet"),
-         "at": billing_meta.get("last_backfill_at"),
-         "how": "Whop dashboard → Developer → API keys (read: memberships, payments, plans, member e-mail). Put \"api_key\" and "
-                "\"company_id\": \"biz_hSUmJXkmP4CrRh\" into otto-secrets/whop.json, then python3 otto_whop.py backfill."},
+        *_billing_setup(billing_meta, plans_cfg, legacy_n),
         {"key": "analytics", "label": "Landing analytics",
          "status": "missing" if full else "connected" if events_meta.get("last") else "waiting",
          "detail": (f"Events file is {events_meta.get('size_mb')} MB of {cap_mb:.0f} MB: new events are refused past it. "
@@ -671,15 +753,15 @@ def setup_items(d, sysinfo, billing_meta, events_meta):
                     else "Every brand has at least one client login"),
          "how": "A client signs in with Google on app. and sees only brands whose members list has that e-mail (a new sign-up "
                 "becomes the member of the brand it creates; \"@company.com\" counts only for that company's Google Workspace "
-                "accounts). Linking a Whop customer to a brand adds the payer; Clients → open the brand → Who can sign in (or "
+                "accounts). A paid checkout adds the payer to the brand it was bought for; Clients → open the brand → Who can sign in (or "
                 "otto_admin.py members <brand> --add a@x.com,@company.com) adds anyone else."},
         {"key": "plans", "label": "Plans (plans.json)", "status": "missing" if plans_cfg.get("error") else
             "waiting" if unsold or drafts else "connected",
          "detail": (f"Cannot be used: {plans_cfg['error'][:200]}" if plans_cfg.get("error") else
                     f"{len(plans_cfg['plans'])} plans" + (f" · draft prices: {', '.join(drafts)}" if drafts else "")
-                    + (f" · not on Whop yet: {', '.join(unsold)}" if unsold else "")),
-         "how": "platform/plans.json: features, limits, prices and whop_plan_ids per plan (no code change, re-read on save). "
-                "Add each Whop plan id to its plan's whop_plan_ids once the subscriptions exist on Whop."},
+                    + (f" · not on sale yet: {', '.join(unsold)}" if unsold else "")),
+         "how": "platform/plans.json: features, limits, prices and stripe_price_ids per plan (no code change, re-read on save). "
+                "Add each Stripe price id to its plan's stripe_price_ids once the prices exist in Stripe (docs/BILLING.md)."},
         {"key": "secrets_mode", "label": "Secret files locked", "status": "missing" if sysinfo.get("secrets_open") else "connected",
          "detail": ("Readable by other users: " + ", ".join(sysinfo.get("secrets_open")[:6])) if sysinfo.get("secrets_open")
                    else "Only the service user can read otto-secrets",
@@ -718,7 +800,7 @@ def clean_state(d):
 def build(d, events, billing, overlay, sysinfo, now=None, window=30, sample=False):
     """Pure: everything the console shows, from already-loaded inputs."""
     d = clean_state(d)
-    billing = dict(whop.empty(), **(billing if isinstance(billing, dict) else {}))
+    billing = dict(otto_billing.empty(), **(billing if isinstance(billing, dict) else {}))
     for k in ("customers", "payments", "plans"):
         billing[k] = {i: v for i, v in (billing[k] if isinstance(billing[k], dict) else {}).items()
                       if isinstance(v, dict) and (k == "plans" or isinstance(v.get("id"), str))}
@@ -733,7 +815,7 @@ def build(d, events, billing, overlay, sysinfo, now=None, window=30, sample=Fals
     vis, domains, anon, scans_by_day, T = index_events(events, win_start)
 
     cfg_plans = sysinfo.get("plans")
-    customers = enrich_customers(whop.customer_rows(billing, {"plans": cfg_plans or dict(whop.PLANS)}), d)
+    customers = enrich_customers(otto_billing.customer_rows(billing, cfg_plans or dict(whop.PLANS)), d)
     brand_ids = {b["id"] for b in d.get("brands", [])}
     leads = build_leads(vis, domains, customers, overlay, now)
 
@@ -791,7 +873,7 @@ def build(d, events, billing, overlay, sysinfo, now=None, window=30, sample=Fals
 
     # ---- funnel ----
     steps = [("visitors", "Visitors"), ("scanned", "Scanned a site"), ("get_started", "Clicked Get started / Start trial"),
-             ("checkouts", "Whop checkouts"), ("paying", "Paying"), ("onboarded", "Onboarded brands")]
+             ("checkouts", "Checkouts"), ("paying", "Paying"), ("onboarded", "Onboarded brands")]
     fsteps, prev_n, top = [], None, None
     for key, label in steps:
         n = total(key, win_days)
@@ -854,54 +936,42 @@ def build(d, events, billing, overlay, sysinfo, now=None, window=30, sample=Fals
     leads_out = {"rows": lead_rows, "total": len(leads), "shown": len(lead_rows), "new_in_window": len(in_win),
                  "by_stage": dict(Counter(r["stage"] for r in in_win)), "by_status": dict(Counter(r["status"] for r in leads))}
 
-    # ---- customers + revenue ----
-    month = now.strftime("%Y-%m")
-    month_start = month + "-01"
+    # ---- customers + revenue (otto_billing: every provider; Whop founders are legacy and read-only) ----
     pays = sorted(billing.get("payments", {}).values(), key=lambda p: p.get("at") or "", reverse=True)
     cut30 = fmt(now - timedelta(days=30))
-    rev30 = sum((p.get("amount_eur") or 0) - (p.get("refunded_eur") or 0) for p in pays
-                if p.get("status") in ("paid", "refunded") and (p.get("at") or "") >= cut30)
-    live = [c for c in customers if c.get("status") in ("active", "past_due")]
-    subs = [c for c in live if c.get("mrr_eur")]
-    start_active = [c for c in customers if (c.get("started") or "") < month_start
-                    and not ((c.get("canceled_at") or "9999") < month_start)]
-    churned_m = [c for c in customers if (c.get("canceled_at") or "").startswith(month)]
-    ltvs = [c["ltv_eur"] for c in customers if c.get("ltv_eur")]
+    m = otto_billing.metrics(customers, pays, now)
     cust_rows = []
     for c in customers:
-        cust_rows.append({"id": c["id"], "email": whop.mask_email(c.get("email")), "plan": c.get("plan"), "plan_type": c.get("plan_type"),
+        pend = c.get("pending") if isinstance(c.get("pending"), dict) else None
+        cust_rows.append({"id": c["id"], "provider": c.get("provider"), "email": otto_billing.mask_email(c.get("email")),
+                          "plan": c.get("plan"), "plan_type": c.get("plan_type"), "interval": c.get("interval"),
                           "status": c.get("status"), "cancel_at_period_end": bool(c.get("cancel_at_period_end")),
                           "started": c.get("started"), "renews": c.get("renews"), "canceled_at": c.get("canceled_at"),
+                          "trial_end": c.get("trial_end"), "pending": {"plan": pend.get("plan"), "at": pend.get("at")} if pend else None,
                           "mrr_eur": c.get("mrr_eur"), "mrr_estimated": c.get("mrr_estimated"), "ltv_eur": c.get("ltv_eur"),
                           "failed_payments": c.get("failed_payments"), "brand_id": c.get("brand_id"), "brand_auto": c.get("brand_auto"),
+                          "linked_by": (c.get("brand_link") or {}).get("by"), "linkable": c.get("provider") == "stripe",
                           "domain": (c.get("domains") or [None])[0]})
 
     def pay_row(p):
-        return {"id": p["id"], "status": p.get("status"), "amount": p.get("amount"), "currency": p.get("currency"),
-                "amount_eur": p.get("amount_eur"), "at": p.get("at"), "email": whop.mask_email(p.get("email")),
-                "membership": p.get("membership"), "reason": p.get("reason")}
+        return {"id": p["id"], "provider": otto_billing.provider_of(p), "status": p.get("status"), "amount": p.get("amount"),
+                "currency": p.get("currency"), "amount_eur": p.get("amount_eur"), "at": p.get("at"),
+                "email": otto_billing.mask_email(p.get("email")), "membership": p.get("membership"), "reason": p.get("reason"),
+                "number": p.get("number")}
 
     bm = sysinfo.get("billing_meta") or {}
-    revenue = {
-        "connected": bool(bm.get("webhook_secret") or bm.get("api_key") or billing.get("customers")),
-        "last_webhook_at": billing.get("last_webhook_at"), "last_backfill_at": billing.get("last_backfill_at"),
-        "mrr_eur": mrr_now, "arr_eur": round(mrr_now * 12, 2), "paying": len(live),
-        "active": sum(1 for c in customers if c.get("status") == "active"),
-        "trialing": sum(1 for c in customers if c.get("status") == "trialing"),
-        "past_due": sum(1 for c in customers if c.get("status") == "past_due"),
-        "canceled": sum(1 for c in customers if c.get("status") == "canceled"),
-        "canceling": sum(1 for c in customers if c.get("cancel_at_period_end") and c.get("status") in ("active", "trialing")),
-        "new_this_month": sum(1 for c in customers if (c.get("started") or "").startswith(month)),
-        "churned_this_month": len(churned_m), "churn_rate_month": pct(len(churned_m), len(start_active)),
-        "arpu_eur": round(mrr_now / len(subs), 2) if subs else None,
-        "avg_ltv_eur": round(sum(ltvs) / len(ltvs), 2) if ltvs else None,
-        "revenue_30d_eur": round(rev30, 2), "lifetime_revenue_eur": round(sum(ltvs), 2),
-        "open_checkouts": sum(1 for c in billing.get("customers", {}).values() if c.get("status") == "drafted"),
-        "failed_payments_30d": [pay_row(p) for p in pays if p.get("status") == "failed" and (p.get("at") or "") >= cut30][:20],
-        "payments": [pay_row(p) for p in pays[:25]],
-        "customers": cust_rows,
-        "fx_note": any((p.get("currency") or "EUR") != "EUR" for p in pays),
-    }
+    sm = bm.get("stripe") if isinstance(bm.get("stripe"), dict) else {}
+    lw = billing.get("last_webhook") if isinstance(billing.get("last_webhook"), dict) else {}
+    revenue = dict({k: v for k, v in m.items() if k != "by_provider"},
+                   connected=bool(sm.get("ready") or sm.get("webhook_secret") or billing.get("customers")),
+                   provider="stripe", stripe_ready=bool(sm.get("ready")), stripe_mode=sm.get("mode"),
+                   last_webhook_at=lw.get("stripe"), last_backfill_at=billing.get("last_backfill_at"),
+                   paying_by_provider=m["by_provider"],
+                   open_checkouts=sum(1 for c in billing.get("customers", {}).values() if c.get("status") in ("drafted", "incomplete")),
+                   failed_payments_30d=[pay_row(p) for p in pays if p.get("status") == "failed" and (p.get("at") or "") >= cut30][:20],
+                   payments=[pay_row(p) for p in pays[:25]], customers=cust_rows,
+                   legacy_whop=[r for r in cust_rows if r["provider"] == "whop"],
+                   fx_note=any((p.get("currency") or "EUR") != "EUR" for p in pays))
 
     brands = brand_health(d, sysinfo, customers, now)
     ks = (d.get("controls") or {}).get("publishing_paused")
@@ -955,7 +1025,7 @@ def trials_block(d, now, win_start, visitors=0, scans=0):
             u = users.get(tr.get("user")) or {}
             left = (end - now).total_seconds()
             soon += left <= 2 * 86400
-            rows.append({"brand": b["id"], "name": b.get("name") or b["id"], "email": whop.mask_email(u.get("email")),
+            rows.append({"brand": b["id"], "name": b.get("name") or b["id"], "email": otto_billing.mask_email(u.get("email")),
                          "started_at": tr.get("started_at"), "ends_at": tr.get("ends_at"), "days_left": max(1, math.ceil(left / 86400)),
                          "reminders": sorted(k for k, v in (u.get("trial_reminders") or {}).items() if isinstance(v, dict) and v.get("sent"))})
         else:
@@ -1032,13 +1102,18 @@ def gather_sysinfo(d):
     ws = whop.status()
     cfg = whop.config()
     try:
+        ss = otto_stripe.status()
+    except Exception as e:                                   # setup info only: never fail the snapshot over it
+        ss = {"error": type(e).__name__}
+    try:
         email_h = otto_email.health()
     except Exception as e:                                   # health info only: never fail the snapshot over it
         email_h = {"transport": "error", "config_error": f"{type(e).__name__}"}
     return {"email": email_h, "logs": logs, "secrets": names, "secrets_open": sorted(open_), "scans": scans, "events_file": ev_meta,
             "publish_tail": tail_lines(base / "publish.log", 60),
             "api_errors": tail_lines(base / "api-errors.log", 15), "actions": tail_lines(actions_log(), 40),
-            "billing_meta": ws, "plans": cfg["plans"], "admin_users": bool(os.environ.get("OTTO_ADMIN_USERS")),
+            "billing_meta": {"stripe": ss, "whop": ws}, "legacy_whop": ws.get("customers") or 0,
+            "plans": cfg["plans"], "admin_users": bool(os.environ.get("OTTO_ADMIN_USERS")),
             "single_tenant": (os.environ.get("OTTO_SINGLE_TENANT") or "").strip().lower() in ("1", "true", "yes", "on")}
 
 
@@ -1058,8 +1133,8 @@ def snapshot(window=30, now=None):
 # controls
 # ============================================================================================
 
-ACTIONS = ("kill_switch", "pause_brand", "resume_brand", "campaign", "rescan", "lead", "link_customer", "whop_sync", "members",
-           "plan", "activate")
+ACTIONS = ("kill_switch", "pause_brand", "resume_brand", "campaign", "rescan", "lead", "link_customer", "stripe_check", "members",
+           "plan", "activate", "comms_lang")
 RESCAN_GAP_MIN = 10
 
 
@@ -1273,7 +1348,7 @@ def act(req, who="admin", pause_live=True):
         cid, bid = str(req.get("customer") or ""), str(req.get("brand") or "")
         if bid and ap.brand(ap.load(), bid) is None:
             raise KeyError(bid)
-        c = whop.link(cid, bid, by=who)                      # also makes the payer a member (whop.link, like the CLI)
+        c = otto_billing.link(cid, bid, by=who)              # also makes the payer a member (like the CLI)
         email = ap.norm_member(c.get("email")) if bid else None
         ps = c.get("plan_sync") or {}
         log_action(who, f"link-customer {cid} -> {bid or 'none'}" + (" (+member)" if email else "")
@@ -1283,6 +1358,12 @@ def act(req, who="admin", pause_live=True):
                     else f" Plan unchanged: {ps['why']}." if ps else "") + (" Onboarding done: its jobs start." if ps.get("activated") else "")
         return {"ok": True, "message": (f"{cid} linked to {bid}." + (" They can sign in to see it." if email else "") + plan_msg) if bid
                 else f"{cid} unlinked (the brand keeps its plan)."}
+
+    if a == "comms_lang":                                     # the language of what Otto sends this client (otto_i18n)
+        bid = str(req.get("brand") or "")
+        before, lang = otto_i18n.set_comms_lang(bid, req.get("lang"), via="admin")     # KeyError / ValueError → 404 / 400
+        log_action(who, f"comms_lang {bid} {before} -> {lang}")
+        return {"ok": True, "message": f"{bid}: e-mails and reports in {otto_i18n.COMMS_LANGS[lang]}.", "comms_lang": lang}
 
     if a == "members":
         bid = str(req.get("brand") or "")
@@ -1348,7 +1429,7 @@ def act(req, who="admin", pause_live=True):
         return {"ok": True, "message": msg, "plan": ap.plan_view(ap.load(), bid), "paused_campaigns": done, "failed_campaigns": failed}
 
     if a == "activate":
-        # a client that did not come through Whop (brand-add, a comped seat): onboarding → active, nothing else changes
+        # a client that did not come through a paid checkout (brand-add, a comped seat): onboarding → active, nothing else changes
         bid = str(req.get("brand") or "")
         with ap.transaction() as d:
             bb = ap.brand(d, bid)
@@ -1363,16 +1444,16 @@ def act(req, who="admin", pause_live=True):
         log_action(who, f"activate {bid}" + (f" note={_q(note)}" if note else ""))
         return {"ok": True, "message": f"{name} is active: its jobs start on their next run."}
 
-    if a == "whop_sync":
-        cfg = whop.config()
-        if not (cfg["api_key"] and cfg["company_id"]):
-            raise ValueError("Whop is not connected yet — add api_key and company_id to otto-secrets/whop.json")
-        with open(ap.DATA.parent / "whop.log", "a") as lf:
-            lf.write(f"{now} backfill (admin {who})\n")
+    if a == "stripe_check":
+        # read-only: account, Stripe Tax, every price in plans.json, the webhook endpoint, branding → Setup
+        if not otto_stripe.config()["secret_key"]:
+            raise ValueError("Stripe is not set up yet — add secret_key to otto-secrets/stripe.json (docs/BILLING.md)")
+        with open(ap.DATA.parent / "stripe.log", "a") as lf:
+            lf.write(f"{now} check (admin {who})\n")
             lf.flush()
-            SPAWN([sys.executable, str(HERE / "otto_whop.py"), "backfill"], lf)
-        log_action(who, "whop-sync")
-        return {"ok": True, "message": "Syncing with Whop. Refresh in a minute."}
+            SPAWN([sys.executable, str(HERE / "otto_stripe.py"), "check"], lf)
+        log_action(who, "stripe-check")
+        return {"ok": True, "message": "Checking the Stripe setup. Refresh in a few seconds."}
 
 
 # ============================================================================================
@@ -1472,49 +1553,74 @@ def sample_inputs(now):
             "praxis-lindner.example", "velo-werk.example", "gmx.de", "", "haus-am-see.example", "kanal-bakery.example", "outlook.com",
             "studio-mira.example", "", "ferro-gym.example", "web.de", "", "bloom-and-root.example", "", "cantina-norte.example",
             "linden-apotheke.example"]                        # "" = linked to a sample brand below
-    plans = dict(whop.PLANS)
-    plans.update({"plan_sample_starter": {"name": "Starter (monthly)", "type": "renewal", "price": 69, "currency": "EUR", "period_days": 30},
-                  "plan_sample_growth": {"name": "Growth (monthly)", "type": "renewal", "price": 149, "currency": "EUR", "period_days": 30}})
+    plans = dict(whop.PLANS)                                 # the legacy Whop founding seat (read-only list)
+    price_of = {"starter": (99, 990), "growth": (249, 2490)}
     customers, payments = {}, {}
     for i, name in enumerate(first):
         started = now - timedelta(days=int(85 * (1 - i / len(first)) ** 1.3) + 1, hours=R.randint(0, 20))
-        plan = "plan_joHl1qsZoiJc9" if i < 6 or i % 3 == 0 else ("plan_sample_growth" if i % 3 == 2 else "plan_sample_starter")
-        mid = f"mem_sample{i:03d}"
-        st = "completed" if plan == "plan_joHl1qsZoiJc9" else "active"
+        founder = i < 6                                       # the first seats were sold on Whop before Stripe
+        st = "completed" if founder else "active"
         if i in (6, 15):
             st = "canceled"
         if i == 18:
             st = "past_due"
         if i == 20:
             st = "trialing"
-        c = {"id": mid, "email": f"{name}@{doms[i]}", "status": whop.STATUS[st], "whop_status": st, "plan_id": plan,
-             "started": iso(started), "currency": "EUR", "updated_at": iso(started), "source": "sample", "first_seen": iso(started)}
+        email = f"{name}@{doms[i]}"
+        if i in LINKED:
+            email = f"{name}@{brands[LINKED.index(i)]['url']}"
+        if founder:
+            cid = f"mem_sample{i:03d}"
+            c = {"id": cid, "provider": "whop", "email": email, "status": whop.STATUS[st], "whop_status": st,
+                 "plan_id": "plan_joHl1qsZoiJc9", "started": iso(started), "currency": "EUR", "updated_at": iso(started),
+                 "source": "sample", "first_seen": iso(started)}
+            amount, n_pay, reason = 197, 1, "one_time"
+        else:
+            plan = "growth" if i % 3 == 2 else "starter"
+            year = i % 5 == 4
+            cid = f"sub_sample{i:03d}"
+            amount = price_of[plan][1 if year else 0]
+            status = {"completed": "active", "canceled": "canceled"}.get(st, st)
+            c = {"id": cid, "provider": "stripe", "kind": "subscription", "subscription": cid, "customer": f"cus_sample{i:03d}",
+                 "email": email, "status": status, "provider_status": status, "plan": plan, "plan_id": f"price_sample_{plan}_{'y' if year else 'm'}",
+                 "interval": "year" if year else "month", "amount": float(amount), "currency": "EUR", "started": iso(started),
+                 "updated_at": iso(started), "source": "sample", "first_seen": iso(started)}
+            if status == "trialing":
+                c["trial_end"] = iso(now + timedelta(days=3))
+            if i == 11:
+                c["pending"] = {"plan": "starter", "interval": "month", "at": iso(now + timedelta(days=12))}
+            if i == 13:
+                c["cancel_at_period_end"] = True
+            n_pay = 0 if status == "trialing" else (1 if year else max(1, int((now - started).days // 30) + 1))
+            reason = "subscription"
         if st in ("active", "past_due", "trialing"):
             c["renews"] = iso(now + timedelta(days=R.randint(2, 28)))
         if st == "canceled":
             c["canceled_at"] = iso(now - timedelta(days=R.randint(1, max(2, today.day - 1))))
         if i in LINKED:
             c["brand_id"] = brands[LINKED.index(i)]["id"]
-            c["email"] = f"{name}@{brands[LINKED.index(i)]['url']}"
-        customers[mid] = c
-        price = plans[plan]["price"]
-        periods = 1 if plan == "plan_joHl1qsZoiJc9" else max(1, int((now - started).days // 30) + 1)
-        for k in range(periods if st != "trialing" else 0):
+            c["brand_link"] = {"by": "auto: signed checkout reference" if not founder else "max", "at": iso(started)}
+        customers[cid] = c
+        for k in range(n_pay):
             at = started + timedelta(days=30 * k)
-            pid = f"pay_sample{i:03d}{k}"
-            payments[pid] = {"id": pid, "membership": mid, "status": "paid", "amount": price, "currency": "EUR", "amount_eur": float(price),
-                             "at": iso(at), "email": c["email"], "plan_id": plan,
-                             "reason": "one_time" if plan == "plan_joHl1qsZoiJc9" else ("subscription_create" if k == 0 else "subscription_cycle")}
+            pid = (f"pay_sample{i:03d}{k}" if founder else f"in_sample{i:03d}{k}")
+            payments[pid] = {"id": pid, "provider": c["provider"], "membership": cid, "status": "paid", "amount": float(amount),
+                             "currency": "EUR", "amount_eur": float(amount), "at": iso(at), "email": email, "plan_id": c["plan_id"],
+                             "reason": reason if founder else ("subscription_create" if k == 0 else "subscription_cycle")}
+            if not founder:
+                payments[pid]["number"] = f"OTTO-{1000 + i * 10 + k}"
         if i == 18:
-            payments["pay_sample_fail"] = {"id": "pay_sample_fail", "membership": mid, "status": "failed", "amount": price, "currency": "EUR",
-                                           "amount_eur": float(price), "at": iso(now - timedelta(days=2)), "email": c["email"], "plan_id": plan,
-                                           "reason": "subscription_cycle"}
-    for k in range(4):                                        # unfinished checkouts
-        mid = f"mem_draft{k}"
-        customers[mid] = {"id": mid, "status": "drafted", "whop_status": "drafted", "plan_id": "plan_joHl1qsZoiJc9",
-                          "started": iso(now - timedelta(days=R.randint(0, 25))), "first_seen": iso(now)}
+            payments["in_sample_fail"] = {"id": "in_sample_fail", "provider": "stripe", "membership": cid, "status": "failed",
+                                          "amount": float(amount), "currency": "EUR", "amount_eur": float(amount),
+                                          "at": iso(now - timedelta(days=2)), "email": email, "plan_id": c["plan_id"],
+                                          "reason": "subscription_cycle", "number": "OTTO-1999"}
+    for k in range(3):                                        # checkouts not paid yet (SEPA processing, abandoned 3-D Secure)
+        cid = f"sub_open{k}"
+        customers[cid] = {"id": cid, "provider": "stripe", "kind": "subscription", "status": "incomplete", "plan": "starter",
+                          "plan_id": "price_sample_starter_m", "started": iso(now - timedelta(days=R.randint(0, 25))), "first_seen": iso(now)}
     billing = {"customers": customers, "payments": payments, "plans": {}, "events": [], "seen": [],
-               "last_webhook_at": iso(now - timedelta(hours=3)), "last_backfill_at": iso(now - timedelta(days=1))}
+               "last_webhook_at": iso(now - timedelta(hours=3)), "last_webhook": {"stripe": iso(now - timedelta(hours=3))},
+               "last_backfill_at": iso(now - timedelta(days=1))}
 
     # ---- landing events ----
     srcs = [("google.com", None, 34), (None, None, 22), ("instagram.com", None, 12), ("facebook.com", None, 7), ("linkedin.com", None, 6),
@@ -1594,13 +1700,20 @@ def sample_inputs(now):
             "insights.log": {"mtime": mins(60 * 24 * 11), "last": "winners: 4"},
             "plan.log": {"mtime": mins(60 * 24 * 4 + 200), "last": "planned 14 posts for 5 brands"}}
     sysinfo = {"logs": logs,
-               "secrets": {"whop.json": True, "telegram.json": True, "meta-spreebogen.json": True, "meta-nordlicht.json": True,
+               "secrets": {"stripe.json": True, "whop.json": True, "telegram.json": True, "meta-spreebogen.json": True, "meta-nordlicht.json": True,
                            "meta-brume.json": True, "google-spreebogen.json": True},
                "scans": {b["id"]: iso(now - timedelta(days=R.randint(2, 30))) for b in brands},
                "events_file": {"last": iso(now - timedelta(minutes=2)), "size_mb": 3.4, "country": True},
                "publish_tail": [f"{mins(60 * 26)} FAIL ca-020 casalume/fb slot {today.strftime('%d/%m')} 12:00: Graph 190: the Page access token has expired"],
-               "api_errors": [], "billing_meta": {"file": True, "api_key": True, "company_id": True, "webhook_secret": True,
-                                                  "last_webhook_at": billing["last_webhook_at"], "last_backfill_at": billing["last_backfill_at"]},
+               "api_errors": [], "legacy_whop": 6,
+               "billing_meta": {"stripe": {"file": True, "secret_key": True, "publishable_key": True, "ready": True, "mode": "test",
+                                           "webhook_secret": True, "checkout_ui": "embedded", "portal_fallback": False,
+                                           "last_webhook_at": billing["last_webhook_at"],
+                                           "check": {"at": iso(now - timedelta(hours=20)), "tax": "active", "branding": True,
+                                                     "prices": {"starter.monthly": "ok", "starter.yearly": "ok", "growth.monthly": "ok",
+                                                                "growth.yearly": "ok"}, "problems": []}},
+                                "whop": {"file": True, "api_key": True, "company_id": True, "webhook_secret": True, "customers": 6,
+                                         "last_webhook_at": iso(now - timedelta(days=9)), "last_backfill_at": billing["last_backfill_at"]}},
                "actions": [f"{mins(60 * 30)} dashboard post sp-004 -> approved", f"{mins(60 * 26)} telegram decide no-021 -> approve",
                            f"{mins(60 * 20)} admin max lead d:{recent[-3]} contacted note=\"Asked about WhatsApp approvals\"",
                            f"{mins(60 * 3)} admin max campaign cp-004 approve"],

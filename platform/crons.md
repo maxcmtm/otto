@@ -15,35 +15,36 @@ day, success or not — a failure alerts and `otto run <job> --brand B` repeats 
 |---|---|---|---|
 | `publish` | every 15 min | `otto_publish.py --brand B` (slots are brand-local already) | each active brand · kill switch |
 | `watch` | hourly :15 | `otto_watch.py watch` | once |
-| `watch-report` | 07:30 owner | `otto_watch.py report` (the owner's digest, all brands) | once |
-| `cards` | 08:00 brand | `otto_telegram.py send-cards --brand B` | each active brand |
+| `watch-report` | 07:30 owner | `otto_watch.py snapshot` (the daily metrics snapshot the drop alerts and the growth ledger read) | once |
+| `morning-report` | 07:35 brand | `otto_report.py send --brand B` — **the 7:35 message**: yesterday's posts and their numbers, paid spend vs budget with results (plans with paid ads), today's posts, and every decision waiting, in the brand's language. By e-mail it is one e-mail with the approvals inside (the same one-tap links as the digest); in Telegram the report is followed by the cards. Once per brand per local day (`.report-state.json`) | each active brand whose approvals include e-mail or Telegram, on a plan with reports |
+| `cards` | 08:00 brand | `otto_telegram.py send-cards --brand B` (catch-up: the 07:35 report already sent the cards it could) | each active brand |
 | `recs` | 18:30 owner | `otto_telegram.py send-recs` (recommendation cards go to the owner) | once |
-| `email-cards` | 08:00 brand | `otto_email.py send-cards --brand B` (the approval digest: posts due within 72 h, one-tap links) | each active brand whose approvals include e-mail |
+| `email-cards` | 08:00 brand | `otto_email.py send-cards --brand B` (catch-up digest: only posts the 07:35 report e-mail did not carry — normally nothing) | each active brand whose approvals include e-mail |
 | `email-recs` | 18:30 brand | `otto_email.py send-recs --brand B` (the monthly paid-plan card + P0/P1 recommendations) | each active brand whose approvals include e-mail |
 | `genvisuals` | 18:00 brand | `genvisuals.py --brand B --limit 12` | each active brand |
 | `reels` | 18:30 brand | `otto_video.py missing --brand B` → `render <id>` per id | each active brand |
 | `ads-launch` | 06:00 brand | `otto_ads.py launch --brand B` | each active brand · kill switch |
 | `ads-guard` | 06:05 owner | `otto_ads.py guard` | once (runs under the kill switch too) |
-| `ads-report` | 07:35 brand | `otto_ads.py report --brand B` | each active brand |
+| `ads-report` | 07:15 brand | `otto_ads.py report --brand B [--no-send]` (yesterday's paid numbers for the 07:35 report; `--no-send` when the brand's Telegram report carries them) | each active brand |
 | `growth` | 05:10 owner | `otto_growth.py rollup` (+ `--send` on the owner's days 1–3; the month marker sends it once) | once |
 | `competitors` | Mon 06:00 brand | `otto_competitors.py sweep B [--country C]` | each active brand with a competitor list |
 | `insights` | Fri 06:00 brand | `otto_insights.py --brand B` | each active brand |
 | `plan-month` | 25th 06:00 brand | `otto_plan.py build B <the brand's next month>` | each active brand not planned yet |
 | `ads-plan` | 25th 06:15 brand | `otto_ads.py plan B <next month> [--budget N]` | each active brand not planned yet, with an ad budget |
-| `whop-sync` | 02:20 UTC | `otto_whop.py backfill` | once, when api_key + company_id exist |
+| `whop-sync` | 02:20 UTC | `otto_whop.py backfill` | once, when api_key + company_id exist (LEGACY: the founding seats sold on Whop; Stripe needs no sync — its webhook is the source of truth) |
 | `track-prune` | 1st 04:00 UTC | `otto_track.py prune --days 400` | once |
 | `retention` | 04:40 owner | `otto_retention.py run` (client data 90 days after the plan ended, owner notices 14 and 3 days before, export first; exports after 30 days; leads after `OTTO_LEAD_RETENTION_DAYS`) | once (the kill switch does not stop it) |
 | `trials` | hourly :05 UTC | `otto_trial.py run` (free trials: a trial that ended without a card → plan `none`; the day-5 / day-7 / day-8 e-mails, once each; idle accounts without a brand after 90 days) | once (the kill switch does not stop it) |
 
 "Active" = `brands[].status == "active"` (or no status); onboarding and paused brands (`brands[].paused` / status `paused`) are
-skipped and the heartbeat says why. A sign-up leaves "onboarding" when its running Whop membership is linked (`otto_whop.link` /
-the console's link: the brand gets its plan and status "active"). A Google sign-up's first brand starts "active" on the free trial
+skipped and the heartbeat says why. A sign-up leaves "onboarding" when a running subscription is linked to it (a Stripe checkout
+links itself by its signed reference, `otto_billing.link` / the console's link: the brand gets its plan and status "active"). A Google sign-up's first brand starts "active" on the free trial
 (`otto_trial`): its jobs run for 7 days, `ads-launch` sits out ("plan trial plans and previews paid ads but launches none"). Plans (`plans.json`, `otto_cron.PLAN_GATES`): a brand whose plan lacks a job's feature sits it
 out with the reason — `ads-plan` / `ads-launch` / `ads-report` say "plan content has no paid ads", likewise reels, Telegram cards,
 insights, visuals and the monthly plan; a monthly competitor sweep runs on the first Monday of the month only; a brand on plan
 `none` (membership ended) sits every job out. Approvals channel (`brands[].approvals`, `otto_cron.CHANNEL_GATES`): `cards` runs
 for brands whose approvals include Telegram (no field = Telegram, as before), `email-cards` / `email-recs` for brands whose approvals
-include e-mail; "app" sends nothing — the heartbeat says "approvals by email" / "approvals in the app only". `ads-guard` runs for everyone and pauses live campaigns a plan no longer covers. Per-brand overrides in `brands[].cron`: `{"off": [jobs], "ads_budget": 30, "country": "IL",
+include e-mail, `morning-report` for either; "app" sends nothing — the heartbeat says "approvals by email" / "approvals in the app only". `ads-guard` runs for everyone and pauses live campaigns a plan no longer covers. Per-brand overrides in `brands[].cron`: `{"off": [jobs], "ads_budget": 30, "country": "IL",
 "visuals_limit": 12, "per_week": 12}` — e.g. the old `cmtm` lines become `"countries": ["IL"]` (or `cron.country`) and
 `"cron": {"ads_budget": 30}`. By hand: `otto run <job>` (every active brand, now) or `otto run <job> --brand B`;
 `python3 otto_cron.py <job> --dry` prints what a tick would run now; `otto_cron.py status` shows the heartbeats. Every job still
@@ -66,7 +67,9 @@ What "safe to re-run" really means per job:
   (no duplicate *proposed* recommendation with the same title/brand), `otto_growth.py rollup --send` (once per month:
   `markers.growth_review_sent`, claimed with `markers.growth_review_sending` while it is on its way), `otto_ads.py guard`
   (marks `ended` only after the pause succeeded). The `flock -n` wrappers stay: they are the first line of defence.
-- **Not idempotent**: `otto_watch.py report` and `otto_ads.py report` send a Telegram message on every run;
+- **Once per local day**: `otto_report.py send` (the 07:35 report; `otto_watch.py report` sends the same Telegram report by hand)
+  claims each channel in `.report-state.json` first — a second run that day sends nothing (`--force` resends).
+- **Not idempotent**: `otto_ads.py report` without `--no-send` sends a Telegram message on every run;
   `genvisuals.py` / `otto_video.py render` spend money (they only work on posts that still lack an image / video, but a
   second run while the first is still generating would pay twice — that is what the flock prevents).
 
@@ -178,5 +181,6 @@ link-local/metadata, private and loopback refused; the connection is pinned to t
 once with a 20 s deadline, rate-limits 1 request / 4 s per `X-Real-IP` and caches 1 h. `/otto-api/*` sends no CORS
 header; POSTs must be `application/json` from an allowed Origin (`OTTO_ALLOWED_ORIGINS`, default `https://dash.monyflow.work`).
 
-Owner console (`admin.html`, `otto_admin.py`): the public `/otto-track` (landing analytics) and `/otto-api/whop` (Whop webhook)
-nginx locations, the optional Whop backfill + analytics prune crons, and the secrets shape are in `docs/ADMIN.md`.
+Owner console (`admin.html`, `otto_admin.py`): the public `/otto-track` (landing analytics) and `/otto-api/whop` (legacy Whop
+webhook) nginx locations, the optional Whop backfill + analytics prune crons, and the secrets shape are in `docs/ADMIN.md`;
+Stripe billing (`/hooks/stripe`, `/billing/*`, `stripe.json`) is in `docs/BILLING.md`.

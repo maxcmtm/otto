@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <!-- CSP: script-src lists the sha256 of every inline script element in this page. After editing one, the browser refuses it and its console prints the new hash: replace the old one here (or recompute all of them). -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-rgwUMbOQCybpBFEp3Vesh1bwa0KlIQaGNyGlHvZcgck='; style-src 'self' 'unsafe-inline'; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-src 'none'; worker-src 'none'; manifest-src 'self'; img-src 'self' data: blob: https:; media-src 'self' blob: https:">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-IKLEb3rDpQ83h3WmCPXAj9hNzkKKNgodMFBY2iXjwmw='; style-src 'self' 'unsafe-inline'; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-src 'none'; worker-src 'none'; manifest-src 'self'; img-src 'self' data: blob: https:; media-src 'self' blob: https:">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="color-scheme" content="light dark">
 <meta name="theme-color" content="#F5F7FB" media="(prefers-color-scheme: light)">
@@ -967,9 +967,10 @@ function renderChrome(){
   refreshCounts();
   $$(".chip-mode").forEach(c => c.hidden = LIVE);
   $("side-foot").textContent = updatedText();
-  const tb = trialBrand(), tl = $("trial-l"), n = tb ? N(tb.plan_view.trial.days_left) : 0;
-  tl.hidden = !tb;
-  if(tb) tl.innerHTML = `${n} ${n === 1 ? "day" : "days"} left in your trial · <button type="button" data-billing>Add a card</button>`;
+  const tb = trialBrand(), tl = $("trial-l"), n = tb ? N(tb.plan_view.trial.days_left) : 0, due = pastDue();
+  tl.hidden = !tb && !due;
+  if(due) tl.innerHTML = `<span style="color:var(--red)">Your last payment didn't go through${due.many ? "" : " for " + esc(due.name)}.</span> · <a class="lnk" href="${esc(billingHref(due.brand))}">Update payment method</a>`;
+  else if(tb) tl.innerHTML = `${n} ${n === 1 ? "day" : "days"} left in your trial · <button type="button" data-billing>Add a card</button>`;
   const sa = $("side-acct"); sa.hidden = !(ME && ME.signed_in && ME.email);
   if(!sa.hidden) sa.innerHTML = `${esc(ME.email)}${ME.via === "google" ? ` · <button type="button" class="lnk" data-signout>Sign out</button>` : ""}`;
 }
@@ -1367,8 +1368,8 @@ function planGroup(B){
 }
 /* how approvals reach each brand (brands[].approvals → POST /otto-api/action {kind:"brand", approvals}); no field = Telegram */
 const APPR = [["email", "Email"], ["telegram", "Telegram"], ["app", "App only"]];
-const APPR_HINT = {email: "Each morning, one short email with the posts to approve. Approve and Skip work in one tap; Change opens the post here.",
-  telegram: "Cards in Telegram, once your phone is paired with Otto's bot.",
+const APPR_HINT = {email: "Each morning at 07:35, one short email: yesterday's numbers and the posts to approve. Approve and Skip work in one tap; Change opens the post here.",
+  telegram: "The 07:35 report and the cards in Telegram, once your phone is paired with Otto's bot.",
   app: "Nothing is sent. Posts wait for you in Review.",
   both: "Email and Telegram. Pick one to keep only that."};
 function apprOf(b){
@@ -1404,11 +1405,43 @@ async function setApprovals(bid, v){
     toast(v === "app" ? "Approvals stay in the app" : `Approvals by ${v === "email" ? "email" : "Telegram"}`);
   }catch(e){ b.approvals = prev; paintAppr(bid); toast("Couldn't save. " + errText(e), {err: true}); }
 }
+/* the language of what Otto sends each brand (brands[].comms_lang → POST /otto-api/action {kind:"brand", comms_lang});
+   no field = English. The app itself stays English; posts keep the brand's own language. */
+const LANGS = [["en", "English"], ["nl", "Nederlands"], ["de", "Deutsch"]];
+const langOf = b => LANGS.some(x => x[0] === b.comms_lang) ? b.comms_lang : "en";
+function langGroup(B){
+  if(!B.length) return "";
+  const many = B.length > 1;
+  const rows = B.map(b => {
+    const cur = langOf(b), i = LANGS.findIndex(x => x[0] === cur);
+    return `<div class="appr" data-lang-b="${esc(b.id)}">${many ? `<p class="appr-n" dir="auto">${esc(b.name)}</p>` : ""}`
+      + `<div class="seg" role="radiogroup" aria-label="Language for e-mails and reports${many ? " for " + esc(b.name) : ""}" style="--n:3;--i:${i}"><span class="seg-th" aria-hidden="true"></span>`
+      + LANGS.map(([k, t]) => `<button type="button" role="radio" lang="${k}" aria-checked="${k === cur}" tabindex="${k === cur ? 0 : -1}" data-lang="${k}" data-fk="lang:${esc(b.id)}:${k}">${t}</button>`).join("")
+      + `</div><p class="appr-h">Your e-mails, the 07:35 report and approval pages. Your posts stay in your customers' language.</p></div>`;
+  }).join("");
+  return `<section class="grp"><h2 class="grp-h"><span>Language for e-mails and reports</span></h2><div class="list">${rows}</div></section>`;
+}
+function paintLang(bid){
+  const box = document.querySelector(`[data-lang-b="${cssq(bid)}"]`), b = brands().find(x => x.id === bid); if(!box || !b) return;
+  const cur = langOf(b);
+  box.querySelector(".seg").style.setProperty("--i", LANGS.findIndex(x => x[0] === cur));
+  $$("[data-lang]", box).forEach(x => { const on = x.dataset.lang === cur; x.setAttribute("aria-checked", on); x.tabIndex = on ? 0 : -1; });
+}
+async function setLang(bid, v){
+  const b = brands().find(x => x.id === bid); if(!b || langOf(b) === v) return;
+  const prev = b.comms_lang;
+  b.comms_lang = v; paintLang(bid); haptic();
+  try{
+    adopt(await send({kind: "brand", id: bid, comms_lang: v}));
+    toast(`E-mails and reports in ${LANGS.find(x => x[0] === v)[1]}`);
+  }catch(e){ b.comms_lang = prev; paintLang(bid); toast("Couldn't save. " + errText(e), {err: true}); }
+}
 function renderSettings(){
   const d = DATA, B = brands();
   let h = "";
   h += planGroup(B);
   h += approvalsGroup(B);
+  h += langGroup(B);
   h += groupH("Connections", (d.connections || []).map(c => lineH(esc(c.service), esc(c.brand), connPill(c.status))).join(""));
   // paid (otto_ads.py report writes ads[brand].daily; campaigns[] from otto_ads.py plan/launch)
   const ads = d.ads || {}, camps = d.campaigns || [];
@@ -1469,22 +1502,40 @@ const GLOGO = `<svg viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" 
 function gbtnH(){ return `<a class="gbtn tap" href="/auth/google/start?next=${encodeURIComponent(location.pathname + location.search + location.hash)}">${GLOGO}<span>Continue with Google</span></a>`; }
 const eurM = v => v == null ? "" : `€${N(v).toLocaleString("en-GB")} a month`;
 const httpsUrl = u => /^https:\/\/[^\s"'<>]+$/.test(String(u || ""));
+/* billing (GET /auth/me billing[]: otto_billing.user_summary): the plan line, a past-due warning, and "Manage billing" →
+   Otto's own Billing page (billing.html: plan changes, cancel, payment method, VAT ID, invoices; Stripe only processes) */
+function billingHref(bid){ return "billing.html" + (bid ? "?brand=" + encodeURIComponent(bid) : ""); }
+function pastDue(){
+  const B = ((ME && ME.billing) || []).filter(x => x && x.past_due);
+  return B.length ? {brand: B[0].brand, name: B[0].name || "", many: B.length > 1} : null;
+}
+function billingLine(x){
+  const when = x.status === "past_due" ? "Payment failed" : x.cancel_at_period_end ? `Ends ${dayMon(new Date(x.period_end || x.renews || x.trial_end))}`
+    : x.status === "trialing" && x.trial_end ? `First charge ${dayMon(new Date(x.trial_end))}` : x.renews ? `Renews ${dayMon(new Date(x.renews))}`
+    : x.status === "canceled" ? "Ended" : x.kind === "one_time" ? "One-time" : "";
+  return lineH(esc(x.label || x.plan || "Plan") + (((ME && ME.billing) || []).length > 1 ? ` <span class="ph">${esc(x.name || "")}</span>` : ""),
+    esc(x.provider === "whop" ? "Founding seat" : (x.interval === "year" ? "Yearly" : x.interval === "month" ? "Monthly" : "")),
+    x.status === "past_due" ? `<span style="color:var(--red)">${esc(when)}</span>` : esc(when), true);
+}
 function accountGroup(){
   if(!ME || !ME.signed_in || !ME.email) return "";
   const t = ME.trial || {}, n = N(t.days_left);
   const st = t.state === "running" ? `Free trial · ${n} ${n === 1 ? "day" : "days"} left` : t.state === "converted" ? "Paid" : "";
+  const B = (ME.billing || []).filter(x => x && x.status !== "canceled");
   return groupH("Account", lineH(esc(ME.email), ME.via === "google" ? "Signed in with Google" : "Signed in", st ? esc(st) : "", true)
+    + B.map(billingLine).join("")
+    + (ME.via === "google" ? `<div class="line"><a class="btn gray block tap" href="${esc(billingHref(B.length === 1 ? B[0].brand : ""))}">${B.length ? "Manage billing" : "Billing and plans"}</a></div>` : "")
     + (ME.via === "google" ? `<div class="line"><button type="button" class="btn gray block tap" data-signout>Sign out</button></div>` : ""));
 }
 async function openBilling(opener){
   if(!ME) await loadMe();
-  const offers = ((ME && ME.checkout) || []).filter(o => o && o.label), email = ME && (ME.billing_email || ME.email);
+  const offers = ((ME && ME.checkout) || []).filter(o => o && o.label);
   const tb = trialBrand(), t = tb && tb.plan_view.trial;
   const rows = offers.map(o => lineH(`<b style="font-weight:600">${esc(o.label)}</b>`, esc((o.lines || []).slice(0, 2).join(" · ")), esc(eurM(o.monthly_eur)), true)
-    + `<div class="line">${httpsUrl(o.checkout_url) ? `<a class="btn pri block tap" href="${esc(o.checkout_url)}" target="_blank" rel="noopener">Continue with ${esc(o.label)}</a>` : `<span class="rt"><span class="rt-m">${esc(o.label)} is not on sale yet.</span></span>`}</div>`).join("");
-  const lead = t && t.ends_at ? `Your trial runs until ${dayMon(new Date(t.ends_at))}. Choose a plan to keep going after it. Nothing is charged until you check out.` : "Choose a plan to continue.";
+    + `<div class="line">${httpsUrl(o.checkout_url) ? `<a class="btn pri block tap" href="${esc(o.checkout_url)}">Continue with ${esc(o.label)}</a>` : `<span class="rt"><span class="rt-m">${o.why === "not_configured" ? "Payments aren't set up yet." : esc(o.label) + " is not on sale yet."}</span></span>`}</div>`).join("");
+  const lead = t && t.ends_at ? `Your trial runs until ${dayMon(new Date(t.ends_at))}. Choose a plan to keep going after it: your first charge is when the trial ends, never before.` : "Choose a plan to continue.";
   present(makeSheet({id: "billing", size: "auto", title: "Add a card", opener,
-    body: `<p class="hint">${esc(lead)}</p><div class="list">${rows || lineH("Plans", "Plans open soon.", "")}</div>` + (email ? `<p class="hint">Check out with ${esc(email)}: that is how Otto matches your payment to your account.</p>` : "")}));
+    body: `<p class="hint">${esc(lead)}</p><div class="list">${rows || lineH("Plans", "Plans open soon.", "")}</div><p class="hint">You pay on Otto's Billing page by card, SEPA Direct Debit, iDEAL or Bancontact. Prices exclude VAT; with a VAT ID the EU reverse charge applies.</p>`}));
 }
 async function signOut(){
   try{ await fetch("/auth/logout", {method: "POST", headers: {"Content-Type": "application/json"}, body: "{}", credentials: "same-origin"}); }catch(_){}
@@ -2137,6 +2188,7 @@ document.addEventListener("click", e => {
   const ra = t.closest("[data-rec-act]"); if(ra){ const r = ra.closest("[data-rec]"); if(r) recAct(r.dataset.rec, ra.dataset.recAct); return; }
   const pf = t.closest("[data-pf]"); if(pf){ setPF(pf.dataset.pf); return; }
   const apb = t.closest("[data-appr]"); if(apb){ const box = apb.closest("[data-appr-b]"); if(box) setApprovals(box.dataset.apprB, apb.dataset.appr); return; }
+  const lgb = t.closest("[data-lang]"); if(lgb){ const box = lgb.closest("[data-lang-b]"); if(box) setLang(box.dataset.langB, lgb.dataset.lang); return; }
   const day = t.closest("#cal-grid [data-day]"); if(day){ pickDay(day.dataset.day, true); return; }
   if(t.closest("#activity")){ openTimeline(t.closest("#activity")); return; }
 });
@@ -2173,6 +2225,14 @@ $("settings-body").addEventListener("keydown", e => {
   const box = x.closest("[data-appr-b]"), keys = APPR.map(a => a[0]), k = keys[(keys.indexOf(x.dataset.appr) + step + keys.length) % keys.length];
   setApprovals(box.dataset.apprB, k);
   const n = box.querySelector(`[data-appr="${k}"]`); if(n) n.focus();
+});
+$("settings-body").addEventListener("keydown", e => {
+  const x = e.target.closest && e.target.closest("[data-lang]"); if(!x) return;
+  const step = {ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1}[e.key]; if(!step) return;
+  e.preventDefault();
+  const box = x.closest("[data-lang-b]"), keys = LANGS.map(a => a[0]), k = keys[(keys.indexOf(x.dataset.lang) + step + keys.length) % keys.length];
+  setLang(box.dataset.langB, k);
+  const n = box.querySelector(`[data-lang="${k}"]`); if(n) n.focus();
 });
 function trap(e, s){
   const f = $$('button:not([disabled]), [href], textarea, input:not([tabindex="-1"]), video[controls], [tabindex="0"]', s.sheet).filter(shown);
@@ -2260,12 +2320,12 @@ const GATES = {
   paywall: {h: "Your free trial has ended.", s: "", a: "", n: ""}
 };
 /* 402 from /otto-api/data: every brand of this sign-in came from a trial that ended without a card. The data stays on the
-   server; this screen offers the plans (Whop checkout, the Google e-mail prefilled) and checks again after payment. */
+   server; this screen offers the plans (each opens Otto's Billing page on that plan) and checks again after payment. */
 function paywallH(pay){
   const offers = (Array.isArray(pay.checkout) ? pay.checkout : []).filter(o => o && o.label);
   return offers.map((o, i) => httpsUrl(o.checkout_url)
-      ? `<a class="btn ${i ? "gray" : "pri"} lg block tap" href="${esc(o.checkout_url)}" target="_blank" rel="noopener">Continue with ${esc(o.label)}${o.monthly_eur != null ? " · " + esc(eurM(o.monthly_eur)) : ""}</a>`
-      : `<button type="button" class="btn gray lg block" disabled>${esc(o.label)}: not on sale yet</button>`).join("")
+      ? `<a class="btn ${i ? "gray" : "pri"} lg block tap" href="${esc(o.checkout_url)}">Continue with ${esc(o.label)}${o.monthly_eur != null ? " · " + esc(eurM(o.monthly_eur)) : ""}</a>`
+      : `<button type="button" class="btn gray lg block" disabled>${o.why === "not_configured" ? "Payments aren't set up yet" : esc(o.label) + ": not on sale yet"}</button>`).join("")
     + `<button type="button" class="btn gray lg block tap" data-gate="retry">I've added a card</button>`
     + `<button type="button" class="btn gray lg block tap" data-signout>Sign out</button>`;
 }
@@ -2275,7 +2335,7 @@ function gate(kind, info){
   if(kind === "paywall"){
     const pay = info || {}, kept = /^\d{4}-\d{2}-\d{2}/.test(pay.kept_until || "") ? dayMon(new Date(pay.kept_until)) : "";
     g = {h: pay.code === "no_trial" ? "Add a card to start." : "Your free trial has ended.", s: String(pay.message || ""), a: paywallH(pay),
-         n: [pay.billing_email ? `Check out with ${pay.billing_email}: that is how Otto matches your payment.` : "", kept ? `Your work is kept until ${kept}.` : ""].filter(Boolean).join(" ")};
+         n: [kept ? `Your work is kept until ${kept}.` : "", "Your first payment switches everything back on; there is nothing to set up again."].filter(Boolean).join(" ")};
   }
   while(STACK.length){ const st = STACK.pop(); st.layer.remove(); }
   document.documentElement.classList.remove("sheet-open");

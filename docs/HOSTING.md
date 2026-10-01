@@ -47,8 +47,8 @@ Placeholder `otto.example`, to be replaced with the domain we buy.
 
 | Host | Serves | Access |
 |---|---|---|
-| `otto.example` | Landing page (`platform/landing.html`) and the public endpoints `/otto-peek`, `/otto-track`, `/otto-onboard`, `/hooks/whop` | Public, rate-limited at Cloudflare and in the API |
-| `app.otto.example` | Client app (`index.html`), onboarding, approvals, `/otto-api/*`, `/auth/*` (Google sign-in) | Google sign-in (not Cloudflare Access): a host-only session cookie; Otto maps the verified Google e-mail to the client's brand(s). |
+| `otto.example` | Landing page (`platform/landing.html`) and the public endpoints `/otto-peek`, `/otto-track`, `/otto-onboard`, `/hooks/stripe` (Stripe → us), `/billing/offers`, `/hooks/whop` (legacy founders) | Public, rate-limited at Cloudflare and in the API |
+| `app.otto.example` | Client app (`index.html`), onboarding, approvals, the Billing page (`billing.html`: Stripe's payment form embedded, the only page that loads js.stripe.com), `/otto-api/*`, `/billing/*`, `/auth/*` (Google sign-in) | Google sign-in (not Cloudflare Access): a host-only session cookie; Otto maps the verified Google e-mail to the client's brand(s). |
 | `admin.otto.example` | Owner console (`admin.html`) and admin API | Cloudflare Access, the Otto team only |
 | `status.otto.example` (later) | Public uptime page | Public |
 
@@ -99,6 +99,6 @@ the systemd units and the workflow). Nobody needs a password shared in chat: key
 
 1. Bootstrap the new server and restore the current `data.json`, `brands/` and assets from a backup of the old box.
 2. Run it in parallel on the new domain for a day (publishing stays paused on the new box by the kill switch).
-3. Cut over: pause the old box's timers, flip the kill switch off on the new one, and point the Telegram webhook and the
-   Whop webhook at the new domain.
+3. Cut over: pause the old box's timers, flip the kill switch off on the new one, point the legacy Whop webhook at the new
+   domain and create the Stripe webhook there (`https://<domain>/hooks/stripe`, docs/BILLING.md).
 4. Keep the old box read-only for a week, then retire the Otto parts of it.

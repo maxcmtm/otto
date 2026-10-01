@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
-"""Owner console tests: landing analytics (otto_track), Whop billing (otto_whop), the console snapshot and controls
-(otto_admin), the kill switch in otto_publish / otto_ads launch, and the /otto-track, /otto-api/whop, /otto-api/admin routes.
+"""Owner console tests: landing analytics (otto_track), the legacy Whop founders (otto_whop through otto_billing), the console
+snapshot and controls (otto_admin: Stripe setup items, billing from otto_billing — Stripe itself is tests/test_stripe.py), the
+kill switch in otto_publish / otto_ads launch, and the /otto-track, /otto-api/whop, /otto-api/admin routes.
 Stdlib unittest, no network, nothing outside a throwaway workspace.
 
   cd platform && python3 tests/test_admin.py
@@ -19,7 +20,8 @@ TMP = Path(tempfile.mkdtemp(prefix="otto-admin-test-"))
 ENV = {"OTTO_DATA": str(TMP / "data.json"), "OTTO_HTML": str(TMP / "index.html"), "OTTO_BRANDS": str(TMP / "brands"),
        "OTTO_SECRETS": str(TMP / "secrets"), "OTTO_ASSETS": str(TMP / "assets"), "OTTO_PUBLIC_ASSETS": "",
        "OTTO_EVENTS": str(TMP / "events.jsonl"), "OTTO_BILLING": str(TMP / "billing.json"), "OTTO_LEADS": str(TMP / "leads.json")}
-CLEAR = ("WHOP_API_KEY", "WHOP_WEBHOOK_SECRET", "WHOP_COMPANY_ID", "OTTO_ADMIN_USERS", "OTTO_DOMAIN")
+CLEAR = ("WHOP_API_KEY", "WHOP_WEBHOOK_SECRET", "WHOP_COMPANY_ID", "OTTO_ADMIN_USERS", "OTTO_DOMAIN", "OTTO_STRIPE_SECRET_KEY",
+         "OTTO_STRIPE_PUBLISHABLE_KEY", "OTTO_STRIPE_WEBHOOK_SECRET")
 ORIGIN = "https://dash.monyflow.work"
 SECRET = "ws_test_secret_do_not_use"
 
@@ -427,6 +429,8 @@ class SnapshotTest(unittest.TestCase):
 
     def test_snapshot_from_disk_never_contains_a_secret(self):
         whop_json(api_key="k_SECRET_VALUE", otto_webhook_secret="ws_SECRET_VALUE", company_id="biz_T")
+        (TMP / "secrets" / "stripe.json").write_text(json.dumps({"secret_key": "sk_test_SECRET_VALUE", "publishable_key": "pk_test_x",
+                                                                 "webhook_secrets": ["whsec_SECRET_VALUE"], "ref_secret": "SECRET_VALUE" * 4}))
         (TMP / "secrets" / "meta-alpha.json").write_text(json.dumps({"access_token": "EAAG_SECRET_VALUE", "ad_account_id": "act_1"}))
         otto_track.ingest(json.dumps({"p": "/pilot-landing.html", "ev": [{"e": "view"}]}).encode(), "192.0.2.1", {"User-Agent": "x"})
         s = otto_admin.snapshot(window=7)
@@ -434,23 +438,27 @@ class SnapshotTest(unittest.TestCase):
         self.assertNotIn("SECRET_VALUE", blob)
         self.assertNotIn("192.0.2.1", blob)
         setup = {x["key"]: x["status"] for x in s["setup"]}
-        self.assertEqual((setup["whop_webhook"], setup["whop_api"], setup["analytics"]), ("waiting", "connected", "connected"))
+        self.assertEqual((setup["stripe_keys"], setup["stripe_webhook"], setup["whop_legacy"], setup["analytics"]),
+                         ("connected", "waiting", "optional", "connected"))
+        self.assertNotIn("whop_api", setup, "no Whop sync any more: the founders are a read-only list")
         self.assertEqual(s["window"], 7)
         self.assertEqual(s["traffic"]["visitors"], 1)
 
-    def test_whop_webhook_url_matches_the_proxy(self):
-        # regression (integration review): on the new server Caddy takes Whop only at https://<domain>/hooks/whop and answers
-        # 404 for /otto-api/* on the apex, but the console told the owner to point Whop at <OTTO_PUBLIC_BASE>/otto-api/whop
-        how = lambda: next(x for x in otto_admin.snapshot()["setup"] if x["key"] == "whop_webhook")["how"]
-        # QA round 2: every setup text follows the new infra (Caddy + Cloudflare): /hooks/whop on the apex, whatever the host
-        self.assertIn(f"URL: {otto_admin.PUBLIC_BASE}/hooks/whop ", how(), "without OTTO_DOMAIN: the public base's host")
+    def test_webhook_urls_match_the_proxy(self):
+        # Caddy takes Stripe's webhook only at https://<domain>/hooks/stripe (and the legacy Whop one at /hooks/whop) and answers
+        # 404 for /otto-api/* on the apex: the console must tell the owner exactly those URLs
+        how = lambda key: next(x for x in otto_admin.snapshot()["setup"] if x["key"] == key)["how"]
+        self.assertIn(f"URL: {otto_admin.PUBLIC_BASE}/hooks/stripe ", how("stripe_webhook"), "without OTTO_DOMAIN: the public base's host")
         self.assertNotIn("nginx", json.dumps(otto_admin.snapshot()["setup"]), "no setup text talks about nginx any more")
         os.environ["OTTO_DOMAIN"] = "otto.example"
         try:
-            self.assertIn("URL: https://otto.example/hooks/whop ", how())
+            self.assertIn("URL: https://otto.example/hooks/stripe ", how("stripe_webhook"))
+            self.assertIn("https://otto.example/hooks/whop", how("whop_legacy"))
         finally:
             os.environ.pop("OTTO_DOMAIN", None)
         caddy = (PLATFORM.parent / "infra" / "Caddyfile").read_text()
+        self.assertIn("handle /hooks/stripe", caddy)
+        self.assertIn("handle /billing/*", caddy)
         self.assertIn("handle /hooks/whop", caddy)
         self.assertIn("rewrite * /otto-api/whop", caddy)
 
@@ -458,7 +466,9 @@ class SnapshotTest(unittest.TestCase):
         s = otto_admin.snapshot()
         self.assertEqual(s["funnel"]["steps"][0]["n"], 0)
         self.assertFalse(s["revenue"]["connected"])
-        self.assertEqual({x["key"]: x["status"] for x in s["setup"]}["whop_webhook"], "missing")
+        setup = {x["key"]: x["status"] for x in s["setup"]}
+        self.assertEqual((setup["stripe_keys"], setup["stripe_webhook"]), ("missing", "missing"))
+        self.assertIn("Payments aren't set up yet", next(x for x in s["setup"] if x["key"] == "stripe_keys")["detail"])
 
     def test_sample_is_labelled_and_invented(self):
         s = otto_admin.sample_snapshot(window=30)
@@ -758,7 +768,8 @@ class AdminApiTest(_Server, unittest.TestCase):
         self.assertEqual(self.post([1, 2])[0], 400)
         self.assertEqual(self.post({"action": "lead", "id": "../../etc", "status": "won"})[0], 400)
         self.assertEqual(self.post({"action": "lead", "id": "d:alpha-dental.example", "status": "married"})[0], 400)
-        self.assertEqual(self.post({"action": "whop_sync"})[0], 400, "Whop not connected")
+        self.assertEqual(self.post({"action": "whop_sync"})[0], 400, "no Whop sync any more")
+        self.assertEqual(self.post({"action": "stripe_check"})[0], 400, "Stripe not set up")
         self.assertEqual(self.post({"action": "resume_brand", "brand": "alpha"})[0], 400, "not paused")
 
     def test_campaign_transitions(self):

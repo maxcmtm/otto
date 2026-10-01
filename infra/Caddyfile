@@ -123,7 +123,7 @@ import /etc/caddy/otto.d/*.caddy
 		}
 		respond 405
 	}
-	# onboarding for a buyer without a login yet (Whop redirect → /onboarding.html): creates a brand, never updates one
+	# public onboarding for a visitor without a login yet (/onboarding.html on the apex): creates a brand, never updates one
 	handle /otto-onboard {
 		request_body {
 			max_size 16KB
@@ -157,7 +157,27 @@ import /etc/caddy/otto.d/*.caddy
 		}
 		respond 405
 	}
-	# Whop → us (server to server; the Standard Webhooks signature is the authentication)
+	# Stripe → us (server to server; the Stripe-Signature HMAC is the authentication). The source of truth for billing.
+	handle /hooks/stripe {
+		request_body {
+			max_size 256KB
+		}
+		handle @post {
+			import otto_api
+		}
+		respond 405
+	}
+	# what can be bought right now (the landing's founding-seat line); public, GET only, no secret in it
+	handle /billing/offers {
+		request_body {
+			max_size 1KB
+		}
+		handle @get {
+			import otto_api
+		}
+		respond 405
+	}
+	# LEGACY: Whop → us for the founding seats sold on Whop before Stripe (Standard Webhooks signature)
 	handle /hooks/whop {
 		request_body {
 			max_size 256KB
@@ -202,12 +222,31 @@ app.{$OTTO_DOMAIN} {
 		}
 		respond 405
 	}
-	# the owner console API lives on admin. only; Whop only on the apex
+	# the owner console API lives on admin. only; the Stripe / Whop webhooks only on the apex
 	handle /otto-api/admin* {
 		respond 404
 	}
 	handle /otto-api/whop {
 		respond 404
+	}
+	# Billing (otto_stripe): the signed-in client's plan, payment method, VAT ID, invoices, checkout (Google session only)
+	handle /billing/* {
+		request_body {
+			max_size 4KB
+		}
+		@billing method GET POST
+		handle @billing {
+			import otto_api
+		}
+		respond 405
+	}
+	# the Billing page: the one page that embeds Stripe (Embedded Checkout, Payment Element). Its CSP is in the page; here
+	# only the Payment Request API is allowed for Stripe's frames (Apple Pay / Google Pay inside the card form).
+	@billing_page path /billing.html /billing
+	handle @billing_page {
+		header Permissions-Policy `camera=(), microphone=(), geolocation=(), usb=(), payment=(self "https://js.stripe.com" "https://checkout.stripe.com")`
+		root * /srv/otto/app
+		import otto_pages
 	}
 	handle /otto-api/* {
 		request_body {

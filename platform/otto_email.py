@@ -3,7 +3,8 @@
 
   otto_email.py send-cards [--brand B] [--ids hg-001,hg-002] [--hours 72] [--resend] [--dry]
   otto_email.py send-recs  [--brand B] [--dry]
-  otto_email.py preview    --brand B [--kind digest|recs|plan] [--out file.html] [--text]   # render only: nothing is claimed or sent
+  otto_email.py report     --brand B [--dry] [--force]                                      # the 07:35 morning report (otto_report)
+  otto_email.py preview    --brand B [--kind digest|recs|plan|report] [--out file.html] [--text]   # render only: nothing is claimed or sent
   otto_email.py channel    <brand> email|telegram|app|email,telegram                      # brands[].approvals, by hand
   otto_email.py bounces                                                                    # pull bounces from Postmark / Resend now
   otto_email.py unsuppress <address>                                                       # send to a bounced address again
@@ -16,6 +17,14 @@ send-cards  One approval digest per brand, same selection rules as otto_telegram
             send releases the claim. The digest goes to each approver separately (every button carries a token for that person):
             the post's image (hosted URL, never an attachment), platform, slot in brand-local time, hook, caption, and three
             one-tap buttons — Approve · Skip (signed links) · Change (opens the app on that post) — plus "Review all in the app".
+report      The morning report at 07:35 brand time (otto_cron `morning-report` → otto_report.send → send_report): yesterday's
+            posts and their numbers, paid spend against budget with results (plans with paid ads), today's posts, and every
+            decision waiting — the posts due within 72 h as the digest shows them (claimed and marked e-mailed the same way,
+            so the 08:00 send-cards run is only a catch-up), the paid-plan card and P0 / P1 recommendations with the same
+            one-tap links. Once per brand per local day; a report that cannot be built falls back to the plain digest.
+Language    Every client e-mail and one-tap page speaks brands[].comms_lang (otto_i18n: en — the default for every brand —,
+            nl or de; German Sie / du from brands[].address or the brand's own voice); subjects included. Never inferred
+            from the brand's content language. Dates, numbers and money are formatted per locale.
 send-recs   Per brand: the monthly paid-plan card ("Approve the October paid plan", otto_ads) as its own e-mail, and every other
             client-visible P0 / P1 recommendation in one e-mail, each with Approve · Not now (same tokens). Claimed the same way.
 Recipients  brands[].approvers when the brand has that list, else brands[].members; only real addresses ("@domain" entries let
@@ -57,6 +66,7 @@ from email.utils import format_datetime, formataddr, parseaddr
 from pathlib import Path
 
 import ap
+import otto_i18n as i18n
 import otto_paths as paths
 
 HERE = Path(__file__).parent
@@ -91,10 +101,11 @@ class SendError(Exception):
 
 
 class TokenError(Exception):
-    """code: invalid | expired"""
-    def __init__(self, code):
+    """code: invalid | expired (an expired link's verified payload rides along: its page speaks the brand's language)"""
+    def __init__(self, code, payload=None):
         super().__init__(code)
         self.code = code
+        self.payload = payload
 
 
 class Denied(Exception):
@@ -386,7 +397,7 @@ def read_token(token, now=None, keys=None):
         raise TokenError("invalid")
     t = (now or datetime.now(timezone.utc)).timestamp()
     if t > p["e"]:
-        raise TokenError("expired")
+        raise TokenError("expired", p)
     if p["e"] > t + TOKEN_TTL.total_seconds() + 86400:
         raise TokenError("invalid")                      # an expiry no link of ours ever had
     return p, secret
@@ -511,18 +522,31 @@ def para(s):
     return "<br>".join(esc(x) for x in str(s or "").strip().splitlines())
 
 
-def slot_label(p, b, with_day=True):
+def slot_label(p, b, with_day=True, t=None):
+    """"Fri 2 Oct · 18:00" / "vr 2 okt · 18:00" / "Fr., 2. Okt. · 18:00" in the brand's own time and language."""
     dt = ap.slot_dt(p, b)
     if not dt:
         return str(p.get("slot") or "")
+    t = t or i18n.Tr.for_brand(b)
     loc = dt.astimezone(ap.brand_tz(b))
-    return f"{loc:%a} {loc.day} {loc:%b} · {loc:%H:%M}" if with_day else f"{loc:%H:%M}"
+    return t.day_time(loc) if with_day else t.time(loc)
 
 
 def tz_note(b):
     name = getattr(ap.brand_tz(b), "key", "") or ""
     city = name.rsplit("/", 1)[-1].replace("_", " ") if "/" in name else name
     return f"{city} time" if city else ""
+
+
+def tz_times(b, t):
+    """"Times are Amsterdam time." / "Alle tijden in lokale tijd (Amsterdam)." — "" for a zone without a city."""
+    city = t.city(ap.brand_tz(b))
+    return t("tz.times", city=city) if city and "/" in (getattr(ap.brand_tz(b), "key", "") or "") else ""
+
+
+def tz_label(b, t):
+    city = t.city(ap.brand_tz(b))
+    return t("tz.label", city=city) if city and "/" in (getattr(ap.brand_tz(b), "key", "") or "") else ""
 
 
 def month_label(ym):
@@ -559,24 +583,28 @@ EMAIL_CSS = (":root{color-scheme:light dark;supported-color-schemes:light dark}"
              "a{text-decoration:none}"
              "@media (max-width:620px){.o-shell{width:100%!important}.o-px{padding-left:16px!important;padding-right:16px!important}"
              ".o-thumb{width:84px!important}.o-thumb img{width:84px!important}.o-h1{font-size:24px!important;line-height:30px!important}"
-             ".o-in{padding:14px!important}}"
+             ".o-in{padding:14px!important}.o-kpi{font-size:24px!important;line-height:30px!important}"
+             ".o-btn3 a{font-size:14px!important;padding-left:6px!important;padding-right:6px!important}}"
              "@media (prefers-color-scheme:dark){.o-bg{background:#0C0D0F!important}"
              ".o-card{background:#16171A!important;border-color:#2A2C31!important}"
              ".o-ink{color:#F2F3F5!important}.o-ink2{color:#A3A8B3!important}.o-ink3{color:#8D95A5!important}"
              ".o-line{border-color:#2A2C31!important}.o-pri{background:#4461F5!important}.o-pri a{color:#FFFFFF!important}"
              ".o-sec{background:#24262B!important}.o-sec a{color:#F2F3F5!important}.o-link{color:#8EA2FF!important}"
-             ".o-tag{background:#1B2240!important;color:#AFBDFF!important}.o-warn{background:rgba(245,165,36,.14)!important;color:#F5A524!important}}"
+             ".o-tag{background:#1B2240!important;color:#AFBDFF!important}.o-warn{background:rgba(245,165,36,.14)!important;color:#F5A524!important}"
+             ".o-bar{background:#2A3466!important}.o-bar-hi{background:#4461F5!important}}"
              "[data-ogsc] .o-ink{color:#F2F3F5!important}[data-ogsc] .o-ink2{color:#A3A8B3!important}"
              "[data-ogsc] .o-ink3{color:#8D95A5!important}[data-ogsc] .o-link{color:#8EA2FF!important}"
              "[data-ogsb] .o-bg{background:#0C0D0F!important}[data-ogsb] .o-card{background:#16171A!important}"
-             "[data-ogsb] .o-sec{background:#24262B!important}[data-ogsb] .o-pri{background:#4461F5!important}")
+             "[data-ogsb] .o-sec{background:#24262B!important}[data-ogsb] .o-pri{background:#4461F5!important}"
+             "[data-ogsb] .o-bar{background:#2A3466!important}[data-ogsb] .o-bar-hi{background:#4461F5!important}")
 
 
-def layout(subject, preheader, brand_name, title, lead, blocks, foot_html):
-    """The shared e-mail shell: table-based (Gmail / Outlook / Apple Mail), system fonts only, light + dark, no pixels."""
+def layout(subject, preheader, brand_name, title, lead, blocks, foot_html, lang="en", sub=""):
+    """The shared e-mail shell: table-based (Gmail / Outlook / Apple Mail), system fonts only, light + dark, no pixels.
+    sub = an optional line under the title (the report's date line)."""
     pad = "&#847;&zwnj;&nbsp;" * 40
     return f"""<!doctype html>
-<html lang="en" dir="ltr" xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
+<html lang="{esc(lang)}" dir="ltr" xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -600,6 +628,7 @@ def layout(subject, preheader, brand_name, title, lead, blocks, foot_html):
 <td class="o-ink3" align="right" dir="auto" style="{fstyle(13, 18, 500, L['ink3'])}">{esc(brand_name)}</td>
 </tr></table></td></tr>
 <tr><td class="o-px" style="padding:0 24px 8px;"><h1 class="o-ink o-h1" dir="auto" style="margin:0;{fstyle(28, 34, 700, L['ink'], 'letter-spacing:-0.025em;')}">{esc(title)}</h1></td></tr>
+{sub}
 <tr><td class="o-px o-ink2" style="padding:0 24px 24px;{fstyle(15, 22, 400, L['ink2'])}">{lead}</td></tr>
 {''.join(blocks)}
 <tr><td class="o-px o-ink3" style="padding:26px 24px 0;{fstyle(12, 18, 400, L['ink3'])}">{foot_html}</td></tr>
@@ -625,26 +654,46 @@ def buttons_row(btns):
         padl = "0" if i == 0 else "4px"
         padr = "0" if i == len(btns) - 1 else "4px"
         cells.append(f'<td width="{w}%" valign="top" style="padding:0 {padr} 0 {padl};">{button(label, url, primary)}</td>')
-    return (f'<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-top:14px;">'
+    cls = ' class="o-btn3"' if len(btns) > 2 else ""
+    return (f'<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"{cls} style="margin-top:14px;">'
             f'<tr>{"".join(cells)}</tr></table>')
 
 
-def footer(b, extra=""):
-    return (f"You get this because you approve posts for {esc(b.get('name') or b['id'])} in Otto. "
-            f'Choose how approvals reach you in <a class="o-link" href="{esc(app_link("settings"))}" style="color:{L["accent"]};">Settings</a>. '
-            "Each button works once and expires after 72 hours; nothing publishes without your OK." + extra)
+MARK = "\x00link\x00"
+
+
+def settings_link(t):
+    return f'<a class="o-link" href="{esc(app_link("settings"))}" style="color:{L["accent"]};">{esc(t("email.settings"))}</a>'
+
+
+def footer(b, extra="", t=None, why_key="email.why", settings_key="email.settings_sentence"):
+    t = t or i18n.Tr.for_brand(b)
+    return (esc(t(why_key, name=b.get("name") or b["id"])) + " "
+            + esc(t(settings_key, settings=MARK)).replace(esc(MARK), settings_link(t)) + " "
+            + esc(t("email.buttons_once")) + extra)
+
+
+def footer_text(b, t, why_key="email.why", settings_key="email.settings_text"):
+    return [t(why_key, name=b.get("name") or b["id"]) + " " + t(settings_key, url=app_link("settings")), t("email.links_once")]
 
 
 # ============================================================================================
 # the approval digest
 # ============================================================================================
 
-def digest_item(b, p, recipient, cfg, now, secret, verify=True):
+def where_label(p, t):
+    """"Instagram · Reel" in the brand's language (platform names are names)."""
+    fmt = p.get("format") or ""
+    return " · ".join(x for x in (PLAT.get(p.get("platform"), p.get("platform") or ""),
+                                  t("fmt." + fmt) if fmt in FORMAT else "") if x)
+
+
+def digest_item(b, p, recipient, cfg, now, secret, verify=True, t=None):
+    t = t or i18n.Tr.for_brand(b)
     tok = lambda a: make_token(b["id"], "post", p["id"], a, recipient, now=now, secret=secret)
     return {"post": p, "approve": act_url(tok("approve"), cfg), "skip": act_url(tok("skip"), cfg),
             "change": app_link("change=" + urllib.parse.quote(p["id"]), cfg), "open": app_link("post=" + urllib.parse.quote(p["id"]), cfg),
-            "image": image_url(p, verify=verify), "slot": slot_label(p, b),
-            "where": " · ".join(x for x in (PLAT.get(p.get("platform"), p.get("platform") or ""), FORMAT.get(p.get("format") or "")) if x)}
+            "image": image_url(p, verify=verify), "slot": slot_label(p, b, t=t), "where": where_label(p, t)}
 
 
 def _why(p):
@@ -652,61 +701,78 @@ def _why(p):
     return p.get("why") or ("" if "TBD" in brief else brief)
 
 
-def render_digest(b, items, waiting=0):
+def post_card(it, t):
+    """One post with its image, platform, slot, hook, caption, "why" and Approve · Skip · Change — the digest's card, which the
+    morning report reuses for every post waiting for a decision."""
+    p = it["post"]
+    hook = (p.get("hook") or "").strip() or short((p.get("caption") or "").split("\n")[0], 90)
+    cap = (p.get("caption") or "").strip()
+    cap = "" if cap.strip() == hook.strip() else short(cap, 280)
+    why = _why(p)
+    img = (f'<td class="o-thumb" width="112" valign="top" style="width:112px;padding:0 14px 0 0;">'
+           f'<a href="{esc(it["open"])}" target="_blank"><img src="{esc(it["image"])}" width="112" alt="{esc(short(t("img.alt", hook=hook), 90))}" '
+           f'style="display:block;width:112px;max-width:112px;height:auto;border-radius:10px;border:0;"></a></td>') if it["image"] else ""
+    text = (f'<td valign="top">'
+            f'<div class="o-ink3" style="{fstyle(12, 16, 600, L["ink3"], "letter-spacing:0.02em;text-transform:uppercase;")}">{esc(it["where"])}</div>'
+            f'<div class="o-ink2" style="{fstyle(13, 18, 500, L["ink2"], "padding-top:2px;")}">{esc(it["slot"])}</div>'
+            f'<div class="o-ink" dir="auto" style="{fstyle(16, 22, 600, L["ink"], "padding-top:8px;letter-spacing:-0.01em;")}">{esc(hook)}</div>'
+            + (f'<div class="o-ink2" dir="auto" style="{fstyle(14, 20, 400, L["ink2"], "padding-top:6px;")}">{para(cap)}</div>' if cap else "")
+            + (f'<div class="o-ink3" dir="auto" style="{fstyle(12, 17, 400, L["ink3"], "padding-top:8px;")}">{esc(t("digest.why", why=short(why, 160)))}</div>' if why else "")
+            + '</td>')
+    inner = (f'<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr>{img}{text}</tr></table>'
+             + buttons_row([(t("btn.approve"), it["approve"], True, 46), (t("btn.skip"), it["skip"], False, 27), (t("btn.change"), it["change"], False, 27)]))
+    return card(inner)
+
+
+def post_lines(i, it, t):
+    """The plain-text twin of post_card."""
+    p = it["post"]
+    lines = [f"{i}. {it['where']} · {it['slot']}", (p.get("hook") or "").strip()]
+    cap = (p.get("caption") or "").strip()
+    if cap and cap != (p.get("hook") or "").strip():
+        lines.append(short(cap, 280))
+    if it["image"]:
+        lines.append(f"{t('lbl.image')}: {it['image']}")
+    labels = [t("btn.approve"), t("btn.skip"), t("btn.change")]
+    w = max(len(x) for x in labels) + 1
+    lines += [f"{(labels[0] + ':').ljust(w)} {it['approve']}", f"{(labels[1] + ':').ljust(w)} {it['skip']}",
+              f"{(labels[2] + ':').ljust(w)} {it['change']}", ""]
+    return lines
+
+
+def center_button(label, url):
+    return (f'<table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr><td>'
+            f'{button(label, url, False, full=False)}</td></tr></table>')
+
+
+def render_digest(b, items, waiting=0, t=None):
     """→ (subject, html, text). items from digest_item(); waiting = other posts already sent and still waiting."""
+    t = t or i18n.Tr.for_brand(b)
     name = b.get("name") or b["id"]
     n = len(items)
     first = ap.slot_dt(items[0]["post"], b) if items else None
-    day = f"{first.astimezone(ap.brand_tz(b)):%a} {first.astimezone(ap.brand_tz(b)).day} {first.astimezone(ap.brand_tz(b)):%b}" if first else ""
-    subject = f"{n} post{'s' * (n != 1)} to approve for {name}" + (f" · from {day}" if day else "")
-    title = f"{n} post{'s' * (n != 1)} need{'s' * (n == 1)} your OK"
-    tzn = tz_note(b)
-    lead = ("Tap <b>Approve</b> and it goes out at its time. <b>Skip</b> and Otto fills the slot. "
-            "<b>Change</b> opens the post in the app." + (f" Times are {esc(tzn)}." if tzn else ""))
-    blocks = []
-    for it in items:
-        p = it["post"]
-        hook = (p.get("hook") or "").strip() or short((p.get("caption") or "").split("\n")[0], 90)
-        cap = (p.get("caption") or "").strip()
-        cap = "" if cap.strip() == hook.strip() else short(cap, 280)
-        why = _why(p)
-        img = (f'<td class="o-thumb" width="112" valign="top" style="width:112px;padding:0 14px 0 0;">'
-               f'<a href="{esc(it["open"])}" target="_blank"><img src="{esc(it["image"])}" width="112" alt="{esc(short("Image: " + hook, 90))}" '
-               f'style="display:block;width:112px;max-width:112px;height:auto;border-radius:10px;border:0;"></a></td>') if it["image"] else ""
-        text = (f'<td valign="top">'
-                f'<div class="o-ink3" style="{fstyle(12, 16, 600, L["ink3"], "letter-spacing:0.02em;text-transform:uppercase;")}">{esc(it["where"])}</div>'
-                f'<div class="o-ink2" style="{fstyle(13, 18, 500, L["ink2"], "padding-top:2px;")}">{esc(it["slot"])}</div>'
-                f'<div class="o-ink" dir="auto" style="{fstyle(16, 22, 600, L["ink"], "padding-top:8px;letter-spacing:-0.01em;")}">{esc(hook)}</div>'
-                + (f'<div class="o-ink2" dir="auto" style="{fstyle(14, 20, 400, L["ink2"], "padding-top:6px;")}">{para(cap)}</div>' if cap else "")
-                + (f'<div class="o-ink3" dir="auto" style="{fstyle(12, 17, 400, L["ink3"], "padding-top:8px;")}">Why this post: {esc(short(why, 160))}</div>' if why else "")
-                + '</td>')
-        inner = (f'<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr>{img}{text}</tr></table>'
-                 + buttons_row([("Approve", it["approve"], True, 50), ("Skip", it["skip"], False, 25), ("Change", it["change"], False, 25)]))
-        blocks.append(card(inner))
-    more = f"{waiting} more post{'s' * (waiting != 1)} {'are' if waiting != 1 else 'is'} waiting in the app." if waiting else ""
-    blocks.append(f'<tr><td class="o-px" align="center" style="padding:10px 24px 0;">'
-                  f'<table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr><td>'
-                  f'{button("Review all in the app", app_link("review"), False, full=False)}</td></tr></table>'
+    day = t.day(first.astimezone(ap.brand_tz(b))) if first else ""
+    subject = t("digest.subject", n=n, name=name) + (t("digest.subject_from", day=day) if day else "")
+    title = t("digest.title", n=n)
+    tzn = tz_times(b, t)
+    labels = {k: t("btn." + k) for k in ("approve", "skip", "change")}
+    lead = esc(t("digest.lead", **{k: MARK + k + MARK for k in labels}))
+    for k, v in labels.items():
+        lead = lead.replace(MARK + k + MARK, f"<b>{esc(v)}</b>")
+    lead += (" " + esc(tzn) if tzn else "")
+    blocks = [post_card(it, t) for it in items]
+    more = t("digest.more", n=waiting) if waiting else ""
+    blocks.append(f'<tr><td class="o-px" align="center" style="padding:10px 24px 0;">{center_button(t("btn.review_all"), app_link("review"))}'
                   + (f'<div class="o-ink3" style="{fstyle(13, 18, 400, L["ink3"], "padding-top:10px;")}">{esc(more)}</div>' if more else "")
                   + '</td></tr>')
     preheader = short(" · ".join((it["post"].get("hook") or "") for it in items), 110)
-    body = layout(subject, preheader, name, title, lead, blocks, footer(b))
-    lines = [f"{name} — {title}", "", "Approve and it goes out at its time. Skip and Otto fills the slot. Change opens the post in the app."
-             + (f" Times are {tzn}." if tzn else ""), ""]
+    body = layout(subject, preheader, name, title, lead, blocks, footer(b, t=t), lang=t.lang)
+    lines = [f"{name} — {title}", "", t("digest.lead", **labels) + (f" {tzn}" if tzn else ""), ""]
     for i, it in enumerate(items, 1):
-        p = it["post"]
-        lines += [f"{i}. {it['where']} · {it['slot']}", (p.get("hook") or "").strip()]
-        cap = (p.get("caption") or "").strip()
-        if cap and cap != (p.get("hook") or "").strip():
-            lines.append(short(cap, 280))
-        if it["image"]:
-            lines.append(f"Image: {it['image']}")
-        lines += [f"Approve: {it['approve']}", f"Skip:    {it['skip']}", f"Change:  {it['change']}", ""]
+        lines += post_lines(i, it, t)
     if more:
         lines.append(more)
-    lines += [f"Review all in the app: {app_link('review')}", "",
-              f"You get this because you approve posts for {name} in Otto. Choose how approvals reach you: {app_link('settings')}",
-              "Each link works once and expires after 72 hours; nothing publishes without your OK."]
+    lines += [f"{t('btn.review_all')}: {app_link('review')}", ""] + footer_text(b, t)
     return subject, body, "\n".join(lines) + "\n"
 
 
@@ -723,83 +789,113 @@ def plan_month(r):
     return r.get("plan") or (m.group(1) if m else None)
 
 
-def rec_links(b, r, recipient, cfg, now, secret):
+def rec_links(b, r, recipient, cfg, now, secret, t=None):
+    t = t or i18n.Tr.for_brand(b)
     if r.get("onboard_step"):                       # a set-up step ("Connect Instagram"): done in the app, not approved here
-        return [("Open Otto", app_link("settings", cfg), True, 100)]
+        return [(t("btn.open_otto"), app_link("settings", cfg), True, 100)]
     tok = lambda a: make_token(b["id"], "rec", r["id"], a, recipient, now=now, secret=secret)
-    return [("Approve", act_url(tok("approve"), cfg), True, 60), ("Not now", act_url(tok("dismiss"), cfg), False, 40)]
+    return [(t("btn.approve"), act_url(tok("approve"), cfg), True, 60), (t("btn.not_now"), act_url(tok("dismiss"), cfg), False, 40)]
+
+
+def plan_links(b, r, recipient, cfg, now, secret, t=None):
+    t = t or i18n.Tr.for_brand(b)
+    return [(t("btn.approve_plan"), act_url(make_token(b["id"], "rec", r["id"], "approve", recipient, now=now, secret=secret), cfg), True, 60),
+            (t("btn.not_now"), act_url(make_token(b["id"], "rec", r["id"], "dismiss", recipient, now=now, secret=secret), cfg), False, 40)]
 
 
 PRIO = {"P0": ("Urgent", "o-warn", "#FFF4E2", "#B45309"), "P1": ("Recommended", "o-tag", "#EDF1FF", "#2447F0")}
 
 
-def render_recs(b, rows):
+def rec_texts(r, t):
+    """(title, why, impact) of a recommendation in the brand's language when the engine filed it with an i18n key; the
+    paid-plan card always gets its localized title."""
+    import otto_report
+    if is_plan_card(r):
+        return otto_report.plan_title(t, r), (r.get("why") if t.lang == "en" else ""), r.get("impact") if t.lang == "en" else ""
+    return tuple(otto_report.rec_text(t, r, f) for f in ("title", "why", "impact"))
+
+
+def rec_card(r, links, t):
+    tag, cls, bg, fg = PRIO.get(r.get("priority"), PRIO["P1"])
+    tag = t("prio." + (r.get("priority") if r.get("priority") in PRIO else "P1"))
+    title, why, impact = rec_texts(r, t)
+    inner = (f'<table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr><td class="{cls}" '
+             f'style="background:{bg};border-radius:6px;padding:3px 8px;{fstyle(11, 14, 600, fg, "letter-spacing:0.03em;text-transform:uppercase;")}">{esc(tag)}</td></tr></table>'
+             f'<div class="o-ink" dir="auto" style="{fstyle(17, 23, 600, L["ink"], "padding-top:10px;letter-spacing:-0.01em;")}">{esc(title)}</div>'
+             + (f'<div class="o-ink2" dir="auto" style="{fstyle(14, 21, 400, L["ink2"], "padding-top:6px;")}">{esc(short(why, 420))}</div>' if why else "")
+             + (f'<div class="o-ink3" dir="auto" style="{fstyle(13, 18, 500, L["ink3"], "padding-top:8px;")}">↗ {esc(impact)}</div>' if impact else "")
+             + buttons_row(links))
+    lines = [f"[{tag}] {title}"] + ([short(why, 420)] if why else []) + ([t("recs.impact", impact=impact)] if impact else []) + \
+            [f"{lab}: {url}" for lab, url, _, _ in links] + [""]
+    return card(inner), lines
+
+
+def render_recs(b, rows, t=None):
     """rows = [(rec, links)] → (subject, html, text)."""
+    t = t or i18n.Tr.for_brand(b)
     name = b.get("name") or b["id"]
     n = len(rows)
-    subject = (f"Otto recommends: {short(rows[0][0].get('title'), 70)}" if n == 1 else f"{n} recommendations for {name}")
-    title = "Otto recommends" if n == 1 else f"{n} things to decide"
-    lead = "Your agency's suggestions for this week. Approve one and Otto gets on with it; Not now puts it away."
+    subject = (t("recs.subject_one", title=short(rec_texts(rows[0][0], t)[0], 70)) if n == 1 else t("recs.subject_many", n=n, name=name))
+    title = t("recs.title_one") if n == 1 else t("recs.title_many", n=n)
+    lead = t("recs.lead")
     blocks, lines = [], [f"{name} — {title}", "", lead, ""]
     for r, links in rows:
-        tag, cls, bg, fg = PRIO.get(r.get("priority"), PRIO["P1"])
-        inner = (f'<table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr><td class="{cls}" '
-                 f'style="background:{bg};border-radius:6px;padding:3px 8px;{fstyle(11, 14, 600, fg, "letter-spacing:0.03em;text-transform:uppercase;")}">{tag}</td></tr></table>'
-                 f'<div class="o-ink" dir="auto" style="{fstyle(17, 23, 600, L["ink"], "padding-top:10px;letter-spacing:-0.01em;")}">{esc(r.get("title"))}</div>'
-                 + (f'<div class="o-ink2" dir="auto" style="{fstyle(14, 21, 400, L["ink2"], "padding-top:6px;")}">{esc(short(r.get("why"), 420))}</div>' if r.get("why") else "")
-                 + (f'<div class="o-ink3" dir="auto" style="{fstyle(13, 18, 500, L["ink3"], "padding-top:8px;")}">↗ {esc(r.get("impact"))}</div>' if r.get("impact") else "")
-                 + buttons_row(links))
-        blocks.append(card(inner))
-        lines += [f"[{tag}] {r.get('title')}"] + ([short(r.get("why"), 420)] if r.get("why") else []) + \
-                 ([f"Impact: {r['impact']}"] if r.get("impact") else []) + [f"{lab}: {url}" for lab, url, _, _ in links] + [""]
-    blocks.append(f'<tr><td class="o-px" align="center" style="padding:10px 24px 0;"><table role="presentation" cellpadding="0" cellspacing="0" '
-                  f'border="0" style="margin:0 auto;"><tr><td>{button("Open Otto", app_link("today"), False, full=False)}</td></tr></table></td></tr>')
-    lines += [f"Open Otto: {app_link('today')}", "", f"Choose how approvals reach you: {app_link('settings')}"]
-    body = layout(subject, short(rows[0][0].get("why") or rows[0][0].get("title"), 110), name, title, lead, blocks, footer(b))
+        blk, ls = rec_card(r, links, t)
+        blocks.append(blk)
+        lines += ls
+    blocks.append(f'<tr><td class="o-px" align="center" style="padding:10px 24px 0;">{center_button(t("btn.open_otto"), app_link("today"))}</td></tr>')
+    lines += [f"{t('btn.open_otto')}: {app_link('today')}", "", t("email.settings_text", url=app_link("settings"))]
+    first = rec_texts(rows[0][0], t)
+    body = layout(subject, short(first[1] or first[0], 110), name, title, esc(lead), blocks, footer(b, t=t), lang=t.lang)
     return subject, body, "\n".join(lines) + "\n"
 
 
-def _day_mon(s):
-    """"2026-11-01" → "1 Nov" (anything else as it is)."""
+def _day_mon(s, t=None):
+    """"2026-11-01" → "1 Nov" / "1 nov" / "1. Nov." (anything else as it is)."""
     try:
         dt = datetime.strptime(str(s)[:10], "%Y-%m-%d")
-        return f"{dt.day} {dt:%b}"
     except (TypeError, ValueError):
         return str(s or "")
+    return (t or i18n.Tr()).day_month(dt)
 
 
-def render_plan(b, r, campaigns, links):
+def render_plan(b, r, campaigns, links, t=None):
     """The monthly paid-plan approval card as an e-mail → (subject, html, text)."""
+    import otto_report
+    t = t or i18n.Tr.for_brand(b)
     name = b.get("name") or b["id"]
-    ym = plan_month(r)
-    mon = month_label(ym)
-    subject = f"Approve the {mon} paid plan · {name}"
-    title = f"Approve the {mon} paid plan"
-    m = re.search(r"paid plan:\s*(.+)$", r.get("title") or "")
-    lead = (esc(m.group(1)) + ". " if m else "") + "Nothing spends until you approve, and every campaign has a daily ceiling."
+    title = otto_report.plan_title(t, r)
+    subject = f"{title} · {name}"
+    cur0 = (campaigns[0].get("currency_code") or campaigns[0].get("currency")) if campaigns else ap.brand_currency(ap.load(), b["id"])
+    if t.lang == "en":
+        m = re.search(r"paid plan:\s*(.+)$", r.get("title") or "")
+        head = (m.group(1) + ". ") if m else ""
+    else:
+        head = otto_report.plan_summary(t, campaigns, cur0).split(" · ")[0] + ". " if campaigns else ""
+    lead_txt = head + t("plan.lead")
     rows = []
     for c in campaigns[:8]:
-        cur = ap.currency_symbol(c.get("currency_code") or c.get("currency"))
+        cur = c.get("currency_code") or c.get("currency")
         rows.append(f'<tr><td class="o-ink o-line" dir="auto" style="padding:10px 0;border-top:1px solid {L["line"]};{fstyle(14, 19, 500, L["ink"])}">'
                     f'{esc(short(c.get("name"), 60))}<div class="o-ink3" style="{fstyle(12, 17, 400, L["ink3"], "padding-top:2px;")}">'
-                    f'{esc({"meta": "Meta", "google": "Google"}.get(c.get("network"), c.get("network") or ""))} · {esc(_day_mon(c.get("start")))} to {esc(_day_mon(c.get("end")))}'
-                    + (" · on hold for a copy review" if c.get("compliance_hold") else "") + '</div></td>'
+                    f'{esc({"meta": "Meta", "google": "Google"}.get(c.get("network"), c.get("network") or ""))} · '
+                    f'{esc(t("plan.dates", start=_day_mon(c.get("start"), t), end=_day_mon(c.get("end"), t)))}'
+                    + (esc(t("plan.hold")) if c.get("compliance_hold") else "") + '</div></td>'
                     f'<td class="o-ink2 o-line" align="right" valign="top" style="padding:10px 0 10px 12px;border-top:1px solid {L["line"]};white-space:nowrap;{fstyle(14, 19, 500, L["ink2"])}">'
-                    f'{esc(cur)}{ap.num(c.get("daily_budget")) or 0:,.0f}/day</td></tr>')
+                    f'{esc(t("plan.per_day", amount=t.money(round(ap.num(c.get("daily_budget")) or 0), cur)))}</td></tr>')
     more = len(campaigns) - 8
-    inner = ((f'<div class="o-ink2" dir="auto" style="{fstyle(14, 21, 400, L["ink2"])}">{esc(short(r.get("why"), 700))}</div>' if r.get("why") else "")
-             + (f'<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-top:14px;">{"".join(rows)}</table>' if rows else "")
-             + (f'<div class="o-ink3" style="{fstyle(12, 17, 400, L["ink3"], "padding-top:6px;")}">and {more} more in the app</div>' if more > 0 else "")
+    why = r.get("why") if t.lang == "en" else ""
+    inner = ((f'<div class="o-ink2" dir="auto" style="{fstyle(14, 21, 400, L["ink2"])}">{esc(short(why, 700))}</div>' if why else "")
+             + (f'<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-top:{14 if why else 0}px;">{"".join(rows)}</table>' if rows else "")
+             + (f'<div class="o-ink3" style="{fstyle(12, 17, 400, L["ink3"], "padding-top:6px;")}">{esc(t("plan.more", n=more))}</div>' if more > 0 else "")
              + buttons_row(links))
-    blocks = [card(inner), f'<tr><td class="o-px" align="center" style="padding:10px 24px 0;"><table role="presentation" cellpadding="0" '
-                           f'cellspacing="0" border="0" style="margin:0 auto;"><tr><td>{button("See it in the app", app_link("settings"), False, full=False)}'
-                           f'</td></tr></table></td></tr>']
-    body = layout(subject, short(r.get("title"), 110), name, title, lead, blocks, footer(b))
-    lines = [f"{name} — {title}", "", re.sub(r"<[^>]+>", "", lead), "", short(r.get("why"), 700), ""]
+    blocks = [card(inner), f'<tr><td class="o-px" align="center" style="padding:10px 24px 0;">{center_button(t("btn.see_in_app"), app_link("settings"))}</td></tr>']
+    body = layout(subject, short(title + ". " + lead_txt, 110), name, title, esc(lead_txt), blocks, footer(b, t=t), lang=t.lang)
+    lines = [f"{name} — {title}", "", lead_txt, ""] + ([short(why, 700), ""] if why else [])
     for c in campaigns[:8]:
-        lines.append(f"- {c.get('name')} · {c.get('network')} · {_day_mon(c.get('start'))} to {_day_mon(c.get('end'))} · "
-                     f"{ap.currency_symbol(c.get('currency_code') or c.get('currency'))}{ap.num(c.get('daily_budget')) or 0:,.0f}/day")
-    lines += [""] + [f"{lab}: {url}" for lab, url, _, _ in links] + ["", f"See it in the app: {app_link('settings')}"]
+        lines.append(f"- {c.get('name')} · {c.get('network')} · {t('plan.dates', start=_day_mon(c.get('start'), t), end=_day_mon(c.get('end'), t))} · "
+                     f"{t('plan.per_day', amount=t.money(round(ap.num(c.get('daily_budget')) or 0), c.get('currency_code') or c.get('currency')))}")
+    lines += [""] + [f"{lab}: {url}" for lab, url, _, _ in links] + ["", f"{t('btn.see_in_app')}: {app_link('settings')}"]
     return subject, body, "\n".join(lines) + "\n"
 
 
@@ -1054,9 +1150,41 @@ def maybe_sync_bounces(cfg):
         print(f"bounce check failed: {type(e).__name__}: {str(e)[:120]}")
 
 
-def send_cards(bid=None, hours=HOURS, resend=False, dry=False, ids=None, now=None, verify_media=True):
-    """The daily approval digest. → {"emails", "posts", "blocked", "failed"} (for tests / the CLI exit code)."""
+def due_posts(d, b, now, hours=HOURS, resend=False, ids=None, dry=False):
+    """The digest's selection for one brand → (posts to e-mail now, how many compliance held): every post in
+    pending_approval due within `hours` whose slot has not passed and that was not e-mailed yet, checked against the
+    brand's compliance rules first (a violating post is held: compliance_block + a "Compliance hold" card, as in Telegram)."""
     import otto_compliance as comp
+    todo, blocked = [], 0
+    for p in sorted(d.get("posts", []), key=lambda x: str(x.get("slot") or "")):
+        if not isinstance(p, dict) or p.get("brand") != b["id"] or (ids and p.get("id") not in ids):
+            continue
+        if p.get("status") != "pending_approval" or (p.get("email_sent_at") and not resend):
+            continue
+        slot = ap.slot_dt(p, b)
+        if slot is None or (not ids and slot > now + timedelta(hours=hours)):
+            continue
+        if not ids and slot <= now:
+            print(f"PAST    {p['id']} {slot_label(p, b, t=i18n.Tr())} — slot already passed, not e-mailed (needs a new slot)")
+            continue
+        v = comp.check_post(p)
+        if v:
+            blocked += 1
+            print(f"BLOCKED {p['id']} {slot_label(p, b, t=i18n.Tr())} — compliance: {comp.describe(v)}")
+            if not dry:
+                with ap.transaction() as d2:
+                    q = ap.post(d2, p["id"])
+                    if q is not None:
+                        q["compliance_block"] = {"rules": [x["rule"] for x in v][:6], "at": ap.now_iso()}
+                        comp.file_block(d2, b["id"], f"{p['id']} “{p.get('hook', '')[:50]}”", v, "otto_email", post=p["id"])
+            continue
+        todo.append(p)
+    return todo, blocked
+
+
+def send_cards(bid=None, hours=HOURS, resend=False, dry=False, ids=None, now=None, verify_media=True):
+    """The approval digest — since the 07:35 morning report carries the approvals (send_report), the 08:00 run is the
+    catch-up: it sends only what the report did not carry. → {"emails", "posts", "blocked", "failed"} (tests / exit code)."""
     now = now or datetime.now(timezone.utc)
     cfg = config()
     tr = transport(cfg)
@@ -1066,30 +1194,7 @@ def send_cards(bid=None, hours=HOURS, resend=False, dry=False, ids=None, now=Non
     total = {"emails": 0, "posts": 0, "blocked": 0, "failed": 0}
     for b in email_brands(d, bid):
         rcpts = recipients(b)
-        todo, blocked = [], 0
-        for p in sorted(d.get("posts", []), key=lambda x: str(x.get("slot") or "")):
-            if not isinstance(p, dict) or p.get("brand") != b["id"] or (ids and p.get("id") not in ids):
-                continue
-            if p.get("status") != "pending_approval" or (p.get("email_sent_at") and not resend):
-                continue
-            slot = ap.slot_dt(p, b)
-            if slot is None or (not ids and slot > now + timedelta(hours=hours)):
-                continue
-            if not ids and slot <= now:
-                print(f"PAST    {p['id']} {slot_label(p, b)} — slot already passed, not e-mailed (needs a new slot)")
-                continue
-            v = comp.check_post(p)
-            if v:
-                blocked += 1
-                print(f"BLOCKED {p['id']} {slot_label(p, b)} — compliance: {comp.describe(v)}")
-                if not dry:
-                    with ap.transaction() as d2:
-                        q = ap.post(d2, p["id"])
-                        if q is not None:
-                            q["compliance_block"] = {"rules": [x["rule"] for x in v][:6], "at": ap.now_iso()}
-                            comp.file_block(d2, b["id"], f"{p['id']} “{p.get('hook', '')[:50]}”", v, "otto_email", post=p["id"])
-                continue
-            todo.append(p)
+        todo, blocked = due_posts(d, b, now, hours, resend, ids, dry)
         total["blocked"] += blocked
         if not todo:
             print(f"{b['id']}: nothing new to approve" + (f" ({blocked} blocked by compliance)" if blocked else ""))
@@ -1200,6 +1305,315 @@ def send_recs(bid=None, dry=False, now=None):
             total["failed"] += 1 if errors and not sent else 0
     print(f"-- {total['recs']} recommendation(s) in {total['emails']} e-mail(s)")
     return total
+
+
+# ============================================================================================
+# the morning report (07:35): the numbers + the approvals, one e-mail
+# ============================================================================================
+
+def section(label):
+    return (f'<tr><td class="o-px o-ink3" style="padding:16px 24px 8px;{fstyle(12, 16, 700, L["ink3"], "letter-spacing:0.06em;text-transform:uppercase;")}">'
+            f'{esc(label)}</td></tr>')
+
+
+def _kpi(label, value, sub, first):
+    pad = "padding:14px 14px 14px 0;" if first else "padding:14px 0 14px 16px;"
+    border = f'border-right:1px solid {L["line"]};' if first else ""
+    return (f'<td class="o-line" width="50%" valign="top" style="{pad}{border}">'
+            f'<div class="o-ink2" style="{fstyle(13, 18, 500, L["ink2"])}">{esc(label)}</div>'
+            f'<div class="o-ink o-kpi" style="{fstyle(30, 36, 700, L["ink"], "letter-spacing:-0.02em;padding-top:2px;font-variant-numeric:tabular-nums;")}">{esc(value)}</div>'
+            + (f'<div class="o-ink3" style="{fstyle(12, 17, 400, L["ink3"], "padding-top:2px;")}">{esc(sub)}</div>' if sub else "")
+            + '</td>')
+
+
+def kpi_row(a, b):
+    return (f'<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" class="o-line" '
+            f'style="border-top:1px solid {L["line"]};margin-top:12px;"><tr>{_kpi(*a, True)}{_kpi(*b, False)}</tr></table>')
+
+
+def bars(chart, key, t, label):
+    """Seven days as bars (yesterday highlighted). A day without numbers has no bar, never an invented one."""
+    vals = [x[key] for x in chart]
+    top = max([v for v in vals if v is not None] or [0]) or 1
+    cells, days = [], []
+    for i, x in enumerate(chart):
+        v = x[key]
+        hi = i == len(chart) - 1
+        if v is None:
+            bar = f'<div class="o-line" style="height:0;border-top:2px dotted {L["line"]};font-size:0;line-height:0;">&nbsp;</div>'
+        else:
+            h = max(3, int(round(56 * v / top)))
+            bg = L["accent"] if hi else "#D6DEFF"
+            bar = (f'<div class="{"o-bar-hi" if hi else "o-bar"}" style="height:{h}px;background:{bg};border-radius:5px 5px 0 0;'
+                   f'font-size:0;line-height:0;">&nbsp;</div>')
+        cells.append(f'<td width="14%" valign="bottom" style="padding:0 3px;height:60px;">{bar}</td>')
+        days.append(f'<td class="o-ink3" align="center" style="padding-top:6px;{fstyle(11, 14, 600, L["ink3"])}">{esc(t.initial(x["day"]))}</td>')
+    return (f'<div class="o-ink3" style="{fstyle(12, 16, 600, L["ink3"], "padding:4px 0 8px;")}">{esc(label)}</div>'
+            f'<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr>{"".join(cells)}</tr>'
+            f'<tr>{"".join(days)}</tr></table>')
+
+
+def report_post_row(b, r, t, verify, first):
+    import otto_report as rp
+    p = r["post"]
+    tz = ap.brand_tz(b)
+    when = rp._local(rp._utc(p.get("published_at")) or ap.slot_dt(p, b), tz)
+    img = image_url(p, verify=verify)
+    nl = rp.numbers_line(t, r["numbers"])
+    thumb = (f'<td width="56" valign="top" style="width:56px;padding:12px 12px 0 0;">'
+             + (f'<img src="{esc(img)}" width="56" alt="" style="display:block;width:56px;height:auto;border-radius:8px;border:0;">' if img else
+                f'<div class="o-sec" style="width:56px;height:56px;border-radius:8px;background:{L["sec"]};font-size:0;line-height:0;">&nbsp;</div>')
+             + '</td>')
+    badge = (f'<span class="o-tag" style="display:inline-block;background:#EDF1FF;color:{L["accent"]};border-radius:6px;padding:1px 6px;'
+             f'margin-left:6px;{fstyle(11, 16, 600, L["accent"])}">{esc(t("report.best_post"))}</span>') if r["best"] else ""
+    top = "" if first else f'border-top:1px solid {L["line"]};'
+    return (f'<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" class="o-line" style="{top}"><tr>{thumb}'
+            f'<td valign="top" style="padding:12px 0;">'
+            f'<div class="o-ink3" style="{fstyle(12, 16, 600, L["ink3"], "letter-spacing:0.02em;text-transform:uppercase;")}">'
+            f'{esc(" · ".join(x for x in (where_label(p, t), t.time(when) if when else "") if x))}</div>'
+            f'<div class="o-ink" dir="auto" style="{fstyle(15, 21, 600, L["ink"], "padding-top:3px;")}">{esc(rp.hook_of(p, 90))}</div>'
+            f'<div class="{"o-ink2" if nl else "o-ink3"}" style="{fstyle(13, 18, 500 if nl else 400, L["ink2"] if nl else L["ink3"], "padding-top:3px;")}">'
+            f'{esc(nl or t("m.pending"))}{badge}</div></td></tr></table>')
+
+
+def para_row(text, color="ink2", top=True):
+    rule = ("padding-top:12px;margin-top:12px;border-top:1px solid " + L["line"] + ";") if top else "padding-top:12px;"
+    return f'<div class="o-{color} o-line" dir="auto" style="{fstyle(14, 20, 400, L[color], rule)}">{esc(text)}</div>'
+
+
+def render_report(b, m, recipient, cfg, now, secret, verify=True):
+    """The 07:35 morning report as an e-mail → (subject, html, text). m = otto_report.model(). The approvals inside carry the
+    same signed one-tap links as the digest (Approve · Skip · Change; Approve plan · Not now), made for `recipient`."""
+    import otto_report as rp
+    t = m["t"]
+    name = m["name"]
+    tz = ap.brand_tz(b)
+    subject = rp.subject(m)
+    title = t("report.title")
+    dateline = f"{t.long_day(m['loc'])} · {t.time(m['loc'])}"
+    sub = (f'<tr><td class="o-px o-ink3" style="padding:0 24px 16px;{fstyle(15, 20, 500, L["ink3"])}">{esc(dateline)}</td></tr>')
+    lead = f'<span class="o-ink" style="color:{L["ink"]};">{esc(m["summary"])}</span>'
+    blocks, text = [], [f"{title} · {name}", dateline, "", m["summary"], ""]
+    p = m["paid"]
+
+    # ---- yesterday: paid tiles + chart (only with numbers), organic tiles, each post that went out
+    y_inner, y_text = [], []
+    ok = p and p.get("state") == "ok"
+    sub_key = ("report.sub.meta" if p["networks"] == ["meta"] else "report.sub.ads") if ok else "report.sub.posts"
+    if ok:
+        kind = rp.kind_label(t, p["kind"])
+        right_sub = (t("kpi.avg7", avg=t.num(p["avg7"], 0 if float(p["avg7"]).is_integer() else 1)) if p.get("avg7") is not None
+                     else rp.cost_phrase(t, p["kind"], p["cost"], p["currency"]) if p.get("cost") else "")
+        y_inner.append(kpi_row((t("kpi.spent"), t.money(p["spend"], p["currency"]), rp.budget_line(t, p)),
+                               (kind, t.num(p["results"]), right_sub)))
+        if p.get("chart"):
+            key = "results" if any(x["results"] for x in p["chart"] if x["results"] is not None) else "spend"
+            y_inner.append(bars(p["chart"], key, t, t("chart.per_day", label=kind) if key == "results" else t("chart.spend")))
+        extra = []
+        if p.get("cost") and p.get("avg7") is not None:       # the tile shows the 7-day average; the cost goes here
+            extra.append(rp.cost_line(t, p["kind"], p["cost"], p["currency"]))
+        if p.get("best"):
+            extra.append(t("report.best_ad", name=p["best"]["name"], cost=rp.cost_phrase(t, p["best"]["kind"], p["best"]["cost"], p["currency"])))
+        if p.get("month"):
+            extra.append(t("report.month", spent=t.money(p["month"]["spent"], p["currency"]), planned=t.money(p["month"]["planned"], p["currency"])))
+        if extra:
+            y_inner.append(para_row(" ".join(extra)))
+        y_text += rp.paid_lines(t, p)
+    elif m["organic"]:
+        o = m["organic"]
+        right = (t("kpi.clicks"), t.num(o["clicks"]), "") if o["clicks"] else (t("kpi.reactions"), t.num(o["reactions"]), "")
+        y_inner.append(kpi_row((t("kpi.reach"), t.num(o["reach"]), t("kpi.of_posts", n=o["posts"])), right))
+    if p and not ok:
+        y_inner.append(para_row(" ".join(rp.paid_lines(t, p)), "ink2"))
+        y_text += rp.paid_lines(t, p)
+    rows = m["yday"]
+    if rows:
+        y_inner.append(f'<div class="o-line" style="margin-top:12px;border-top:1px solid {L["line"]};"></div>'
+                       + "".join(report_post_row(b, r, t, verify, i == 0) for i, r in enumerate(rows[:8])))
+        for r in rows[:8]:
+            q = r["post"]
+            nl = rp.numbers_line(t, r["numbers"])
+            y_text.append(f"· {where_label(q, t)}: {rp.hook_of(q, 70)} — {nl or t('m.pending')}" + (f" ({t('report.best_post')})" if r["best"] else ""))
+    notes = []
+    if m["failed"]:
+        notes.append(t("report.failed", n=m["failed"]))
+    for k, v, base in m["drops"][:2]:
+        notes.append(t("report.drop", metric=t("metric." + k) if t.has("metric." + k) else k, value=t.num(v), avg=t.num(base)))
+    if not rows and not m["ever"]:
+        notes.append(rp.first_line(t, b, m["first"]))
+    elif not rows:
+        notes.append(t("report.none_yesterday"))
+    if notes:
+        y_inner.append(para_row(" ".join(notes), "ink2", top=bool(y_inner)))
+        y_text += notes
+    head = (f'<div class="o-ink" style="{fstyle(17, 22, 700, L["ink"], "letter-spacing:-0.01em;")}">{esc(t("report.yesterday"))}</div>'
+            f'<div class="o-ink3" style="{fstyle(13, 18, 500, L["ink3"], "padding-top:2px;")}">{esc(t(sub_key))}</div>')
+    blocks.append(card(head + "".join(y_inner)))
+    text += [t("report.yesterday")] + y_text + [""]
+
+    # ---- waiting for you: the approvals (digest cards), the paid plan, the other decisions
+    dc = m["decisions"]
+    blocks.append(section(t("report.waiting")))
+    text.append(t("report.waiting"))
+    items = [digest_item(b, q, recipient, cfg, now, secret, verify, t) for q in dc["posts"]]
+    for it in items:
+        blocks.append(post_card(it, t))
+    for i, it in enumerate(items, 1):
+        text += post_lines(i, it, t)
+    d = ap.load()
+    for r in dc["plans"]:
+        links = plan_links(b, r, recipient, cfg, now, secret, t)
+        camps = rp.plan_campaigns(d, b, r)
+        cur = (camps[0].get("currency_code") or camps[0].get("currency")) if camps else ap.brand_currency(d, b["id"])
+        summ = rp.plan_summary(t, camps, cur)
+        tag, cls, bg, fg = PRIO.get(r.get("priority"), PRIO["P1"])
+        inner = (f'<table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr><td class="{cls}" '
+                 f'style="background:{bg};border-radius:6px;padding:3px 8px;{fstyle(11, 14, 600, fg, "letter-spacing:0.03em;text-transform:uppercase;")}">'
+                 f'{esc(t("prio." + ("P0" if r.get("priority") == "P0" else "P1")))}</td></tr></table>'
+                 f'<div class="o-ink" dir="auto" style="{fstyle(17, 23, 600, L["ink"], "padding-top:10px;letter-spacing:-0.01em;")}">{esc(rp.plan_title(t, r))}</div>'
+                 + (f'<div class="o-ink2" style="{fstyle(14, 21, 400, L["ink2"], "padding-top:6px;")}">{esc(summ)}</div>' if summ else "")
+                 + f'<div class="o-ink3" style="{fstyle(13, 18, 400, L["ink3"], "padding-top:6px;")}">{esc(t("plan.lead"))}</div>'
+                 + buttons_row(links))
+        blocks.append(card(inner))
+        text += [rp.plan_title(t, r)] + ([summ] if summ else []) + [f"{lab}: {url}" for lab, url, _, _ in links] + [""]
+    for r in dc["recs"]:
+        blk, ls = rec_card(r, rec_links(b, r, recipient, cfg, now, secret, t), t)
+        blocks.append(blk)
+        text += ls
+    if not (items or dc["plans"] or dc["recs"]):
+        blocks.append(card(f'<table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr>'
+                           f'<td valign="middle" style="padding-right:10px;{fstyle(18, 22, 700, L["green"])}">✓</td>'
+                           f'<td class="o-ink" valign="middle" style="{fstyle(15, 21, 600, L["ink"])}">{esc(t("report.sum.clear"))}</td></tr></table>'))
+        text += [t("report.sum.clear"), ""]
+    if dc["more"]:
+        blocks.append(f'<tr><td class="o-px o-ink3" align="center" style="padding:2px 24px 6px;{fstyle(13, 18, 400, L["ink3"])}">'
+                      f'{esc(t("digest.more", n=dc["more"]))}</td></tr>')
+        text += [t("digest.more", n=dc["more"]), ""]
+
+    # ---- today
+    blocks.append(section(t("report.today")))
+    text.append(t("report.today"))
+    if m["today_posts"]:
+        trs = []
+        for i, q in enumerate(m["today_posts"][:8]):
+            when = ap.slot_dt(q, b).astimezone(tz)
+            top = "" if i == 0 else f'border-top:1px solid {L["line"]};'
+            done_ = (f' · {t("report.today_done")}' if q.get("status") == "published" else
+                     f' · {t("report.today_waiting")}' if q.get("status") == "pending_approval" else "")
+            trs.append(f'<tr><td class="o-ink o-line" valign="top" style="padding:9px 12px 9px 0;width:52px;{top}{fstyle(15, 21, 700, L["ink"], "font-variant-numeric:tabular-nums;")}">{t.time(when)}</td>'
+                       f'<td class="o-line" valign="top" style="padding:9px 0;{top}"><div class="o-ink3" style="{fstyle(12, 16, 600, L["ink3"], "letter-spacing:0.02em;text-transform:uppercase;")}">{esc(where_label(q, t) + done_)}</div>'
+                       f'<div class="o-ink" dir="auto" style="{fstyle(15, 21, 500, L["ink"], "padding-top:2px;")}">{esc(rp.hook_of(q, 90))}</div></td></tr>')
+            text.append(f"· {t.time(when)} {where_label(q, t)}: {rp.hook_of(q, 70)}" + done_)
+        blocks.append(card(f'<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">{"".join(trs)}</table>'))
+    else:
+        blocks.append(card(f'<div class="o-ink2" style="{fstyle(14, 20, 400, L["ink2"])}">{esc(t("report.today_none"))}</div>'))
+        text.append(t("report.today_none"))
+    tzn = tz_times(b, t)
+    blocks.append(f'<tr><td class="o-px" align="center" style="padding:14px 24px 0;">{center_button(t("btn.open_otto"), app_link("today"))}'
+                  + (f'<div class="o-ink3" style="{fstyle(12, 17, 400, L["ink3"], "padding-top:10px;")}">{esc(tzn)}</div>' if tzn else "")
+                  + '</td></tr>')
+    buttons = bool(items or dc["plans"] or dc["recs"])
+    foot = (esc(t("report.why", name=name)) + " "
+            + esc(t("report.settings_sentence", settings=MARK)).replace(esc(MARK), settings_link(t))
+            + (" " + esc(t("email.buttons_once")) if buttons else ""))
+    text += ["", f"{t('btn.open_otto')}: {app_link('today')}"] + ([tzn] if tzn else []) + [
+        "", t("report.why", name=name) + " " + t("report.settings_text", url=app_link("settings"))] + ([t("email.links_once")] if buttons else [])
+    body = layout(subject, short(m["summary"], 140), name, title, lead, blocks, foot, lang=t.lang, sub=sub)
+    return subject, body, "\n".join(text) + "\n"
+
+
+def send_report(bid, now=None, dry=False, force=False, verify_media=True):
+    """The 07:35 report e-mail for one brand (otto_report.send calls this; so does `otto_email.py report`). Once per brand per
+    local day (otto_report's ledger). The posts due for approval are selected, compliance-checked and claimed exactly like
+    the digest, and marked e-mailed (email_sent_at) with the report — the 08:00 digest then has nothing left to send — and
+    the new P0 / P1 recommendations it carries are marked e-mailed too (the 18:30 run sends only what came later). If the
+    report cannot be built, the plain digest goes out instead so no approval waits a day. → {"emails", "posts", "failed",
+    "skipped"}."""
+    import otto_report as rp
+    now = now or datetime.now(timezone.utc)
+    cfg = config()
+    tr = transport(cfg)
+    secret = link_secrets(cfg)[0]
+    out = {"emails": 0, "posts": 0, "failed": 0, "skipped": None}
+    d = ap.load()
+    b = ap.brand(d, bid)
+    if b is None:
+        print(f"unknown brand {bid}")
+        out["failed"] = 1
+        return out
+    if "email" not in approval_channels(b):
+        out["skipped"] = f"approvals are {approvals_label(b).lower()} — no e-mail (brands[].approvals)"
+        print(f"{bid}: {out['skipped']}")
+        return out
+    why = rp.skip_reason(d, b)
+    if why:
+        out["skipped"] = why
+        print(f"{bid}: no morning report — {why}")
+        return out
+    rcpts = recipients(b)
+    if not rcpts:
+        why = "nobody to send to: no member e-mail (\"@domain\" entries cannot be mailed) — add one in the console"
+        print(f"{bid}: {why}")
+        if not dry:
+            note_brand(bid, "report", error=why)
+        out["failed"] = 1
+        return out
+    day = now.astimezone(ap.brand_tz(b)).date().isoformat()
+    if dry:
+        m = rp.model(d, b, now)
+        print(f"{bid}: WOULD SEND morning report to {len(rcpts)} approver(s) via {tr}: “{rp.subject(m)}” · "
+              f"{len(m['decisions']['posts'])} post(s) to approve")
+        out["skipped"] = "dry"
+        return out
+    maybe_sync_bounces(cfg)
+    ok, why = rp.claim(bid, "email", day, force, now)
+    if not ok:
+        print(f"{bid}: morning report — {why}")
+        out["skipped"] = why
+        return out
+    mine_posts, mine_recs = [], []
+    try:
+        todo, blocked = due_posts(d, b, now)                     # files compliance holds, as the digest does
+        fresh = ap.load()
+        fb = ap.brand(fresh, bid)
+        try:
+            m = rp.model(fresh, fb, now)
+            render = lambda to: render_report(fb, m, to, cfg, now, secret, verify_media)
+            render(rcpts[0])                                     # a rendering bug surfaces here, before anyone is mailed
+        except Exception as e:                                   # noqa: BLE001 — the approvals must not wait a day
+            print(f"{bid}: morning report could not be built ({type(e).__name__}: {str(e)[:200]}) — sending the plain digest")
+            rp.release(bid, "email")
+            note_brand(bid, "report", error=f"report not built: {type(e).__name__}: {str(e)[:160]}")
+            t = send_cards(bid=bid, now=now, verify_media=verify_media)
+            out.update(emails=t["emails"], posts=t["posts"], failed=1)
+            return out
+        shown = {q["id"] for q in m["decisions"]["posts"]}
+        mine_posts = _claim([q["id"] for q in todo if q["id"] in shown], "post", "email_sent_at")
+        recs = [r for r in m["decisions"]["plans"] + m["decisions"]["recs"] if not r.get("email_sent_at")]
+        mine_recs = _claim([r["id"] for r in recs], "rec", "email_sent_at") if recs else []
+        rid = f"mr-{bid[:24]}-{now:%Y%m%d%H%M}-{secrets.token_hex(2)}"
+        print(f"SEND    {bid} morning report {rid}: {len(m['decisions']['posts'])} post(s) to approve, "
+              f"{len(mine_posts)} new · {len(m['decisions']['plans']) + len(m['decisions']['recs'])} decision(s) → {masks(rcpts)}")
+        sent, errors = send_to_all(fb, rcpts, render, "report", cfg)
+    except Exception:
+        _finish(mine_posts, "post", False)
+        _finish(mine_recs, "rec", False)
+        rp.release(bid, "email")
+        raise
+    _finish(mine_posts, "post", bool(sent), rid)
+    _finish(mine_recs, "rec", bool(sent))
+    info = {"emails": len(sent), "posts": len(m["decisions"]["posts"]), "new_posts": len(mine_posts), "transport": tr, "id": rid,
+            "lang": m["t"].lang}
+    note_brand(bid, "report", info if sent else None, error="; ".join(errors) if errors else
+               (None if sent else "every recipient bounced or is suppressed"))
+    if sent:
+        rp.done(bid, "email", day, {"emails": len(sent), "id": rid})
+    else:
+        rp.release(bid, "email")
+    out.update(emails=len(sent), posts=len(mine_posts) if sent else 0, failed=0 if sent or not errors else 1)
+    if not sent and not errors:
+        out["skipped"] = "every recipient bounced or is suppressed"
+    return out
 
 
 # ============================================================================================
@@ -1325,11 +1739,11 @@ def page_csp(img_origin=None):
             + "; form-action 'self'; base-uri 'none'; frame-ancestors 'none'")
 
 
-def page(title, body, img_origin=None):
+def page(title, body, img_origin=None, lang="en"):
     """A whole page → (html, csp). No script at all; the style is allowed by its hash; images only from the media host."""
     csp = page_csp(img_origin)
     meta_csp = csp.replace("; frame-ancestors 'none'", "")               # frame-ancestors only works as a header
-    return (f'<!doctype html>\n<html lang="en"><head><meta charset="utf-8">'
+    return (f'<!doctype html>\n<html lang="{esc(lang)}"><head><meta charset="utf-8">'
             f'<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">'
             f'<meta name="color-scheme" content="light dark"><meta name="referrer" content="same-origin">'
             f'<meta name="robots" content="noindex,nofollow">'
@@ -1342,33 +1756,32 @@ def _top(brand_name):
     return f'<div class="top"><b>Otto</b><span dir="auto">{esc(brand_name or "")}</span></div>'
 
 
-def message_page(title, text, brand_name="", ok=False, link=True):
+def message_page(title, text, brand_name="", ok=False, link=True, t=None):
+    t = t or i18n.Tr()
     body = (_top(brand_name) + f'<div class="st{"" if ok else " w"}">{ICON_OK if ok else ICON_INFO}</div>'
             f'<h1>{esc(title)}</h1><p class="lead">{text}</p>'
-            + (f'<a class="btn" href="{esc(app_link("review"))}">Open Otto</a>' if link else ""))
-    return page(title, body)
+            + (f'<a class="btn" href="{esc(app_link("review"))}">{esc(t("btn.open_otto"))}</a>' if link else ""))
+    return page(title, body, lang=t.lang)
 
 
-TOKEN_PAGES = {
-    "invalid": ("This link doesn't work", "It may have been cut short when it was copied. Open the e-mail again and tap the "
-                                          "button, or review the post in the app."),
-    "expired": ("This link has expired", "Buttons in approval e-mails work for 72 hours. The post is still waiting for you in "
-                                         "the app."),
-    "used": ("This link was already used", "Each button works once. {result}"),
-    "denied": ("This link can't be used any more", "It was sent to someone who no longer approves for this brand, or the item "
-                                                   "has moved. Open the app to see what's waiting."),
-    "form": ("Please tap the button again", "This page was open for a while, so Otto asks once more. Open the link from your "
-                                            "e-mail again."),
-    "origin": ("That didn't come from Otto's page", "For your safety, decisions are only taken from Otto's own confirmation "
-                                                    "page. Open the link from your e-mail again."),
-    "rate": ("Too many taps", "Please wait a minute and try again."),
-    "config": ("Otto can't check this link right now", "Please try again in a few minutes, or review the post in the app."),
-}
+TOKEN_PAGES = ("invalid", "expired", "used", "denied", "form", "origin", "rate", "config")
 
 
-def token_page(code, result=""):
-    title, text = TOKEN_PAGES[code]
-    return message_page(title, esc(text.format(result=result)).replace("  ", " "))
+def token_page(code, result="", t=None):
+    t = t or i18n.Tr()
+    return message_page(t(f"page.{code}.title"), esc(t(f"page.{code}.text", **({"result": result} if code == "used" else {})).strip()), t=t)
+
+
+def page_tr(p=None):
+    """The translator for a one-tap page: the language of the brand the token names (brands[].comms_lang), else English."""
+    if p:
+        try:
+            b = ap.brand(ap.load(), p.get("b"))
+            if b:
+                return i18n.Tr.for_brand(b)
+        except Exception:                                      # noqa: BLE001 — a page never fails over its language
+            pass
+    return i18n.Tr()
 
 
 def _context(d, p, secret):
@@ -1391,95 +1804,96 @@ def _context(d, p, secret):
     return b, who, item
 
 
-VERB = {("post", "approve"): ("Approve this post?", "Approve post"), ("post", "skip"): ("Skip this post?", "Skip post"),
-        ("rec", "approve"): ("Approve this?", "Approve"), ("rec", "dismiss"): ("Put this away for now?", "Not now")}
-
-
-def _post_card(b, item, img):
+def _post_card(b, item, img, t=None):
+    t = t or i18n.Tr.for_brand(b)
     hook = (item.get("hook") or "").strip() or short(item.get("caption"), 90)
     cap = (item.get("caption") or "").strip()
     cap = "" if cap == hook else short(cap, 240)
-    where = " · ".join(x for x in (PLAT.get(item.get("platform"), item.get("platform") or ""), FORMAT.get(item.get("format") or "")) if x)
     return (f'<div class="card">' + (f'<img src="{esc(img)}" alt="">' if img else "")
-            + f'<div><p class="meta">{esc(where)}</p><p class="when">{esc(slot_label(item, b))}</p>'
+            + f'<div><p class="meta">{esc(where_label(item, t))}</p><p class="when">{esc(slot_label(item, b, t=t))}</p>'
             f'<p class="hook" dir="auto">{esc(hook)}</p>' + (f'<p class="cap" dir="auto">{esc(cap)}</p>' if cap else "") + '</div></div>')
 
 
-def _state_for(p, item):
+def _state_for(p, item, t=None):
     """Why this item cannot take the decision any more (a short sentence), or None."""
-    if p["k"] == "post":
-        st = item.get("status")
-        if st not in EDITABLE or not ap.can_transition("post", st, ap.DECISIONS[p["a"]]):
-            word = {"approved": "approved", "scheduled": "scheduled", "skipped": "skipped", "published": "published",
-                    "publishing": "being published", "failed": "waiting for a new slot"}.get(st, st)
-            return f"This post is already {word}."
-        return None
+    t = t or i18n.Tr()
     st = item.get("status")
+    if p["k"] == "post":
+        if st not in EDITABLE or not ap.can_transition("post", st, ap.DECISIONS[p["a"]]):
+            key = f"late.post.{st}"
+            return t(key) if st in ("approved", "scheduled", "skipped", "published", "publishing", "failed") else \
+                t("late.post.other", status=t("status." + st) if t.has("status." + str(st)) else st)
+        return None
     if not ap.can_transition("rec", st, REC_ACTIONS[p["a"]]) or st != "proposed":
-        return f"This was already {'handled' if st == 'done' else st}."
+        return t(f"late.rec.{st}") if st in ("done", "approved", "dismissed") else \
+            t("late.rec.other", status=t("status." + st) if t.has("status." + str(st)) else st)
     return None
 
 
 def http_act(method, token, form=None, ip="", origin_ok=True, now=None):
-    """The body of GET / POST /otto-email/act → (status, html, csp, log line or None). GET never changes anything."""
+    """The body of GET / POST /otto-email/act → (status, html, csp, log line or None). GET never changes anything. Pages
+    speak the brand's comms_lang; a link that names no brand (cut short, forged) gets English."""
     now = now or datetime.now(timezone.utc)
     if not rate_ok("email:" + str(ip or "?")):
-        h, c = token_page("rate")
+        h, c = token_page("rate", t=page_tr(None))
         return 429, h, c, None
     try:
         p, secret = read_token(token, now)
     except TokenError as e:
-        h, c = token_page(e.code)
+        h, c = token_page(e.code, t=page_tr(e.payload if e.code == "expired" else None))
         return (410 if e.code == "expired" else 400), h, c, None
     except ConfigError:
-        h, c = token_page("config")
+        h, c = token_page("config", t=page_tr(None))
         return 503, h, c, None
     if method == "POST":
         if not origin_ok:
-            h, c = token_page("origin")
+            h, c = token_page("origin", t=page_tr(p))
             return 403, h, c, None
         if not form_ok(form, p, secret, now):
-            h, c = token_page("form")
+            h, c = token_page("form", t=page_tr(p))
             return 400, h, c, None
         return _act(p, secret, now)
     used = (read_state().get("used") or {}).get(p["n"])
     if used:
-        h, c = token_page("used", used.get("result") or "")
+        h, c = token_page("used", used.get("result") or "", t=page_tr(p))
         return 409, h, c, None
     d = ap.load()
     try:
         b, who, item = _context(d, p, secret)
     except Denied:
-        h, c = token_page("denied")
+        h, c = token_page("denied", t=page_tr(p))
         return 403, h, c, None
+    t = i18n.Tr.for_brand(b)
     name = b.get("name") or b["id"]
-    late = _state_for(p, item)
+    late = _state_for(p, item, t)
     if late:
-        h, c = message_page("Nothing to do here", esc(late) + " You can change it in the app.", name)
+        h, c = message_page(t("page.nothing.title"), esc(t("page.nothing.text", why=late)), name, t=t)
         return 409, h, c, None
-    title, label = VERB[(p["k"], p["a"])]
-    if p["k"] == "rec" and p["a"] == "approve" and is_plan_card(item) and plan_month(item):
-        title, label = f"Approve the {month_label(plan_month(item))} paid plan?", "Approve the plan"
+    k = "post" if p["k"] == "post" else "rec"
+    title, label = t(f"confirm.{k}.{p['a']}.title"), t(f"confirm.{k}.{p['a']}.btn")
+    plan = p["k"] == "rec" and is_plan_card(item) and plan_month(item)
+    if plan and p["a"] == "approve":
+        title, label = t("confirm.plan.title", month=t.month(plan_month(item))), t("confirm.plan.btn")
     img = None
     if p["k"] == "post":
         img = image_url(item, verify=False)
-        what = _post_card(b, item, img)
-        lead = ("It goes out at its time on " + esc(PLAT.get(item.get("platform"), "the page")) + "." if p["a"] == "approve"
-                else "Otto fills the slot with something else.")
+        what = _post_card(b, item, img, t)
+        lead = (esc(t("confirm.post.approve.lead", platform=PLAT.get(item.get("platform")) or t("confirm.page_fallback")))
+                if p["a"] == "approve" else esc(t("confirm.post.skip.lead")))
     else:
-        what = (f'<div class="card"><div><p class="meta">{esc({"P0": "Urgent", "P1": "Recommended"}.get(item.get("priority"), "Recommended"))}</p>'
-                f'<p class="hook" dir="auto">{esc(PLAN_RE.sub(lambda m: "Approve the " + month_label(m.group(1)) + " paid plan", item.get("title") or ""))}</p>'
-                + (f'<p class="cap" dir="auto">{esc(short(item.get("why"), 360))}</p>' if item.get("why") else "") + '</div></div>')
-        lead = ("Nothing spends until you approve; every campaign keeps its daily ceiling." if is_plan_card(item) and p["a"] == "approve"
-                else "Otto gets on with it." if p["a"] == "approve" else "Otto puts it away. You can bring it back in the app.")
+        rt, rwhy, _ = rec_texts(item, t)
+        what = (f'<div class="card"><div><p class="meta">{esc(t("prio." + ("P0" if item.get("priority") == "P0" else "P1")))}</p>'
+                f'<p class="hook" dir="auto">{esc(rt)}</p>'
+                + (f'<p class="cap" dir="auto">{esc(short(rwhy, 360))}</p>' if rwhy else "") + '</div></div>')
+        lead = esc(t("confirm.plan.lead") if plan and p["a"] == "approve" else
+                   t("confirm.rec.approve.lead") if p["a"] == "approve" else t("confirm.rec.dismiss.lead"))
     exp = datetime.fromtimestamp(p["e"], timezone.utc).astimezone(ap.brand_tz(b))
     body = (_top(name) + f'<h1 dir="auto">{esc(title)}</h1><p class="lead">{lead}</p>' + what
             + f'<form method="post"><input type="hidden" name="t" value="{esc(token)}">'
             f'<input type="hidden" name="f" value="{esc(form_nonce(p, secret, now))}"><button type="submit">{esc(label)}</button></form>'
-            + f'<a class="btn" href="{esc(app_link(("post=" + urllib.parse.quote(item["id"])) if p["k"] == "post" else "today"))}">Open in the app instead</a>'
-            + f'<p class="note">This button works once. The link expires {exp:%a} {exp.day} {exp:%b}, {exp:%H:%M}'
-            + (f' {esc(tz_note(b))}' if tz_note(b) else "") + '.</p>')
-    h, c = page(title, body, _origin(img) if img else None)
+            + f'<a class="btn" href="{esc(app_link(("post=" + urllib.parse.quote(item["id"])) if p["k"] == "post" else "today"))}">{esc(t("btn.open_in_app_instead"))}</a>'
+            + f'<p class="note">{esc(t("page.expires", day=t.day(exp), time=t.time(exp), tz=tz_label(b, t)))}</p>')
+    h, c = page(title, body, _origin(img) if img else None, lang=t.lang)
     return 200, h, c, None
 
 
@@ -1490,12 +1904,13 @@ def _act(p, secret, now):
         _prune(st, now)
         used = st.setdefault("used", {})
         if p["n"] in used:
-            h, c = token_page("used", used[p["n"]].get("result") or "")
+            h, c = token_page("used", used[p["n"]].get("result") or "", t=page_tr(p))
             return 409, h, c, None
         try:
             with ap.transaction() as d:
                 b, who, item = _context(d, p, secret)
-                late = _state_for(p, item)
+                t = i18n.Tr.for_brand(b)
+                late = _state_for(p, item, t)
                 if late:
                     raise Skip(late)
                 if p["k"] == "post":
@@ -1509,30 +1924,30 @@ def _act(p, secret, now):
                 name = b.get("name") or b["id"]
                 bsnap = dict(b)
         except Denied:
-            h, c = token_page("denied")
+            h, c = token_page("denied", t=page_tr(p))
             return 403, h, c, None
         except Skip as e:
-            h, c = message_page("Nothing to do here", esc(str(e)) + " You can change it in the app.", "")
+            t = page_tr(p)
+            h, c = message_page(t("page.nothing.title"), esc(t("page.nothing.text", why=str(e))), "", t=t)
             return 409, h, c, None
+        when = datetime.now(ap.brand_tz(bsnap))
         if p["k"] == "post":
-            result = ({"approve": f"Approved on {datetime.now(ap.brand_tz(bsnap)):%a %d %b, %H:%M}.",
-                       "skip": f"Skipped on {datetime.now(ap.brand_tz(bsnap)):%a %d %b, %H:%M}."})[p["a"]]
+            result = t("result.approved_on" if p["a"] == "approve" else "result.skipped_on", day=t.day(when), time=t.time(when))
         else:
-            result = f"{'Approved' if p['a'] == 'approve' else 'Put away'} on {datetime.now(ap.brand_tz(bsnap)):%a %d %b, %H:%M}."
+            result = t("result.approved_on" if p["a"] == "approve" else "result.put_away_on", day=t.day(when), time=t.time(when))
             run_action = p["k"] == "rec" and p["a"] == "approve"
         used[p["n"]] = {"at": ap.now_iso(), "exp": p["e"], "brand": p["b"], "item": p["i"], "action": p["a"], "result": result}
     line = f"email {p['k']} {p['i']} -> {p['a']} by {mask(who)} ({p['b']})"
     if p["k"] == "post":
         if p["a"] == "approve":
             slot = ap.slot_dt(snap, bsnap)
-            text = (f"It goes out {slot_label(snap, bsnap)}." if slot and slot > now
-                    else "Its time has passed, so Otto will offer a new slot.")
-            h, c = message_page("Approved", esc(text), name, ok=True)
+            text = (t("done.post.goes_out", when=slot_label(snap, bsnap, t=t)) if slot and slot > now else t("done.post.passed"))
+            h, c = message_page(t("done.approved.title"), esc(text), name, ok=True, t=t)
         else:
-            h, c = message_page("Skipped", "Otto fills the slot with something else.", name, ok=True)
+            h, c = message_page(t("done.skipped.title"), esc(t("confirm.post.skip.lead")), name, ok=True, t=t)
         return 200, h, c, line
     if not run_action:
-        h, c = message_page("Put away for now", "You can bring it back in the app whenever you like.", name, ok=True)
+        h, c = message_page(t("done.put_away.title"), esc(t("done.put_away.text")), name, ok=True, t=t)
         return 200, h, c, line
     out = None
     try:
@@ -1541,8 +1956,7 @@ def _act(p, secret, now):
         print(f"rec action {snap['id']} failed: {type(e).__name__}: {e}")
         with ap.transaction() as d:
             ap.rec_action_failed(d, snap, f"{type(e).__name__}: {e}", "by e-mail")
-        h, c = message_page("Approved, not started yet", "Your approval is saved, but Otto could not start it just now. Otto's "
-                            "team has been told and will finish it; nothing spends meanwhile.", name)
+        h, c = message_page(t("done.failed.title"), esc(t("done.failed.text")), name, t=t)
         return 200, h, c, line + " · action FAILED"
     if out:
         with ap.transaction() as d:
@@ -1551,9 +1965,14 @@ def _act(p, secret, now):
                 q["action_result"] = out
                 q["status"] = "done"
         line += f" · {out}"
-    text = (f"{out[:1].upper() + out[1:]}. Each campaign starts on its date with its daily ceiling." if out and is_plan_card(snap)
-            else f"Done: {out}." if out else "Otto gets on with it.")
-    h, c = message_page("Approved", esc(text), name, ok=True)
+    if out and is_plan_card(snap):
+        m = re.match(r"(\d+) campaign", out)
+        text = t("done.plan.text", n=int(m.group(1)) if m else 0, month=t.month(plan_month(snap)))
+    elif out:
+        text = t("done.rec.text", result=t("done.rec.paused") if snap.get("action") == "pause_campaign" else out)
+    else:
+        text = t("confirm.rec.approve.lead")
+    h, c = message_page(t("done.approved.title"), esc(text), name, ok=True, t=t)
     return 200, h, c, line
 
 
@@ -1606,7 +2025,7 @@ def brand_health(b, h):
             "changed": b.get("approvals_set"), "recipients": len(rc), "to": [mask(e) for e in rc[:6]],
             "source": "approvers" if isinstance(b.get("approvers"), list) else "members",
             "transport": h.get("transport"), "last_digest": bh.get("digest"), "last_recs": bh.get("recs"),
-            "last_plan": bh.get("plan"), "error": bh.get("error"), "sent": int(bh.get("sent") or 0),
+            "last_plan": bh.get("plan"), "last_report": bh.get("report"), "error": bh.get("error"), "sent": int(bh.get("sent") or 0),
             "bounces": [{k: x.get(k) for k in ("to", "type", "at", "why", "source")} for x in bounced][:8],
             "outbox": h.get("outbox") if "email" in ch else None}
 
@@ -1626,7 +2045,10 @@ def preview(bid, kind="digest", out=None, text=False):
         raise SystemExit(f"unknown brand {bid}")
     cfg, now, to = safe_config(), datetime.now(timezone.utc), "preview@example.invalid"
     secret = link_secrets(cfg)[0]
-    if kind == "digest":
+    if kind == "report":
+        import otto_report
+        s, h, t = render_report(b, otto_report.model(d, b, now), to, cfg, now, secret, verify=False)
+    elif kind == "digest":
         posts = sorted([p for p in d.get("posts", []) if p.get("brand") == bid and p.get("status") == "pending_approval"],
                        key=lambda x: str(x.get("slot") or ""))[:MAX_DIGEST]
         if not posts:
@@ -1673,6 +2095,9 @@ def main(a):
             return 1 if t["failed"] else 0
         if cmd == "send-recs":
             t = send_recs(bid=_opt(a, "--brand"), dry="--dry" in a)
+            return 1 if t["failed"] else 0
+        if cmd == "report" and _opt(a, "--brand"):
+            t = send_report(_opt(a, "--brand"), dry="--dry" in a, force="--force" in a)
             return 1 if t["failed"] else 0
         if cmd == "preview" and _opt(a, "--brand"):
             preview(_opt(a, "--brand"), _opt(a, "--kind", "digest"), _opt(a, "--out"), "--text" in a)

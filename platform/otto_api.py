@@ -8,6 +8,9 @@ POST /otto-api/action  {"kind":"rec","id":"rec-002","status":"done"}
 POST /otto-api/decide  {"id":"hg-001","decision":"approve|skip|later","via":"dashboard"}   (taste log)
 POST /otto-api/action  {"kind":"brand","id":"<brand>","approvals":"email|telegram|app"}   (how approvals reach the brand;
                                        tenant-scoped like every action; ["email","telegram"] = both; logged to actions.log)
+POST /otto-api/action  {"kind":"brand","id":"<brand>","comms_lang":"en|nl|de"}   (the language of what Otto sends the brand:
+                                       e-mails, the 07:35 report, one-tap pages, Telegram cards — otto_i18n; same tenant rule;
+                                       both keys may come together)
 GET  /otto-email/act?t=<token>      -> PUBLIC one-tap page from an approval e-mail (otto_email): shows what the button will do,
                                        never acts (mail scanners prefetch links). No login — the signed, single-use, 72-hour token
                                        is the credential. Rate-limited per client (otto_email.rate_ok). Strict CSP (no script).
@@ -20,8 +23,22 @@ GET  /otto-peek?url=<site>          -> same, PUBLIC — nginx: `location /otto-p
                                         at most 4 peeks at once, 20 s total deadline, cached 1 h)
 POST /otto-track                    -> landing analytics beacon, PUBLIC (otto_track: ≤ 4 KB, allowlisted events, 60 events/min
                                        per client, hashed visitor id with a daily salt, no raw IP stored, DNT/GPC honoured) → 204
-POST /otto-api/whop                 -> Whop webhook, PUBLIC in nginx (otto_whop: Standard Webhooks signature, 5-minute window,
-                                       each event once) — no Origin check, the signature is the authentication
+POST /hooks/stripe                  -> Stripe webhook, PUBLIC (Caddy: the apex only; otto_stripe: Stripe-Signature HMAC, 5-minute
+                                       window, secret rotation, each event id once) — no Origin check, the signature is the
+                                       authentication. The source of truth for every subscription / payment state.
+POST /otto-api/whop                 -> the LEGACY Whop webhook (founding seats bought before Stripe; Caddy: /hooks/whop)
+GET  /billing/offers                -> PUBLIC: what can be bought now ({payments, founding {on, price_eur, url}, plans}) for the
+                                       landing's founding link; no secret, no price id
+GET  /billing/account?brand=        -> the app's Billing page (otto_stripe.account): plan, next charge, pending change, payment
+                                       method, VAT ID, invoices (Stripe's hosted invoice / PDF links), the plans on sale
+GET  /billing/status?session_id=    -> after a payment: has the webhook switched the plan on yet (only the caller's session)
+POST /billing/checkout {plan, interval, brand} → an Embedded Checkout client secret (or the hosted URL: the fallback)
+POST /billing/change {brand, plan, interval} | /billing/cancel {brand} | /billing/resume {brand}
+     /billing/payment-method {brand} (SetupIntent for the Payment Element) | /billing/tax-id {brand, value}
+     /billing/portal {brand} (Stripe's Customer Portal: optional fallback, off by default)
+                                    -> /billing/*: a Google session only (401 otherwise), the caller's own brands only (404),
+                                       POSTs need JSON + an allowed Origin, 30 writes / 10 min per user; 503 "Payments aren't
+                                       set up yet" without otto-secrets/stripe.json
 GET  /auth/google/start?next=/path   -> Google sign-in (otto_auth: OIDC code flow + PKCE + state + nonce) → 302 to Google
 GET  /auth/google/callback          -> code exchanged at Google (TLS), ID token verified (RS256 / JWKS, iss, aud, exp, nonce,
                                        email_verified) → user (first login = sign-up + free trial, otto_trial) → session cookie
@@ -32,8 +49,9 @@ GET  /otto-api/admin/snapshot?days=30   -> owner console data (otto_admin.snapsh
 POST /otto-api/admin  {"action":"kill_switch","state":"on","note":"…"} | {"action":"pause_brand"|"resume_brand","brand":…}
                       | {"action":"campaign","id":…,"decision":"approve"|"reject"} | {"action":"rescan","brand":…}
                       | {"action":"lead","id":…,"status":"new|contacted|won|lost","note":…} | {"action":"link_customer",…}
-                      | {"action":"whop_sync"} | {"action":"members","brand":…,"add":[…],"remove":[…]}
+                      | {"action":"stripe_check"} | {"action":"members","brand":…,"add":[…],"remove":[…]}
                       | {"action":"plan","brand":…,"plan":<plans.json id>,"until":"YYYY-MM-DD"|"","note":…}
+                      | {"action":"comms_lang","brand":…,"lang":"en|nl|de"}   (the language of what Otto sends that client)
                       — same JSON + Origin rules as /otto-api/action; logged to actions.log with who
 
 Hardening:
@@ -91,10 +109,12 @@ import ap  # same directory — reuse load/transaction
 import otto_admin
 import otto_auth
 import otto_email
+import otto_i18n
 import otto_onboard
 import otto_scan
 import otto_track
 import otto_trial
+import otto_stripe
 import otto_whop
 
 HERE = Path(__file__).parent
@@ -361,26 +381,36 @@ def apply_decision(item_id, decision, via, bids=None):
     return ap.load()
 
 
-BRAND_SETTINGS = ("approvals",)
+BRAND_SETTINGS = ("approvals", "comms_lang")
 
 
 def apply_brand(bid, req, bids=None):
-    """A brand setting the client changes in the app's Settings (today: how approvals reach them). Same tenant rule as
-    apply_action: another brand's id is "unknown" (404)."""
+    """A brand setting the client changes in the app's Settings: how approvals reach them (approvals) and the language of
+    what Otto sends them (comms_lang: en | nl | de, otto_i18n). Same tenant rule as apply_action: another brand's id is
+    "unknown" (404). Every value is validated before anything is written."""
     if not isinstance(bid, str) or not bid.strip():
         raise ValueError("id must be a string")
     if not any(k in req for k in BRAND_SETTINGS):
-        raise ValueError("nothing to change (approvals)")
-    value = otto_email.normalize_approvals(req.get("approvals"))       # ValueError on anything but email / telegram / app
+        raise ValueError("nothing to change (approvals, comms_lang)")
+    value = otto_email.normalize_approvals(req.get("approvals")) if "approvals" in req else None   # ValueError: not email / telegram / app
+    lang = otto_i18n.normalize_comms_lang(req.get("comms_lang")) if "comms_lang" in req else None   # ValueError: not en / nl / de
+    lines = []
     with ap.transaction() as d:
         b = ap.brand(d, bid)
         if b is None or (bids is not None and bid not in bids):
             raise KeyError(bid)
-        before = otto_email.approvals_label(b)
-        b["approvals"] = value
-        b["approvals_set"] = {"at": ap.now_iso(), "via": "dashboard"}
-        after = otto_email.approvals_label(b)
-    _log(f"dashboard brand {bid} approvals {before.lower()} -> {after.lower()}")
+        if value is not None:
+            before = otto_email.approvals_label(b)
+            b["approvals"] = value
+            b["approvals_set"] = {"at": ap.now_iso(), "via": "dashboard"}
+            lines.append(f"dashboard brand {bid} approvals {before.lower()} -> {otto_email.approvals_label(b).lower()}")
+        if lang is not None:
+            before = otto_i18n.lang_of(b)
+            b["comms_lang"] = lang
+            b["comms_lang_set"] = {"at": ap.now_iso(), "via": "dashboard"}
+            lines.append(f"dashboard brand {bid} comms_lang {before} -> {lang}")
+    for line in lines:
+        _log(line)
     return ap.load()
 
 
@@ -682,6 +712,13 @@ class Handler(BaseHTTPRequestHandler):
                 return self._fail(path, e)
         if path == "/auth/me":
             return self._me()
+        if path == "/billing/offers":
+            try:
+                return self._send(200, otto_stripe.public_offers())
+            except Exception as e:
+                return self._fail(path, e)
+        if path.startswith("/billing/"):
+            return self._billing("GET", path, u.query)
         if path == "/otto-api/data":
             try:
                 bids, user = self._scope()
@@ -734,6 +771,10 @@ class Handler(BaseHTTPRequestHandler):
             return self._track()
         if path == "/otto-api/whop":
             return self._whop()
+        if path == "/hooks/stripe":
+            return self._stripe_hook()
+        if path.startswith("/billing/"):
+            return self._billing("POST", path)
         if path == "/otto-email/act":
             return self._email_post()
         if path == "/auth/logout":
@@ -756,7 +797,7 @@ class Handler(BaseHTTPRequestHandler):
             return self._not_admin()
         if path == "/otto-onboard":
             # the public twin for a buyer who has no login yet (same origin + JSON rules, rate-limited in otto_onboard;
-            # the brand starts as "onboarding" until its Whop membership is linked). It only creates: an existing brand
+            # the brand starts as "onboarding" until a paid plan is linked). It only creates: an existing brand
             # is never changed from the public route.
             return self._onboard(public=True)
         try:
@@ -876,11 +917,11 @@ class Handler(BaseHTTPRequestHandler):
             _log(f"onboard {obj['brand']} {'created' if obj['created'] else 'updated'}{' (public)' if public else ''}"
                  + (f" trial={'granted' if tr.get('granted') else tr.get('why')}" if tr else "") + f" ip={self._client_ip()}")
             if sess and obj.get("created"):
-                try:                                          # paid on Whop before the brand existed: link it now
+                try:                                          # paid before the brand existed: link it now
                     linked = otto_trial.link_pending(sess["user"])
                     if linked:
                         obj["linked"] = {"membership": linked.get("id"), "plan": (linked.get("plan_sync") or {}).get("to")}
-                        _log(f"onboard {obj['brand']} linked to Whop {linked.get('id')} (verified e-mail)")
+                        _log(f"onboard {obj['brand']} linked to {linked.get('provider') or 'whop'} {linked.get('id')}")
                 except Exception as e:
                     _log_error("/otto-api/onboard", 200, f"link_pending: {type(e).__name__}: {e}")
         self._send(code, obj)
@@ -903,6 +944,72 @@ class Handler(BaseHTTPRequestHandler):
             _log_error("/otto-track", 500, f"{type(e).__name__}: {e}")
             return self._send(500, {"error": "tracking failed"})
         return self._empty(code) if obj is None else self._send(code, obj)
+
+    def _stripe_hook(self):
+        """Stripe → us, server to server. The signature (otto_stripe.verify) is the authentication; no Origin involved. A
+        failure answers 500 so Stripe retries (every step is idempotent)."""
+        body = self._body(MAX_WEBHOOK)
+        if body is None:
+            return self._send(413, {"error": "body required"})
+        try:
+            code, obj = otto_stripe.webhook(body, self.headers)
+        except Exception as e:
+            code, obj = 500, {"error": f"{type(e).__name__}"}
+            _log_error("/hooks/stripe", 500, f"{type(e).__name__}: {e}")
+        else:
+            if code != 200:
+                _log_error("/hooks/stripe", code, obj.get("error"))
+            else:
+                _log(f"stripe {obj.get('type')} {obj.get('ref') or ''}{' (duplicate)' if obj.get('duplicate') else ''}"
+                     + (f" plan {obj['plan']['brand']} {obj['plan']['from']}->{obj['plan']['to']}" if obj.get("plan") else ""))
+                with _snap_lock:
+                    _snap_cache.clear()
+        self._send(code, obj)
+
+    def _billing(self, method, path, query=""):
+        """/billing/* for the app's Billing page: a Google session only, the caller's own brands only; POSTs need JSON and
+        an allowed Origin. Stripe's own messages stay in api-errors.log."""
+        if method == "POST":
+            ctype = (self.headers.get("Content-Type") or "").split(";")[0].strip().lower()
+            if ctype != "application/json":
+                return self._send(415, {"error": "Content-Type must be application/json"})
+            if not self._origin_ok():
+                return self._send(403, {"error": "cross-origin request refused"})
+            n = self._length()
+            if n > MAX_JSON:
+                return self._send(413, {"error": f"request too large (at most {MAX_JSON} bytes)"})
+        try:
+            bids, _ = self._scope()
+        except NoUser:
+            return self._no_user()
+        except Ambiguous:
+            return self._no_user(ambiguous=True)
+        sess = self._session()
+        if not sess:
+            return self._send(401, {"error": "sign in with Google to manage billing", "signin": True, "google": otto_auth.configured()})
+        req = {}
+        if method == "POST":
+            n = self._length()
+            try:
+                req = json.loads(self.rfile.read(n)) if n > 0 else {}
+                if not isinstance(req, dict):
+                    raise ValueError
+            except ValueError:
+                return self._send(400, {"error": "JSON object expected"})
+        try:
+            d = ap.load()
+            code, obj = otto_stripe.http(method, path, urllib.parse.parse_qs(query), req, sess["user"], d, bids)
+        except Exception as e:
+            return self._fail(path, e)
+        detail = obj.pop("detail", None) if isinstance(obj, dict) else None
+        if code >= 500 or detail:
+            _log_error(path, code, detail or obj.get("error"))
+        if method == "POST" and code == 200:
+            _log(f"billing {path.rsplit('/', 1)[-1]} {req.get('brand') or obj.get('brand') or ''} {req.get('plan') or ''}"
+                 f" user={sess['user'].get('id')} ip={self._client_ip()}")
+            with _snap_lock:
+                _snap_cache.clear()
+        return self._send(code, obj)
 
     def _whop(self):
         """Whop → us, server to server. The signature (otto_whop.verify) is the authentication; no Origin involved."""

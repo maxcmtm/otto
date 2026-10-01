@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <!-- CSP: script-src lists the sha256 of every inline script element in this page. After editing one, the browser refuses it and its console prints the new hash: replace the old one here (or recompute all of them). -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-cWwCZMELdYHZn9EkmuHS8lvrKoP8XuH2traw+QmSh6M=' 'sha256-Qz3Zry9sNTkn0VyeVLB26JkM8Ey6RZFdVxdUi2FKJW0=' 'sha256-q2hXY81/rCDUaT0LDof8xyMd0leygDq5tjBATI1sO2U=' 'sha256-6BX7DfMhAB7okHUJV0PASswVoPSQq79Tjk5cR8Va7e8='; style-src 'self' 'unsafe-inline'; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-src 'none'; worker-src 'none'; manifest-src 'self'; img-src 'self' data: https:; media-src 'self'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-cWwCZMELdYHZn9EkmuHS8lvrKoP8XuH2traw+QmSh6M=' 'sha256-Qz3Zry9sNTkn0VyeVLB26JkM8Ey6RZFdVxdUi2FKJW0=' 'sha256-q2hXY81/rCDUaT0LDof8xyMd0leygDq5tjBATI1sO2U=' 'sha256-MKiTavdI0j+ZKKNQZEUqRkyhG+h9QiCig9jHu6GmhTQ=' 'sha256-NRLiP1fqeOyI94xRkzPcu7XapQiZDldJTPdokiXDFgA='; style-src 'self' 'unsafe-inline'; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-src 'none'; worker-src 'none'; manifest-src 'self'; img-src 'self' data: https:; media-src 'self'">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <script>
 /* Head script, under 1KB: base for the deployed copy, js/motion flags, render tier, libraries. */
@@ -843,7 +843,7 @@ html.motion .rv-play{transition:opacity var(--dur-slow) var(--ease-out),transfor
 </style>
 <script type="application/ld+json">
 {"@context":"https://schema.org","@graph":[
- {"@type":"SoftwareApplication","name":"Otto","applicationCategory":"BusinessApplication","operatingSystem":"Web, Telegram","description":"Otto plans, writes, designs and publishes your marketing, and asks you only for the decisions. Every post waits for your approval on your phone.","offers":{"@type":"Offer","price":"197","priceCurrency":"EUR","description":"Founding pilot, one-time","url":"https://whop.com/checkout/plan_joHl1qsZoiJc9"}},
+ {"@type":"SoftwareApplication","name":"Otto","applicationCategory":"BusinessApplication","operatingSystem":"Web, Telegram","description":"Otto plans, writes, designs and publishes your marketing, and asks you only for the decisions. Every post waits for your approval on your phone.","offers":{"@type":"Offer","price":"0","priceCurrency":"EUR","description":"Free 7-day trial, no card needed"}},
  {"@type":"FAQPage","mainEntity":[
   {"@type":"Question","name":"Does anything publish without my approval?","acceptedAnswer":{"@type":"Answer","text":"No. Every post waits for your approval, by email, in Telegram or in the app, whichever is closer. You can let trusted pillars publish automatically later; it is off by default."}},
   {"@type":"Question","name":"How is this different from a scheduler plus ChatGPT?","acceptedAnswer":{"@type":"Answer","text":"With those tools you do the work: you think of the idea, write the prompt, fix the output, make the visual, pick the slot, press publish and check the stats. Otto does all of that and comes to you only with finished posts and decisions."}},
@@ -851,7 +851,7 @@ html.motion .rv-play{transition:opacity var(--dur-slow) var(--ease-out),transfor
   {"@type":"Question","name":"What if I’m not around to approve?","acceptedAnswer":{"@type":"Answer","text":"Nothing breaks. Otto reminds you before a post is due and moves it to a new slot if you don’t answer. Your morning briefing lists what is waiting."}},
   {"@type":"Question","name":"Which channels and languages?","acceptedAnswer":{"@type":"Answer","text":"Facebook and Instagram today, LinkedIn on request. Content in English and Dutch, written for your market rather than translated, and in German, French, Spanish, Italian, Portuguese and Hebrew, including right-to-left layouts. One of the brands running on Otto today publishes in Hebrew."}},
   {"@type":"Question","name":"What do I need to bring?","acceptedAnswer":{"@type":"Answer","text":"Your website address, your social accounts connected once through their official login (you can revoke access at any time), and an email address for approvals (or Telegram, if you prefer)."}},
-  {"@type":"Question","name":"What happens after the free trial?","acceptedAnswer":{"@type":"Answer","text":"Otto e-mails you two days before your 7-day trial ends. Choose a plan and add a card to keep going; your setup and everything Otto made stay. If you don't, publishing pauses and your work is kept for 90 days. Nothing is ever charged automatically."}}
+  {"@type":"Question","name":"What happens after the free trial?","acceptedAnswer":{"@type":"Answer","text":"Otto e-mails you two days before your 7-day trial ends. Choose a plan to keep going: it starts, and is charged, when the trial ends, and your setup and everything Otto made stay. If you don't choose one, nothing is charged, publishing pauses and your work is kept for 90 days."}}
  ]}
 ]}
 </script>
@@ -1279,7 +1279,7 @@ html.motion .rv-play{transition:opacity var(--dur-slow) var(--ease-out),transfor
         <div class="ch-text">
           <p class="ch-step">Reports</p>
           <h3 class="h3" data-rv>A report at 07:35, every morning. <span class="ink-2">What yesterday cost, and what it brought in.</span></h3>
-          <p class="body" data-rv>Otto compares reach, clicks and enquiries with your own averages, tells you when something drops with a fix already drafted, and watches your competitors every week. One minute to read, one tap to act.</p>
+          <p class="body" data-rv>Otto compares reach, clicks and enquiries with your own averages, flags anything that drops in the next morning's report, and watches your competitors every week. One minute to read, one tap to act.</p>
         </div>
         <div class="ch-vis">
           <div class="rep-vis" id="rep">
@@ -1311,11 +1311,11 @@ html.motion .rv-play{transition:opacity var(--dur-slow) var(--ease-out),transfor
             </div>
             <div class="stack">
               <article class="card" id="rep-alert">
-                <div class="card-h"><div><b>Alert</b><small>Monday · 14:12</small></div><span class="tag">Sample</span></div>
+                <div class="card-h"><div><b>In this morning's report</b><small>Tuesday · 07:35</small></div><span class="tag">Sample</span></div>
                 <p class="alert-t">Clicks on the <b>spring campaign</b> are down <b>34%</b> on your 7-day average, from 1,140 to 750.</p>
-                <p class="alert-f">Cause: the new use-case post is reaching the same people. Suggested fix: pause ad set B and move its budget to A until Thursday.</p>
-                <div class="alert-act" id="rep-act"><button class="btn btn-primary" type="button" id="rep-apply">Apply the fix</button><button class="btn btn-quiet" type="button" id="rep-later">Not now</button></div>
-                <p class="alert-done" id="rep-done" hidden><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>Fix applied at 14:13</p>
+                <p class="alert-f">Likely cause: the new use-case post is reaching the same people. Suggestion: pause ad set B; Meta moves its budget to A.</p>
+                <div class="alert-act" id="rep-act"><button class="btn btn-primary" type="button" id="rep-apply">Pause ad set B</button><button class="btn btn-quiet" type="button" id="rep-later">Not now</button></div>
+                <p class="alert-done" id="rep-done" hidden><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>Ad set B paused at 07:36</p>
               </article>
               <article class="card" id="rep-comp">
                 <div class="card-h"><div><b>Your competitors this week</b><small>Every Monday · 5 watched</small></div><span class="tag">Sample</span></div>
@@ -1410,7 +1410,7 @@ html.motion .rv-play{transition:opacity var(--dur-slow) var(--ease-out),transfor
         </ul>
         <a class="btn btn-primary" href="/auth/google/start?next=%2Fonboarding.html" data-trial>Start free 7-day trial</a>
         <p class="offer-s">Continue with Google. One trial per business.</p>
-        <p class="offer-s">Prefer to pay once? <a class="link" href="https://whop.com/checkout/plan_joHl1qsZoiJc9">Founding pilot, €197 one-time</a>, through Whop.</p>
+        <p class="offer-s" id="founding-offer" hidden>Prefer to pay once? <a class="link" id="founding-link" href="#pricing">Founding pilot, <span id="founding-price">€197</span> one-time</a>.</p>
       </div>
       <div class="after" data-rv style="--rd:1">
         <h3>What happens next</h3>
@@ -1419,8 +1419,8 @@ html.motion .rv-play{transition:opacity var(--dur-slow) var(--ease-out),transfor
           <li><b>Today</b><span>You sign in with Google and give Otto your website address. No card.</span></li>
           <li><b>First questions</b><span>Otto reads your site, builds your brand profile and asks you at most four questions.</span></li>
           <li><b>Within 24 hours</b><span>Your first posts arrive by email or in Telegram, ready for your tap.</span></li>
-          <li><b>Every morning</b><span>A short report at 07:35, and alerts within the hour when something drops.</span></li>
-          <li><b>Before day 7</b><span>Otto e-mails you two days before the trial ends. Add a card to keep going; nothing is charged automatically.</span></li>
+          <li><b>Every morning</b><span>A short report at 07:35 that flags anything that dropped.</span></li>
+          <li><b>Before day 7</b><span>Otto e-mails you two days before the trial ends. Choose a plan to keep going: it starts, and is charged, when the trial ends. Choose none and nothing is charged; publishing pauses.</span></li>
         </ol>
       </div>
     </div>
@@ -1442,7 +1442,7 @@ html.motion .rv-play{transition:opacity var(--dur-slow) var(--ease-out),transfor
       <details><summary>What if I’m not around to approve?</summary><div class="fa">Nothing breaks. Otto reminds you before a post is due and moves it to a new slot if you don’t answer. Your morning briefing lists what is waiting.</div></details>
       <details><summary>Which channels and languages?</summary><div class="fa">Facebook and Instagram today, LinkedIn on request. Content in English and Dutch, written for your market rather than translated, and in German, French, Spanish, Italian, Portuguese and Hebrew, including right-to-left layouts. One of the brands running on Otto today publishes in Hebrew.</div></details>
       <details><summary>What do I need to bring?</summary><div class="fa">Your website address, your social accounts connected once through their official login (you can revoke access at any time), and an email address for approvals (or Telegram, if you prefer).</div></details>
-      <details><summary>What happens after the free trial?</summary><div class="fa">Otto e-mails you two days before your 7-day trial ends. Choose a plan and add a card to keep going; your setup and everything Otto made stay. If you don’t, publishing pauses and your work is kept for 90 days. Nothing is ever charged automatically.</div></details>
+      <details><summary>What happens after the free trial?</summary><div class="fa">Otto e-mails you two days before your 7-day trial ends. Choose a plan to keep going: it starts, and is charged, when the trial ends, and your setup and everything Otto made stay. If you don’t choose one, nothing is charged, publishing pauses and your work is kept for 90 days.</div></details>
     </div>
   </div>
 </section>
@@ -2358,7 +2358,7 @@ function startTiers() {
   d.addEventListener('click', function (e) {
     var a = e.target.closest && e.target.closest('a, button'); if (!a) return;
     var href = a.getAttribute('href') || '', kind = null;
-    if (/whop\.com\/checkout/.test(href)) kind = 'get_started';
+    if (/billing(\.html)?\?plan=/.test(href)) kind = 'get_started';
     else if (/\/auth\/google\/start/.test(href)) kind = 'start_trial';
     else if (a.dataset.focus === 'hero-url') kind = 'scan_first';
     else if (a.hasAttribute('data-login') || /\/otto\/?$/.test(href)) kind = 'login';
@@ -2384,6 +2384,20 @@ function startTiers() {
     if (id && !played[id]) { played[id] = 1; track('video_play', { id: id }); }
   }, true);
 })(window, document);
+</script>
+<script>
+/* The founding seat is offered only while it is on sale (GET /billing/offers: Stripe set up and plans.json
+   founding.stripe_price_ids.one_time set); the link opens it on the app's Billing page. Off → the line stays hidden. */
+(function (d) {
+  var p = d.getElementById('founding-offer'); if (!p || !window.fetch) return;
+  fetch('/billing/offers', { cache: 'no-store', credentials: 'omit' }).then(function (r) { return r.ok ? r.json() : null; }).then(function (j) {
+    var f = j && j.founding;
+    if (!f || !f.on || !/^https:\/\/[^\s"'<>]+$/.test(f.url || '')) return;
+    d.getElementById('founding-link').href = f.url;
+    if (typeof f.price_eur === 'number') d.getElementById('founding-price').textContent = '\u20ac' + f.price_eur;
+    p.hidden = false;
+  }).catch(function () {});
+})(document);
 </script>
 </body>
 </html>

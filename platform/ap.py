@@ -10,7 +10,7 @@ Usage:
   ap.py set <post-id> '<json-object>'          # merge fields into a post (hook, caption, image, format, brief…)
   ap.py brand-add <id> <name> <url> <lang> [pillar,pillar,...] [--tz Europe/Berlin] [--countries DE,AT] [--currency EUR]
                  [--plan content]                # tz/countries default from the url's country TLD, then the language;
-                                                 # plan defaults to plans.json defaults.new (a Whop link sets the paid one)
+                                                 # plan defaults to plans.json defaults.new (a paid subscription sets the paid one)
   ap.py plans                                    # the plans in plans.json and every brand's resolved plan
   ap.py recs | rec <rec-id> <proposed|approved|dismissed|done>
   ap.py rec-add <P0|P1|P2> <title> | <why> | <impact> | <cta>
@@ -334,11 +334,12 @@ def paused(d, bid=None):
 # ---------- plans (plans.json): what each brand gets ----------
 #
 # plans.json is the single source of truth (edited without code): plans keyed by id with label, features, limits and
-# optional prices / Whop plan ids; "inherits" merges a parent's features + limits. brands[].plan names the brand's plan
+# optional prices / Stripe price ids (stripe_price_ids: monthly, yearly, one_time) / legacy Whop plan ids; "inherits" merges a
+# parent's features + limits. brands[].plan names the brand's plan
 # (missing = a brand from before plans → defaults.legacy, "founding"); brands[].plan_until (YYYY-MM-DD, brand-local)
 # ends it → defaults.after_expiry ("content"); an unknown id → defaults.unknown ("content": fail-safe, no paid ads).
-# New brands get defaults.new ("starter"), flagged brands[].plan_billing "not_billed" while that plan cannot be bought on
-# Whop yet (no whop_plan_ids); linking a Whop membership clears the flag.
+# New brands get defaults.new ("starter"), flagged brands[].plan_billing "not_billed" while that plan cannot be bought yet
+# (no stripe_price_ids); a running subscription linked to the brand (otto_billing) clears the flag.
 # The paid budget band (limits.ad_spend_managed_eur_month) is a soft cap (ad_band): the first month above it is planned in
 # full, the second month in a row above it at the cap with the next plan offered; a plan with "overage" is never capped
 # and shows overage.pct % of the spend above overage.above_eur_month. brands[].ad_band keeps the last months' decisions.
@@ -418,6 +419,14 @@ def _plan_problems(raw):
         ids = p.get("whop_plan_ids") or []
         if not isinstance(ids, list) or not all(isinstance(x, str) and x.strip() for x in ids):
             raise ValueError(f"plan {pid!r}: whop_plan_ids must be a list of Whop plan ids")
+        spi = p.get("stripe_price_ids")
+        if spi is not None:
+            if not isinstance(spi, dict) or set(spi) - set(STRIPE_INTERVALS):
+                raise ValueError(f"plan {pid!r}: stripe_price_ids must be {{\"monthly\", \"yearly\", \"one_time\"}} → a Stripe "
+                                 "price id (price_…) or null")
+            for k, v in spi.items():
+                if v is not None and not (isinstance(v, str) and re.fullmatch(r"price_[A-Za-z0-9_]{3,80}", v.strip())):
+                    raise ValueError(f"plan {pid!r}: stripe_price_ids.{k} must be a Stripe price id (price_…) or null")
         if p.get("upgrade_to") is not None and p["upgrade_to"] not in src:
             raise ValueError(f"plan {pid!r}: upgrade_to names unknown plan {p['upgrade_to']!r}")
         if p.get("after_expiry") is not None and p["after_expiry"] not in src:
@@ -437,6 +446,7 @@ def _plan_problems(raw):
             if v is not None and (isinstance(v, bool) or not isinstance(v, (int, float)) or v < 0):
                 raise ValueError(f"plan {pid!r}: {k} must be a number or null")
         extra = {k: v for k, v in p.items() if k not in ("features", "limits", "inherits") and not k.startswith("_")}
+        extra["stripe_price_ids"] = {k: (v.strip() if isinstance(v, str) else None) for k, v in (spi or {}).items()}
         out[pid] = dict(extra, label=str(p.get("label") or pid), features=feats, limits=lims, whop_plan_ids=list(ids),
                         inherits=p.get("inherits"), upgrade_to=p.get("upgrade_to"), overage=ov,
                         public=bool(p.get("public", True)))
@@ -460,6 +470,13 @@ def _plan_problems(raw):
             if w in seen and seen[w] != pid:
                 probs.append(f"Whop plan {w} is listed on both {seen[w]!r} and {pid!r}")
             seen[w] = pid
+    prices = {}
+    for pid, p in out.items():
+        for k, v in (p.get("stripe_price_ids") or {}).items():
+            if v and v in prices and prices[v] != (pid, k):
+                probs.append(f"Stripe price {v} is listed twice ({prices[v][0]}.{prices[v][1]} and {pid}.{k})")
+            if v:
+                prices[v] = (pid, k)
     return probs, out
 
 
@@ -623,12 +640,34 @@ def plan_for_whop(whop_plan_id):
     return next((pid for pid, p in plans_config()["plans"].items() if whop_plan_id in p["whop_plan_ids"]), None)
 
 
+STRIPE_INTERVALS = {"monthly": "month", "yearly": "year", "one_time": "one_time"}   # plans.json key → billing interval
+
+
+def plan_for_price(price_id):
+    """(Otto plan id, interval "month" | "year" | "one_time") a Stripe price sells (plans.json stripe_price_ids), or None."""
+    if not price_id:
+        return None
+    for pid, p in plans_config()["plans"].items():
+        for k, v in (p.get("stripe_price_ids") or {}).items():
+            if v and v == price_id:
+                return pid, STRIPE_INTERVALS[k]
+    return None
+
+
+def price_for(plan_id, interval):
+    """The Stripe price id that sells `plan_id` at `interval` ("month" | "year" | "one_time"), or None (not on sale yet)."""
+    key = {v: k for k, v in STRIPE_INTERVALS.items()}.get(interval)
+    p = plans_config()["plans"].get(plan_id) or {}
+    return (p.get("stripe_price_ids") or {}).get(key) if key else None
+
+
 def new_brand_plan():
     """(plan id, plan_billing flag or None) for a brand created now: plans.json defaults.new, flagged "not_billed" while
-    that plan has no Whop plan id to buy it with."""
+    that plan has no price to buy it with (stripe_price_ids, or a legacy Whop plan id)."""
     cfg = plans_config()
     pid = cfg["defaults"]["new"]
-    sold = bool((cfg["plans"].get(pid) or {}).get("whop_plan_ids"))
+    p = cfg["plans"].get(pid) or {}
+    sold = bool(p.get("whop_plan_ids") or any((p.get("stripe_price_ids") or {}).values()))
     return pid, (None if sold else "not_billed")
 
 
@@ -698,7 +737,7 @@ def set_plan(d, bid, plan_id, until=KEEP, by="admin", via="admin", note="", **ex
     b["plan"] = plan_id
     tr = b.get("trial")
     if isinstance(tr, dict) and not tr.get("converted_at") and plan_id not in (trial_plan_id(), cfg["defaults"]["ended"]):
-        tr["converted_at"], tr["converted_to"] = now_iso(), plan_id       # a trial brand on a paid plan (Whop, the console)
+        tr["converted_at"], tr["converted_to"] = now_iso(), plan_id       # a trial brand on a paid plan (Stripe, the console)
         for u in d.get("users") or []:
             if isinstance(u, dict) and u.get("id") == tr.get("user"):
                 u["status"] = "active"
@@ -750,10 +789,10 @@ PRESET_TEXT = {"micro": "4 concepts × 5 styles", "launch": "6 concepts × 6 sty
 
 
 def to_eur(amount, code):
-    """A brand-currency amount in EUR (otto_whop's approximate table); None when the currency is unknown."""
+    """A brand-currency amount in EUR (otto_billing's approximate table); None when the currency is unknown."""
     try:
-        import otto_whop
-        return otto_whop.to_eur(amount, currency_code(code) or "EUR")
+        import otto_billing
+        return otto_billing.to_eur(amount, currency_code(code) or "EUR")
     except Exception:
         return amount if (currency_code(code) or "EUR") == "EUR" else None
 
@@ -802,8 +841,9 @@ def plan_view(d, bid, today=None):
     if f.get("organic"):                                      # approvals: how this brand's posts reach it (brands[].approvals)
         how = [w for w, on in (("by e-mail", "email" in chans), ("in Telegram", tele)) if on]
         inc.append("Approvals " + (" and ".join(how) if how else "in the app"))
-    if f.get("reports"):                                      # the 07:35 morning report is a Telegram message
-        inc.append("Weekly insights" + (" and the 07:35 morning report in Telegram" if tele else ""))
+    if f.get("reports"):                                      # the 07:35 morning report goes where the approvals go
+        how = [w for w, on in (("by e-mail", "email" in chans), ("in Telegram", tele)) if on]
+        inc.append("Weekly insights" + (" and the 07:35 morning report " + " and ".join(how) if how else ""))
     nets = " and ".join(n for n, k in (("Meta", "ads_meta"), ("Google", "ads_google")) if f.get(k))
     if nets:
         cap, ov = L.get("ad_spend_managed_eur_month"), p.get("overage")
@@ -1105,7 +1145,7 @@ def main():
         b = {"id": bid, "name": name, "url": url, "lang": lang, "tz": tz, "status": "onboarding", "pillars": pillars, "compliance": "",
              "plan": plan_id, "approvals": opts.get("--approvals") or "email"}   # EU default; Telegram is opt-in
         if billing and "--plan" not in opts:
-            b["plan_billing"] = billing                  # not billed yet: no Whop plan sells it; a Whop link clears it
+            b["plan_billing"] = billing                  # not billed yet: no price sells it; a linked subscription clears it
         if countries:
             b["countries"] = countries
         if "--currency" in opts:
@@ -1123,7 +1163,8 @@ def main():
             f = p["features"]
             print(f"{pid:9} {p['label']:16} ads {'meta' if f['ads_meta'] else '-':4} {'google' if f['ads_google'] else '-':6} "
                   f"matrix {p['limits']['ad_matrix_preset']:6} posts {p['limits']['posts_per_month']} reels {p['limits']['reels_per_month']} "
-                  f"cap €{p['limits']['ad_spend_managed_eur_month']} whop {','.join(p['whop_plan_ids']) or '—'}")
+                  f"cap €{p['limits']['ad_spend_managed_eur_month']} stripe {','.join(k for k, v in p['stripe_price_ids'].items() if v) or '—'}"
+                  f" whop {','.join(p['whop_plan_ids']) or '—'}")
         try:
             d = load()
         except (OSError, ValueError) as e:

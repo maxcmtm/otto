@@ -1,58 +1,47 @@
 #!/usr/bin/env python3
-"""Otto billing — Whop memberships + payments → customers, for the owner console only (never in data.json,
-which the client app and its embedded fallback expose).
+"""Otto × Whop — LEGACY. Whop sold the €197 founding seats until 1 Oct 2026; every new customer pays with Stripe
+(otto_stripe, through the provider-agnostic otto_billing). This module only keeps the existing Whop memberships readable and
+in sync: no Whop checkout is offered anywhere any more (app, landing, e-mails).
 
   otto_whop.py status                  # what is configured and when Whop last talked to us (never prints a secret)
   otto_whop.py backfill [--dry]        # pull every membership + payment from the Whop API (needs api_key + company_id)
-  otto_whop.py customers [--json]      # the customer table (e-mails masked unless --json)
-  otto_whop.py link <mem_id> <brand>   # tie a customer to a brand in data.json ("" unlinks)
+  otto_whop.py customers [--json]      # the legacy Whop customers (e-mails masked unless --json)
+  otto_whop.py link <mem_id> <brand>   # tie a legacy membership to a brand in data.json ("" unlinks) — otto_billing.link
   otto_whop.py replay <body.json>      # run a saved webhook body through the handler (support; no signature check)
 
-Webhook: POST /otto-api/whop — public in nginx (Whop calls it server to server), signed by Whop with the Standard Webhooks
-scheme: headers webhook-id / webhook-timestamp / webhook-signature ("v1,<base64>", several may be listed), signature =
-base64(HMAC-SHA256(key, "<webhook-id>.<webhook-timestamp>.<raw body>")). Whop's key is the ws_… secret itself (no prefix
-stripping, no base64 decoding); a vanilla "whsec_<base64>" secret is also accepted. Timestamps more than 5 minutes off are
-refused, and each webhook id is processed once (Whop retries). No secret configured → 503 "not connected".
+Webhook: POST /otto-api/whop (Caddy: https://<apex>/hooks/whop) stays for the legacy memberships (a refund, a dispute, a
+founder's status), signed by Whop with the Standard Webhooks scheme: headers webhook-id / webhook-timestamp /
+webhook-signature ("v1,<base64>", several may be listed), signature = base64(HMAC-SHA256(key, "<webhook-id>.<webhook-
+timestamp>.<raw body>")). Whop's key is the ws_… secret itself (no prefix stripping, no base64 decoding); a vanilla
+"whsec_<base64>" secret is also accepted. Timestamps more than 5 minutes off are refused, and each webhook id is processed
+once (Whop retries). No secret configured → 503 "not connected".
 Events used: membership.activated / .deactivated / .cancel_at_period_end_changed / .trial_ending_soon,
 payment.succeeded / .failed / .pending / .created / .canceled …, refund.created / .updated, dispute.created / .updated.
 
-Secrets — $OTTO_SECRETS/whop.json (the file the provisioner already reads; only these keys are used here):
+Secrets — $OTTO_SECRETS/whop.json (only these keys are used here):
   {"api_key": "…", "company_id": "biz_…", "otto_webhook_secret": "ws_…"}
   "otto_webhook_secret" is the secret of the webhook that points at /otto-api/whop; "webhook_secret" is accepted too
   (any configured secret that verifies is enough). Env WHOP_API_KEY / WHOP_WEBHOOK_SECRET / WHOP_COMPANY_ID override.
-State — $OTTO_BILLING (default billing.json next to data.json; git-ignored; chmod 600; own flock):
-  {"customers": {mem_id: {id, email, name, plan_id, status, whop_status, started, renews, canceled_at, cancel_at_period_end,
-                          currency, website, brand_id, updated_at, source}},
-   "payments": {pay_id: {id, membership, status, amount, currency, amount_eur, refunded_eur, at, email, plan_id, reason}},
-   "plans": {plan_id: {name, type one_time|renewal, price, currency, period_days}}, "events": [last 500 normalized],
-   "seen": [processed webhook ids], "last_webhook_at", "last_backfill_at"}
+State — billing.json (otto_billing: storage, lock, the provider-agnostic customer model). A Whop customer record is keyed by
+the membership id: {id, provider "whop" (records from before the field have none and are read as Whop), email, name,
+plan_id, status, whop_status, started, renews, canceled_at, cancel_at_period_end, currency, website, brand_id, updated_at,
+source}; payments {id, membership, status, amount, currency, amount_eur, refunded_eur, at, email, plan_id, reason}; plans
+{plan_id: {name, type one_time|renewal, price, currency, period_days}}.
 Customer status: active · trialing · past_due · canceled (Whop "completed" = a paid one-time purchase → active;
 "canceling" → active until the period ends; "expired" → canceled; "unresolved" → past_due; "drafted" = an unfinished
-checkout — kept, counted as a checkout, never as a customer). MRR is in EUR: one-time plans add 0; renewal plans add
-price × 30 / period_days; FX for non-EUR payments is a fixed approximate table (FX_EUR).
-Plans: a customer linked to a brand (brand_id, set only by `link` / the console's link — a domain match the console shows is
-never used for this) gives that brand its Otto plan, data.json brands[].plan: the Whop plan id is looked up in plans.json
-whop_plan_ids (ap.plan_for_whop) while the membership runs (active / trialing / past_due; "canceling" runs until the period
-ends), clears the "not billed yet" flag (brands[].plan_billing) and takes a brand still "onboarding" (the public sign-up) to
-status "active", so its jobs start (otto_cron runs active brands only); a canceled / expired membership moves the brand to
-plans.json defaults.ended ("none": publishing paused; otto_retention deletes the brand's data 90 days later unless a plan
-starts again) with one owner card. A Whop plan that plans.json does not map leaves the brand's plan as it is (and says so). It
-runs on `link`, on every membership / payment event of a linked customer, and after a backfill; a change of plan to another
-Whop plan clears brands[].plan_until. When a brand loses paid ads with campaigns live, `otto_ads.py guard` is started in the
-background (SPAWN) so they are paused now, not at the next daily guard.
-Free trial (otto_trial): a running membership on a mapped plan whose e-mail equals a signed-in user's verified Google e-mail
-(users[], otto_auth) and that is not linked yet is linked to that user's trial brand on arrival (otto_trial.autolink → link:
-the plan, plan_until cleared, the trial converted, the user active). The trial's checkout locks the e-mail field to that
-address (whop.json "checkout_base" changes the checkout host, default https://whop.com/checkout/). Anything else — another
-e-mail, an unmapped plan, a customer already linked — stays the owner's manual link. Idempotent: a linked customer is
-never linked again.
+checkout — kept, never counted as a customer).
+Plans: a linked membership gives its brand the plan plans.json whop_plan_ids maps (founding ← plan_joHl1qsZoiJc9) while it
+runs, plans.json defaults.ended once it ended — otto_billing.sync_plan, the same entitlement rules as Stripe. A legacy
+membership whose e-mail equals a signed-in user's verified Google e-mail links itself to that user's trial brand on arrival
+(otto_trial.autolink — kept only for these legacy memberships; Stripe links by our signed checkout reference instead).
 """
-import base64, fcntl, hashlib, hmac, json, os, re, subprocess, sys, time, urllib.error, urllib.parse, urllib.request
-from contextlib import contextmanager
+import base64, hashlib, hmac, json, os, re, subprocess, sys, time, urllib.error, urllib.parse, urllib.request
 from datetime import datetime, timezone
 from pathlib import Path
 
 import ap
+import otto_billing as billing
+from otto_billing import FX_EUR, billing_path, email_domain, empty, load, mask_email, to_eur, transaction  # noqa: F401
 
 HERE = Path(__file__).parent
 API_BASE = "https://api.whop.com/api/v1"
@@ -61,8 +50,6 @@ KEEP_EVENTS, KEEP_SEEN = 500, 5000
 # Plans Otto sells (Whop plan id → what it is). Add the monthly plans here when they open on Whop; the API backfill also
 # caches plan prices it can read into billing.json → plans.
 PLANS = {"plan_joHl1qsZoiJc9": {"name": "Founding pilot", "type": "one_time", "price": 197, "currency": "EUR"}}
-FX_EUR = {"EUR": 1.0, "USD": 0.86, "GBP": 1.16, "CHF": 1.07, "ILS": 0.26, "PLN": 0.235, "SEK": 0.091, "NOK": 0.085,
-          "DKK": 0.134, "CZK": 0.041, "HUF": 0.0026, "RON": 0.20, "CAD": 0.62, "AUD": 0.57}
 STATUS = {"active": "active", "trialing": "trialing", "past_due": "past_due", "completed": "active", "canceling": "active",
           "canceled": "canceled", "cancelled": "canceled", "expired": "canceled", "unresolved": "past_due", "drafted": "drafted"}
 PAID_EVENTS = {"payment.succeeded": "paid", "payment.failed": "failed", "payment.pending": "pending", "payment.created": "pending",
@@ -109,43 +96,6 @@ def config():
             "company_id": os.environ.get("WHOP_COMPANY_ID") or pick("company_id", "account_id", "companyId"),
             "webhook_secrets": [s.strip() for s in secrets_ if s and s.strip()],
             "api_base": (pick("api_base") or API_BASE).rstrip("/"), "plans": plans, "file": f.exists()}
-
-
-# ---------------- storage ----------------
-
-def billing_path():
-    return Path(os.environ.get("OTTO_BILLING") or ap.DATA.parent / "billing.json")
-
-
-def empty():
-    return {"customers": {}, "payments": {}, "plans": {}, "events": [], "seen": [], "last_webhook_at": None, "last_backfill_at": None}
-
-
-def load():
-    f = billing_path()
-    try:
-        b = json.loads(f.read_text()) if f.exists() else {}
-    except Exception:
-        b = {}
-    out = empty()
-    out.update(b if isinstance(b, dict) else {})
-    return out
-
-
-@contextmanager
-def transaction():
-    """Lock billing.json.lock, fresh load, yield, atomic write (chmod 600). An exception discards the change."""
-    f = billing_path()
-    f.parent.mkdir(parents=True, exist_ok=True)
-    with open(f.with_name(f.name + ".lock"), "a+") as lf:
-        fcntl.flock(lf.fileno(), fcntl.LOCK_EX)
-        try:
-            b = load()
-            yield b
-            ap._atomic_write(f, json.dumps(b, ensure_ascii=False, indent=1) + "\n")
-            os.chmod(f, 0o600)
-        finally:
-            fcntl.flock(lf.fileno(), fcntl.LOCK_UN)
 
 
 # ---------------- signature ----------------
@@ -223,17 +173,6 @@ def _num(v):
     return float(n) if n is not None else None
 
 
-def to_eur(amount, currency, usd=None):
-    if amount is None:
-        return None
-    cur = (currency or "EUR").upper()
-    if cur in FX_EUR:
-        return round(amount * FX_EUR[cur], 2)
-    if usd is not None:
-        return round(usd * FX_EUR["USD"], 2)
-    return None
-
-
 def _website(meta):
     if not isinstance(meta, dict):
         return None
@@ -249,7 +188,7 @@ def upsert_membership(b, m, etype="", source="webhook"):
     if not mid:
         return None
     now = ap.now_iso()
-    c = b["customers"].setdefault(mid, {"id": mid, "first_seen": now})
+    c = b["customers"].setdefault(mid, {"id": mid, "provider": "whop", "first_seen": now})
     upd = iso(m.get("updated_at"))
     if upd and c.get("updated_at") and upd < c["updated_at"] and source == "webhook":
         return c                                              # an older delivery arriving late: keep the newer state
@@ -292,7 +231,7 @@ def upsert_payment(b, p, etype="", source="webhook"):
     pid = _id(p)
     if not pid:
         return None
-    rec = b["payments"].setdefault(pid, {"id": pid})
+    rec = b["payments"].setdefault(pid, {"id": pid, "provider": "whop"})
     status = PAID_EVENTS.get(etype)
     if not status:
         st, sub = str(p.get("status") or "").lower(), str(p.get("substatus") or "").lower()
@@ -335,7 +274,7 @@ def upsert_payment(b, p, etype="", source="webhook"):
         b["customers"][mem]["status"] = "active"             # the checkout went through before the membership event arrived
     if mem and mem not in b["customers"] and rec["status"] == "paid":
         # a one-time purchase can arrive as a payment only: the payer is a customer from this moment
-        b["customers"][mem] = {"id": mem, "first_seen": ap.now_iso(), "status": "active", "whop_status": "paid",
+        b["customers"][mem] = {"id": mem, "provider": "whop", "first_seen": ap.now_iso(), "status": "active", "whop_status": "paid",
                                "email": rec.get("email"), "plan_id": rec.get("plan_id"), "started": rec["at"],
                                "currency": cur, "updated_at": rec["at"], "source": source}
     return rec
@@ -381,13 +320,7 @@ def handle_event(evt, event_id=None, source="webhook"):
             ref = p and p["id"]
         elif etype.startswith("dispute."):
             ref = _id(data.get("payment")) or _id(data)
-        b["events"].append({"id": eid or None, "type": etype, "ref": ref, "at": ap.now_iso(), "source": source})
-        del b["events"][:-KEEP_EVENTS]
-        if eid:
-            b["seen"].append(eid)
-            del b["seen"][:-KEEP_SEEN]
-        if source == "webhook":
-            b["last_webhook_at"] = ap.now_iso()
+        billing.record_event(b, "whop", eid, etype, ref, source)
         cust = dict(linked) if linked else None
         linked = dict(linked) if linked and linked.get("brand_id") else None
     out = {"type": etype, "ref": ref}
@@ -439,7 +372,7 @@ def _http_get(url, key, timeout=30):
 
 
 def backfill(fetch=None, dry=False, max_pages=200):
-    """Every membership + payment of the company through the Whop API (cursor pages of 100), then the plan prices it can
+    """Every membership + payment of the company through the Whop API (legacy founders) (cursor pages of 100), then the plan prices it can
     read. Network happens outside the billing lock; each page is merged in its own short transaction."""
     cfg = config()
     if not cfg["api_key"]:
@@ -501,155 +434,39 @@ def plan_info(b, plan_id, cfg=None):
     return plans.get(plan_id) or {}
 
 
-def mask_email(e):
-    if not e or "@" not in str(e):
-        return None
-    user, dom = str(e).split("@", 1)
-    return (user[:1] or "•") + "•••@" + dom
-
-
-def email_domain(e):
-    return str(e).split("@", 1)[1].lower().strip() if e and "@" in str(e) else None
-
-
 def customer_rows(b=None, cfg=None):
-    """Customers with plan, MRR (EUR), lifetime value and payments counted. Drafted checkouts are left out."""
-    b = load() if b is None else b
-    cfg = cfg or config()
-    pays = {}
-    for p in (b.get("payments") or {}).values():
-        if p.get("membership"):
-            pays.setdefault(p["membership"], []).append(p)
-    out = []
-    for c in (b.get("customers") or {}).values():
-        if c.get("status") == "drafted":
-            continue
-        pl = plan_info(b, c.get("plan_id"), cfg)
-        mine = pays.get(c["id"], [])
-        ltv = round(sum((p.get("amount_eur") or 0) - (p.get("refunded_eur") or 0) for p in mine if p.get("status") in ("paid", "refunded")), 2)
-        mrr, est = 0.0, False
-        if c.get("status") in ("active", "past_due"):
-            if pl.get("type") == "renewal" and pl.get("price") is not None:
-                mrr = (to_eur(pl["price"], pl.get("currency")) or 0) * 30 / max(1, int(pl.get("period_days") or 30))
-            elif not pl:
-                subs = sorted([p for p in mine if p.get("status") == "paid" and str(p.get("reason", "")).startswith("subscription")],
-                              key=lambda p: p.get("at") or "")
-                if subs:
-                    mrr, est = subs[-1].get("amount_eur") or 0, True
-        out.append(dict(c, plan=pl.get("name") or c.get("plan_id") or "—", plan_type=pl.get("type") or ("renewal" if est else None),
-                        mrr_eur=round(mrr, 2), mrr_estimated=est, ltv_eur=ltv, payments=len(mine),
-                        failed_payments=sum(1 for p in mine if p.get("status") == "failed")))
-    return sorted(out, key=lambda c: c.get("started") or "", reverse=True)
+    """The legacy Whop customers (otto_billing.customer_rows, Whop rows only) with plan, MRR, lifetime value, payments."""
+    return [c for c in billing.customer_rows(b, (cfg or config())["plans"]) if c["provider"] == "whop"]
 
 
 def link(customer_id, brand_id, by="cli"):
-    """Tie a customer to a brand ("" unlinks), make the payer a member of it (brands[].members: they sign in to the app and
-    get the approval e-mails) and give the brand the membership's plan (sync_plan). Unlinking leaves the brand's plan and
-    members as they are. → the customer, with "plan_sync" (sync_plan's answer) and "member_added" when a brand was linked."""
-    with transaction() as b:
-        c = b["customers"].get(customer_id)
-        if c is None:
-            raise KeyError(customer_id)
-        if brand_id:
-            c["brand_id"] = brand_id
-            c["brand_link"] = {"by": by, "at": ap.now_iso()}
-        else:
-            c.pop("brand_id", None)
-            c.pop("brand_link", None)
-        c = dict(c)
-    if brand_id:
-        email = ap.norm_member(c.get("email"))
-        if email and not email.startswith("@"):
-            with ap.transaction() as d:
-                b = ap.brand(d, brand_id)
-                if b is not None and email not in (b.get("members") or []):
-                    b["members"] = list(b.get("members") or []) + [email]
-                    c["member_added"] = email
-        res = sync_plan(c, by=by)
-        c["plan_sync"] = res
-        if res and res.get("changed"):
-            after_plan_change([res])
-    return c
+    """Tie a legacy membership to a brand ("" unlinks): otto_billing.link (member + plan)."""
+    return billing.link(customer_id, brand_id, by=by, spawn=SPAWN)
 
 
-# ---------------- plans: membership → brands[].plan ----------------
+# ---------------- plans: membership → brands[].plan (otto_billing: the same rules for every provider) ----------------
 
 def plan_for(c):
-    """(Otto plan id or None, why) for a customer: the mapped plan while the membership runs, plans.json defaults.ended when
-    it was canceled / expired, None (unchanged) for a Whop plan plans.json does not map or an unfinished checkout."""
-    st = (c or {}).get("status")
-    cfg = ap.plans_config()
-    if cfg.get("error"):
-        return None, f"plans.json is unreadable ({cfg['error'][:120]})"
-    if st == "canceled":
-        return cfg["defaults"]["ended"], "the membership ended"
-    if st in ("active", "trialing", "past_due"):
-        pid = ap.plan_for_whop(c.get("plan_id"))
-        if pid:
-            return pid, f"Whop plan {c.get('plan_id')}"
-        return None, f"Whop plan {c.get('plan_id') or '(none)'} is not mapped in plans.json whop_plan_ids — plan unchanged"
-    return None, f"membership is {st or 'unknown'} — plan unchanged"
+    return billing.plan_for(dict(c or {}, provider="whop"))
 
 
 def sync_plan(c, by="whop"):
-    """Give the brand a linked customer belongs to the plan its membership says (plan_for). One data.json transaction; a
-    move to the ended plan files one owner card. → {brand, changed, from, to, why, live} (live = the brand's live campaigns
-    its new plan does not cover) or None when the customer has no brand / the brand does not exist."""
-    bid = (c or {}).get("brand_id")
-    if not bid:
-        return None
-    target, why = plan_for(c)
-    with ap.transaction() as d:
-        b = ap.brand(d, bid)
-        if b is None:
-            return None
-        cur = ap.plan_of(d, bid)
-        res = {"brand": bid, "changed": False, "from": cur["id"], "to": cur["id"], "why": why, "live": []}
-        ended = ap.plans_config()["defaults"]["ended"]
-        if target is not None and target != ended:
-            if b.get("plan_billing"):
-                b.pop("plan_billing", None)                    # a running membership pays for it now: billed
-                res["billed"] = True
-            if b.get("status") == "onboarding":                # paid and linked: otto_cron runs "active" brands only
-                b["status"] = "active"
-                res["activated"] = True
-        if target is None or b.get("plan") == target:        # the same plan: nothing to do (an owner-set plan_until stays)
-            return res
-        keep = cur["requested"] == target                    # a legacy record made explicit keeps its pilot end date
-        _, after = ap.set_plan(d, bid, target, until=ap.KEEP if keep else None, by=by, via="whop", note=why,
-                               membership=c.get("id"), whop_plan=c.get("plan_id"))
-        res.update(changed=True, to=after["id"])
-        res["live"] = [x["id"] for x in d.get("campaigns", []) if isinstance(x, dict) and x.get("brand") == bid
-                       and x.get("status") == "live" and ap.no_ads_why(d, bid, x.get("network"))]
-        name = b.get("name") or bid
-        if target == ended:
-            ap.add_rec(d, "P1", f"{name}: membership ended — publishing paused",
-                       f"The Whop membership {c.get('id')} was canceled or expired, so {name} is on “{after['label']}”: no post "
-                       "publishes and no ad launches" + (f", and its {len(res['live'])} live campaign"
-                                                         f"{'s are' if len(res['live']) != 1 else ' is'} being paused" if res["live"] else "")
-                       + ". Nothing was deleted; linking a running membership or choosing a plan in the console resumes it. "
-                       "Without a plan its data is deleted 90 days from now (owner notices 14 and 3 days before; "
-                       "otto_retention.py hold keeps it).",
-                       "No work the client does not pay for", "Check with the client", brand=bid, source="plans",
-                       audience="owner", action="plan", membership=c.get("id"))
-    return res
+    return billing.sync_plan(dict(c or {}, provider="whop"), by=by)
 
 
 def after_plan_change(results):
-    """Live campaigns a plan change no longer covers are paused now: `otto_ads.py guard` in the background (plan_guard
-    pauses them through the normal pause path and says so). The daily guard would catch them anyway."""
-    if any(r and r.get("live") for r in results or []):
-        try:
-            SPAWN([sys.executable, str(HERE / "otto_ads.py"), "guard"])
-        except OSError as e:
-            print(f"could not start otto_ads.py guard ({e}) — the daily guard pauses them", file=sys.stderr)
+    billing.after_plan_change(results, spawn=SPAWN)
 
 
 def status():
     cfg, b = config(), load()
+    lw = b.get("last_webhook") or {}
+    mine = [c for c in b["customers"].values() if isinstance(c, dict) and billing.provider_of(c) == "whop"]
     return {"file": cfg["file"], "api_key": bool(cfg["api_key"]), "company_id": bool(cfg["company_id"]),
-            "webhook_secret": bool(cfg["webhook_secrets"]), "customers": len(b["customers"]), "payments": len(b["payments"]),
-            "last_webhook_at": b.get("last_webhook_at"), "last_backfill_at": b.get("last_backfill_at")}
+            "webhook_secret": bool(cfg["webhook_secrets"]), "customers": len(mine),
+            "payments": sum(1 for p in b["payments"].values() if isinstance(p, dict) and billing.provider_of(p) == "whop"),
+            "last_webhook_at": lw.get("whop") or (None if lw else b.get("last_webhook_at")),
+            "last_backfill_at": b.get("last_backfill_at")}
 
 
 if __name__ == "__main__":

@@ -1,9 +1,13 @@
 #!/usr/bin/env python3
-"""Otto proactive engine: daily performance report + drop/deadline alerts to Max's Telegram.
+"""Otto proactive engine: the morning metrics snapshot, the Telegram morning report, and drop / deadline alerts.
 
-  otto_watch.py report   -> morning digest (cron 06:30 UTC) + append metrics history snapshot
-  otto_watch.py watch    -> hourly guard: metric drops vs 7-day avg, missed publishes,
-                            approvals about to miss their slot. Sends only when something is wrong.
+  otto_watch.py snapshot              -> append today's metrics history snapshot (otto_cron watch-report, 07:30 owner time)
+  otto_watch.py report [--brand B]    -> the Telegram morning report (otto_report: the same content as the 07:35 e-mail, in
+                                         the brand's comms_lang) for every brand whose approvals include Telegram, + snapshot.
+                                         The scheduled 07:35 brand-time send is otto_cron morning-report (otto_report.py send);
+                                         this command sends now, by hand, and never twice the same local day.
+  otto_watch.py watch                 -> hourly guard: metric drops vs 7-day avg, missed publishes, approvals about to miss
+                                         their slot. Sends only when something is wrong — each alert in its brand's comms_lang.
 
 State: metrics_history.jsonl (one snapshot/day), .watch-state.json (alert dedup, 1/day per key) — both next to data.json.
 Reads data.json through ap (OTTO_DATA respected); slot times are brand-local (ap.slot_dt, brands[].tz).
@@ -16,6 +20,7 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 import ap
+import otto_i18n as i18n
 import otto_paths
 import otto_publish
 
@@ -61,11 +66,12 @@ def send(text):
     return r.returncode == 0
 
 
-def fmt_slot(s):
+def fmt_slot(s, t=None):
     try:
-        return datetime.fromisoformat(s).strftime("%d/%m %H:%M")
+        dt = datetime.fromisoformat(s)
     except Exception:
         return s
+    return t.day_time(dt) if t else dt.strftime("%d/%m %H:%M")
 
 
 def load_data():
@@ -122,42 +128,22 @@ def drops(rows):
     return out
 
 
-def report():
+def report(bid=None, force=False):
+    """The Telegram morning report, now: the snapshot, then otto_report's message for each brand whose approvals include
+    Telegram (or just `bid`). The 07:35 brand-time send is the otto_cron morning-report job."""
+    import otto_email, otto_report
     d = load_data()
-    rows = snapshot(d)
-    now = datetime.now(timezone.utc)
-    posts = d.get("posts", [])
-    pending = [p for p in posts if p["status"] == "pending_approval"]
-    next24 = [p for p in posts if p["status"] in ("approved", "scheduled") and slot_of(d, p)
-              and 0 <= (slot_of(d, p) - now).total_seconds() < 86400]
-    yesterday = (now - timedelta(days=1)).date()
-    pub_y = [p for p in posts if p["status"] == "published" and slot_of(d, p)
-             and slot_of(d, p).astimezone(timezone.utc).date() >= yesterday]
-    p0 = [r for r in d.get("recommendations", []) if r.get("priority") == "P0" and r.get("status") == "proposed"]
-
-    lines = [f"*Otto daily* · {now.strftime('%a %d %b')}"]
-    lines.append(f"\nWaiting for you: *{len(pending)}*" if pending else "\nNothing is waiting for you.")
-    for p in pending[:4]:
-        lines.append(f"  · {p.get('hook', '')[:60]} ({fmt_slot(p['slot'])})")
-    if next24:
-        lines.append(f"Publishing in the next 24 h: *{len(next24)}*")
-    if pub_y:
-        lines.append(f"Published since yesterday: {len(pub_y)}")
-    metr = d.get("metrics", {})
-    live = {b: numeric(m) for b, m in metr.items() if sum(ap.num(v) for v in numeric(m).values()) > 0}
-    if live:
-        lines.append("\n*Performance*")
-        brand_names = {b["id"]: b["name"] for b in d.get("brands", [])}
-        for b, m in live.items():
-            lines.append(f"  {brand_names.get(b, b)}: reach {m.get('reach',0):,} · clicks {m.get('clicks',0):,} · leads {m.get('leads',0)}")
-        for brand, k, v, base in drops(rows):
-            lines.append(f"  Watch: {brand_names.get(brand, brand)} {k} is down to {v:,} (7-day average {base:,.0f})")
-    else:
-        lines.append("Metrics start with the first published week.")
-    if p0:
-        lines.append(f"\nNeeds you: " + " · ".join(r["title"] for r in p0[:2]))
-    lines.append(f"\n{DASH}")
-    send("\n".join(lines))
+    snapshot(d)
+    sent = 0
+    for b in d.get("brands", []):
+        if not isinstance(b, dict) or not b.get("id") or (bid and b["id"] != bid):
+            continue
+        if "telegram" not in otto_email.approval_channels(b) or otto_report.skip_reason(d, b):
+            continue
+        r = otto_report.send_telegram(b["id"], force=force)
+        sent += 1 if r.get("sent") else 0
+    print(f"-- {sent} Telegram report(s) sent")
+    return sent
 
 
 def watch():
@@ -168,11 +154,16 @@ def watch():
     alerts = []
     with_creds = {b["id"] for b in d.get("brands", []) if otto_publish.creds(b["id"])}
 
+    brands = {b["id"]: b for b in d.get("brands", []) if isinstance(b, dict) and b.get("id")}
+    tr = lambda bid: i18n.Tr.for_brand(brands[bid]) if bid in brands else i18n.Tr()
+    hook = lambda p: (p.get("hook_en") if tr(p.get("brand")).lang == "en" else None) or p.get("hook", "")[:50]
     for brand, k, v, base in drops(history()):
         key = f"drop:{brand}:{k}:{today}"
         if key not in state:
             state[key] = 1
-            alerts.append(f"Drop at {brand}: {k} is at {v:,}, {DROP_PCT}%+ below the 7-day average ({base:,.0f}). Worth a look.")
+            t = tr(brand)
+            alerts.append((t, t("alert.drop", brand=(brands.get(brand) or {}).get("name") or brand,
+                                metric=t("metric." + k) if t.has("metric." + k) else k, value=t.num(v), pct=DROP_PCT, avg=t.num(base))))
 
     for p in d.get("posts", []):
         slot = slot_of(d, p)
@@ -184,12 +175,15 @@ def watch():
             since = ap.parse_iso(p.get("publishing_at"))
             if key not in state and (since is None or since.tzinfo is None or now - since > timedelta(minutes=30)):
                 state[key] = 1
-                alerts.append(f"“{p.get('hook_en') or p.get('hook', '')[:50]}” was sent to Meta but never confirmed. Otto will not retry it — check the page.")
+                t = tr(p.get("brand"))
+                alerts.append((t, t("alert.stuck", hook=hook(p))))
         if p["status"] == "pending_approval" and 0 < hrs <= 6:
             key = f"slot-soon:{p['id']}"
             if key not in state:
                 state[key] = 1
-                alerts.append(f"“{p.get('hook_en') or p.get('hook', '')[:50]}” is slotted for {fmt_slot(p['slot'])} and still not approved. {hrs:.0f} hours left.")
+                t = tr(p.get("brand"))
+                alerts.append((t, t("alert.slot_soon", n=max(1, round(hrs)), hook=hook(p),
+                                    when=fmt_slot(p['slot'], t) if not slot else t.day_time(slot.astimezone(ap.brand_tz(brands.get(p.get("brand"))))))))
         # missed-publish only makes sense once a publishing channel is actually connected: the dashboard's
         # connections[] list, or the brand's Meta credentials (brand-add never adds a connections[] entry)
         connected = any(c.get("status") == "connected" for c in d.get("connections", [])) or p.get("brand") in with_creds
@@ -197,19 +191,33 @@ def watch():
             key = f"missed:{p['id']}"
             if key not in state:
                 state[key] = 1
-                alerts.append(f"“{p.get('hook_en') or p.get('hook', '')[:50]}” was due {fmt_slot(p['slot'])} and did not publish. Checking the pipeline.")
+                t = tr(p.get("brand"))
+                alerts.append((t, t("alert.missed", hook=hook(p), when=t.day_time(slot.astimezone(ap.brand_tz(brands.get(p.get("brand"))))))))
 
     # prune old dedup keys (keep 14 days)
     cutoff = (now - timedelta(days=14)).date().isoformat()
     state = {k: v for k, v in state.items() if not k.split(":")[-1][:4].isdigit() or k.split(":")[-1] >= cutoff}
     STATE.write_text(json.dumps(state))
     if alerts:
-        send("*Otto alert*\n\n" + "\n\n".join(alerts) + f"\n\n{DASH}")
+        by_lang = {}
+        for t, text in alerts:
+            by_lang.setdefault(t.lang, (t, []))[1].append(text)
+        for t, texts in by_lang.values():              # one message per language (a per-client instance has one)
+            send(f"*{t('alert.head')}*\n\n" + "\n\n".join(texts) + f"\n\n{DASH}")
         print(f"sent {len(alerts)} alerts")
     else:
         print("all clear")
 
 
+def snapshot_cmd():
+    rows = snapshot(load_data())
+    print(f"metrics snapshot: {rows[-1].get('date') if rows else '—'} ({len(rows)} day(s) in {HIST.name})")
+
+
 if __name__ == "__main__":
-    mode = sys.argv[1] if len(sys.argv) > 1 else "watch"
-    {"report": report, "watch": watch}[mode]()
+    a = sys.argv[1:]
+    mode = a[0] if a else "watch"
+    if mode == "report":
+        report(a[a.index("--brand") + 1] if "--brand" in a and a.index("--brand") + 1 < len(a) else None, force="--force" in a)
+    else:
+        {"snapshot": snapshot_cmd, "watch": watch}[mode]()

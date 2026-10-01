@@ -10,14 +10,14 @@
   otto_retention.py export <brand>                       # the brand's content as a zip in OTTO_EXPORTS now (Terms 17.2)
   otto_retention.py restore <zip> [--apply]              # put an exported brand back (a returning client); dry by default
 
-Timeline. A plan ends when the brand moves to plans.json defaults.ended ("none": a canceled / expired Whop membership, the
+Timeline. A plan ends when the brand moves to plans.json defaults.ended ("none": a canceled / unpaid subscription, the
 owner console, or a free trial that ended without a card): the date of that brands[].plan_history entry (UTC) — its
 "effective" date when it names one (otto_trial: the trial's end, whenever the hourly job got to it). A brand found on
 "none" without such an entry counts from the day this job first saw it (brands[].retention.source "first_seen"). delete_on = ended + 90 days. Owner notices 14 and 3
 days before: an owner recommendation (never shown to the client), a Telegram message to the owner chat (otto_telegram) and an
 e-mail to OTTO_OWNER_EMAIL, else the OTTO_ADMIN_USERS addresses (otto_email: its transport, or the outbox) — each when
 configured. A deletion never comes sooner than 3 days after the 3-day notice (a brand already past its date when this job
-first sees it gets the notice and is deleted 3 days later). A plan that starts again (Whop, the console) stops it and clears
+first sees it gets the notice and is deleted 3 days later). A plan that starts again (a subscription, the console) stops it and clears
 the state. brands[].retention_hold (truthy, e.g. a legal dispute) stops the notices and the deletion; `release` restarts the
 notices. brands[].retention = {ended, source, delete_on, notices: {"14": day, "3": day}} is the job's memory.
 
@@ -37,7 +37,7 @@ the journal entry is dropped (a crash resumes from the journal on the next run):
   names the same file; reels/<post>/ scene caches; assets/site/<id>/; motion projects <id>-<post>; its per-brand secrets
   (<service>-<id>.json in OTTO_SECRETS: meta-, google-, …; never Otto's own google-oauth.json); its e-mails in the outbox;
 - its lead: the brand's own domain in leads.json, and in the scan events of events.jsonl (the event stays, without the domain);
-  its per-brand entries in .email-state.json and heartbeats.json; its figures in metrics_history.jsonl;
+  its per-brand entries in .email-state.json, .report-state.json and heartbeats.json; its figures in metrics_history.jsonl;
 - actions.log keeps every line (who did what, when) with its content stripped (note=…, ip=…).
 Kept: billing.json (tax law: the Privacy Policy's billing period), the audit lines, the export for 30 days; backups roll over.
 Every deletion appends "retention delete <id> …" to actions.log and files an owner recommendation.
@@ -47,7 +47,7 @@ no activity — a scan, or the owner's status / note — for OTTO_LEAD_RETENTION
 is removed from leads.json, and the domain is stripped from its scan events.
 
 Paths are read when used: OTTO_DATA, OTTO_BRANDS, OTTO_ASSETS / OTTO_PUBLIC_ASSETS (otto_paths), OTTO_SECRETS, OTTO_EXPORTS,
-OTTO_EVENTS, OTTO_LEADS, OTTO_HEARTBEATS, OTTO_OUTBOX, OTTO_EMAIL_STATE, OTTO_MOTION_ROOT. Exit: 0 ok · 1 something failed
+OTTO_EVENTS, OTTO_LEADS, OTTO_HEARTBEATS, OTTO_OUTBOX, OTTO_EMAIL_STATE, OTTO_REPORT_STATE, OTTO_MOTION_ROOT. Exit: 0 ok · 1 something failed
 (an unreadable plans.json deletes nothing and sends nothing) · 2 usage. Stdlib only; every data.json write goes through
 ap.transaction().
 """
@@ -103,6 +103,10 @@ def outbox_dir():
 
 def email_state_path():
     return _env_path("OTTO_EMAIL_STATE", ap.DATA.parent / ".email-state.json")
+
+
+def report_state_path():
+    return _env_path("OTTO_REPORT_STATE", ap.DATA.parent / ".report-state.json")
 
 
 def motion_root():
@@ -584,7 +588,7 @@ def _notice_text(t, days):
             f"The plan of {name} ({bid}) ended on {t['ended']}. {RETENTION_DAYS} days after a plan ends Otto deletes the brand's "
             f"data from its live systems (Terms 17.3, DPA 9.2): brand profile, posts, campaigns, media, connections and access "
             f"tokens — in {days} day{'s' if days != 1 else ''}, on {t['effective']}. A zip export is made first and kept "
-            f"{EXPORT_KEEP_DAYS} days. To keep the data: start a plan again (Whop or the owner console), or hold it for a "
+            f"{EXPORT_KEEP_DAYS} days. To keep the data: start a plan again (a new subscription on the Billing page, or the owner console), or hold it for a "
             f"legal reason: otto_retention.py hold {bid}.")
 
 
@@ -744,7 +748,14 @@ def _drop_leads(pred):
 
 
 def _strip_state_files(bid):
-    """The brand's entries in .email-state.json, heartbeats.json and metrics_history.jsonl."""
+    """The brand's entries in .email-state.json, .report-state.json (the morning report's ledger), heartbeats.json and
+    metrics_history.jsonl."""
+    f = report_state_path()
+    if f.exists():
+        with _flock(f):
+            st = _read_json(f, {})
+            if isinstance(st.get("brands"), dict) and st["brands"].pop(bid, None) is not None:
+                ap._atomic_write(f, json.dumps(st, ensure_ascii=False, indent=1) + "\n")
     f = email_state_path()
     if f.exists():
         with _flock(f):

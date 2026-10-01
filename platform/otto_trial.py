@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""Otto free trial — 7 days, no card, one per Google account and per website domain; after it, a card (Whop checkout).
+"""Otto free trial — 7 days, no card, one per Google account and per website domain; after it, a card (Billing page, Stripe).
 
   otto_trial.py run [--now ISO] [--dry]      # the hourly job (otto_cron "trials"): ends trials, sends the reminder e-mails
   otto_trial.py status [--json]              # every trial: who (masked), brand, ends, days left, reminders, converted
-  otto_trial.py offers <email>               # the "add a card" links that e-mail would get (Whop checkout, e-mail prefilled)
+  otto_trial.py offers <email>               # the "add a card" offers (each opens the plan on the Billing page)
 
 Sign-up (otto_auth, first Google login): start_for_new_user gives the user trial_started_at = now, trial_ends_at = now +
 trial_days (plans.json: the plan named by defaults.trial, "trial", trial_days 7) and status "trial" — unless that e-mail had a
@@ -24,16 +24,22 @@ ap.set_plan with effective = the trial's end, so otto_retention's 90 days count 
 user becomes "expired". Reminder e-mails to the user (otto_email.deliver: its transport, or the outbox): day5 "2 days left"
 (48 hours before the end), day7 "ends today / tomorrow" (24 hours before), day8 "paused, your work is kept for 90 days — add
 a card to continue" (after the end) — each once (claimed in data.json before sending; a failed send is retried next hour;
-a reminder whose window has passed is never sent late, and day8 not more than 7 days late). Users without any brand, whose
+a reminder whose window has passed is never sent late, and day8 not more than 7 days late). Each reminder speaks the
+language the user's brand chose for e-mails (brands[].comms_lang, otto_i18n: en by default, nl, de), dates and prices in
+its locale. Users without any brand, whose
 trial is over and who have not signed in for 90 days, are removed (their sessions end); the ledger keeps the hashes only,
 for LEDGER_DAYS (3 years), then drops them.
-Paying: the "add a card" screen offers plans.json trial.checkout_plans (Starter, Growth) as Whop checkout links —
-https://whop.com/checkout/<whop plan id>?email=<the verified Google e-mail>&email.disabled=1 (Whop prefills and locks the
-e-mail field; whop.json "checkout_base" changes the host). A plan with no whop_plan_ids yet has no link (the screen says so).
-When Whop reports a running membership whose e-mail equals a signed-in user's verified Google e-mail, autolink() ties it to
-that user's trial brand (otto_whop.link: member, plan from whop_plan_ids, plan_until cleared, trial converted, user active) —
-safe because Google verified the address and the checkout locked it. Idempotent: a linked membership is never linked again.
-Everything else stays the owner's manual link (console → Customers → link).
+Paying (Stripe, otto_stripe; Whop is legacy): the "add a card" screen offers plans.json trial.checkout_plans (Starter,
+Growth); each opens Otto's own Billing page (app.<domain>/billing.html?plan=…), where the payment form is Stripe's embedded
+Checkout for that plan's stripe_price_ids. A plan with no price yet is "not on sale yet"; without Stripe keys every offer
+says "Payments aren't set up yet". A user who pays while their trial still runs is charged only when it ends (the
+subscription starts at the trial's end). The Checkout Session carries our signed reference (brand + user, HMAC), so the
+webhook links the subscription to exactly that brand: autolink() → otto_billing.link (member, plan from
+stripe_price_ids, plan_until cleared, trial converted, user active) — no e-mail matching for Stripe. Bought before the
+brand existed (the founding seat from the landing): link_pending() links it at onboarding, by the user id in the
+reference. Idempotent: a linked customer is never linked again. The legacy Whop memberships still link by the verified
+e-mail (autolink with provider "whop"). Everything else stays the owner's manual link (console → Customers → link).
+The reminder e-mails' "Add a card" button opens the Billing page (billing.html).
 Stdlib only; every data.json write goes through ap.transaction().
 """
 import hashlib, html, json, math, os, re, sys, urllib.parse
@@ -50,7 +56,6 @@ LEDGER_DAYS = 3 * 365          # the "one trial per e-mail / domain" hashes (Pri
 DAY8_LATE = timedelta(days=7)
 REMINDERS = (("day8", timedelta(0)), ("day7", timedelta(days=1)), ("day5", timedelta(days=2)))   # sent when this much is left
 RUNNING = ("active", "trialing", "past_due")
-WHOP_CHECKOUT = "https://whop.com/checkout/"
 
 
 def utcnow():
@@ -197,50 +202,61 @@ def when_text(dt, tz):
 
 # ------------------------------------------------------------------------------------------------------------ the app's view
 
-def plan_lines(p):
-    """A plan in three short lines for the "add a card" screen."""
+def plan_lines(p, t=None):
+    """A plan in three short lines for the "add a card" screen (English, the app's language) or a reminder e-mail (t)."""
+    import otto_i18n
+    t = t or otto_i18n.Tr()
     f, L = p["features"], p["limits"]
     out = []
     if L.get("posts_per_month"):
-        out.append(f"{L['posts_per_month']} posts a month, {L.get('reels_per_month') or 0} of them reels")
-    nets = " and ".join(n for n, k in (("Meta", "ads_meta"), ("Google", "ads_google")) if f.get(k))
+        out.append(t("trial.line.posts", posts=t.num(L["posts_per_month"]), reels=t.num(L.get("reels_per_month") or 0)))
+    nets = t.join([n for n, k in (("Meta", "ads_meta"), ("Google", "ads_google")) if f.get(k)])
     if nets:
         cap = L.get("ad_spend_managed_eur_month")
-        out.append(f"Paid campaigns on {nets}" + (f", ad spend up to €{cap:,.0f} a month" if cap else ""))
+        out.append(t("trial.line.paid", nets=nets) + (t("trial.line.cap", cap=t.money(cap, "EUR")) if cap else ""))
     if f.get("ad_matrix") and ap.PRESET_TEXT.get(L.get("ad_matrix_preset")):
-        out.append(f"Monthly ad matrix: {ap.PRESET_TEXT[L['ad_matrix_preset']]}")
+        out.append(t("trial.line.matrix", preset=t("preset." + L["ad_matrix_preset"])))
     return out
 
 
-def checkout_base():
+def billing_page(plan=None, interval=None):
+    """Otto's own Billing page on app.<domain> (otto_stripe.billing_url), optionally opened on one plan's checkout."""
     try:
-        import otto_whop
-        v = str(otto_whop.config().get("checkout_base") or "").strip()
-    except Exception:
-        v = ""
-    v = v if re.match(r"^https://[A-Za-z0-9.-]+/", v) else WHOP_CHECKOUT
-    return v if v.endswith("/") else v + "/"
+        import otto_stripe
+        return otto_stripe.billing_url(plan=plan, interval=interval)
+    except Exception:                                        # noqa: BLE001 — a link, never a reason to fail a page
+        import otto_paths
+        return otto_paths.app_url() + "billing.html" + (f"?plan={urllib.parse.quote(plan)}" if plan else "")
 
 
-def checkout_offers(email=None):
-    """[{plan, label, monthly_eur, yearly_eur, draft, lines, whop_plan, checkout_url}] — plans.json trial.checkout_plans
-    (default Starter and Growth). checkout_url is None while the plan has no Whop plan id."""
+def payments_ready():
+    try:
+        import otto_stripe
+        return otto_stripe.ready()
+    except Exception:                                        # noqa: BLE001
+        return False
+
+
+def checkout_offers(email=None, t=None):
+    """[{plan, label, monthly_eur, yearly_eur, draft, lines, on_sale, month, year, checkout_url, why}] — plans.json
+    trial.checkout_plans (default Starter and Growth). checkout_url opens the plan on Otto's Billing page; it is None while
+    the plan has no Stripe price (why "not_on_sale") or payments are not set up (why "not_configured"). t = the language of
+    the lines; email is kept for the callers' signature (the Billing page knows the signed-in user)."""
     cfg = ap.plans_config()
     _, tp = trial_plan()
     ids = (tp or {}).get("checkout_plans") or [x for x in ("starter", "growth") if x in cfg["plans"]]
-    base, out = checkout_base(), []
+    live, out = payments_ready(), []
     for pid in ids:
         p = cfg["plans"].get(pid)
         if not p:
             continue
-        whop = (p.get("whop_plan_ids") or [None])[0]
-        url = None
-        if whop:
-            url = base + urllib.parse.quote(whop, safe="")
-            if email:
-                url += "?" + urllib.parse.urlencode({"email": email, "email.disabled": "1"})
+        spi = p.get("stripe_price_ids") or {}
+        on_sale = bool(spi.get("monthly") or spi.get("yearly"))
+        why = None if live and on_sale else "not_configured" if not live else "not_on_sale"
         out.append({"plan": pid, "label": p["label"], "monthly_eur": p.get("monthly_eur"), "yearly_eur": p.get("yearly_eur"),
-                    "draft": p.get("status") == "draft", "lines": plan_lines(p), "whop_plan": whop, "checkout_url": url})
+                    "draft": p.get("status") == "draft", "lines": plan_lines(p, t), "on_sale": on_sale,
+                    "month": bool(spi.get("monthly")), "year": bool(spi.get("yearly")), "why": why,
+                    "checkout_url": billing_page(pid) if why is None else None})
     return out
 
 
@@ -270,9 +286,14 @@ def account_view(d, u, now=None):
     brands = [{"id": b["id"], "name": b.get("name") or b["id"], "plan": ap.plan_of(d, b["id"])["id"],
                "trial_ended": ap.trial_ended(d, b["id"])} for b in d.get("brands") or [] if isinstance(b, dict) and b.get("id") in bids]
     needs_card = tr["state"] != "converted" and (tr["state"] in ("running", "ended", "none") or any(x["trial_ended"] for x in brands))
+    try:
+        import otto_billing
+        bill = otto_billing.user_summary(d, u)
+    except Exception:                                        # noqa: BLE001 — the account works without billing.json
+        bill = []
     return {"signed_in": True, "email": u["email"], "name": u.get("name") or "", "status": u.get("status") or "none",
             "trial": tr, "brands": brands, "checkout": checkout_offers(u["email"]) if needs_card else [],
-            "billing_email": u["email"]}
+            "billing_email": u["email"], "billing": bill, "payments": payments_ready(), "billing_url": billing_page()}
 
 
 def domain_ok(u):
@@ -302,14 +323,15 @@ def paywall(d, bids, u=None, now=None):
                                     DENIED.get(why, DENIED["ended"]) + " Add a card to start."),
             "ended_at": iso(ended_at) if ended_at else None,
             "kept_until": iso(ended_at + timedelta(days=RETENTION_DAYS)) if ended_at else None,
-            "brands": rows, "checkout": checkout_offers(email), "billing_email": email}
+            "brands": rows, "checkout": checkout_offers(email), "billing_email": email, "payments": payments_ready(),
+            "billing_url": billing_page()}
 
 
-# ------------------------------------------------------------------------------------------------------------ Whop: pay → link
+# ------------------------------------------------------------------------------------------------------------ paid → linked
 
 def _brand_for(d, u, billing):
-    """The user's brand a new membership belongs to: a trial brand of theirs (ended first, then running) that no running
-    membership is linked to yet."""
+    """The user's brand a new subscription belongs to when our reference names no brand (bought before onboarding): a trial
+    brand of theirs (ended first, then running) that no running subscription is linked to yet."""
     taken = {c.get("brand_id") for c in (billing.get("customers") or {}).values()
              if isinstance(c, dict) and c.get("brand_id") and c.get("status") in RUNNING}
     mine = [b for b in d.get("brands") or [] if isinstance(b, dict) and b.get("id") in (u.get("brands") or [])
@@ -318,33 +340,57 @@ def _brand_for(d, u, billing):
     return mine[0]["id"] if mine else None
 
 
-def autolink(c, by="auto: verified Google e-mail"):
-    """A Whop customer (billing.json record) whose e-mail equals a signed-in user's verified Google e-mail → otto_whop.link
-    to that user's trial brand. Only a running membership on a plan plans.json maps; never one that is linked already.
-    → the linked customer (otto_whop.link's answer) or None."""
-    import otto_whop
-    email = str((c or {}).get("email") or "").strip().lower()
-    if not email or c.get("brand_id") or c.get("status") not in RUNNING or not ap.plan_for_whop(c.get("plan_id")):
+def autolink(c, by=None):
+    """A running customer that is not linked yet → otto_billing.link to its brand. Stripe: the brand + user of our signed
+    checkout reference (c["ref"], verified by otto_stripe) — the user must still exist and belong to that brand; a reference
+    without a brand (paid before onboarding) takes the user's own trial brand, if any (else link_pending at onboarding).
+    Legacy Whop: the membership's e-mail equals a signed-in user's verified Google e-mail and the Whop plan is mapped.
+    Never a customer that is linked already. → the linked customer (otto_billing.link's answer) or None."""
+    import otto_billing
+    if not c or c.get("brand_id") or c.get("status") not in RUNNING:
         return None
+    fresh = (otto_billing.load().get("customers") or {}).get(c.get("id")) or {}
+    if fresh.get("brand_id"):
+        return None                                            # linked meanwhile (a retry of the same event, the console)
     d = ap.load()
+    if otto_billing.provider_of(c) == "stripe":
+        ref = c.get("ref") if isinstance(c.get("ref"), dict) else None
+        u = next((x for x in users(d) if ref and x.get("id") == ref.get("user")), None)
+        if u is None:
+            return None
+        bid = ref.get("brand")
+        if bid:
+            if ap.brand(d, bid) is None or bid not in (ap.member_brands(d, u["email"], domains=domain_ok(u)) | set(u.get("brands") or [])):
+                return None                                    # the brand is gone, or no longer theirs: the owner decides
+        else:
+            bid = _brand_for(d, u, otto_billing.load())
+            if not bid:
+                return None
+        return otto_billing.link(c["id"], bid, by=by or "auto: signed checkout reference")
+    email = str(c.get("email") or "").strip().lower()                    # legacy Whop: the verified Google e-mail
+    if not email or not ap.plan_for_whop(c.get("plan_id")):
+        return None
     u = user_by_email(d, email)
     if u is None or not u.get("google_sub"):
         return None
-    fresh = (otto_whop.load().get("customers") or {}).get(c.get("id")) or {}
-    if fresh.get("brand_id"):
-        return None                                            # linked meanwhile (a retry of the same event, the console)
-    bid = _brand_for(d, u, otto_whop.load())
+    bid = _brand_for(d, u, otto_billing.load())
     if not bid:
         return None
-    return otto_whop.link(c["id"], bid, by=by)
+    import otto_whop
+    return otto_whop.link(c["id"], bid, by=by or "auto: verified Google e-mail")
 
 
 def link_pending(u):
-    """At onboarding: a membership bought with this user's e-mail before the brand existed is linked now. → customer or None."""
-    import otto_whop
+    """At onboarding: a subscription / seat this user paid for before the brand existed is linked now (Stripe: by the user id
+    in our signed reference; legacy Whop: by the verified e-mail). → the linked customer or None."""
+    import otto_billing
     email = str((u or {}).get("email") or "").lower()
-    for c in (otto_whop.load().get("customers") or {}).values():
-        if isinstance(c, dict) and str(c.get("email") or "").lower() == email and not c.get("brand_id"):
+    for c in (otto_billing.load().get("customers") or {}).values():
+        if not isinstance(c, dict) or c.get("brand_id"):
+            continue
+        mine = ((c.get("ref") or {}).get("user") == (u or {}).get("id")) if otto_billing.provider_of(c) == "stripe" \
+            else str(c.get("email") or "").lower() == email
+        if mine:
             out = autolink(c)
             if out:
                 return out
@@ -358,6 +404,15 @@ def _tz_for(d, u):
         if isinstance(b, dict) and b.get("id") in (u.get("brands") or []):
             return ap.brand_tz(b), b.get("name") or b["id"], b["id"]
     return owner_tz(), "", "account"
+
+
+def _tr_for(d, u):
+    """The reminder's language: the comms_lang of the user's first brand (otto_i18n), else English."""
+    import otto_i18n
+    for b in d.get("brands") or []:
+        if isinstance(b, dict) and b.get("id") in (u.get("brands") or []):
+            return otto_i18n.Tr.for_brand(b)
+    return otto_i18n.Tr()
 
 
 def due_reminder(u, now):
@@ -378,49 +433,43 @@ def due_reminder(u, now):
 
 
 def render(key, u, d, now):
-    """→ (subject, html, text) of one reminder."""
+    """→ (subject, html, text) of one reminder, in the comms_lang of the user's brand (English by default)."""
     import otto_email as em
     tz, name, _ = _tz_for(d, u)
+    t = _tr_for(d, u)
     ends = _dt(u["trial_ends_at"])
     loc_end, loc_now = ends.astimezone(tz), now.astimezone(tz)
-    when = when_text(ends, tz)
-    link = em.app_url() + "#billing"
-    who = name or "your business"
+    when = t.day_at(loc_end)
+    link = em.app_url() + "billing.html"                         # Otto's Billing page: choose a plan, add a card
+    who = name or t("trial.your_business")
     kept = (ends + timedelta(days=RETENTION_DAYS)).astimezone(tz)
-    offers = [o for o in checkout_offers(u["email"]) if o.get("monthly_eur") is not None]
-    price = (" Plans start at €" + f"{min(o['monthly_eur'] for o in offers):g}" + " a month.") if offers else ""
+    offers = checkout_offers(u["email"], t)
+    monthly = [o for o in offers if o.get("monthly_eur") is not None]
+    price = t("trial.price", price=t.money(min(o["monthly_eur"] for o in monthly), "EUR")) if monthly else ""
     if key == "day5":
-        subject = "2 days left in your Otto trial"
-        title = "2 days left in your free trial"
-        lead = (f"Your free trial of Otto ends on {when}. To keep {who} publishing without a break, choose a plan and add a card."
-                f"{price} You pay only when you check out — nothing is charged automatically.")
-        cta = "Add a card"
+        subject, title = t("trial.day5.subject"), t("trial.day5.title")
+        lead = t("trial.day5.lead", when=when, who=who, price=price)
+        cta = t("trial.cta")
     elif key == "day7":
-        today = loc_end.date() == loc_now.date()
-        subject = f"Your Otto trial ends {'today' if today else 'tomorrow'}"
-        title = f"Your free trial ends {'today' if today else 'tomorrow'}"
-        lead = (f"At {loc_end:%H:%M} ({loc_end:%a} {loc_end.day} {loc_end:%b}) publishing and ads pause for {who}. Add a card now and "
-                f"nothing stops.{price}")
-        cta = "Add a card"
+        w = "today" if loc_end.date() == loc_now.date() else "tomorrow"
+        subject, title = t(f"trial.day7.subject_{w}"), t(f"trial.day7.title_{w}")
+        lead = t("trial.day7.lead", time=t.time(loc_end), day=t.day(loc_end), who=who, price=price)
+        cta = t("trial.cta")
     else:
-        subject = f"Your Otto trial has ended — {who} is paused" if name else "Your Otto trial has ended"
-        title = "Your free trial has ended"
-        lead = ((f"Publishing and ads are paused for {who}. Your work — brand profile, plan, posts and ad previews — is kept for "
-                 f"90 days, until {kept:%a} {kept.day} {kept:%b}. Add a card to continue where you left off.") if name else
-                "Add a card whenever you're ready to start: Otto sets up your first week as soon as you do.")
-        cta = "Add a card to continue"
+        subject = t("trial.day8.subject_named", who=who) if name else t("trial.day8.subject")
+        title = t("trial.day8.title")
+        lead = t("trial.day8.lead_named", who=who, kept=t.day(kept)) if name else t("trial.day8.lead")
+        cta = t("trial.cta_continue")
     E = em.esc
     btn = em.button(cta, link, primary=True)
-    lines = "".join(f'<p style="{em.fstyle(14, 20, 400, em.L["ink2"])}">{E(o["label"])}'
-                    f'{" · €" + format(o["monthly_eur"], "g") + " a month" if o.get("monthly_eur") is not None else ""}'
-                    f'{" — " + E("; ".join(o["lines"][:2])) if o["lines"] else ""}</p>' for o in checkout_offers(u["email"]))
+    per = lambda o: (" · " + t("trial.a_month", price=t.money(o["monthly_eur"], "EUR"))) if o.get("monthly_eur") is not None else ""
+    lines = "".join(f'<p style="{em.fstyle(14, 20, 400, em.L["ink2"])}">{E(o["label"])}{E(per(o))}'
+                    f'{" — " + E("; ".join(o["lines"][:2])) if o["lines"] else ""}</p>' for o in offers)
     blocks = [em.card(lines + '<div style="margin-top:14px;">' + btn + "</div>") if lines else em.card(btn)]
-    foot = (f"You get this because you started a free Otto trial with {E(u['email'])}. There is no card on file, so nothing is "
-            "charged unless you check out. Use the same e-mail at checkout: that is how Otto knows the payment is yours.")
-    html_body = em.layout(subject, lead[:120], name, title, E(lead), blocks, foot)
-    text = f"{title}\n\n{lead}\n\n{cta}: {link}\n\n" + "".join(
-        f"- {o['label']}{' · €' + format(o['monthly_eur'], 'g') + ' a month' if o.get('monthly_eur') is not None else ''}\n"
-        for o in checkout_offers(u["email"])) + f"\nYou get this because you started a free Otto trial with {u['email']}.\n"
+    foot = E(t("trial.why", email=u["email"])) + " " + E(t("trial.terms"))
+    html_body = em.layout(subject, lead[:120], name, title, E(lead), blocks, foot, lang=t.lang)
+    text = f"{title}\n\n{lead}\n\n{cta}: {link}\n\n" + "".join(f"- {o['label']}{per(o)}\n" for o in offers) + \
+        f"\n{t('trial.why', email=u['email'])} {t('trial.terms')}\n"
     return subject, html_body, text
 
 
@@ -467,7 +516,7 @@ def expire(now=None, out=print):
             ap.add_rec(d, "P2", f"{name}: free trial ended without a card",
                        f"The 7-day trial of {name}" + (f" ({mask(u.get('email'))})" if u else "") + f" ended on {iso(end)[:10]}. "
                        "Publishing and ads are paused and the client got the “add a card” e-mail. Nothing was deleted: the data "
-                       "is kept 90 days (otto_retention). Linking a Whop membership resumes it.",
+                       "is kept 90 days (otto_retention). A subscription (Billing page) or a plan set in the console resumes it.",
                        "A trial that did not convert", "Follow up if it was a good fit", brand=b["id"], source="trials",
                        audience="owner", action="trial")
             done.append(b["id"])

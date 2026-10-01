@@ -109,7 +109,7 @@ These are the measures Otto takes today, as built into its server and software. 
 
 - Every request reaches the server through Cloudflare. The server's firewall refuses all incoming traffic except web traffic from Cloudflare's published address ranges (updated automatically) and SSH.
 - SSH: keys only, password login switched off, connection attempts rate-limited and repeat offenders blocked (fail2ban); optionally limited to our own addresses.
-- Encrypted connections everywhere: browser to Cloudflare, and Cloudflare to our server with an origin certificate in "Full (strict)" mode; HTTP Strict Transport Security. The server calls Meta, Google, Whop and the AI providers over HTTPS.
+- Encrypted connections everywhere: browser to Cloudflare, and Cloudflare to our server with an origin certificate in "Full (strict)" mode; HTTP Strict Transport Security. The server calls Meta, Google, Stripe and the AI providers over HTTPS.
 - Rate limits for the public addresses (website scan, statistics, onboarding, payment notifications) at Cloudflare and again inside the API, plus request size limits.
 
 ### Who can get in
@@ -118,7 +118,7 @@ These are the measures Otto takes today, as built into its server and software. 
 - The owner console is limited to named members of the Otto team. Every action taken there (pausing, approving a campaign on a client's written request, changing a plan) is logged with who did it and when.
 - Our web server removes any identity headers a browser tries to send; the API accepts the signed-in identity only from our web server, which proves itself with a secret key.
 - Meta and Google are connected through their own sign-in (OAuth). Otto never sees the Client's passwords. Access tokens are stored per brand in files readable only by the Otto service account, and the Client can revoke them in Meta or Google at any time.
-- Payment notifications from Whop are accepted only with a valid signature, only if less than 5 minutes old, and each only once.
+- Payment notifications from Stripe (and, for the legacy founding seats, Whop) are accepted only with a valid signature, only if less than 5 minutes old, and each only once. Card and bank details are entered in Stripe's own form inside Otto's Billing page and never reach Otto's server.
 
 ### Keeping clients apart
 
@@ -168,4 +168,5 @@ The current list, which Otto keeps up to date on its [Sub-processors](subprocess
 | Higgsfield AI, USA [VERIFY: contracting entity] | Voice-over and video generation for some reels (ElevenLabs voices used through Higgsfield) | Scripts and visual prompts | USA [VERIFY] | [VERIFY: DPA with standard contractual clauses] |
 | Telegram [VERIFY: contracting entity], only for clients who choose Telegram | Delivers approval cards, reports and alerts | Post previews and captions, report text, the client's Telegram user ID | [VERIFY] | [REVIEW: Telegram offers no data processing agreement; treat it as a channel the client chooses, or offer it outside the EU only] |
 | [EMAIL PROVIDER], from the launch of e-mail approvals | Sends approval and report e-mails | Recipient e-mail address, message content | [VERIFY] | [VERIFY] |
+| Stripe Payments Europe, Ltd., Ireland (with Stripe, Inc., USA) | Payment processing for Otto's own subscriptions: the payment form inside Otto's Billing page, subscriptions, invoices and receipts, VAT calculation (Stripe Tax) | Billing contacts of clients (name, e-mail, billing address, VAT ID), plan and payment history; card and bank details go to Stripe directly and never to Otto | EU and USA | EU–US Data Privacy Framework; standard contractual clauses in Stripe's DPA [REVIEW: Stripe is a processor for billing, invoicing and tax, and an independent controller for payment processing, fraud prevention and its legal duties (Stripe's DPA and privacy policy)] |
 <!-- subprocessors:end -->

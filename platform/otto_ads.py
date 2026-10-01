@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Otto paid layer — Facebook (Meta) + Google Ads on the same rails as organic.
 
-  otto_ads.py report  [--brand <id>] [--days 7] [--dry] [--no-send]   # daily paid report → data.json + Telegram (07:35)
+  otto_ads.py report  [--brand <id>] [--days 7] [--dry] [--no-send]   # daily paid numbers → data.json (+ Telegram block unless --no-send); cron 07:15, read by the 07:35 morning report
   otto_ads.py plan    <brand> <YYYY-MM> [--budget 20] [--dry]          # month of campaign flights (the paid Gantt) → campaigns[] drafts + ads-plan md + one rec
   otto_ads.py approve <brand> <YYYY-MM>                                # owner said yes → drafts become approved
   otto_ads.py launch  [--brand <id>] [--dry]                           # approved flights that start today → created on Meta / Google (cron 06:00)
@@ -378,8 +378,18 @@ def suggest(d, bid, adsb, cur):
     title = f"Pause “{names[rid][:40]}” — CPL above target 3 days running"
     ap.add_rec_once(d, "P1", title, f"Target CPL {ap.money(target, cur)}; this campaign has been above it three days in a row. "
                     "Pausing moves the budget to the best performer.", "Stops the bleed the same day", "Pause it", brand=bid,
-                    source="otto_ads", action="pause_campaign", campaign_id=ours["id"] if ours else None, remote_campaign_id=rid)
+                    source="otto_ads", action="pause_campaign", campaign_id=ours["id"] if ours else None, remote_campaign_id=rid,
+                    i18n={"key": "rec.pause", "args": {"campaign": names[rid][:40], "target": _i18n_money(d, bid, target, cur)}})
     return f"Suggested: pause “{names[rid][:40]}” (3 days above target CPL) — card sent."
+
+
+def _i18n_money(d, bid, amount, cur):
+    """An amount in the brand's language, for a card's i18n args (otto_report.rec_text shows it in the client's e-mail)."""
+    try:
+        import otto_i18n
+        return otto_i18n.Tr.for_brand(ap.brand(d, bid) or {}).money(amount, ap.currency_code(cur) or cur, 2)
+    except Exception:                                          # noqa: BLE001
+        return ap.money(amount, cur)
 
 
 def notify(text):

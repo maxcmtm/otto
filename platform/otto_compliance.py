@@ -443,7 +443,8 @@ def file_block(d, bid, subject, violations, source, **fields):
                                                            if ccs else "") + ".")
     return ap.add_rec_once(d, "P1", f"Compliance hold: {subject[:70]}", " ".join(parts),
                            "Keeps the ad account and the brand out of policy trouble", "Review" if review and not blocks else "Rewrite",
-                           brand=bid, source=source, compliance=[v.get("id") or v["rule"] for v in violations][:6], **fields)
+                           brand=bid, source=source, compliance=[v.get("id") or v["rule"] for v in violations][:6],
+                           i18n={"key": "rec.compliance_hold", "args": {"subject": subject[:70]}}, **fields)
 
 
 # ---------------------------------------------------------------------------------------------------------------

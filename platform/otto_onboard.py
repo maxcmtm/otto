@@ -18,8 +18,8 @@ for the same site updates the same brand, never a second one):
   brands/<slug>/compliance.json    only when the owner listed words to avoid: merged into an existing file, or created
                                    with the health baseline included for a health brand (a new file must not drop it)
   data.json                        one ap.transaction(): brands[] (status "onboarding", plan plans.json defaults.new —
-                                   "starter" — flagged plan_billing "not_billed" while no Whop plan sells it, until a
-                                   membership is linked; an existing brand keeps its status and plan), connections[] as
+                                   "starter" — flagged plan_billing "not_billed" while no price sells it, until a
+                                   subscription is linked; an existing brand keeps its status and plan), connections[] as
                                    "not_connected" (never connected here — OAuth happens later),
                                    one P0 recommendation per missing connection (add_rec_once)
 Returns {"ok", "brand", "created", "files", "scan", "first_week", "first_review", "next_steps"}.
@@ -29,10 +29,14 @@ answers (every field optional; unknown keys are ignored, bad values raise ValueE
    "budget_amount": number, "objection": str, "never_say": str, "tz": "Europe/Berlin",
    "corrections": {"name", "industry", "description", "prices": [..], "fonts": [..], "palette": ["#RRGGBB"..],
                    "language": "en", "logo_wrong": bool, "proof": [..]},
-   "channels": {"meta": bool, "google_ads": bool, "telegram": bool}, "approvals": "email|telegram|app"}
+   "channels": {"meta": bool, "google_ads": bool, "telegram": bool}, "approvals": "email|telegram|app", "comms_lang": "en|nl|de"}
   approvals: how posts reach the owner for approval — "email" (the default for new onboarding: a morning digest with one-tap
   buttons, otto_email), "telegram", or "app" (only the app's Review). A brand created here gets brands[].approvals; an existing
   brand keeps its own (the client changes it in the app's Settings).
+  comms_lang: the language of what Otto sends the owner (e-mails, the 07:35 report, one-tap pages, Telegram cards —
+  otto_i18n): "en" (the default: missing = English), "nl" or "de"; anything else is refused. Not the content language
+  (corrections.language: what the posts are written in). A brand created here gets brands[].comms_lang; an existing brand
+  keeps its own (Settings).
 
 http_create() is the body of POST /otto-api/onboard (otto_api.py wires it after its JSON + Origin checks): per-IP rate
 limit, at most two creates at once, and the client's own peek is never trusted (the server's cached one is).
@@ -51,6 +55,7 @@ from zoneinfo import ZoneInfo
 
 import ap
 import otto_compliance
+import otto_i18n
 import otto_plan
 import otto_scan
 import otto_strategy
@@ -95,9 +100,10 @@ LEAD_INDUSTRIES = re.compile(r"clinic|education|legal|real estate|coaching|home|
 SHOP_PLATFORM = re.compile(r"shopify|woocommerce|magento|bigcommerce|shopware|prestashop", re.I)   # as otto_ads.is_shop
 SHOP_INDUSTRY = re.compile(r"e-commerce|retail|supplement|nutrition|cbd", re.I)
 RESTRICTED = re.compile(r"cbd|hemp|cannab|clinic|medical|therap|psycholog|legal|finance", re.I)     # the brand-add note
-REVIEW_TIME = "08:00"          # approval cards (Telegram) and e-mails go out at 08:00 brand time: the first review
-FIRST_REVIEW = {"email": "by e-mail at 08:00, or in the app",
-                "telegram": "in Telegram at 08:00, after the 07:35 morning report, or in the app",
+REVIEW_TIME = "08:00"          # the app's Review fills at 08:00 brand time
+REPORT_TIME = "07:35"          # e-mail and Telegram approvals arrive with the 07:35 morning report (otto_report)
+FIRST_REVIEW = {"email": "by e-mail in the 07:35 morning report, or in the app",
+                "telegram": "in Telegram right after the 07:35 morning report, or in the app",
                 "app": "in the app's Review from 08:00"}
 
 
@@ -215,7 +221,8 @@ class Exists(ValueError):
 
 LABELS = {"goal_note": "The note on your goal", "objection": "What customers say", "never_say": "Words to avoid", "tz": "Time zone",
           "name": "Business name", "industry": "Industry", "description": "Description", "prices": "Prices", "fonts": "Fonts",
-          "proof": "Proof", "language": "Language", "goal": "Goal", "budget": "Monthly ad budget", "approvals": "Approvals"}
+          "proof": "Proof", "language": "Language", "goal": "Goal", "budget": "Monthly ad budget", "approvals": "Approvals",
+          "comms_lang": "Language for e-mails and reports"}
 
 
 def label(field):
@@ -319,6 +326,10 @@ def clean_answers(a):
     out["approvals"] = appr
     if appr == "telegram":
         out["channels"]["telegram"] = True
+    cl = _text(a.get("comms_lang"), 5, "comms_lang").lower() or "en"
+    if cl not in otto_i18n.COMMS_LANGS:
+        raise ValueError("The language for e-mails and reports must be English, Nederlands or Deutsch")
+    out["comms_lang"] = cl
     return out
 
 
@@ -435,18 +446,18 @@ def brand_name(s, host):
 # first week preview
 # ---------------------------------------------------------------------------------------------------------------
 
-def first_review_at(tz, now=None):
-    """When the owner's first review lands: the next 08:00 brand time (the approval cards and e-mails; Telegram's 07:35 morning
-    report comes just before) at least six hours from now."""
+def first_review_at(tz, now=None, approvals=None):
+    """When the owner's first review lands, at least six hours from now: the next 07:35 brand time for e-mail and Telegram
+    approvals (they come with the morning report), the next 08:00 for the app."""
     now = now or datetime.now(tz)
-    h, m = (int(x) for x in REVIEW_TIME.split(":"))
+    h, m = (int(x) for x in (REPORT_TIME if approvals in ("email", "telegram") else REVIEW_TIME).split(":"))
     t = now.replace(hour=h, minute=m, second=0, microsecond=0)
     while t - now < timedelta(hours=6):
         t += timedelta(days=1)
     return t
 
 
-def first_week(d, slug, now=None):
+def first_week(d, slug, now=None, approvals=None):
     """The posts of the first seven days after the first review: the brand's real planned posts when a plan exists,
     else otto_plan's own slot logic run as a dry build (nothing is written). Every slot — like first_review — is the
     brand's wall-clock time as ISO 8601 with its UTC offset ("2026-10-02T09:00+02:00")."""
@@ -455,7 +466,7 @@ def first_week(d, slug, now=None):
         return [], None
     tz = ap.brand_tz(b)
     now = now or datetime.now(tz)
-    start = first_review_at(tz, now)
+    start = first_review_at(tz, now, approvals)
     end = start + timedelta(days=7)
     within = lambda slot: start < datetime.fromisoformat(slot).replace(tzinfo=tz) <= end
     real = [p for p in d.get("posts", []) if p.get("brand") == slug and p.get("slot") and ap.slot_dt(p, b)
@@ -511,13 +522,20 @@ def _profile_answers(a, s, restricted):
     return "\n".join(lines) + "\n"
 
 
+STEP_I18N = {"meta": "rec.connect_meta", "telegram": "rec.pair_telegram", "google_ads": "rec.connect_google"}
+
+
 def _rec_once(d, slug, step, prio, title, why, impact, cta):
-    """One open next-step card per brand and onboarding step: a re-run (or a renamed brand) updates it in place."""
+    """One open next-step card per brand and onboarding step: a re-run (or a renamed brand) updates it in place. The card
+    carries an i18n key (otto_i18n rec.*) so the client's e-mail / Telegram shows it in the brand's language."""
+    name = (ap.brand(d, slug) or {}).get("name") or slug
+    spec = {"key": STEP_I18N[step], "args": {"name": name}} if step in STEP_I18N else None
     for r in d.get("recommendations", []):
         if r.get("brand") == slug and r.get("onboard_step") == step and r.get("status") == "proposed":
-            r.update(title=title, why=why)
+            r.update(title=title, why=why, **({"i18n": spec} if spec else {}))
             return r
-    return ap.add_rec(d, prio, title, why, impact, cta, brand=slug, source="otto_onboard", onboard_step=step)
+    return ap.add_rec(d, prio, title, why, impact, cta, brand=slug, source="otto_onboard", onboard_step=step,
+                      **({"i18n": spec} if spec else {}))
 
 
 def _may_update(allow_update, bid):
@@ -582,7 +600,8 @@ def create(site, answers=None, peek=None, dry=False, scan=True, deadline=40.0, n
     note = "Restricted category on Meta: organic first, claims checked on every post" if RESTRICTED.search(industry) else ""
     stamp = ap.now_iso()
     onboarding = {"source": "onboarding.html", "updated_at": stamp, "goal": a["goal"], "budget": a["budget"],
-                  "approvals": a["approvals"], "channels": a["channels"], "scan": scan_info.get("source") or "none"}
+                  "approvals": a["approvals"], "comms_lang": a.get("comms_lang") or "en", "channels": a["channels"],
+                  "scan": scan_info.get("source") or "none"}
     wanted = [(k, sv) for k, sv in (("meta", "Instagram + Facebook"), ("google_ads", "Google Ads"), ("telegram", "Telegram"))
               if a["channels"].get(k)]
 
@@ -599,9 +618,10 @@ def create(site, answers=None, peek=None, dry=False, scan=True, deadline=40.0, n
             if not created and not _may_update(allow_update, existing["id"]):
                 raise Exists("this site is already set up with Otto: sign in to change it")
             if created:
-                plan_id, billing = ap.new_brand_plan()      # "starter"; "not billed yet" until a Whop membership is linked
+                plan_id, billing = ap.new_brand_plan()      # "starter"; "not billed yet" until a subscription is linked
                 b = {"id": slug, "name": name, "url": key, "lang": lang, "tz": tz, "status": "onboarding",
-                     "pillars": pillars_for(industry), "compliance": note, "plan": plan_id, "approvals": a["approvals"]}
+                     "pillars": pillars_for(industry), "compliance": note, "plan": plan_id, "approvals": a["approvals"],
+                     "comms_lang": a.get("comms_lang") or "en"}
                 if billing:
                     b["plan_billing"] = billing
                 if country:
@@ -719,7 +739,7 @@ def create(site, answers=None, peek=None, dry=False, scan=True, deadline=40.0, n
         if created:
             d.setdefault("brands", []).append({"id": slug, "name": name, "url": key, "tz": tz, "pillars": pillars_for(industry),
                                                "plan": ap.new_brand_plan()[0]})
-    week, review = first_week(d, slug, now=now)
+    week, review = first_week(d, slug, now=now, approvals=a.get("approvals"))
     b = ap.brand(d, slug) or {}
     months = sorted({x["slot"][:7] for x in week}) or [(review or datetime.now()).strftime("%Y-%m")]
     stories = sum(1 for x in week if x.get("format") == "story")

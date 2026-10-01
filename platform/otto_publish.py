@@ -230,7 +230,18 @@ def _stuck_rec(d, q):
                     f"{q['id']} was sent to Meta at {q.get('publishing_at')} but Otto never got a confirmation"
                     f"{' (' + q['error'][:160] + ')' if q.get('error') else ''}. It will NOT be retried automatically. "
                     "Check the page: if it is live, mark it published; if not, send it back to review.",
-                    "Prevents a double post", "Check page", brand=q["brand"], source="otto_publish", post=q["id"])
+                    "Prevents a double post", "Check page", brand=q["brand"], source="otto_publish", post=q["id"],
+                    i18n={"key": "rec.check_live", "args": {"hook": q.get("hook", "")[:60]}})
+
+
+def _when(d, q, slot):
+    """The slot as the brand's client reads it (otto_i18n), for a card's i18n args."""
+    try:
+        import otto_i18n
+        b = ap.brand(d, q.get("brand")) or {}
+        return otto_i18n.Tr.for_brand(b).day_time(slot.astimezone(ap.brand_tz(b)))
+    except Exception:                                          # noqa: BLE001
+        return slot.strftime("%a %d %b %H:%M")
 
 
 def _mark(pid, fn):
@@ -251,7 +262,8 @@ def publish_one(p, slot, missed, dry, grace, base):
                     q["status"] = "failed"; q["error"] = f"missed slot by more than {grace} min"
                     ap.add_rec_once(d, "P0", f"Missed publish: {q.get('hook','')[:60]}",
                                     f"{pid} was approved for {slot.strftime('%a %d %b %H:%M')} but never went out (publisher had no credentials or failed 3 times).",
-                                    "Keeps the calendar honest", "Reschedule", brand=q["brand"], source="otto_publish", post=pid)
+                                    "Keeps the calendar honest", "Reschedule", brand=q["brand"], source="otto_publish", post=pid,
+                                    i18n={"key": "rec.missed", "args": {"hook": q.get("hook", "")[:60], "when": _when(d, q, slot)}})
             _mark(pid, fn)
             log(f"MISSED {tag}")
         return
@@ -263,7 +275,8 @@ def publish_one(p, slot, missed, dry, grace, base):
                     q["status"] = "failed"; q["error"] = "LinkedIn publishing is not supported yet — post it by hand"
                     ap.add_rec_once(d, "P1", f"Post by hand on LinkedIn: {q.get('hook','')[:60]}",
                                     f"{pid} is approved for LinkedIn ({slot.strftime('%a %d %b %H:%M')}), which Otto cannot publish to yet.",
-                                    "The post still goes out on time", "Open post", brand=q["brand"], source="otto_publish", post=pid)
+                                    "The post still goes out on time", "Open post", brand=q["brand"], source="otto_publish", post=pid,
+                                    i18n={"key": "rec.linkedin", "args": {"hook": q.get("hook", "")[:60], "when": _when(d, q, slot)}})
             _mark(pid, fn)
             log(f"SKIP-LI {tag}")
         return
@@ -325,7 +338,8 @@ def publish_one(p, slot, missed, dry, grace, base):
                 if q["attempts"] >= 3 and q["status"] in ("approved", "scheduled"):
                     q["status"] = "failed"
                     ap.add_rec_once(d, "P0", f"Publishing failed 3×: {q.get('hook','')[:60]}", msg[:300],
-                                    "Post stays unpublished until fixed", "Open post", brand=q["brand"], source="otto_publish", post=pid)
+                                    "Post stays unpublished until fixed", "Open post", brand=q["brand"], source="otto_publish", post=pid,
+                                    i18n={"key": "rec.publish_failed", "args": {"hook": q.get("hook", "")[:60]}})
             _mark(pid, fn)
             log(f"FAIL {tag}: {msg}")
         else:

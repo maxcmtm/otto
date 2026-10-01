@@ -22,6 +22,7 @@ These are the companies that process personal data for Otto when we work for our
 | Higgsfield AI, USA [VERIFY: contracting entity] | Voice-over and video generation for some reels (ElevenLabs voices used through Higgsfield) | Scripts and visual prompts | USA [VERIFY] | [VERIFY: DPA with standard contractual clauses] |
 | Telegram [VERIFY: contracting entity], only for clients who choose Telegram | Delivers approval cards, reports and alerts | Post previews and captions, report text, the client's Telegram user ID | [VERIFY] | [REVIEW: Telegram offers no data processing agreement; treat it as a channel the client chooses, or offer it outside the EU only] |
 | [EMAIL PROVIDER], from the launch of e-mail approvals | Sends approval and report e-mails | Recipient e-mail address, message content | [VERIFY] | [VERIFY] |
+| Stripe Payments Europe, Ltd., Ireland (with Stripe, Inc., USA) | Payment processing for Otto's own subscriptions: the payment form inside Otto's Billing page, subscriptions, invoices and receipts, VAT calculation (Stripe Tax) | Billing contacts of clients (name, e-mail, billing address, VAT ID), plan and payment history; card and bank details go to Stripe directly and never to Otto | EU and USA | EU–US Data Privacy Framework; standard contractual clauses in Stripe's DPA [REVIEW: Stripe is a processor for billing, invoicing and tax, and an independent controller for payment processing, fraud prevention and its legal duties (Stripe's DPA and privacy policy)] |
 <!-- subprocessors:end -->
 
 [ENGINEERING: until Otto moves to the Hetzner server (a pre-launch item in docs/HOSTING.md), production runs on an Amazon Web Services server shared with other projects. Move before the first EU client, or add AWS to this list with its region.]
@@ -29,7 +30,7 @@ These are the companies that process personal data for Otto when we work for our
 ## Services that are not our sub-processors
 
 - **Meta** (Facebook, Instagram and Meta ads; Meta Platforms Ireland Ltd) and **Google** (Google Ads; Google Ireland Ltd). Otto publishes posts and runs campaigns in the client's own accounts, with the permissions the client grants. Meta and Google act under the client's own contract with them. Separately, when a visitor to Otto's own website accepts ad measurement, Otto sends Meta the events described in our [Privacy Policy](privacy.html#ad-measurement-with-meta); that concerns Otto's own advertising, not client data.
-- **Whop** (payments). Whop processes payments as an independent controller under its own terms. [REVIEW: confirm under Whop's Seller Data Sharing Addendum.]
+- **Whop** (legacy). The founding seats sold before 1 October 2026 were paid through Whop, which acted as an independent controller under its own terms; Whop still reports refunds and status changes of those seats to us. No new payment goes through Whop. [REVIEW: confirm under Whop's Seller Data Sharing Addendum; remove this line once no founding seat bought on Whop is active.]
 - **GitHub** stores Otto's source code and runs our automated tests and deployments. It receives no client data; the tests use invented sample businesses.
 - **OpenClaw** is agent software that runs on our own server. It is not a service provider; the AI models it calls are listed above.
 

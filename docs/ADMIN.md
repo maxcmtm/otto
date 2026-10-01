@@ -2,7 +2,7 @@
 
 Date: 2026-09-29 · Page: `platform/admin.html` → `https://dash.monyflow.work/otto/admin.html` · Data: `platform/otto_admin.py`
 
-One page for our side of the business: landing traffic and the funnel, leads, Whop customers and revenue, every client brand's
+One page for our side of the business: landing traffic and the funnel, leads, customers and revenue (Stripe, plus the legacy Whop founders), every client brand's
 health, system health, and the controls (global kill switch, pause a brand, approve / reject a campaign, re-run a scan, lead
 status). Opened as a file, or when the API cannot be reached, it shows a bundled sample (invented businesses on `.example`
 domains) and says "Sample data".
@@ -12,7 +12,9 @@ domains) and says "Sample data".
 | Route | Access | What |
 |---|---|---|
 | `POST /otto-track` | **public** | landing analytics beacon (`otto_track.py`) → 204 |
-| `POST /otto-api/whop` | **public** (Whop → us) | Whop webhook (`otto_whop.py`); the Standard Webhooks signature is the authentication |
+| `POST /hooks/stripe` | **public** (Stripe → us; Caddy, apex only) | Stripe webhook (`otto_stripe.py`); the Stripe-Signature HMAC is the authentication — `docs/BILLING.md` |
+| `/billing/*` | Google session (app.) | the client's Billing page API (`otto_stripe.py`) — `docs/BILLING.md` |
+| `POST /otto-api/whop` | **public** (Whop → us; Caddy `/hooks/whop`) | LEGACY Whop webhook for the founding seats sold on Whop (`otto_whop.py`); the Standard Webhooks signature is the authentication |
 | `GET /otto-api/admin/snapshot?days=7\|30\|90` | behind app auth | the console's JSON (cached 15 s) |
 | `POST /otto-api/admin` | behind app auth, JSON + Origin rules of `/otto-api/action` | controls, logged to `actions.log` as `admin <who> <action> …` |
 | `GET/POST /otto-email/act?t=…` | **public** (the signed link is the credential) | one-tap approval page from an approval e-mail (`otto_email.py`) — GET shows, only the page's POST acts |
@@ -57,29 +59,32 @@ location = /otto-api/whop {
   `X-Otto-User` nginx passes must be on that list for every `/otto-api/admin*` call.
 - `/otto-track` and `/otto-api/whop` must not inherit a server-level `auth_request`.
 
-## Whop (not connected yet)
+## Billing: Stripe (and the legacy Whop founders)
 
-Nothing is invented and nothing is needed to run: without keys the console shows "Whop is not connected yet" and the webhook
-answers 503.
+New customers pay with Stripe on Otto's own Billing page; every step for Max (keys, prices, Stripe Tax, webhook, branding,
+test-mode run-through) is in **`docs/BILLING.md`**. Without `otto-secrets/stripe.json` nothing breaks: every billing screen
+says "Payments aren't set up yet", `/billing/*` answers 503 and the webhook 503.
 
-1. Whop dashboard → Developer → Webhooks → create a webhook. URL `https://dash.monyflow.work/otto-api/whop`, API version v1,
-   events `membership.*`, `payment.*`, `refund.*`, `dispute.*`. The provisioner's existing webhook (`provisioner.py` :8110) stays
-   as it is; this is a second one.
-2. Put its secret (`ws_…`) into `otto-secrets/whop.json` as `"otto_webhook_secret"`. (The old provisioner secret leaked into a log
-   and still needs rotating — see OTTO-OWNER-CHARTER; that is separate from this one.)
-3. Optional, for the history before the webhook existed: Developer → API keys, a key that can read memberships, payments,
-   plans and member e-mail. Add `"api_key"` and `"company_id": "biz_hSUmJXkmP4CrRh"`, then `python3 otto_whop.py backfill`
-   (or "Sync with Whop now" in Controls).
+Console:
+- **Customers and billing**: MRR / ARR / ARPU / churn / LTV / revenue from `otto_billing` (Stripe subscriptions: monthly at
+  their price, yearly at a twelfth; one-time seats add 0; trialing = paid during Otto's trial, first charge at its end). The
+  Customers table lists the Stripe customers (plan, interval, pending change, next charge or first charge, cancels, failed
+  payments, brand). A paid checkout links itself to the brand it was bought for (our signed reference); the row's drawer keeps
+  a **manual link** for edge cases (a payment made outside the app): `{"action": "link_customer", "customer": "sub_…",
+  "brand": …}` — adds the payer as a member and sets the plan. **Legacy Whop founders** are a read-only list (no Whop sync or
+  link UI any more; `python3 otto_whop.py link|backfill` still works from the shell).
+- **Setup**: Stripe keys (test / live), Stripe webhook (URL with a Copy button, last event), Stripe prices (which public plans
+  are on sale, problems from the last check), Stripe Tax, branding of invoices / receipts, the optional Customer Portal
+  fallback, legacy Whop founders.
+- **Controls → Check Stripe setup** (`{"action": "stripe_check"}` → `otto_stripe.py check` in the background, read-only):
+  account currency, Stripe Tax status, every price in plans.json (active, EUR, interval, tax behaviour, amount = plans.json),
+  the webhook endpoint and its events, branding → `billing.json` `stripe_check`, shown in Setup.
+- Past due: one owner card per failed invoice ("<brand>: payment failed"); the client sees a banner in the app and on the
+  Billing page. After Stripe's last retry the subscription is canceled → the brand moves to no plan with the usual card.
 
-`otto-secrets/whop.json` — only these keys are read by the console (other keys the provisioner uses are ignored):
-
-```json
-{"otto_webhook_secret": "ws_…", "api_key": "…", "company_id": "biz_hSUmJXkmP4CrRh"}
-```
-
-`"webhook_secret"` / `"webhook_secrets": [...]` are accepted too (any configured secret that verifies). Env overrides:
-`WHOP_WEBHOOK_SECRET`, `WHOP_API_KEY`, `WHOP_COMPANY_ID`. Plans: the founding plan `plan_joHl1qsZoiJc9` (€197 one-time, adds 0 to
-MRR) is known in code (`otto_whop.PLANS`); add the monthly plans there when they open, or they are read from the API on backfill.
+The legacy Whop webhook (`https://<domain>/hooks/whop`, `otto-secrets/whop.json` `"otto_webhook_secret"`) stays so refunds and
+status changes of the founding seats sold on Whop keep arriving; `otto_whop.PLANS` knows the founding plan
+`plan_joHl1qsZoiJc9` (€197 one-time, adds 0 to MRR). No Whop checkout is offered anywhere.
 
 ## Files and env (all next to data.json on the server, git-ignored)
 
@@ -87,9 +92,10 @@ MRR) is known in code (`otto_whop.PLANS`); add the monthly plans there when they
 |---|---|---|
 | `events.jsonl` | `OTTO_EVENTS`, `OTTO_EVENTS_MAX_MB` (512) | one line per landing event; stops growing at the cap |
 | `.track-salt` | — | today's random salt for visitor ids (600, replaced every UTC day) |
-| `billing.json` | `OTTO_BILLING` | Whop customers, payments, plans, processed webhook ids (600) |
+| `billing.json` | `OTTO_BILLING` | customers / subscriptions of every provider (`provider` stripe \| whop; records without it are Whop), payments, brand → Stripe customer accounts, processed event ids, the last Stripe setup check (600) |
+| `.billing-ref-secret` | — | the key that signs our checkout references when `stripe.json` has no `ref_secret` (600, generated once) |
 | `leads.json` | `OTTO_LEADS` | lead status + notes from the console (600) |
-| `api-errors.log`, `scan.log`, `whop.log` | — | API 500s / refused webhooks (never a body), background re-scans, syncs |
+| `api-errors.log`, `scan.log`, `whop.log`, `stripe.log` | — | API 500s / refused webhooks / Stripe's own error messages (never a body), background re-scans, Whop syncs, Stripe setup checks |
 
 Billing and lead notes are deliberately **not** in `data.json`: the client app reads `data.json` and embeds it in `index.html`.
 The snapshot masks e-mails (`a•••@domain`) and reports which `otto-secrets/*.json` exist, never their contents.
@@ -112,7 +118,7 @@ work, so it has no beacon yet; one line in it is enough (same endpoint, same pri
 ## Crons (optional)
 
 ```cron
-# safety net for missed Whop webhooks (only does anything once api_key + company_id are in whop.json)
+# LEGACY: safety net for missed Whop webhooks of the founding seats (only does anything once api_key + company_id are in whop.json)
 20 2 * * *  cd /home/ubuntu/.openclaw/workspace-maximus/autopilot/platform && flock -n /tmp/otto-whop.lock python3 otto_whop.py backfill >> whop.log 2>&1
 # keep about a year of landing events
 0 4 1 * *   cd /home/ubuntu/.openclaw/workspace-maximus/autopilot/platform && flock -n /tmp/otto-track.lock python3 otto_track.py prune --days 400 >> track.log 2>&1
@@ -126,7 +132,10 @@ A brand without the field is a brand from before this feature: Telegram, unchang
 client picks otherwise; the client changes it in the app (Settings → Approvals), the owner with
 `python3 otto_email.py channel <brand> email|telegram|app|email,telegram`.
 
-- **08:00 brand time** (`email-cards` job): one digest per brand with every post due within 72 h that has not been e-mailed, the
+- **07:35 brand time** (`morning-report` job, `otto_report.py`): the morning report — yesterday's posts and numbers, paid
+  spend vs budget, today's posts — with every post due for approval inside it (same cards, same one-tap links, same claim
+  as below), the paid-plan card and P0/P1 recommendations. One e-mail per approver, in the brand's language (`otto_i18n`).
+- **08:00 brand time** (`email-cards` job, catch-up): one digest per brand with every post due within 72 h that has not been e-mailed (normally none — the 07:35 report carried them), the
   same selection as the Telegram cards (compliance-checked first; each post is claimed in data.json before anything is sent, so
   two runs never send it twice). Per post: its hosted image, platform, slot in the brand's time, hook, caption, and Approve · Skip
   (one-tap) · Change (opens the post in the app), plus "Review all in the app".
@@ -203,8 +212,9 @@ next read — a file that does not validate is refused as a whole (Setup shows w
 paid is planned or launched, live campaigns are left alone, and a P0 card asks to fix it.
 
 - `brands[].plan` — none on the record (a brand from before plans) runs as `founding` (Growth during the pilot). Onboarding and
-  `ap.py brand-add` write `starter`, flagged `plan_billing: "not_billed"` while no Whop plan sells Starter; linking a Whop
-  membership sets the plan from `whop_plan_ids` and clears the flag. A canceled / expired membership moves the brand to `none`:
+  `ap.py brand-add` write `starter`, flagged `plan_billing: "not_billed"` while no price sells Starter (`stripe_price_ids`);
+  a linked running subscription sets the plan from `stripe_price_ids` (legacy Whop: `whop_plan_ids`) and clears the flag. A
+  canceled / unpaid subscription (or an ended legacy membership) moves the brand to `none`:
   publishing and ad launches pause for it, live campaigns are paused, nothing is deleted, one owner card says so. A domain match
   shown in Customers never changes a plan — only an explicit link does.
 - `brands[].plan_until` (YYYY-MM-DD, optional) — after it the brand runs as `content` and the daily guard files one owner card.
@@ -226,14 +236,17 @@ paid is planned or launched, live campaigns are left alone, and a P0 card asks t
 ```
 python3 otto_admin.py snapshot [--json] [--days 30]
 python3 otto_admin.py sample --embed            # refresh the sample bundled in admin.html
-python3 otto_whop.py status | customers | backfill [--dry] | link <mem_id> <brand>   # link also sets the brand's plan
+python3 otto_stripe.py status | check | replay <event.json>
+python3 otto_billing.py customers [--json] | link <customer id> <brand>   # every provider; link also sets the brand's plan
+python3 otto_whop.py status | customers | backfill [--dry] | link <mem_id> <brand>   # LEGACY founders
 python3 otto_admin.py plan <brand> <plan> [--until YYYY-MM-DD] [--note "…"] | plans
 python3 ap.py plans                             # every plan and every brand's resolved plan
 python3 otto_track.py tail 20 | prune --days 400
 ```
 
 Tests: `platform/tests/test_email.py` (digest selection + claims, tokens, the one-tap page, recommendations, SMTP / Postmark /
-Resend / outbox transports, rendering, cron gating, the Settings action, console fields), `platform/tests/test_admin.py` (tracking validation, rate limit, no raw IP, DNT; Whop signature + events → customers +
-backfill; snapshot on a fixture; kill switch in publish + ads launch; admin auth / origin / transitions) and
+Resend / outbox transports, rendering, cron gating, the Settings action, console fields), `platform/tests/test_admin.py` (tracking validation, rate limit, no raw IP, DNT; legacy Whop signature + events → customers +
+backfill; snapshot on a fixture; Stripe setup items; kill switch in publish + ads launch; admin auth / origin / transitions),
+`platform/tests/test_stripe.py` (Stripe billing end to end against a fake Stripe, incl. the console) and
 `platform/tests/test_plans.py` (plan resolution, expiry, cron gates, paid refusals, soft band + overage, Whop mapping incl.
 cancellation, the plan action and snapshot).

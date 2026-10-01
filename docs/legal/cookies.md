@@ -67,7 +67,9 @@ Your answer is ignored in one direction only: if your browser sends Do Not Track
 | All other pages | None | Fonts, animation code and the privacy question are served from our own server | — |
 | Legal pages (this page) | None | Everything comes from our own server | — |
 
-Links to other websites, such as the Whop checkout, Meta or Google, are not loaded until you click them. Those websites have their own cookie and privacy notices.
+Links to other websites, such as Meta or Google, are not loaded until you click them. Those websites have their own cookie and privacy notices.
+
+The Billing page in the app (where you pay) loads the payment form of our payment service provider, Stripe, from js.stripe.com. Stripe may set its own cookies in that form to prevent fraud; they are strictly necessary for the payment and are covered by Stripe's cookie policy. No other page of Otto loads anything from Stripe. [REVIEW: list Stripe's cookies (for example __stripe_mid, __stripe_sid) by name if the cookie table needs them.]
 
 ## Your choices
 

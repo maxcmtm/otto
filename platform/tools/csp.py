@@ -28,11 +28,20 @@ PAGES = {
     "onboarding.html": {"script": [], "img-src": "'self' data: https:", "media-src": "'none'"},
     "index.html":      {"script": [], "img-src": "'self' data: blob: https:", "media-src": "'self' blob: https:"},
     "admin.html":      {"script": [], "img-src": "'self' data:", "media-src": "'none'"},
+    # the Billing page is the ONLY page that talks to a third party: Stripe.js must be loaded from js.stripe.com (Stripe's
+    # PCI rule — never self-hosted), Embedded Checkout and the Payment Element are Stripe iframes, Stripe.js calls
+    # api.stripe.com. Exactly those hosts, on this page only; every other page keeps frame-src 'none' / connect-src 'self'.
+    "billing.html":    {"script": ["https://js.stripe.com", "https://*.js.stripe.com"],
+                        "frame-src": "https://js.stripe.com https://*.js.stripe.com https://hooks.stripe.com https://checkout.stripe.com",
+                        "connect-src": "'self' https://api.stripe.com https://checkout.stripe.com",
+                        "img-src": "'self' data: https://*.stripe.com", "media-src": "'none'"},
     # the early design mockups (they send a client on to the app unless ?mockup): same-origin only
     "approve.html":    {"script": [], "img-src": "'self' data:", "media-src": "'none'"},
     "ads.html":        {"script": [], "img-src": "'self' data:", "media-src": "'none'"},
     "analytics.html":  {"script": [], "img-src": "'self' data:", "media-src": "'none'"},
 }
+# The one script loaded from another host, page by page (tests/test_csp.py allows exactly these and nothing else).
+EXTERNAL = {"billing.html": ["https://js.stripe.com/v3/"]}
 EXEC = re.compile(r'<script((?:\s+type="(?:importmap|module|text/javascript)")?)>(.*?)</script>', re.S)
 META = re.compile(r'<meta http-equiv="Content-Security-Policy" content="[^"]*">\n')
 NOTE = ('<!-- CSP: script-src lists the sha256 of every inline script element in this page. After editing one, the browser refuses it'
@@ -42,7 +51,9 @@ OLD_NOTES = [re.compile(r'<!-- CSP: script-src lists the sha256 of every inline 
 
 def policy(html, cfg):
     hashes = ["'sha256-%s'" % base64.b64encode(hashlib.sha256(m.group(2).encode()).digest()).decode() for m in EXEC.finditer(html)]
-    parts = list(BASE[:1]) + ["script-src 'self' " + " ".join(hashes + cfg["script"])] + BASE[1:] + \
+    base = [("frame-src " + cfg["frame-src"]) if b.startswith("frame-src") and cfg.get("frame-src") else
+            ("connect-src " + cfg["connect-src"]) if b.startswith("connect-src") and cfg.get("connect-src") else b for b in BASE]
+    parts = list(base[:1]) + ["script-src 'self' " + " ".join(hashes + cfg["script"])] + base[1:] + \
         ["img-src " + cfg["img-src"], "media-src " + cfg["media-src"]]
     return "; ".join(parts), len(hashes)
 

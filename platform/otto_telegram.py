@@ -24,6 +24,10 @@ poll:       long-polls Bot API updates. Button taps → ap.decide / rec status (
             Approving "Approve the <month> paid plan" runs otto_ads.approve(brand, month); approving an otto_ads
             "Pause …" card runs otto_ads.pause(<campaign_id stored on the card>). "On it" is only said when an
             action actually ran.
+Language: cards, buttons, answers and edit prompts speak the brand's brands[].comms_lang (otto_i18n: en by default, nl, de;
+German Sie / du);
+an owner-only recommendation card stays English. The 07:35 morning report (otto_report) sends this brand's cards right after
+itself; the 08:00 send-cards run is the catch-up.
 Only the owner may decide: callback_query.from.id must be owner_user_id (default: owner_chat_id).
 Config: $OTTO_SECRETS/telegram.json {"bot_token": "...", "owner_chat_id": "590113904", "owner_user_id": optional}
 or env TELEGRAM_BOT_TOKEN / OTTO_OWNER_CHAT_ID.
@@ -36,6 +40,7 @@ from pathlib import Path
 
 import ap
 import otto_email
+import otto_i18n as i18n
 import otto_paths as paths
 
 HERE = Path(__file__).parent
@@ -101,38 +106,54 @@ def api(method, files=None, **params):
     return out["result"]
 
 
-def slot_str(p, b=None):
+def slot_str(p, b=None, t=None):
+    """The slot in the brand's own time and language ("Fri 2 Oct · 18:00" / "vr 2 okt · 18:00")."""
     dt = ap.slot_dt(p, b)
-    return dt.strftime("%a %d %b %H:%M") if dt else p.get("slot", "")
+    if not dt:
+        return p.get("slot", "")
+    t = t or (i18n.Tr.for_brand(b) if b else i18n.Tr())
+    return t.day_time(dt.astimezone(ap.brand_tz(b)))
+
+
+def tr_for(d=None, brand_id=None):
+    """The translator for the brand a card / tap belongs to (English when it cannot be told)."""
+    try:
+        b = ap.brand(d if d is not None else ap.load(), brand_id) if brand_id else None
+    except Exception:                                          # noqa: BLE001
+        b = None
+    return i18n.Tr.for_brand(b) if b else i18n.Tr()
 
 
 def card_caption(d, p):
     b = ap.brand(d, p["brand"]) or {}
+    t = i18n.Tr.for_brand(b) if b else i18n.Tr()
     brief = p.get("brief") or ""
     why = p.get("why") or ("" if "TBD" in brief else brief)    # the planner's placeholder brief is not a reason
     cap = (p.get("caption") or p.get("hook") or "").strip()
-    head = f"{b.get('name', p['brand'])} · {PLAT.get(p['platform'], p['platform'])} · {slot_str(p, b)} · {p.get('pillar', '')}"
+    head = f"{b.get('name', p['brand'])} · {PLAT.get(p['platform'], p['platform'])} · {slot_str(p, b or None, t)} · {p.get('pillar', '')}"
     text = f"{head}\n\n{cap}"
     if why:
-        text += f"\n\n— Why this post: {why[:200]}"
+        text += "\n\n— " + t("digest.why", why=why[:200])
     return text[:1000]
 
 
-def post_keyboard(pid):
-    return {"inline_keyboard": [[{"text": "✅ Approve", "callback_data": f"otto:{pid}:approve"},
-                                 {"text": "❌ Skip", "callback_data": f"otto:{pid}:skip"}],
-                                [{"text": "✏️ Edit", "callback_data": f"otto:{pid}:edit"},
-                                 {"text": "↷ Later", "callback_data": f"otto:{pid}:later"}]]}
+def post_keyboard(pid, t=None):
+    t = t or i18n.Tr()
+    return {"inline_keyboard": [[{"text": t("tg.approve"), "callback_data": f"otto:{pid}:approve"},
+                                 {"text": t("tg.skip"), "callback_data": f"otto:{pid}:skip"}],
+                                [{"text": t("tg.edit"), "callback_data": f"otto:{pid}:edit"},
+                                 {"text": t("tg.later"), "callback_data": f"otto:{pid}:later"}]]}
 
 
-def rec_keyboard(rid):
-    return {"inline_keyboard": [[{"text": "✅ Approve", "callback_data": f"otto:rec:{rid}:approve"},
-                                 {"text": "Not now", "callback_data": f"otto:rec:{rid}:dismiss"}]]}
+def rec_keyboard(rid, t=None):
+    t = t or i18n.Tr()
+    return {"inline_keyboard": [[{"text": t("tg.approve"), "callback_data": f"otto:rec:{rid}:approve"},
+                                 {"text": t("tg.not_now"), "callback_data": f"otto:rec:{rid}:dismiss"}]]}
 
 
-def send_card(chat, p, cap, base):
+def send_card(chat, p, cap, base, t=None):
     """Photo by public URL → photo uploaded from the local file → plain text. Returns (message, kind)."""
-    kb = post_keyboard(p["id"])
+    kb = post_keyboard(p["id"], t)
     img = p.get("image")
     if img:
         try:
@@ -151,11 +172,11 @@ def send_card(chat, p, cap, base):
     return api("sendMessage", chat_id=chat, text=cap, reply_markup=kb), "text"
 
 
-def send_cards(bid=None, hours=72, resend=False, dry=False, base=BASE, ids=None):
+def send_cards(bid=None, hours=72, resend=False, dry=False, base=BASE, ids=None, now=None):
     import otto_compliance as comp
     d = ap.load()                                   # snapshot; every card is saved in its own transaction
     _, chat = config()
-    now = datetime.now(timezone.utc)
+    now = now or datetime.now(timezone.utc)
     sent = blocked = 0
     for p in sorted(d["posts"], key=lambda x: x.get("slot", "")):
         if ids and p["id"] not in ids:
@@ -199,7 +220,7 @@ def send_cards(bid=None, hours=72, resend=False, dry=False, base=BASE, ids=None)
                 print(f"  {p['id']}: already carded or being sent by another run — skipped")
                 continue
             try:
-                m, kind = send_card(chat, p, cap, base)
+                m, kind = send_card(chat, p, cap, base, tr_for(d, p["brand"]))
             except Exception:
                 with ap.transaction() as d2:
                     q = ap.post(d2, p["id"])
@@ -224,12 +245,18 @@ def send_recs(dry=False):
     for r in d.get("recommendations", []):
         if r.get("status") != "proposed" or r.get("tg_message_id"):
             continue
-        text = f"💡 Your agency recommends · {r['priority']}\n\n{r['title']}\n\n{r.get('why','')}\n\n↗ {r.get('impact','')}"
+        owner = r.get("audience") == "owner" or r.get("internal") or r.get("source") == "otto_admin"
+        t = i18n.Tr() if owner else tr_for(d, r.get("brand"))       # an owner-only card stays in the owner's English
+        import otto_report
+        title, why, impact = (r["title"], r.get("why", ""), r.get("impact", "")) if owner else \
+            ((otto_report.plan_title(t, r), r.get("why", "") if t.lang == "en" else "", r.get("impact", "") if t.lang == "en" else "")
+             if otto_email.is_plan_card(r) else tuple(otto_report.rec_text(t, r, f) for f in ("title", "why", "impact")))
+        text = f"{t('tg.rec_head', prio=r['priority'])}\n\n{title}" + (f"\n\n{why}" if why else "") + (f"\n\n↗ {impact}" if impact else "")
         print(f"{'WOULD SEND' if dry else 'SEND'} {r['id']} — {r['title'][:60]}")
         if dry:
             continue
         try:
-            m = api("sendMessage", chat_id=chat, text=text[:4000], reply_markup=rec_keyboard(r["id"]))
+            m = api("sendMessage", chat_id=chat, text=text[:4000], reply_markup=rec_keyboard(r["id"], t))
             with ap.transaction() as d2:
                 q = ap.rec(d2, r["id"])
                 if q is not None:
@@ -293,16 +320,23 @@ def run_rec_action(r):
     return otto_ads.rec_action(r)
 
 
+def _already(t, status):
+    return t("tg.already", state=t("status." + status) if t.has("status." + str(status)) else status)
+
+
 def handle_rec(cq, rid, action):
     chat = str(cq["message"]["chat"]["id"])
     new = "approved" if action == "approve" else "dismissed"
+    t = i18n.Tr()
     try:
         with ap.transaction() as d:
             r = ap.rec(d, rid)
             if r is None:
-                raise Skip("Unknown recommendation")
+                raise Skip(t("tg.unknown_rec"))
+            if not (r.get("audience") == "owner" or r.get("source") == "otto_admin"):
+                t = tr_for(d, r.get("brand"))
             if not ap.can_transition("rec", r["status"], new):
-                raise Skip(f"Already {r['status']}")
+                raise Skip(_already(t, r["status"]))
             r["status"] = new; r["approved_via"] = "telegram"; r["decided_at"] = ap.now_iso()
             snapshot = dict(r)
     except Skip as e:
@@ -322,13 +356,13 @@ def handle_rec(cq, rid, action):
                 if q is not None:
                     q["action_result"] = result; q["status"] = "done"
     if new == "approved":
-        answer = "✅ Approved — on it" if result else "✅ Approved, not started yet — the team is on it" if failed else "✅ Approved"
+        answer = t("tg.rec.on_it") if result else t("tg.rec.failed") if failed else t("tg.rec.approved")
     else:
-        answer = "Dismissed"
+        answer = t("tg.rec.dismissed")
     api("answerCallbackQuery", callback_query_id=cq["id"], text=answer)
     api("editMessageReplyMarkup", chat_id=chat, message_id=cq["message"]["message_id"], reply_markup={"inline_keyboard": []})
-    tail = ("\n\n✅ Approved" + (f" — {result}" if result else " — not started yet: it failed, the team has been told" if failed else "")) \
-        if new == "approved" else "\n\n— Not now"
+    tail = ("\n\n" + (t("tg.rec.tail_done", result=result) if result else t("tg.rec.tail_failed") if failed else t("tg.rec.approved"))) \
+        if new == "approved" else "\n\n" + t("tg.rec.tail_dismissed")
     api("editMessageText", chat_id=chat, message_id=cq["message"]["message_id"], text=(cq["message"].get("text", "") + tail)[:4000])
 
 
@@ -337,7 +371,9 @@ def handle_callback(cq):
     chat = str((msg_obj.get("chat") or {}).get("id"))
     data = cq.get("data", "")
     if not _is_owner((cq.get("from") or {}).get("id"), chat):
-        api("answerCallbackQuery", callback_query_id=cq["id"], text="Not your Otto."); return
+        parts0 = str(data).split(":")
+        q0 = ap.post(ap.load(), parts0[1]) if len(parts0) == 3 else None
+        api("answerCallbackQuery", callback_query_id=cq["id"], text=tr_for(None, (q0 or {}).get("brand"))("tg.not_yours")); return
     parts = str(data).split(":")
     if len(parts) == 4 and parts[0] == "otto" and parts[1] == "rec":
         if parts[3] not in ("approve", "dismiss"):            # callback data comes from the client: only our two buttons
@@ -349,13 +385,13 @@ def handle_callback(cq):
     if action == "edit":
         d = ap.load()
         p = ap.post(d, pid)
+        t = tr_for(d, (p or {}).get("brand"))
         if not p:
-            api("answerCallbackQuery", callback_query_id=cq["id"], text="Unknown post"); return
+            api("answerCallbackQuery", callback_query_id=cq["id"], text=t("tg.unknown_post")); return
         if p["status"] not in EDITABLE:
-            api("answerCallbackQuery", callback_query_id=cq["id"], text=f"Already {p['status']}"); return
-        api("answerCallbackQuery", callback_query_id=cq["id"], text="Reply with the change you want")
-        prompt = api("sendMessage", chat_id=chat, text=f"✏️ {pid} — reply to THIS message with what to change (e.g. “shorter, mention the lab tests”). "
-                                                      f"Quill rewrites and sends a new card. (Open for 2 hours.)",
+            api("answerCallbackQuery", callback_query_id=cq["id"], text=_already(t, p["status"])); return
+        api("answerCallbackQuery", callback_query_id=cq["id"], text=t("tg.edit.answer"))
+        prompt = api("sendMessage", chat_id=chat, text=t("tg.edit.prompt", pid=pid),
                      reply_markup={"force_reply": True, "selective": True})
         state = _state()
         edits = state.setdefault("pending_edits", {})
@@ -371,13 +407,15 @@ def handle_callback(cq):
         return
     if action not in ap.DECISIONS:
         api("answerCallbackQuery", callback_query_id=cq["id"], text="?"); return
+    t = i18n.Tr()
     try:
         with ap.transaction() as d:
             p = ap.post(d, pid)
             if not p:
-                raise Skip("Unknown post")
+                raise Skip(t("tg.unknown_post"))
+            t = tr_for(d, p.get("brand"))
             if p["status"] not in EDITABLE:
-                raise Skip(f"Already {p['status']}")
+                raise Skip(_already(t, p["status"]))
             ap.decide(d, pid, action, via="telegram")
             if action == "later":
                 p.pop("tg_message_id", None)        # tomorrow's send-cards sends it again
@@ -385,8 +423,8 @@ def handle_callback(cq):
             b = ap.brand(d, p["brand"])
     except Skip as e:
         api("answerCallbackQuery", callback_query_id=cq["id"], text=str(e)); return
-    note = {"approve": f"✅ Approved · publishes {slot_str(p_after, b)}", "skip": "❌ Skipped — Otto refills the slot",
-            "later": "↷ Later — you'll get it again tomorrow morning"}[action]
+    note = {"approve": t("tg.note.approve", when=slot_str(p_after, b, t)), "skip": t("tg.note.skip"),
+            "later": t("tg.note.later")}[action]
     api("answerCallbackQuery", callback_query_id=cq["id"], text=note.split(" — ")[0])
     edit_card(chat, msg_obj, p_after, note)
 
@@ -405,8 +443,9 @@ def handle_message(m):
         return
     _save_state(state)
     ts = ap.parse_iso(pe.get("ts"))
+    t = tr_for(None, (ap.post(ap.load(), pe["post"]) or {}).get("brand"))
     if ts is None or datetime.now(timezone.utc) - ts > EDIT_TTL:
-        api("sendMessage", chat_id=owner_chat, text=f"That edit prompt for {pe['post']} expired (2 h). Tap ✏️ Edit on the card again.")
+        api("sendMessage", chat_id=owner_chat, text=t("tg.edit.expired", pid=pe["post"]))
         return
     note = m["text"].strip()
     with ap.transaction() as d:
@@ -419,9 +458,10 @@ def handle_message(m):
             d.setdefault("edit_requests", []).append({"post": p["id"], "note": note, "ts": ap.now_iso(), "via": "telegram"})
             ok = True
     if ok:
-        api("sendMessage", chat_id=owner_chat, text=f"Got it — Quill is rewriting {pe['post']}: “{note[:120]}”. New card shortly.")
+        api("sendMessage", chat_id=owner_chat, text=t("tg.edit.got_it", pid=pe["post"], note=note[:120]))
     else:
-        api("sendMessage", chat_id=owner_chat, text=f"{pe['post']} is already {status} — edit not applied.")
+        api("sendMessage", chat_id=owner_chat, text=t("tg.edit.too_late", pid=pe["post"],
+                                                      state=t("status." + status) if t.has("status." + str(status)) else status))
 
 
 def poll(once=False, timeout=50):

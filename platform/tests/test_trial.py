@@ -3,8 +3,9 @@
 onboards its first brand on the 7-day trial; one trial per Google account e-mail and per website domain (and per user);
 paid ads are planned and previewed but never launched during the trial (otto_ads, otto_cron); the reminder e-mails on day 5,
 day 7 and day 8 go out once each; the trial ends on the hour into the ended plan with the retention clock at the trial's end
-and a 402 paywall in the app; a Whop membership with the verified e-mail links itself (idempotently) and converts the
-trial; the owner's manual link still works; the console counts it all.
+and a 402 paywall in the app; the "add a card" offers open Otto's Billing page (Stripe: tests/test_stripe.py pays and
+links by the signed checkout reference); a LEGACY Whop membership with the verified e-mail still links itself
+(idempotently) and converts the trial; the owner's manual link still works; the console counts it all.
 
   cd platform && python3 tests/test_trial.py
   cd platform && python3 -m unittest discover -s tests          # with the other suites
@@ -79,7 +80,10 @@ def setUpModule():
     plans = json.loads((PLATFORM / "plans.json").read_text())
     plans["plans"]["starter"]["whop_plan_ids"] = [STARTER_WHOP]
     plans["plans"]["growth"]["whop_plan_ids"] = [GROWTH_WHOP]
+    plans["plans"]["starter"]["stripe_price_ids"] = {"monthly": "price_trial_starter_m", "yearly": None}
+    plans["plans"]["growth"]["stripe_price_ids"] = {"monthly": "price_trial_growth_m", "yearly": "price_trial_growth_y"}
     (TMP / "plans.json").write_text(json.dumps(plans, indent=1))
+    (TMP / "secrets" / "stripe.json").write_text(json.dumps({"secret_key": "sk_test_trial_never_called", "publishable_key": "pk_test_trial"}))
     (TMP / "index.html").write_text('<html><script id="fallback-data" type="application/json">{}</script></html>')
     _SAVED["env"] = {k: os.environ.get(k) for k in list(ENV) + list(CLEAR)}
     os.environ.update(ENV)
@@ -263,8 +267,11 @@ class TrialTest(unittest.TestCase):
         st, me = req("GET", "/auth/me", sid=sid)
         offers = {o["plan"]: o for o in me["checkout"]}
         self.assertEqual(sorted(offers), ["growth", "starter"])
-        self.assertEqual(offers["starter"]["checkout_url"],
-                         "https://whop.com/checkout/plan_trial_starter?email=eva%40koffiezon.nl&email.disabled=1")
+        self.assertEqual(offers["starter"]["checkout_url"], "https://app.otto.example/billing.html?plan=starter",
+                         "Otto's own Billing page, never a third-party checkout")
+        self.assertEqual((offers["starter"]["month"], offers["starter"]["year"], offers["growth"]["year"]), (True, False, True))
+        self.assertEqual(me["billing_url"], "https://app.otto.example/billing.html")
+        self.assertNotIn("whop", json.dumps(me))
         self.assertIn("trial=granted", (TMP / "actions.log").read_text())
 
     def test_one_trial_per_user_per_email_and_per_domain(self):
@@ -283,7 +290,7 @@ class TrialTest(unittest.TestCase):
         st, pw = req("GET", "/otto-api/data", sid=bob)
         self.assertEqual((st, pw["code"]), (402, "no_trial"))
         self.assertIn("already had a free trial", pw["message"])
-        self.assertTrue(pw["checkout"][0]["checkout_url"].endswith("email=bob%40other.example&email.disabled=1"))
+        self.assertEqual(pw["checkout"][0]["checkout_url"], "https://app.otto.example/billing.html?plan=starter")
         # the same Google e-mail signs up again after its account was deleted: no second trial either
         eva = signup("eva@koffiezon.nl", "4001")
         self.assertEqual((user("eva@koffiezon.nl")["status"], user("eva@koffiezon.nl")["trial_denied"]), ("none", "email"))
@@ -345,9 +352,12 @@ class TrialTest(unittest.TestCase):
         self.assertEqual(len(outbox()), 3)
         (day8,) = by_subject(r"has ended .* is paused")
         self.assertIn("kept for 90 days", body_text(day8))
-        self.assertIn("https://app.otto.example/#billing", body_text(day8))
+        self.assertIn("https://app.otto.example/billing.html", body_text(day8), "the button opens the Billing page")
         (day5,) = by_subject(r"^2 days left")
-        self.assertIn("nothing is charged automatically", " ".join(body_text(day5).split()))
+        body5 = " ".join(body_text(day5).split())
+        self.assertIn("The plan starts when the trial ends, and that is when the first payment is taken.", body5)
+        self.assertIn("If you don't choose one, nothing is charged", body5)
+        self.assertNotIn("same e-mail", body5, "no e-mail matching any more: the checkout carries a signed reference")
         run(E + timedelta(hours=6))
         run(E + timedelta(days=2))
         self.assertEqual(len(outbox()), 3, "each reminder once")
@@ -380,7 +390,7 @@ class TrialTest(unittest.TestCase):
         with ap.transaction(sync=False) as d:
             self.assertEqual(ap.plan_expiry_notices(d), [], "the trial's end is otto_trial's card")
 
-    def test_whop_membership_with_the_verified_email_links_itself(self):
+    def test_legacy_whop_membership_with_the_verified_email_links_itself(self):
         sid, out = self.trial_brand()
         bid = out["brand"]
         E = ap.parse_iso(user("eva@koffiezon.nl")["trial_ends_at"])

@@ -220,10 +220,29 @@ class ResolutionTest(unittest.TestCase):
         self.assertIn("no active plan", ap.paused(d, "t-none"))
         self.assertIsNone(ap.paused(d, "t-content"))
 
-    def test_new_brands_get_starter_not_billed_until_a_whop_plan_sells_it(self):
+    def test_new_brands_get_starter_not_billed_until_a_price_sells_it(self):
         self.assertEqual(ap.new_brand_plan(), ("starter", "not_billed"))
-        plans_file(lambda c: c["plans"]["starter"].update(whop_plan_ids=["plan_starter_test"]))
+        plans_file(lambda c: c["plans"]["starter"].update(stripe_price_ids={"monthly": "price_1StarterTest", "yearly": None}))
         self.assertEqual(ap.new_brand_plan(), ("starter", None))
+        plans_file(lambda c: c["plans"]["starter"].update(whop_plan_ids=["plan_starter_test"]))       # legacy Whop ids still count
+        self.assertEqual(ap.new_brand_plan(), ("starter", None))
+
+    def test_stripe_price_ids_map_prices_to_plans(self):
+        plans_file(lambda c: (c["plans"]["growth"].update(stripe_price_ids={"monthly": "price_1GrowthM", "yearly": "price_1GrowthY"}),
+                              c["plans"]["founding"].update(stripe_price_ids={"one_time": "price_1Founding"})))
+        self.assertEqual(ap.plan_for_price("price_1GrowthY"), ("growth", "year"))
+        self.assertEqual(ap.plan_for_price("price_1Founding"), ("founding", "one_time"))
+        self.assertIsNone(ap.plan_for_price("price_unknown"))
+        self.assertEqual((ap.price_for("growth", "month"), ap.price_for("starter", "month"), ap.price_for("growth", "week")),
+                         ("price_1GrowthM", None, None))
+        self.assertEqual(ap.plans_config()["plans"]["trial"]["stripe_price_ids"], {}, "a plan without prices has none")
+        plans_file(lambda c: c["plans"]["growth"].update(stripe_price_ids={"monthly": "prod_123"}))
+        self.assertIn("must be a Stripe price id", ap.plans_config()["error"])
+        plans_file(lambda c: c["plans"]["growth"].update(stripe_price_ids={"weekly": None}))
+        self.assertIn("stripe_price_ids must be", ap.plans_config()["error"])
+        plans_file(lambda c: (c["plans"]["growth"].update(stripe_price_ids={"monthly": "price_1Same"}),
+                              c["plans"]["starter"].update(stripe_price_ids={"monthly": "price_1Same"})))
+        self.assertIn("listed twice", ap.plans_config()["error"])
 
     def test_onboarding_creates_a_starter_brand_flagged_not_billed(self):
         res = quiet(otto_onboard.create, "https://fresh-bakery.example", {"goal": "sales"}, scan=False)
@@ -795,7 +814,7 @@ class AdminPlanTest(_Fakes, unittest.TestCase):
                          ("starter", "Starter", {"used": 70, "limit": 66}, {"used": 5, "limit": 4}))
         self.assertEqual(P["usage"]["ad_budget_eur"], {"used": 0, "limit": 1000})
         self.assertIn("70 posts planned this month, the plan allows 66", b["t-starter"]["issues"])
-        self.assertIn("Not billed yet: on Starter without a Whop membership", b["t-starter"]["issues"])
+        self.assertIn("Not billed yet: on Starter without a subscription", b["t-starter"]["issues"])
         self.assertIn("1 live campaign not covered by the plan (the daily guard pauses them)", b["t-content"]["issues"])
         self.assertEqual(b["t-none"]["health"], "blocked")
         self.assertEqual(b["legacy"]["plan"]["source"], "legacy")

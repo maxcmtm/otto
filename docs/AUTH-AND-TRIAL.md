@@ -3,7 +3,8 @@
 Max, 30.09.2026: "I want a free 7-day trial for new sign-ups; the option to log in with Gmail (Google auth) and open a user;
 after 7 days they should place a credit card."
 
-This is how it works, what is stored, and what Max has to set up (Google Cloud and Whop, about 20 minutes).
+This is how it works, what is stored, and what Max has to set up (Google Cloud here, Stripe in `docs/BILLING.md`). Since
+1 Oct 2026 clients pay with Stripe on Otto's own Billing page; Whop is legacy (the founding seats already sold on it).
 
 ## The client's path
 
@@ -26,10 +27,14 @@ This is how it works, what is stored, and what Max has to set up (Google Cloud a
    (`none`): publishing and ads pause, the owner gets a card, the data is kept. The app shows the "add a card" screen instead
    of the data (the API answers 402). After 90 days without a plan, `otto_retention` deletes the brand (owner notices 14 and 3
    days before, a zip export first) — the 90 days count from the trial's end.
-7. **Add a card.** The screen offers Starter and Growth (plans.json `trial.checkout_plans`) as Whop checkout links with the
-   Google e-mail prefilled and locked. When Whop's webhook reports the membership, Otto links it by that verified e-mail to the
-   client's brand: the plan starts, publishing resumes, nothing needs the owner. Paid first and onboarded later? The link
-   happens at onboarding.
+7. **Add a card.** The screen (and the reminder e-mails' button) opens Otto's own Billing page,
+   `app.<domain>/billing.html?plan=starter|growth` (plans.json `trial.checkout_plans`; a plan without `stripe_price_ids` is
+   "not on sale yet"; without Stripe keys everything says "Payments aren't set up yet"). The payment form is Stripe's
+   Embedded Checkout inside that page, with the Google e-mail locked and our signed reference (brand + user). Paid while the
+   trial still runs? The subscription starts when the trial ends, so the first charge is never early. Stripe's webhook links
+   the subscription to exactly that brand by the reference: the plan starts, publishing resumes, nothing needs the owner.
+   Paid first and onboarded later (the founding seat from the landing)? The link happens at onboarding, by the user id in
+   the reference. Details: `docs/BILLING.md`.
 
 One trial per Google account e-mail and per website domain: a second sign-up with the same e-mail, a second brand, or a
 domain that already had a trial gets no trial — the brand is created, and the app asks for a card straight away.
@@ -41,7 +46,8 @@ domain that already had a trial gets no trial — the brand is created, and the 
 | `GET /auth/google/start?next=/path` | 302 to Google with state, nonce and PKCE (S256); a 10-minute HttpOnly login cookie binds the state to this browser. `next` must be a same-origin path. |
 | `GET /auth/google/callback` | Checks the state (cookie + pending login, single use), exchanges the code at Google's token endpoint over TLS with the client secret and the PKCE verifier, verifies the ID token, creates or updates the user, opens a session, 303 to `next` (a new account with no brand goes to `/onboarding.html`). |
 | `POST /auth/logout` | Ends the session and clears the cookie (Origin must be ours). |
-| `GET /auth/me` | `{signed_in, google, email, name, status, trial {state, ends_at, days_left}, brands, checkout [...]}` — the app's account menu, trial line and "add a card" screen. |
+| `GET /auth/me` | `{signed_in, google, email, name, status, trial {state, ends_at, days_left}, brands, checkout [...], billing [...], payments, billing_url}` — the app's account menu (plan, next charge, "Manage billing"), trial line, past-due banner and "add a card" screen. |
+| `/billing/*` | The Billing page's API (checkout, account, plan change, cancel / resume, payment method, VAT ID): `docs/BILLING.md`. |
 | `POST /otto-api/onboard` | Signed in: creates the brand on the trial (answer: `trial: {granted, ends_at | why, message}`). |
 | `GET /otto-api/data` | A client whose every brand came from a trial that ended without a card: **402** `{code: "trial_ended" | "no_trial", message, kept_until, checkout}`. |
 
@@ -63,7 +69,7 @@ and the UI hides the Google button.
   and exports copy it, and a session id is a credential.
 - **Where users live**: data.json `users[]` (`id, email, name, google_sub, hd, created_at, last_login_at, trial_started_at,
   trial_ends_at, status trial|active|expired|none, brands, trial_reminders, paid_at`) — they belong with the brands they own,
-  and the trial job, onboarding and the Whop link change both in one transaction. Clients never receive `users[]` (the client
+  and the trial job, onboarding and a subscription link change both in one transaction. Clients never receive `users[]` (the client
   view is an allowlist).
 - **Who is signed in, per request, one source only**: the Google session on `app.`; Cloudflare Access's header on `admin.`.
   A request with a session and a different proxy user is refused (401). A session is always scoped to its own brands — even on a
@@ -116,18 +122,13 @@ and the UI hides the Google button.
 The redirect URI is derived from `OTTO_DOMAIN` (`https://app.<OTTO_DOMAIN>/auth/google/callback`); `OTTO_GOOGLE_REDIRECT_URI`
 overrides it (local development), as does `"redirect_uri"` in the file.
 
-### 2. Whop (5 minutes, once the prices are final)
+### 2. Stripe (see `docs/BILLING.md`)
 
-1. Create the two subscription plans on Whop — **Starter** and **Growth**, monthly, in EUR (prices in `plans.json` are drafts;
-   Whop's price is what is charged). Leave Whop's own free-trial days **off**: the trial already happened in Otto.
-2. Put each Whop plan id into `plans.json` → `plans.starter.whop_plan_ids` / `plans.growth.whop_plan_ids`. Until then the
-   "add a card" screen shows the plans without a checkout button ("not on sale yet").
-3. The checkout link Otto builds is `https://whop.com/checkout/<plan id>?email=<the Google e-mail>&email.disabled=1` — Whop
-   prefills and locks the e-mail field, which is what lets Otto match the payment to the account (Whop docs: checkout URL
-   parameters). A custom checkout host: `"checkout_base": "https://…/checkout/"` in `whop.json`.
-4. The webhook (`https://<domain>/hooks/whop`, events `membership.*`, `payment.*`) must carry the member's e-mail: give the
-   Whop app/API key the member e-mail permission. A membership whose e-mail matches no Google sign-in, or a Whop plan that
-   `plans.json` does not map, is never linked automatically — the owner links it in the console as before.
+Stripe account in EUR, products and prices from `plans.json` → `stripe_price_ids`, Stripe Tax, the webhook
+`https://<domain>/hooks/stripe`, and `/etc/otto/secrets/stripe.json` — every step and a test-mode run-through are in
+`docs/BILLING.md`. Do not turn on a Stripe free trial on the prices: the trial already happened in Otto, and Otto itself
+starts a subscription bought during the trial at the trial's end. The legacy Whop webhook (`/hooks/whop`) stays only for
+the founding seats sold on Whop; there is no Whop checkout any more.
 
 ### 3. Local development (optional)
 
@@ -140,6 +141,9 @@ http://localhost:8790 {
 		reverse_proxy 127.0.0.1:8161
 	}
 	handle /otto-api/* {
+		reverse_proxy 127.0.0.1:8161
+	}
+	handle /billing/* {
 		reverse_proxy 127.0.0.1:8161
 	}
 	handle {
@@ -155,7 +159,8 @@ and `OTTO_GOOGLE_REDIRECT_URI=http://localhost:8790/auth/google/callback` in the
 
 ## Legal
 
-Terms §"Free trial" (7 days, no card, one per business, what happens at the end, no automatic charge), the Privacy Policy
+Terms §"Free trial" (7 days, no card, one per business, what happens at the end, no charge without a plan, a plan chosen
+during the trial is first charged when it ends), the Privacy Policy
 (Google sign-in data: what, why, how long) and the sub-processor list (Google, authentication) are updated in `docs/legal/`
 (rendered with `python3 platform/tools/legal.py`). They are drafts for the lawyer like the rest.
 
@@ -163,5 +168,6 @@ Terms §"Free trial" (7 days, no card, one per business, what happens at the end
 
 `platform/tests/test_auth.py` (the OIDC flow against a fake Google, every refusal, the RS256 verifier, sessions, cookies, rate
 limit, admin and tenant scoping) and `platform/tests/test_trial.py` (sign-up → trial, one per e-mail / domain / user, no launch
-during the trial, the three e-mails once each, the end on the hour with the retention clock, the 402, the Whop auto-link and
-the manual link, the console). `platform/tests/test_app_fixes.py` holds the QA round-2 regressions.
+during the trial, the three e-mails once each, the end on the hour with the retention clock, the 402, the offers on the
+Billing page, the legacy Whop auto-link and the manual link, the console) and `platform/tests/test_stripe.py` (paying with
+Stripe against a fake Stripe: the checkout request, the webhook, every event, the trial's end as the first charge). `platform/tests/test_app_fixes.py` holds the QA round-2 regressions.
