@@ -94,9 +94,9 @@ case $cmd in
 	timers)
 		case ${1:-} in
 			on) root rm -f /etc/otto/timers-off
-			    for t in /etc/systemd/system/otto-job-*.timer; do root systemctl enable --now "$(basename "$t")" >/dev/null; done; echo "job timers on" ;;
+			    for t in /etc/systemd/system/otto-job-*.timer; do root systemctl enable --now "$(basename "$t")" >/dev/null; done; root systemctl enable --now otto-copy-queue.path >/dev/null 2>&1 || true; echo "job timers on" ;;
 			off) root touch /etc/otto/timers-off
-			     for t in /etc/systemd/system/otto-job-*.timer; do root systemctl disable --now "$(basename "$t")" >/dev/null; done; echo "job timers off" ;;
+			     for t in /etc/systemd/system/otto-job-*.timer; do root systemctl disable --now "$(basename "$t")" >/dev/null; done; root systemctl disable --now otto-copy-queue.path >/dev/null 2>&1 || true; echo "job timers off" ;;
 			*) echo "usage: otto timers on|off"; exit 2 ;;
 		esac
 		;;

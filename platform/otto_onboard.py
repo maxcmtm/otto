@@ -621,7 +621,8 @@ def create(site, answers=None, peek=None, dry=False, scan=True, deadline=40.0, n
                 plan_id, billing = ap.new_brand_plan()      # "starter"; "not billed yet" until a subscription is linked
                 b = {"id": slug, "name": name, "url": key, "lang": lang, "tz": tz, "status": "onboarding",
                      "pillars": pillars_for(industry), "compliance": note, "plan": plan_id, "approvals": a["approvals"],
-                     "comms_lang": a.get("comms_lang") or "en"}
+                     "comms_lang": a.get("comms_lang") or "en",
+                     "copy_auto": True}                # self-serve: the copywriter (otto_copy) keeps its next 7 days written
                 if billing:
                     b["plan_billing"] = billing
                 if country:

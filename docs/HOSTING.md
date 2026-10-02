@@ -91,6 +91,9 @@ DMARC records sit in the same Cloudflare zone.
 3b. In Google Cloud, create the OAuth client for "Sign in with Google" (consent screen, scopes `openid email profile`,
    redirect URI `https://app.<domain>/auth/google/callback`) — the steps are in `docs/AUTH-AND-TRIAL.md`.
 4. In GitHub, add the repository secrets for the deploy workflow (server host, deploy key, Telegram alert chat).
+5. In the Anthropic Console, create an API key for the AI copywriter (with a monthly spend limit) and put it on the server as
+   `/etc/otto/secrets/anthropic.json`: `{"api_key": "sk-ant-…", "model": "claude-opus-5-5"}` (owner `otto`, chmod 600). Without
+   it a new trial gets no posts until a person writes them — the steps are in `docs/AUTH-AND-TRIAL.md` ("Anthropic API key").
 
 Everything after that is scripted in `infra/` (`bootstrap.sh`, `deploy.sh`, `backup.sh`, `restore.sh`, the Caddyfile,
 the systemd units and the workflow). Nobody needs a password shared in chat: keys go into the accounts directly.

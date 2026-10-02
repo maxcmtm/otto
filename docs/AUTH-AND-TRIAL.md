@@ -18,6 +18,16 @@ This is how it works, what is stored, and what Max has to set up (Google Cloud h
    stories, reels, the monthly competitor sweep and reports all run for real (status "active"). Paid ads are planned and the ad
    matrix is rendered so the client sees them, but no campaign launches (`ads_launch: false`), and video ads are capped at 3
    previews.
+
+   **The first week, written for them.** Onboarding plans the trial's weeks on the spot (`otto_trial.kickoff`) and starts
+   the AI copywriter in the background (`otto_copy.py week`, the request does not wait). Within minutes every post of the next
+   7 days has real copy from the Claude API (the site's own products, prices, reviews and voice, in the language of the
+   market), checked by Otto's compliance rules and its no-invention guard, rewritten once when a check fails; its card is
+   rendered in the brand's look on the site's photos (by the next hourly `trials` job when the API process cannot start
+   headless Chrome). The posts wait in the app's Review, and **the next morning at 07:35 the first ones arrive by e-mail** with
+   one-tap Approve · Skip · Change. A post that still fails a check stays a draft for the Otto team (owner card "Copy held for
+   review"), never in front of the client. Without an Anthropic key nothing is generated and the owner card "New trial: write
+   the first week for X" is the manual fallback.
 5. **During the trial** the app shows one calm line: "N days left in your trial · Add a card". E-mails (to the Google address):
    - 2 days before the end: "2 days left in your Otto trial"
    - in the last 24 hours: "Your Otto trial ends today" (or "tomorrow", by the local clock)
@@ -95,6 +105,11 @@ and the UI hides the Google button.
   first, retried next hour on a failed send, never sent late), removes accounts with no brand and no sign-in for 90 days.
 - Owner console → **Trials**: trials running with days left, ending within 48 h, converted, expired, no trial, reminders sent,
   the trial → paid conversion rate, and the funnel visitors → scans → sign-ups → trials → paid.
+- The first week's copy: `brands[].kickoff = {done, at, months, planned, copy_needed, copy_try_at}`. `otto_copy` writes the posts
+  (post.copy = `{by, model, at, attempts, state written | held | failed, render?}`), then `otto_trial.copy_done` clears
+  `copy_needed` and the owner card is marked done. The `trials` job catches up a week still unwritten 15 minutes after its
+  kickoff (at most three brands an hour, inline: a systemd oneshot would kill a spawned child). Caps, the usage ledger
+  (`copy-usage.json`) and every check are in the `platform/otto_copy.py` docstring; `otto_copy.py status` shows them.
 
 ## What Max sets up
 
@@ -130,7 +145,24 @@ Stripe account in EUR, products and prices from `plans.json` → `stripe_price_i
 starts a subscription bought during the trial at the trial's end. The legacy Whop webhook (`/hooks/whop`) stays only for
 the founding seats sold on Whop; there is no Whop checkout any more.
 
-### 3. Local development (optional)
+### 3. Anthropic API key (the AI copywriter, 5 minutes)
+
+1. <https://console.anthropic.com> → the organisation Otto runs under → **Billing**: add credit and set a monthly spend limit
+   (a week of copy for one trial costs well under a dollar with `claude-opus-5-5`; the daily caps below bound the rest).
+2. **API keys → Create key** ("otto-copywriter").
+3. On the server: `sudo -u otto nano /etc/otto/secrets/anthropic.json` (owner `otto`, mode 600):
+   ```json
+   {"api_key": "sk-ant-…", "model": "claude-opus-5-5"}
+   ```
+   Optional keys: `"effort"` (`low` · `medium` default · `high`), `"max_calls_day"` (300), `"max_usd_day"` (40),
+   `"max_calls_per_brand_day"` (16), `"batch"` (4 posts per request), `"parallel"` (2), `"fallbacks"` (true: a request the
+   model's safety classifier declines is retried on Anthropic's recommended fallback model), `"enabled"` (false switches it
+   off without removing the key). Nothing to restart: every run reads the file.
+4. Check: `python3 /opt/otto/platform/otto_copy.py status` (key set, model, today's usage), then
+   `otto_copy.py week --brand <an existing brand> --dry` (what it would write; nothing is sent). The owner console's Setup shows
+   "AI copywriter (Claude API)" connected, with today's calls, tokens and estimated spend against the caps.
+
+### 4. Local development (optional)
 
 The API listens on 127.0.0.1:8161 and serves no pages, so a browser needs one origin for both. For example
 `caddy run --config Caddyfile.local` with:
@@ -166,7 +198,9 @@ during the trial is first charged when it ends), the Privacy Policy
 
 ## Tests
 
-`platform/tests/test_auth.py` (the OIDC flow against a fake Google, every refusal, the RS256 verifier, sessions, cookies, rate
+`platform/tests/test_copy.py` (the AI copywriter against a fake Claude API: the request shape, the posts and cards it writes,
+compliance rejection → rewrite → held, the no-invention guard, the trial's copy_done, spawn on kickoff, the hourly catch-up,
+no key → no-op, caps, retries), `platform/tests/test_auth.py` (the OIDC flow against a fake Google, every refusal, the RS256 verifier, sessions, cookies, rate
 limit, admin and tenant scoping) and `platform/tests/test_trial.py` (sign-up → trial, one per e-mail / domain / user, no launch
 during the trial, the three e-mails once each, the end on the hour with the retention clock, the 402, the offers on the
 Billing page, the legacy Whop auto-link and the manual link, the console) and `platform/tests/test_stripe.py` (paying with

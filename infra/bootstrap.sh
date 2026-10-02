@@ -115,6 +115,7 @@ install -d -m 0750 -o root -g caddy /etc/otto/tls
 install -d -m 0710 -o otto -g caddy /var/lib/otto              # caddy may only traverse (to public/), never list or read data
 for d in brands assets locks tmp deploy; do install -d -m 0750 -o otto -g otto "/var/lib/otto/$d"; done
 install -d -m 0755 -o otto -g otto /var/lib/otto/public /var/lib/otto/public/assets
+install -d -m 0750 -o otto -g otto /var/lib/otto/queue /var/lib/otto/queue/copy   # new trials for the copywriter (otto-copy-queue.path)
 install -d -m 0755 -o otto -g otto /srv/otto /srv/otto/site /srv/otto/app /srv/otto/admin /srv/otto/static
 install -d -m 0750 -o otto -g otto /var/cache/otto
 install -d -m 0755 -o otto -g otto /opt/otto
@@ -168,6 +169,7 @@ env_default OTTO_BACKUP_KEEP_DAILY 14
 env_default OTTO_BACKUP_KEEP_WEEKLY 8
 env_default OTTO_BACKUP_SECRETS 1 "1 = the encrypted backup also carries /etc/otto/secrets (needed to rebuild a server without re-connecting every client)"
 env_default RCLONE_CONFIG /etc/otto/secrets/rclone.conf
+env_default OTTO_COPY_QUEUE /var/lib/otto/queue/copy "a new trial's first week: the API queues it, otto-copy-queue.path writes and designs it at once"
 env_default PYTHONUNBUFFERED 1
 env_default LANG C.UTF-8
 want_domain=$OTTO_DOMAIN
@@ -353,9 +355,9 @@ fi
 
 # ------------------------------------------------------------------ systemd units, sudo rules, deploy key, logrotate
 say "services"
-units_hash() { { cat /etc/systemd/system/otto-*.service /etc/systemd/system/otto-*.timer /etc/systemd/system/otto-*.service.d/*.conf 2>/dev/null || true; } | sha256sum; }
+units_hash() { { cat /etc/systemd/system/otto-*.service /etc/systemd/system/otto-*.timer /etc/systemd/system/otto-*.path /etc/systemd/system/otto-*.service.d/*.conf 2>/dev/null || true; } | sha256sum; }
 units_before=$(units_hash)
-for f in "$SRC"/systemd/*.service "$SRC"/systemd/*.timer; do install -m 0644 -o root -g root "$f" /etc/systemd/system/; done
+for f in "$SRC"/systemd/*.service "$SRC"/systemd/*.timer "$SRC"/systemd/*.path; do install -m 0644 -o root -g root "$f" /etc/systemd/system/; done
 # drop-ins (one job's extra rights, e.g. otto-job@retention.service.d/secrets.conf)
 for dir in "$SRC"/systemd/*.service.d; do
 	[[ -d $dir ]] || continue
@@ -432,6 +434,7 @@ if [[ -e $HOLD ]]; then
 	note "job timers and the Telegram poller stay OFF ($HOLD exists — otto timers on / otto cutover)"
 else
 	for f in /etc/systemd/system/otto-job-*.timer; do systemctl enable --now "$(basename "$f")" >/dev/null 2>&1; done
+	systemctl enable --now otto-copy-queue.path >/dev/null 2>&1           # a new trial's first week, written within minutes
 	systemctl enable otto-telegram.service >/dev/null 2>&1
 	systemctl start otto-telegram.service >/dev/null 2>&1 || true        # starts only once telegram.json exists
 	note "job timers on ($(ls /etc/systemd/system/otto-job-*.timer | wc -l))"

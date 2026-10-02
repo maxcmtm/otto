@@ -154,7 +154,8 @@ class PlanTest(unittest.TestCase):
             otto_cron.whop_connected = saved
 
     def test_every_job_script_exists(self):
-        d = {"brands": [{"id": "x", "status": "active", "countries": ["DE"], "approvals": ["email", "telegram"]}], "posts": [], "campaigns": []}
+        d = {"brands": [{"id": "x", "status": "active", "countries": ["DE"], "approvals": ["email", "telegram"], "copy_auto": True}],
+             "posts": [], "campaigns": []}
         (self.tmp / "x").mkdir(exist_ok=True)
         (self.tmp / "x" / "competitors.json").write_text("[]")
         saved = otto_cron.whop_connected

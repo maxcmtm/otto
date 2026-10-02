@@ -23,18 +23,34 @@ as soon as it is written; nothing that is not public is ever handed to Meta.
 5. `otto_competitors.py add <slug> <name> <site>` ×5-8 (or let `sweep` seed from the profile) → `otto_competitors.py sweep <slug>` → agent completes the ad-library part (otto-competitor-research) → 3-5 briefs.
 6. `otto_plan.py build <slug> <YYYY-MM>` → month of draft slots (pillar rotation, platform, format, best hours).
 7. **Quill (otto-copy-engine):** write hook + caption per slot from the profile + competitor briefs → `copy.json` → `otto_plan.py fill <slug> <month> copy.json`.
+   Automatic since Oct 2026: `otto_copy.py week --brand <slug>` (Claude API) writes the next 7 days with cards into approvals,
+   and the daily `copy` job keeps them written; the agent reviews and fixes held posts (0b).
 8. Visuals for the first week: `genvisuals.py --brand <slug> --limit 12` (reads every post without an image, prompt from the profile's palette/style + the post's brief; writes `image` back itself).
 9. `otto_plan.py fill … --pending` (or `ap.py set <id> '{"status":"pending_approval"}'`) for week 1 → `otto_telegram.py send-cards` (format below).
 10. **Owner touch #2 — connect channels:** Meta OAuth (Page + IG) → `otto-secrets/meta-<slug>.json`; Telegram already paired. Until credentials exist the publisher waits and says so.
 
-### 0b. Free-trial kickoff (self-serve sign-ups — highest priority work of the day)
+### 0b. Free-trial kickoff (self-serve sign-ups — automatic; the agent reviews)
 A Google sign-up that onboards gets a 7-day trial (otto_trial) and its weeks are planned on the spot
-(`otto_trial.kickoff`: every month the trial overlaps, future slots only). The brand then carries
-`kickoff.copy_needed: true` and an owner card "New trial: write the first week for <Name>". Before anything else that day:
-1. Steps 3 (profile inference) and 7 (Quill) for the posts in the **next 7 days** first, then the rest of the month.
-2. Step 8 visuals for those 7 days (`genvisuals.py --brand <slug> --limit 12`), step 9 to put them in front of the client
-   (their approvals channel: e-mail by default).
-3. `otto_trial.py copy-done <slug>` → clears the flag; resolve the owner card.
+(`otto_trial.kickoff`: every month the trial overlaps, future slots only). With an Anthropic key
+(`otto-secrets/anthropic.json`) the kickoff starts **`otto_copy.py week --brand <slug>` in the background** (the onboarding
+request never waits): within minutes every slot of the next 7 days has copy written by the Claude API from the scan,
+profile, strategy, angles and compliance rules (content language = `brands[].lang`, the market's), each post is checked
+in code (compliance + baselines, the no-invention guard: numbers, prices, quotes, names, awards / guarantees / free shipping
+only when the brand's own data says so) and rewritten once when it fails, its card is rendered with `otto_render` on the
+site's photos, and it goes to `pending_approval` — the 07:35 report / e-mails pick it up. When the week is done the
+copywriter clears `kickoff.copy_needed` (`otto_trial.copy_done`) and resolves the owner card "New trial: write the first
+week for <Name>". Safety nets: the hourly `trials` job writes a week that is still not done 15 minutes after the kickoff
+(and renders cards the API's sandbox could not), the 05:30 `copy` job keeps every brand's next 7 days written.
+What the agent does (the same day, before anything else):
+1. `otto_copy.py status` — each trial brand: written, held, failed; the console's Setup row shows usage against the caps.
+2. Owner card **"Copy held for review: <Name>"** = posts the checks kept as drafts (the client has not seen them). Fix the
+   copy with Quill's rules (otto-creative-engine hooks, step 7 below), `ap.py set <id> '{"caption": …}'`, then
+   `ap.py status <id> pending_approval` (or `otto_compliance.py review <id> <rule>` for a needs-review hold).
+3. Owner card **"Copy not written yet: <Name>"** = API error, refusal or a cap: it retries on its own; `otto_copy.py week
+   --brand <slug>` runs it now. **No key at all** → the old manual path: steps 3 (profile inference) and 7 (Quill) for the
+   next 7 days, step 8 visuals, step 9 into approvals, then `otto_trial.py copy-done <slug>` and resolve the card.
+4. Read a sample of the written week as the client will: voice, variety, nothing invented. Improve the profile / strategy
+   (`(?)` items) when the copy shows a gap — the next run reads them.
 The trial plan previews paid ads (matrix planned and rendered) but never launches them; don't promise a live campaign
 before a card is on file. A trial that ends unpaid pauses itself (no action needed); its data is kept 90 days.
 
@@ -49,7 +65,8 @@ before a card is on file. A trial that ends unpaid pauses itself (no action need
 | hourly :15 | Guard: metric drops ≥30 %, missed slots, approvals about to miss their slot | `otto_watch.py watch` (cron) |
 | on callback | Owner decision → state + taste log (handled by the poller; `ap.py decide … --via telegram` is the manual equivalent) | `otto_telegram.py poll` |
 | on "edit" reply | Rewrite with the owner's instruction, resend the card | Quill (copy engine) → `ap.py set` |
-| 18:00 | Keep the deck full: next 7 days must have captions + visuals; generate what's missing | Quill for copy · `genvisuals.py --brand <slug>` for images (cron) · `otto_telegram.py send-recs` for new recommendations |
+| 05:30 | Copy + cards for every draft slot in the next 7 days → pending_approval (before the 07:35 report) | `otto_copy.py daily --brand <slug>` (cron `copy`; Claude API) |
+| 18:00 | Keep the deck full: next 7 days must have captions + visuals; generate what's missing | `otto_copy` writes the copy (05:30) · `genvisuals.py --brand <slug>` for images (cron) · `otto_telegram.py send-recs` for new recommendations |
 
 Rules: never publish without `approved`. A `later` keeps the post pending and re-sends the card next morning.
 If a slot is < 6 h away and still pending, `otto_watch` pings once; if it passes, `otto_publish` marks it

@@ -26,7 +26,9 @@ user becomes "expired". Reminder e-mails to the user (otto_email.deliver: its tr
 a card to continue" (after the end) — each once (claimed in data.json before sending; a failed send is retried next hour;
 a reminder whose window has passed is never sent late, and day8 not more than 7 days late). Each reminder speaks the
 language the user's brand chose for e-mails (brands[].comms_lang, otto_i18n: en by default, nl, de), dates and prices in
-its locale. Users without any brand, whose
+its locale. A trial's first week that is still unwritten 15 minutes after its kickoff
+(the copywriter otto_copy normally starts in the background at onboarding) is written inline here (copy_catchup; only with
+an Anthropic key). Users without any brand, whose
 trial is over and who have not signed in for 90 days, are removed (their sessions end); the ledger keeps the hashes only,
 for LEDGER_DAYS (3 years), then drops them.
 Paying (Stripe, otto_stripe; Whop is legacy): the "add a card" screen offers plans.json trial.checkout_plans (Starter,
@@ -621,11 +623,14 @@ def _months(start, end):
     return out
 
 
-def kickoff(bid, now=None, out=print):
+def kickoff(bid, now=None, out=print, spawn=True):
     """A trial is worth nothing if its seven days are empty: the monthly plan only runs on the 25th for the next month.
     Plan every month the trial overlaps (future slots only — otto_plan skips past ones) right away, and flag the brand
-    for the copywriter (skills/otto-autopilot: kickoff.copy_needed → write the first 7 days first, then visuals).
-    Local and cheap (no network, no image generation). Idempotent: a done kickoff is never redone. → months planned."""
+    for the copywriter (kickoff.copy_needed). With an Anthropic key the copywriter (otto_copy) starts in the background
+    right away (spawn=True: the onboarding request never waits) and writes the first 7 days with their cards into the
+    client's approvals; the hourly job (spawn=False here) catches up inline (copy_catchup). Without a key the owner card
+    stays the human fallback (skills/otto-autopilot 0b). The planning itself is local and cheap (no network). Idempotent: a
+    done kickoff is never redone. → months planned."""
     import otto_plan
     now = now or utcnow()
     d = ap.load()
@@ -654,11 +659,62 @@ def kickoff(bid, now=None, out=print):
                         "A trial with an empty app does not convert", "Write copy", brand=bid, source="otto_trial",
                         audience="owner")
     out(f"{bid}: trial kickoff planned {', '.join(planned) or 'nothing new'} (months {', '.join(months)})")
+    if spawn:
+        try:
+            import otto_copy
+            if otto_copy.spawn_week(bid):
+                out(f"{bid}: the copywriter is writing the first week in the background (copy.log)")
+            else:
+                out(f"{bid}: no Anthropic key — the first week waits for a person (owner card)")
+        except Exception as e:                             # noqa: BLE001 — the hourly job catches up
+            out(f"{bid}: copywriter not started ({type(e).__name__}: {e}) — the trials job catches up")
     return planned
 
 
+COPY_CATCHUP = timedelta(minutes=15)       # a trial's first week still unwritten this long after its kickoff → the job writes it
+COPY_RETRY = timedelta(minutes=50)         # not again while a run (the spawned one, or the last catch-up) may still be busy
+COPY_MAX_PER_RUN = 3
+
+
+def copy_catchup(now=None, out=print):
+    """The hourly safety net for the trial kickoff's background copywriter (a crash, a restart of the API, the API down):
+    every trial brand still kickoff.copy_needed 15 minutes after its kickoff gets its first week written inline (at most
+    three brands an hour; not again within 50 minutes of the last try). Nothing without an Anthropic key. → brand ids run."""
+    now = now or utcnow()
+    try:
+        import otto_copy
+    except Exception as e:                                 # noqa: BLE001
+        out(f"copy catch-up unavailable: {type(e).__name__}: {e}")
+        return []
+    try:
+        otto_copy.render_pending(out=out)                  # cards the kickoff's background run (no Chrome in the API) left
+    except Exception as e:                                 # noqa: BLE001
+        out(f"pending cards not rendered: {type(e).__name__}: {e}")
+    if not otto_copy.ready():
+        return []
+    due = []
+    d = ap.load()
+    for b in d.get("brands") or []:
+        k = (b.get("kickoff") or {}) if isinstance(b, dict) else {}
+        if not k.get("copy_needed") or not b.get("id") or ap.plan_ended(d, b["id"]):
+            continue
+        at, tried = _dt(k.get("at")), _dt(k.get("copy_try_at"))
+        if (at and now - at < COPY_CATCHUP) or (tried and now - tried < COPY_RETRY):
+            continue
+        due.append(b["id"])
+    done = []
+    for bid in due[:COPY_MAX_PER_RUN]:
+        try:
+            otto_copy.write_week(bid, out=out, job="trial catch-up")
+            done.append(bid)
+        except Exception as e:                             # noqa: BLE001 — one brand never stops the job
+            out(f"{bid}: copy catch-up failed: {type(e).__name__}: {e}")
+    return done
+
+
 def copy_done(bid):
-    """The copywriter finished the first week (clears kickoff.copy_needed)."""
+    """The first week has copy (otto_copy.finish_trial calls this when every post of it is written or held for review; a person
+    can run `otto_trial.py copy-done <slug>`): clears kickoff.copy_needed."""
     with ap.transaction() as d:
         b = ap.brand(d, bid)
         assert b, f"unknown brand {bid}"
@@ -684,12 +740,13 @@ def run(now=None, out=print, dry=False):
         if isinstance(b, dict) and b.get("trial") and not (b.get("trial") or {}).get("denied") \
                 and not (b.get("kickoff") or {}).get("done") and b.get("plan") == ap.trial_plan_id():
             try:
-                kickoff(b["id"], now, out)
+                kickoff(b["id"], now, out, spawn=False)    # a systemd oneshot kills what it spawns: copy_catchup writes inline
             except Exception as e:                         # noqa: BLE001 — one brand never stops the job
                 out(f"{b['id']}: kickoff failed: {type(e).__name__}: {e}")
     expire(now, out)
     _, failed = send_reminders(now, out)
     prune_users(now, out)
+    copy_catchup(None, out)                                # last: it calls the Claude API (minutes, not seconds)
     return 1 if failed else 0
 
 

@@ -73,6 +73,8 @@ Access (e-mail one-time code) — nobody shares a password, keys go straight int
     ```
     At the end it prints what is still missing, plus the two values GitHub needs (`OTTO_HOST`, `OTTO_KNOWN_HOSTS`).
 12. Secrets (all JSON, owner otto, mode 600 — create each with `sudo -u otto nano /etc/otto/secrets/<file>`):
+    `anthropic.json` `{"api_key": "sk-ant-…", "model": "claude-opus-5-5"}` (the AI copywriter: a new trial's first week and
+    every brand's next 7 days, `otto_copy.py`; without it new trials wait for a person — docs/AUTH-AND-TRIAL.md) ·
     `telegram.json` `{"bot_token": "…", "owner_chat_id": "…"}` · `leonardo.json` `{"api_key": "…"}` · `elevenlabs.json` ·
     `stripe.json` (payments: `{"secret_key", "publishable_key", "webhook_secrets": ["whsec_…"]}`, docs/BILLING.md; until it exists
     every billing screen says "Payments aren't set up yet") · `whop.json` (legacy founders only, docs/ADMIN.md) · `meta-<brand>.json` / `google-<brand>.json` per client (platform/crons.md) ·
@@ -196,6 +198,9 @@ resume it. Lost the whole server: Hetzner → server → Backups → restore a s
 - **Client sign-in and trials**: `otto_auth.py status` (configured? how many sessions), `otto_auth.py logout-user <e-mail>`
   (ends someone's sessions), `otto_trial.py status` (every free trial, days left, reminders), the hourly `trials` job
   (`otto logs trials`). docs/AUTH-AND-TRIAL.md.
+- **AI copywriter**: `otto_copy.py status` (key, model, today's calls / tokens / spend against the caps, what each brand still
+  needs), `otto_copy.py week --brand <id> [--dry]` (write a brand's next 7 days now), the daily `copy` job at 05:30 brand time
+  and the trial kickoff's background runs both write `/var/lib/otto/copy.log` (`otto logs copy` for the job's journal).
 - **Pages**: the app page is published with its embedded data block emptied — the live data only ever comes from the API,
   per signed-in user.
 - **Jobs and schedule**: `platform/crons.md` and `platform/otto_cron.py` (`otto jobs`). Heartbeats: `/var/lib/otto/heartbeats.json`.

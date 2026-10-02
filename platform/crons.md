@@ -34,7 +34,8 @@ day, success or not — a failure alerts and `otto run <job> --brand B` repeats 
 | `whop-sync` | 02:20 UTC | `otto_whop.py backfill` | once, when api_key + company_id exist (LEGACY: the founding seats sold on Whop; Stripe needs no sync — its webhook is the source of truth) |
 | `track-prune` | 1st 04:00 UTC | `otto_track.py prune --days 400` | once |
 | `retention` | 04:40 owner | `otto_retention.py run` (client data 90 days after the plan ended, owner notices 14 and 3 days before, export first; exports after 30 days; leads after `OTTO_LEAD_RETENTION_DAYS`) | once (the kill switch does not stop it) |
-| `trials` | hourly :05 UTC | `otto_trial.py run` (free trials: a trial that ended without a card → plan `none`; the day-5 / day-7 / day-8 e-mails, once each; idle accounts without a brand after 90 days) | once (the kill switch does not stop it) |
+| `trials` | hourly :05 UTC | `otto_trial.py run` (free trials: a trial that ended without a card → plan `none`; the day-5 / day-7 / day-8 e-mails, once each; idle accounts without a brand after 90 days; a new trial's first week still unwritten 15 min after its kickoff is written inline, and cards the kickoff's background run left pending are rendered) | once (the kill switch does not stop it) |
+| `copy` | 05:30 brand | `otto_copy.py daily --brand B` — the AI copywriter (Claude API, `anthropic.json`): every draft slot in the next 7 days gets copy + its rendered card and goes to `pending_approval` before the 07:35 report; a post failing compliance / the no-invention guard twice stays a draft with an owner card. Without a key it does nothing (the console's Setup says so) | each active brand with organic content (`brands[].cron.off: ["copy"]` keeps a brand hand-written) |
 
 "Active" = `brands[].status == "active"` (or no status); onboarding and paused brands (`brands[].paused` / status `paused`) are
 skipped and the heartbeat says why. A sign-up leaves "onboarding" when a running subscription is linked to it (a Stripe checkout
@@ -112,8 +113,9 @@ What "safe to re-run" really means per job:
 15 3 25 * *  cd /home/ubuntu/.openclaw/workspace-maximus/autopilot/platform && flock -n /tmp/otto-ads-plan-cmtm.lock python3 otto_ads.py plan cmtm $(date -d '+1 month' +\%Y-\%m) --budget 30 >> ads.log 2>&1
 ```
 
-Agent-side steps that are not cron (they need the LLM): writing copy (`otto_plan.py fill`), rewriting
-`edit_requests[]`, completing the ad-library half of the competitor sweep, the Sunday weekly card.
+Copy for planned posts is written by the engine itself now (`otto_copy.py`, the `copy` job and the trial kickoff); an agent
+only reviews it and fixes what the copywriter held. Agent-side steps that are still not cron (they need the LLM): rewriting
+`edit_requests[]`, the ad matrix copy, completing the ad-library half of the competitor sweep, the Sunday weekly card.
 `otto-autopilot/SKILL.md` is the schedule for those.
 
 Telegram button handling is a long-running poller, not a cron. New server: `infra/systemd/otto-telegram.service` (system

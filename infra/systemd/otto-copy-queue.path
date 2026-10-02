@@ -1,0 +1,11 @@
+# A trial kickoff (otto_copy.spawn_week in the API) drops <brand>.week into the queue; this starts otto-copy-queue.service at
+# once, in the jobs' sandbox where headless Chrome can render the first week's images (the API's own sandbox cannot).
+[Unit]
+Description=Otto copywriter queue (new trials)
+Documentation=file:///opt/otto/infra/README.md
+
+[Path]
+DirectoryNotEmpty=/var/lib/otto/queue/copy
+
+[Install]
+WantedBy=paths.target

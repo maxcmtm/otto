@@ -38,7 +38,11 @@ Jobs — wall-clock times are LOCAL: a per-brand job at the brand's time (brands
   whop-sync     02:20 (UTC)         once        otto_whop.py backfill        (only once api_key + company_id exist)
   track-prune   1st 04:00 (UTC)     once        otto_track.py prune --days 400
   retention     04:40 owner         once        otto_retention.py run   (deletion 90 days after a plan ended, notices, leads)
-  trials        hourly at :05 (UTC) once        otto_trial.py run       (free trials: end them on the hour, reminder e-mails)
+  trials        hourly at :05 (UTC) once        otto_trial.py run       (free trials: end them on the hour, reminder e-mails,
+                                                the first week's copy when the kickoff's background run did not finish)
+  copy          05:30 brand         per brand   otto_copy.py daily --brand B   (the AI copywriter keeps the next 7 days written:
+                                                copy + cards → pending_approval, before the 07:35 report; plan: organic;
+                                                without an Anthropic key it does nothing and says so)
 A local job's timer ticks every hour at the job's minute; each tick runs the brands (or the owner job) whose local time has
 reached the job's time today, on the right local weekday / day of month, and that have not run it yet that local day. A tick
 up to 3 hours late still counts (a reboot or an outage catches up); later than that, the day is skipped. Each brand runs once
@@ -127,7 +131,10 @@ JOBS["retention"] = Job("Data retention", None, "04:40", 1440, "retention.log", 
 # ---- end data retention ----
 # ---- free trials (otto_trial.py): hourly, so a trial ends on its hour (not up to a day late) and the day-5 / day-7 / day-8
 # e-mails go out in their window. The kill switch does not stop it (ending a trial pauses work; it never starts any). ----
-JOBS["trials"] = Job("Free trials", "*-*-* *:05:00", None, 60, "trials.log", ONCE, False, 20)
+JOBS["trials"] = Job("Free trials", "*-*-* *:05:00", None, 60, "trials.log", ONCE, False, 45)
+# ---- the AI copywriter (otto_copy.py): every active brand's next 7 days get copy + cards before the 07:35 report. The kill
+# switch does not stop it (writing drafts for approval publishes nothing). ----
+JOBS["copy"] = Job("Copywriter", None, "05:30", 1440, "copy.log", BRAND, False, 45)
 LEONARDO_JOBS = ("genvisuals", "reels")
 
 # one unit of work: brand id ("*" = a job that runs once), argv, why it is skipped (None = run it), for reels the command
@@ -234,6 +241,8 @@ def brand_skip(b, job):
         return st                                    # onboarding, churned, …
     if job in (cron_cfg(b).get("off") or []):
         return "turned off for this brand (brands[].cron.off)"
+    if job == "copy" and b.get("copy_auto") is not True:
+        return "copy is written by hand for this brand (brands[].copy_auto: true lets the copywriter keep it written)"
     return None
 
 
@@ -241,6 +250,7 @@ def brand_skip(b, job):
 PLAN_GATES = {"ads-plan": "ads", "ads-launch": "ads", "ads-report": "ads", "reels": "reels", "cards": "telegram",
               "insights": "reports", "competitors": "competitor_sweep", "genvisuals": "organic", "plan-month": "organic",
               "email-cards": "organic", "email-recs": "organic",     # e-mail approvals come with every plan that makes content
+              "copy": "organic",
               "morning-report": "reports"}
 GATE_TEXT = {"reels": "reels", "telegram": "Telegram approvals", "reports": "reports", "competitor_sweep": "competitor sweep",
              "organic": "organic content"}
@@ -335,6 +345,8 @@ def brand_task(job, b, d, today, brands_dir, day=None):
         return T([PY, script("otto_ads.py"), "launch", "--brand", bid])
     if job == "morning-report":
         return T([PY, script("otto_report.py"), "send", "--brand", bid])
+    if job == "copy":
+        return T([PY, script("otto_copy.py"), "daily", "--brand", bid])
     if job == "ads-report":                          # the Telegram morning report carries the paid numbers: no 2nd message
         import otto_email
         quiet = "telegram" in otto_email.approval_channels(b) and all(ap.plan_of(d, bid)["features"].get(f) for f in ("reports", "telegram"))
