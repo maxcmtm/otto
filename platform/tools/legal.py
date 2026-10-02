@@ -9,6 +9,11 @@ headings, paragraphs, "- " and "1. " lists (one nested level, indented two space
 capitals ([VAT ID]) and reviewer notes ([REVIEW: …], [DECISION: …], [VERIFY: …], [ENGINEERING: …]) are highlighted on the
 page, so nothing unfinished can go out unnoticed.
 
+Publishing: docs/legal/facts.json holds the company facts (the placeholders' values: "COMPANY LEGAL NAME", "DOMAIN" …)
+and "publish". Filled facts replace their placeholders in every mode. With "publish": true the reviewer notes and the draft
+callout are left out, the pages may be indexed, and rendering stops with the list of missing facts while any placeholder is
+still open — a published page never shows "[VAT ID]". `python3 tools/legal.py --missing` lists what is still open.
+
 The pages run no script and load nothing from another host: a strict CSP, one stylesheet (assets/legal.css, which also
 loads the self-hosted Mona Sans) and an inline SVG favicon. Paths are relative, so the same files work on the apex
 (/legal/…), on app. and under /otto/legal/ on the old box.
@@ -38,6 +43,7 @@ FAVICON = ("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 vie
            "height=%2732%27 rx=%278%27 fill=%27%232447F0%27/%3E%3Crect x=%278%27 y=%278%27 width=%2716%27 height=%2716%27 "
            "rx=%274%27 fill=%27none%27 stroke=%27white%27 stroke-width=%272%27 opacity=%27.9%27/%3E%3C/svg%3E")
 NOTE_KINDS = ("REVIEW", "DECISION", "VERIFY", "ENGINEERING")
+FACTS = SRC / "facts.json"
 TOC_MIN = 5          # a table of contents for pages with at least this many sections
 
 _NOTE = re.compile(r"\[(%s)\b:?\s*([^\[\]\n]*?)\s*\]" % "|".join(NOTE_KINDS))
@@ -48,6 +54,42 @@ _BOLD = re.compile(r"\*\*(.+?)\*\*")
 _EM = re.compile(r"(?<![*\w])\*(?![\s*])(.+?)(?<![\s*])\*(?![*\w])")
 _ITEM = re.compile(r"^( *)(-|\d+\.)\s+(.*)$")
 _CLAUSE = re.compile(r"^(\d+\.\d+)\s+")
+
+
+class MissingFacts(Exception):
+    pass
+
+
+def load_facts(path=None):
+    """→ (publish, {placeholder: value}) from docs/legal/facts.json (absent → draft, no values)."""
+    import json
+    f = Path(path) if path else FACTS
+    try:
+        raw = json.loads(f.read_text())
+    except (OSError, ValueError):
+        return False, {}
+    vals = {k: str(v).strip() for k, v in raw.items()
+            if not k.startswith("_") and k != "publish" and isinstance(v, (str, int)) and str(v).strip()}
+    return raw.get("publish") is True, vals
+
+
+_DRAFT_CALLOUT = re.compile(r"^> \*\*Draft.*(?:\n>.*)*\n?", re.M)
+_NOTE_ANY = re.compile(r"[ \t]*\[(%s)\b[^\[\]\n]*\]" % "|".join(NOTE_KINDS))
+
+
+def prepare(md, publish=False, facts=None):
+    """Fill the known facts; when publishing, drop reviewer notes and the draft callout, and refuse open placeholders."""
+    for k, v in (facts or {}).items():
+        md = md.replace(f"[{k}]", v)
+    if not publish:
+        return md
+    md = _DRAFT_CALLOUT.sub("", md)
+    md = _NOTE_ANY.sub("", md)
+    md = re.sub(r"^Version: Draft [\d.]+ · [^·\n]+ · ", "Version 1.0 · ", md, flags=re.M)
+    open_ = sorted({m.group(1) for m in _PH.finditer(_LINK.sub("", md))})
+    if open_:
+        raise MissingFacts(", ".join(open_))
+    return md
 
 
 def slug(text, seen):
@@ -147,7 +189,9 @@ def render_body(md):
 
     def flush():
         if buf:
-            out.append(para(" ".join(x.strip() for x in buf)))
+            text = " ".join(x.strip() for x in buf).strip()
+            if text:
+                out.append(para(text))
             buf.clear()
 
     while i < len(lines):
@@ -213,12 +257,20 @@ def render_body(md):
     return title, "\n".join(out)
 
 
-def page(name, md):
-    title, body = render_body(md)
+def page(name, md, publish=False, facts=None):
+    title, body = render_body(prepare(md, publish, facts))
+    facts = facts or {}
     label, desc = PAGES[name]
     plain = re.sub(r"<[^>]+>", "", inline(title))
     cur = ' aria-current="page"'
     nav = "".join(f'<a href="{p}.html"{cur if p == name else ""}>{l}</a>' for p, (l, _) in PAGES.items())
+    robots = "" if publish else ("<!-- draft: keep out of search engines until a lawyer has approved the text; remove this line "
+                                 "when publishing -->\n<meta name=\"robots\" content=\"noindex\">\n")
+    mail = facts.get("CONTACT EMAIL")
+    ask = html.escape(mail) if mail else '<span class="ph">[CONTACT EMAIL]</span>'
+    foot = (f'<footer class="wrap foot"><span>Otto · legal, in force from {html.escape(facts.get("EFFECTIVE DATE", ""))}</span>'
+            f"<span>Questions: {ask}</span></footer>") if publish else \
+        f'<footer class="wrap foot"><span>Otto · legal pack, draft of 30 September 2026</span><span>Questions: {ask}</span></footer>'
     return f"""<!doctype html>
 <html lang="en" dir="ltr">
 <head>
@@ -228,9 +280,7 @@ def page(name, md):
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>{plain} · Otto</title>
 <meta name="description" content="{html.escape(desc)}">
-<!-- draft: keep out of search engines until a lawyer has approved the text; remove this line when publishing -->
-<meta name="robots" content="noindex">
-<meta name="color-scheme" content="light dark">
+{robots}<meta name="color-scheme" content="light dark">
 <meta name="theme-color" content="#F5F7FB" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#0C0D0F" media="(prefers-color-scheme: dark)">
 <link rel="icon" href="{FAVICON}">
@@ -247,19 +297,38 @@ def page(name, md):
 {body}
 <p class="up"><a href="#main">Back to top</a></p>
 </main>
-<footer class="wrap foot"><span>Otto · legal pack, draft of 30 September 2026</span><span>Questions: <span class="ph">[CONTACT EMAIL]</span></span></footer>
+{foot}
 </body>
 </html>
 """
 
 
-def render_all(src=SRC):
-    return {name: page(name, (Path(src) / f"{name}.md").read_text()) for name in PAGES}
+def render_all(src=SRC, facts_path=None):
+    publish, facts = load_facts(facts_path or Path(src) / "facts.json")
+    return {name: page(name, (Path(src) / f"{name}.md").read_text(), publish, facts) for name in PAGES}
+
+
+def missing(src=SRC):
+    """Placeholders still open across the pack (what facts.json needs before "publish": true)."""
+    _, facts = load_facts(Path(src) / "facts.json")
+    out = set()
+    for name in PAGES:
+        md = prepare((Path(src) / f"{name}.md").read_text(), False, facts)
+        md = _DRAFT_CALLOUT.sub("", _NOTE_ANY.sub("", md))
+        out |= {m.group(1) for m in _PH.finditer(_LINK.sub("", md))}
+    return sorted(out)
 
 
 def main():
+    if "--missing" in sys.argv:
+        print("\n".join(missing()) or "nothing open")
+        return 0
     OUT.mkdir(exist_ok=True)
-    for name, text in render_all().items():
+    try:
+        pages = render_all()
+    except MissingFacts as e:
+        sys.exit(f"publish is on but these facts are missing in docs/legal/facts.json: {e}")
+    for name, text in pages.items():
         (OUT / f"{name}.html").write_text(text)
         print(f"legal/{name}.html")
 

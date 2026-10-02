@@ -33,7 +33,8 @@ class LegalPagesTest(unittest.TestCase):
             for m in re.finditer(r'<link\b[^>]*\bhref="([^"]+)"|\bsrc="([^"]+)"', html):
                 url = m.group(1) or m.group(2)
                 self.assertFalse(re.match(r"(https?:)?//", url), f"{name}: loads {url} from another host")
-            self.assertIn("Draft — must be reviewed by a qualified lawyer in the EU before publishing", html, name)
+            if not legal.load_facts()[0]:              # draft until docs/legal/facts.json says "publish": true
+                self.assertIn("Draft — must be reviewed by a qualified lawyer in the EU before publishing", html, name)
 
     def test_nav_and_cross_links_resolve(self):
         for name in legal.PAGES:
@@ -78,3 +79,49 @@ class LegalPagesTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class PublishModeTest(unittest.TestCase):
+    """docs/legal/facts.json "publish": true → no draft callout, no reviewer notes, no placeholder, indexable; and it refuses
+    to render while a fact is missing."""
+
+    def facts(self, tmp, publish=True, drop=None):
+        import json, tempfile
+        vals = {k: "Example value" for k in legal.missing()}
+        vals.update({"CONTACT EMAIL": "hello@otto.example", "EFFECTIVE DATE": "3 October 2026"})
+        _, known = legal.load_facts()
+        vals.update(known)
+        if drop:
+            vals.pop(drop, None)
+        f = Path(tmp) / "facts.json"
+        f.write_text(json.dumps(dict(vals, publish=publish)))
+        return f
+
+    def test_published_pages_are_clean(self):
+        import tempfile
+        with tempfile.TemporaryDirectory() as tmp:
+            pages = legal.render_all(facts_path=self.facts(tmp))
+        for name, html in pages.items():
+            self.assertNotIn("Draft —", html, name)
+            self.assertNotIn('class="note"', html, name)
+            self.assertNotIn('class="ph"', html, name)
+            self.assertNotIn("noindex", html, name)
+            self.assertNotIn("<p></p>", html, name)
+            self.assertNotRegex(html, r"\[(REVIEW|DECISION|VERIFY|ENGINEERING)\b", name)
+            self.assertIn("hello@otto.example", html, name)
+        self.assertIn("Version 1.0", pages["terms"])
+
+    def test_publish_refuses_open_placeholders(self):
+        import tempfile
+        with tempfile.TemporaryDirectory() as tmp:
+            with self.assertRaises(legal.MissingFacts) as cm:
+                legal.render_all(facts_path=self.facts(tmp, drop="VAT ID"))
+        self.assertIn("VAT ID", str(cm.exception))
+
+    def test_draft_mode_keeps_notes_and_placeholders(self):
+        import tempfile
+        with tempfile.TemporaryDirectory() as tmp:
+            pages = legal.render_all(facts_path=self.facts(tmp, publish=False, drop="VAT ID"))
+        self.assertIn("Draft —", pages["company"])
+        self.assertIn('<span class="ph">[VAT ID]</span>', pages["company"])
+        self.assertIn("noindex", pages["company"])
