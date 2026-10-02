@@ -14,7 +14,7 @@ Stdlib only; no network beyond 127.0.0.1.
 """
 import http.server, itertools, json, re, threading
 
-KEY = "sk-ant-test-otto-fake-do-not-use"
+KEY = "fake-anthropic-key-otto-tests-do-not-use"
 HOOKS = ["Fresh beans show their roast date", "Grind just before you brew", "Why your coffee tastes flat at home",
          "The water matters more than you think", "A slower pour makes a sweeter cup", "Store beans away from the light",
          "What a medium roast really means", "Two spoons, one minute, better coffee", "The bag tells you how it was roasted",

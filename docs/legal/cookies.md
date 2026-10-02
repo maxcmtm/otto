@@ -37,6 +37,8 @@ The Cloudflare cookies are set by Cloudflare, which protects and delivers our si
 
 Session storage belongs to the browser tab and is deleted when you close it. Nothing in it is sent to us until you finish setup. It is used only for the service you asked for.
 
+**Your language.** Our pages are in English. If you choose Nederlands or Deutsch (at the bottom of the page, in the menu or in the setup bar), the page remembers that choice in your browser's local storage (`otto.lang`), so your next visit opens in that language. It is never sent to us, it stays until you choose English again or clear this site's data, and nothing is stored unless you make that choice. It is used only for the service you asked for.
+
 ## Visit statistics without cookies
 
 Our pages send short messages to our own server (`/otto-track`): the page, the referring site's domain, campaign tags in the link, the type of device, and what you do on the page (scroll depth, sections seen, main buttons clicked, questions opened, films played, a scan started). Nothing is stored on your device for these statistics. Our server replaces your IP address with a code that changes every day and never writes the IP address down. With Do Not Track or Global Privacy Control switched on, the page sends one anonymous page view and nothing else. Your answer to the ad-measurement question is counted in these statistics too (how many visitors accept and reject), without anything that identifies you. The details are in the [Privacy Policy](privacy.html#our-website-statistics-in-detail).

@@ -1,6 +1,12 @@
 # Otto — Nederlandse landingspagina (copy ter review)
 
-Status: concept voor review, **nog niet gebouwd** · Geschreven: 30 september 2026 · Eerste native review verwerkt ·
+> **Vervallen als aparte pagina (2 oktober 2026).** Max: de hele site is Engels; Engels is de hoofdtaal, ook voor bezoekers uit
+> de NL-advertenties (die in het Engels lopen). Er komt geen `/nl`. Nederlands (en Duits) is een **keuze van de bezoeker** op
+> de landingspagina en in de onboarding, nooit automatisch: zie `docs/GO-TO-MARKET-NL-IE.md` §8. De Nederlandse teksten staan
+> nu in `platform/assets/i18n/landing.nl.json` en `onboarding.nl.json`; dit document was daarvoor de bron, waar het nog
+> overeenkwam met de huidige Engelse pagina. De Nederlandse reviewer reviewt voortaan die JSON-bestanden.
+
+Status (oorspronkelijk): concept voor review · Geschreven: 30 september 2026 · Eerste native review verwerkt ·
 Voor: Max en de Nederlandse reviewer · Plan: `docs/GO-TO-MARKET-NL-IE.md` §8.
 
 Geschreven in het Nederlands, niet vertaald. De structuur volgt de huidige `platform/landing.html` (met de gratis proefweek

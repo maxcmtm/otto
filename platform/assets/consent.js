@@ -8,7 +8,8 @@
      otto_fbc = "fb.1.<ms>.<fbclid>" (90 days) lets the server attribute the visit to that ad. It is deleted on "Reject".
    - Do Not Track / Global Privacy Control with no stored choice: treated as "Reject"; no banner is shown.
    - "Privacy choices" in the footer ([data-privacy-choices]) reopens the panel at any time; changing the answer applies at once.
-   - English or Dutch, from the browser's language list (the page's own lang wins when it is Dutch).
+   - In the page's language: English, unless the visitor chose Nederlands or Deutsch on the site (assets/i18n/site-lang.js
+     sets <html lang> and fires "ottolang" on a switch, which relabels the banner). Never from the browser's language list.
    - It never covers the landing's sticky CTA dock: while it is open, the dock sits above it (--oc-h, consent.css).
    No network requests, no third-party code, no inline styles (consent.css), so the landing's CSP stays as it is. */
 (function (W, d) {
@@ -34,19 +35,21 @@
       gpc: 'Je browser stuurt een Do Not Track- of Global Privacy Control-signaal. Otto stuurt daarom niets naar Meta, wat je hier ook kiest.',
       saved_granted: 'Opgeslagen: meten toegestaan.', saved_denied: 'Opgeslagen: meten niet toegestaan.',
       footer: 'Privacykeuzes', label: 'Privacykeuzes'
+    },
+    de: {
+      title: 'Darf Otto seine Anzeigen messen?',
+      body: 'Wenn Sie zustimmen, teilt unser Server Meta mit, wann Sie eine Website scannen oder mit der Anmeldung beginnen. So sehen wir, welche unserer Anzeigen funktionieren. Sagen Sie Nein, geht nichts an Meta, und die Seite funktioniert genauso.',
+      more: 'So funktioniert es', reject: 'Ablehnen', accept: 'Akzeptieren', close: 'Schließen',
+      now_granted: 'Ihre aktuelle Wahl: Anzeigenmessung erlaubt.', now_denied: 'Ihre aktuelle Wahl: Anzeigenmessung nicht erlaubt.',
+      gpc: 'Ihr Browser sendet ein Do-Not-Track- oder Global-Privacy-Control-Signal. Otto sendet deshalb nichts an Meta, egal was Sie hier wählen.',
+      saved_granted: 'Gespeichert: Anzeigenmessung erlaubt.', saved_denied: 'Gespeichert: Anzeigenmessung nicht erlaubt.',
+      footer: 'Datenschutzeinstellungen', label: 'Datenschutzeinstellungen'
     }
   };
 
-  function pickLang() {
-    var own = String(d.documentElement.getAttribute('lang') || '').toLowerCase();
-    if (own.indexOf('nl') === 0) return 'nl';
-    var list = (n.languages && n.languages.length) ? n.languages : [n.language || 'en'];
-    for (var i = 0; i < list.length; i++) {
-      var l = String(list[i] || '').toLowerCase();
-      if (l.indexOf('nl') === 0) return 'nl';
-      if (l.indexOf('en') === 0) return 'en';
-    }
-    return 'en';
+  function pickLang() {                     // the page's language, which the visitor chose (English by default)
+    var own = String(d.documentElement.getAttribute('lang') || '').toLowerCase().slice(0, 2);
+    return T[own] ? own : 'en';
   }
   var L = T[pickLang()];
   var signal = n.globalPrivacyControl === true || n.doNotTrack === '1' || W.doNotTrack === '1';
@@ -125,6 +128,19 @@
     d.body.appendChild(root);
     return root;
   }
+  function relabel() {                       // the visitor switched the site's language: the banner and the footer link follow
+    L = T[pickLang()];
+    var links = d.querySelectorAll('[data-privacy-choices]');
+    for (var i = 0; i < links.length; i++) if (!links[i].getAttribute('data-keep-label')) links[i].textContent = L.footer;
+    if (!root) return;
+    ui.title.textContent = L.title;
+    var p = d.getElementById('oc-body'); p.firstChild.nodeValue = L.body; p.querySelector('.oc-more').textContent = L.more;
+    ui.gpc.textContent = L.gpc; ui.reject.textContent = L.reject; ui.accept.textContent = L.accept;
+    ui.close.textContent = L.close; ui.close.setAttribute('aria-label', L.close);
+    if (!ui.state.hidden) refresh(false);
+    measure();
+  }
+  d.addEventListener('ottolang', relabel);
   function refresh(saved) {
     ui.state.textContent = saved ? (current === 'granted' ? L.saved_granted : L.saved_denied)
       : current === 'granted' ? L.now_granted : current === 'denied' ? L.now_denied : '';

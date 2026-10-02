@@ -3,10 +3,10 @@
 <head>
 <meta charset="utf-8">
 <!-- CSP: script-src lists the sha256 of every inline script element in this page. After editing one, the browser refuses it and its console prints the new hash: replace the old one here (or recompute all of them). -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-cWwCZMELdYHZn9EkmuHS8lvrKoP8XuH2traw+QmSh6M=' 'sha256-Qz3Zry9sNTkn0VyeVLB26JkM8Ey6RZFdVxdUi2FKJW0=' 'sha256-q2hXY81/rCDUaT0LDof8xyMd0leygDq5tjBATI1sO2U=' 'sha256-MKiTavdI0j+ZKKNQZEUqRkyhG+h9QiCig9jHu6GmhTQ=' 'sha256-NRLiP1fqeOyI94xRkzPcu7XapQiZDldJTPdokiXDFgA='; style-src 'self' 'unsafe-inline'; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-src 'none'; worker-src 'none'; manifest-src 'self'; img-src 'self' data: https:; media-src 'self'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-9nzvDJyrUhyqRXqebu5NnZXORhJyTjNv7u1WHl9NDSk=' 'sha256-Qz3Zry9sNTkn0VyeVLB26JkM8Ey6RZFdVxdUi2FKJW0=' 'sha256-xvHlXlE3hjUg7DHOl2nXV5irNUbrWvYANi3nZp4gOpo=' 'sha256-j9VwMpEwSPWdSqgIAppOpbcCxb+NRSahmQTGZP4H6LA=' 'sha256-TwXBozEDw0pQWW1tqtGgI0wayveog7asz4Wk9cP2Unk='; style-src 'self' 'unsafe-inline'; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-src 'none'; worker-src 'none'; manifest-src 'self'; img-src 'self' data: https:; media-src 'self'">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <script>
-/* Head script, under 1KB: base for the deployed copy, js/motion flags, render tier, libraries. */
+/* Head script: base for the deployed copy, js/motion flags, render tier, libraries, a chosen language. */
 (function(d,w){var h=d.documentElement,l=w.location,q=l.search,n=navigator,c=n.connection||{};
 if(/monyflow\.work$/.test(l.hostname)&&l.pathname.indexOf('/otto/')!==0){var b=d.createElement('base');b.href='/otto/';d.head.appendChild(b)}
 h.className='js';var rm=w.matchMedia('(prefers-reduced-motion: reduce)').matches,m=/[?&]motion=1/.test(q)||(!rm&&!n.webdriver&&!/[?&]static=1/.test(q));
@@ -15,10 +15,12 @@ var low=(w.matchMedia('(pointer: coarse)').matches&&w.innerWidth<1024)||c.saveDa
 var t=/[?&]tier=([abc])/.exec(q);h.setAttribute('data-tier',t?t[1]:!m?'c':low?'b':'a');
 if(m){var C='assets/vendor/',L=[[C+'gsap@3.15.0/dist/gsap.min.js','sha384-XmJ9SoHtVOHoQUcKvFAzVXwdkKo1Ie3bhmSoIAkcdsHGaIrVJIkmozyq0FJeb/Ly'],[C+'gsap@3.15.0/dist/ScrollTrigger.min.js','sha384-wl5TeDVvOWt30Pbf8aSo2ZrzsOjddu3avOBvHe+p+OhJt9gP6w9YXmDkN5DK2/dF'],[C+'lenis@1.3.26/dist/lenis.min.js','sha384-jqpi9VmOdhyLoLURgjCn7EpnG9BbnHW57ibIZoeaIU+erWDH3k8fQQg0xH2ySjnw']];
 w.__ottoLibs=Promise.all(L.map(function(s){return new Promise(function(y,x){var e=d.createElement('script');e.src=s[0];e.integrity=s[1];e.crossOrigin='anonymous';e.async=false;e.onload=y;e.onerror=x;d.head.appendChild(e)})}))}
+/* a visitor who chose Nederlands / Deutsch (assets/i18n/site-lang.js): hold the first paint until it is applied (max 1.2 s) */
+try{var g=/[?&]lang=([a-z]{2})(?:[&#]|$)/i.exec(w.location.search),k=g&&/^(en|nl|de)$/i.test(g[1])?g[1].toLowerCase():w.localStorage.getItem('otto.lang');if(k==='nl'||k==='de'){h.lang=k;h.classList.add('lang-wait');setTimeout(function(){h.classList.remove('lang-wait')},1200)}}catch(e){}
 })(document,window);
 </script>
-<title>Otto: your marketing department, in your pocket</title>
-<meta name="description" content="Otto plans, writes, designs and publishes your posts, reels and ads, and asks you only for the decisions. Approve from your phone. A report at 07:35 every morning.">
+<title data-i18n="meta.title">Otto: your marketing department, in your pocket</title>
+<meta name="description" data-i18n-attr="content:meta.desc" content="Otto plans, writes, designs and publishes your posts, reels and ads, and asks you only for the decisions. Approve from your phone. A report at 07:35 every morning.">
 <meta property="og:title" content="Otto: your marketing department, in your pocket">
 <meta property="og:description" content="Posts, reels and ads made from your website. Nothing goes out without your tap.">
 <meta name="color-scheme" content="light dark">
@@ -98,6 +100,7 @@ button{background:none;border:0;padding:0;cursor:pointer;-webkit-tap-highlight-c
 :focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 ::selection{background:var(--accent-tint)}
 [hidden]{display:none!important}
+html.lang-wait body{opacity:0}   /* Nederlands / Deutsch on arrival: no flash of English (site-lang.js lifts it) */
 .sr{position:absolute!important;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
 .wrap{width:min(1200px,100% - 2*var(--margin));margin-inline:auto}
 .tnum{font-variant-numeric:tabular-nums}
@@ -118,6 +121,11 @@ button{background:none;border:0;padding:0;cursor:pointer;-webkit-tap-highlight-c
 .small{font-size:15px;line-height:1.45}
 .caption{font-size:13px;line-height:1.35;color:var(--ink-2)}
 .two-tone .ink-2{font-weight:inherit}
+/* Dutch and German compounds (marketingafdeling, Marketingabteilung) are longer than any English word: headings may
+   hyphenate in those languages, and no single word may widen a column */
+.h1,.h2,.h3,.h4{overflow-wrap:break-word}
+:is(:lang(nl),:lang(de)) :is(.h1,.h2,.h3,.h4){-webkit-hyphens:auto;hyphens:auto}
+.hero-grid>*,.ch-grid>*,.final-grid>*{min-width:0}
 
 /* ============ Controls ============ */
 .btn{--h:48px;display:inline-flex;align-items:center;justify-content:center;gap:8px;height:var(--h);padding:0 22px;border-radius:var(--r-pill);font:600 16px/1 var(--sans);letter-spacing:-.005em;white-space:nowrap;user-select:none;transition:background-color var(--dur-fast) var(--ease-out),color var(--dur-fast),box-shadow var(--dur-fast),transform var(--dur-med) var(--spring-snappy)}
@@ -149,16 +157,24 @@ button{background:none;border:0;padding:0;cursor:pointer;-webkit-tap-highlight-c
 .mark{position:relative;width:24px;height:24px;border-radius:7px;background:var(--accent-fill);flex:none}
 .mark::after{content:"";position:absolute;inset:6px;border-radius:3px;border:1.5px solid var(--on-accent);opacity:.92}
 .nav-links{display:flex;gap:28px;font-size:15px;color:var(--ink-2)}
-.nav-links a{transition:color var(--dur-fast)}
+.nav-links a{white-space:nowrap;transition:color var(--dur-fast)}
+@media (max-width:1099px){:is(:lang(nl),:lang(de)) .nav-in{gap:24px}:is(:lang(nl),:lang(de)) .nav-links{gap:20px}:is(:lang(nl),:lang(de)) .nav-cta{gap:16px}}   /* room for the longer Dutch and German labels */
 .nav-links a:hover{color:var(--ink)}
 .nav-cta{margin-left:auto;display:flex;align-items:center;gap:20px}
 .nav-login{font-size:15px;color:var(--ink-2);transition:color var(--dur-fast)}
 .nav-login:hover{color:var(--ink)}
 .nav-cta .btn{transition:opacity var(--dur-base),transform var(--dur-med) var(--spring-snappy),background-color var(--dur-fast)}
 .nav.cta-off .nav-cta .btn{opacity:0;pointer-events:none}
+/* language: a quiet native select (keyboard, screen readers and the phone picker for free); English unless chosen */
+.lang-pick{position:relative;display:inline-flex;align-items:center;flex:none;height:32px;color:var(--ink-2);font-size:15px;white-space:nowrap;cursor:pointer;transition:color var(--dur-fast)}
+.lang-cur::after{content:"";display:inline-block;width:5px;height:5px;margin:0 2px 0 7px;border-right:1.5px solid currentColor;border-bottom:1.5px solid currentColor;transform:translateY(-3px) rotate(45deg);opacity:.7}
+/* the native select sits on top, invisible: the label shows the current language at its own width */
+.lang-pick select{position:absolute;inset:0;width:100%;height:100%;margin:0;padding:0;border:0;opacity:0;font:inherit;cursor:pointer;-webkit-appearance:none;appearance:none}
+.lang-pick:hover{color:var(--ink)}
+.lang-pick:has(select:focus-visible){outline:2px solid var(--accent);outline-offset:3px;border-radius:6px}
 .menu{display:none}
 @media (max-width:899px){
-  .nav-links,.nav-login{display:none}
+  .nav-links,.nav-login,.lang-pick{display:none}
   .nav-in{gap:12px}
   .menu{display:block;position:relative}
   .menu>summary{list-style:none;display:grid;place-items:center;width:44px;height:44px;margin-right:-10px;border-radius:12px;cursor:pointer}
@@ -172,6 +188,9 @@ button{background:none;border:0;padding:0;cursor:pointer;-webkit-tap-highlight-c
   .menu-sheet a{font:600 28px/1.2 var(--display);letter-spacing:-.02em;padding:10px 0;border-bottom:var(--hair) solid var(--line)}
   .menu-sheet .btn{margin-top:24px;font:600 17px/1 var(--sans);border:0;padding:0 22px}
   .menu-sheet .menu-login{font:400 17px/1.4 var(--sans);letter-spacing:0;color:var(--ink-2);border:0}
+  .menu-sheet .menu-lang{display:flex;flex-wrap:wrap;gap:0 22px;margin-top:auto;padding-top:20px;border-top:var(--hair) solid var(--line)}
+  .menu-sheet .menu-lang a{font:400 15px/1.4 var(--sans);letter-spacing:0;color:var(--ink-3);padding:10px 0;border:0}
+  .menu-sheet .menu-lang a[aria-current]{color:var(--ink);font-weight:600}
 }
 
 /* ============ Hero ============ */
@@ -787,6 +806,9 @@ footer .f-r{margin-left:auto;display:flex;gap:20px}
 footer .f-legal{flex:1 0 100%;display:flex;flex-wrap:wrap;gap:4px 20px;padding-top:12px;border-top:var(--hair) solid var(--line-soft)}
 footer .f-legal a{display:inline-flex;align-items:center;min-height:32px}
 footer a:hover{color:var(--ink)}
+footer .f-lang{display:flex;align-items:center;gap:8px}
+footer .f-lang a{display:inline-flex;align-items:center;min-height:32px}
+footer .f-lang a[aria-current]{color:var(--ink)}
 
 /* sticky mobile CTA */
 .dock{display:none}
@@ -857,31 +879,33 @@ html.motion .rv-play{transition:opacity var(--dur-slow) var(--ease-out),transfor
 </script>
 </head>
 <body>
-<a class="skip" href="#main">Skip to content</a>
+<a class="skip" href="#main" data-i18n="a11y.skip">Skip to content</a>
 
 <header class="nav" id="nav">
   <div class="wrap nav-in">
-    <a class="brand" href="#top" aria-label="Otto, back to the top"><span class="mark" aria-hidden="true"></span>Otto</a>
-    <nav class="nav-links" aria-label="Sections">
-      <a href="#story">How it works</a>
-      <a href="#work">Pilot work</a>
-      <a href="#watch">Watch</a>
-      <a href="#pricing">Pricing</a>
-      <a href="#faq">FAQ</a>
+    <a class="brand" href="#top" aria-label="Otto, back to the top" data-i18n-attr="aria-label:nav.home"><span class="mark" aria-hidden="true"></span>Otto</a>
+    <nav class="nav-links" aria-label="Sections" data-i18n-attr="aria-label:nav.sections">
+      <a href="#story" data-i18n="nav.how">How it works</a>
+      <a href="#work" data-i18n="nav.work">Pilot work</a>
+      <a href="#watch" data-i18n="nav.watch">Watch</a>
+      <a href="#pricing" data-i18n="nav.pricing">Pricing</a>
+      <a href="#faq" data-i18n="nav.faq">FAQ</a>
     </nav>
     <div class="nav-cta">
-      <a class="nav-login" href="/" data-login>Log in</a>
-      <a class="btn btn-primary btn-sm" href="/auth/google/start?next=%2Fonboarding.html" data-trial>Start free trial</a>
+      <label class="lang-pick"><span class="sr" data-i18n="lang.label">Language</span><span class="lang-cur" data-lang-current aria-hidden="true">English</span><select data-lang-select data-lang-from="nav"><option value="en" lang="en">English</option><option value="nl" lang="nl">Nederlands</option><option value="de" lang="de">Deutsch</option></select></label>
+      <a class="nav-login" href="/" data-login data-i18n="nav.login">Log in</a>
+      <a class="btn btn-primary btn-sm" href="/auth/google/start?next=%2Fonboarding.html" data-trial data-i18n="nav.trial">Start free trial</a>
       <details class="menu" id="menu">
-        <summary aria-label="Menu"><span class="menu-ico" aria-hidden="true"></span></summary>
+        <summary aria-label="Menu" data-i18n-attr="aria-label:nav.menu"><span class="menu-ico" aria-hidden="true"></span></summary>
         <div class="menu-sheet">
-          <a href="#story">How it works</a>
-          <a href="#work">Pilot work</a>
-          <a href="#watch">Watch</a>
-          <a href="#pricing">Pricing</a>
-          <a href="#faq">FAQ</a>
-          <a class="btn btn-primary" href="/auth/google/start?next=%2Fonboarding.html" data-trial>Start free 7-day trial</a>
-          <a class="menu-login" href="/" data-login>Log in</a>
+          <a href="#story" data-i18n="nav.how">How it works</a>
+          <a href="#work" data-i18n="nav.work">Pilot work</a>
+          <a href="#watch" data-i18n="nav.watch">Watch</a>
+          <a href="#pricing" data-i18n="nav.pricing">Pricing</a>
+          <a href="#faq" data-i18n="nav.faq">FAQ</a>
+          <a class="btn btn-primary" href="/auth/google/start?next=%2Fonboarding.html" data-trial data-i18n="cta.trial7">Start free 7-day trial</a>
+          <a class="menu-login" href="/" data-login data-i18n="nav.login">Log in</a>
+          <nav class="menu-lang" aria-label="Language" data-i18n-attr="aria-label:lang.label"><a href="?lang=en" data-lang="en" data-lang-from="menu" lang="en" hreflang="en">English</a><a href="?lang=nl" data-lang="nl" data-lang-from="menu" lang="nl" hreflang="nl">Nederlands</a><a href="?lang=de" data-lang="de" data-lang-from="menu" lang="de" hreflang="de">Deutsch</a></nav>
         </div>
       </details>
     </div>
@@ -894,20 +918,20 @@ html.motion .rv-play{transition:opacity var(--dur-slow) var(--ease-out),transfor
 <section class="hero" id="top" aria-labelledby="hero-h">
   <div class="wrap hero-grid">
     <div class="hero-copy">
-      <p class="live"><span class="live-dot" id="live-dot" aria-hidden="true"></span><span><time id="live-date" datetime="2026-09-29">Tuesday 29 September</time> · 3 posts ready for review</span></p>
-      <h1 class="h1" id="hero-h">Your marketing department, in your pocket.</h1>
-      <p class="lead">Otto plans, writes, designs and publishes your posts, reels and ads. <span class="ink-2">You approve each one from your phone, and at 07:35 every morning Otto tells you what it cost and what it brought in.</span></p>
+      <p class="live"><span class="live-dot" id="live-dot" aria-hidden="true"></span><span><time id="live-date" datetime="2026-09-29">Tuesday 29 September</time> · <span data-i18n="hero.live">3 posts ready for review</span></span></p>
+      <h1 class="h1" id="hero-h" data-i18n="hero.h1">Your marketing department, in your pocket.</h1>
+      <p class="lead" data-i18n-rich="hero.lead">Otto plans, writes, designs and publishes your posts, reels and ads. <span class="ink-2">You approve each one from your phone, and at 07:35 every morning Otto tells you what it cost and what it brought in.</span></p>
       <form class="scan" id="hero-form" autocomplete="off" novalidate>
-        <input id="hero-url" type="text" inputmode="url" placeholder="yourcompany.com" aria-label="Your website" spellcheck="false" autocapitalize="off" autocorrect="off">
-        <button class="btn btn-primary" type="submit" id="hero-btn"><span class="scan-idle">Scan my site</span><span class="scan-busy" aria-live="polite"><span class="spin" aria-hidden="true"></span><span id="hero-step">Reading the site</span></span></button>
+        <input id="hero-url" type="text" inputmode="url" placeholder="yourcompany.com" aria-label="Your website" data-i18n-attr="placeholder:hero.ph aria-label:scan.aria" spellcheck="false" autocapitalize="off" autocorrect="off">
+        <button class="btn btn-primary" type="submit" id="hero-btn"><span class="scan-idle" data-i18n="hero.scan">Scan my site</span><span class="scan-busy" aria-live="polite"><span class="spin" aria-hidden="true"></span><span id="hero-step">Reading the site</span></span></button>
       </form>
       <p class="scan-err" id="hero-err" role="alert"></p>
-      <p class="hero-note">See what Otto reads from your website. No signup. <a class="link" href="#story">See how it works</a></p>
+      <p class="hero-note" data-i18n-rich="hero.note">See what Otto reads from your website. No signup. <a class="link" href="#story">See how it works</a></p>
     </div>
 
     <div class="hero-stage-col">
       <figure class="stage" id="stage" aria-labelledby="stage-cap">
-        <figcaption class="sr" id="stage-cap">Otto’s Review screen on a phone. The owner taps Approve, and the post goes out as an Instagram post, a Facebook story and a Google Business update.</figcaption>
+        <figcaption class="sr" id="stage-cap" data-i18n="hero.stage">Otto’s Review screen on a phone. The owner taps Approve, and the post goes out as an Instagram post, a Facebook story and a Google Business update.</figcaption>
         <div class="stage-in">
           <div class="rig" id="rig">
             <div class="floor" aria-hidden="true"></div>
@@ -943,15 +967,15 @@ html.motion .rv-play{transition:opacity var(--dur-slow) var(--ease-out),transfor
             <div class="fan" id="fan">
               <figure class="fc fc-ig" data-k="ig">
                 <div class="fc-m"><img src="assets/landing/hg-spectrum-640.webp" width="640" height="640" alt=""></div>
-                <figcaption class="fc-cap"><span class="fc-chip"><svg class="gly" viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="5" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="12" cy="12" r="3.9" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="17.2" cy="6.8" r="1.1" fill="currentColor"/></svg><span class="ch-t">Instagram · Thu 18:00</span><span class="pill is-pub fc-st"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg><span class="st-t">Published</span></span></span><span class="fc-reach">Reach <b class="tnum" id="hs-reach">1,284</b> · sample</span></figcaption>
+                <figcaption class="fc-cap"><span class="fc-chip"><svg class="gly" viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="5" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="12" cy="12" r="3.9" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="17.2" cy="6.8" r="1.1" fill="currentColor"/></svg><span class="ch-t" data-i18n="fan.ig">Instagram · Thu 18:00</span><span class="pill is-pub fc-st"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg><span class="st-t">Published</span></span></span><span class="fc-reach"><span data-i18n="fan.reach">Reach</span> <b class="tnum" id="hs-reach">1,284</b> · <span data-i18n="fan.sample">sample</span></span></figcaption>
               </figure>
               <figure class="fc fc-fb" data-k="fb">
                 <div class="fc-m"><img src="assets/landing/hg-spectrum-640.webp" width="640" height="640" alt=""></div>
-                <figcaption class="fc-cap"><span class="fc-chip"><svg class="gly" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M13.4 21v-7.6h2.5l.4-3h-2.9V8.6c0-.9.3-1.5 1.5-1.5h1.6V4.4c-.3 0-1.2-.1-2.3-.1-2.2 0-3.7 1.3-3.7 3.8v2.3H8v3h2.5V21z"/></svg><span class="ch-t">Facebook story · Fri 09:00</span><span class="pill fc-st"><span class="st-t">Scheduled</span></span></span></figcaption>
+                <figcaption class="fc-cap"><span class="fc-chip"><svg class="gly" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M13.4 21v-7.6h2.5l.4-3h-2.9V8.6c0-.9.3-1.5 1.5-1.5h1.6V4.4c-.3 0-1.2-.1-2.3-.1-2.2 0-3.7 1.3-3.7 3.8v2.3H8v3h2.5V21z"/></svg><span class="ch-t" data-i18n="fan.fb">Facebook story · Fri 09:00</span><span class="pill fc-st"><span class="st-t">Scheduled</span></span></span></figcaption>
               </figure>
               <figure class="fc fc-gb" data-k="gb">
                 <div class="fc-m"><img src="assets/landing/hg-spectrum-640.webp" width="640" height="640" alt=""></div>
-                <figcaption class="fc-cap"><span class="fc-chip"><svg class="gly" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="M4 9.5 5.5 4.5h13L20 9.5"/><path d="M4 9.5c0 1.4 1.1 2.5 2.7 2.5s2.6-1.1 2.6-2.5c0 1.4 1.1 2.5 2.7 2.5s2.7-1.1 2.7-2.5c0 1.4 1 2.5 2.6 2.5S20 10.9 20 9.5"/><path d="M5.5 12v7.5h13V12"/><path d="M10 19.5v-4h4v4"/></svg><span class="ch-t">Google Business · Sat 10:00</span><span class="pill fc-st"><span class="st-t">Scheduled</span></span></span></figcaption>
+                <figcaption class="fc-cap"><span class="fc-chip"><svg class="gly" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="M4 9.5 5.5 4.5h13L20 9.5"/><path d="M4 9.5c0 1.4 1.1 2.5 2.7 2.5s2.6-1.1 2.6-2.5c0 1.4 1.1 2.5 2.7 2.5s2.7-1.1 2.7-2.5c0 1.4 1 2.5 2.6 2.5S20 10.9 20 9.5"/><path d="M5.5 12v7.5h13V12"/><path d="M10 19.5v-4h4v4"/></svg><span class="ch-t" data-i18n="fan.gb">Google Business · Sat 10:00</span><span class="pill fc-st"><span class="st-t">Scheduled</span></span></span></figcaption>
               </figure>
             </div>
           </div>
@@ -965,81 +989,81 @@ html.motion .rv-play{transition:opacity var(--dur-slow) var(--ease-out),transfor
 <!-- ============ 2 · Pilot work (proof) ============ -->
 <section class="shelf-sec" id="work" aria-labelledby="work-h">
   <div class="wrap shelf-top">
-    <h2 class="h3" id="work-h" data-rv>Made by Otto this month. <span class="ink-2">Real posts, reels and stories for two pilot brands.</span></h2>
+    <h2 class="h3" id="work-h" data-rv data-i18n-rich="work.h">Made by Otto this month. <span class="ink-2">Real posts, reels and stories for two pilot brands.</span></h2>
     <div class="shelf-btns">
-      <button class="round" type="button" id="shelf-prev" aria-label="Previous posts"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M14.5 6 8.5 12l6 6"/></svg></button>
-      <button class="round" type="button" id="shelf-next" aria-label="Next posts"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m9.5 6 6 6-6 6"/></svg></button>
+      <button class="round" type="button" id="shelf-prev" aria-label="Previous posts" data-i18n-attr="aria-label:work.prev"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M14.5 6 8.5 12l6 6"/></svg></button>
+      <button class="round" type="button" id="shelf-next" aria-label="Next posts" data-i18n-attr="aria-label:work.next"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m9.5 6 6 6-6 6"/></svg></button>
     </div>
   </div>
-  <div class="shelf" id="shelf" tabindex="0" aria-label="Pilot posts, scroll sideways">
+  <div class="shelf" id="shelf" tabindex="0" aria-label="Pilot posts, scroll sideways" data-i18n-attr="aria-label:work.shelf">
     <ol class="shelf-track" id="shelf-track">
       <li class="pcard">
         <div class="pc-hd"><span class="av">HG</span><div><b>Happy Garden</b><small>happygardeneu.com</small></div><svg class="gly" viewBox="0 0 24 24" aria-label="Instagram"><rect x="3.5" y="3.5" width="17" height="17" rx="5" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="12" cy="12" r="3.9" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="17.2" cy="6.8" r="1.1" fill="currentColor"/></svg></div>
-        <div class="pc-m"><img src="assets/landing/hg-001-640.webp" width="640" height="640" loading="lazy" alt="Three amber dropper bottles labelled full spectrum, broad spectrum and isolate"></div>
+        <div class="pc-m"><img src="assets/landing/hg-001-640.webp" width="640" height="640" loading="lazy" alt="Three amber dropper bottles labelled full spectrum, broad spectrum and isolate" data-i18n-attr="alt:img.spectrum"></div>
         <p class="pc-cap"><b>happygarden</b> Full spectrum, broad spectrum, isolate: same plant, three very different products. Sixty seconds to know what’s in your bottle.</p>
-        <div class="pc-ft"><span class="pill is-pub">Published</span><span class="when">Sun 08:00</span></div>
+        <div class="pc-ft"><span class="pill is-pub" data-i18n="st.pub">Published</span><span class="when"><span data-i18n="d.sun">Sun</span> 08:00</span></div>
       </li>
       <li class="pcard">
         <div class="pc-hd"><span class="av">CM</span><div><b>CMTM College</b><small>cmtm.co.il</small></div><svg class="gly" viewBox="0 0 24 24" aria-label="Facebook"><path fill="currentColor" d="M13.4 21v-7.6h2.5l.4-3h-2.9V8.6c0-.9.3-1.5 1.5-1.5h1.6V4.4c-.3 0-1.2-.1-2.3-.1-2.2 0-3.7 1.3-3.7 3.8v2.3H8v3h2.5V21z"/></svg></div>
-        <div class="pc-m"><img src="assets/landing/cm-002-640.webp" width="640" height="640" loading="lazy" alt="A smiling woman holding a notebook in a bright therapy room"></div>
+        <div class="pc-m"><img src="assets/landing/cm-002-640.webp" width="640" height="640" loading="lazy" alt="A smiling woman holding a notebook in a bright therapy room" data-i18n-attr="alt:img.ronit"></div>
         <p class="pc-cap"><b>CMTM College</b> At 43, with no clinical background, Ronit enrolled “just for herself”. Two years later: a full practice and a full calendar.</p>
-        <div class="pc-ft"><span class="pill">Approved</span><span class="when">Sat 18:00</span></div>
+        <div class="pc-ft"><span class="pill" data-i18n="st.ok">Approved</span><span class="when"><span data-i18n="d.sat">Sat</span> 18:00</span></div>
       </li>
       <li class="pcard reel">
         <div class="pc-hd"><span class="av">HG</span><div><b>Happy Garden</b><small>Reel · 0:57</small></div><svg class="gly" viewBox="0 0 24 24" aria-label="Instagram"><rect x="3.5" y="3.5" width="17" height="17" rx="5" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="12" cy="12" r="3.9" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="17.2" cy="6.8" r="1.1" fill="currentColor"/></svg></div>
-        <div class="pc-m"><video id="reel-v" preload="none" muted playsinline loop poster="assets/landing/hg-reel-540.webp" aria-label="Happy Garden reel: the spectrum guide"><source src="assets/reels/hg-spectrum-guide.mp4" type="video/mp4"></video><button class="play" type="button" id="reel-play"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5.5v13l11-6.5z" fill="currentColor" stroke="none"/></svg>Play the reel</button></div>
+        <div class="pc-m"><video id="reel-v" preload="none" muted playsinline loop poster="assets/landing/hg-reel-540.webp" aria-label="Happy Garden reel: the spectrum guide" data-i18n-attr="aria-label:work.reel"><source src="assets/reels/hg-spectrum-guide.mp4" type="video/mp4"></video><button class="play" type="button" id="reel-play" data-i18n="work.play"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5.5v13l11-6.5z" fill="currentColor" stroke="none"/></svg>Play the reel</button></div>
         <p class="pc-cap"><b>happygarden</b> The spectrum guide as a reel, made by Otto from the shop’s own product pages.</p>
-        <div class="pc-ft"><span class="pill">Scheduled</span><span class="when">Thu 18:00</span></div>
+        <div class="pc-ft"><span class="pill" data-i18n="st.sched">Scheduled</span><span class="when"><span data-i18n="d.thu">Thu</span> 18:00</span></div>
       </li>
       <li class="pcard">
         <div class="pc-hd"><span class="av">HG</span><div><b>Happy Garden</b><small>happygardeneu.com</small></div><svg class="gly" viewBox="0 0 24 24" aria-label="Instagram"><rect x="3.5" y="3.5" width="17" height="17" rx="5" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="12" cy="12" r="3.9" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="17.2" cy="6.8" r="1.1" fill="currentColor"/></svg></div>
-        <div class="pc-m tall"><img src="assets/landing/hg-evening-640.webp" width="640" height="800" loading="lazy" alt="A dropper bottle and a cup of tea on a bedside table in warm evening light"></div>
+        <div class="pc-m tall"><img src="assets/landing/hg-evening-640.webp" width="640" height="800" loading="lazy" alt="A dropper bottle and a cup of tea on a bedside table in warm evening light" data-i18n-attr="alt:img.evening"></div>
         <p class="pc-cap"><b>happygarden</b> CBD gets the attention, but CBN is the quiet specialist. Our CBD, CBG and CBN blend is made for the evening wind-down.</p>
-        <div class="pc-ft"><span class="pill">Approved</span><span class="when">Wed 20:00</span></div>
+        <div class="pc-ft"><span class="pill" data-i18n="st.ok">Approved</span><span class="when"><span data-i18n="d.wed">Wed</span> 20:00</span></div>
       </li>
       <li class="pcard">
         <div class="pc-hd"><span class="av">CM</span><div><b>CMTM College</b><small>cmtm.co.il</small></div><svg class="gly" viewBox="0 0 24 24" aria-label="Instagram"><rect x="3.5" y="3.5" width="17" height="17" rx="5" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="12" cy="12" r="3.9" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="17.2" cy="6.8" r="1.1" fill="currentColor"/></svg></div>
-        <div class="pc-m"><img src="assets/landing/cm-001-640.webp" width="640" height="640" loading="lazy" alt="A tree at sunrise with its roots visible under the soil"></div>
+        <div class="pc-m"><img src="assets/landing/cm-001-640.webp" width="640" height="640" loading="lazy" alt="A tree at sunrise with its roots visible under the soil" data-i18n-attr="alt:img.roots"></div>
         <p class="pc-cap"><b>cmtm.college</b> “Healing from the root” isn’t a slogan. It’s a method. Five slides on how it works.</p>
-        <div class="pc-ft"><span class="pill">In review</span><span class="when">Tue 09:00</span></div>
+        <div class="pc-ft"><span class="pill" data-i18n="st.review">In review</span><span class="when"><span data-i18n="d.tue">Tue</span> 09:00</span></div>
       </li>
       <li class="pcard">
         <div class="pc-hd"><span class="av">HG</span><div><b>Happy Garden</b><small>happygardeneu.com</small></div><svg class="gly" viewBox="0 0 24 24" aria-label="Facebook"><path fill="currentColor" d="M13.4 21v-7.6h2.5l.4-3h-2.9V8.6c0-.9.3-1.5 1.5-1.5h1.6V4.4c-.3 0-1.2-.1-2.3-.1-2.2 0-3.7 1.3-3.7 3.8v2.3H8v3h2.5V21z"/></svg></div>
-        <div class="pc-m tall"><img src="assets/landing/hg-lab-640.webp" width="640" height="800" loading="lazy" alt="A lab report on a wooden desk next to a dropper bottle and glasses"></div>
+        <div class="pc-m tall"><img src="assets/landing/hg-lab-640.webp" width="640" height="800" loading="lazy" alt="A lab report on a wooden desk next to a dropper bottle and glasses" data-i18n-attr="alt:img.lab"></div>
         <p class="pc-cap"><b>Happy Garden</b> Lab report, spectrum, origin. We publish all three; here’s how to read them in 15 seconds.</p>
-        <div class="pc-ft"><span class="pill">In review</span><span class="when">Fri 17:00</span></div>
+        <div class="pc-ft"><span class="pill" data-i18n="st.review">In review</span><span class="when"><span data-i18n="d.fri">Fri</span> 17:00</span></div>
       </li>
       <li class="pcard">
         <div class="pc-hd"><span class="av">HG</span><div><b>Happy Garden</b><small>happygardeneu.com</small></div><svg class="gly" viewBox="0 0 24 24" aria-label="Instagram"><rect x="3.5" y="3.5" width="17" height="17" rx="5" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="12" cy="12" r="3.9" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="17.2" cy="6.8" r="1.1" fill="currentColor"/></svg></div>
-        <div class="pc-m tall"><img src="assets/landing/hg-yellow-640.webp" width="640" height="800" loading="lazy" alt="A dropper bottle and a hemp leaf on a bright yellow background"></div>
+        <div class="pc-m tall"><img src="assets/landing/hg-yellow-640.webp" width="640" height="800" loading="lazy" alt="A dropper bottle and a hemp leaf on a bright yellow background" data-i18n-attr="alt:img.yellow"></div>
         <p class="pc-cap"><b>happygarden</b> Fact: CBD doesn’t get you high. Our broad spectrum and isolate lines contain no THC at all.</p>
-        <div class="pc-ft"><span class="pill">Scheduled</span><span class="when">Thu 18:00</span></div>
+        <div class="pc-ft"><span class="pill" data-i18n="st.sched">Scheduled</span><span class="when"><span data-i18n="d.thu">Thu</span> 18:00</span></div>
       </li>
       <li class="pcard">
         <div class="pc-hd"><span class="av">CM</span><div><b>CMTM College</b><small>cmtm.co.il</small></div><svg class="gly" viewBox="0 0 24 24" aria-label="Instagram"><rect x="3.5" y="3.5" width="17" height="17" rx="5" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="12" cy="12" r="3.9" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="17.2" cy="6.8" r="1.1" fill="currentColor"/></svg></div>
-        <div class="pc-m"><img src="assets/landing/cm-007-640.webp" width="640" height="640" loading="lazy" alt="A calm therapy room with a framed diploma on the wall"></div>
+        <div class="pc-m"><img src="assets/landing/cm-007-640.webp" width="640" height="640" loading="lazy" alt="A calm therapy room with a framed diploma on the wall" data-i18n-attr="alt:img.diploma"></div>
         <p class="pc-cap"><b>cmtm.college</b> Myth: you need a psychology degree to help people. Reality: a structured path has trained practitioners for 25 years.</p>
-        <div class="pc-ft"><span class="pill">Scheduled</span><span class="when">Mon 09:00</span></div>
+        <div class="pc-ft"><span class="pill" data-i18n="st.sched">Scheduled</span><span class="when"><span data-i18n="d.mon">Mon</span> 09:00</span></div>
       </li>
     </ol>
   </div>
-  <p class="wrap shelf-note">Pilot work, September 2026, for Happy Garden, a CBD shop in the EU, and CMTM College. Captions as written by Otto; images made by Otto for these brands.</p>
+  <p class="wrap shelf-note" data-i18n="work.note">Pilot work, September 2026, for Happy Garden, a CBD shop in the EU, and CMTM College. Captions as written by Otto; images made by Otto for these brands.</p>
 </section>
 
 <!-- ============ 3 · The story ============ -->
 <section class="story" id="story" aria-labelledby="story-h">
   <div class="wrap story-intro">
-    <h2 class="h2" id="story-h" data-rv>One loop, every day. <span class="ink-2">Otto reads, plans, asks, publishes and reports.</span></h2>
-    <a class="link skip-story" href="#replaces">Skip the story</a>
+    <h2 class="h2" id="story-h" data-rv data-i18n-rich="story.h">One loop, every day. <span class="ink-2">Otto reads, plans, asks, publishes and reports.</span></h2>
+    <a class="link skip-story" href="#replaces" data-i18n="story.skip">Skip the story</a>
   </div>
 
-  <nav class="rail" aria-label="Story progress">
+  <nav class="rail" aria-label="Story progress" data-i18n-attr="aria-label:story.rail">
     <ol id="rail">
-      <li><a href="#reads" data-step="reads">Reads</a></li>
-      <li><a href="#plans" data-step="plans">Plans</a></li>
-      <li><a href="#asks" data-step="asks">Asks</a></li>
-      <li><a href="#publishes" data-step="publishes">Publishes</a></li>
-      <li><a href="#reports" data-step="reports">Reports</a></li>
+      <li><a href="#reads" data-step="reads" data-i18n="step.reads">Reads</a></li>
+      <li><a href="#plans" data-step="plans" data-i18n="step.plans">Plans</a></li>
+      <li><a href="#asks" data-step="asks" data-i18n="step.asks">Asks</a></li>
+      <li><a href="#publishes" data-step="publishes" data-i18n="step.pub">Publishes</a></li>
+      <li><a href="#reports" data-step="reports" data-i18n="step.rep">Reports</a></li>
     </ol>
   </nav>
 
@@ -1048,12 +1072,12 @@ html.motion .rv-play{transition:opacity var(--dur-slow) var(--ease-out),transfor
     <div class="ch" id="reads-pin">
       <div class="wrap ch-grid">
         <div class="ch-text">
-          <p class="ch-step">Reads</p>
-          <h3 class="h3" data-rv>Otto reads your business. <span class="ink-2">Your site, your reviews, your competitors.</span></h3>
-          <p class="body" data-rv>It takes your colours, your tone and what your customers say, looks at the competitors in your town and works out who buys from you. Then it asks you at most four questions. Everything it learns goes into a brand profile you can read and correct.</p>
+          <p class="ch-step" data-i18n="step.reads">Reads</p>
+          <h3 class="h3" data-rv data-i18n-rich="reads.h">Otto reads your business. <span class="ink-2">Your site, your reviews, your competitors.</span></h3>
+          <p class="body" data-rv data-i18n="reads.body">It takes your colours, your tone and what your customers say, looks at the competitors in your town and works out who buys from you. Then it asks you at most four questions. Everything it learns goes into a brand profile you can read and correct.</p>
           <form class="try" id="reads-form" autocomplete="off" novalidate data-rv>
-            <input id="reads-url" type="text" inputmode="url" placeholder="Try it on your site" aria-label="Your website" spellcheck="false" autocapitalize="off" autocorrect="off">
-            <button class="btn btn-quiet" type="submit">Read it</button>
+            <input id="reads-url" type="text" inputmode="url" placeholder="Try it on your site" aria-label="Your website" data-i18n-attr="placeholder:reads.ph aria-label:scan.aria" spellcheck="false" autocapitalize="off" autocorrect="off">
+            <button class="btn btn-quiet" type="submit" data-i18n="reads.btn">Read it</button>
           </form>
           <p class="scan-err" id="reads-err" role="alert"></p>
         </div>
@@ -1076,24 +1100,24 @@ html.motion .rv-play{transition:opacity var(--dur-slow) var(--ease-out),transfor
                 <div class="s-foot"><span class="mk" data-mk="palette"></span><i style="background:#FFBC00"></i><i style="background:#111"></i><i style="background:#F95C8F"></i><i style="background:#F5F5F5"></i><i style="background:#25D366"></i><span>Shipping to Germany, Austria and the UK</span></div>
               </div>
               <div class="xray" aria-hidden="true">
-                <i style="left:4%;top:6%;width:92%;height:5%"></i><b style="left:5%;top:1.5%">Nav · 3 links</b>
-                <i style="left:4%;top:14%;width:92%;height:38%"></i><b style="left:6%;top:15.5%">Hero · #FFBC00 · claim first</b>
-                <i style="left:4%;top:55%;width:92%;height:18%"></i><b style="left:6%;top:56.5%">3 products · prices read</b>
-                <i style="left:4%;top:76%;width:92%;height:10%"></i><b style="left:6%;top:77%">Review · tone source</b>
-                <b style="left:6%;top:90%">5 brand colours</b>
+                <i style="left:4%;top:6%;width:92%;height:5%"></i><b style="left:5%;top:1.5%" data-i18n="reads.x1">Nav · 3 links</b>
+                <i style="left:4%;top:14%;width:92%;height:38%"></i><b style="left:6%;top:15.5%" data-i18n="reads.x2">Hero · #FFBC00 · claim first</b>
+                <i style="left:4%;top:55%;width:92%;height:18%"></i><b style="left:6%;top:56.5%" data-i18n="reads.x3">3 products · prices read</b>
+                <i style="left:4%;top:76%;width:92%;height:10%"></i><b style="left:6%;top:77%" data-i18n="reads.x4">Review · tone source</b>
+                <b style="left:6%;top:90%" data-i18n="reads.x5">5 brand colours</b>
               </div>
               <span class="tag site-tag">Sample</span>
               <span class="scanline" id="reads-scan" aria-hidden="true"></span>
             </div>
             <div class="profile" id="w-scan">
-              <div class="prof-h"><b>Brand profile</b><span class="tag" id="scan-tag">Sample profile</span></div>
+              <div class="prof-h"><b data-i18n="reads.prof">Brand profile</b><span class="tag" id="scan-tag">Sample profile</span></div>
               <div class="prows">
-                <div class="prow" data-k="industry"><div class="pl">Industry</div><div class="pv">CBD wellness · online shop · Germany, Austria, UK</div></div>
-                <div class="prow" data-k="palette"><div class="pl">Colours</div><div class="pv"><span class="sw" style="background:#FFBC00"></span><span class="sw" style="background:#111"></span><span class="sw" style="background:#F95C8F"></span><span class="sw" style="background:#F5F5F5"></span><span class="sw" style="background:#25D366"></span></div></div>
-                <div class="prow" data-k="voice"><div class="pl">Tone</div><div class="pv"><i>Educational and trust-first. Lab results over hype.</i></div></div>
-                <div class="prow" data-k="proof"><div class="pl">Competitors</div><div class="pv">Nordic Oil · Naturecan · CBD Vital · Hempamed</div></div>
-                <div class="prow" data-k="audience"><div class="pl">Audience</div><div class="pv">Petra, 52, Germany: <i>“I haven’t slept well in years.”</i></div></div>
-                <div class="prow" data-k="plan"><div class="pl">Plan</div><div class="chips"><span class="chip">Education</span><span class="chip">Trust and proof</span><span class="chip">Use cases</span><span class="chip">Product</span><span class="chip">Engagement</span><span class="chip">Restricted on Meta, so organic first</span></div></div>
+                <div class="prow" data-k="industry"><div class="pl" data-i18n="reads.l.industry">Industry</div><div class="pv" data-i18n="reads.v.industry">CBD wellness · online shop · Germany, Austria, UK</div></div>
+                <div class="prow" data-k="palette"><div class="pl" data-i18n="reads.l.colours">Colours</div><div class="pv"><span class="sw" style="background:#FFBC00"></span><span class="sw" style="background:#111"></span><span class="sw" style="background:#F95C8F"></span><span class="sw" style="background:#F5F5F5"></span><span class="sw" style="background:#25D366"></span></div></div>
+                <div class="prow" data-k="voice"><div class="pl" data-i18n="reads.l.tone">Tone</div><div class="pv"><i data-i18n="reads.v.tone">Educational and trust-first. Lab results over hype.</i></div></div>
+                <div class="prow" data-k="proof"><div class="pl" data-i18n="reads.l.comp">Competitors</div><div class="pv">Nordic Oil · Naturecan · CBD Vital · Hempamed</div></div>
+                <div class="prow" data-k="audience"><div class="pl" data-i18n="reads.l.aud">Audience</div><div class="pv" data-i18n-rich="reads.v.aud">Petra, 52, Germany: <i>“I haven’t slept well in years.”</i></div></div>
+                <div class="prow" data-k="plan"><div class="pl" data-i18n="reads.l.plan">Plan</div><div class="chips"><span class="chip" data-i18n="p.edu">Education</span><span class="chip" data-i18n="p.trust">Trust and proof</span><span class="chip" data-i18n="p.usecases">Use cases</span><span class="chip" data-i18n="p.product">Product</span><span class="chip" data-i18n="p.engage">Engagement</span><span class="chip" data-i18n="scan.restricted">Restricted on Meta, so organic first</span></div></div>
               </div>
               <ol class="steps" id="scan-steps" aria-hidden="true"><li class="done"></li><li class="done"></li><li class="done"></li><li class="done"></li><li class="done"></li></ol>
               <p class="step-now" id="scan-now" aria-live="polite">Read the site, colours and tone, competitors, audience. Month drafted.</p>
@@ -1109,52 +1133,52 @@ html.motion .rv-play{transition:opacity var(--dur-slow) var(--ease-out),transfor
     <div class="ch" id="plans-pin">
       <div class="wrap ch-grid">
         <div class="ch-text">
-          <p class="ch-step">Plans</p>
-          <h3 class="h3" data-rv>Otto plans the whole month. <span class="ink-2">Every slot has a reason.</span></h3>
-          <p class="body" data-rv>Fifty posts, twelve stories and four reels, set for the hours your customers are online. A payday, a local date, a competitor’s move: hover a marked day to read why it’s there.</p>
-          <div class="chips" data-rv><span class="chip">Education</span><span class="chip">Trust and proof</span><span class="chip">Use cases</span><span class="chip">Product</span><span class="chip">Engagement</span></div>
+          <p class="ch-step" data-i18n="step.plans">Plans</p>
+          <h3 class="h3" data-rv data-i18n-rich="plans.h">Otto plans the whole month. <span class="ink-2">Every slot has a reason.</span></h3>
+          <p class="body" data-rv data-i18n="plans.body">Fifty posts, twelve stories and four reels, set for the hours your customers are online. A payday, a local date, a competitor’s move: hover a marked day to read why it’s there.</p>
+          <div class="chips" data-rv><span class="chip" data-i18n="p.edu">Education</span><span class="chip" data-i18n="p.trust">Trust and proof</span><span class="chip" data-i18n="p.usecases">Use cases</span><span class="chip" data-i18n="p.product">Product</span><span class="chip" data-i18n="p.engage">Engagement</span></div>
         </div>
         <div class="ch-vis">
           <div class="cal" id="cal">
-            <div class="cal-h"><b>October 2026</b><span>50 posts · Facebook and Instagram</span><span class="legend"><span><i></i>Post</span><span><i class="r"></i>Reel</span></span></div>
-            <div class="dow" aria-hidden="true"><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span></div>
+            <div class="cal-h"><b data-i18n="plans.month">October 2026</b><span data-i18n="plans.count">50 posts · Facebook and Instagram</span><span class="legend"><span data-i18n="plans.post"><i></i>Post</span><span data-i18n="plans.reel"><i class="r"></i>Reel</span></span></div>
+            <div class="dow" aria-hidden="true"><span data-i18n="d.mon">Mon</span><span data-i18n="d.tue">Tue</span><span data-i18n="d.wed">Wed</span><span data-i18n="d.thu">Thu</span><span data-i18n="d.fri">Fri</span><span data-i18n="d.sat">Sat</span><span data-i18n="d.sun">Sun</span></div>
             <div class="days" id="days">
               <div class="day off" aria-hidden="true"></div>
               <div class="day off" aria-hidden="true"></div>
               <div class="day off" aria-hidden="true"></div>
-              <button class="day why" type="button" data-why="Month opens with the product guide." aria-label="Thu 1 October: 2 posts. Month opens with the product guide."><span class="dn">1</span><span class="pc" style="--i:1">09:00</span><span class="pc" style="--i:2">19:00</span></button>
-              <button class="day why" type="button" data-why="First Friday after payday: an offer post." aria-label="Fri 2 October: 2 posts. First Friday after payday: an offer post."><span class="dn">2</span><span class="pc" style="--i:3">08:00</span><span class="pc" style="--i:4">17:00</span></button>
+              <button class="day why" type="button" data-why="Month opens with the product guide." aria-label="Thu 1 October: 2 posts. Month opens with the product guide." data-i18n-attr="data-why:plans.w1 aria-label:plans.a1"><span class="dn">1</span><span class="pc" style="--i:1">09:00</span><span class="pc" style="--i:2">19:00</span></button>
+              <button class="day why" type="button" data-why="First Friday after payday: an offer post." aria-label="Fri 2 October: 2 posts. First Friday after payday: an offer post." data-i18n-attr="data-why:plans.w2 aria-label:plans.a2"><span class="dn">2</span><span class="pc" style="--i:3">08:00</span><span class="pc" style="--i:4">17:00</span></button>
               <div class="day"><span class="dn">3</span></div>
-              <button class="day why" type="button" data-why="Sunday 09:00 is when your audience is most active." aria-label="Sun 4 October: 1 post. Sunday 09:00 is when your audience is most active."><span class="dn">4</span><span class="pc reel" style="--i:5">Reel 09:00</span></button>
+              <button class="day why" type="button" data-why="Sunday 09:00 is when your audience is most active." aria-label="Sun 4 October: 1 post. Sunday 09:00 is when your audience is most active." data-i18n-attr="data-why:plans.w4 aria-label:plans.a4"><span class="dn">4</span><span class="pc reel" style="--i:5">Reel 09:00</span></button>
               <div class="day"><span class="dn">5</span><span class="pc" style="--i:6">08:00</span><span class="pc" style="--i:7">18:00</span></div>
-              <button class="day why" type="button" data-why="Tuesday 18:00 is your best evening slot." aria-label="Tue 6 October: 2 posts. Tuesday 18:00 is your best evening slot."><span class="dn">6</span><span class="pc" style="--i:8">12:30</span><span class="pc" style="--i:9">18:00</span></button>
+              <button class="day why" type="button" data-why="Tuesday 18:00 is your best evening slot." aria-label="Tue 6 October: 2 posts. Tuesday 18:00 is your best evening slot." data-i18n-attr="data-why:plans.w6 aria-label:plans.a6"><span class="dn">6</span><span class="pc" style="--i:8">12:30</span><span class="pc" style="--i:9">18:00</span></button>
               <div class="day"><span class="dn">7</span><span class="pc" style="--i:10">08:00</span><span class="pc" style="--i:11">19:00</span></div>
               <div class="day"><span class="dn">8</span><span class="pc" style="--i:12">09:00</span><span class="pc" style="--i:13">19:00</span></div>
               <div class="day"><span class="dn">9</span><span class="pc" style="--i:14">08:00</span><span class="pc" style="--i:15">17:00</span></div>
-              <button class="day why" type="button" data-why="World Mental Health Day: a calm post, no health claims." aria-label="Sat 10 October: 1 post. World Mental Health Day: a calm post, no health claims."><span class="dn">10</span><span class="pc" style="--i:16">11:00</span></button>
+              <button class="day why" type="button" data-why="World Mental Health Day: a calm post, no health claims." aria-label="Sat 10 October: 1 post. World Mental Health Day: a calm post, no health claims." data-i18n-attr="data-why:plans.w10 aria-label:plans.a10"><span class="dn">10</span><span class="pc" style="--i:16">11:00</span></button>
               <div class="day"><span class="dn">11</span><span class="pc reel" style="--i:17">Reel 09:00</span></div>
               <div class="day"><span class="dn">12</span><span class="pc" style="--i:18">08:00</span><span class="pc" style="--i:19">18:00</span></div>
-              <button class="day why" type="button" data-why="A competitor launched a sleep range. Otto answers with your lab reports." aria-label="Tue 13 October: 2 posts. A competitor launched a sleep range. Otto answers with your lab reports."><span class="dn">13</span><span class="pc" style="--i:20">12:30</span><span class="pc" style="--i:21">18:00</span></button>
+              <button class="day why" type="button" data-why="A competitor launched a sleep range. Otto answers with your lab reports." aria-label="Tue 13 October: 2 posts. A competitor launched a sleep range. Otto answers with your lab reports." data-i18n-attr="data-why:plans.w13 aria-label:plans.a13"><span class="dn">13</span><span class="pc" style="--i:20">12:30</span><span class="pc" style="--i:21">18:00</span></button>
               <div class="day"><span class="dn">14</span><span class="pc" style="--i:22">08:00</span><span class="pc" style="--i:23">19:00</span></div>
               <div class="day"><span class="dn">15</span><span class="pc" style="--i:24">09:00</span><span class="pc" style="--i:25">19:00</span></div>
               <div class="day"><span class="dn">16</span><span class="pc" style="--i:26">08:00</span><span class="pc" style="--i:27">17:00</span></div>
               <div class="day"><span class="dn">17</span></div>
-              <button class="day why" type="button" data-why="Reel: the spectrum guide, made from your product pages." aria-label="Sun 18 October: 1 post. Reel: the spectrum guide, made from your product pages."><span class="dn">18</span><span class="pc reel" style="--i:28">Reel 09:00</span></button>
+              <button class="day why" type="button" data-why="Reel: the spectrum guide, made from your product pages." aria-label="Sun 18 October: 1 post. Reel: the spectrum guide, made from your product pages." data-i18n-attr="data-why:plans.w18 aria-label:plans.a18"><span class="dn">18</span><span class="pc reel" style="--i:28">Reel 09:00</span></button>
               <div class="day"><span class="dn">19</span><span class="pc" style="--i:29">08:00</span><span class="pc" style="--i:30">18:00</span></div>
               <div class="day"><span class="dn">20</span><span class="pc" style="--i:31">12:30</span><span class="pc" style="--i:32">18:00</span></div>
               <div class="day"><span class="dn">21</span><span class="pc" style="--i:33">08:00</span><span class="pc" style="--i:34">19:00</span></div>
               <div class="day"><span class="dn">22</span><span class="pc" style="--i:35">09:00</span><span class="pc" style="--i:36">19:00</span></div>
               <div class="day"><span class="dn">23</span><span class="pc" style="--i:37">08:00</span><span class="pc" style="--i:38">17:00</span></div>
               <div class="day"><span class="dn">24</span><span class="pc" style="--i:39">11:00</span></div>
-              <button class="day why" type="button" data-why="The clocks go back overnight, so Sunday’s post is about sleep." aria-label="Sun 25 October: 1 post. The clocks go back overnight, so Sunday’s post is about sleep."><span class="dn">25</span><span class="pc reel" style="--i:40">Reel 09:00</span></button>
+              <button class="day why" type="button" data-why="The clocks go back overnight, so Sunday’s post is about sleep." aria-label="Sun 25 October: 1 post. The clocks go back overnight, so Sunday’s post is about sleep." data-i18n-attr="data-why:plans.w25 aria-label:plans.a25"><span class="dn">25</span><span class="pc reel" style="--i:40">Reel 09:00</span></button>
               <div class="day"><span class="dn">26</span><span class="pc" style="--i:41">08:00</span><span class="pc" style="--i:42">18:00</span></div>
               <div class="day"><span class="dn">27</span><span class="pc" style="--i:43">12:30</span><span class="pc" style="--i:44">18:00</span></div>
               <div class="day"><span class="dn">28</span><span class="pc" style="--i:45">08:00</span><span class="pc" style="--i:46">19:00</span></div>
               <div class="day"><span class="dn">29</span><span class="pc" style="--i:47">09:00</span><span class="pc" style="--i:48">19:00</span></div>
               <div class="day"><span class="dn">30</span><span class="pc" style="--i:49">08:00</span><span class="pc" style="--i:50">17:00</span></div>
-              <button class="day why" type="button" data-why="No post. Your audience is offline on Halloween weekend." aria-label="Sat 31 October: 0 posts. No post. Your audience is offline on Halloween weekend."><span class="dn">31</span></button>
+              <button class="day why" type="button" data-why="No post. Your audience is offline on Halloween weekend." aria-label="Sat 31 October: 0 posts. No post. Your audience is offline on Halloween weekend." data-i18n-attr="data-why:plans.w31 aria-label:plans.a31"><span class="dn">31</span></button>
             </div>
-            <p class="cal-note"><b>Sunday 25:</b> the clocks go back overnight, so the post is about sleep. <span class="ink-3">Stories are planned too, and don’t appear on this grid.</span></p>
+            <p class="cal-note" data-i18n-rich="plans.note"><b>Sunday 25:</b> the clocks go back overnight, so the post is about sleep. <span class="ink-3">Stories are planned too, and don’t appear on this grid.</span></p>
           </div>
         </div>
       </div>
@@ -1166,14 +1190,14 @@ html.motion .rv-play{transition:opacity var(--dur-slow) var(--ease-out),transfor
     <div class="ch">
       <div class="wrap ch-grid asks-grid">
         <div class="ch-text">
-          <p class="ch-step">Asks</p>
-          <h3 class="h3" data-rv>Nothing goes out without your tap. <span class="ink-2">Approve from your phone.</span></h3>
-          <p class="body" data-rv>Every post reaches you exactly as it will appear. Approve it, ask for a change in plain words, or hold to approve the lot. Try it on the phone here: the buttons work.</p>
+          <p class="ch-step" data-i18n="step.asks">Asks</p>
+          <h3 class="h3" data-rv data-i18n-rich="asks.h">Nothing goes out without your tap. <span class="ink-2">Approve from your phone.</span></h3>
+          <p class="body" data-rv data-i18n="asks.body">Every post reaches you exactly as it will appear. Approve it, ask for a change in plain words, or hold to approve the lot. Try it on the phone here: the buttons work.</p>
           <div class="msgr" data-rv>
             <span class="av"><span class="mark"></span></span>
-            <div><small>Otto · Telegram · 08:14</small><p>Three posts are ready for this week. The first goes out Monday at 09:00.</p><div class="mb" aria-hidden="true"><span>Review</span><span>Approve all</span></div></div>
+            <div><small>Otto · Telegram · 08:14</small><p data-i18n="asks.msg">Three posts are ready for this week. The first goes out Monday at 09:00.</p><div class="mb" aria-hidden="true"><span data-i18n="asks.mb1">Review</span><span data-i18n="asks.mb2">Approve all</span></div></div>
           </div>
-          <p class="via" data-rv><svg class="gly" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="M20.5 4.2 3.8 10.7c-.9.4-.9 1.1 0 1.4l4.2 1.3 1.6 5c.2.6.6.7 1 .3l2.4-2.2 4.4 3.3c.6.4 1.1.2 1.3-.6l2.9-13.7c.2-1-.4-1.5-1.1-1.3Z"/><path d="m8 13.4 9.4-6"/></svg>Approve in Telegram today. WhatsApp is next.</p>
+          <p class="via" data-rv data-i18n="asks.via"><svg class="gly" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="M20.5 4.2 3.8 10.7c-.9.4-.9 1.1 0 1.4l4.2 1.3 1.6 5c.2.6.6.7 1 .3l2.4-2.2 4.4 3.3c.6.4 1.1.2 1.3-.6l2.9-13.7c.2-1-.4-1.5-1.1-1.3Z"/><path d="m8 13.4 9.4-6"/></svg>Approve in Telegram today. WhatsApp is next.</p>
         </div>
         <div class="ch-vis">
           <div class="device" id="rq-device">
@@ -1231,39 +1255,39 @@ html.motion .rv-play{transition:opacity var(--dur-slow) var(--ease-out),transfor
     <div class="ch" id="pub-pin">
       <div class="pub-in">
         <div class="wrap pub-top">
-          <div class="ch-text"><p class="ch-step">Publishes</p><h3 class="h3" data-rv>Published everywhere, in the right shape. <span class="ink-2">In your language, for your town.</span></h3></div>
-          <p class="body" data-rv>One idea becomes a square post, a story, a Facebook post, a Google Business update, a search ad and an email, each sized and written for where it lands. The one that performs best gets a small boost, if you approve the budget.</p>
+          <div class="ch-text"><p class="ch-step" data-i18n="step.pub">Publishes</p><h3 class="h3" data-rv data-i18n-rich="pub.h">Published everywhere, in the right shape. <span class="ink-2">In your language, for your town.</span></h3></div>
+          <p class="body" data-rv data-i18n="pub.body">One idea becomes a square post, a story, a Facebook post, a Google Business update, a search ad and an email, each sized and written for where it lands. The one that performs best gets a small boost, if you approve the budget.</p>
         </div>
-        <div class="pub-rail" id="pub-rail" tabindex="0" aria-label="One post in six formats, scroll sideways">
+        <div class="pub-rail" id="pub-rail" tabindex="0" aria-label="One post in six formats, scroll sideways" data-i18n-attr="aria-label:pub.rail">
           <ol class="pub-track" id="pub-track">
             <li class="fmt f-ig">
-              <div class="fmt-top"><svg class="gly" viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="5" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="12" cy="12" r="3.9" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="17.2" cy="6.8" r="1.1" fill="currentColor"/></svg>Instagram · 1:1 · Thu 18:00<span class="pill is-pub fmt-st" data-boost="1"><span class="st-t">Published</span></span></div>
-              <div class="fmt-card"><div class="fc-hd"><span class="av">HG</span><div><b>happygarden</b><small>Sponsored by you, if you approve</small></div></div><img src="assets/landing/hg-evening-640.webp" width="640" height="800" loading="lazy" alt="A dropper bottle and a cup of tea on a bedside table in warm evening light"><p class="fc-tx"><b>happygarden</b> CBN is the quiet one. Our evening blend, and why it’s made for winding down.</p></div>
-              <span class="pill is-boost fmt-boost"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V5M6 11l6-6 6 6"/></svg>Boosted · €10 a day</span>
+              <div class="fmt-top" data-i18n="pub.f1"><svg class="gly" viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="5" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="12" cy="12" r="3.9" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="17.2" cy="6.8" r="1.1" fill="currentColor"/></svg>Instagram · 1:1 · Thu 18:00<span class="pill is-pub fmt-st" data-boost="1"><span class="st-t">Published</span></span></div>
+              <div class="fmt-card"><div class="fc-hd"><span class="av">HG</span><div><b>happygarden</b><small data-i18n="pub.sponsored">Sponsored by you, if you approve</small></div></div><img src="assets/landing/hg-evening-640.webp" width="640" height="800" loading="lazy" alt="A dropper bottle and a cup of tea on a bedside table in warm evening light" data-i18n-attr="alt:img.evening"><p class="fc-tx"><b>happygarden</b> CBN is the quiet one. Our evening blend, and why it’s made for winding down.</p></div>
+              <span class="pill is-boost fmt-boost" data-i18n="pub.boosted"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V5M6 11l6-6 6 6"/></svg>Boosted · €10 a day</span>
             </li>
             <li class="fmt f-story">
-              <div class="fmt-top"><svg class="gly" viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="5" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="12" cy="12" r="3.9" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="17.2" cy="6.8" r="1.1" fill="currentColor"/></svg>Story · 9:16 · Thu 18:05<span class="pill is-pub fmt-st"><span class="st-t">Published</span></span></div>
+              <div class="fmt-top" data-i18n="pub.f2"><svg class="gly" viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="5" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="12" cy="12" r="3.9" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="17.2" cy="6.8" r="1.1" fill="currentColor"/></svg>Story · 9:16 · Thu 18:05<span class="pill is-pub fmt-st"><span class="st-t">Published</span></span></div>
               <div class="fmt-card"><img src="assets/landing/hg-evening-640.webp" width="640" height="800" loading="lazy" alt=""><p class="st-title">Why CBN is called the sleepy cannabinoid<small>Evening blend</small></p></div>
             </li>
             <li class="fmt f-fb">
-              <div class="fmt-top"><svg class="gly" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M13.4 21v-7.6h2.5l.4-3h-2.9V8.6c0-.9.3-1.5 1.5-1.5h1.6V4.4c-.3 0-1.2-.1-2.3-.1-2.2 0-3.7 1.3-3.7 3.8v2.3H8v3h2.5V21z"/></svg>Facebook · 4:5 · Fri 09:00<span class="pill is-pub fmt-st"><span class="st-t">Published</span></span></div>
+              <div class="fmt-top" data-i18n="pub.f3"><svg class="gly" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M13.4 21v-7.6h2.5l.4-3h-2.9V8.6c0-.9.3-1.5 1.5-1.5h1.6V4.4c-.3 0-1.2-.1-2.3-.1-2.2 0-3.7 1.3-3.7 3.8v2.3H8v3h2.5V21z"/></svg>Facebook · 4:5 · Fri 09:00<span class="pill is-pub fmt-st"><span class="st-t">Published</span></span></div>
               <div class="fmt-card"><div class="fc-hd"><span class="av">HG</span><div><b>Happy Garden</b><small>Friday at 09:00</small></div></div><p class="fc-tx pre">CBD gets the attention, but CBN is the quiet specialist. Our CBD, CBG and CBN blend is made for the evening wind-down.</p><img src="assets/landing/hg-evening-640.webp" width="640" height="800" loading="lazy" alt=""></div>
             </li>
             <li class="fmt f-gb">
-              <div class="fmt-top"><svg class="gly" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="M4 9.5 5.5 4.5h13L20 9.5"/><path d="M4 9.5c0 1.4 1.1 2.5 2.7 2.5s2.6-1.1 2.6-2.5c0 1.4 1.1 2.5 2.7 2.5s2.7-1.1 2.7-2.5c0 1.4 1 2.5 2.6 2.5S20 10.9 20 9.5"/><path d="M5.5 12v7.5h13V12"/><path d="M10 19.5v-4h4v4"/></svg>Google Business · Sat 10:00<span class="pill is-pub fmt-st"><span class="st-t">Published</span></span></div>
+              <div class="fmt-top" data-i18n="pub.f4"><svg class="gly" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="M4 9.5 5.5 4.5h13L20 9.5"/><path d="M4 9.5c0 1.4 1.1 2.5 2.7 2.5s2.6-1.1 2.6-2.5c0 1.4 1.1 2.5 2.7 2.5s2.7-1.1 2.7-2.5c0 1.4 1 2.5 2.6 2.5S20 10.9 20 9.5"/><path d="M5.5 12v7.5h13V12"/><path d="M10 19.5v-4h4v4"/></svg>Google Business · Sat 10:00<span class="pill is-pub fmt-st"><span class="st-t">Published</span></span></div>
               <div class="fmt-card"><img src="assets/landing/hg-evening-640.webp" width="640" height="800" loading="lazy" alt=""><div class="gb-b"><b>New: the evening blend</b><p>CBD, CBG and CBN in one oil, lab tested batch by batch.</p><span>Learn more</span></div></div>
             </li>
             <li class="fmt f-ad">
-              <div class="fmt-top"><svg class="gly" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="10.5" cy="10.5" r="6"/><path d="m15 15 5 5"/></svg>Search ad · always on<span class="pill is-pub fmt-st"><span class="st-t">Published</span></span></div>
+              <div class="fmt-top" data-i18n="pub.f5"><svg class="gly" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="10.5" cy="10.5" r="6"/><path d="m15 15 5 5"/></svg>Search ad · always on<span class="pill is-pub fmt-st"><span class="st-t">Published</span></span></div>
               <div class="fmt-card ad-b"><small><b>Sponsored</b> · happygardeneu.com/evening</small><h5>Evening Blend with CBN · Lab Report for Every Batch</h5><p>CBD, CBG and CBN in one oil. Shipped to Germany, Austria and the UK.</p><div class="sl"><span>Lab reports</span><span>Full spectrum</span><span>Shipping</span></div></div>
             </li>
             <li class="fmt f-mail">
-              <div class="fmt-top"><svg class="gly" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><rect x="3.5" y="5.5" width="17" height="13" rx="2.5"/><path d="m4.5 7 7.5 6 7.5-6"/></svg>Email · Sun 09:00<span class="pill is-pub fmt-st"><span class="st-t">Published</span></span></div>
+              <div class="fmt-top" data-i18n="pub.f6"><svg class="gly" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><rect x="3.5" y="5.5" width="17" height="13" rx="2.5"/><path d="m4.5 7 7.5 6 7.5-6"/></svg>Email · Sun 09:00<span class="pill is-pub fmt-st"><span class="st-t">Published</span></span></div>
               <div class="fmt-card"><div class="ml-h"><small>From Happy Garden</small><b>The quiet cannabinoid</b></div><img src="assets/landing/hg-evening-640.webp" width="640" height="800" loading="lazy" alt=""><div class="ml-b">Most people know CBD. Fewer know CBN, and why it belongs in the evening.<br><span>Read the guide</span></div></div>
             </li>
             <li class="fmt f-sum">
-              <div class="fmt-top"><span class="mark" aria-hidden="true"></span>Otto · two days later<span class="tag">Sample</span></div>
-              <div class="fmt-card sum-b"><b>The Instagram post did best.</b><p>Twice your usual reach in its first 48 hours, so Otto suggests a small boost. Nothing is spent until you approve the budget.</p><span class="pill is-boost"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V5M6 11l6-6 6 6"/></svg>Boost €10 a day for 5 days</span></div>
+              <div class="fmt-top" data-i18n="pub.f7"><span class="mark" aria-hidden="true"></span>Otto · two days later<span class="tag" data-i18n="tag.sample">Sample</span></div>
+              <div class="fmt-card sum-b"><b data-i18n="pub.sum.h">The Instagram post did best.</b><p data-i18n="pub.sum.p">Twice your usual reach in its first 48 hours, so Otto suggests a small boost. Nothing is spent until you approve the budget.</p><span class="pill is-boost" data-i18n="pub.sum.boost"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V5M6 11l6-6 6 6"/></svg>Boost €10 a day for 5 days</span></div>
             </li>
           </ol>
         </div>
@@ -1277,24 +1301,24 @@ html.motion .rv-play{transition:opacity var(--dur-slow) var(--ease-out),transfor
     <div class="ch">
       <div class="wrap ch-grid">
         <div class="ch-text">
-          <p class="ch-step">Reports</p>
-          <h3 class="h3" data-rv>A report at 07:35, every morning. <span class="ink-2">What yesterday cost, and what it brought in.</span></h3>
-          <p class="body" data-rv>Otto compares reach, clicks and enquiries with your own averages, flags anything that drops in the next morning's report, and watches your competitors every week. One minute to read, one tap to act.</p>
+          <p class="ch-step" data-i18n="step.rep">Reports</p>
+          <h3 class="h3" data-rv data-i18n-rich="rep.h">A report at 07:35, every morning. <span class="ink-2">What yesterday cost, and what it brought in.</span></h3>
+          <p class="body" data-rv data-i18n="rep.body">Otto compares reach, clicks and enquiries with your own averages, flags anything that drops in the next morning's report, and watches your competitors every week. One minute to read, one tap to act.</p>
         </div>
         <div class="ch-vis">
           <div class="rep-vis" id="rep">
             <div>
-              <div class="note" id="rep-note"><span class="mark" aria-hidden="true"></span><div><b>Otto</b><span>Your morning report is ready.</span></div><time class="tnum">07:35</time></div>
+              <div class="note" id="rep-note"><span class="mark" aria-hidden="true"></span><div><b>Otto</b><span data-i18n="rep.note">Your morning report is ready.</span></div><time class="tnum">07:35</time></div>
               <article class="card" id="rep-card">
-                <div class="card-h"><span class="mark" aria-hidden="true"></span><div><b>Morning report</b><small id="rep-date">Tuesday · 07:35</small></div><span class="tag">Sample</span></div>
+                <div class="card-h"><span class="mark" aria-hidden="true"></span><div><b data-i18n="rep.title">Morning report</b><small id="rep-date">Tuesday · 07:35</small></div><span class="tag" data-i18n="tag.sample">Sample</span></div>
                 <div class="kpis">
-                  <div class="kpi"><small>Spent yesterday</small><b data-roll="42" data-pre="€">€42</b></div>
-                  <div class="kpi"><small>Enquiries</small><b data-roll="9">9</b></div>
-                  <div class="kpi"><small>Cost each</small><b data-roll="4.70" data-pre="€" data-dec="2">€4.70</b><em>Average €5.10</em></div>
+                  <div class="kpi"><small data-i18n="rep.k1">Spent yesterday</small><b data-roll="42" data-pre="€">€42</b></div>
+                  <div class="kpi"><small data-i18n="rep.k2">Enquiries</small><b data-roll="9">9</b></div>
+                  <div class="kpi"><small data-i18n="rep.k3">Cost each</small><b data-roll="4.70" data-pre="€" data-dec="2">€4.70</b><em data-i18n="rep.avg">Average €5.10</em></div>
                 </div>
                 <div class="chart">
-                  <div class="chart-l"><span>Reach, last 14 days</span><span class="tnum">12,480 this week</span></div>
-                  <svg viewBox="0 0 300 96" preserveAspectRatio="none" aria-label="Reach rose over the last 14 days, above the previous period">
+                  <div class="chart-l"><span data-i18n="rep.c1">Reach, last 14 days</span><span class="tnum" data-i18n="rep.c1v">12,480 this week</span></div>
+                  <svg viewBox="0 0 300 96" preserveAspectRatio="none" aria-label="Reach rose over the last 14 days, above the previous period" data-i18n-attr="aria-label:rep.chart">
                     <g class="grid"><line x1="0" y1="95" x2="300" y2="95"/><line x1="0" y1="48" x2="300" y2="48"/><line x1="0" y1="1" x2="300" y2="1"/></g>
                     <path class="ghost" d="M0 80 L23 76 L46 78 L69 70 L92 72 L115 66 L138 69 L161 62 L184 64 L207 58 L230 61 L253 55 L276 57 L300 52"/>
                     <path class="line" id="rep-line" pathLength="1" d="M0 74 L23 70 L46 72 L69 60 L92 62 L115 52 L138 56 L161 44 L184 46 L207 34 L230 38 L253 26 L276 22 L300 14"/>
@@ -1302,29 +1326,29 @@ html.motion .rv-play{transition:opacity var(--dur-slow) var(--ease-out),transfor
                   </svg>
                 </div>
                 <div class="chart">
-                  <div class="chart-l"><span>Enquiries per day</span><span>Mon to Sun</span></div>
+                  <div class="chart-l"><span data-i18n="rep.c2">Enquiries per day</span><span data-i18n="rep.c2v">Mon to Sun</span></div>
                   <div class="bars" id="rep-bars"><i style="--v:44"></i><i style="--v:56"></i><i style="--v:38"></i><i style="--v:70"></i><i style="--v:62"></i><i style="--v:48"></i><i class="hi" style="--v:90"></i></div>
-                  <div class="bars-x" aria-hidden="true"><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span><span>S</span></div>
+                  <div class="bars-x" aria-hidden="true"><span data-i18n="dn.mon">M</span><span data-i18n="dn.tue">T</span><span data-i18n="dn.wed">W</span><span data-i18n="dn.thu">T</span><span data-i18n="dn.fri">F</span><span data-i18n="dn.sat">S</span><span data-i18n="dn.sun">S</span></div>
                 </div>
-                <p class="rep-foot">Best ad: <b>“Sleep, CBN”</b> at €3.20 an enquiry. Three posts are waiting for you.</p>
+                <p class="rep-foot" data-i18n-rich="rep.foot">Best ad: <b>“Sleep, CBN”</b> at €3.20 an enquiry. Three posts are waiting for you.</p>
               </article>
             </div>
             <div class="stack">
               <article class="card" id="rep-alert">
-                <div class="card-h"><div><b>In this morning's report</b><small>Tuesday · 07:35</small></div><span class="tag">Sample</span></div>
-                <p class="alert-t">Clicks on the <b>spring campaign</b> are down <b>34%</b> on your 7-day average, from 1,140 to 750.</p>
-                <p class="alert-f">Likely cause: the new use-case post is reaching the same people. Suggestion: pause ad set B; Meta moves its budget to A.</p>
-                <div class="alert-act" id="rep-act"><button class="btn btn-primary" type="button" id="rep-apply">Pause ad set B</button><button class="btn btn-quiet" type="button" id="rep-later">Not now</button></div>
-                <p class="alert-done" id="rep-done" hidden><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>Ad set B paused at 07:36</p>
+                <div class="card-h"><div><b data-i18n="rep.a.h">In this morning's report</b><small data-i18n="rep.a.when">Tuesday · 07:35</small></div><span class="tag" data-i18n="tag.sample">Sample</span></div>
+                <p class="alert-t" data-i18n-rich="rep.a.t">Clicks on the <b>spring campaign</b> are down <b>34%</b> on your 7-day average, from 1,140 to 750.</p>
+                <p class="alert-f" data-i18n="rep.a.f">Likely cause: the new use-case post is reaching the same people. Suggestion: pause ad set B; Meta moves its budget to A.</p>
+                <div class="alert-act" id="rep-act"><button class="btn btn-primary" type="button" id="rep-apply" data-i18n="rep.a.pause">Pause ad set B</button><button class="btn btn-quiet" type="button" id="rep-later" data-i18n="rep.a.later">Not now</button></div>
+                <p class="alert-done" id="rep-done" hidden data-i18n="rep.a.done"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>Ad set B paused at 07:36</p>
               </article>
               <article class="card" id="rep-comp">
-                <div class="card-h"><div><b>Your competitors this week</b><small>Every Monday · 5 watched</small></div><span class="tag">Sample</span></div>
+                <div class="card-h"><div><b data-i18n="rep.c.h">Your competitors this week</b><small data-i18n="rep.c.sub">Every Monday · 5 watched</small></div><span class="tag" data-i18n="tag.sample">Sample</span></div>
                 <ul class="diffs">
-                  <li><b>+4 ads</b><span>Two competitors started ads about sleep.</span></li>
-                  <li><b>−15%</b><span>One cut the price of its 10 ml oils.</span></li>
-                  <li><b>First reel</b><span>One posted its first reel in six weeks.</span></li>
+                  <li><b data-i18n="rep.c.d1b">+4 ads</b><span data-i18n="rep.c.d1">Two competitors started ads about sleep.</span></li>
+                  <li><b>−15%</b><span data-i18n="rep.c.d2">One cut the price of its 10 ml oils.</span></li>
+                  <li><b data-i18n="rep.c.d3b">First reel</b><span data-i18n="rep.c.d3">One posted its first reel in six weeks.</span></li>
                 </ul>
-                <p class="diff-ans"><b>Otto’s answer:</b> a lab-report reel on Thursday, ready for your approval.</p>
+                <p class="diff-ans" data-i18n-rich="rep.c.ans"><b>Otto’s answer:</b> a lab-report reel on Thursday, ready for your approval.</p>
               </article>
             </div>
           </div>
@@ -1338,53 +1362,53 @@ html.motion .rv-play{transition:opacity var(--dur-slow) var(--ease-out),transfor
 <section class="sec" id="replaces" aria-labelledby="rep-h">
   <div class="wrap">
     <div class="sec-head">
-      <h2 class="h2" id="rep-h" data-rv>What Otto replaces. <span class="ink-2">Four ways to get the same work done.</span></h2>
+      <h2 class="h2" id="rep-h" data-rv data-i18n-rich="cost.h">What Otto replaces. <span class="ink-2">Four ways to get the same work done.</span></h2>
     </div>
     <div class="cost" id="cost" data-rv>
-      <div class="cost-axis" aria-hidden="true"><span>A month</span><div class="ticks"><span style="left:0">€0</span><span style="left:33.333%">€2,000</span><span style="left:66.666%">€4,000</span><span style="left:100%">€6,000</span></div><span></span></div>
-      <div class="crow"><b>Agency<small>You brief, they execute</small></b><div class="ctrack"><span class="cbar" style="--a:25;--b:83.33"></span></div><div class="cval">€1.5–5k<small>a month, plus project fees</small></div></div>
-      <div class="crow"><b>In-house hire<small>You manage</small></b><div class="ctrack"><span class="cbar" style="--a:66.67;--b:100"></span></div><div class="cval">€4–6k<small>a month, salary and overhead</small></div></div>
-      <div class="crow"><b>Tools and ChatGPT<small>You, every time</small></b><div class="ctrack"><span class="cbar" style="--a:1;--b:1.67"></span></div><div class="cval">€60–100<small>a month, plus your evenings</small></div></div>
-      <div class="crow otto"><b>Otto<small>Otto does the work. You approve.</small></b><div class="ctrack"><span class="cbar" style="--a:0;--b:3.28"></span></div><div class="cval">€197<small>one-time, founding pilot</small></div></div>
+      <div class="cost-axis" aria-hidden="true"><span data-i18n="cost.axis">A month</span><div class="ticks"><span style="left:0" data-i18n="cost.t0">€0</span><span style="left:33.333%" data-i18n="cost.t1">€2,000</span><span style="left:66.666%" data-i18n="cost.t2">€4,000</span><span style="left:100%" data-i18n="cost.t3">€6,000</span></div><span></span></div>
+      <div class="crow"><b data-i18n-rich="cost.agency">Agency<small>You brief, they execute</small></b><div class="ctrack"><span class="cbar" style="--a:25;--b:83.33"></span></div><div class="cval" data-i18n-rich="cost.v.agency">€1.5–5k<small>a month, plus project fees</small></div></div>
+      <div class="crow"><b data-i18n-rich="cost.inhouse">In-house hire<small>You manage</small></b><div class="ctrack"><span class="cbar" style="--a:66.67;--b:100"></span></div><div class="cval" data-i18n-rich="cost.v.inhouse">€4–6k<small>a month, salary and overhead</small></div></div>
+      <div class="crow"><b data-i18n-rich="cost.tools">Tools and ChatGPT<small>You, every time</small></b><div class="ctrack"><span class="cbar" style="--a:1;--b:1.67"></span></div><div class="cval" data-i18n-rich="cost.v.tools">€60–100<small>a month, plus your evenings</small></div></div>
+      <div class="crow otto"><b data-i18n-rich="cost.otto">Otto<small>Otto does the work. You approve.</small></b><div class="ctrack"><span class="cbar" style="--a:0;--b:3.28"></span></div><div class="cval" data-i18n-rich="cost.v.otto">€197<small>one-time, founding pilot</small></div></div>
     </div>
     <div class="cmp-wrap" data-rv>
       <table class="cmp">
-        <caption class="sr">Otto compared with an agency, an in-house hire, and tools with ChatGPT</caption>
-        <thead><tr><th scope="col"><span class="sr">Question</span></th><th scope="col" class="otto">Otto</th><th scope="col">Agency</th><th scope="col">In-house hire</th><th scope="col">Tools and ChatGPT</th></tr></thead>
+        <caption class="sr" data-i18n="cmp.cap">Otto compared with an agency, an in-house hire, and tools with ChatGPT</caption>
+        <thead><tr><th scope="col"><span class="sr" data-i18n="cmp.q">Question</span></th><th scope="col" class="otto">Otto</th><th scope="col" data-i18n="cmp.agency">Agency</th><th scope="col" data-i18n="cmp.inhouse">In-house hire</th><th scope="col" data-i18n="cmp.tools">Tools and ChatGPT</th></tr></thead>
         <tbody>
-          <tr><th scope="row">Cost</th><td class="otto"><span class="big">€197</span>one-time, founding pilot</td><td><span class="big">€1.5–5k</span>a month, plus project fees</td><td><span class="big">€4–6k</span>a month, salary and overhead</td><td><span class="big">€60–100</span>a month, plus your evenings</td></tr>
-          <tr><th scope="row">Time to first post</th><td class="otto">24 hours</td><td>2–4 weeks</td><td>2–3 months</td><td>Tonight, if you write it</td></tr>
-          <tr><th scope="row">Who does the work</th><td class="otto">Otto. You approve.</td><td>You brief, they execute</td><td>You manage</td><td>You, every time</td></tr>
-          <tr><th scope="row">Your time each week</th><td class="otto">About 30 minutes</td><td>Meetings, emails, approvals</td><td>One-to-ones and follow-up</td><td>8–10 hours</td></tr>
-          <tr><th scope="row">Watches performance</th><td class="otto">Every hour, and tells you</td><td>Monthly report</td><td>When you ask</td><td>Never</td></tr>
-          <tr><th scope="row">Commitment</th><td class="otto">None</td><td>3–6 months</td><td>Notice period</td><td>None</td></tr>
+          <tr><th scope="row" data-i18n="cmp.cost">Cost</th><td class="otto" data-i18n-rich="cmp.cost.otto"><span class="big">€197</span>one-time, founding pilot</td><td data-i18n-rich="cmp.cost.agency"><span class="big">€1.5–5k</span>a month, plus project fees</td><td data-i18n-rich="cmp.cost.inhouse"><span class="big">€4–6k</span>a month, salary and overhead</td><td data-i18n-rich="cmp.cost.tools"><span class="big">€60–100</span>a month, plus your evenings</td></tr>
+          <tr><th scope="row" data-i18n="cmp.first">Time to first post</th><td class="otto" data-i18n="cmp.first.otto">24 hours</td><td data-i18n="cmp.first.agency">2–4 weeks</td><td data-i18n="cmp.first.inhouse">2–3 months</td><td data-i18n="cmp.first.tools">Tonight, if you write it</td></tr>
+          <tr><th scope="row" data-i18n="cmp.who">Who does the work</th><td class="otto" data-i18n="cmp.who.otto">Otto. You approve.</td><td data-i18n="cmp.who.agency">You brief, they execute</td><td data-i18n="cmp.who.inhouse">You manage</td><td data-i18n="cmp.who.tools">You, every time</td></tr>
+          <tr><th scope="row" data-i18n="cmp.time">Your time each week</th><td class="otto" data-i18n="cmp.time.otto">About 30 minutes</td><td data-i18n="cmp.time.agency">Meetings, emails, approvals</td><td data-i18n="cmp.time.inhouse">One-to-ones and follow-up</td><td data-i18n="cmp.time.tools">8–10 hours</td></tr>
+          <tr><th scope="row" data-i18n="cmp.watch">Watches performance</th><td class="otto" data-i18n="cmp.watch.otto">Every hour, and tells you</td><td data-i18n="cmp.watch.agency">Monthly report</td><td data-i18n="cmp.watch.inhouse">When you ask</td><td data-i18n="cmp.watch.tools">Never</td></tr>
+          <tr><th scope="row" data-i18n="cmp.commit">Commitment</th><td class="otto" data-i18n="cmp.none">None</td><td data-i18n="cmp.commit.agency">3–6 months</td><td data-i18n="cmp.commit.inhouse">Notice period</td><td data-i18n="cmp.none">None</td></tr>
         </tbody>
       </table>
     </div>
-    <p class="cmp-note">Agency and in-house figures are market ranges for retainers, project costs, salary, social costs and overhead. Otto’s founding price is a one-time payment for the pilot group; monthly plans follow.</p>
+    <p class="cmp-note" data-i18n="cost.note">Agency and in-house figures are market ranges for retainers, project costs, salary, social costs and overhead. Otto’s founding price is a one-time payment for the pilot group; monthly plans follow.</p>
   </div>
 </section>
 
 <!-- ============ 5 · Watch Otto ============ -->
 <section class="sec" id="watch" aria-labelledby="watch-h" style="padding-top:0">
   <div class="wrap">
-    <h2 class="h2" id="watch-h" data-rv>Watch Otto work. <span class="ink-2">A one-minute film, and a 40-second version for your phone.</span></h2>
+    <h2 class="h2" id="watch-h" data-rv data-i18n-rich="watch.h">Watch Otto work. <span class="ink-2">A one-minute film, and a 40-second version for your phone.</span></h2>
     <div class="vids">
       <figure class="vid v169" data-rv>
         <div class="vid-box">
-          <video preload="none" playsinline muted poster="assets/video/otto-film.jpg" aria-label="Otto, the film"><source src="assets/video/otto-film.mp4" type="video/mp4"></video>
-          <button class="vid-play" type="button" aria-label="Play the film, muted, one minute"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5.5v13l11-6.5z" fill="currentColor" stroke="none"/></svg><span>Play the film</span><span class="vid-t">1:00</span></button>
-          <button class="vid-mute" type="button" hidden><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z"/><path d="M16 9.5c1.3 1.3 1.3 3.7 0 5M18.5 7c2.7 2.7 2.7 7.3 0 10"/></svg>Sound on</button>
+          <video preload="none" playsinline muted poster="assets/video/otto-film.jpg" aria-label="Otto, the film" data-i18n-attr="aria-label:watch.v1"><source src="assets/video/otto-film.mp4" type="video/mp4"></video>
+          <button class="vid-play" type="button" aria-label="Play the film, muted, one minute" data-i18n-attr="aria-label:watch.p1"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5.5v13l11-6.5z" fill="currentColor" stroke="none"/></svg><span data-i18n="watch.play">Play the film</span><span class="vid-t">1:00</span></button>
+          <button class="vid-mute" type="button" hidden data-i18n="watch.sound"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z"/><path d="M16 9.5c1.3 1.3 1.3 3.7 0 5M18.5 7c2.7 2.7 2.7 7.3 0 10"/></svg>Sound on</button>
         </div>
-        <figcaption><b>Otto, the film.</b> From a website to a month of posts, approved on a phone. Plays muted until you turn the sound on.</figcaption>
+        <figcaption data-i18n-rich="watch.c1"><b>Otto, the film.</b> From a website to a month of posts, approved on a phone. Plays muted until you turn the sound on.</figcaption>
       </figure>
       <figure class="vid v916" data-rv style="--rd:1">
         <div class="vid-box">
-          <video preload="none" playsinline muted poster="assets/video/otto-explainer.jpg" aria-label="Otto explained in one minute"><source src="assets/video/otto-explainer.mp4" type="video/mp4"></video>
-          <button class="vid-play" type="button" aria-label="Play the explainer, muted, 40 seconds"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5.5v13l11-6.5z" fill="currentColor" stroke="none"/></svg><span class="vid-t">0:40</span></button>
-          <button class="vid-mute" type="button" hidden><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z"/><path d="M16 9.5c1.3 1.3 1.3 3.7 0 5M18.5 7c2.7 2.7 2.7 7.3 0 10"/></svg>Sound on</button>
+          <video preload="none" playsinline muted poster="assets/video/otto-explainer.jpg" aria-label="Otto explained in one minute" data-i18n-attr="aria-label:watch.v2"><source src="assets/video/otto-explainer.mp4" type="video/mp4"></video>
+          <button class="vid-play" type="button" aria-label="Play the explainer, muted, 40 seconds" data-i18n-attr="aria-label:watch.p2"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5.5v13l11-6.5z" fill="currentColor" stroke="none"/></svg><span class="vid-t">0:40</span></button>
+          <button class="vid-mute" type="button" hidden data-i18n="watch.sound"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z"/><path d="M16 9.5c1.3 1.3 1.3 3.7 0 5M18.5 7c2.7 2.7 2.7 7.3 0 10"/></svg>Sound on</button>
         </div>
-        <figcaption><b>Otto in 40 seconds.</b> Made for your phone.</figcaption>
+        <figcaption data-i18n-rich="watch.c2"><b>Otto in 40 seconds.</b> Made for your phone.</figcaption>
       </figure>
     </div>
   </div>
@@ -1393,34 +1417,34 @@ html.motion .rv-play{transition:opacity var(--dur-slow) var(--ease-out),transfor
 <!-- ============ 6 · Offer ============ -->
 <section class="sec" id="pricing" aria-labelledby="price-h" style="padding-top:0">
   <div class="wrap">
-    <h2 class="h2" id="price-h" data-rv>Try Otto free for 7 days. <span class="ink-2">No card needed.</span></h2>
+    <h2 class="h2" id="price-h" data-rv data-i18n-rich="price.h">Try Otto free for 7 days. <span class="ink-2">No card needed.</span></h2>
     <div class="offer-grid">
       <div class="offer" data-rv>
-        <p class="offer-n">Free trial</p>
-        <div class="amt"><span class="n"><small>€</small>0</span><span class="per">for 7 days</span></div>
-        <p class="vat">No card. Nothing is charged when it ends.</p>
-        <p class="offer-d">Otto set up from your website, your first week of posts with visuals, approvals by email or Telegram, and your paid ads planned for you to see. Live within 24 hours.</p>
+        <p class="offer-n" data-i18n="price.n">Free trial</p>
+        <div class="amt"><span class="n"><small>€</small>0</span><span class="per" data-i18n="price.per">for 7 days</span></div>
+        <p class="vat" data-i18n="price.vat">No card. Nothing is charged when it ends.</p>
+        <p class="offer-d" data-i18n="price.d">Otto set up from your website, your first week of posts with visuals, approvals by email or Telegram, and your paid ads planned for you to see. Live within 24 hours.</p>
         <ul>
-          <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>Posts, stories and reels for one brand, made from your website</li>
-          <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>Facebook and Instagram, LinkedIn on request</li>
-          <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>Approve by email, in Telegram or in the app</li>
-          <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>Your paid ads planned and shown; they launch once you choose a plan</li>
-          <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>Competitor research for your market</li>
-          <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>Everything carries over when you add a card</li>
+          <li data-i18n="price.l1"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>Posts, stories and reels for one brand, made from your website</li>
+          <li data-i18n="price.l2"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>Facebook and Instagram, LinkedIn on request</li>
+          <li data-i18n="price.l3"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>Approve by email, in Telegram or in the app</li>
+          <li data-i18n="price.l4"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>Your paid ads planned and shown; they launch once you choose a plan</li>
+          <li data-i18n="price.l5"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>Competitor research for your market</li>
+          <li data-i18n="price.l6"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>Everything carries over when you add a card</li>
         </ul>
-        <a class="btn btn-primary" href="/auth/google/start?next=%2Fonboarding.html" data-trial>Start free 7-day trial</a>
-        <p class="offer-s">Continue with Google. One trial per business.</p>
-        <p class="offer-s" id="founding-offer" hidden>Prefer to pay once? <a class="link" id="founding-link" href="#pricing">Founding pilot, <span id="founding-price">€197</span> one-time</a>.</p>
+        <a class="btn btn-primary" href="/auth/google/start?next=%2Fonboarding.html" data-trial data-i18n="cta.trial7">Start free 7-day trial</a>
+        <p class="offer-s" data-i18n="price.s">Continue with Google. One trial per business.</p>
+        <p class="offer-s" id="founding-offer" hidden><span data-i18n="price.once">Prefer to pay once?</span> <a class="link" id="founding-link" href="#pricing">Founding pilot, <span id="founding-price">€197</span> one-time</a>.</p>
       </div>
       <div class="after" data-rv style="--rd:1">
-        <h3>What happens next</h3>
-        <p class="asub">Seven days, then you decide.</p>
+        <h3 data-i18n="next.h">What happens next</h3>
+        <p class="asub" data-i18n="next.sub">Seven days, then you decide.</p>
         <ol class="tl">
-          <li><b>Today</b><span>You sign in with Google and give Otto your website address. No card.</span></li>
-          <li><b>First questions</b><span>Otto reads your site, builds your brand profile and asks you at most four questions.</span></li>
-          <li><b>Within 24 hours</b><span>Your first posts arrive by email or in Telegram, ready for your tap.</span></li>
-          <li><b>Every morning</b><span>A short report at 07:35 that flags anything that dropped.</span></li>
-          <li><b>Before day 7</b><span>Otto e-mails you two days before the trial ends. Choose a plan to keep going: it starts, and is charged, when the trial ends. Choose none and nothing is charged; publishing pauses.</span></li>
+          <li><b data-i18n="next.1b">Today</b><span data-i18n="next.1">You sign in with Google and give Otto your website address. No card.</span></li>
+          <li><b data-i18n="next.2b">First questions</b><span data-i18n="next.2">Otto reads your site, builds your brand profile and asks you at most four questions.</span></li>
+          <li><b data-i18n="next.3b">Within 24 hours</b><span data-i18n="next.3">Your first posts arrive by email or in Telegram, ready for your tap.</span></li>
+          <li><b data-i18n="next.4b">Every morning</b><span data-i18n="next.4">A short report at 07:35 that flags anything that dropped.</span></li>
+          <li><b data-i18n="next.5b">Before day 7</b><span data-i18n="next.5">Otto e-mails you two days before the trial ends. Choose a plan to keep going: it starts, and is charged, when the trial ends. Choose none and nothing is charged; publishing pauses.</span></li>
         </ol>
       </div>
     </div>
@@ -1432,17 +1456,17 @@ html.motion .rv-play{transition:opacity var(--dur-slow) var(--ease-out),transfor
 <section class="sec" id="faq" aria-labelledby="faq-h" style="padding-top:0">
   <div class="wrap faq-grid">
     <div class="faq-side">
-      <h2 class="h2" id="faq-h" data-rv>Questions</h2>
-      <p class="body" data-rv>Still unsure? <a class="link" href="#top" data-focus="hero-url">Scan your site first</a>. It’s free and takes a minute.</p>
+      <h2 class="h2" id="faq-h" data-rv data-i18n="faq.h">Questions</h2>
+      <p class="body" data-rv data-i18n-rich="faq.side">Still unsure? <a class="link" href="#top" data-focus="hero-url">Scan your site first</a>. It’s free and takes a minute.</p>
     </div>
     <div class="faq" data-rv>
-      <details><summary>Does anything publish without my approval?</summary><div class="fa">No. Every post waits for your approval, by email, in Telegram or in the app, whichever is closer. You can let trusted pillars publish automatically later; it is off by default.</div></details>
-      <details><summary>How is this different from a scheduler plus ChatGPT?</summary><div class="fa">With those tools you do the work: you think of the idea, write the prompt, fix the output, make the visual, pick the slot, press publish and check the stats. Otto does all of that and comes to you only with finished posts and decisions.</div></details>
-      <details><summary>Will the content actually sound like my brand?</summary><div class="fa">Otto builds your brand profile from your own site: your colours, your wording, your real customer reviews. It asks you at most four questions to fill the gaps. Every post and visual follows that profile, and every post you approve or skip teaches it more.</div></details>
-      <details><summary>What if I’m not around to approve?</summary><div class="fa">Nothing breaks. Otto reminds you before a post is due and moves it to a new slot if you don’t answer. Your morning briefing lists what is waiting.</div></details>
-      <details><summary>Which channels and languages?</summary><div class="fa">Facebook and Instagram today, LinkedIn on request. Content in English and Dutch, written for your market rather than translated, and in German, French, Spanish, Italian, Portuguese and Hebrew, including right-to-left layouts. One of the brands running on Otto today publishes in Hebrew.</div></details>
-      <details><summary>What do I need to bring?</summary><div class="fa">Your website address, your social accounts connected once through their official login (you can revoke access at any time), and an email address for approvals (or Telegram, if you prefer).</div></details>
-      <details><summary>What happens after the free trial?</summary><div class="fa">Otto e-mails you two days before your 7-day trial ends. Choose a plan to keep going: it starts, and is charged, when the trial ends, and your setup and everything Otto made stay. If you don’t choose one, nothing is charged, publishing pauses and your work is kept for 90 days.</div></details>
+      <details><summary data-i18n="faq.q1">Does anything publish without my approval?</summary><div class="fa" data-i18n="faq.a1">No. Every post waits for your approval, by email, in Telegram or in the app, whichever is closer. You can let trusted pillars publish automatically later; it is off by default.</div></details>
+      <details><summary data-i18n="faq.q2">How is this different from a scheduler plus ChatGPT?</summary><div class="fa" data-i18n="faq.a2">With those tools you do the work: you think of the idea, write the prompt, fix the output, make the visual, pick the slot, press publish and check the stats. Otto does all of that and comes to you only with finished posts and decisions.</div></details>
+      <details><summary data-i18n="faq.q3">Will the content actually sound like my brand?</summary><div class="fa" data-i18n="faq.a3">Otto builds your brand profile from your own site: your colours, your wording, your real customer reviews. It asks you at most four questions to fill the gaps. Every post and visual follows that profile, and every post you approve or skip teaches it more.</div></details>
+      <details><summary data-i18n="faq.q4">What if I’m not around to approve?</summary><div class="fa" data-i18n="faq.a4">Nothing breaks. Otto reminds you before a post is due and moves it to a new slot if you don’t answer. Your morning briefing lists what is waiting.</div></details>
+      <details><summary data-i18n="faq.q5">Which channels and languages?</summary><div class="fa" data-i18n="faq.a5">Facebook and Instagram today, LinkedIn on request. Content in English and Dutch, written for your market rather than translated, and in German, French, Spanish, Italian, Portuguese and Hebrew, including right-to-left layouts. One of the brands running on Otto today publishes in Hebrew.</div></details>
+      <details><summary data-i18n="faq.q6">What do I need to bring?</summary><div class="fa" data-i18n="faq.a6">Your website address, your social accounts connected once through their official login (you can revoke access at any time), and an email address for approvals (or Telegram, if you prefer).</div></details>
+      <details><summary data-i18n="faq.q7">What happens after the free trial?</summary><div class="fa" data-i18n="faq.a7">Otto e-mails you two days before your 7-day trial ends. Choose a plan to keep going: it starts, and is charged, when the trial ends, and your setup and everything Otto made stay. If you don’t choose one, nothing is charged, publishing pauses and your work is kept for 90 days.</div></details>
     </div>
   </div>
 </section>
@@ -1451,11 +1475,11 @@ html.motion .rv-play{transition:opacity var(--dur-slow) var(--ease-out),transfor
 <section class="final" id="final" aria-labelledby="final-h">
   <div class="wrap final-grid">
     <div class="final-copy">
-      <h2 class="h2" id="final-h" data-rv>Try Otto free for 7 days.</h2>
-      <p class="body lead" data-rv>No card. Set up from your website and live within 24 hours.</p>
+      <h2 class="h2" id="final-h" data-rv data-i18n="final.h">Try Otto free for 7 days.</h2>
+      <p class="body lead" data-rv data-i18n="final.lead">No card. Set up from your website and live within 24 hours.</p>
       <div class="final-cta" data-rv>
-        <a class="btn btn-primary" href="/auth/google/start?next=%2Fonboarding.html" data-trial>Start free 7-day trial</a>
-        <a class="link link-ink" href="#top" data-focus="hero-url">Or scan your site first</a>
+        <a class="btn btn-primary" href="/auth/google/start?next=%2Fonboarding.html" data-trial data-i18n="cta.trial7">Start free 7-day trial</a>
+        <a class="link link-ink" href="#top" data-focus="hero-url" data-i18n="final.scan">Or scan your site first</a>
       </div>
     </div>
     <div class="final-phone" data-rv style="--rd:1">
@@ -1481,9 +1505,10 @@ html.motion .rv-play{transition:opacity var(--dur-slow) var(--ease-out),transfor
 
 </main>
 
-<div class="dock" id="dock"><div class="t"><b>Free for 7 days</b>No card needed</div><a class="btn btn-primary" href="/auth/google/start?next=%2Fonboarding.html" data-trial>Start free trial</a></div>
-<footer><div class="wrap"><span>Otto · 2026</span><span>Prices in euro, excluding VAT.</span><span class="f-r"><a href="#faq">FAQ</a><a href="/" data-login>Log in</a></span><nav class="f-legal" aria-label="Legal"><a href="legal/terms.html">Terms</a><a href="legal/privacy.html">Privacy</a><a href="legal/dpa.html">Data processing agreement</a><a href="legal/subprocessors.html">Sub-processors</a><a href="legal/cookies.html">Cookies</a><a href="legal/ai.html">AI transparency</a><a href="legal/company.html">Company</a><a href="legal/cookies.html#your-choices" data-privacy-choices>Privacy choices</a></nav></div></footer>
+<div class="dock" id="dock"><div class="t" data-i18n-rich="dock.t"><b>Free for 7 days</b>No card needed</div><a class="btn btn-primary" href="/auth/google/start?next=%2Fonboarding.html" data-trial data-i18n="nav.trial">Start free trial</a></div>
+<footer><div class="wrap"><span>Otto · 2026</span><span data-i18n="foot.vat">Prices in euro, excluding VAT.</span><span class="f-r"><a href="#faq" data-i18n="nav.faq">FAQ</a><a href="/" data-login data-i18n="nav.login">Log in</a></span><nav class="f-lang" aria-label="Language" data-i18n-attr="aria-label:lang.label"><a href="?lang=en" data-lang="en" lang="en" hreflang="en">English</a><span aria-hidden="true">·</span><a href="?lang=nl" data-lang="nl" lang="nl" hreflang="nl">Nederlands</a><span aria-hidden="true">·</span><a href="?lang=de" data-lang="de" lang="de" hreflang="de">Deutsch</a></nav><nav class="f-legal" aria-label="Legal" data-i18n-attr="aria-label:foot.legal"><a href="legal/terms.html" data-i18n="foot.terms">Terms</a><a href="legal/privacy.html" data-i18n="foot.privacy">Privacy</a><a href="legal/dpa.html" data-i18n="foot.dpa">Data processing agreement</a><a href="legal/subprocessors.html" data-i18n="foot.sub">Sub-processors</a><a href="legal/cookies.html" data-i18n="foot.cookies">Cookies</a><a href="legal/ai.html" data-i18n="foot.ai">AI transparency</a><a href="legal/company.html" data-i18n="foot.company">Company</a><a href="legal/cookies.html#your-choices" data-privacy-choices>Privacy choices</a></nav></div></footer>
 
+<script src="assets/i18n/site-lang.js?v=1" data-page="landing"></script>
 <script>
 /* Otto landing. Everything is authored finished in HTML/CSS; this script only adds behaviour.
    Motion rule: an element is rewound (armed) only when it is still off screen and about to play. */
@@ -1503,6 +1528,18 @@ var esc = function (t) { return String(t == null ? '' : t).replace(/[&<>"']/g, f
 var wait = function (ms) { return new Promise(function (r) { setTimeout(r, ms); }); };
 var dur = function (ms) { return RM ? 1 : ms; };
 var lenis = null, readsST = null;
+/* language: English is the page; OttoLang (assets/i18n/site-lang.js) swaps in Nederlands / Deutsch when the visitor picks it.
+   Every string this script writes goes through T / TN (TK = a key with its English, for tables). */
+var LG = W.OttoLang || null;
+var TK = function (k, en) { return { k: k, en: en }; };
+var T = function (k, en, v) {
+  if (k && typeof k === 'object') { v = en; en = k.en; k = k.k; }
+  return LG ? LG.t(k, en, v) : String(en).replace(/\{(\w+)\}/g, function (m, x) { return v && v[x] != null ? v[x] : m; });
+};
+var TN = function (k, n, one, other, v) { return LG ? LG.tn(k, n, one, other, v) : T(k, n === 1 ? one : other, Object.assign({ n: n }, v)); };
+var NUM = function (n, o) { return LG ? LG.num(n, o) : n.toLocaleString('en-GB', o); };
+var onLang = [];   /* re-render what the scripts wrote, after OttoLang has applied the dictionary */
+if (LG) LG.on(function () { onLang.forEach(function (f) { try { f(); } catch (e) {} }); });
 
 /* ---------- in-page links (works with the <base> used on the deployed copy) ---------- */
 function navH() { return $('#nav').offsetHeight; }
@@ -1528,9 +1565,12 @@ d.addEventListener('keydown', function (e) { if (e.key === 'Escape') { var m = $
   var DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
   var MON = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
   var n = new Date(), t = $('#live-date');
-  t.textContent = DAYS[n.getDay()] + ' ' + n.getDate() + ' ' + MON[n.getMonth()];
+  function paint() {
+    t.textContent = LG ? LG.date(n, { weekday: 'long', day: 'numeric', month: 'long' }) : DAYS[n.getDay()] + ' ' + n.getDate() + ' ' + MON[n.getMonth()];
+    $('#rep-date').textContent = (LG ? LG.date(n, { weekday: 'long' }) : DAYS[n.getDay()]) + ' · 07:35';
+  }
   t.setAttribute('datetime', n.getFullYear() + '-' + String(n.getMonth() + 1).padStart(2, '0') + '-' + String(n.getDate()).padStart(2, '0'));
-  $('#rep-date').textContent = DAYS[n.getDay()] + ' · 07:35';
+  paint(); onLang.push(paint);
 })();
 
 /* ---------- nav state, sticky mobile CTA, story rail ---------- */
@@ -1561,19 +1601,35 @@ onScroll();
 /* ---------- scan: the real /otto-peek call, sample fallback ---------- */
 var PEEK = '/otto-peek';   /* same origin everywhere (the CSP allows no other); locally, run the page through the sim server, which proxies it */
 var SAMPLE = {}; $$('#w-scan .prow').forEach(function (r) { SAMPLE[r.dataset.k] = r.innerHTML; });
-var SAMPLE_NOW = $('#scan-now').textContent;
-var STEPS = ['Reading the site', 'Reading your colours and tone', 'Finding competitors', 'Working out your audience', 'Drafting the month'];
+var SAMPLE_NOW = TK('scan.now.sample', 'Read the site, colours and tone, competitors, audience. Month drafted.');
+var STEPS = [TK('scan.s1', 'Reading the site'), TK('scan.s2', 'Reading your colours and tone'), TK('scan.s3', 'Finding competitors'), TK('scan.s4', 'Working out your audience'), TK('scan.s5', 'Drafting the month')];
 var LANG = { en: 'English', de: 'German', he: 'Hebrew', fr: 'French', es: 'Spanish', it: 'Italian', nl: 'Dutch', pt: 'Portuguese', ru: 'Russian', ar: 'Arabic', pl: 'Polish', ro: 'Romanian', hu: 'Hungarian', sv: 'Swedish', da: 'Danish', el: 'Greek', tr: 'Turkish' };
-var PILLARS_FOR = { 'CBD': ['Education', 'Trust and proof', 'Use cases', 'Product', 'Engagement'], 'Supplement': ['Product', 'Ingredients', 'Daily routine', 'Customer stories', 'Offers'], 'Restaurant': ['Dishes and seasons', 'Behind the kitchen', 'Guests and reviews', 'Events', 'Offers'], 'Clinic': ['Education', 'Patient stories', 'Before and after', 'Meet the team', 'Booking'], 'Education': ['Method', 'Student stories', 'Career change', 'Community', 'Enrolment'], 'E-commerce': ['Product', 'Social proof', 'How-to', 'Behind the brand', 'Offers'], 'Real estate': ['Listings', 'Neighbourhood', 'Buyer education', 'Client stories', 'Market updates'], 'SaaS': ['Product', 'Use cases', 'Customer stories', 'Education', 'Launches'], 'Fitness': ['Workouts', 'Member stories', 'Nutrition', 'Community', 'Offers'], 'Beauty': ['Treatments', 'Before and after', 'Skin education', 'Team', 'Offers'], 'Legal': ['Education', 'Case stories', 'FAQ', 'Team', 'Consultations'], 'Hotel': ['Rooms and views', 'Local guide', 'Guest stories', 'Seasonal offers', 'Behind the scenes'], 'Coaching': ['Insights', 'Client wins', 'Framework', 'Personal story', 'Programme'], 'Home': ['Projects', 'Before and after', 'Tips', 'Reviews', 'Quotes'], 'Automotive': ['Inventory', 'Service tips', 'Customer stories', 'Offers', 'Team'] };
+var lname = function (c) { var en = own(LANG, c); return LG ? LG.lname(c, en) : en; };
+/* content pillars (assets/i18n/common.*.json): the same names otto_plan uses */
+var P = { edu: TK('p.edu', 'Education'), trust: TK('p.trust', 'Trust and proof'), usecases: TK('p.usecases', 'Use cases'), product: TK('p.product', 'Product'), engage: TK('p.engage', 'Engagement'),
+  ingredients: TK('p.ingredients', 'Ingredients'), routine: TK('p.routine', 'Daily routine'), custstories: TK('p.custstories', 'Customer stories'), offers: TK('p.offers', 'Offers'),
+  dishes: TK('p.dishes', 'Dishes and seasons'), kitchen: TK('p.kitchen', 'Behind the kitchen'), guests: TK('p.guests', 'Guests and reviews'), events: TK('p.events', 'Events'),
+  patients: TK('p.patients', 'Patient stories'), beforeafter: TK('p.beforeafter', 'Before and after'), meetteam: TK('p.meetteam', 'Meet the team'), booking: TK('p.booking', 'Booking'),
+  method: TK('p.method', 'Method'), students: TK('p.students', 'Student stories'), career: TK('p.career', 'Career change'), community: TK('p.community', 'Community'), enrolment: TK('p.enrolment', 'Enrolment'),
+  social: TK('p.social', 'Social proof'), howto: TK('p.howto', 'How-to'), behindbrand: TK('p.behindbrand', 'Behind the brand'),
+  listings: TK('p.listings', 'Listings'), hood: TK('p.hood', 'Neighbourhood'), buyered: TK('p.buyered', 'Buyer education'), clients: TK('p.clients', 'Client stories'), market: TK('p.market', 'Market updates'),
+  launches: TK('p.launches', 'Launches'), workouts: TK('p.workouts', 'Workouts'), members: TK('p.members', 'Member stories'), nutrition: TK('p.nutrition', 'Nutrition'),
+  treatments: TK('p.treatments', 'Treatments'), skin: TK('p.skin', 'Skin education'), team: TK('p.team', 'Team'),
+  cases: TK('p.cases', 'Case stories'), faq: TK('p.faq', 'FAQ'), consult: TK('p.consult', 'Consultations'),
+  rooms: TK('p.rooms', 'Rooms and views'), localguide: TK('p.localguide', 'Local guide'), gstories: TK('p.gstories', 'Guest stories'), seasonal: TK('p.seasonal', 'Seasonal offers'), bts: TK('p.bts', 'Behind the scenes'),
+  insights: TK('p.insights', 'Insights'), wins: TK('p.wins', 'Client wins'), framework: TK('p.framework', 'Framework'), personal: TK('p.personal', 'Personal story'), programme: TK('p.programme', 'Programme'),
+  projects: TK('p.projects', 'Projects'), tips: TK('p.tips', 'Tips'), reviews: TK('p.reviews', 'Reviews'), quotes: TK('p.quotes', 'Quotes'),
+  inventory: TK('p.inventory', 'Inventory'), service: TK('p.service', 'Service tips'), proof: TK('p.proof', 'Proof') };
+var PILLARS_FOR = { 'CBD': [P.edu, P.trust, P.usecases, P.product, P.engage], 'Supplement': [P.product, P.ingredients, P.routine, P.custstories, P.offers], 'Restaurant': [P.dishes, P.kitchen, P.guests, P.events, P.offers], 'Clinic': [P.edu, P.patients, P.beforeafter, P.meetteam, P.booking], 'Education': [P.method, P.students, P.career, P.community, P.enrolment], 'E-commerce': [P.product, P.social, P.howto, P.behindbrand, P.offers], 'Real estate': [P.listings, P.hood, P.buyered, P.clients, P.market], 'SaaS': [P.product, P.usecases, P.custstories, P.edu, P.launches], 'Fitness': [P.workouts, P.members, P.nutrition, P.community, P.offers], 'Beauty': [P.treatments, P.beforeafter, P.skin, P.team, P.offers], 'Legal': [P.edu, P.cases, P.faq, P.team, P.consult], 'Hotel': [P.rooms, P.localguide, P.gstories, P.seasonal, P.bts], 'Coaching': [P.insights, P.wins, P.framework, P.personal, P.programme], 'Home': [P.projects, P.beforeafter, P.tips, P.reviews, P.quotes], 'Automotive': [P.inventory, P.service, P.custstories, P.offers, P.team] };
 var RESTRICTED = /cbd|clinic|medical|legal|finance/i;
 var heroBtn = $('#hero-btn'), heroStep = $('#hero-step'), liveDot = $('#live-dot');
 function setStep(i, state) {
   var lis = $$('#scan-steps li');
   lis.forEach(function (li, j) { li.className = j < i ? 'done' : j === i ? state : ''; });
-  if (state === 'on') { $('#scan-now').innerHTML = '<span class="spin" aria-hidden="true"></span>' + STEPS[i] + '…'; heroStep.textContent = STEPS[i]; }
+  if (state === 'on') { $('#scan-now').innerHTML = '<span class="spin" aria-hidden="true"></span>' + esc(T(STEPS[i])) + '…'; heroStep.textContent = T(STEPS[i]); }
 }
 function row(k) { return $('#w-scan .prow[data-k="' + k + '"]'); }
-function setRow(k, html, label) { var r = row(k); if (label) $('.pl', r).textContent = label; $('.pl', r).nextElementSibling.outerHTML = html; }
+function setRow(k, html, label) { var r = row(k), pl = $('.pl', r); if (label) { pl.removeAttribute('data-i18n'); pl.textContent = label; } pl.nextElementSibling.outerHTML = html; }
 /* what the scan returns, cleaned the same way onboarding cleans it */
 var own = function (o, k) { return o != null && Object.prototype.hasOwnProperty.call(o, k) ? o[k] : undefined; };   /* scan strings as keys */
 var SOC = { instagram: 'Instagram', facebook: 'Facebook', tiktok: 'TikTok', linkedin: 'LinkedIn', youtube: 'YouTube', x: 'X', whatsapp: 'WhatsApp', telegram: 'Telegram', pinterest: 'Pinterest' };
@@ -1590,25 +1646,25 @@ function realQuote(r) {   /* a customer's words: not the brand talking about its
 }
 function lum(x) { var m = /^#?([0-9a-f]{6})$/i.exec(x || ''); if (!m) return 1; var n = parseInt(m[1], 16); return (0.299 * (n >> 16) + 0.587 * ((n >> 8) & 255) + 0.114 * (n & 255)) / 255; }
 function fillReal(r, domain) {
-  var langs = (r.languages || []).map(function (l) { return own(LANG, String(l).toLowerCase()) || String(l).toUpperCase(); }).join(', ');
+  var langs = (r.languages || []).map(function (l) { return lname(String(l).toLowerCase()) || String(l).toUpperCase(); }).join(', ');
   setRow('industry', '<div class="pv">' + ([r.industry, langs, r.platform].filter(Boolean).map(esc).join(' · ') || '—') + '</div>');
   var sw = (r.palette || []).concat(r.neutrals || []).map(hex).filter(Boolean).slice(0, 6).map(function (x) { return '<span class="sw" style="background:' + x + '" title="' + x + '"></span>'; }).join('');
-  setRow('palette', '<div class="pv">' + (sw || '<i>No brand colours found</i>') + (r.fonts && r.fonts.length ? ' <span class="fonts">' + esc(r.fonts.slice(0, 2).map(fontName).join(' · ')) + '</span>' : '') + '</div>');
-  setRow('voice', '<div class="pv" dir="auto"><i>' + esc(clip(r.description || r.title, 240) || '—') + '</i></div>', r.description ? 'In your words' : 'Tone');
+  setRow('palette', '<div class="pv">' + (sw || '<i>' + esc(T('scan.nocolours', 'No brand colours found')) + '</i>') + (r.fonts && r.fonts.length ? ' <span class="fonts">' + esc(r.fonts.slice(0, 2).map(fontName).join(' · ')) + '</span>' : '') + '</div>');
+  setRow('voice', '<div class="pv" dir="auto"><i>' + esc(clip(r.description || r.title, 240) || '—') + '</i></div>', r.description ? T('scan.l.words', 'In your words') : T('reads.l.tone', 'Tone'));
   var proof = (r.trust || []).slice(0, 3).map(function (x) { return esc(clip(x, 90)); }).join(' · ');
-  setRow('proof', '<div class="pv" dir="auto">' + (proof || '<i>None found yet. Otto will ask you for reviews.</i>') + '</div>', 'Proof on the site');
+  setRow('proof', '<div class="pv" dir="auto">' + (proof || '<i>' + esc(T('scan.noproof', 'None found yet. Otto will ask you for reviews.')) + '</i>') + '</div>', T('scan.l.proof', 'Proof on the site'));
   var q = realQuote(r), soc = Object.keys(r.socials && typeof r.socials === 'object' ? r.socials : {}).map(function (x) { return own(SOC, x) || x; });
-  setRow('audience', '<div class="pv" dir="auto">' + (q ? '<i>“' + esc(clip(q, 140)) + '”</i>' : (soc.length ? esc(soc.join(' · ')) : '<i>None linked. Otto connects them during setup.</i>')) + '</div>', q ? 'Customer voice' : 'Social accounts');
+  setRow('audience', '<div class="pv" dir="auto">' + (q ? '<i>“' + esc(clip(q, 140)) + '”</i>' : (soc.length ? esc(soc.join(' · ')) : '<i>' + esc(T('scan.nosocial', 'None linked. Otto connects them during setup.')) + '</i>')) + '</div>', q ? T('scan.l.voice', 'Customer voice') : T('scan.l.social', 'Social accounts'));
   var key = Object.keys(PILLARS_FOR).find(function (k) { return (r.industry || '').toLowerCase().indexOf(k.toLowerCase()) > -1; });
-  var pillars = (PILLARS_FOR[key] || ['Education', 'Proof', 'Product', 'Behind the scenes', 'Engagement']).map(function (p) { return '<span class="chip">' + esc(p) + '</span>'; }).join('');
-  setRow('plan', '<div class="chips">' + pillars + (RESTRICTED.test(r.industry || '') ? '<span class="chip">Restricted on Meta, so organic first</span>' : '') + '</div>');
-  $('#scan-tag').textContent = 'Your site';
+  var pillars = (PILLARS_FOR[key] || [P.edu, P.proof, P.product, P.bts, P.engage]).map(function (p) { return '<span class="chip">' + esc(T(p)) + '</span>'; }).join('');
+  setRow('plan', '<div class="chips">' + pillars + (RESTRICTED.test(r.industry || '') ? '<span class="chip">' + esc(T('scan.restricted', 'Restricted on Meta, so organic first')) + '</span>' : '') + '</div>');
+  $('#scan-tag').textContent = T('scan.yours', 'Your site');
   var pages = Math.max(1, Math.round(Number(r.pages) || 1));
-  $('#scan-now').textContent = 'Real scan of ' + domain + ': ' + pages + ' page' + (pages === 1 ? '' : 's') + ' read.';
+  $('#scan-now').textContent = TN('scan.real', pages, 'Real scan of {domain}: 1 page read.', 'Real scan of {domain}: {n} pages read.', { domain: domain });
   fillSite(r, domain);
 }
 /* the site mockup on the left: the sample until a scan, then the scanned site, simplified and labelled so */
-var siteEl = $('#site'), SITE_SAMPLE = { face: $('.site-face', siteEl).innerHTML, label: $('.site-face', siteEl).getAttribute('aria-label'), xray: $('.xray', siteEl).innerHTML, url: $('#scan-url').textContent, tag: $('.site-tag', siteEl).textContent };
+var siteEl = $('#site'), SITE_SAMPLE = { face: $('.site-face', siteEl).innerHTML, label: TK('reads.site', 'A simplified version of the Happy Garden website'), xray: $('.xray', siteEl).innerHTML, url: $('#scan-url').textContent, tag: TK('tag.sample', 'Sample') };
 function refreshScroll() { if (W.ScrollTrigger) { try { W.ScrollTrigger.refresh(); } catch (e) {} } }
 function fillSite(r, domain) {
   var name = r.name || cleanTitle(r.title) || domain;
@@ -1630,17 +1686,22 @@ function fillSite(r, domain) {
   face.innerHTML =
     '<div class="s-nav"><b dir="auto">' + esc(clip(name, 32)) + '<span class="mk" data-mk="industry"></span></b><i class="s-sk"></i><i class="s-sk"></i><i class="s-sk"></i></div>' +
     '<div class="s-hero ' + (onDark ? 'on-dark' : 'on-light') + '" style="background:' + p0 + '"><div><h4 dir="auto"><span class="mk" data-mk="voice"></span>' + esc(clip(head, 72)) + '</h4>' + (r.description ? '<p dir="auto">' + esc(clip(r.description, 110)) + '</p>' : '') +
-      '<span class="s-btn" style="background:' + (onDark ? '#fff' : (darkest && lum(darkest) < 0.35 ? darkest : '#111')) + ';color:' + (onDark ? p0 : '#fff') + '">' + (shop ? 'Shop now' : 'Learn more') + '</span></div>' +
-      '<div class="s-art" style="background:linear-gradient(160deg,' + tint(p1, 70) + ',' + tint(p2, 35) + ')">' + (logo ? '<img src="' + esc(logo) + '" alt="' + esc(name) + ' logo, from the site" referrerpolicy="no-referrer" decoding="async">' : '') + '</div></div>' +
+      '<span class="s-btn" style="background:' + (onDark ? '#fff' : (darkest && lum(darkest) < 0.35 ? darkest : '#111')) + ';color:' + (onDark ? p0 : '#fff') + '">' + esc(shop ? T('site.shop', 'Shop now') : T('site.more', 'Learn more')) + '</span></div>' +
+      '<div class="s-art" style="background:linear-gradient(160deg,' + tint(p1, 70) + ',' + tint(p2, 35) + ')">' + (logo ? '<img src="' + esc(logo) + '" alt="' + esc(T('site.logo', '{name} logo, from the site', { name: name })) + '" referrerpolicy="no-referrer" decoding="async">' : '') + '</div></div>' +
     '<div class="s-prods">' + tiles.map(function (c, i) { return '<figure dir="auto"><span class="s-tile" style="background:' + tint(c, 30) + '"></span>' + esc(clip(prods[i] || '', 30)) + '</figure>'; }).join('') + '</div>' +
-    '<blockquote class="s-rev' + (q || proof ? '' : ' is-none') + '" dir="auto"><span class="mk" data-mk="audience"></span>' + (q ? '“' + esc(clip(q, 120)) + '”<cite>Quoted on your site</cite>' : proof ? esc(clip(proof, 120)) + '<cite>On your site</cite>' : 'No customer reviews on the site yet.<cite>Otto asks you for a few after setup</cite>') + '</blockquote>' +
+    '<blockquote class="s-rev' + (q || proof ? '' : ' is-none') + '" dir="auto"><span class="mk" data-mk="audience"></span>' + (q ? '“' + esc(clip(q, 120)) + '”<cite>' + esc(T('site.quoted', 'Quoted on your site')) + '</cite>' : proof ? esc(clip(proof, 120)) + '<cite>' + esc(T('site.onsite', 'On your site')) + '</cite>' : esc(T('site.noreviews', 'No customer reviews on the site yet.')) + '<cite>' + esc(T('site.askreviews', 'Otto asks you for a few after setup')) + '</cite>') + '</blockquote>' +
     '<div class="s-foot"><span class="mk" data-mk="palette"></span>' + pal.concat(neu).slice(0, 6).map(function (c) { return '<i style="background:' + c + '"></i>'; }).join('') + '<span dir="auto">' + esc(fonts || domain) + '</span></div>';
-  face.setAttribute('aria-label', 'A simplified version of the ' + name + ' website, drawn from the scan');
+  face.setAttribute('aria-label', T('site.aria', 'A simplified version of the {name} website, drawn from the scan', { name: name }));
   $$('.xray b', siteEl).forEach(function (b, i) {
-    b.textContent = ['Nav · ' + (logo ? 'logo found' : 'no logo found'), 'Hero · ' + (pal[0] || 'no brand colour') + ' · headline read', (r.prices || []).length ? (r.prices.length + ' price' + (r.prices.length === 1 ? '' : 's') + ' read') : 'No prices found', q ? 'Review · tone source' : proof ? 'Proof · on your site' : 'No reviews found', pal.length + ' brand colour' + (pal.length === 1 ? '' : 's')][i] || b.textContent;
+    b.removeAttribute('data-i18n');
+    b.textContent = [logo ? T('site.x.logo', 'Nav · logo found') : T('site.x.nologo', 'Nav · no logo found'),
+      pal[0] ? T('site.x.hero', 'Hero · {colour} · headline read', { colour: pal[0] }) : T('site.x.heronone', 'Hero · no brand colour · headline read'),
+      (r.prices || []).length ? TN('site.x.prices', r.prices.length, '1 price read', '{n} prices read') : T('site.x.noprices', 'No prices found'),
+      q ? T('reads.x4', 'Review · tone source') : proof ? T('site.x.proof', 'Proof · on your site') : T('site.x.noreviews', 'No reviews found'),
+      TN('site.x.colours', pal.length, '1 brand colour', '{n} brand colours')][i] || b.textContent;
   });
   $('#scan-url').textContent = domain;
-  $('.site-tag', siteEl).textContent = 'Simplified';
+  $('.site-tag', siteEl).textContent = T('site.simplified', 'Simplified');
   /* the logo: a light one (by its file name) gets a dark ground; a soft shadow keeps any other light logo visible */
   $$('.s-art img', face).forEach(function (img) {
     var art = img.parentNode, ground = function () { art.style.background = darkest && lum(darkest) < 0.3 ? darkest : '#1B1D22'; };
@@ -1649,15 +1710,18 @@ function fillSite(r, domain) {
   });
   refreshScroll();
 }
-function fillSample(tag) {
-  Object.keys(SAMPLE).forEach(function (k) { var r = row(k); r.innerHTML = SAMPLE[k]; });
-  $('#scan-tag').textContent = tag || 'Sample profile';
+function fillSample() {
+  Object.keys(SAMPLE).forEach(function (k) { var r = row(k); r.innerHTML = SAMPLE[k]; if (LG) LG.apply(r); });
+  $('#scan-tag').textContent = T('scan.sample', 'Sample profile');
   var face = $('.site-face', siteEl);
+  face.setAttribute('aria-label', T(SITE_SAMPLE.label));
   if (face.innerHTML !== SITE_SAMPLE.face) {
-    face.innerHTML = SITE_SAMPLE.face; face.setAttribute('aria-label', SITE_SAMPLE.label);
-    $('.xray', siteEl).innerHTML = SITE_SAMPLE.xray; $('#scan-url').textContent = SITE_SAMPLE.url; $('.site-tag', siteEl).textContent = SITE_SAMPLE.tag;
+    face.innerHTML = SITE_SAMPLE.face;
+    $('.xray', siteEl).innerHTML = SITE_SAMPLE.xray; if (LG) LG.apply($('.xray', siteEl));
+    $('#scan-url').textContent = SITE_SAMPLE.url;
     refreshScroll();
   }
+  $('.site-tag', siteEl).textContent = T(SITE_SAMPLE.tag);
 }
 function popRows() {
   if (RM) return;
@@ -1679,9 +1743,12 @@ function appBase() {
 function trialHref() {
   var site = ''; try { site = sessionStorage.getItem('otto.site') || ''; } catch (e) {}
   site = /^[a-z0-9.-]{3,253}$/i.test(site) ? site.toLowerCase() : '';
-  return appBase() + 'auth/google/start?next=' + encodeURIComponent('/onboarding.html' + (site ? '?site=' + site : ''));
+  var next = '/onboarding.html' + (site ? '?site=' + site : '');
+  if (LG) next = LG.carry(next);            /* the visitor's language goes on to sign-in and onboarding (another host: no shared storage) */
+  return appBase() + 'auth/google/start?next=' + encodeURIComponent(next);
 }
 $$('[data-login]').forEach(function (a) { a.href = appBase(); });
+onLang.push(function () { $$('[data-trial]').forEach(function (a) { a.href = trialHref(); }); });
 $$('[data-trial]').forEach(function (a) {
   a.href = trialHref();
   a.addEventListener('pointerdown', function () { a.href = trialHref(); });
@@ -1695,11 +1762,24 @@ async function peekOnce(domain) {
     return { status: res.status, body: body };
   } catch (err) { return { status: 0 }; } finally { clearTimeout(to); }
 }
-var scanning = false;
+var scanning = false, scanState = { kind: 'idle' };   /* what the profile shows, to re-render it in another language */
+function scanMessage(st) {
+  var dm = st.domain;
+  return st.kind === 'idle' || !dm ? T(SAMPLE_NOW) :
+    st.status === 404 ? T('scan.e404', 'We couldn’t find a website at {domain}. Check the address and try again. Showing a sample profile.', { domain: dm }) :
+    st.status === 400 ? T('scan.e400', 'Otto can’t open that address. Check it and try again. Showing a sample profile.') :
+    st.status === 429 || st.status === 503 ? T('scan.ebusy', 'Lots of scans right now. Try again in a minute. Showing a sample profile.') :
+    T('scan.eread', 'We couldn’t read {domain} from here; some sites turn automated visitors away. Otto reads it properly after you sign up. Showing a sample profile.', { domain: dm });
+}
+onLang.push(function () {
+  if (scanning) return;
+  if (scanState.kind === 'real') { try { fillReal(scanState.data, scanState.domain); } catch (e) {} }
+  else { fillSample(); $('#scan-now').textContent = scanMessage(scanState); }
+});
 async function runScan(domain) {
   if (scanning) return; scanning = true;
   heroBtn.classList.add('is-busy'); liveDot.classList.add('is-working');
-  $('#scan-tag').textContent = domain ? domain : 'Sample profile';
+  $('#scan-tag').textContent = domain ? domain : T('scan.sample', 'Sample profile');
   if (domain) {
     $('#final-site').textContent = 'Otto · ' + domain;
     ss('otto.site', domain); ss('otto.peek', null);   /* onboarding picks the site (and the scan, below) up from here */
@@ -1716,15 +1796,12 @@ async function runScan(domain) {
   }
   for (; i < STEPS.length; i++) { setStep(i, 'on'); await wait(RM ? 60 : domain ? 320 : 520); }
   setStep(STEPS.length, 'done');
-  if (data) { try { fillReal(data, domain); ss('otto.peek', JSON.stringify(data)); } catch (e) { data = null; out = { status: 0 }; } }   /* an odd answer never leaves the spinner on */
+  if (data) { try { fillReal(data, domain); ss('otto.peek', JSON.stringify(data)); scanState = { kind: 'real', data: data, domain: domain }; } catch (e) { data = null; out = { status: 0 }; } }   /* an odd answer never leaves the spinner on */
   if (domain && W.ottoTrack) W.ottoTrack('scan_result', { domain: domain, ok: !!data });
   if (!data) {
-    fillSample('Sample profile');
-    $('#scan-now').textContent = !domain ? SAMPLE_NOW :
-      out.status === 404 ? 'We couldn’t find a website at ' + domain + '. Check the address and try again. Showing a sample profile.' :
-      out.status === 400 ? 'Otto can’t open that address. Check it and try again. Showing a sample profile.' :
-      out.status === 429 || out.status === 503 ? 'Lots of scans right now. Try again in a minute. Showing a sample profile.' :
-      'We couldn’t read ' + domain + ' from here; some sites turn automated visitors away. Otto reads it properly after you sign up. Showing a sample profile.';
+    scanState = { kind: domain ? 'error' : 'idle', status: out.status, domain: domain };
+    fillSample();
+    $('#scan-now').textContent = scanMessage(scanState);
   }
   popRows();
   heroBtn.classList.remove('is-busy'); liveDot.classList.remove('is-working');
@@ -1741,7 +1818,7 @@ function onScanSubmit(input, form, errEl) {
     var v = input.value.trim().replace(/^https?:\/\//i, '').replace(/^www\./i, '').replace(/[\/?#].*$/, '').replace(/\.$/, '').toLowerCase();
     if (v && !validDomain(v)) {
       form.classList.add('is-bad'); input.setAttribute('aria-invalid', 'true');
-      errEl.textContent = 'That doesn’t look like a website address. Try something like yourcompany.com.';
+      errEl.textContent = T('scan.invalid', 'That doesn’t look like a website address. Try something like yourcompany.com.');
       input.focus(); return;
     }
     clear();
@@ -1810,7 +1887,7 @@ $$('.vid').forEach(function (f) {
   var v = $('video', f), play = $('.vid-play', f), mute = $('.vid-mute', f), src = $('source', v);
   function soon() {
     f.classList.remove('is-playing'); v.controls = false; mute.hidden = true; play.hidden = true;
-    if (!$('.vid-soon', f)) { var s = d.createElement('span'); s.className = 'vid-soon'; s.textContent = 'This film arrives soon.'; $('.vid-box', f).appendChild(s); }
+    if (!$('.vid-soon', f)) { var s = d.createElement('span'); s.className = 'vid-soon'; s.textContent = T('watch.soon', 'This film arrives soon.'); $('.vid-box', f).appendChild(s); }
   }
   src.addEventListener('error', soon);
   play.addEventListener('click', function () {
@@ -1942,14 +2019,22 @@ $('#rep-apply').addEventListener('click', function () {
 });
 $('#rep-later').addEventListener('click', function () {
   $('#rep-act').hidden = true; var dn = $('#rep-done'); dn.hidden = false;
-  dn.style.color = 'var(--ink-2)'; dn.textContent = 'Kept for tomorrow’s report.';
+  dn.style.color = 'var(--ink-2)'; dn.removeAttribute('data-i18n'); dn.classList.add('is-kept'); dn.textContent = T('rep.a.kept', 'Kept for tomorrow’s report.');
+});
+onLang.push(function () {
+  var dn = $('#rep-done'); if (dn.classList.contains('is-kept')) dn.textContent = T('rep.a.kept', 'Kept for tomorrow’s report.');
+  $$('.vid-soon').forEach(function (x) { x.textContent = T('watch.soon', 'This film arrives soon.'); });
+});
+
+onLang.push(function () {
+  $$('#rep .kpi b').forEach(function (b) { if (!$('#rep').classList.contains('is-armed')) roll(b, parseFloat(b.dataset.roll), { pre: b.dataset.pre, dec: +(b.dataset.dec || 0), ms: 1 }); });
 });
 
 /* ---------- number roll ---------- */
 function roll(el, to, opt) {
   opt = opt || {};
   var dec = opt.dec || 0, pre = opt.pre || '', t0 = performance.now(), ms = opt.ms || 700;
-  var fmt = function (v) { return pre + v.toLocaleString('en-GB', { minimumFractionDigits: dec, maximumFractionDigits: dec }); };
+  var fmt = function (v) { return pre === '€' && LG ? LG.money(v, 'EUR', dec) : pre + NUM(v, { minimumFractionDigits: dec, maximumFractionDigits: dec }); };
   if (RM) { el.textContent = fmt(to); return; }
   (function step(now) {
     var p = Math.max(0, Math.min(1, (performance.now() - t0) / ms)), e = 1 - Math.pow(1 - p, 3);
@@ -1977,7 +2062,7 @@ if (MOTION) (function () {
     var c = $('#cost'); c.classList.add('is-play'); c.classList.remove('is-armed');
     setTimeout(function () { c.classList.remove('is-play'); }, 1600);
   });
-  scene($('#rep'), function () { $('#rep').classList.add('is-armed'); $$('#rep .kpi b').forEach(function (b) { b.textContent = (b.dataset.pre || '') + '0'; }); }, function () {
+  scene($('#rep'), function () { $('#rep').classList.add('is-armed'); $$('#rep .kpi b').forEach(function (b) { roll(b, 0, { pre: b.dataset.pre, ms: 1 }); }); }, function () {
     var r = $('#rep'); r.classList.add('is-play'); r.classList.remove('is-armed');
     setTimeout(function () { $$('#rep .kpi b').forEach(function (b) { roll(b, parseFloat(b.dataset.roll), { pre: b.dataset.pre, dec: +(b.dataset.dec || 0) }); }); }, 700);
     setTimeout(function () { r.classList.remove('is-play'); }, 2600);
@@ -2010,9 +2095,9 @@ var hero = (function () {
   var stage = $('#stage'), rig = $('#rig'), phone = $('#phone'), screen = $('#screen');
   var K = ['ig', 'fb', 'gb'], cards = {}; K.forEach(function (k) { cards[k] = $('.fc-' + k, stage); });
   var POSTS = [
-    { av: 'HG', name: 'Happy Garden', meta: 'Instagram · Thu 18:00 · Education', img: 'assets/landing/hg-spectrum-640.webp', alt: 'Three amber dropper bottles labelled full spectrum, broad spectrum and isolate, on linen with hemp leaves', cap: '<b>happygarden</b> Full spectrum, broad spectrum, isolate: same plant, three very different products. Sixty seconds to know what’s in your bottle.' },
-    { av: 'CM', name: 'CMTM College', meta: 'Facebook · Fri 09:00 · Alumni stories', img: 'assets/landing/cm-002-640.webp', alt: 'A smiling woman holding a notebook in a bright therapy room', cap: '<b>CMTM College</b> At 43, with no clinical background, Ronit enrolled “just for herself”. Two years later: a full practice and a full calendar.' },
-    { av: 'HG', name: 'Happy Garden', meta: 'Instagram · Sat 11:00 · Myths', img: 'assets/landing/hg-yellow-640.webp', alt: 'A dropper bottle and a hemp leaf on a bright yellow background', cap: '<b>happygarden</b> Myth: “CBD gets you high.” Fact: our broad spectrum and isolate lines contain no THC at all.' }
+    { av: 'HG', name: 'Happy Garden', meta: 'Instagram · Thu 18:00 · Education', img: 'assets/landing/hg-spectrum-640.webp', alt: TK('img.spectrum.hero', 'Three amber dropper bottles labelled full spectrum, broad spectrum and isolate, on linen with hemp leaves'), cap: '<b>happygarden</b> Full spectrum, broad spectrum, isolate: same plant, three very different products. Sixty seconds to know what’s in your bottle.' },
+    { av: 'CM', name: 'CMTM College', meta: 'Facebook · Fri 09:00 · Alumni stories', img: 'assets/landing/cm-002-640.webp', alt: TK('img.ronit', 'A smiling woman holding a notebook in a bright therapy room'), cap: '<b>CMTM College</b> At 43, with no clinical background, Ronit enrolled “just for herself”. Two years later: a full practice and a full calendar.' },
+    { av: 'HG', name: 'Happy Garden', meta: 'Instagram · Sat 11:00 · Myths', img: 'assets/landing/hg-yellow-640.webp', alt: TK('img.yellow', 'A dropper bottle and a hemp leaf on a bright yellow background'), cap: '<b>happygarden</b> Myth: “CBD gets you high.” Fact: our broad spectrum and isolate lines contain no THC at all.' }
   ];
   var COUNT_START = ['3 posts ready', '2 posts ready', '1 post ready'];
   var COUNT_OK = ['Approved · 2 more to review', 'Approved · 1 more to review', 'Approved · all caught up'];
@@ -2066,9 +2151,11 @@ var hero = (function () {
   var post = $('#hs-post'), ok = $('#hs-ok'), act = $('#hs-act'), count = $('#hs-count'), touch = $('#hs-touch'), sh = $('#hs-sh');
   var chips = $$('.fc-chip', stage), reach = $('.fc-reach', stage), reachB = $('#hs-reach');
   var igSt = $('.fc-ig .fc-st', stage);
+  var shown = POSTS[0];
   function setPost(P) {
+    shown = P;
     $('#hs-av').textContent = P.av; $('#hs-name').textContent = P.name; $('#hs-meta').textContent = P.meta;
-    var img = $('#hs-img'); img.src = P.img; img.alt = P.alt; $('#hs-cap').innerHTML = P.cap;
+    var img = $('#hs-img'); img.src = P.img; img.alt = T(P.alt); $('#hs-cap').innerHTML = P.cap;
     $('.app-brand', screen).lastChild.textContent = 'Otto · ' + P.name;
     K.forEach(function (k) { $('img', cards[k]).src = P.img; });
   }
@@ -2079,7 +2166,7 @@ var hero = (function () {
   }
   function setPub(on) {
     igSt.classList.toggle('is-pub', on);
-    $('.st-t', igSt).textContent = on ? 'Published' : 'Scheduled';
+    $('.st-t', igSt).textContent = on ? T('st.pub', 'Published') : T('st.sched', 'Scheduled');
     $('.i', igSt).style.display = on ? '' : 'none';
     if (on && !RM) igSt.animate([{ transform: 'rotateX(90deg)' }, { transform: 'none' }], { duration: 360, easing: E_SNAP });
   }
@@ -2139,7 +2226,7 @@ var hero = (function () {
     var pb = $('#stage-pause'); pb.hidden = false;
     pb.addEventListener('click', function () {
       userPaused = !userPaused; pb.setAttribute('aria-pressed', String(userPaused));
-      pb.setAttribute('aria-label', userPaused ? 'Play the animation' : 'Pause the animation'); sync();
+      pb.setAttribute('aria-label', userPaused ? T('hero.play', 'Play the animation') : T('hero.pause', 'Pause the animation')); sync();
     });
     new IntersectionObserver(function (es) { visible = es[0].isIntersecting; sync(); }).observe(stage);
     d.addEventListener('visibilitychange', sync);
@@ -2164,6 +2251,12 @@ var hero = (function () {
     });
     var ro = 0; W.addEventListener('resize', function () { clearTimeout(ro); ro = setTimeout(function () { readFinal(); }, 150); });
   };
+  onLang.push(function () {
+    $('#hs-img').alt = T(shown.alt);
+    $('#stage-pause').setAttribute('aria-label', userPaused ? T('hero.play', 'Play the animation') : T('hero.pause', 'Pause the animation'));
+    $$('.fc-st .st-t, .fmt-st .st-t', d).forEach(function (t) { t.textContent = t.parentNode.classList.contains('is-pub') ? T('st.pub', 'Published') : T('st.sched', 'Scheduled'); });
+    if (reachB.textContent) reachB.textContent = NUM(1284);
+  });
   /* parallax: yaw ±6° and pitch ±3° on desktop, lerp 0.075; nothing moves while idle */
   H.parallax = function (range) {
     var tgt = { x: 0, y: 0 }, raf = 0, sec = $('#top');
@@ -2237,7 +2330,7 @@ function initMotion() {
     var endX = function () { var m = parseFloat(getComputedStyle(h).getPropertyValue('--margin')) || 64; return Math.min(W.innerWidth - Math.max(m, (W.innerWidth - 1200) / 2) - (sum.offsetLeft + sum.offsetWidth), W.innerWidth / 2 - (fm[fm.length - 1].offsetLeft + fm[fm.length - 1].offsetWidth / 2) - 40); };
     var setChip = function (f, on) {
       var p = $('.fmt-st', f); if (p.classList.contains('is-pub') === on) return;
-      p.classList.toggle('is-pub', on); $('.st-t', p).textContent = on ? 'Published' : 'Scheduled';
+      p.classList.toggle('is-pub', on); $('.st-t', p).textContent = on ? T('st.pub', 'Published') : T('st.sched', 'Scheduled');
       if (!RM) p.animate([{ transform: 'rotateX(90deg)' }, { transform: 'none' }], { duration: 360, easing: E_SNAP });
     };
     var ptl = gsap.timeline({
@@ -2372,7 +2465,7 @@ function startTiers() {
   d.addEventListener('toggle', function (e) {
     var t = e.target;
     if (t.tagName === 'DETAILS' && t.open && t.closest('#faq')) {
-      var s = t.querySelector('summary'), slug = (s ? s.textContent : '').toLowerCase().replace(/[’']/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 80);
+      var s = t.querySelector('summary'), slug = (s ? (W.OttoLang ? W.OttoLang.source(s) : s.textContent) : '').toLowerCase().replace(/[’']/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 80);
       if (slug) track('faq_open', { q: slug });
     }
   }, true);
@@ -2393,8 +2486,11 @@ function startTiers() {
   fetch('/billing/offers', { cache: 'no-store', credentials: 'omit' }).then(function (r) { return r.ok ? r.json() : null; }).then(function (j) {
     var f = j && j.founding;
     if (!f || !f.on || !/^https:\/\/[^\s"'<>]+$/.test(f.url || '')) return;
-    d.getElementById('founding-link').href = f.url;
-    if (typeof f.price_eur === 'number') d.getElementById('founding-price').textContent = '\u20ac' + f.price_eur;
+    var a = d.getElementById('founding-link'), L = window.OttoLang;
+    a.href = f.url;
+    var price = typeof f.price_eur === 'number' ? f.price_eur : 197;
+    var paint = function () { a.textContent = L ? L.t('price.founding', 'Founding pilot, {price} one-time', { price: L.money(price, 'EUR') }) : 'Founding pilot, \u20ac' + price + ' one-time'; };
+    paint(); if (L) L.on(paint);
     p.hidden = false;
   }).catch(function () {});
 })(document);

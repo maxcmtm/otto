@@ -3,15 +3,17 @@
 <head>
 <meta charset="utf-8">
 <!-- CSP: script-src lists the sha256 of every inline script element in this page. After editing one, the browser refuses it and its console prints the new hash: replace the old one here (or recompute all of them). -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-WE/PxVHLqMPEBLxw3Rp4WNT2sGZYKKI+U54xHA6xTTE=' 'sha256-ua911lBrwcvDFc5Q6aE26GDhJ/ywJfiKFyqF1oyCNxE=' 'sha256-aSX2oKbxkP7TlL0D9exZPRdwV+onWN7wyzlAcQ8IwNM='; style-src 'self' 'unsafe-inline'; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-src 'none'; worker-src 'none'; manifest-src 'self'; img-src 'self' data: https:; media-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-k61m0I1J14kexYIFnvbFTWo9EFcCf6U74ofQvMqbgqQ=' 'sha256-V/Pn4m52odlTLzTxJMw2u6KstVSKFct1G3Nge3dqNiw=' 'sha256-aSX2oKbxkP7TlL0D9exZPRdwV+onWN7wyzlAcQ8IwNM='; style-src 'self' 'unsafe-inline'; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-src 'none'; worker-src 'none'; manifest-src 'self'; img-src 'self' data: https:; media-src 'none'">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <script>
-/* Head script: js + motion flags before first paint. */
+/* Head script: js + motion flags, and a chosen language (assets/i18n/site-lang.js), before first paint. */
 (function(d,w){var h=d.documentElement,q=w.location.search;h.className='js';
-if(!w.matchMedia('(prefers-reduced-motion: reduce)').matches&&!/[?&]static=1/.test(q))h.classList.add('motion');})(document,window);
+if(!w.matchMedia('(prefers-reduced-motion: reduce)').matches&&!/[?&]static=1/.test(q))h.classList.add('motion');
+try{var g=/[?&]lang=([a-z]{2})(?:[&#]|$)/i.exec(w.location.search),k=g&&/^(en|nl|de)$/i.test(g[1])?g[1].toLowerCase():w.localStorage.getItem('otto.lang');if(k==='nl'||k==='de'){h.lang=k;h.classList.add('lang-wait');setTimeout(function(){h.classList.remove('lang-wait')},1200)}}catch(e){}
+})(document,window);
 </script>
-<title>Set up Otto</title>
-<meta name="description" content="Set up Otto from your website: check what Otto read, answer four questions, and see your first week.">
+<title data-i18n="meta.title">Set up Otto</title>
+<meta name="description" data-i18n-attr="content:meta.desc" content="Set up Otto from your website: check what Otto read, answer four questions, and see your first week.">
 <meta name="robots" content="noindex">
 <meta name="color-scheme" content="light dark">
 <meta name="theme-color" content="#F5F7FB" media="(prefers-color-scheme: light)">
@@ -89,6 +91,7 @@ button:disabled{cursor:default}
 :focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 ::selection{background:var(--accent-tint)}
 [hidden]{display:none!important}
+html.lang-wait body{opacity:0}   /* Nederlands / Deutsch on arrival: no flash of English (site-lang.js lifts it) */
 .sr{position:absolute!important;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
 .wrap{width:min(1200px,100% - 2*var(--margin));margin-inline:auto}
 .tnum{font-variant-numeric:tabular-nums}
@@ -142,6 +145,15 @@ select.field{appearance:none;-webkit-appearance:none;padding-right:40px;backgrou
 .saved{display:none;align-items:center;gap:6px;font-size:13px;color:var(--ink-3);white-space:nowrap;transition:opacity var(--dur-base)}
 .saved .i{width:15px;height:15px;stroke-width:2}
 .saved.is-off{opacity:0}
+/* language: a quiet native select; English unless the visitor chose otherwise (assets/i18n/site-lang.js) */
+.lang-pick{position:relative;display:inline-flex;align-items:center;flex:none;height:32px;color:var(--ink-2);font-size:14px;white-space:nowrap;cursor:pointer;transition:color var(--dur-fast)}
+.lang-cur::after{content:"";display:inline-block;width:5px;height:5px;margin:0 2px 0 7px;border-right:1.5px solid currentColor;border-bottom:1.5px solid currentColor;transform:translateY(-3px) rotate(45deg);opacity:.7}
+/* the native select sits on top, invisible: the label shows the current language at its own width */
+.lang-pick select{position:absolute;inset:0;width:100%;height:100%;margin:0;padding:0;border:0;opacity:0;font:inherit;cursor:pointer;-webkit-appearance:none;appearance:none}
+.lang-pick:hover{color:var(--ink)}
+.lang-pick:has(select:focus-visible){outline:2px solid var(--accent);outline-offset:3px;border-radius:6px}
+@media (max-width:767px){.bar-in{gap:14px}}
+@media (max-width:479px){:is(:lang(nl),:lang(de)) .brand small{display:none}}   /* "Einrichtung" + "Schritt 1 von 5" + the language: room at 375px */
 .prog{position:relative;display:flex;gap:4px;height:3px}
 .prog i{flex:1;border-radius:2px;background:var(--line);overflow:hidden;position:relative}
 .prog i::after{content:"";position:absolute;inset:0;background:var(--ink);transform:scaleX(0);transform-origin:left;transition:transform var(--dur-slow) var(--ease-out)}
@@ -162,6 +174,13 @@ select.field{appearance:none;-webkit-appearance:none;padding-right:40px;backgrou
   .saved{display:inline-flex;min-width:150px;justify-content:flex-end}
   .prog{display:none}
 }
+/* the language control needs room in the bar: a tighter bar, without the "Setup" suffix, until 1280px (the Dutch and German
+   step names are longer too) */
+@media (min-width:1024px) and (max-width:1279px){
+  .bar-in{gap:16px}
+  .rail button{padding:0 10px;gap:5px}
+  .brand small{display:none}
+}
 
 /* ============ Steps ============ */
 main{padding-top:calc(var(--nav) + 3px + env(safe-area-inset-top,0px))}
@@ -175,7 +194,9 @@ main{padding-top:calc(var(--nav) + 3px + env(safe-area-inset-top,0px))}
   .st-body{grid-column:7/span 6}
 }
 .kick{font-size:15px;font-weight:500;color:var(--accent)}
-.t1{font-family:var(--display);font-weight:600;font-size:clamp(34px,3.7vw,54px);line-height:1.04;letter-spacing:-.03em;text-wrap:balance}
+.t1{font-family:var(--display);font-weight:600;font-size:clamp(34px,3.7vw,54px);line-height:1.04;letter-spacing:-.03em;text-wrap:balance;overflow-wrap:break-word}
+:is(:lang(nl),:lang(de)) .t1{-webkit-hyphens:auto;hyphens:auto}   /* long Dutch / German compounds */
+.st-grid>*{min-width:0}
 .t1:focus{outline:0}
 .lead{font-size:clamp(17px,1.3vw,19px);line-height:1.5;color:var(--ink-2);text-wrap:pretty;max-width:520px}
 .lead b{color:var(--ink);font-weight:600}
@@ -418,7 +439,7 @@ html.motion .st.is-in{animation:st-in var(--dur-slow) var(--ease-out) both}
 .pc.reel em{color:var(--accent)}
 .pc.story{background:transparent;box-shadow:inset 0 0 0 var(--hair) var(--line)}
 .pc.story em{color:var(--ink-2)}
-.day.empty .slots::before{content:"No posts";font-size:13px;line-height:26px;color:var(--ink-3)}
+.day.empty .slots::before{content:attr(data-empty);font-size:13px;line-height:26px;color:var(--ink-3)}
 @media (min-width:768px){
   .days{grid-template-columns:repeat(7,minmax(0,1fr));gap:0}
   .day{grid-template-columns:1fr;align-content:start;gap:8px;padding:2px 4px 4px}
@@ -441,6 +462,9 @@ html.motion .st.is-in{animation:st-in var(--dur-slow) var(--ease-out) both}
 
 footer{padding:24px 0 40px;font-size:13px;color:var(--ink-3)}
 footer .wrap{display:flex;flex-wrap:wrap;gap:8px 20px}
+footer .f-lang{display:flex;align-items:center;gap:8px;margin-left:auto}
+footer .f-lang a[aria-current]{color:var(--ink)}
+footer .f-lang a:hover{color:var(--ink)}
 @media (max-width:767px){footer{padding-bottom:28px}}
 @media (prefers-reduced-transparency:reduce){.bar::before,.act{-webkit-backdrop-filter:none;backdrop-filter:none;background:var(--bg)}}
 @media (prefers-contrast:more){.panel,.group,.q,.cc,.bcard,.wk{box-shadow:inset 0 0 0 1px var(--ink-3)}}
@@ -448,15 +472,16 @@ footer .wrap{display:flex;flex-wrap:wrap;gap:8px 20px}
 </style>
 </head>
 <body>
-<a class="skip" href="#main">Skip to content</a>
+<a class="skip" href="#main" data-i18n="a11y.skip">Skip to content</a>
 
 <header class="bar" id="bar">
   <div class="wrap bar-in">
-    <span class="brand"><span class="mark" aria-hidden="true"></span>Otto<small>Setup</small></span>
-    <nav class="rail" id="rail" aria-label="Setup steps"></nav>
-    <span class="saved is-off" id="saved" aria-live="polite"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg><span id="saved-t">Saved on this device</span></span>
+    <span class="brand"><span class="mark" aria-hidden="true"></span>Otto<small data-i18n="bar.setup">Setup</small></span>
+    <nav class="rail" id="rail" aria-label="Setup steps" data-i18n-attr="aria-label:bar.rail"></nav>
+    <span class="saved is-off" id="saved" aria-live="polite"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg><span id="saved-t" data-i18n="bar.saved">Saved on this device</span></span>
     <span class="acct" id="acct" hidden></span>
     <span class="bar-count" id="bar-count">Step 1 of 5</span>
+    <label class="lang-pick"><span class="sr" data-i18n="lang.label">Language</span><span class="lang-cur" data-lang-current aria-hidden="true">English</span><select data-lang-select data-lang-from="setup"><option value="en" lang="en">English</option><option value="nl" lang="nl">Nederlands</option><option value="de" lang="de">Deutsch</option></select></label>
   </div>
   <div class="wrap prog" id="prog" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
 </header>
@@ -467,19 +492,19 @@ footer .wrap{display:flex;flex-wrap:wrap;gap:8px 20px}
 <section class="st" id="s0" data-step="0" aria-labelledby="s0-h" hidden>
   <div class="wrap st-grid">
     <div class="st-text">
-      <p class="kick">Free 7-day trial · No card</p>
-      <h1 class="t1" id="s0-h" tabindex="-1">Start your free trial.</h1>
-      <p class="lead">Sign in with Google so Otto can save your setup and send your approvals to you. <b>Nothing to pay for 7 days, and no card needed.</b></p>
-      <a class="gbtn" id="gsi" href="/auth/google/start?next=%2Fonboarding.html"><svg viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg><span>Continue with Google</span></a>
+      <p class="kick" data-i18n="s0.kick">Free 7-day trial · No card</p>
+      <h1 class="t1" id="s0-h" tabindex="-1" data-i18n="s0.h">Start your free trial.</h1>
+      <p class="lead" data-i18n-rich="s0.lead">Sign in with Google so Otto can save your setup and send your approvals to you. <b>Nothing to pay for 7 days, and no card needed.</b></p>
+      <a class="gbtn" id="gsi" href="/auth/google/start?next=%2Fonboarding.html"><svg viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg><span data-i18n="s0.google">Continue with Google</span></a>
       <p class="note gate-note" id="s0-site"></p>
-      <p class="act-legal">By continuing, you confirm you’re setting Otto up for a business and agree to the <a href="legal/terms.html" target="_blank" rel="noopener">Terms</a>. Otto receives your name and e-mail address from Google, nothing else (<a href="legal/privacy.html" target="_blank" rel="noopener">Privacy</a>). One free trial per business.</p>
+      <p class="act-legal" data-i18n-rich="s0.legal">By continuing, you confirm you’re setting Otto up for a business and agree to the <a href="legal/terms.html" target="_blank" rel="noopener">Terms</a>. Otto receives your name and e-mail address from Google, nothing else (<a href="legal/privacy.html" target="_blank" rel="noopener">Privacy</a>). One free trial per business.</p>
     </div>
     <div class="st-body">
       <ul class="promise">
-        <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg><span>Otto reads your website and sets up your first week of posts.</span></li>
-        <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg><span>Nothing is published until you approve it.</span></li>
-        <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg><span>Your paid ads are planned for you to see; they launch once you choose a plan.</span></li>
-        <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg><span>After 7 days, add a card to keep going. If you don’t, Otto pauses and keeps your work for 90 days. Nothing is charged automatically.</span></li>
+        <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg><span data-i18n="s0.p1">Otto reads your website and sets up your first week of posts.</span></li>
+        <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg><span data-i18n="s0.p2">Nothing is published until you approve it.</span></li>
+        <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg><span data-i18n="s0.p3">Your paid ads are planned for you to see; they launch once you choose a plan.</span></li>
+        <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg><span data-i18n="s0.p4">After 7 days, add a card to keep going. If you don’t, Otto pauses and keeps your work for 90 days. Nothing is charged automatically.</span></li>
       </ul>
     </div>
   </div>
@@ -489,25 +514,25 @@ footer .wrap{display:flex;flex-wrap:wrap;gap:8px 20px}
 <section class="st" id="s1" data-step="1" aria-labelledby="s1-h">
   <div class="wrap st-grid">
     <div class="st-text">
-      <p class="kick">Step 1 of 5 · Your site</p>
-      <h1 class="t1" id="s1-h" tabindex="-1">Let’s start with your website.</h1>
-      <p class="lead">Otto reads it the way a new marketer would on their first morning: <b>what you sell, how you sound and what your customers say.</b></p>
+      <p class="kick" data-i18n="s1.kick">Step 1 of 5 · Your site</p>
+      <h1 class="t1" id="s1-h" tabindex="-1" data-i18n="s1.h">Let’s start with your website.</h1>
+      <p class="lead" data-i18n-rich="s1.lead">Otto reads it the way a new marketer would on their first morning: <b>what you sell, how you sound and what your customers say.</b></p>
       <form class="scan" id="scan" autocomplete="off" novalidate>
-        <input id="site" type="text" inputmode="url" placeholder="yourcompany.com" aria-label="Your website" aria-describedby="scan-err" spellcheck="false" autocapitalize="off" autocorrect="off">
-        <button class="btn btn-primary" type="submit" id="scan-btn"><span class="scan-idle" id="scan-idle">Read my site</span><span class="scan-busy"><span class="spin" aria-hidden="true"></span>Reading</span></button>
+        <input id="site" type="text" inputmode="url" placeholder="yourcompany.com" aria-label="Your website" data-i18n-attr="placeholder:s1.ph aria-label:s1.aria" aria-describedby="scan-err" spellcheck="false" autocapitalize="off" autocorrect="off">
+        <button class="btn btn-primary" type="submit" id="scan-btn"><span class="scan-idle" id="scan-idle">Read my site</span><span class="scan-busy" data-i18n="s1.reading"><span class="spin" aria-hidden="true"></span>Reading</span></button>
       </form>
       <p class="scan-err" id="scan-err" aria-live="polite"></p>
-      <p class="note">Otto reads your homepage and two more pages now, and the rest once setup is done. Nothing is posted anywhere.</p>
+      <p class="note" data-i18n="s1.note">Otto reads your homepage and two more pages now, and the rest once setup is done. Nothing is posted anywhere.</p>
     </div>
     <div class="st-body">
       <div class="panel" id="read">
-        <div class="panel-h"><b id="read-h">What Otto reads</b><span class="tag" id="read-tag">Not started</span></div>
+        <div class="panel-h"><b id="read-h" data-i18n="s1.panel">What Otto reads</b><span class="tag" id="read-tag">Not started</span></div>
         <ol class="rl" id="rl">
-          <li data-k="open"><span class="rl-i"><svg class="ck" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg><i class="dash"></i></span><div><b>Opening your site</b><span class="rl-r"></span></div></li>
-          <li data-k="look"><span class="rl-i"><svg class="ck" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg><i class="dash"></i></span><div><b>Colours, fonts and logo</b><span class="rl-r"></span></div></li>
-          <li data-k="sell"><span class="rl-i"><svg class="ck" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg><i class="dash"></i></span><div><b>What you sell and for how much</b><span class="rl-r"></span></div></li>
-          <li data-k="proof"><span class="rl-i"><svg class="ck" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg><i class="dash"></i></span><div><b>Proof and customer words</b><span class="rl-r"></span></div></li>
-          <li data-k="draft"><span class="rl-i"><svg class="ck" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg><i class="dash"></i></span><div><b>Drafting your brand profile</b><span class="rl-r"></span></div></li>
+          <li data-k="open"><span class="rl-i"><svg class="ck" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg><i class="dash"></i></span><div><b data-i18n="s1.r1">Opening your site</b><span class="rl-r"></span></div></li>
+          <li data-k="look"><span class="rl-i"><svg class="ck" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg><i class="dash"></i></span><div><b data-i18n="s1.r2">Colours, fonts and logo</b><span class="rl-r"></span></div></li>
+          <li data-k="sell"><span class="rl-i"><svg class="ck" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg><i class="dash"></i></span><div><b data-i18n="s1.r3">What you sell and for how much</b><span class="rl-r"></span></div></li>
+          <li data-k="proof"><span class="rl-i"><svg class="ck" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg><i class="dash"></i></span><div><b data-i18n="s1.r4">Proof and customer words</b><span class="rl-r"></span></div></li>
+          <li data-k="draft"><span class="rl-i"><svg class="ck" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg><i class="dash"></i></span><div><b data-i18n="s1.r5">Drafting your brand profile</b><span class="rl-r"></span></div></li>
         </ol>
         <p class="panel-f" id="read-now" aria-live="polite">Type your address and Otto starts reading.</p>
       </div>
@@ -523,7 +548,7 @@ footer .wrap{display:flex;flex-wrap:wrap;gap:8px 20px}
 <section class="st" id="s2" data-step="2" aria-labelledby="s2-h" hidden>
   <div class="wrap st-grid">
     <div class="st-text">
-      <p class="kick">Step 2 of 5 · Your brand</p>
+      <p class="kick" data-i18n="s2.kick">Step 2 of 5 · Your brand</p>
       <h1 class="t1" id="s2-h" tabindex="-1">Your brand, as Otto read it.</h1>
       <p class="lead" id="s2-lead">If anything is wrong, tap <b>Fix</b> and Otto uses your version. Every post is built on this.</p>
       <div class="bcard" id="bcard"></div>
@@ -531,7 +556,7 @@ footer .wrap{display:flex;flex-wrap:wrap;gap:8px 20px}
     <div class="st-body">
       <div class="group" id="rows"></div>
       <div class="act">
-        <button class="btn btn-plain" type="button" data-back>Back</button>
+        <button class="btn btn-plain" type="button" data-back data-i18n="btn.back">Back</button>
         <button class="btn btn-primary grow" type="button" id="go3">Looks right</button>
       </div>
     </div>
@@ -542,39 +567,39 @@ footer .wrap{display:flex;flex-wrap:wrap;gap:8px 20px}
 <section class="st" id="s3" data-step="3" aria-labelledby="s3-h" hidden>
   <div class="wrap st-grid">
     <div class="st-text">
-      <p class="kick">Step 3 of 5 · Four questions</p>
-      <h1 class="t1" id="s3-h" tabindex="-1">Four things a website can’t tell Otto.</h1>
-      <p class="lead">Short answers are fine, and every one can be skipped. <b>Otto starts from sensible defaults</b> and learns the rest from what you approve and skip.</p>
+      <p class="kick" data-i18n="s3.kick">Step 3 of 5 · Four questions</p>
+      <h1 class="t1" id="s3-h" tabindex="-1" data-i18n="s3.h">Four things a website can’t tell Otto.</h1>
+      <p class="lead" data-i18n-rich="s3.lead">Short answers are fine, and every one can be skipped. <b>Otto starts from sensible defaults</b> and learns the rest from what you approve and skip.</p>
     </div>
     <div class="st-body">
       <form class="qs" id="qs" autocomplete="off" novalidate>
         <fieldset class="q">
-          <legend>What’s the goal this quarter?</legend>
+          <legend data-i18n="s3.q1">What’s the goal this quarter?</legend>
           <div class="q-h"><p id="goal-hint">Otto plans the month around it.</p></div>
-          <div class="rc" role="radiogroup" aria-label="Goal this quarter" id="goal"></div>
-          <input class="field" id="goal-note" maxlength="200" placeholder="Anything specific? For example: sell out the winter bundle" aria-label="Anything specific about the goal">
+          <div class="rc" role="radiogroup" aria-label="Goal this quarter" id="goal" data-i18n-attr="aria-label:s3.goal.aria"></div>
+          <input class="field" id="goal-note" maxlength="200" placeholder="Anything specific? For example: sell out the winter bundle" aria-label="Anything specific about the goal" data-i18n-attr="placeholder:s3.note.ph aria-label:s3.note.aria">
         </fieldset>
         <fieldset class="q">
-          <legend>Monthly ad budget</legend>
-          <div class="q-h"><p id="budget-hint">Paid to Meta or Google directly, on top of Otto. “Not yet” is a fine answer: Otto starts with posts.</p></div>
-          <div class="rc" role="radiogroup" aria-label="Monthly ad budget" id="budget"></div>
+          <legend data-i18n="s3.q2">Monthly ad budget</legend>
+          <div class="q-h"><p id="budget-hint" data-i18n="s3.budget.hint">Paid to Meta or Google directly, on top of Otto. “Not yet” is a fine answer: Otto starts with posts.</p></div>
+          <div class="rc" role="radiogroup" aria-label="Monthly ad budget" id="budget" data-i18n-attr="aria-label:s3.q2"></div>
         </fieldset>
         <fieldset class="q">
-          <legend>What do customers ask before they buy?</legend>
-          <div class="q-h"><p>The worry, the question or the sentence you hear most. Otto answers it in posts.</p></div>
+          <legend data-i18n="s3.q3">What do customers ask before they buy?</legend>
+          <div class="q-h"><p data-i18n="s3.obj.hint">The worry, the question or the sentence you hear most. Otto answers it in posts.</p></div>
           <div class="q-quote" id="q-quote" hidden></div>
-          <textarea class="field" id="objection" maxlength="500" rows="3" aria-label="What customers ask before they buy"></textarea>
-          <div class="sug" id="obj-sug" aria-label="Common answers"></div>
+          <textarea class="field" id="objection" maxlength="500" rows="3" aria-label="What customers ask before they buy" data-i18n-attr="aria-label:s3.obj.aria"></textarea>
+          <div class="sug" id="obj-sug" aria-label="Common answers" data-i18n-attr="aria-label:s3.sug.aria"></div>
         </fieldset>
         <fieldset class="q">
-          <legend>Anything Otto must never say?</legend>
-          <div class="q-h"><p>Words, claims or topics. Separate them with commas; Otto checks every post against them before it reaches you.</p></div>
-          <textarea class="field" id="never" maxlength="500" rows="2" placeholder="For example: cheap, miracle, a competitor’s name" aria-label="Words or claims Otto must never use"></textarea>
-          <p class="q-guard" id="q-guard" hidden><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5 5 6v5.5c0 4.2 3 7.6 7 9 4-1.4 7-4.8 7-9V6z"/><path d="m9 12 2.2 2.2L15.5 10"/></svg><span>Already covered for health brands: no cure or healing claims, and no posts that single out a condition.</span></p>
+          <legend data-i18n="s3.q4">Anything Otto must never say?</legend>
+          <div class="q-h"><p data-i18n="s3.never.hint">Words, claims or topics. Separate them with commas; Otto checks every post against them before it reaches you.</p></div>
+          <textarea class="field" id="never" maxlength="500" rows="2" placeholder="For example: cheap, miracle, a competitor’s name" aria-label="Words or claims Otto must never use" data-i18n-attr="placeholder:s3.never.ph aria-label:s3.never.aria"></textarea>
+          <p class="q-guard" id="q-guard" hidden><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5 5 6v5.5c0 4.2 3 7.6 7 9 4-1.4 7-4.8 7-9V6z"/><path d="m9 12 2.2 2.2L15.5 10"/></svg><span data-i18n="s3.guard">Already covered for health brands: no cure or healing claims, and no posts that single out a condition.</span></p>
         </fieldset>
       </form>
       <div class="act">
-        <button class="btn btn-plain" type="button" data-back>Back</button>
+        <button class="btn btn-plain" type="button" data-back data-i18n="btn.back">Back</button>
         <button class="btn btn-primary grow" type="button" id="go4">Continue</button>
       </div>
     </div>
@@ -585,21 +610,21 @@ footer .wrap{display:flex;flex-wrap:wrap;gap:8px 20px}
 <section class="st" id="s4" data-step="4" aria-labelledby="s4-h" hidden>
   <div class="wrap st-grid">
     <div class="st-text">
-      <p class="kick">Step 4 of 5 · Connect</p>
-      <h1 class="t1" id="s4-h" tabindex="-1">Where Otto works. <span class="ink-2">Connect each one when you’re ready.</span></h1>
-      <p class="lead">Nothing is connected yet, and that’s fine. Otto prepares your first week now and waits for you.</p>
+      <p class="kick" data-i18n="s4.kick">Step 4 of 5 · Connect</p>
+      <h1 class="t1" id="s4-h" tabindex="-1" data-i18n-rich="s4.h">Where Otto works. <span class="ink-2">Connect each one when you’re ready.</span></h1>
+      <p class="lead" data-i18n="s4.lead">Nothing is connected yet, and that’s fine. Otto prepares your first week now and waits for you.</p>
       <ul class="promise">
-        <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10.5" width="14" height="10" rx="2.5"/><path d="M8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5"/></svg><span>Every connection opens the service’s own sign-in. Otto never sees or stores your password.</span></li>
-        <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="m8.4 12.3 2.4 2.4 4.8-5"/></svg><span>Nothing is published until you approve it.</span></li>
-        <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/><path d="M12 5v14" opacity="0"/><circle cx="12" cy="12" r="8.5"/></svg><span>You can remove Otto’s access from Meta or Google at any time.</span></li>
+        <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10.5" width="14" height="10" rx="2.5"/><path d="M8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5"/></svg><span data-i18n="s4.p1">Every connection opens the service’s own sign-in. Otto never sees or stores your password.</span></li>
+        <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="m8.4 12.3 2.4 2.4 4.8-5"/></svg><span data-i18n="s0.p2">Nothing is published until you approve it.</span></li>
+        <li><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/><path d="M12 5v14" opacity="0"/><circle cx="12" cy="12" r="8.5"/></svg><span data-i18n="s4.p3">You can remove Otto’s access from Meta or Google at any time.</span></li>
       </ul>
     </div>
     <div class="st-body">
       <div class="conn" id="conn"></div>
       <div class="act has-legal">
-        <p class="act-legal" id="consent">By continuing, Otto starts setting up your brand. You confirm you’re setting it up for a business and agree to the <a href="legal/terms.html" target="_blank" rel="noopener">Terms</a> and the <a href="legal/dpa.html" target="_blank" rel="noopener">Data Processing Agreement</a>.</p>
-        <button class="btn btn-plain" type="button" data-back>Back</button>
-        <button class="btn btn-primary grow" type="button" id="go5" aria-describedby="consent">Continue, connect later</button>
+        <p class="act-legal" id="consent"><span data-i18n-rich="s4.consent">By continuing, Otto starts setting up your brand. You confirm you’re setting it up for a business and agree to the <a href="legal/terms.html" target="_blank" rel="noopener">Terms</a> and the <a href="legal/dpa.html" target="_blank" rel="noopener">Data Processing Agreement</a>.</span></p>
+        <button class="btn btn-plain" type="button" data-back data-i18n="btn.back">Back</button>
+        <button class="btn btn-primary grow" type="button" id="go5" aria-describedby="consent" data-i18n="s4.go">Continue, connect later</button>
       </div>
     </div>
   </div>
@@ -609,15 +634,15 @@ footer .wrap{display:flex;flex-wrap:wrap;gap:8px 20px}
 <section class="st" id="s5" data-step="5" aria-labelledby="s5-h" hidden>
   <div class="wrap st-grid">
     <div class="st-text">
-      <p class="kick">Step 5 of 5 · Your first week</p>
-      <h1 class="t1" id="s5-h" tabindex="-1">Your first week. <span class="ink-2">Otto starts now.</span></h1>
+      <p class="kick" data-i18n="s5.kick">Step 5 of 5 · Your first week</p>
+      <h1 class="t1" id="s5-h" tabindex="-1" data-i18n-rich="s5.h">Your first week. <span class="ink-2">Otto starts now.</span></h1>
       <p class="lead" id="s5-lead"></p>
       <div class="setup" id="setup" aria-live="polite"></div>
       <div class="act is-static" style="margin-top:8px">
-        <button class="btn btn-plain" type="button" id="edit-answers">Change answers</button>
-        <a class="btn btn-primary grow" href="index.html" id="open-app">Open Otto</a>
+        <button class="btn btn-plain" type="button" id="edit-answers" data-i18n="s5.edit">Change answers</button>
+        <a class="btn btn-primary grow" href="index.html" id="open-app" data-i18n="s5.open">Open Otto</a>
       </div>
-      <p class="act-legal">By starting, you agree to the <a href="legal/terms.html" target="_blank" rel="noopener">Terms</a> and the <a href="legal/dpa.html" target="_blank" rel="noopener">Data Processing Agreement</a>.</p>
+      <p class="act-legal" data-i18n-rich="s5.legal">By starting, you agree to the <a href="legal/terms.html" target="_blank" rel="noopener">Terms</a> and the <a href="legal/dpa.html" target="_blank" rel="noopener">Data Processing Agreement</a>.</p>
     </div>
     <div class="st-body">
       <div class="notif" id="notif"></div>
@@ -629,8 +654,9 @@ footer .wrap{display:flex;flex-wrap:wrap;gap:8px 20px}
 
 </main>
 
-<footer><div class="wrap"><span>Otto · 2026</span><span>Your answers stay on this device until setup finishes.</span><a href="legal/terms.html" target="_blank" rel="noopener">Terms</a><a href="legal/privacy.html" target="_blank" rel="noopener">Privacy</a><a href="legal/dpa.html" target="_blank" rel="noopener">Data processing agreement</a></div></footer>
+<footer><div class="wrap"><span>Otto · 2026</span><span data-i18n="foot.note">Your answers stay on this device until setup finishes.</span><a href="legal/terms.html" target="_blank" rel="noopener" data-i18n="foot.terms">Terms</a><a href="legal/privacy.html" target="_blank" rel="noopener" data-i18n="foot.privacy">Privacy</a><a href="legal/dpa.html" target="_blank" rel="noopener" data-i18n="foot.dpa">Data processing agreement</a><nav class="f-lang" aria-label="Language" data-i18n-attr="aria-label:lang.label"><a href="?lang=en" data-lang="en" lang="en" hreflang="en">English</a><span aria-hidden="true">·</span><a href="?lang=nl" data-lang="nl" lang="nl" hreflang="nl">Nederlands</a><span aria-hidden="true">·</span><a href="?lang=de" data-lang="de" lang="de" hreflang="de">Deutsch</a></nav></div></footer>
 
+<script src="assets/i18n/site-lang.js?v=1" data-page="onboarding"></script>
 <script>
 /* Otto onboarding. Five steps, one state object saved to sessionStorage on every change (a refresh resumes).
    Step 1 calls the real /otto-peek; step 5 posts everything to /otto-api/onboard and, while that route
@@ -644,9 +670,21 @@ var own = function (o, k) { return o != null && Object.prototype.hasOwnProperty.
 var N = function (v) { var n = Number(v); return isFinite(n) ? n : 0; };                                                /* server numbers into markup */
 var esc = function (t) { return String(t == null ? '' : t).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); };
 var RM = W.matchMedia('(prefers-reduced-motion: reduce)').matches;
+/* language: English unless the visitor chose Nederlands or Deutsch (on the landing, carried here as ?lang=, or in the bar
+   below). Every string this script writes goes through T / TN (TK = a key with its English, for tables). */
+var LG = W.OttoLang || null;
+var TK = function (k, en) { return { k: k, en: en }; };
+var T = function (k, en, v) {
+  if (k && typeof k === 'object') { v = en; en = k.en; k = k.k; }
+  return LG ? LG.t(k, en, v) : String(en).replace(/\{(\w+)\}/g, function (m, x) { return v && v[x] != null ? v[x] : m; });
+};
+var TN = function (k, n, one, other, v) { return LG ? LG.tn(k, n, one, other, v) : T(k, n === 1 ? one : other, Object.assign({ n: n }, v)); };
+var NUM = function (n, o) { return LG ? LG.num(n, o) : n.toLocaleString('en-GB', o); };
+var DT = function (x, o) { return LG ? LG.date(x, o) : x.toLocaleDateString('en-GB', o); };
+var siteLang = function () { return LG ? LG.lang : 'en'; };
 var wait = function (ms) { return new Promise(function (r) { setTimeout(r, RM ? Math.min(ms, 60) : ms); }); };
 var backoff = function (ms) { return new Promise(function (r) { setTimeout(r, ms); }); };   /* server rate limits: real time, even with reduced motion */
-var KEY = 'otto.onboarding', STEPS = ['Your site', 'Your brand', 'Four questions', 'Connect', 'First week'];
+var KEY = 'otto.onboarding', STEPS = [TK('step.site', 'Your site'), TK('step.brand', 'Your brand'), TK('step.questions', 'Four questions'), TK('step.connect', 'Connect'), TK('step.week', 'First week')];
 var HASH = ['site', 'brand', 'questions', 'connect', 'week'];
 var PEEK = ['/otto-peek'];   /* same origin only (CSP connect-src 'self'); locally the sim server proxies it */
 /* The signed-in route first: it also makes this login a member of the brand, so the app opens straight onto it. A buyer
@@ -658,7 +696,7 @@ var CK = '<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12.5
 function fresh(site) {
   return { v: 1, step: 1, reached: 1, site: site || '', peek: null, peekMs: null, peekAt: null, peekErr: null,
            cor: {}, ans: { goal: null, goal_note: '', budget: null, objection: '', never_say: '' },
-           ch: { meta: true, google_ads: false, telegram: false }, approvals: 'email', comms_lang: 'en', chTouched: {}, submit: null };
+           ch: { meta: true, google_ads: false, telegram: false }, approvals: 'email', comms_lang: siteLang(), chTouched: {}, submit: null };
 }
 var S = fresh();
 function store(k, v) { try { if (v == null) sessionStorage.removeItem(k); else sessionStorage.setItem(k, v); return true; } catch (e) { return false; } }
@@ -687,13 +725,14 @@ function validDomain(v) { return /^(?=.{4,253}$)([a-z0-9¡-￿]([a-z0-9¡-￿-]{
 
 /* ---------- brand view: the scan with the owner's corrections on top ---------- */
 var LANG = { en: 'English', de: 'German', he: 'Hebrew', fr: 'French', es: 'Spanish', it: 'Italian', nl: 'Dutch', pt: 'Portuguese', pl: 'Polish', ro: 'Romanian', hu: 'Hungarian', sv: 'Swedish', da: 'Danish', el: 'Greek', tr: 'Turkish', ar: 'Arabic', ru: 'Russian' };
+var lname = function (c) { var en = own(LANG, c); return LG ? LG.lname(c, en) : en; };
 var SOC = { instagram: 'Instagram', facebook: 'Facebook', tiktok: 'TikTok', linkedin: 'LinkedIn', youtube: 'YouTube', x: 'X', whatsapp: 'WhatsApp', telegram: 'Telegram', pinterest: 'Pinterest' };
 var CUR = { EUR: '€', USD: '$', GBP: '£', ILS: '₪', CHF: 'CHF ' };
 function cleanTitle(t) { return String(t || '').split(/\s+[|–—·:-]\s+|\s\|\s?/)[0].trim(); }
 function titleCase(s) { return s ? s.charAt(0).toUpperCase() + s.slice(1) : s; }
 function domainName(host) {   // the business part of the host, as otto_onboard.base_slug picks it (shop.acme.co.uk → Acme)
   var l = String(host || '').split('.'), core = l.length >= 3 && /^(co|com|org|net|ac|gov|edu|or|ne|ltd|plc)$/.test(l[l.length - 2]) && l[l.length - 1].length === 2 ? l.slice(0, -2) : l.slice(0, -1);
-  return titleCase((core.length ? core[core.length - 1] : l[0]) || 'Your brand');
+  return titleCase((core.length ? core[core.length - 1] : l[0]) || T('brand.fallback', 'Your brand'));
 }
 function known(ind) { return ind && !/unknown/i.test(ind) ? ind : ''; }
 function fontName(f) { return String(f || '').replace(/([a-z])([A-Z])/g, '$1 $2').replace(/([A-Z])([A-Z][a-z])/g, '$1 $2').trim(); }
@@ -723,14 +762,36 @@ var SHOPP = /shopify|woocommerce|magento|bigcommerce|shopware|prestashop/i;
 var LEADS = /clinic|education|legal|real estate|coaching|home|automotive|hotel|beauty|restaurant|marketing/i;
 function isShop(v) { return SHOPP.test(v.platform) || (/e-commerce|retail|supplement|nutrition|cbd/i.test(v.industry) && v.prices.length > 0); }
 function defaultGoal(v) { return isShop(v) || !LEADS.test(v.industry) ? 'sales' : 'leads'; }
-var PILLARS = [['cbd', ['Education', 'Trust and proof', 'Use cases', 'Product', 'Engagement']], ['supplement', ['Product', 'Ingredients', 'Daily routine', 'Customer stories', 'Offers']], ['restaurant', ['Dishes and seasons', 'Behind the kitchen', 'Guests and reviews', 'Events', 'Offers']], ['clinic', ['Education', 'Patient stories', 'Before and after', 'Meet the team', 'Booking']], ['education', ['Method', 'Student stories', 'Career change', 'Community', 'Enrolment']], ['e-commerce', ['Product', 'Social proof', 'How-to', 'Behind the brand', 'Offers']], ['real estate', ['Listings', 'Neighbourhood', 'Buyer education', 'Client stories', 'Market updates']], ['saas', ['Product', 'Use cases', 'Customer stories', 'Education', 'Launches']], ['fitness', ['Workouts', 'Member stories', 'Nutrition', 'Community', 'Offers']], ['beauty', ['Treatments', 'Before and after', 'Skin education', 'Team', 'Offers']], ['legal', ['Education', 'Case stories', 'FAQ', 'Team', 'Consultations']], ['hotel', ['Rooms and views', 'Local guide', 'Guest stories', 'Seasonal offers', 'Behind the scenes']], ['coaching', ['Insights', 'Client wins', 'Framework', 'Personal story', 'Programme']], ['home', ['Projects', 'Before and after', 'Tips', 'Reviews', 'Quotes']], ['automotive', ['Inventory', 'Service tips', 'Customer stories', 'Offers', 'Team']], ['marketing', ['Results', 'Playbooks', 'Client stories', 'Behind the scenes', 'Offers']]];
-function pillarsFor(ind) { var l = (ind || '').toLowerCase(), hit = PILLARS.find(function (p) { return l.indexOf(p[0]) > -1; }); return hit ? hit[1] : ['Education', 'Proof', 'Product', 'Behind the scenes', 'Engagement']; }
-var OBJ = [['supplement', ['Does it actually work?', 'Is it worth the price?', 'How does it taste?']], ['cbd', ['Is it legal where I live?', 'Will it make me high?', 'Which strength do I need?']], ['clinic', ['Does it hurt?', 'How much does it cost?', 'How long is recovery?']], ['education', ['Will this get me work?', 'Do I have time for this?', 'Is the certificate recognised?']], ['restaurant', ['Do I need to book?', 'Can you cater for allergies?', 'Is it good for groups?']], ['real estate', ['Is now a good time to buy?', 'What are the fees?', 'How long does it take?']], ['saas', ['Will it work with our tools?', 'How long is setup?', 'Is our data safe?']], ['fitness', ['I’m not fit enough to start', 'Is it too expensive?', 'What if I miss sessions?']], ['beauty', ['Does it hurt?', 'How long does it last?', 'Is it safe for my skin?']], ['legal', ['How much will it cost?', 'How long will it take?', 'Do I even have a case?']], ['hotel', ['Is it worth the price?', 'How far is it from the centre?', 'Can I cancel?']], ['coaching', ['Will this work for me?', 'Is it worth the money?', 'How much time does it take?']], ['home', ['How much will it cost?', 'How long will it take?', 'Who does the work?']], ['e-commerce', ['Is it worth the price?', 'How long is delivery?', 'Can I return it?']]];
-function objFor(ind) { var l = (ind || '').toLowerCase(), hit = OBJ.find(function (p) { return l.indexOf(p[0]) > -1; }); return hit ? hit[1] : ['Is it worth the price?', 'Why you and not someone else?', 'How soon will I see a difference?']; }
+/* content pillars (assets/i18n/common.*.json): the names otto_plan uses; one the server sends is shown in the visitor's
+   language when it is one of these, as it is otherwise */
+var P = { edu: TK('p.edu', 'Education'), trust: TK('p.trust', 'Trust and proof'), usecases: TK('p.usecases', 'Use cases'), product: TK('p.product', 'Product'), engage: TK('p.engage', 'Engagement'),
+  ingredients: TK('p.ingredients', 'Ingredients'), routine: TK('p.routine', 'Daily routine'), custstories: TK('p.custstories', 'Customer stories'), offers: TK('p.offers', 'Offers'),
+  dishes: TK('p.dishes', 'Dishes and seasons'), kitchen: TK('p.kitchen', 'Behind the kitchen'), guests: TK('p.guests', 'Guests and reviews'), events: TK('p.events', 'Events'),
+  patients: TK('p.patients', 'Patient stories'), beforeafter: TK('p.beforeafter', 'Before and after'), meetteam: TK('p.meetteam', 'Meet the team'), booking: TK('p.booking', 'Booking'),
+  method: TK('p.method', 'Method'), students: TK('p.students', 'Student stories'), career: TK('p.career', 'Career change'), community: TK('p.community', 'Community'), enrolment: TK('p.enrolment', 'Enrolment'),
+  social: TK('p.social', 'Social proof'), howto: TK('p.howto', 'How-to'), behindbrand: TK('p.behindbrand', 'Behind the brand'),
+  listings: TK('p.listings', 'Listings'), hood: TK('p.hood', 'Neighbourhood'), buyered: TK('p.buyered', 'Buyer education'), clients: TK('p.clients', 'Client stories'), market: TK('p.market', 'Market updates'),
+  launches: TK('p.launches', 'Launches'), workouts: TK('p.workouts', 'Workouts'), members: TK('p.members', 'Member stories'), nutrition: TK('p.nutrition', 'Nutrition'),
+  treatments: TK('p.treatments', 'Treatments'), skin: TK('p.skin', 'Skin education'), team: TK('p.team', 'Team'),
+  cases: TK('p.cases', 'Case stories'), faq: TK('p.faq', 'FAQ'), consult: TK('p.consult', 'Consultations'),
+  rooms: TK('p.rooms', 'Rooms and views'), localguide: TK('p.localguide', 'Local guide'), gstories: TK('p.gstories', 'Guest stories'), seasonal: TK('p.seasonal', 'Seasonal offers'), bts: TK('p.bts', 'Behind the scenes'),
+  insights: TK('p.insights', 'Insights'), wins: TK('p.wins', 'Client wins'), framework: TK('p.framework', 'Framework'), personal: TK('p.personal', 'Personal story'), programme: TK('p.programme', 'Programme'),
+  projects: TK('p.projects', 'Projects'), tips: TK('p.tips', 'Tips'), reviews: TK('p.reviews', 'Reviews'), quotes: TK('p.quotes', 'Quotes'),
+  inventory: TK('p.inventory', 'Inventory'), service: TK('p.service', 'Service tips'), proof: TK('p.proof', 'Proof'), results: TK('p.results', 'Results'), playbooks: TK('p.playbooks', 'Playbooks') };
+var PILLARS = [['cbd', [P.edu, P.trust, P.usecases, P.product, P.engage]], ['supplement', [P.product, P.ingredients, P.routine, P.custstories, P.offers]], ['restaurant', [P.dishes, P.kitchen, P.guests, P.events, P.offers]], ['clinic', [P.edu, P.patients, P.beforeafter, P.meetteam, P.booking]], ['education', [P.method, P.students, P.career, P.community, P.enrolment]], ['e-commerce', [P.product, P.social, P.howto, P.behindbrand, P.offers]], ['real estate', [P.listings, P.hood, P.buyered, P.clients, P.market]], ['saas', [P.product, P.usecases, P.custstories, P.edu, P.launches]], ['fitness', [P.workouts, P.members, P.nutrition, P.community, P.offers]], ['beauty', [P.treatments, P.beforeafter, P.skin, P.team, P.offers]], ['legal', [P.edu, P.cases, P.faq, P.team, P.consult]], ['hotel', [P.rooms, P.localguide, P.gstories, P.seasonal, P.bts]], ['coaching', [P.insights, P.wins, P.framework, P.personal, P.programme]], ['home', [P.projects, P.beforeafter, P.tips, P.reviews, P.quotes]], ['automotive', [P.inventory, P.service, P.custstories, P.offers, P.team]], ['marketing', [P.results, P.playbooks, P.clients, P.bts, P.offers]]];
+var PBYNAME = {}; Object.keys(P).forEach(function (k) { PBYNAME[P[k].en] = P[k]; });
+function pillarName(x) { var p = own(PBYNAME, String(x)); return p ? T(p) : String(x); }
+function pillarsFor(ind) { var l = (ind || '').toLowerCase(), hit = PILLARS.find(function (p) { return l.indexOf(p[0]) > -1; }); return (hit ? hit[1] : [P.edu, P.proof, P.product, P.bts, P.engage]).map(function (p) { return T(p); }); }
+var OBJ = [['supplement', [TK('obj.supp1', 'Does it actually work?'), TK('obj.price', 'Is it worth the price?'), TK('obj.supp3', 'How does it taste?')]], ['cbd', [TK('obj.cbd1', 'Is it legal where I live?'), TK('obj.cbd2', 'Will it make me high?'), TK('obj.cbd3', 'Which strength do I need?')]], ['clinic', [TK('obj.hurt', 'Does it hurt?'), TK('obj.clinic2', 'How much does it cost?'), TK('obj.clinic3', 'How long is recovery?')]], ['education', [TK('obj.edu1', 'Will this get me work?'), TK('obj.edu2', 'Do I have time for this?'), TK('obj.edu3', 'Is the certificate recognised?')]], ['restaurant', [TK('obj.rest1', 'Do I need to book?'), TK('obj.rest2', 'Can you cater for allergies?'), TK('obj.rest3', 'Is it good for groups?')]], ['real estate', [TK('obj.re1', 'Is now a good time to buy?'), TK('obj.re2', 'What are the fees?'), TK('obj.re3', 'How long does it take?')]], ['saas', [TK('obj.saas1', 'Will it work with our tools?'), TK('obj.saas2', 'How long is setup?'), TK('obj.saas3', 'Is our data safe?')]], ['fitness', [TK('obj.fit1', 'I’m not fit enough to start'), TK('obj.fit2', 'Is it too expensive?'), TK('obj.fit3', 'What if I miss sessions?')]], ['beauty', [TK('obj.hurt', 'Does it hurt?'), TK('obj.beauty2', 'How long does it last?'), TK('obj.beauty3', 'Is it safe for my skin?')]], ['legal', [TK('obj.cost', 'How much will it cost?'), TK('obj.time', 'How long will it take?'), TK('obj.legal3', 'Do I even have a case?')]], ['hotel', [TK('obj.price', 'Is it worth the price?'), TK('obj.hotel2', 'How far is it from the centre?'), TK('obj.hotel3', 'Can I cancel?')]], ['coaching', [TK('obj.coach1', 'Will this work for me?'), TK('obj.coach2', 'Is it worth the money?'), TK('obj.coach3', 'How much time does it take?')]], ['home', [TK('obj.cost', 'How much will it cost?'), TK('obj.time', 'How long will it take?'), TK('obj.home3', 'Who does the work?')]], ['e-commerce', [TK('obj.price', 'Is it worth the price?'), TK('obj.shop2', 'How long is delivery?'), TK('obj.shop3', 'Can I return it?')]]];
+function objFor(ind) { var l = (ind || '').toLowerCase(), hit = OBJ.find(function (p) { return l.indexOf(p[0]) > -1; }); return (hit ? hit[1] : [TK('obj.price', 'Is it worth the price?'), TK('obj.def2', 'Why you and not someone else?'), TK('obj.def3', 'How soon will I see a difference?')]).map(function (o) { return T(o); }); }
 
 /* ---------- navigation ---------- */
 var rail = $('#rail');
-rail.innerHTML = STEPS.map(function (t, i) { return '<button type="button" data-go="' + (i + 1) + '"><span class="n">' + (i + 1) + '</span><svg class="i ck" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>' + t + '</button>'; }).join('');
+function railLabels() {
+  if (!rail.firstChild) rail.innerHTML = STEPS.map(function (t, i) { return '<button type="button" data-go="' + (i + 1) + '"><span class="n">' + (i + 1) + '</span><svg class="i ck" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg><span class="t"></span></button>'; }).join('');
+  $$('button .t', rail).forEach(function (el, i) { el.textContent = T(STEPS[i]); });
+}
+railLabels();
 function chrome() {
   $$('button', rail).forEach(function (b, i) {
     var n = i + 1;
@@ -739,7 +800,7 @@ function chrome() {
     if (n === S.step) b.setAttribute('aria-current', 'step'); else b.removeAttribute('aria-current');
   });
   $$('#prog i').forEach(function (el, i) { el.className = i + 1 < S.step ? 'done' : i + 1 === S.step ? 'on' : ''; });
-  $('#bar-count').textContent = 'Step ' + S.step + ' of 5';
+  $('#bar-count').textContent = T('bar.count', 'Step {n} of 5', { n: S.step });
 }
 var RENDER = {}, GATED = false;
 function go(n, opt) {
@@ -767,7 +828,7 @@ W.addEventListener('popstate', function () {
 /* ---------- 1 · Your site: the real /otto-peek, with a real progress state ---------- */
 var siteIn = $('#site'), scanBtn = $('#scan-btn'), rl = $('#rl'), readNow = $('#read-now'), readTag = $('#read-tag');
 var ROWKEYS = ['open', 'look', 'sell', 'proof', 'draft'];
-var NOW = ['Opening ', 'Reading colours, fonts and logo', 'Working out what you sell', 'Collecting proof and customer words', 'Drafting your brand profile'];
+var NOW = [TK('s1.now1', 'Opening {domain}'), TK('s1.now2', 'Reading colours, fonts and logo'), TK('s1.now3', 'Working out what you sell'), TK('s1.now4', 'Collecting proof and customer words'), TK('s1.r5', 'Drafting your brand profile')];
 function li(k) { return $('li[data-k="' + k + '"]', rl); }
 function mark(i, state, result) { var el = li(ROWKEYS[i]); el.className = state || ''; if (result != null) $('.rl-r', el).innerHTML = result; }
 function resetRead() { ROWKEYS.forEach(function (k, i) { mark(i, '', ''); }); }
@@ -775,27 +836,29 @@ function results(p) {
   var v = V(), n = N(p.pages) || 1;
   var sw = v.palette.concat(v.neutrals).slice(0, 6).map(function (x) { return '<i style="background:' + esc(x) + '"></i>'; }).join('');
   return [
-    n + (n === 1 ? ' page read' : ' pages read') + (p.platform && !/unknown/i.test(p.platform) ? ' · built on ' + esc(p.platform) : ''),
-    (sw ? '<span class="rl-sw" aria-hidden="true">' + sw + '</span>' : '') + (v.palette.length ? v.palette.length + ' brand colour' + (v.palette.length === 1 ? '' : 's') : 'No brand colours found') + (v.fonts.length ? ' · ' + esc(v.fonts.slice(0, 2).join(', ')) : '') + (v.logo ? ' · logo found' : ''),
-    esc(v.industry || 'Industry not clear yet') + (v.prices.length ? ' · ' + v.prices.length + ' price' + (v.prices.length === 1 ? '' : 's') : ''),
-    (v.proof.length ? v.proof.length + ' proof point' + (v.proof.length === 1 ? '' : 's') : 'No proof found yet') + (v.quotes.length ? ' · ' + v.quotes.length + ' customer quote' + (v.quotes.length === 1 ? '' : 's') : ''),
-    'Ready for you to check'
+    esc(TN('s1.pages', n, '1 page read', '{n} pages read')) + (p.platform && !/unknown/i.test(p.platform) ? ' · ' + esc(T('s1.built', 'built on {platform}', { platform: p.platform })) : ''),
+    (sw ? '<span class="rl-sw" aria-hidden="true">' + sw + '</span>' : '') + esc(v.palette.length ? TN('s1.colours', v.palette.length, '1 brand colour', '{n} brand colours') : T('s1.nocolours', 'No brand colours found')) + (v.fonts.length ? ' · ' + esc(v.fonts.slice(0, 2).join(', ')) : '') + (v.logo ? ' · ' + esc(T('s1.logo', 'logo found')) : ''),
+    esc(v.industry || T('s1.noind', 'Industry not clear yet')) + (v.prices.length ? ' · ' + esc(TN('s1.prices', v.prices.length, '1 price', '{n} prices')) : ''),
+    esc(v.proof.length ? TN('s1.proof', v.proof.length, '1 proof point', '{n} proof points') : T('s1.noproof', 'No proof found yet')) + (v.quotes.length ? ' · ' + esc(TN('s1.quotes', v.quotes.length, '1 customer quote', '{n} customer quotes')) : ''),
+    esc(T('s1.ready', 'Ready for you to check'))
   ];
 }
 function showDone(p, ms) {
   var r = results(p);
   ROWKEYS.forEach(function (k, i) { mark(i, 'done', r[i]); });
   readTag.textContent = S.site; readTag.className = 'tag';
-  readNow.textContent = 'Read ' + S.site + (ms == null || ms === 0 ? '' : ms < 1000 ? ' in under a second' : ' in ' + (ms / 1000).toFixed(1) + ' s') + '. Next, check what Otto found.';
-  $('#act1').hidden = false; $('#act1-note').textContent = ''; $('#go2').textContent = 'Continue';
+  readNow.textContent = ms == null || ms === 0 ? T('s1.done', 'Read {site}. Next, check what Otto found.', { site: S.site }) :
+    ms < 1000 ? T('s1.donefast', 'Read {site} in under a second. Next, check what Otto found.', { site: S.site }) :
+    T('s1.donein', 'Read {site} in {s} s. Next, check what Otto found.', { site: S.site, s: NUM(ms / 1000, { minimumFractionDigits: 1, maximumFractionDigits: 1 }) });
+  $('#act1').hidden = false; $('#act1-note').textContent = ''; $('#go2').textContent = T('btn.continue', 'Continue');
 }
 function showFail(kind) {
-  ROWKEYS.forEach(function (k, i) { mark(i, i === 0 ? 'miss' : '', i === 0 ? 'Couldn’t read it from here' : ''); });
-  readTag.textContent = 'Not read'; readTag.className = 'tag';
-  readNow.textContent = kind === 'invalid' ? 'Check the address and read it again. If the site isn’t live yet, continue: you’ll fill in the basics next.' :
-    'Some sites turn automated visitors away. Continue anyway: you’ll fill in the basics next, and Otto tries again after setup.';
+  ROWKEYS.forEach(function (k, i) { mark(i, i === 0 ? 'miss' : '', i === 0 ? esc(T('s1.miss', 'Couldn’t read it from here')) : ''); });
+  readTag.textContent = T('s1.notread', 'Not read'); readTag.className = 'tag';
+  readNow.textContent = kind === 'invalid' ? T('s1.failinvalid', 'Check the address and read it again. If the site isn’t live yet, continue: you’ll fill in the basics next.') :
+    T('s1.failread', 'Some sites turn automated visitors away. Continue anyway: you’ll fill in the basics next, and Otto tries again after setup.');
   $('#act1').hidden = false;   /* a buyer is never stuck here: a new or offline site can still be set up by hand */
-  $('#go2').textContent = 'Continue anyway';
+  $('#go2').textContent = T('btn.anyway', 'Continue anyway');
 }
 async function fetchPeek(domain, signal) {
   var last = null;
@@ -814,70 +877,87 @@ var scanning = false;
 async function runScan(domain, tries) {
   if (scanning) return; scanning = true; tries = tries || 0;
   var err = $('#scan-err'); err.textContent = ''; $('#scan').classList.remove('is-bad');
-  S.site = domain; S.peek = null; S.peekErr = null; S.cor = {}; save(true);
+  S.site = domain; S.peek = null; S.peekErr = null; S.peekHanded = false; S.cor = {}; save(true);
   scanBtn.classList.add('is-busy'); scanBtn.disabled = true; $('#act1').hidden = true;
   resetRead(); readTag.innerHTML = '<span class="spin" aria-hidden="true"></span>'; readTag.className = 'pill is-work';
   var t0 = performance.now(), i = 0;
-  mark(0, 'on'); readNow.innerHTML = '<span class="spin" aria-hidden="true"></span><span>Opening ' + esc(domain) + '…</span>';
+  mark(0, 'on'); readNow.innerHTML = '<span class="spin" aria-hidden="true"></span><span>' + esc(T(NOW[0], { domain: domain })) + '…</span>';
   var tick = setInterval(function () {
     var s = Math.round((performance.now() - t0) / 1000);
     if (i < 2 && s >= (i + 1) * 2) { mark(i, 'done', ''); i++; mark(i, 'on'); }
-    readNow.innerHTML = '<span class="spin" aria-hidden="true"></span><span>' + esc(i === 0 ? NOW[0] + domain : NOW[i]) + '… <span class="tnum ink-3">' + s + ' s</span></span>';
+    readNow.innerHTML = '<span class="spin" aria-hidden="true"></span><span>' + esc(T(NOW[i], { domain: domain })) + '… <span class="tnum ink-3">' + s + ' s</span></span>';
   }, 250);
   var ctl = new AbortController(), to = setTimeout(function () { ctl.abort(); }, 25000), out = { status: 0 };
   try { out = await fetchPeek(domain, ctl.signal); } catch (e) { out = { status: 0 }; }
   clearTimeout(to); clearInterval(tick);
   var ms = Math.round(performance.now() - t0);
   scanning = false; scanBtn.classList.remove('is-busy'); scanBtn.disabled = false;
-  if (out.status === 429 && tries < 2) { readNow.textContent = 'One moment…'; await backoff(4200); return runScan(domain, tries + 1); }
+  if (out.status === 429 && tries < 2) { readNow.textContent = T('s1.moment', 'One moment…'); await backoff(4200); return runScan(domain, tries + 1); }
   if (out.status === 200 && out.body && !out.body.error) {
     S.peek = out.body; S.peekMs = ms; S.peekAt = Date.now(); save();
     for (; i < ROWKEYS.length; i++) { mark(i, 'on'); await wait(200); mark(i, 'done', ''); }
     showDone(S.peek, ms);
-    $('#scan-idle').textContent = 'Read again';
+    $('#scan-idle').textContent = T('s1.again', 'Read again');
     $('#go2').focus({ preventScroll: true });
     return;
   }
-  if (S.handoff) { S.peek = S.handoff; S.peekAt = Date.now(); delete S.handoff; save(); showDone(S.peek, 0); readNow.textContent = 'Using the scan from a moment ago. Next, check what Otto found.'; return; }
+  if (S.handoff) { S.peek = S.handoff; S.peekAt = Date.now(); delete S.handoff; S.peekHanded = true; save(); showDone(S.peek, 0); readNow.textContent = T('s1.handoff', 'Using the scan from a moment ago. Next, check what Otto found.'); return; }
   S.peekErr = out.status === 404 || out.status === 400 ? 'invalid' : 'unreadable'; save();   /* 404: no such site (DNS); 400: an address Otto won't open */
-  if (out.status === 404) { err.textContent = 'Otto couldn’t find a website at ' + domain + '.'; $('#scan').classList.add('is-bad'); }
-  else if (out.status === 400) { err.textContent = 'Otto can’t open that address. Check it and try again.'; $('#scan').classList.add('is-bad'); }
+  scanErr = out.status === 404 || out.status === 400 ? { status: out.status, domain: domain } : null;
+  if (scanErr) { scanErrText(); $('#scan').classList.add('is-bad'); }
   showFail(S.peekErr);
+}
+var scanErr = null;          /* the error under the field, kept so it can be said again in another language */
+function scanErrText() {
+  if (!scanErr) return;
+  $('#scan-err').textContent = scanErr.status === 404 ? T('s1.e404', 'Otto couldn’t find a website at {domain}.', { domain: scanErr.domain })
+    : scanErr.status === 400 ? T('s1.e400', 'Otto can’t open that address. Check it and try again.')
+    : scanErr.status === 'empty' ? T('s1.eempty', 'Enter your website address to start.') : T('s1.einvalid', 'Enter a web address like yourcompany.com.');
 }
 $('#scan').addEventListener('submit', function (e) {
   e.preventDefault();
   var v = cleanDomain(siteIn.value);
-  if (!validDomain(v)) { $('#scan-err').textContent = v ? 'Enter a web address like yourcompany.com.' : 'Enter your website address to start.'; $('#scan').classList.add('is-bad'); siteIn.focus(); return; }
+  if (!validDomain(v)) { scanErr = { status: v ? 'invalid' : 'empty' }; scanErrText(); $('#scan').classList.add('is-bad'); siteIn.focus(); return; }
   siteIn.value = v; runScan(v);
 });
-siteIn.addEventListener('input', function () { $('#scan').classList.remove('is-bad'); $('#scan-err').textContent = ''; });
+siteIn.addEventListener('input', function () { $('#scan').classList.remove('is-bad'); $('#scan-err').textContent = ''; scanErr = null; });
 $('#go2').addEventListener('click', function () { go(2); });
 RENDER[1] = function () {
   siteIn.value = S.site;
-  if (S.peek) { showDone(S.peek, S.peekMs); $('#scan-idle').textContent = 'Read again'; }
+  $('#scan-idle').textContent = S.peek ? T('s1.again', 'Read again') : T('s1.read', 'Read my site');
+  if (S.peek) { showDone(S.peek, S.peekMs); if (S.peekHanded) readNow.textContent = T('s1.handoff', 'Using the scan from a moment ago. Next, check what Otto found.'); }
   else if (S.peekErr) { showFail(S.peekErr); }
+  else if (!scanning) { readTag.textContent = T('s1.notstarted', 'Not started'); readNow.textContent = T('s1.idle', 'Type your address and Otto starts reading.'); }
+  scanErrText();
 };
 
 /* ---------- 2 · Your brand, with inline corrections ---------- */
 var ROWS = [
-  { k: 'name', label: 'Name' }, { k: 'description', label: 'What you sell' }, { k: 'industry', label: 'Industry' },
-  { k: 'prices', label: 'Price points' }, { k: 'proof', label: 'Proof on your site' }, { k: 'palette', label: 'Colours' },
-  { k: 'fonts', label: 'Fonts' }, { k: 'logo', label: 'Logo' }, { k: 'language', label: 'Language' }, { k: 'socials', label: 'Accounts on your site', ro: true }
+  { k: 'name', label: TK('row.name', 'Name'), fix: TK('row.fix.name', 'That’s wrong, fix name'), add: TK('row.add.name', 'Add name') },
+  { k: 'description', label: TK('row.description', 'What you sell'), fix: TK('row.fix.description', 'That’s wrong, fix what you sell'), add: TK('row.add.description', 'Add what you sell') },
+  { k: 'industry', label: TK('row.industry', 'Industry'), fix: TK('row.fix.industry', 'That’s wrong, fix industry'), add: TK('row.add.industry', 'Add industry') },
+  { k: 'prices', label: TK('row.prices', 'Price points'), fix: TK('row.fix.prices', 'That’s wrong, fix price points'), add: TK('row.add.prices', 'Add price points') },
+  { k: 'proof', label: TK('row.proof', 'Proof on your site'), fix: TK('row.fix.proof', 'That’s wrong, fix proof on your site'), add: TK('row.add.proof', 'Add proof on your site') },
+  { k: 'palette', label: TK('row.palette', 'Colours'), fix: TK('row.fix.palette', 'That’s wrong, fix colours'), add: TK('row.add.palette', 'Add colours') },
+  { k: 'fonts', label: TK('row.fonts', 'Fonts'), fix: TK('row.fix.fonts', 'That’s wrong, fix fonts'), add: TK('row.add.fonts', 'Add fonts') },
+  { k: 'logo', label: TK('row.logo', 'Logo'), fix: TK('row.fix.logo', 'That’s wrong, fix logo'), add: TK('row.add.logo', 'Add logo') },
+  { k: 'language', label: TK('row.language', 'Language'), fix: TK('row.fix.language', 'That’s wrong, fix language'), add: TK('row.add.language', 'Add language') },
+  { k: 'socials', label: TK('row.socials', 'Accounts on your site'), ro: true }
 ];
 var CORKEY = { logo: 'logo_wrong' };
 function none(t) { return '<span class="none">' + esc(t) + '</span>'; }
 function valueHTML(k, v) {
   switch (k) {
     case 'name': return esc(v.name);
-    case 'description': return v.description ? esc(v.description) : none('Not found. Add one sentence about what you sell.');
-    case 'industry': return v.industry ? esc(v.industry) : none('Not clear from the site');
-    case 'prices': return v.prices.length ? '<div class="chips">' + v.prices.map(function (x) { return '<span class="chip tnum">' + esc(x) + '</span>'; }).join('') + '</div>' : none('No prices on the site');
-    case 'proof': return v.proof.length ? '<ul>' + v.proof.map(function (x) { return '<li>' + esc(tidy(x)) + '</li>'; }).join('') + '</ul>' + (v.quote && !S.cor.proof ? '<q>' + esc(v.quote.slice(0, 180)) + '</q>' : '') : none('None found yet. Otto will ask for reviews you can quote.');
-    case 'palette': return v.palette.length || v.neutrals.length ? '<div class="sws">' + v.palette.map(sw).join('') + (v.neutrals.length && v.palette.length ? '<span class="sep" aria-hidden="true"></span>' : '') + v.neutrals.map(sw).join('') + '</div>' : none('No brand colours found');
-    case 'fonts': return v.fonts.length ? esc(v.fonts.join(' · ')) : none('Not found');
-    case 'logo': return v.logoWrong ? none('Not this one. Otto will ask you for the file.') : v.logo ? '<span class="logo-v">' + logoTile(v.logo) + '<span class="ink-2">Found on your site</span></span>' : none('Not found. Otto will ask you for the file.');
-    case 'language': return esc(own(LANG, v.language) || v.language.toUpperCase());
-    case 'socials': var ks = Object.keys(v.socials); return ks.length ? esc(ks.map(function (x) { return own(SOC, x) || x; }).join(' · ')) : none('None linked from the site');
+    case 'description': return v.description ? esc(v.description) : none(T('v.nodesc', 'Not found. Add one sentence about what you sell.'));
+    case 'industry': return v.industry ? esc(v.industry) : none(T('v.noind', 'Not clear from the site'));
+    case 'prices': return v.prices.length ? '<div class="chips">' + v.prices.map(function (x) { return '<span class="chip tnum">' + esc(x) + '</span>'; }).join('') + '</div>' : none(T('v.noprices', 'No prices on the site'));
+    case 'proof': return v.proof.length ? '<ul>' + v.proof.map(function (x) { return '<li>' + esc(tidy(x)) + '</li>'; }).join('') + '</ul>' + (v.quote && !S.cor.proof ? '<q>' + esc(v.quote.slice(0, 180)) + '</q>' : '') : none(T('v.noproof', 'None found yet. Otto will ask for reviews you can quote.'));
+    case 'palette': return v.palette.length || v.neutrals.length ? '<div class="sws">' + v.palette.map(sw).join('') + (v.neutrals.length && v.palette.length ? '<span class="sep" aria-hidden="true"></span>' : '') + v.neutrals.map(sw).join('') + '</div>' : none(T('s1.nocolours', 'No brand colours found'));
+    case 'fonts': return v.fonts.length ? esc(v.fonts.join(' · ')) : none(T('v.notfound', 'Not found'));
+    case 'logo': return v.logoWrong ? none(T('v.notlogo', 'Not this one. Otto will ask you for the file.')) : v.logo ? '<span class="logo-v">' + logoTile(v.logo) + '<span class="ink-2">' + esc(T('v.logofound', 'Found on your site')) + '</span></span>' : none(T('v.nologo', 'Not found. Otto will ask you for the file.'));
+    case 'language': return esc(lname(v.language) || v.language.toUpperCase());
+    case 'socials': var ks = Object.keys(v.socials); return ks.length ? esc(ks.map(function (x) { return own(SOC, x) || x; }).join(' · ')) : none(T('v.nosocial', 'None linked from the site'));
   }
   return '';
 }
@@ -890,8 +970,8 @@ function renderRows() {
   $('#rows').innerHTML = ROWS.map(function (r) {
     var own = corrected(r.k);
     var empty = /class="none"/.test(valueHTML(r.k, v)) && !own;
-    return '<div class="row" data-k="' + r.k + '"><div class="row-l">' + r.label + (own ? '<span class="tag is-own">Your correction</span>' : '') + '</div>' +
-      (r.ro ? '' : '<button class="fix" type="button" aria-expanded="false" aria-label="' + (empty ? 'Add ' : 'That’s wrong, fix ') + r.label.toLowerCase() + '">' + (empty ? 'Add' : 'Fix') + '</button>') +
+    return '<div class="row" data-k="' + r.k + '"><div class="row-l">' + esc(T(r.label)) + (own ? '<span class="tag is-own">' + esc(T('row.yours', 'Your correction')) + '</span>' : '') + '</div>' +
+      (r.ro ? '' : '<button class="fix" type="button" aria-expanded="false" aria-label="' + esc(T(empty ? r.add : r.fix)) + '">' + esc(empty ? T('btn.add', 'Add') : T('btn.fix', 'Fix')) + '</button>') +
       '<div class="row-v">' + valueHTML(r.k, v) + '</div><div class="ed"><div></div></div></div>';
   }).join('');
   wireLogos($('#rows'));
@@ -911,42 +991,46 @@ function wireLogos(root) {
 }
 function renderCard() {
   var v = V(), p = S.peek;
-  var strip = v.palette.length || v.neutrals.length ? '<div class="bc-strip" aria-label="Brand colours">' + v.palette.map(function (x) { return '<i style="background:' + esc(x) + '" title="' + esc(x) + '"></i>'; }).join('') + v.neutrals.map(function (x) { return '<i class="n" style="background:' + esc(x) + '" title="' + esc(x) + '"></i>'; }).join('') + '</div>' : '<div class="bc-strip is-empty">No colours yet</div>';
+  var strip = v.palette.length || v.neutrals.length ? '<div class="bc-strip" aria-label="' + esc(T('card.colours', 'Brand colours')) + '">' + v.palette.map(function (x) { return '<i style="background:' + esc(x) + '" title="' + esc(x) + '"></i>'; }).join('') + v.neutrals.map(function (x) { return '<i class="n" style="background:' + esc(x) + '" title="' + esc(x) + '"></i>'; }).join('') + '</div>' : '<div class="bc-strip is-empty">' + esc(T('card.nocolours', 'No colours yet')) + '</div>';
   var ago = S.peekAt ? Math.max(0, Math.round((Date.now() - S.peekAt) / 60000)) : null;
   $('#bcard').innerHTML = '<div class="bc-top">' + (v.logo ? logoTile(v.logo) : '<span class="bc-logo"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="5" width="16" height="14" rx="2.5"/><path d="m4.5 16 4.5-4.5 4 4 2.5-2.5 4 4"/></svg></span>') +
     '<div class="bc-name"><b>' + esc(v.name) + '</b><span>' + esc([S.site, v.industry].filter(Boolean).join(' · ')) + '</span></div></div>' + strip +
-    '<div class="bc-meta">' + (v.fonts.length ? '<span><b>Type</b> ' + esc(v.fonts.slice(0, 2).join(', ')) + '</span>' : '') + '<span><b>Language</b> ' + esc(own(LANG, v.language) || v.language) + '</span>' +
-    (p ? '<span>' + (N(p.pages) || 1) + ' page' + ((N(p.pages) || 1) === 1 ? '' : 's') + ' read' + (ago != null ? (ago < 1 ? ' just now' : ago < 60 ? ' ' + ago + ' min ago' : '') : '') + '</span>' : '<span>Not read yet</span>') + '</div>';
+    '<div class="bc-meta">' + (v.fonts.length ? '<span><b>' + esc(T('card.type', 'Type')) + '</b> ' + esc(v.fonts.slice(0, 2).join(', ')) + '</span>' : '') + '<span><b>' + esc(T('row.language', 'Language')) + '</b> ' + esc(lname(v.language) || v.language) + '</span>' +
+    (p ? '<span>' + esc(ago != null && ago < 1 ? TN('card.readnow', N(p.pages) || 1, '1 page read just now', '{n} pages read just now')
+      : ago != null && ago < 60 ? TN('card.readago', N(p.pages) || 1, '1 page read {ago}', '{n} pages read {ago}', { ago: LG ? relMin(ago) : ago + ' min ago' })
+      : TN('s1.pages', N(p.pages) || 1, '1 page read', '{n} pages read')) + '</span>' : '<span>' + esc(T('card.notread', 'Not read yet')) + '</span>') + '</div>';
   wireLogos($('#bcard'));
 }
+function relMin(m) { try { return new Intl.RelativeTimeFormat(LG.locale, { style: 'short' }).format(-m, 'minute'); } catch (e) { return m + ' min ago'; } }
 RENDER[2] = function () {
   var ok = !!S.peek;
-  $('#s2-h').textContent = ok ? 'Your brand, as Otto read it.' : 'Tell Otto the basics.';
-  $('#s2-lead').innerHTML = ok ? 'If anything is wrong, tap <b>Fix</b> and Otto uses your version. Every post is built on this.'
-    : 'Otto couldn’t read ' + esc(S.site || 'your site') + ' from here, so start with a name and a sentence about what you sell. <b>Otto reads the site again after setup.</b>';
-  $('#go3').textContent = ok ? 'Looks right' : 'Continue';
+  $('#s2-h').textContent = ok ? T('s2.h', 'Your brand, as Otto read it.') : T('s2.hbasics', 'Tell Otto the basics.');
+  /* the lead keeps its bold part as markup; the words around it come from the dictionary (escaped) */
+  $('#s2-lead').innerHTML = ok ? esc(T('s2.lead1', 'If anything is wrong, tap')) + ' <b>' + esc(T('btn.fix', 'Fix')) + '</b> ' + esc(T('s2.lead2', 'and Otto uses your version. Every post is built on this.'))
+    : esc(T('s2.leadbasics', 'Otto couldn’t read {site} from here, so start with a name and a sentence about what you sell.', { site: S.site || T('s2.yoursite', 'your site') })) + ' <b>' + esc(T('s2.leadagain', 'Otto reads the site again after setup.')) + '</b>';
+  $('#go3').textContent = ok ? T('s2.right', 'Looks right') : T('btn.continue', 'Continue');
   renderCard(); renderRows();
 };
 var open = null;
 function editorHTML(k, v) {
   var cur = function (x) { return esc(x); };
-  var act = '<div class="ed-act"><button class="btn btn-primary btn-sm" type="button" data-save>Save</button><button class="btn btn-quiet btn-sm" type="button" data-cancel>Cancel</button>' + (corrected(k) ? '<button class="reset" type="button" data-reset>Use what Otto read</button>' : '') + '</div>';
+  var act = '<div class="ed-act"><button class="btn btn-primary btn-sm" type="button" data-save>' + esc(T('btn.save', 'Save')) + '</button><button class="btn btn-quiet btn-sm" type="button" data-cancel>' + esc(T('btn.cancel', 'Cancel')) + '</button>' + (corrected(k) ? '<button class="reset" type="button" data-reset>' + esc(T('ed.reset', 'Use what Otto read')) + '</button>' : '') + '</div>';
   switch (k) {
-    case 'name': return '<input class="field" data-in maxlength="80" value="' + cur(v.name) + '" aria-label="Brand name">' + act;
-    case 'description': return '<textarea class="field" data-in maxlength="400" rows="3" aria-label="What you sell">' + cur(v.description) + '</textarea><p class="ed-hint">One or two sentences, the way you’d say it to a customer.</p>' + act;
+    case 'name': return '<input class="field" data-in maxlength="80" value="' + cur(v.name) + '" aria-label="' + esc(T('ed.name', 'Brand name')) + '">' + act;
+    case 'description': return '<textarea class="field" data-in maxlength="400" rows="3" aria-label="' + esc(T('row.description', 'What you sell')) + '">' + cur(v.description) + '</textarea><p class="ed-hint">' + esc(T('ed.desc', 'One or two sentences, the way you’d say it to a customer.')) + '</p>' + act;
     case 'industry':
       var opts = v.candidates.slice(0, 3); if (v.industry && opts.indexOf(v.industry) < 0) opts.unshift(v.industry);
-      return (opts.length ? '<div class="rc sm" role="radiogroup" aria-label="Industry">' + opts.map(function (o) { return '<label><input type="radio" name="ind" value="' + esc(o) + '"' + (o === v.industry ? ' checked' : '') + '><span>' + esc(o) + '</span></label>'; }).join('') + '</div>' : '') +
-        '<input class="field" data-in maxlength="60" placeholder="Or in your words, for example: Specialty coffee roaster" aria-label="Industry in your words">' + act;
-    case 'prices': return '<input class="field" data-in maxlength="300" value="' + cur(v.prices.join(', ')) + '" aria-label="Price points"><p class="ed-hint">Separate prices with commas, for example: €29, €49 a month.</p>' + act;
-    case 'proof': return '<textarea class="field" data-in maxlength="1200" rows="4" aria-label="Proof">' + cur(v.proof.join('\n')) + '</textarea><p class="ed-hint">One per line: reviews you may quote, certificates, numbers you can back.</p>' + act;
-    case 'fonts': return '<input class="field" data-in maxlength="160" value="' + cur(v.fonts.join(', ')) + '" aria-label="Fonts"><p class="ed-hint">Separate fonts with commas.</p>' + act;
+      return (opts.length ? '<div class="rc sm" role="radiogroup" aria-label="' + esc(T('row.industry', 'Industry')) + '">' + opts.map(function (o) { return '<label><input type="radio" name="ind" value="' + esc(o) + '"' + (o === v.industry ? ' checked' : '') + '><span>' + esc(o) + '</span></label>'; }).join('') + '</div>' : '') +
+        '<input class="field" data-in maxlength="60" placeholder="' + esc(T('ed.ind.ph', 'Or in your words, for example: Specialty coffee roaster')) + '" aria-label="' + esc(T('ed.ind.aria', 'Industry in your words')) + '">' + act;
+    case 'prices': return '<input class="field" data-in maxlength="300" value="' + cur(v.prices.join(', ')) + '" aria-label="' + esc(T('row.prices', 'Price points')) + '"><p class="ed-hint">' + esc(T('ed.prices', 'Separate prices with commas, for example: €29, €49 a month.')) + '</p>' + act;
+    case 'proof': return '<textarea class="field" data-in maxlength="1200" rows="4" aria-label="' + esc(T('ed.proof.aria', 'Proof')) + '">' + cur(v.proof.join('\n')) + '</textarea><p class="ed-hint">' + esc(T('ed.proof', 'One per line: reviews you may quote, certificates, numbers you can back.')) + '</p>' + act;
+    case 'fonts': return '<input class="field" data-in maxlength="160" value="' + cur(v.fonts.join(', ')) + '" aria-label="' + esc(T('row.fonts', 'Fonts')) + '"><p class="ed-hint">' + esc(T('ed.fonts', 'Separate fonts with commas.')) + '</p>' + act;
     case 'palette':
       return '<div class="pal-ed">' + v.palette.map(function (x) { return '<button type="button" aria-pressed="true" data-hex="' + esc(x) + '"><i style="background:' + esc(x) + '"></i>' + esc(x.toUpperCase()) + '</button>'; }).join('') + '</div>' +
-        '<div class="pal-add"><input type="color" value="' + esc(v.palette[0] || '#2447F0') + '" aria-label="Pick a colour" data-pick><input class="field" data-hexin maxlength="7" placeholder="#RRGGBB" aria-label="Colour code"><button class="btn btn-quiet btn-sm" type="button" data-add>Add</button></div>' +
-        '<p class="ed-hint">Tap a colour to leave it out. Add the ones Otto missed.</p>' + act;
-    case 'logo': return '<label class="check"><input type="checkbox" data-in' + (v.logoWrong ? ' checked' : '') + '><span>This isn’t our logo. <span class="ink-2">Otto will ask you for the file after setup.</span></span></label>' + act;
-    case 'language': return '<select class="field" data-in aria-label="Language">' + Object.keys(LANG).map(function (c) { return '<option value="' + c + '"' + (c === v.language ? ' selected' : '') + '>' + LANG[c] + '</option>'; }).join('') + '</select><p class="ed-hint">The language Otto writes your posts in.</p>' + act;
+        '<div class="pal-add"><input type="color" value="' + esc(v.palette[0] || '#2447F0') + '" aria-label="' + esc(T('ed.pick', 'Pick a colour')) + '" data-pick><input class="field" data-hexin maxlength="7" placeholder="#RRGGBB" aria-label="' + esc(T('ed.hex', 'Colour code')) + '"><button class="btn btn-quiet btn-sm" type="button" data-add>' + esc(T('btn.add', 'Add')) + '</button></div>' +
+        '<p class="ed-hint">' + esc(T('ed.palette', 'Tap a colour to leave it out. Add the ones Otto missed.')) + '</p>' + act;
+    case 'logo': return '<label class="check"><input type="checkbox" data-in' + (v.logoWrong ? ' checked' : '') + '><span>' + esc(T('ed.logo1', 'This isn’t our logo.')) + ' <span class="ink-2">' + esc(T('ed.logo2', 'Otto will ask you for the file after setup.')) + '</span></span></label>' + act;
+    case 'language': return '<select class="field" data-in aria-label="' + esc(T('row.language', 'Language')) + '">' + Object.keys(LANG).map(function (c) { return '<option value="' + c + '"' + (c === v.language ? ' selected' : '') + '>' + esc(lname(c)) + '</option>'; }).join('') + '</select><p class="ed-hint">' + esc(T('ed.lang', 'The language Otto writes your posts in.')) + '</p>' + act;
   }
   return act;
 }
@@ -1016,37 +1100,38 @@ $('#rows').addEventListener('keydown', function (e) {
 $('#go3').addEventListener('click', function () { if (open) saveEditor(open); go(3); });
 
 /* ---------- 3 · Four questions ---------- */
-var GOALS = [['sales', 'More sales'], ['leads', 'More leads or bookings'], ['audience', 'A bigger audience'], ['launch', 'Launch something new']];
+var GOALS = [['sales', TK('goal.sales', 'More sales')], ['leads', TK('goal.leads', 'More leads or bookings')], ['audience', TK('goal.audience', 'A bigger audience')], ['launch', TK('goal.launch', 'Launch something new')]];
 function budgets() {
   var c = own(CUR, (S.peek || {}).currency) || '€';
-  return [['not_yet', 'Not yet'], ['under_300', 'Under ' + c + '300'], ['300_1000', c + '300–1,000'], ['1000_3000', c + '1,000–3,000'], ['3000_plus', 'More than ' + c + '3,000']];
+  return [['not_yet', T('budget.none', 'Not yet')], ['under_300', T('budget.under', 'Under {c}300', { c: c })], ['300_1000', T('budget.low', '{c}300–1,000', { c: c })], ['1000_3000', T('budget.mid', '{c}1,000–3,000', { c: c })], ['3000_plus', T('budget.high', 'More than {c}3,000', { c: c })]];
 }
-function radios(name, list, cur) { return list.map(function (o) { return '<label><input type="radio" name="' + name + '" value="' + o[0] + '"' + (o[0] === cur ? ' checked' : '') + '><span>' + esc(o[1]) + '</span></label>'; }).join(''); }
+function lowerFirst(x) { x = String(x || ''); return x.charAt(0).toLowerCase() + x.slice(1); }   /* German nouns keep their capital */
+function radios(name, list, cur) { return list.map(function (o) { return '<label><input type="radio" name="' + name + '" value="' + o[0] + '"' + (o[0] === cur ? ' checked' : '') + '><span>' + esc(typeof o[1] === 'object' ? T(o[1]) : o[1]) + '</span></label>'; }).join(''); }
 RENDER[3] = function () {
   var v = V(), a = S.ans, dg = defaultGoal(v);
   if (!a.goal) a.goal = dg;
   if (!a.budget) a.budget = 'not_yet';
   $('#goal').innerHTML = radios('goal', GOALS, a.goal);
-  $('#goal-hint').innerHTML = a.goal === dg && !a.goalTouched ? 'Suggested from your site: <b>' + esc(GOALS.find(function (g) { return g[0] === dg; })[1].toLowerCase()) + '</b>. Otto plans the month around it.' : 'Otto plans the month around it.';
+  $('#goal-hint').innerHTML = a.goal === dg && !a.goalTouched ? esc(T('goal.suggested', 'Suggested from your site:')) + ' <b>' + esc(lowerFirst(T(GOALS.find(function (g) { return g[0] === dg; })[1]))) + '</b>. ' + esc(T('goal.hint', 'Otto plans the month around it.')) : esc(T('goal.hint', 'Otto plans the month around it.'));
   $('#goal-note').value = a.goal_note || '';
   $('#budget').innerHTML = radios('budget', budgets(), a.budget);
   var obj = $('#objection'), sug = objFor(v.industry);
-  obj.value = a.objection || ''; obj.placeholder = 'For example: “' + sug[0] + '”';
+  obj.value = a.objection || ''; obj.placeholder = T('obj.example', 'For example: “{q}”', { q: sug[0] });
   $('#obj-sug').innerHTML = sug.map(function (s) { return '<button type="button" aria-pressed="' + (obj.value.indexOf(s) > -1) + '">' + esc(s) + '</button>'; }).join('');
   var q = v.quote; $('#q-quote').hidden = !q;
-  if (q) $('#q-quote').innerHTML = '<b>A customer on your site</b>“' + esc(q.slice(0, 200)) + '”';
+  if (q) $('#q-quote').innerHTML = '<b>' + esc(T('obj.customer', 'A customer on your site')) + '</b>“' + esc(q.slice(0, 200)) + '”';
   $('#never').value = a.never_say || '';
   $('#q-guard').hidden = !HEALTH.test(v.industry + ' ' + ((S.peek || {}).title || ''));
   save(true); label4();
 };
 function label4() {
   var a = S.ans, v = V(), any = a.goalTouched || a.budgetTouched || a.goal_note || a.objection || a.never_say;
-  $('#go4').textContent = any ? 'Continue' : 'Continue with the defaults';
+  $('#go4').textContent = any ? T('btn.continue', 'Continue') : T('s3.defaults', 'Continue with the defaults');
   if (a.goal !== defaultGoal(v)) a.goalTouched = true;
 }
 $('#qs').addEventListener('change', function (e) {
   var t = e.target;
-  if (t.name === 'goal') { S.ans.goal = t.value; S.ans.goalTouched = true; $('#goal-hint').textContent = 'Otto plans the month around it.'; }
+  if (t.name === 'goal') { S.ans.goal = t.value; S.ans.goalTouched = true; $('#goal-hint').textContent = T('goal.hint', 'Otto plans the month around it.'); }
   if (t.name === 'budget') { S.ans.budget = t.value; S.ans.budgetTouched = true; if (!S.chTouched.google_ads) S.ch.google_ads = t.value !== 'not_yet'; }
   save(); label4();
 });
@@ -1079,36 +1164,37 @@ RENDER[4] = function () {
   var v = V(), s = v.socials, paid = S.ans.budget && S.ans.budget !== 'not_yet';
   if (!S.chTouched.google_ads) S.ch.google_ads = !!paid;
   var metaFound = [s.instagram, s.facebook].filter(Boolean).map(handle);
-  var np = '<span class="pill">Not connected</span>';
+  if (!S.clangTouched) S.comms_lang = siteLang();   /* what Otto sends you: the site's language until you pick one here */
+  var np = '<span class="pill">' + esc(T('conn.not', 'Not connected')) + '</span>', NEXT = '<b>' + esc(T('conn.next', 'Next:')) + '</b> ';
   $('#conn').innerHTML =
-    '<div class="cc"><span class="cc-ic">' + (S.approvals === 'email' ? G.mail : S.approvals === 'app' ? G.app : G.tg) + '</span><div class="cc-h"><b>How you approve posts</b>' + (S.approvals === 'telegram' ? '<span class="pill">Not paired</span>' : '') + '</div>' +
-      '<p class="cc-d">Posts arrive ready to approve, change or skip with one tap. Nothing goes out without your OK.</p>' +
-      '<div class="cc-how"><div class="cc-ctl is-seg"><span id="appr-l">Approve by</span><div class="seg" role="radiogroup" aria-labelledby="appr-l">' +
-        '<label><input type="radio" name="appr" value="email"' + (S.approvals === 'email' ? ' checked' : '') + '><span>Email</span></label>' +
+    '<div class="cc"><span class="cc-ic">' + (S.approvals === 'email' ? G.mail : S.approvals === 'app' ? G.app : G.tg) + '</span><div class="cc-h"><b>' + esc(T('conn.appr.h', 'How you approve posts')) + '</b>' + (S.approvals === 'telegram' ? '<span class="pill">' + esc(T('conn.notpaired', 'Not paired')) + '</span>' : '') + '</div>' +
+      '<p class="cc-d">' + esc(T('conn.appr.d', 'Posts arrive ready to approve, change or skip with one tap. Nothing goes out without your OK.')) + '</p>' +
+      '<div class="cc-how"><div class="cc-ctl is-seg"><span id="appr-l">' + esc(T('conn.appr.by', 'Approve by')) + '</span><div class="seg" role="radiogroup" aria-labelledby="appr-l">' +
+        '<label><input type="radio" name="appr" value="email"' + (S.approvals === 'email' ? ' checked' : '') + '><span>' + esc(T('conn.email', 'Email')) + '</span></label>' +
         '<label><input type="radio" name="appr" value="telegram"' + (S.approvals === 'telegram' ? ' checked' : '') + '><span>Telegram</span></label>' +
-        '<label><input type="radio" name="appr" value="app"' + (S.approvals === 'app' ? ' checked' : '') + '><span>The app</span></label></div></div>' +
-        '<p>' + (S.approvals === 'telegram' ? '<b>Next:</b> after setup you get a one-time link that opens Otto’s bot in Telegram and pairs your phone. Until then, everything waits in the app.'
-              : S.approvals === 'email' ? 'Each morning at 07:35, one email: what went out yesterday, what it cost and brought in, and the posts due in the next 3 days. Approve or Skip in one tap, Change opens the post in the app. You can switch in Settings.'
-              : 'Everything waits in the app. You can switch to email or Telegram later in Settings.') + '</p>' +
-      '<div class="cc-ctl is-seg"><span id="clang-l">Language for e-mails and reports</span><div class="seg" role="radiogroup" aria-labelledby="clang-l">' +
+        '<label><input type="radio" name="appr" value="app"' + (S.approvals === 'app' ? ' checked' : '') + '><span>' + esc(T('conn.app', 'The app')) + '</span></label></div></div>' +
+        '<p>' + (S.approvals === 'telegram' ? NEXT + esc(T('conn.tg', 'after setup you get a one-time link that opens Otto’s bot in Telegram and pairs your phone. Until then, everything waits in the app.'))
+              : S.approvals === 'email' ? esc(T('conn.mail', 'Each morning at 07:35, one email: what went out yesterday, what it cost and brought in, and the posts due in the next 3 days. Approve or Skip in one tap, Change opens the post in the app. You can switch in Settings.'))
+              : esc(T('conn.inapp', 'Everything waits in the app. You can switch to email or Telegram later in Settings.'))) + '</p>' +
+      '<div class="cc-ctl is-seg"><span id="clang-l">' + esc(T('conn.clang', 'Language for e-mails and reports')) + '</span><div class="seg" role="radiogroup" aria-labelledby="clang-l">' +
         [['en', 'English'], ['nl', 'Nederlands'], ['de', 'Deutsch']].map(function (x) {
           return '<label lang="' + x[0] + '"><input type="radio" name="clang" value="' + x[0] + '"' + ((S.comms_lang || 'en') === x[0] ? ' checked' : '') + '><span>' + x[1] + '</span></label>';
         }).join('') + '</div></div></div></div>' +
-    '<div class="cc"><span class="cc-ic">' + G.ig + '</span><div class="cc-h"><b>Instagram and Facebook</b>' + np + '</div>' +
-      '<p class="cc-d">Posts, stories and reels, and the numbers behind them.</p>' + (metaFound.length ? '<p class="cc-found">Found on your site: ' + esc(metaFound.join(' · ')) + '</p>' : '') +
-      '<div class="cc-how"><div class="cc-ctl"><label class="lbl" for="ch-meta">Plan posts for Instagram and Facebook</label><span class="sw-t"><input type="checkbox" role="switch" id="ch-meta"' + (S.ch.meta ? ' checked' : '') + '><span></span></span></div>' +
-        '<p><b>Next:</b> connect from Otto with Meta’s own sign-in. You choose the Page and the Instagram account; Otto can post and read results, nothing else.</p></div></div>' +
+    '<div class="cc"><span class="cc-ic">' + G.ig + '</span><div class="cc-h"><b>' + esc(T('conn.meta.h', 'Instagram and Facebook')) + '</b>' + np + '</div>' +
+      '<p class="cc-d">' + esc(T('conn.meta.d', 'Posts, stories and reels, and the numbers behind them.')) + '</p>' + (metaFound.length ? '<p class="cc-found">' + esc(T('conn.found', 'Found on your site: {list}', { list: metaFound.join(' · ') })) + '</p>' : '') +
+      '<div class="cc-how"><div class="cc-ctl"><label class="lbl" for="ch-meta">' + esc(T('conn.meta.plan', 'Plan posts for Instagram and Facebook')) + '</label><span class="sw-t"><input type="checkbox" role="switch" id="ch-meta"' + (S.ch.meta ? ' checked' : '') + '><span></span></span></div>' +
+        '<p>' + NEXT + esc(T('conn.meta.next', 'connect from Otto with Meta’s own sign-in. You choose the Page and the Instagram account; Otto can post and read results, nothing else.')) + '</p></div></div>' +
     '<div class="cc"><span class="cc-ic">' + G.ads + '</span><div class="cc-h"><b>Google Ads</b>' + np + '</div>' +
-      '<p class="cc-d">Search ads for people already looking for what you sell.</p>' +
-      '<div class="cc-how"><div class="cc-ctl"><label class="lbl" for="ch-gads">Plan search ads</label><span class="sw-t"><input type="checkbox" role="switch" id="ch-gads"' + (S.ch.google_ads ? ' checked' : '') + '><span></span></span></div>' +
-        '<p>' + (paid ? '<b>Next:</b> connect your Google Ads account with Google’s own sign-in. Otto proposes each campaign; nothing spends before you approve it.' : 'You said no ad budget yet, so this can wait. Switch it on whenever you’re ready.') + '</p></div></div>';
+      '<p class="cc-d">' + esc(T('conn.gads.d', 'Search ads for people already looking for what you sell.')) + '</p>' +
+      '<div class="cc-how"><div class="cc-ctl"><label class="lbl" for="ch-gads">' + esc(T('conn.gads.plan', 'Plan search ads')) + '</label><span class="sw-t"><input type="checkbox" role="switch" id="ch-gads"' + (S.ch.google_ads ? ' checked' : '') + '><span></span></span></div>' +
+        '<p>' + (paid ? NEXT + esc(T('conn.gads.next', 'connect your Google Ads account with Google’s own sign-in. Otto proposes each campaign; nothing spends before you approve it.')) : esc(T('conn.gads.wait', 'You said no ad budget yet, so this can wait. Switch it on whenever you’re ready.'))) + '</p></div></div>';
   S.ch.telegram = S.approvals === 'telegram';
   save(true);
 };
 $('#conn').addEventListener('change', function (e) {
   var t = e.target;
   if (t.name === 'appr') { S.approvals = t.value; S.ch.telegram = t.value === 'telegram'; RENDER[4](); $('#conn input[name=appr]:checked').focus(); }
-  if (t.name === 'clang') S.comms_lang = t.value;     /* what Otto sends you; the posts keep your customers' language */
+  if (t.name === 'clang') { S.comms_lang = t.value; S.clangTouched = true; }     /* what Otto sends you; the posts keep your customers' language */
   if (t.id === 'ch-meta') { S.ch.meta = t.checked; S.chTouched.meta = true; }
   if (t.id === 'ch-gads') { S.ch.google_ads = t.checked; S.chTouched.google_ads = true; }
   save();
@@ -1116,9 +1202,10 @@ $('#conn').addEventListener('change', function (e) {
 $('#go5').addEventListener('click', function () { go(5); submit(); });
 
 /* ---------- 5 · First week: the preview, and setup on the server ---------- */
-var DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'], LONG = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-var MON = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-var FMT = { post: 'Post', carousel: 'Carousel', reel: 'Reel', story: 'Story', video: 'Video' }, PLAT = { ig: 'Instagram', fb: 'Facebook', li: 'LinkedIn' };
+/* days and months in the visitor's language (Intl); the times are the brand's wall clock */
+var dayShort = function (t) { return DT(t, { weekday: 'short' }); }, dayLong = function (t) { return DT(t, { weekday: 'long' }); };
+var dayMonth = function (t) { return DT(t, { day: 'numeric', month: 'short' }); };
+var FMT = { post: TK('fmt.post', 'Post'), carousel: TK('fmt.carousel', 'Carousel'), reel: TK('fmt.reel', 'Reel'), story: TK('fmt.story', 'Story'), video: TK('fmt.video', 'Video') }, PLAT = { ig: 'Instagram', fb: 'Facebook', li: 'LinkedIn' };
 var SLOTS = { 1: ['09:00', '18:00'], 2: ['09:00', '18:00'], 3: ['09:00', '18:00'], 4: ['09:00', '18:00'], 5: ['09:00', '18:00'], 6: ['10:00'], 0: ['09:00'] };
 var MIX = [['education', [.4, .4, .2]], ['coaching', [.4, .4, .2]], ['legal', [.5, .35, .15]], ['saas', [.4, .4, .2]], ['restaurant', [.4, .15, .45]], ['hotel', [.4, .15, .45]], ['fitness', [.35, .2, .45]], ['beauty', [.4, .2, .4]], ['real estate', [.4, .3, .3]], ['e-commerce', [.45, .3, .25]], ['cbd', [.45, .35, .2]]];
 function roundEven(x) { var r = Math.round(x); return Math.abs(x % 1) === 0.5 && r % 2 ? r - 1 : r; }
@@ -1159,57 +1246,90 @@ function serverWeek(res) {
   return { start: start, items: (res.first_week || []).map(function (x) { return { t: wall(x.slot), platform: x.platform, format: x.format, pillar: x.pillar }; }).filter(function (x) { return x.t; }), pillars: res.pillars || [] };
 }
 function hm(t) { return String(t.getHours()).padStart(2, '0') + ':' + String(t.getMinutes()).padStart(2, '0'); }
-function dayWord(t, now) { now = now || new Date(); var a = new Date(now); a.setHours(0, 0, 0, 0); var b = new Date(t); b.setHours(0, 0, 0, 0); var n = Math.round((b - a) / 864e5); return n === 0 ? 'Today' : n === 1 ? 'Tomorrow' : LONG[t.getDay()]; }
+function dayWord(t, now) { now = now || new Date(); var a = new Date(now); a.setHours(0, 0, 0, 0); var b = new Date(t); b.setHours(0, 0, 0, 0); var n = Math.round((b - a) / 864e5); return n === 0 ? T('day.today', 'Today') : n === 1 ? T('day.tomorrow', 'Tomorrow') : dayLong(t); }
+var cap = function (x) { x = String(x || ''); return x.charAt(0).toUpperCase() + x.slice(1); };
 RENDER[5] = function () {
   var v = V(), res = S.submit && S.submit.status === 'ok' ? S.submit.res : null;
   var W7 = res && res.first_week ? serverWeek(res) : localWeek();
   var items = W7.items, posts = items.filter(function (x) { return x.format !== 'story'; }), stories = items.length - posts.length;
   var start = W7.start, first = items.filter(function (x) { return x.t - start <= 48 * 3600e3; });
-  var fd = []; first.forEach(function (x) { var k = LONG[x.t.getDay()]; if (fd.indexOf(k) < 0) fd.push(k); });
-  var firstDays = fd.join(' and ');
+  var fd = []; first.forEach(function (x) { var k = dayLong(x.t); if (fd.indexOf(k) < 0) fd.push(k); });
+  var firstDays = LG ? LG.list(fd) : fd.join(' and ');
   var mail = S.approvals === 'email', when = reviewTime();
-  $('#s5-lead').innerHTML = dayWord(start) + ' at ' + when + ', your first posts ' + (mail ? 'arrive by email' : S.approvals === 'app' ? 'are waiting in the app' : 'are on your phone') + ', ready for a tap. <b>Nothing goes out without your approval.</b>';
-  $('#notif').innerHTML = '<span class="mark" aria-hidden="true"></span><div><b>Otto · ' + esc(res && res.name || v.name) + '</b><span>' + (first.length ? first.length + (first.length === 1 ? ' post' : ' posts') + (mail ? ' to approve by email' : ' ready for review') : 'Your first posts are ready for review') + '</span></div><time>' + esc(dayWord(start)) + ' ' + when + '</time>';
+  $('#s5-lead').innerHTML = esc(cap(mail ? T('s5.lead.mail', '{day} at {time}, your first posts arrive by email, ready for a tap.', { day: dayWord(start), time: when })
+      : S.approvals === 'app' ? T('s5.lead.app', '{day} at {time}, your first posts are waiting in the app, ready for a tap.', { day: dayWord(start), time: when })
+      : T('s5.lead.tg', '{day} at {time}, your first posts are on your phone, ready for a tap.', { day: dayWord(start), time: when }))) +
+    ' <b>' + esc(T('s5.lead.b', 'Nothing goes out without your approval.')) + '</b>';
+  $('#notif').innerHTML = '<span class="mark" aria-hidden="true"></span><div><b>Otto · ' + esc(res && res.name || v.name) + '</b><span>' + esc(first.length ? (mail ? TN('s5.n.mail', first.length, '1 post to approve by email', '{n} posts to approve by email') : TN('s5.n.review', first.length, '1 post ready for review', '{n} posts ready for review')) : T('s5.n.none', 'Your first posts are ready for review')) + '</span></div><time>' + esc(cap(dayWord(start))) + ' ' + when + '</time>';
   // the week strip
   var days = [], d0 = new Date(start); d0.setHours(0, 0, 0, 0);
   for (var j = 0; j < 7; j++) { var x = new Date(d0); x.setDate(d0.getDate() + j); days.push(x); }
-  $('#wk').innerHTML = '<div class="wk-h"><b>What Otto prepares</b><span>' + posts.length + (posts.length === 1 ? ' post' : ' posts') + (stories ? ' · ' + stories + (stories === 1 ? ' story' : ' stories') : '') + ' · ' + days[0].getDate() + ' ' + MON[days[0].getMonth()].slice(0, 3) + ' – ' + days[6].getDate() + ' ' + MON[days[6].getMonth()].slice(0, 3) + '</span></div>' +
+  $('#wk').innerHTML = '<div class="wk-h"><b>' + esc(T('s5.wk.h', 'What Otto prepares')) + '</b><span>' + esc(TN('s5.posts', posts.length, '1 post', '{n} posts')) + (stories ? ' · ' + esc(TN('s5.stories', stories, '1 story', '{n} stories')) : '') + ' · ' + esc(dayMonth(days[0])) + ' – ' + esc(dayMonth(days[6])) + '</span></div>' +
     '<div class="days">' + days.map(function (dy) {
       var its = items.filter(function (x) { return x.t.toDateString() === dy.toDateString(); });
-      return '<div class="day' + (its.length ? '' : ' empty') + '"><span class="dn"><b>' + DAYS[dy.getDay()] + '</b> ' + dy.getDate() + '</span><div class="slots">' + its.map(function (x) {
-        var label = own(FMT, x.format) || x.format;
-        return '<span class="pc ' + esc(x.format) + '" data-band="' + (x.t.getHours() < 11 ? 1 : x.t.getHours() < 15 ? 2 : 3) + '" title="' + esc(label + ' · ' + (own(PLAT, x.platform) || x.platform) + ' · ' + x.pillar) + '"><span>' + hm(x.t) + '</span><em>' + esc(label) + '</em><span class="sr"> on ' + esc(own(PLAT, x.platform) || x.platform) + ', ' + esc(x.pillar) + '</span></span>';
+      return '<div class="day' + (its.length ? '' : ' empty') + '"><span class="dn"><b>' + esc(dayShort(dy)) + '</b> ' + dy.getDate() + '</span><div class="slots" data-empty="' + esc(T('s5.noposts', 'No posts')) + '">' + its.map(function (x) {
+        var f = own(FMT, x.format), label = f ? T(f) : x.format, plat = own(PLAT, x.platform) || x.platform, pil = pillarName(x.pillar);
+        return '<span class="pc ' + esc(x.format) + '" data-band="' + (x.t.getHours() < 11 ? 1 : x.t.getHours() < 15 ? 2 : 3) + '" title="' + esc(label + ' · ' + plat + ' · ' + pil) + '"><span>' + hm(x.t) + '</span><em>' + esc(label) + '</em><span class="sr"> ' + esc(T('s5.on', 'on {platform}, {pillar}', { platform: plat, pillar: pil })) + '</span></span>';
       }).join('') + '</div></div>';
     }).join('') + '</div>' +
-    '<p class="wk-f"><b>Pillars:</b> ' + esc((W7.pillars.length ? W7.pillars : pillarsFor(v.industry)).join(', ')) + '. ' + (res ? 'Slots from your plan on Otto’s server.' : 'Slots are a preview; Otto sets the final hours from when your customers are online.') + '</p>';
+    '<p class="wk-f"><b>' + esc(T('s5.pillars', 'Pillars:')) + '</b> ' + esc((W7.pillars.length ? W7.pillars.map(pillarName) : pillarsFor(v.industry)).join(', ')) + '. ' + esc(res ? T('s5.slots.server', 'Slots from your plan on Otto’s server.') : T('s5.slots.preview', 'Slots are a preview; Otto sets the final hours from when your customers are online.')) + '</p>';
   var metaOn = S.ch.meta;
+  /* {b}…{/b} marks the bold part of a line: the text is escaped first, then only that pair becomes <strong> */
+  var strong = function (x) { return esc(x).replace(/\{b\}/, '<strong>').replace(/\{\/b\}/, '</strong>'); };
+  var firstLine = firstDays ? TN('s5.tl.firstfor', first.length, '{b}1 post for {days}{/b} to approve, change or skip', '{b}{n} posts for {days}{/b} to approve, change or skip', { days: firstDays, b: '{b}', '/b': '{/b}' })
+    : TN('s5.tl.first', first.length, '{b}1 post{/b} to approve, change or skip', '{b}{n} posts{/b} to approve, change or skip', { b: '{b}', '/b': '{/b}' });
   $('#tl').innerHTML = [
-    ['Today', 'Otto reads the rest of <strong>' + esc(S.site || 'your site') + '</strong>, writes your brand profile and plans the month.'],
-    [dayWord(start) + ' ' + when, 'Your first review: <strong>' + first.length + (first.length === 1 ? ' post' : ' posts') + (firstDays ? ' for ' + esc(firstDays) : '') + '</strong> to approve, change or skip' + (S.approvals === 'telegram' ? ', in Telegram once paired (right after the 07:35 morning report), or in the app.' : S.approvals === 'email' ? ', in your 07:35 morning email, or in the app.' : ', in the app.')],
-    S.approvals !== 'app' ? ['Every morning', 'A short report at 07:35' + (mail ? ' by email' : ' in Telegram') + ': what went out, what it cost, what it brought in, and what waits for your tap.'] : ['Every day', 'The app’s Today tab shows what went out and how it did.'],
-    [metaOn ? 'When you connect' : 'Later', metaOn ? 'Approved posts publish to Instagram and Facebook in their slots. Until then they wait for you.' : 'Switch on Instagram and Facebook in Otto whenever you want posts to go out.']
-  ].map(function (r) { return '<li><b>' + r[0] + '</b><span>' + r[1] + '</span></li>'; }).join('');
+    [T('day.today', 'Today'), strong(T('s5.tl.today', 'Otto reads the rest of {b}{site}{/b}, writes your brand profile and plans the month.', { site: S.site || T('s2.yoursite', 'your site'), b: '{b}', '/b': '{/b}' }))],
+    [cap(dayWord(start)) + ' ' + when, strong(T('s5.tl.review', 'Your first review: {line}', { line: firstLine }) + (S.approvals === 'telegram' ? T('s5.tl.tg', ', in Telegram once paired (right after the 07:35 morning report), or in the app.') : S.approvals === 'email' ? T('s5.tl.mail', ', in your 07:35 morning email, or in the app.') : T('s5.tl.app', ', in the app.')))],
+    S.approvals !== 'app' ? [T('s5.tl.every', 'Every morning'), esc(mail ? T('s5.tl.rep.mail', 'A short report at 07:35 by email: what went out, what it cost, what it brought in, and what waits for your tap.') : T('s5.tl.rep.tg', 'A short report at 07:35 in Telegram: what went out, what it cost, what it brought in, and what waits for your tap.'))] : [T('s5.tl.everyday', 'Every day'), esc(T('s5.tl.today.app', 'The app’s Today tab shows what went out and how it did.'))],
+    [metaOn ? T('s5.tl.connect', 'When you connect') : T('s5.tl.later', 'Later'), esc(metaOn ? T('s5.tl.connect.d', 'Approved posts publish to Instagram and Facebook in their slots. Until then they wait for you.') : T('s5.tl.later.d', 'Switch on Instagram and Facebook in Otto whenever you want posts to go out.'))]
+  ].map(function (r) { return '<li><b>' + esc(r[0]) + '</b><span>' + r[1] + '</span></li>'; }).join('');
   renderSetup();
 };
 function renderSetup() {
   var el = $('#setup'), s = S.submit || { status: 'sending' }, v = V();
   el.className = 'setup is-' + (s.status === 'ok' ? 'ok' : s.status === 'local' || s.status === 'exists' ? 'local' : s.status === 'error' ? 'err' : 'work');
-  if (s.status === 'sending') el.innerHTML = '<span class="spin" aria-hidden="true"></span><div><b>Setting up ' + esc(v.name) + '</b>Reading the rest of the site and writing your brand profile. This takes a moment.</div>';
-  else if (s.status === 'ok') { var r = s.res || {}, tr = r.trial || null; el.innerHTML = CK + '<div><b>' + esc(r.name || v.name) + ' is set up</b>' + (r.scan && r.scan.source === 'site' ? N(r.scan.pages) + ' pages read. ' : '') + 'Brand profile, strategy and your answers are saved on Otto’s server.' + (tr ? '<span class="trial-line">' + esc(tr.message || '') + (tr.granted ? '' : ' <a class="link" href="index.html#billing" id="add-card">Add a card</a>') + '</span>' : '') + '</div>'; }
-  else if (s.status === 'exists') el.innerHTML = '<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10.5" width="14" height="10" rx="2.5"/><path d="M8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5"/></svg><div><b>' + esc(S.site) + ' is already set up with Otto</b>' + (s.signedIn ? 'It belongs to another sign-in. Ask whoever set it up to add you.' : 'Sign in to Otto to change it.') + ' Your answers are still on this device.</div>';
-  else if (s.status === 'local') el.innerHTML = '<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="3.5" width="12" height="17" rx="2.5"/><path d="M10.5 17.5h3"/></svg><div><b>Saved on this device</b>Otto will finish setup when you connect.' + (s.detail ? ' <span class="ink-3">' + esc(s.detail) + '</span>' : '') + '</div>';
-  else el.innerHTML = '<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5v5.5M12 16.2v.3"/></svg><div><b>Otto couldn’t save this</b>' + esc(s.detail || 'Something went wrong.') + ' Your answers are still on this device.<br><button class="btn btn-quiet btn-sm" type="button" id="retry">Try again</button></div>';
+  if (s.status === 'sending') el.innerHTML = '<span class="spin" aria-hidden="true"></span><div><b>' + esc(T('setup.sending', 'Setting up {name}', { name: v.name })) + '</b>' + esc(T('setup.sending.d', 'Reading the rest of the site and writing your brand profile. This takes a moment.')) + '</div>';
+  else if (s.status === 'ok') { var r = s.res || {}, tr = r.trial || null; el.innerHTML = CK + '<div><b>' + esc(T('setup.ok', '{name} is set up', { name: r.name || v.name })) + '</b>' + (r.scan && r.scan.source === 'site' ? esc(TN('setup.pages', N(r.scan.pages), '1 page read.', '{n} pages read.')) + ' ' : '') + esc(T('setup.ok.d', 'Brand profile, strategy and your answers are saved on Otto’s server.')) + (tr ? '<span class="trial-line">' + esc(trialText(tr)) + (tr.granted ? '' : ' <a class="link" href="index.html#billing" id="add-card">' + esc(T('setup.addcard', 'Add a card')) + '</a>') + '</span>' : '') + '</div>'; }
+  else if (s.status === 'exists') el.innerHTML = '<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10.5" width="14" height="10" rx="2.5"/><path d="M8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5"/></svg><div><b>' + esc(T('setup.exists', '{site} is already set up with Otto', { site: S.site })) + '</b>' + esc(s.signedIn ? T('setup.exists.other', 'It belongs to another sign-in. Ask whoever set it up to add you.') : T('setup.exists.signin', 'Sign in to Otto to change it.')) + ' ' + esc(T('setup.still', 'Your answers are still on this device.')) + '</div>';
+  else if (s.status === 'local') el.innerHTML = '<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="3.5" width="12" height="17" rx="2.5"/><path d="M10.5 17.5h3"/></svg><div><b>' + esc(T('bar.saved', 'Saved on this device')) + '</b>' + esc(T('setup.local', 'Otto will finish setup when you connect.')) + (s.detail ? ' <span class="ink-3">' + esc(s.detail === 'site' ? T('setup.local.site', 'Add your website address in step 1 first.') : s.detail) + '</span>' : '') + '</div>';
+  else el.innerHTML = '<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5v5.5M12 16.2v.3"/></svg><div><b>' + esc(T('setup.err', 'Otto couldn’t save this')) + '</b>' + esc(errText(s.detail)) + ' ' + esc(T('setup.still', 'Your answers are still on this device.')) + '<br><button class="btn btn-quiet btn-sm" type="button" id="retry">' + esc(T('setup.retry', 'Try again')) + '</button></div>';
   var rb = $('#retry'); if (rb) rb.addEventListener('click', function () { submit(true); });
+}
+/* the trial line: the server's English sentence, or the same facts in the visitor's language */
+var DENIED = { off: TK('trial.off', 'Free trials are not available right now.'), email: TK('trial.email', 'This Google account already had its free trial.'),
+  domain: TK('trial.domain', 'This website already had a free trial.'), ended: TK('trial.ended', 'Your free trial has ended.'), one_brand: TK('trial.one', 'The free trial covers one business.') };
+function trialText(tr) {
+  if (siteLang() === 'en') return tr.message || '';
+  if (tr.granted) {
+    var end = tr.ends_at ? new Date(tr.ends_at) : null;
+    return end && !isNaN(end) ? T('trial.until', 'Your free trial runs until {when}. No card needed until then.', { when: DT(end, { weekday: 'short', day: 'numeric', month: 'short' }) + ', ' + hm(end) }) : (tr.message || '');
+  }
+  return T(own(DENIED, tr.why) || DENIED.ended) + ' ' + T('trial.addcard', 'Add a card to start.');
+}
+/* the server's reasons are English sentences; the ones a visitor can cause here are said in their language */
+var SERVER_ERR = { 'that website address does not exist (check the spelling)': TK('err.nosite', 'That website address does not exist (check the spelling).'),
+  'that is not a website address Otto can read (use the public address, like example.com)': TK('err.unreadable', 'That is not a website address Otto can read (use the public address, like example.com).'),
+  'the website address needs a domain, like example.com': TK('err.domain', 'The website address needs a domain, like example.com.'),
+  'Fonts must be font names, like Inter or Playfair Display': TK('err.fonts', 'Fonts must be font names, like Inter or Playfair Display.'),
+  'Colours must be hex codes like #2F5D50': TK('err.colours', 'Colours must be hex codes like #2F5D50.') };
+function errText(detail) {
+  if (!detail) return T('setup.wrong', 'Something went wrong.');
+  var raw = String(detail.raw || detail), k = own(SERVER_ERR, raw);
+  if (k) return T(k);
+  if (raw === 'refused') return T('setup.refused', 'The server refused the answers.');
+  return raw.replace(/^./, function (c) { return c.toUpperCase(); }).replace(/\.?$/, '.');
 }
 function payload() {
   var a = S.ans, tz = ''; try { tz = Intl.DateTimeFormat().resolvedOptions().timeZone || ''; } catch (e) {}
+  if (!S.clangTouched) S.comms_lang = siteLang();
   return { site: S.site, answers: { goal: a.goal, goal_note: a.goal_note, budget: a.budget, objection: a.objection, never_say: a.never_say, tz: tz,
     corrections: S.cor, channels: { meta: !!S.ch.meta, google_ads: !!S.ch.google_ads, telegram: S.approvals === 'telegram' }, approvals: S.approvals,
     comms_lang: S.comms_lang || 'en' } };
 }
 var sending = false;
 async function submit(force) {
-  if (!S.site || sending) { if (!S.site) { S.submit = { status: 'local', detail: 'Add your website address in step 1 first.' }; renderSetup(); } return; }
+  if (!S.site || sending) { if (!S.site) { S.submit = { status: 'local', detail: 'site' }; renderSetup(); } return; }
   var body = JSON.stringify(payload());
   if (!force && S.submit && S.submit.status === 'ok' && S.submit.body === body) { renderSetup(); return; }
   sending = true; S.submit = { status: 'sending' }; renderSetup();
@@ -1228,7 +1348,7 @@ async function submit(force) {
       }
       if (res.ok && json && json.ok) out = { status: 'ok', res: json, body: body };
       else if (res.status === 409 && json) out = { status: 'exists', signedIn: ONBOARD[Math.min(u, ONBOARD.length - 1)] === '/otto-api/onboard' };
-      else if (res.status === 400 && json) out = { status: 'error', detail: String(json.error || 'The server refused the answers.').replace(/^./, function (c) { return c.toUpperCase(); }).replace(/\.?$/, '.') };
+      else if (res.status === 400 && json) out = { status: 'error', detail: { raw: String(json.error || 'refused') } };
       else if ((res.status === 429 || res.status === 503) && attempt < 2) { await backoff(res.status === 429 ? 21000 : 4000); continue; }
       else out = { status: 'local' };
     } catch (e) { out = { status: 'local' }; }
@@ -1254,11 +1374,15 @@ function gate(on) {
   $('#s0').hidden = !on;
   if (on) $$('.st').forEach(function (s) { if (s.id !== 's0') s.hidden = true; });
   $('#rail').hidden = on; $('#prog').hidden = on;
-  $('#bar-count').textContent = on ? 'Free trial' : 'Step ' + S.step + ' of 5';
-  var nxt = location.pathname + (S.site ? '?site=' + encodeURIComponent(S.site) : location.search);
-  $('#gsi').href = '/auth/google/start?next=' + encodeURIComponent(nxt);
-  $('#s0-site').textContent = S.site ? 'Then Otto reads ' + S.site + ' and sets up your first week.' : '';
+  gateText();
   if (on) { W.scrollTo(0, 0); $('#s0-h').focus({ preventScroll: true }); }
+}
+function gateText() {          /* the sign-in screen's own words; again after a language switch (focus stays put) */
+  $('#bar-count').textContent = GATED ? T('bar.trial', 'Free trial') : T('bar.count', 'Step {n} of 5', { n: S.step });
+  var nxt = location.pathname + (S.site ? '?site=' + encodeURIComponent(S.site) : location.search);
+  if (LG) nxt = LG.carry(nxt);                /* back from Google in the same language */
+  $('#gsi').href = '/auth/google/start?next=' + encodeURIComponent(nxt);
+  $('#s0-site').textContent = S.site ? T('s0.then', 'Then Otto reads {site} and sets up your first week.', { site: S.site }) : '';
 }
 (async function authCheck() {
   var me = null;
@@ -1272,10 +1396,23 @@ function gate(on) {
   if (me.google && !me.signed_in) return gate(true);
   if (me.signed_in && me.email) {
     var t = me.trial || {}, a = $('#acct');
-    a.textContent = me.email + (t.state === 'running' ? ' · ' + N(t.days_left) + (N(t.days_left) === 1 ? ' day' : ' days') + ' left in your trial' : '');
+    ME = { email: me.email, running: t.state === 'running', days: N(t.days_left) };
+    acctText();
     a.hidden = false;
   }
 })();
+var ME = null;
+function acctText() { if (ME) $('#acct').textContent = ME.email + (ME.running ? ' · ' + TN('bar.days', ME.days, '1 day left in your trial', '{n} days left in your trial') : ''); }
+
+/* ---------- another language picked (bar, footer): say again what this script wrote ---------- */
+if (LG) LG.on(function () {
+  railLabels(); acctText();
+  if (GATED) { gateText(); return; }
+  if (open) { open = null; }
+  if (RENDER[S.step]) RENDER[S.step]();
+  chrome();
+  if (S.step === 5) renderSetup();
+});
 
 /* ---------- start ---------- */
 var start = HASH.indexOf(location.hash.slice(1)) + 1;
