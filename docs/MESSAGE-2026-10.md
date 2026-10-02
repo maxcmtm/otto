@@ -5,6 +5,11 @@ marketing, let Otto take your marketing to the next level. Stop paying agencies 
 Show the daily ads reports and the kinds of organic posts we make." This page is the single source for the landing page and
 every ad. English everywhere (NL/DE only as the site's translation option).
 
+Max, later the same day: "I liked the copywriting before too — it should talk marketing, not only paid ads; a combination
+of both." So the story is the whole marketing department (organic posts, reels and stories every week + paid campaigns + the
+07:35 report), with the earlier lines kept where they work. Roughly half of what the page and the ads show is organic content,
+half paid ads and campaigns.
+
 ## The promise
 
 **Automate your marketing.** Otto plans, writes, designs and posts your social media and runs your ads. You approve each
