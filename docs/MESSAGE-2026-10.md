@@ -20,12 +20,12 @@ post with one tap, and every morning at 07:35 you see what your ads cost and wha
 | # | Pillar | Lines to build from (adapt, keep the meaning) | Show |
 |---|---|---|---|
 | 1 | **Automate your marketing** | "Automate your marketing. Run your business." · "Your marketing runs itself. You approve with one tap." · "Posts, reels, stories and ads, done for you." | The month planned in the app; the approve tap |
-| 2 | **Stop paying agency prices** | "Agencies charge €500–1,500 a month just for posts. Otto does posts and ads from €79." · "Agency results, without the agency invoice." · "Your own marketing team for €79 a month." | Side by side: agency vs Otto (price, speed, who approves) |
+| 2 | **Stop paying agency prices** | "Agencies charge €500–1,500 a month just for posts. Otto does your posts and ads for €79 a month." · "Agency results, without the agency invoice." · "Your own marketing team for €79 a month." | Side by side: agency vs Otto (price, speed, who approves) |
 | 3 | **Launch without worrying about marketing** | "Launching a business? Marketing is handled from day one." · "You open the doors. Otto handles the posts and the ads." | New business: first week ready within 24 hours |
 | 4 | **The daily ads report** | "Every morning at 07:35: what your ads cost and what they brought in." · "One message. Spend, clicks, enquiries. Approve, pause, done." | The 07:35 report on a phone (labelled "Sample") |
 | 5 | **The posts we make** | "Carousels, reels, stories, offers, reviews, how-tos — made from your own website, in your brand." | A gallery of post types in phone frames (labelled "Sample post") |
 | 6 | **Take your marketing to the next level** | "Take your marketing to the next level." · "From posting when you remember, to a plan that runs every day." | Before/after: random posting vs a planned month |
-| 7 | **The offer** | "7 days free. No card. Then from €79 a month." · "Cancel anytime." | Trial card; price line |
+| 7 | **The offer** | "7 days free. No card. Then €79 a month." · "Cancel anytime." | Trial card; price line |
 
 ## Facts the copy may use (and only these)
 
