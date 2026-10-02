@@ -43,11 +43,11 @@ on it. Sources are listed in §13.
 |---|---|---|---|
 | 1 | Consent banner live, `/otto-track` CAPI path deployed, `meta-capi.json` on the server, a test event seen in Events Manager | Dutch DPA cookie enforcement (EU §8); the campaign optimises on Lead | Done in code (§5.4); Max for Meta setup |
 | 2 | Domain bought, production on the Hetzner box, `OTTO_ALLOWED_ORIGINS` set | HOSTING.md: not on a shared box with paying customers | Max |
-| 3 | Landing FAQ lists **Dutch** as a content language (today it says English, German, Hebrew) | The NL ads promise Dutch | Landing owner |
-| 4 | E-mail approvals working for NL/IE trials (the landing now promises e-mail, Telegram or app) | 98 % of Dutch people use messaging, Telegram is a minority (EU §6.2) | Product |
+| 3 | ~~Landing FAQ lists **Dutch** as a content language~~ **Done 30.09** | The NL ads promise Dutch | Done |
+| 4 | ~~E-mail approvals working for NL/IE trials~~ **Done 1.10** (otto_email; needs a mail service on the server: Postmark, Resend or SMTP in `email.json`) | 98 % of Dutch people use messaging, Telegram is a minority (EU §6.2) | Done in code; Max for the mail service |
 | 5 | ~~The 07:35 report and approval cards in Dutch for Dutch brands~~ **Done 1.10:** the 07:35 report goes out by e-mail and Telegram; English by default, Dutch or German when the client chooses it (`brands[].comms_lang`). The NL ads should say the language is a choice | Our NL "7:35" ads show the message in Dutch | Done |
-| 6 | **Whop monthly plans (Starter, Growth) in EUR** with iDEAL and SEPA on and "collect and remit" tax mode — the trial's "add a card" screen needs them (`plans.json` trial → checkout_plans), otherwise no trial can convert; keep the founding plan | EU §8; without it the funnel ends at the trial | Max |
-| 6b | **One call in the trial sign-up:** `otto_track.capi_track("trial_start", ip, request.headers, path="/", ref=<account id>, method="google")` where the trial is created (`otto_trial` / `otto_auth`), so Meta can optimise on real trial starts | §5.4 | Auth/trial engineer |
+| 6 | **Stripe prices (Starter, Growth) in EUR** with cards, SEPA, iDEAL and Bancontact on and Stripe Tax set up (docs/BILLING.md; Whop is no longer used for new customers) — the trial's "add a card" screen needs them (`plans.json` stripe_price_ids), otherwise no trial can convert | EU §8; without it the funnel ends at the trial | Max |
+| 6b | ~~The trial start reaches Meta~~ **Done 1.10:** the Google sign-up sends CompleteRegistration and the first trial brand sends StartTrial (otto_api → otto_track.capi_track) | §5.4 | Done |
 | 7 | Dutch native review of the NL matrix and the NL landing copy | EU §8: the team cannot judge Dutch copy | Dutch reviewer |
 | 8 | Lawyer review of the updated cookie and privacy notices (Meta joint controllership) | Drafts, clearly marked | Max |
 
@@ -525,11 +525,11 @@ Where each number comes from: first-party analytics in the owner console (`/otto
 | 2 | **Dataset (pixel) + Conversions API token** | Create a dataset in Events Manager (its id is the `pixel_id`); a system user with access to it and a generated token; write `$OTTO_SECRETS/meta-capi.json` = `{"pixel_id": "…", "access_token": "…", "test_event_code": "TEST…", "site_url": "https://<domain>"}` (chmod 600); run `python3 otto_track.py capi-status`, then `capi-test`; see the event under Test events; **remove `test_event_code`** | 28 Oct |
 | 3 | **Budget and price approval** | €3,000 media + €900 creators + €300 Dutch reviewer ≈ €4,200 for November; month 2 only on the §2.4 rule. Approve the draft monthly prices (Starter €99, Growth €249) so trials can convert | 23 Oct |
 | 4 | Domain + Hetzner move | docs/HOSTING.md; set `OTTO_ALLOWED_ORIGINS`; the CAPI `event_source_url` uses the Origin | 28 Oct |
-| 5 | Whop | **Starter and Growth monthly plans in EUR** (the trial's checkout; prices need Max's approval first), founding plan kept, iDEAL + SEPA on, collect-and-remit tax mode | 28 Oct |
+| 5 | Stripe | Selling entity (Israel is not supported), account, Stripe Tax, **Starter and Growth prices in EUR** (after the price approval), webhook, keys — docs/BILLING.md "What Max sets up in Stripe" | 28 Oct |
 | 6 | **LinkedIn** | Max's profile (headline "Building Otto: the marketing department for small businesses in NL and IE"), banner made with Otto; the Otto company page; schedule §6.1 | 30 Oct |
 | 7 | Creators | Ask the first trial users and customers; €150 each for two takes + a free month; signed release (template from the lawyer); partnership-ad permission in Meta | day 7–14 |
 | 8 | Dutch reviewer | ~6 h: the NL matrix, `landing-nl-copy.md`, then each weekly refresh | 23 Oct |
-| 9 | Product fixes (§1.2) | Landing FAQ adds Dutch; e-mail approvals live; Dutch 07:35 report strings (or run the IE texts video in NL); the one `capi_track("trial_start", …)` call in the trial sign-up | 30 Oct |
+| 9 | ~~Product fixes (§1.2)~~ | **Done 1.10:** FAQ lists Dutch, e-mail approvals, the 07:35 report in English / Dutch / German, StartTrial to Meta | — |
 | 10 | Legal | Lawyer review of cookies/privacy (Meta joint controllership, consent), creator release, the creator row in privacy.md | 30 Oct |
 | 11 | Partners | Approve (or not) the outreach in §7.4; nothing happens without it | day 30 |
 
