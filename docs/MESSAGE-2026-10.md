@@ -29,7 +29,7 @@ post with one tap, and every morning at 07:35 you see what your ads cost and wha
 
 ## Facts the copy may use (and only these)
 
-- Price: **from €79 a month** (Starter, excl. VAT; yearly = 10 months). Other plans are not public yet; never show their prices.
+- Price: **€79 a month**, a monthly subscription (Starter, excl. VAT): no yearly plan, no contract, cancel anytime. Other plans are not public yet; never show their prices.
 - Free trial: 7 days, sign in with Google, no card; nothing is charged unless the client chooses a plan.
 - Cancel anytime: the client cancels on Otto's Billing page; the plan runs to the end of the paid period.
 - Agency prices (research/EU-LAUNCH-AND-PRICING-2026-09.md §3.4, public 2026 price lists): Netherlands €500–1,500 a month for
