@@ -1,0 +1,37 @@
+{
+  "id": "ie-a3-notes-v",
+  "style": "notes",
+  "formats": [
+    "9x16",
+    "4x5"
+  ],
+  "music": {
+    "bpm": 120,
+    "mood": "calm",
+    "key": "F"
+  },
+  "scene": {
+    "ground": "primary"
+  },
+  "note": {
+    "meta": "Tuesday, 10:15 PM",
+    "title": "Words my customers never use",
+    "struck": [
+      "awesome",
+      "y'all",
+      "super stoked"
+    ],
+    "keep": "just: new this week, in Limerick"
+  },
+  "endcard": {
+    "headline": "Sounds like your business.",
+    "accent": "your business.",
+    "sub": "Posts, reels and ads in Irish English.",
+    "fine": "Otto writes for your town and your customers.",
+    "products": [
+      "review_ie"
+    ],
+    "logo": "logo",
+    "ground": "bg"
+  }
+}

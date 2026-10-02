@@ -1,0 +1,44 @@
+{
+  "id": "nl-a1-big-v",
+  "style": "big",
+  "formats": [
+    "9x16"
+  ],
+  "music": {
+    "bpm": 120,
+    "mood": "punchy",
+    "key": "C"
+  },
+  "scene": {
+    "ground": "primary"
+  },
+  "big": {
+    "hero": "review_nl_en",
+    "phrases": [
+      {
+        "big": "0 evenings",
+        "rest": "spent filming."
+      },
+      {
+        "big": "0 hours",
+        "rest": "spent editing."
+      },
+      {
+        "big": "1 tap",
+        "rest": "to approve the reel.",
+        "product": "review_nl_en"
+      }
+    ]
+  },
+  "endcard": {
+    "headline": "Reels, without the filming.",
+    "accent": "without the filming.",
+    "sub": "Made from your own website.",
+    "fine": "Try it free for 7 days, no card needed.",
+    "products": [
+      "review_nl_en"
+    ],
+    "logo": "logo",
+    "ground": "bg"
+  }
+}

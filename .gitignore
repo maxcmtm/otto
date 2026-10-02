@@ -77,3 +77,9 @@ demo/gruns/gruns-reel.mp4
 
 # full-resolution video ads (web copies live in demo/gruns/page/video/)
 demo/gruns/video-ads/
+
+# launch kits: the rendered creatives and import media live on disk (≈200 MB per month), not in git —
+# launch/<month>/render.py rebuilds them from brands/otto/ads-<month>-*.json
+launch/*/creatives/
+launch/*/import/media/
+launch/*/sheets/

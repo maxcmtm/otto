@@ -1,0 +1,52 @@
+{
+  "id": "nl-a5-texts-v",
+  "style": "texts",
+  "formats": [
+    "9x16",
+    "4x5"
+  ],
+  "music": {
+    "bpm": 120,
+    "mood": "calm",
+    "key": "C"
+  },
+  "scene": {
+    "ground": "wash"
+  },
+  "thread": {
+    "name": "Otto",
+    "initial": "O",
+    "avatar": "brand",
+    "stamp": "Today 10:12",
+    "placeholder": "Message",
+    "messages": [
+      {
+        "from": "me",
+        "text": "What happens after the 7 days?"
+      },
+      {
+        "from": "them",
+        "text": "You get an e-mail two days before the end. Pick a plan and everything carries on."
+      },
+      {
+        "from": "me",
+        "text": "And if I do nothing?"
+      },
+      {
+        "from": "them",
+        "text": "Then it stops. Nothing is charged."
+      }
+    ]
+  },
+  "endcard": {
+    "headline": "7 days free.",
+    "accent": "free.",
+    "sub": "First posts within 24 hours.",
+    "fine": "No card needed. One trial per business.",
+    "products": [
+      "month"
+    ],
+    "logo": "logo_white",
+    "ground": "primary"
+  }
+}

@@ -1,0 +1,56 @@
+{
+  "id": "nl-a2-texts-v",
+  "style": "texts",
+  "formats": [
+    "9x16",
+    "4x5"
+  ],
+  "music": {
+    "bpm": 120,
+    "mood": "calm",
+    "key": "C"
+  },
+  "scene": {
+    "ground": "wash"
+  },
+  "thread": {
+    "name": "Otto",
+    "initial": "O",
+    "avatar": "brand",
+    "stamp": "Sample · Today 07:35",
+    "placeholder": "Message",
+    "messages": [
+      {
+        "from": "them",
+        "text": "Good morning. Yesterday: €18 on ads, 4 enquiries."
+      },
+      {
+        "from": "them",
+        "text": "Best ad: the reel about your new collection."
+      },
+      {
+        "from": "them",
+        "text": "3 posts for this week are ready. Want a look?"
+      },
+      {
+        "from": "me",
+        "text": "Yes, show me"
+      },
+      {
+        "from": "them",
+        "text": "Here they are. Tap approve or ask for a change."
+      }
+    ]
+  },
+  "endcard": {
+    "headline": "Know by 07:35.",
+    "accent": "07:35",
+    "sub": "What it cost, what came in, what's waiting.",
+    "fine": "Sample message. You pay Meta directly for your ads.",
+    "products": [
+      "pack"
+    ],
+    "logo": "logo_white",
+    "ground": "primary"
+  }
+}

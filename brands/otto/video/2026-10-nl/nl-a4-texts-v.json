@@ -1,0 +1,56 @@
+{
+  "id": "nl-a4-texts-v",
+  "style": "texts",
+  "formats": [
+    "9x16",
+    "4x5"
+  ],
+  "music": {
+    "bpm": 120,
+    "mood": "calm",
+    "key": "C"
+  },
+  "scene": {
+    "ground": "wash"
+  },
+  "thread": {
+    "name": "Otto",
+    "initial": "O",
+    "avatar": "brand",
+    "stamp": "Sample · Today 08:14",
+    "placeholder": "Message",
+    "messages": [
+      {
+        "from": "them",
+        "text": "Good morning. This week's posts are ready: 3 posts and a reel."
+      },
+      {
+        "from": "me",
+        "text": "Busy in the shop till 6"
+      },
+      {
+        "from": "them",
+        "text": "No rush. I'll remind you before the first one is due."
+      },
+      {
+        "from": "me",
+        "text": "All approved"
+      },
+      {
+        "from": "them",
+        "text": "Thanks. The first one goes out Thursday at 12:00."
+      }
+    ]
+  },
+  "endcard": {
+    "headline": "You run it. Otto posts.",
+    "accent": "Otto posts.",
+    "sub": "Approve from your phone, when it suits you.",
+    "fine": "Try it free for 7 days, no card needed.",
+    "products": [
+      "review_nl_en"
+    ],
+    "logo": "logo_white",
+    "ground": "primary"
+  }
+}

@@ -1,6 +1,12 @@
-# Otto go-to-market: the Netherlands and Ireland (launch: November 2026)
+# Otto go-to-market: the Netherlands and Ireland (launch: Saturday 3 October 2026)
 
 Date: 2026-09-30 · Author: Claude Code (head of growth pass) · Decision owner: Max · Status: plan, ready for decision
+**Update 2026-10-02 (launch pass):** the paid launch moved forward to **Saturday 3 October 2026** (was Monday 2 November).
+**Both markets run English ads** (Max's rule: English is the main language; NL/DE are a translation option on the site).
+The Dutch-language ad variants are kept only as an optional later test. The ads show no prices. Budget and pacing below are
+for October. The launch kit (matrices, renders, Ads Manager import files, the 15-minute upload steps, the day-3 and day-7
+decisions) is in `launch/2026-10/`; start with its `README.md`. The organic, event and partner sections (§6, §7) keep
+their November dates.
 Builds on: `research/EU-LAUNCH-AND-PRICING-2026-09.md` (§1, §5.3, §6.5, §7, §8), `research/COMPETITORS-2026-09.md` (§3–§6),
 `docs/HOSTING.md`, `docs/COMPLIANCE-BASELINES.md`. Nothing in this plan has been sent, published, launched or paid for.
 
@@ -13,17 +19,17 @@ on it. Sources are listed in §13.
 
 | Question | Answer |
 |---|---|
-| What we sell in November | What the landing sells today (changed on 30.09): a **free 7-day trial** (Google sign-in, no card, nothing charged automatically; first posts within 24 hours), with the **founding pilot, €197 once** as the pay-once alternative. After the trial: a monthly plan (Starter €99 / Growth €249, still drafts awaiting Max's approval). |
-| Where | **Netherlands** (Dutch ads, written natively) and **Ireland** (Irish English), launched together on Monday 2 November 2026. Flanders joins as a Dutch spillover once NL is on target (§3.6). |
-| Test budget | **€50 a day per country for 30 days = €3,000 media**, plus €900 for six creator-owners and about €300 for a Dutch native reviewer. **Total ≈ €4,200.** |
-| Campaign structure | Per market: **one campaign with Advantage+ campaign budget** (formerly CBO), **one ad set per concept (6)**, optimising for the **Lead** event (the scan result, via the Conversions API). Broad + Advantage+ audience with a vertical interest stack as suggestions. |
-| Creative | Per market **37 ads: 6 concepts × 6–7 styles, 19 video (51 %)**: 18 image cells (all rendered and reviewed), 13 faceless videos (4 rendered per market, 9 scripted), 6 founder-led creator videos (briefs ready, real owners). |
+| What we sell from 3 October | What the landing sells today (changed on 30.09): a **free 7-day trial** (Google sign-in, no card, nothing charged automatically; first posts within 24 hours), with the **founding pilot, €197 once** as the pay-once alternative on the landing. After the trial: a monthly plan (Starter €99 / Growth €249, still drafts awaiting Max's approval). **The ads sell the free trial only and show no prices** until Max approves them. |
+| Where | **Netherlands** (English ads written for Dutch small businesses) and **Ireland** (Irish English), launched together on **Saturday 3 October 2026**. The earlier date was 2 Nov. The Dutch-language NL ads (`ads-2026-11-nl.json`) are kept only as an optional later test. Flanders joins as a spillover once NL is on target (§3.6). |
+| Test budget | **€50 a day per country (€100/day) for 30 days, 3 Oct – 1 Nov = €3,000 media**. Creator-owners (€900) join from week 2–3 at the earliest, once real customers exist. The Dutch reviewer (about €300) is now needed only for the site's Nederlands strings and a later Dutch ad test. **Total ≈ €3,000–4,200.** |
+| Campaign structure | Per market: **one Leads campaign with Advantage+ campaign budget** (formerly CBO) and **one ad set per concept (6)**. It optimises for **CompleteRegistration**: the Google sign-up, i.e. the trial start, server-confirmed and sent through the Conversions API. **Lead** (scan result) is the fallback (`launch/2026-10/README.md` §4). Broad + Advantage+ audience, with a vertical interest stack as suggestions. |
+| Creative | October launch, per market: **36 English ads, 6 concepts × 6 cells, 18 video (50 %)**. That is 18 statics (4:5, plus 9:16 and 1:1 where the template has them) and 18 faceless videos, all rendered and reviewed (`launch/2026-10/`). No creator cells at launch: the founder-led creator videos (briefs ready, real owners only) join later. |
 | Funnel targets (§5.3) | CTR ≥ 0.8 % · CPC ≤ €1.30 · 20 % of visitors scan · **≤ €8 per scan result** · ≤ €30 per trial start · 18–25 % of trials pay · **plan €150–300 per paying customer**. |
 | What €3,000 should buy | **~100 trial starts and 10–20 paying customers** (plan, EU §5.3); the funnel midpoint allows ~25. Payback 1.8–3.5 months on a monthly plan. |
 | Measurement | Privacy-first: a consent banner (reject = accept), first-party cookieless analytics for everything, and Meta only through the server-side Conversions API for visitors who pressed Accept. Shipped in this pass (§5.4). |
 | Organic | A 30-day founder LinkedIn plan (English: 22 weekday posts, 4 light Saturday posts, 4 engagement Sundays), tied to real NL/IE events (§6). |
 | Partners | 20 web/Shopify agencies per country, from public directories, for the Agency plan. **Nobody has been contacted** (§7). |
-| Dutch landing | Recommended before NL spend passes €50/day; the Dutch copy is written for review: `platform/landing-nl-copy.md` (§8). |
+| Site language | English for everyone, including the NL ad traffic (the NL ads run in English); Nederlands and Deutsch are an option the visitor picks on the landing and in onboarding, never automatic, pending native review (§8). |
 | Max's decisions | Approve the €4,200 and the monthly prices (trials need a plan to convert); set up Meta (ad account, dataset, CAPI token); Starter/Growth on Whop; buy the domain and move to Hetzner; LinkedIn; recruit creators; hire the Dutch reviewer; approve partner outreach (§11). |
 
 ---
@@ -48,7 +54,7 @@ on it. Sources are listed in §13.
 | 5 | ~~The 07:35 report and approval cards in Dutch for Dutch brands~~ **Done 1.10:** the 07:35 report goes out by e-mail and Telegram; English by default, Dutch or German when the client chooses it (`brands[].comms_lang`). The NL ads should say the language is a choice | Our NL "7:35" ads show the message in Dutch | Done |
 | 6 | **Stripe prices (Starter, Growth) in EUR** with cards, SEPA, iDEAL and Bancontact on and Stripe Tax set up (docs/BILLING.md; Whop is no longer used for new customers) — the trial's "add a card" screen needs them (`plans.json` stripe_price_ids), otherwise no trial can convert | EU §8; without it the funnel ends at the trial | Max |
 | 6b | ~~The trial start reaches Meta~~ **Done 1.10:** the Google sign-up sends CompleteRegistration and the first trial brand sends StartTrial (otto_api → otto_track.capi_track) | §5.4 | Done |
-| 7 | Dutch native review of the NL matrix and the NL landing copy | EU §8: the team cannot judge Dutch copy | Dutch reviewer |
+| 7 | Dutch native review of the NL matrix and of the site's Nederlands strings (`platform/assets/i18n/*.nl.json`); a German check of `*.de.json` before anything links to them | EU §8: the team cannot judge Dutch or German copy | Dutch reviewer |
 | 8 | Lawyer review of the updated cookie and privacy notices (Meta joint controllership) | Drafts, clearly marked | Max |
 
 ### 1.3 The offer changed to a free trial (30.09) — what that means for the ads
@@ -58,27 +64,33 @@ The landing's CTAs became "Start free 7-day trial" with Google sign-in while thi
   - NL: "Probeer Otto 7 dagen gratis. Daarna €99 per maand, excl. btw, maandelijks opzegbaar." · "7 dagen gratis, daarna €99 per maand excl. btw" · "Log in met Google en je eerste posts staan binnen 24 uur klaar om goed te keuren."
   - IE: "Try Otto free for 7 days. Then €99 a month, excl. VAT, cancel any month." · "7 days free, then €99 a month excl. VAT" · "Sign in with Google and your first posts are ready for your approval within 24 hours."
 - Measurement needs no rework: every "get started / start trial / sign up" CTA click already maps to **InitiateCheckout**, and the server that completes a sign-up calls `otto_track.capi_track("signup" | "trial_start", …)` → **CompleteRegistration / StartTrial** (§5.4). Switch the campaign's optimisation event from Lead to CompleteRegistration once it fires ≥ 25 times a week per market.
+- **October launch (2 Oct), superseding the two points above for the ads:**
+  - The ads are English in both markets and carry **no prices**: the founding-pilot line is out of a5 (the landing still offers it), and the monthly-price lines wait for Max's approval.
+  - The campaign optimises on **CompleteRegistration from day 1**. Lead is the fallback (day-7 rule in `launch/2026-10/README.md`).
 
 ---
 
 ## 2. Budget
 
-### 2.1 The 30-day test (2 Nov – 1 Dec 2026)
+### 2.1 The 30-day test (3 Oct – 1 Nov 2026)
 
 | Line | NL | IE | Total |
 |---|---|---|---|
 | Meta media, €50 a day × 30 days | €1,500 | €1,500 | **€3,000** |
-| Creator-owners: 3 per market × €150 for two takes (plus a free month of Otto after the pilot) | €450 | €450 | €900 |
-| Dutch native reviewer, ~6 h (matrix, landing copy, week-2 refresh) | €300 | – | €300 |
+| Creator-owners: 3 per market × €150 for two takes (plus a free month of Otto after the pilot); none at launch, from week 2–3 at the earliest | €450 | €450 | €900 |
+| Dutch native reviewer, ~6 h (the site's Nederlands strings; the Dutch ad copy only if the optional Dutch-language test runs) | €300 | – | €300 |
 | **Total cash** | €2,250 | €1,950 | **≈ €4,200** |
 
 Rendering costs are compute only: the cards and faceless videos are rendered by Otto's own engine, with synthesized music and UI sounds and no paid voice.
 
+October: media **€100/day from Saturday 3 Oct** (€50 NL + €50 IE). Without the creators and the reviewer, the cash for the
+first two weeks is media only.
+
 ### 2.2 Pacing inside the test
 
-- **Days 1–7:** €50/day per market, Advantage+ campaign budget with a **€4/day minimum per ad set** so each of the six concepts gets a fair read. No edits for 72 hours after launch except disapprovals.
-- **Days 8–14:** remove the ad-set minimums; let the campaign budget move to the winners.
-- **Days 15–30:** the scaling rules below apply.
+- **Days 1–7 (Sat 3 – Fri 9 Oct):** €50/day per market, Advantage+ campaign budget with a **€4/day minimum per ad set** so each of the six concepts gets a fair read. No edits for 72 hours after launch except disapprovals and broken tracking. Day-3 check on Tue 6 Oct, first weekly review on Fri 9 Oct (`launch/2026-10/README.md` §7).
+- **Days 8–14 (Sat 10 – Fri 16 Oct):** remove the ad-set minimums; let the campaign budget move to the winners. First Monday refresh on 12 Oct.
+- **Days 15–30 (Sat 17 Oct – Sun 1 Nov):** the scaling rules below apply.
 
 ### 2.3 Scaling rules (per market, judged on the last 7 days)
 
@@ -87,7 +99,7 @@ Rendering costs are compute only: the cards and faceless videos are rendered by 
 | An ad: ≥ €10 spent and link CTR < 0.5 %, or ≥ €15 spent and 0 scans | Pause it; replace in the Monday refresh |
 | An ad set (concept): ≥ €50 spent and cost per scan result > €16 (2× target) | Pause it; its budget flows to the others; bring a new concept from the bank next Monday |
 | Market: cost per paying customer ≤ €150 with ≥ 3 purchases (or ≤ €30 per trial start before purchases exist) | +20 % budget every 72 h, up to €150/day by day 30 |
-| Market: cost per paying customer €150–300 | Hold budget; refresh creative; test the Dutch landing (NL) |
+| Market: cost per paying customer €150–300 | Hold budget; refresh creative; check how many NL visitors switch the site to Nederlands (§8) |
 | Market: > €300 per paying customer for 7 days, or €600 spent with 0 purchases | −30 % budget; review landing, offer and scan flow before spending more |
 | One market's cost per paying customer (or per trial start) < 70 % of the other's | Move €10/day to it (floor €30/day per market so the other keeps learning) |
 | Founding seats reach 50 | Remove the pay-once line from a5 and the landing; the trial carries on |
@@ -105,20 +117,20 @@ Rendering costs are compute only: the cards and faceless videos are rendered by 
 
 | Setting | NL | IE |
 |---|---|---|
-| Name | `OTTO · NL · Launch · 2026-11` | `OTTO · IE · Launch · 2026-11` |
+| Name | `OTTO · NL · Launch · 2026-10` | `OTTO · IE · Launch · 2026-10` |
 | Objective | Leads, conversion location Website | same |
 | Budget | Advantage+ campaign budget, €50/day, highest volume | same |
-| Optimisation event | **Lead** (scan result, CAPI) in week 1–2; switch to **StartTrial** once `capi_track("trial_start")` fires ≥ 25 times a week in the market. If CAPI is not live at launch: link clicks, judged on first-party scans (§5) | same |
+| Optimisation event | **CompleteRegistration** (the Google sign-up = trial start, server-side CAPI) from day 1: it is what the ads ask for, and a standard event can be selected on a brand-new dataset. Fallback **Lead** (scan result) if Meta records < 10 CompleteRegistration in the market in the first week. Switch to **StartTrial** once it fires ≥ 25 times a week (month 2). If Ads Manager doesn't offer the event under Leads: Sales objective, same event | same |
 | Attribution | 7-day click, 1-day view (default) | same |
-| Destination | The landing (English today; the Dutch variant when built, §8) with UTMs | The English landing |
-| UTMs | `utm_source=meta&utm_medium=paid_social&utm_campaign=launch_2026-11_nl&utm_content={{ad.name}}` | `…_ie` |
-| Ad names | The matrix cell id (`nl-a2-texts`), so first-party analytics, Meta and the matrix line up | same |
+| Destination | The English landing `https://{DOMAIN}/` (visitors can switch to Nederlands, §8) | The English landing |
+| UTMs | `utm_source=meta&utm_medium=paid&utm_campaign=otto_nl_launch&utm_content=<ad id>` | `…otto_ie_launch…` |
+| Ad names | The matrix cell id (`nl-a2-texts-v`), so first-party analytics, Meta and the matrix line up | same |
 
 ### 3.2 One ad set per concept (6 per market)
 
-Ad set names come from the matrix (`ad_set`): `NL · a1 · Reels zonder te filmen` … `IE · a6 · December, sorted`. Each ad set runs
-that concept's cells: at launch the 3 statics (4:5 feed + 9:16 story via asset customisation) and the faceless videos;
-the creator video joins when the footage and the owner's signed release arrive (week 2–3).
+Ad set names come from the October matrices (`ad_set`): `NL · a1 · Reels without the filming` … `IE · a6 · Christmas, sorted
+early`. Each ad set runs that concept's six cells: 3 statics (4:5; the 9:16 version via placement customisation) and 3
+faceless videos (9:16). A creator video joins as a new cell when the footage and the owner's signed release arrive.
 
 ### 3.3 Audiences
 
@@ -160,11 +172,35 @@ From day 15, if NL cost per scan result ≤ €8: duplicate the two best NL ad s
 | What | Where |
 |---|---|
 | Brand | `brands/otto/`: `brand-profile.md` (personas per NL/IE vertical, visual identity), `strategy.json` (6 personas, pains, objections, proof bank, offer, targets), `compliance.json`, `competitors.json`, `angles.json` (ad copy per market), `render.json` (Mona Sans + the landing's tokens), `logo.svg` / `logo-white.svg`, `assets/` (phone cutouts of the real app: review NL/IE, 07:35 report, month) |
-| Matrices | `brands/otto/ads-2026-11-nl.json`, `brands/otto/ads-2026-11-ie.json` (the `ads-YYYY-MM.json` schema, preset `launch`) |
-| Video kit data | `brands/otto/video/brand.json`, `presentation-2026-11-{nl,ie}.json`, `video/2026-11-{nl,ie}/*.json` (13 per market, written by `motion/ad-kit/from_matrix.py`, copy verbatim) |
+| Matrices | **October launch (live): `brands/otto/ads-2026-10-nl.json`, `brands/otto/ads-2026-10-ie.json`** (English, no creator cells, `rules.slots` without creator). November reference: `ads-2026-11-nl.json` (Dutch, optional later test), `ads-2026-11-ie.json` (the `ads-YYYY-MM.json` schema, preset `launch`) |
+| Video kit data | `brands/otto/video/brand.json`, `presentation-2026-{10,11}-{nl,ie}.json`, `video/2026-10-{nl,ie}/*.json` (18 per market, October) and `video/2026-11-{nl,ie}/*.json` (13 per market), written by `motion/ad-kit/from_matrix.py`, copy verbatim |
 | Creator briefs | `brands/otto/creator-briefs-2026-11.md` (generated from the creator cells) |
+| Launch kit | `launch/2026-10/`: renders (`creatives/`), contact sheets (`sheets/`), Ads Manager import files (`import/`, `meta-bulk-import.xlsx`), `compliance-report.md`, `build.py` (rebuild with the domain), `render.py` (re-render / re-check), `README.md` |
 
-### 4.2 The matrices (per market: 6 concepts × 6–7 styles = 37 ads, 19 video, 6 creator)
+### 4.2 The October launch matrices (live from 3 Oct; English in both markets)
+
+Per market: **6 concepts × 6 cells = 36 ads, 18 video (50 %)**, 5 styles per concept. The cells are the November concepts
+minus the creator cells, plus one more faceless video per concept. The engine's `--check` passes: 36 ready, 0 gaps, 0 copy
+gaps, 0 violations. `launch/2026-10/compliance-report.md` checks 750 texts per market: 0 violations, every primary text
+≤ 125 characters, headlines ≤ 40, descriptions ≤ 30. No prices; the only euro figures are sample report numbers on a
+screen labelled "Sample".
+
+| Concept | NL (English for Dutch small businesses) | IE (Irish English) |
+|---|---|---|
+| a1 pain · cold | Reels without the filming | Reels without the filming |
+| a2 experience · warm | The 07:35 message (the report's language is the owner's choice) | The 7:35 message |
+| a3 enemy · cold | Local, not translated (Otto writes your posts in Dutch) | Local, not generic (written for Cork, not California) |
+| a4 identity · cold | You run it, Otto posts | You run it, Otto posts |
+| a5 offer · hot (SIGN_UP) | 7 days free | 7 days free |
+| a6 moment · warm | The busy season, planned (Sinterklaas to New Year) | Christmas, sorted early |
+
+Styles per concept: 3 faceless videos from notes / texts / versus / big, plus 3 statics from product hero / macro hero /
+search / notes / comparison / social post / myth-fact / checklist / offer / before-after / carousel / big number. The a6
+moment moved from "December, planned in November" to "the busy season, planned ahead" because sign-ups now start in
+October. The NL phones show a new English cut-out (`assets/otto-phone-review-nl-en-cutout.png`). The Dutch post appears
+only on a3 NL, labelled as a sample, as proof that Otto writes in Dutch.
+
+### 4.2b The November matrices (reference; the Dutch-language NL cells are kept only as an optional later test)
 
 **NL** (Dutch, 14 styles; `--check`: 31 ready, 6 creator cells waiting for footage, 0 gaps, 0 copy gaps, 0 violations on 637 checked lines)
 
@@ -191,6 +227,18 @@ From day 15, if NL cost per scan result ≤ €8: duplicate the two best NL ad s
 Every angle has 2–3 primary texts. A native Dutch review pass (fresh eyes) was applied: calques and grammar fixed ("doe je met één tik", "loopt terug", "binnen een uur", "websiteadres"), claims tightened ("eerste posts binnen 24 uur" instead of "live", "veel bureaus" instead of all agencies, no 50-seat line). The Dutch copy was written in Dutch (je/jij, "excl. btw", Sinterklaas, "de eerste terrasdag"), the Irish copy for Irish owners (Cork, Galway, "Go on", "your say-so", colour with a u). Neither is a translation of the other.
 
 ### 4.3 What was rendered and reviewed
+
+- **October launch (2 Oct):** everything is in `launch/2026-10/`:
+  - **Statics:** 36 static cells, 114 files (4:5 for every cell, 9:16 and 1:1 where the template supports them).
+  - **Videos:** 36 faceless videos, 9–15 s, 9:16, plus 4:5 versions of the notes and texts kits. 52 renders, none failed.
+  - **Review:** every file was looked at on contact sheets. Fixes made:
+    - NL "07:35" crowded the phone on the macro card → product rises from the bottom.
+    - A two-line subline touched the Reels UI zone at 9:16 → shortened.
+    - The a2 big video showed the same phone twice → it settles on one.
+    - The a5 versus label broke as "Otto, 7 / days free" → the offer moved to the footer.
+    - A chat bubble left "in." alone on a line → rewritten.
+    - The myth card's 1:1 label fell under 4.5:1 → feed only.
+  - Details in its `README.md`. Below: the September pass on the November matrices.
 
 - **All 18 image cells per market**, feed and story (36 files each), rendered with `otto_creative.py matrix otto 2026-11 --render` in an isolated workspace, and reviewed card by card on contact sheets. Fixes made during review: phone cutouts re-cut so the renderer treats them as packshots (the offer card had cropped the phone full-bleed), "Sample" moved onto the visible side of the report screen, checklist ticks, an internal proof id removed from a source line, a stray tiny phone removed, a wrapping callout shortened, a white logo for dark video end cards.
 - **8 faceless videos** (4 per market) with `motion/ad-kit` (`build.mjs` → `ship.mjs`: check, render, −14 LUFS, poster, web copy, key-frame sheet): NL a2 texts (the 07:35 message), a1 notes, a3 versus, a5 big; IE a2 texts, a1 notes, a3 versus, a4 big. 10–16 s, 9:16, synthesized music and UI sounds, no voice. The other 9 per market are scripted (kit JSON written) and render with the same two commands.
@@ -297,7 +345,7 @@ day-15 rules in §2.3 exist for exactly that case.
 
 ### 5.4 Consent and measurement (shipped in this pass)
 
-- `platform/assets/consent.js` + `consent.css`, one include line in `landing.html` and **Privacy choices** in the footer. One question ("Can Otto measure its ads?" / "Mag Otto zijn advertenties meten?"), Reject and Accept equal and side by side, no cookie wall, remembered 180 days in the first-party `otto_consent` cookie, reopened from the footer, English or Dutch by browser language, DNT/GPC treated as reject. On phones the banner is compact and the sticky "Get started" dock rides above it until the visitor chooses.
+- `platform/assets/consent.js` + `consent.css`, one include line in `landing.html` and **Privacy choices** in the footer. One question ("Can Otto measure its ads?" / "Mag Otto zijn advertenties meten?"), Reject and Accept equal and side by side, no cookie wall, remembered 180 days in the first-party `otto_consent` cookie, reopened from the footer, in the page's language (English unless the visitor picked Nederlands or Deutsch on the site, §8; never by browser language), DNT/GPC treated as reject. On phones the banner is compact and the sticky "Get started" dock rides above it until the visitor chooses.
 - **No browser pixel.** The CSP stays same-origin. `otto_track.py` forwards consented events to the Meta Conversions API from the server, only when `$OTTO_SECRETS/meta-capi.json` has a pixel id and token **and** the request carries `otto_consent=v1.granted` **and** there is no DNT/GPC. Sent: event name, time, event id, page URL, IP and user agent (required by Meta, never stored by us), the click id from `otto_fbc` (set only after Accept, from `?fbclid=`), SHA-256 of the day's visitor code and of the country. Never sent: the scanned domain, referrer, UTMs, anything typed.
 - CTA kinds `get_started`, `start_trial`, `trial`, `signup`, `sign_up` → InitiateCheckout. `capi_track("signup" | "trial_start", ip, headers)` → CompleteRegistration / StartTrial, for the server that completes a sign-up; not accepted from the public beacon, so conversions cannot be spoofed.
 - Tests: `platform/tests/test_capi.py` (15, fake Graph endpoint). Legal: `docs/legal/cookies.md` and `privacy.md` describe it (drafts for the lawyer).
@@ -455,18 +503,38 @@ Backups: McBride Digital (Letterkenny), Moji (Spiddal). Left out: Cork agencies 
 
 ---
 
-## 8. Dutch landing variant
+## 8. Site language: English first, Nederlands and Deutsch as an option
 
-**Recommendation: build `/nl` (a copy of `landing.html` with `lang="nl"`) before NL spend passes €50/day, and at the latest
-in week 3.** Dutch ads that land on an English page lose some of the "local, not translated" promise, even if Dutch owners read
-English well (EF EPI #1). The copy is ready for review in **`platform/landing-nl-copy.md`**: every section of the current
-landing rewritten in Dutch (not translated), plus notes for the builder where the English page says something untrue for the
-Netherlands today (Telegram approvals, content languages, where data is hosted) and strings for the free-trial variant.
+**Max's rule (2 Oct): the whole site is in English; English is the main language. A visitor may switch, but English is what
+everyone gets first** — Irish, Dutch and German visitors alike, including the traffic from the NL ads, which run in English.
+The separate Dutch landing (`/nl`, A/B from day 15) is dropped; `platform/landing-nl-copy.md` is now only source material for
+the Dutch strings below.
 
-Test plan: from day 15, send 50 % of NL traffic (all ad sets, via the URL) to `/nl` and 50 % to the English landing for 14
-days. Decide on scan rate and cost per scan result; expect Dutch to win and keep English only for Flanders tests if not.
+**How it works (live on the landing and onboarding):**
+- The HTML is the English page (crawlers, no-JS visitors, every first visit). `platform/assets/i18n/site-lang.js` swaps in
+  Nederlands or Deutsch only when the visitor picks it: "English · Nederlands · Deutsch" in the footer, a quiet select in the
+  nav (desktop) and in the onboarding bar, the same three in the phone menu. No flags, no emoji, sentence case.
+- Never chosen for the visitor: not from the browser's language, the IP or the country. The choice is remembered on that
+  site (localStorage `otto.lang`) and can be linked: `?lang=nl` / `?lang=de` (and `?lang=en` back). `<html lang>` follows.
+- The choice travels: the trial buttons send it through Google sign-in to onboarding (`next=/onboarding.html?…&lang=nl`,
+  the app host has its own storage), and onboarding step 4's "Language for e-mails and reports" (`brands[].comms_lang`)
+  pre-selects the site language — still English by default, and the owner's own pick there wins.
+- The consent banner speaks the page's language (English by default; it no longer follows the browser's language list) and
+  relabels when the visitor switches.
+- Strings: `assets/i18n/landing.{nl,de}.json`, `onboarding.{nl,de}.json` and `common.{nl,de}.json` (content pillars), applied
+  to `data-i18n` markup and to every string the pages' scripts write (scan results, steps, errors, the first week); dates and
+  numbers through `Intl` in the chosen locale. German says "Sie", as the e-mails (`otto_i18n.py`) do; Dutch says "je".
+  `tests/test_site_lang.py` keeps keys, placeholders and both languages in step and fails on markup, non-Latin script,
+  browser-language sniffing and the banned phrases ("autopilot", "paste your website") in any language.
+- Still English, on purpose: the app (`index.html`), Billing, the owner console, the legal pages, the phone mockups in the
+  landing's demos (they show the app as it is) and the pilot captions (Otto wrote them in English for those brands).
+- No `hreflang`: the switch is client-side on the same URL, so the HTML a crawler fetches for `?lang=nl` is English; an
+  hreflang pair would point search engines at a "Dutch" URL that serves English, before the text has had a native review.
 
-The consent banner is already bilingual: on `/nl` it shows Dutch because of `lang="nl"`.
+**Before anyone links to `?lang=nl` or `?lang=de` (ads, e-mails, partners):** a native Dutch review of the `*.nl.json` files
+(the Dutch reviewer, §11 #8) and a native German check of the `*.de.json` files. Until then the options exist for visitors who
+pick them, and nothing promotes them. Worth watching in the owner console: how many visitors switch (`cta` events
+`lang:nl@…` / `lang:de@…`).
 
 ---
 
@@ -493,15 +561,15 @@ Where each number comes from: first-party analytics in the owner console (`/otto
 
 ## 10. 30 / 60 / 90 days
 
-**Days 1–30 (2 Nov – 1 Dec): launch and learn**
-- Both markets live on 2 Nov at €50/day with the 31 ready ads per market; the Monday refresh from 9 Nov.
+**Days 1–30 (Sat 3 Oct – Sun 1 Nov): launch and learn**
+- Both markets live on Sat 3 Oct at €50/day with 36 English ads per market (35 imported, 1 carousel by hand); day-3 check 6 Oct, first weekly review 9 Oct, the Monday refresh from 12 Oct.
 - Creator-owners recruited from the first trial users and paying customers, filmed by day 14, live by day 21.
-- Dutch landing built by day 15, A/B from day 15.
+- Site language switch live (English default; Nederlands / Deutsch for visitors who pick them, after native review, §8).
 - LinkedIn plan §6.1; KVK Ondernemersdagen (13–14 Nov) in person if possible.
 - Partner lists ready; no contact until approval.
 - Exit: ~100 trial starts and 10–20 paying customers, cost per trial and per customer known per market, a winning concept per market.
 
-**Days 31–60 (2 Dec – 31 Dec): scale what works**
+**Days 31–60 (2 Nov – 1 Dec): scale what works**
 - Budgets per §2.4 (€100/day per market if cost per paying customer ≤ €225).
 - Close the pay-once founding offer at 50 seats or on a dated notice (EU §4.4); add the approved monthly price to the a5 lines (§1.3).
 - StartTrial becomes the optimisation event once it has volume (≥ 25 a week per market).
@@ -509,7 +577,7 @@ Where each number comes from: first-party analytics in the owner console (`/otto
 - Flanders spillover if NL is on target; partner pilot with 3–5 agencies per country after Max's approval.
 - First case study from a paying customer (written consent, real numbers).
 
-**Days 61–90 (1 Jan – 31 Jan): make it repeatable**
+**Days 61–90 (2 Dec – 31 Dec, into January): make it repeatable**
 - €150–200/day per market while payback ≤ 3.5 months.
 - Horecava (11–14 Jan, Amsterdam) and the Local Enterprise Showcase (17–19 Jan, Dublin) for founder presence and creator recruiting.
 - Churn and plan mix review: monthly churn < 8 % (est.); Growth share of plans ≥ 30 %.
@@ -521,16 +589,16 @@ Where each number comes from: first-party analytics in the owner console (`/otto
 
 | # | Task | Detail | Before |
 |---|---|---|---|
-| 1 | **Meta business portfolio + ad account** | Company-owned portfolio; ad account in EUR, payment method, spending limit €3,500; Otto Facebook Page + Instagram professional account as the ad identity; verify the new domain | 26 Oct |
-| 2 | **Dataset (pixel) + Conversions API token** | Create a dataset in Events Manager (its id is the `pixel_id`); a system user with access to it and a generated token; write `$OTTO_SECRETS/meta-capi.json` = `{"pixel_id": "…", "access_token": "…", "test_event_code": "TEST…", "site_url": "https://<domain>"}` (chmod 600); run `python3 otto_track.py capi-status`, then `capi-test`; see the event under Test events; **remove `test_event_code`** | 28 Oct |
-| 3 | **Budget and price approval** | €3,000 media + €900 creators + €300 Dutch reviewer ≈ €4,200 for November; month 2 only on the §2.4 rule. Approve the draft monthly prices (Starter €99, Growth €249) so trials can convert | 23 Oct |
-| 4 | Domain + Hetzner move | docs/HOSTING.md; set `OTTO_ALLOWED_ORIGINS`; the CAPI `event_source_url` uses the Origin | 28 Oct |
-| 5 | Stripe | Selling entity (Israel is not supported), account, Stripe Tax, **Starter and Growth prices in EUR** (after the price approval), webhook, keys — docs/BILLING.md "What Max sets up in Stripe" | 28 Oct |
-| 6 | **LinkedIn** | Max's profile (headline "Building Otto: the marketing department for small businesses in NL and IE"), banner made with Otto; the Otto company page; schedule §6.1 | 30 Oct |
+| 1 | **Meta business portfolio + ad account** | Company-owned portfolio; ad account in EUR, payment method, spending limit €3,500; Otto Facebook Page + Instagram professional account as the ad identity; verify the new domain | **2 Oct (before launch)** |
+| 2 | **Dataset (pixel) + Conversions API token** | Create a dataset in Events Manager (its id is the `pixel_id`); a system user with access to it and a generated token; write `$OTTO_SECRETS/meta-capi.json` = `{"pixel_id": "…", "access_token": "…", "test_event_code": "TEST…", "site_url": "https://<domain>"}` (chmod 600); run `python3 otto_track.py capi-status`, then `capi-test`; see the event under Test events; **remove `test_event_code`**; then one real consented sign-up on the live domain so CompleteRegistration shows as active | **2 Oct (before launch)** |
+| 3 | **Budget and price approval** | €3,000 media (3 Oct – 1 Nov) + €900 creators + €300 Dutch reviewer ≈ €4,200; month 2 only on the §2.4 rule. Approve the draft monthly prices (Starter €99, Growth €249) so trials can convert | **media: 2 Oct · prices: before 10 Oct (first trials end)** |
+| 4 | Domain + Hetzner move | docs/HOSTING.md; set `OTTO_ALLOWED_ORIGINS`; the CAPI `event_source_url` uses the Origin | **2 Oct (before launch)** |
+| 5 | Stripe | Selling entity (Israel is not supported), account, Stripe Tax, **Starter and Growth prices in EUR** (after the price approval), webhook, keys — docs/BILLING.md "What Max sets up in Stripe" | **before 10 Oct (first trials end)** |
+| 6 | **LinkedIn** | Max's profile (headline "Building Otto: the marketing department for small businesses in NL and IE"), banner made with Otto; the Otto company page; schedule §6.1 | 3 Oct |
 | 7 | Creators | Ask the first trial users and customers; €150 each for two takes + a free month; signed release (template from the lawyer); partnership-ad permission in Meta | day 7–14 |
-| 8 | Dutch reviewer | ~6 h: the NL matrix, `landing-nl-copy.md`, then each weekly refresh | 23 Oct |
+| 8 | Dutch reviewer | ~6 h: the NL matrix, the site's Nederlands strings (`platform/assets/i18n/*.nl.json`), then each weekly refresh (now optional for the ads: they are English) | before the Nederlands strings go live |
 | 9 | ~~Product fixes (§1.2)~~ | **Done 1.10:** FAQ lists Dutch, e-mail approvals, the 07:35 report in English / Dutch / German, StartTrial to Meta | — |
-| 10 | Legal | Lawyer review of cookies/privacy (Meta joint controllership, consent), creator release, the creator row in privacy.md | 30 Oct |
+| 10 | Legal | Lawyer review of cookies/privacy (Meta joint controllership, consent), creator release, the creator row in privacy.md | cookies/privacy: before launch · creator release: before week 2 |
 | 11 | Partners | Approve (or not) the outreach in §7.4; nothing happens without it | day 30 |
 
 ---
@@ -539,8 +607,8 @@ Where each number comes from: first-party analytics in the owner console (`/otto
 
 1. **Signal loss from consent.** Only consenting visitors reach Meta; optimisation on Lead may be slow. Mitigation: judge on first-party data; keep six ad sets but let the campaign budget concentrate; consider consolidating to three ad sets per market if nothing exits learning by day 14.
 2. **B2B CPMs above the estimate** (EU §5.3 assumes 1.2–1.8× consumer CPM). Mitigation: the §2.3 rules cap the loss at about €600 per market before a rethink.
-3. **"Dutch" promise vs English app and report.** Mitigation: §1.2 items 3–5; honest FAQ line in the Dutch landing.
-4. **Monthly plans must exist on Whop before the first trial ends (9 Nov).** Otherwise trials cannot convert and the test measures nothing past sign-up.
+3. **"Dutch" promise vs English app and report.** Mitigation: §1.2 items 3–5; the site is English-first and its demos show the app as it is (§8).
+4. **Monthly plans must exist (Stripe) before the first trial ends (10 Oct).** Otherwise trials cannot convert and the test measures nothing past sign-up.
 5. **Creator supply.** No customers yet means no creators until the first trials run; faceless videos carry weeks 1–2 by design.
 8. **A no-card trial adds a step.** Trials convert at ~18 % industry-wide (EU §5.3 [A8]); if November trials convert below 15 %, fix onboarding and the day-5 e-mail before buying more trials.
 6. **Unverified targeting options** (§3.3) and **Grow Digital eligibility** (§6.2): check before relying on them.

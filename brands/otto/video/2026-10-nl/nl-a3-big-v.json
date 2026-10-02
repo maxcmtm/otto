@@ -1,0 +1,44 @@
+{
+  "id": "nl-a3-big-v",
+  "style": "big",
+  "formats": [
+    "9x16"
+  ],
+  "music": {
+    "bpm": 120,
+    "mood": "punchy",
+    "key": "C"
+  },
+  "scene": {
+    "ground": "primary"
+  },
+  "big": {
+    "hero": "review_nl",
+    "phrases": [
+      {
+        "big": "Dutch.",
+        "rest": "Not translated."
+      },
+      {
+        "big": "Your town.",
+        "rest": "Your customers."
+      },
+      {
+        "big": "Your call.",
+        "rest": "Before anything goes live.",
+        "product": "review_nl"
+      }
+    ]
+  },
+  "endcard": {
+    "headline": "Dutch. Not translated.",
+    "accent": "Not translated.",
+    "sub": "Posts, reels and ads that sound like your business.",
+    "fine": "Try it free for 7 days, no card needed.",
+    "products": [
+      "review_nl"
+    ],
+    "logo": "logo",
+    "ground": "bg"
+  }
+}

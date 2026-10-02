@@ -1,0 +1,37 @@
+{
+  "id": "nl-a3-notes-v",
+  "style": "notes",
+  "formats": [
+    "9x16",
+    "4x5"
+  ],
+  "music": {
+    "bpm": 120,
+    "mood": "calm",
+    "key": "F"
+  },
+  "scene": {
+    "ground": "primary"
+  },
+  "note": {
+    "meta": "Tuesday, 22:15",
+    "title": "Words my customers never use",
+    "struck": [
+      "super excited",
+      "next level",
+      "awesome deals"
+    ],
+    "keep": "just: new in, from Saturday"
+  },
+  "endcard": {
+    "headline": "Dutch. Not translated.",
+    "accent": "Not translated.",
+    "sub": "Posts, reels and ads that sound like your business.",
+    "fine": "Otto writes in Dutch or English, for your customers.",
+    "products": [
+      "review_nl"
+    ],
+    "logo": "logo",
+    "ground": "bg"
+  }
+}

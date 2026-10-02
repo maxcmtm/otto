@@ -1,0 +1,52 @@
+{
+  "id": "nl-a6-texts-v",
+  "style": "texts",
+  "formats": [
+    "9x16",
+    "4x5"
+  ],
+  "music": {
+    "bpm": 120,
+    "mood": "calm",
+    "key": "C"
+  },
+  "scene": {
+    "ground": "wash"
+  },
+  "thread": {
+    "name": "Otto",
+    "initial": "O",
+    "avatar": "brand",
+    "stamp": "Sample · 26 October",
+    "placeholder": "Message",
+    "messages": [
+      {
+        "from": "them",
+        "text": "Your November is ready to review."
+      },
+      {
+        "from": "them",
+        "text": "Sinterklaas gift ideas, gift cards and your late opening hours are in."
+      },
+      {
+        "from": "me",
+        "text": "Show me"
+      },
+      {
+        "from": "them",
+        "text": "Here's the plan. Tap approve or ask for a change."
+      }
+    ]
+  },
+  "endcard": {
+    "headline": "Your busy season, planned.",
+    "accent": "planned.",
+    "sub": "You approve it all in advance.",
+    "fine": "Try it free for 7 days, no card needed.",
+    "products": [
+      "month"
+    ],
+    "logo": "logo_white",
+    "ground": "primary"
+  }
+}

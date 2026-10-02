@@ -1,0 +1,47 @@
+{
+  "id": "nl-a3-versus-v",
+  "style": "versus",
+  "formats": [
+    "9x16"
+  ],
+  "music": {
+    "bpm": 120,
+    "mood": "calm",
+    "key": "F"
+  },
+  "scene": {
+    "ground": "bg"
+  },
+  "versus": {
+    "vs": "vs",
+    "left": {
+      "label": "Translated",
+      "rows": [
+        "‘Super excited!’",
+        "Thanksgiving post",
+        "Prices in dollars"
+      ]
+    },
+    "right": {
+      "label": "Otto",
+      "image": "review_nl",
+      "rows": [
+        "‘New in this week’",
+        "Sinterklaas",
+        "Prices in euro"
+      ]
+    },
+    "footer": "For your customers, in their language."
+  },
+  "endcard": {
+    "headline": "Sounds like your business.",
+    "accent": "your business.",
+    "sub": "Otto reads your website and writes the way you talk.",
+    "fine": "Try it free for 7 days, no card needed.",
+    "products": [
+      "review_nl"
+    ],
+    "logo": "logo_white",
+    "ground": "night"
+  }
+}

@@ -1,0 +1,4012 @@
+{
+ "market": "NL",
+ "month": "2026-10",
+ "checked_texts": 750,
+ "cells": [
+  {
+   "id": "nl-a1-notes-v",
+   "angle": "a1",
+   "style": "notes_app",
+   "format": "video",
+   "engine_status": "ready",
+   "engine_reasons": [
+    "video not rendered yet (otto_motion)"
+   ],
+   "copy": {
+    "primary": "You know reels work. You just don't have an evening to film and edit them. Otto makes them from your own website.",
+    "headline": "Reels, without the filming",
+    "description": "Posts, reels and ads by Otto",
+    "cta": "LEARN_MORE"
+   },
+   "lengths": {
+    "primary": 113,
+    "headline": 26,
+    "description": 28
+   },
+   "over_limit": [],
+   "n_texts": 25,
+   "violations": [],
+   "money_figures": [],
+   "possible_dutch": [],
+   "texts": [
+    {
+     "text": "You know reels work. You just don't have an evening to film and edit them. Otto makes them from your own website.",
+     "violations": []
+    },
+    {
+     "text": "Reels, without the filming",
+     "violations": []
+    },
+    {
+     "text": "Posts, reels and ads by Otto",
+     "violations": []
+    },
+    {
+     "text": "Sunday, 21:40",
+     "violations": []
+    },
+    {
+     "text": "Things I've stopped doing for a reel",
+     "violations": []
+    },
+    {
+     "text": "filming during the lunch rush",
+     "violations": []
+    },
+    {
+     "text": "editing till midnight",
+     "violations": []
+    },
+    {
+     "text": "typing subtitles",
+     "violations": []
+    },
+    {
+     "text": "tapping approve",
+     "violations": []
+    },
+    {
+     "text": "Reels, without the filming.",
+     "violations": []
+    },
+    {
+     "text": "without the filming.",
+     "violations": []
+    },
+    {
+     "text": "Otto makes them from your own website.",
+     "violations": []
+    },
+    {
+     "text": "Try it free for 7 days, no card needed.",
+     "violations": []
+    },
+    {
+     "text": "month",
+     "violations": []
+    },
+    {
+     "text": "Sunday, 21:40",
+     "violations": []
+    },
+    {
+     "text": "Things I've stopped doing for a reel",
+     "violations": []
+    },
+    {
+     "text": "filming during the lunch rush",
+     "violations": []
+    },
+    {
+     "text": "editing till midnight",
+     "violations": []
+    },
+    {
+     "text": "typing subtitles",
+     "violations": []
+    },
+    {
+     "text": "tapping approve",
+     "violations": []
+    },
+    {
+     "text": "Reels, without the filming.",
+     "violations": []
+    },
+    {
+     "text": "without the filming.",
+     "violations": []
+    },
+    {
+     "text": "Otto makes them from your own website.",
+     "violations": []
+    },
+    {
+     "text": "Try it free for 7 days, no card needed.",
+     "violations": []
+    },
+    {
+     "text": "month",
+     "violations": []
+    }
+   ]
+  },
+  {
+   "id": "nl-a1-versus-v",
+   "angle": "a1",
+   "style": "us_vs_them",
+   "format": "video",
+   "engine_status": "ready",
+   "engine_reasons": [
+    "video not rendered yet (otto_motion)"
+   ],
+   "copy": {
+    "primary": "Your menu, your products, your opening hours: it's all on your website. Otto turns it into reels. No filming needed.",
+    "headline": "Your website, as a reel",
+    "description": "Posts, reels and ads by Otto",
+    "cta": "LEARN_MORE"
+   },
+   "lengths": {
+    "primary": 116,
+    "headline": 23,
+    "description": 28
+   },
+   "over_limit": [],
+   "n_texts": 33,
+   "violations": [],
+   "money_figures": [],
+   "possible_dutch": [],
+   "texts": [
+    {
+     "text": "Your menu, your products, your opening hours: it's all on your website. Otto turns it into reels. No filming needed.",
+     "violations": []
+    },
+    {
+     "text": "Your website, as a reel",
+     "violations": []
+    },
+    {
+     "text": "Posts, reels and ads by Otto",
+     "violations": []
+    },
+    {
+     "text": "vs",
+     "violations": []
+    },
+    {
+     "text": "DIY reel",
+     "violations": []
+    },
+    {
+     "text": "Film it",
+     "violations": []
+    },
+    {
+     "text": "Edit it",
+     "violations": []
+    },
+    {
+     "text": "Subtitle it",
+     "violations": []
+    },
+    {
+     "text": "Otto",
+     "violations": []
+    },
+    {
+     "text": "From your site",
+     "violations": []
+    },
+    {
+     "text": "Ready to go",
+     "violations": []
+    },
+    {
+     "text": "You approve",
+     "violations": []
+    },
+    {
+     "text": "You tap. Otto does the rest.",
+     "violations": []
+    },
+    {
+     "text": "Your website, as a reel.",
+     "violations": []
+    },
+    {
+     "text": "as a reel.",
+     "violations": []
+    },
+    {
+     "text": "Otto makes reels from what's already on your site.",
+     "violations": []
+    },
+    {
+     "text": "Try it free for 7 days, no card needed.",
+     "violations": []
+    },
+    {
+     "text": "review_nl_en",
+     "violations": []
+    },
+    {
+     "text": "vs",
+     "violations": []
+    },
+    {
+     "text": "DIY reel",
+     "violations": []
+    },
+    {
+     "text": "Film it",
+     "violations": []
+    },
+    {
+     "text": "Edit it",
+     "violations": []
+    },
+    {
+     "text": "Subtitle it",
+     "violations": []
+    },
+    {
+     "text": "Otto",
+     "violations": []
+    },
+    {
+     "text": "From your site",
+     "violations": []
+    },
+    {
+     "text": "Ready to go",
+     "violations": []
+    },
+    {
+     "text": "You approve",
+     "violations": []
+    },
+    {
+     "text": "You tap. Otto does the rest.",
+     "violations": []
+    },
+    {
+     "text": "Your website, as a reel.",
+     "violations": []
+    },
+    {
+     "text": "as a reel.",
+     "violations": []
+    },
+    {
+     "text": "Otto makes reels from what's already on your site.",
+     "violations": []
+    },
+    {
+     "text": "Try it free for 7 days, no card needed.",
+     "violations": []
+    },
+    {
+     "text": "review_nl_en",
+     "violations": []
+    }
+   ]
+  },
+  {
+   "id": "nl-a1-big-v",
+   "angle": "a1",
+   "style": "big_number",
+   "format": "video",
+   "engine_status": "ready",
+   "engine_reasons": [
+    "video not rendered yet (otto_motion)"
+   ],
+   "copy": {
+    "primary": "Try Otto free for 7 days: your first reels, made from your own site. Nothing goes live without your approval.",
+    "headline": "Reels, without the filming",
+    "description": "Posts, reels and ads by Otto",
+    "cta": "LEARN_MORE"
+   },
+   "lengths": {
+    "primary": 109,
+    "headline": 26,
+    "description": 28
+   },
+   "over_limit": [],
+   "n_texts": 29,
+   "violations": [],
+   "money_figures": [],
+   "possible_dutch": [],
+   "texts": [
+    {
+     "text": "Try Otto free for 7 days: your first reels, made from your own site. Nothing goes live without your approval.",
+     "violations": []
+    },
+    {
+     "text": "Reels, without the filming",
+     "violations": []
+    },
+    {
+     "text": "Posts, reels and ads by Otto",
+     "violations": []
+    },
+    {
+     "text": "review_nl_en",
+     "violations": []
+    },
+    {
+     "text": "0 evenings",
+     "violations": []
+    },
+    {
+     "text": "spent filming.",
+     "violations": []
+    },
+    {
+     "text": "0 hours",
+     "violations": []
+    },
+    {
+     "text": "spent editing.",
+     "violations": []
+    },
+    {
+     "text": "1 tap",
+     "violations": []
+    },
+    {
+     "text": "to approve the reel.",
+     "violations": []
+    },
+    {
+     "text": "review_nl_en",
+     "violations": []
+    },
+    {
+     "text": "Reels, without the filming.",
+     "violations": []
+    },
+    {
+     "text": "without the filming.",
+     "violations": []
+    },
+    {
+     "text": "Made from your own website.",
+     "violations": []
+    },
+    {
+     "text": "Try it free for 7 days, no card needed.",
+     "violations": []
+    },
+    {
+     "text": "review_nl_en",
+     "violations": []
+    },
+    {
+     "text": "review_nl_en",
+     "violations": []
+    },
+    {
+     "text": "0 evenings",
+     "violations": []
+    },
+    {
+     "text": "spent filming.",
+     "violations": []
+    },
+    {
+     "text": "0 hours",
+     "violations": []
+    },
+    {
+     "text": "spent editing.",
+     "violations": []
+    },
+    {
+     "text": "1 tap",
+     "violations": []
+    },
+    {
+     "text": "to approve the reel.",
+     "violations": []
+    },
+    {
+     "text": "review_nl_en",
+     "violations": []
+    },
+    {
+     "text": "Reels, without the filming.",
+     "violations": []
+    },
+    {
+     "text": "without the filming.",
+     "violations": []
+    },
+    {
+     "text": "Made from your own website.",
+     "violations": []
+    },
+    {
+     "text": "Try it free for 7 days, no card needed.",
+     "violations": []
+    },
+    {
+     "text": "review_nl_en",
+     "violations": []
+    }
+   ]
+  },
+  {
+   "id": "nl-a1-product",
+   "angle": "a1",
+   "style": "product_hero",
+   "format": "image",
+   "engine_status": "ready",
+   "engine_reasons": [],
+   "copy": {
+    "primary": "You know reels work. You just don't have an evening to film and edit them. Otto makes them from your own website.",
+    "headline": "Your website, as a reel",
+    "description": "Posts, reels and ads by Otto",
+    "cta": "LEARN_MORE"
+   },
+   "lengths": {
+    "primary": 113,
+    "headline": 23,
+    "description": 28
+   },
+   "over_limit": [],
+   "n_texts": 8,
+   "violations": [],
+   "money_figures": [],
+   "possible_dutch": [],
+   "texts": [
+    {
+     "text": "You know reels work. You just don't have an evening to film and edit them. Otto makes them from your own website.",
+     "violations": []
+    },
+    {
+     "text": "Your website, as a reel",
+     "violations": []
+    },
+    {
+     "text": "Posts, reels and ads by Otto",
+     "violations": []
+    },
+    {
+     "text": "Your website, *as a reel*",
+     "violations": []
+    },
+    {
+     "text": "Made from your own site",
+     "violations": []
+    },
+    {
+     "text": "Ready for your approval",
+     "violations": []
+    },
+    {
+     "text": "Free for 7 days",
+     "violations": []
+    },
+    {
+     "text": "Reels by Otto",
+     "violations": []
+    }
+   ]
+  },
+  {
+   "id": "nl-a1-search",
+   "angle": "a1",
+   "style": "search",
+   "format": "image",
+   "engine_status": "ready",
+   "engine_reasons": [],
+   "copy": {
+    "primary": "Your menu, your products, your opening hours: it's all on your website. Otto turns it into reels. No filming needed.",
+    "headline": "Reels, without the filming",
+    "description": "Posts, reels and ads by Otto",
+    "cta": "LEARN_MORE"
+   },
+   "lengths": {
+    "primary": 116,
+    "headline": 26,
+    "description": 28
+   },
+   "over_limit": [],
+   "n_texts": 9,
+   "violations": [],
+   "money_figures": [],
+   "possible_dutch": [],
+   "texts": [
+    {
+     "text": "Your menu, your products, your opening hours: it's all on your website. Otto turns it into reels. No filming needed.",
+     "violations": []
+    },
+    {
+     "text": "Reels, without the filming",
+     "violations": []
+    },
+    {
+     "text": "Posts, reels and ads by Otto",
+     "violations": []
+    },
+    {
+     "text": "how to make reels without",
+     "violations": []
+    },
+    {
+     "text": "how to make reels without filming",
+     "violations": []
+    },
+    {
+     "text": "how to make reels without showing your face",
+     "violations": []
+    },
+    {
+     "text": "how to make reels without editing",
+     "violations": []
+    },
+    {
+     "text": "how to make reels without experience",
+     "violations": []
+    },
+    {
+     "text": "Sound familiar? *Otto makes them for you.*",
+     "violations": []
+    }
+   ]
+  },
+  {
+   "id": "nl-a1-number",
+   "angle": "a1",
+   "style": "big_number",
+   "format": "image",
+   "engine_status": "ready",
+   "engine_reasons": [],
+   "copy": {
+    "primary": "Try Otto free for 7 days: your first reels, made from your own site. Nothing goes live without your approval.",
+    "headline": "Your website, as a reel",
+    "description": "Posts, reels and ads by Otto",
+    "cta": "LEARN_MORE"
+   },
+   "lengths": {
+    "primary": 109,
+    "headline": 23,
+    "description": 28
+   },
+   "over_limit": [],
+   "n_texts": 8,
+   "violations": [],
+   "money_figures": [],
+   "possible_dutch": [],
+   "texts": [
+    {
+     "text": "Try Otto free for 7 days: your first reels, made from your own site. Nothing goes live without your approval.",
+     "violations": []
+    },
+    {
+     "text": "Your website, as a reel",
+     "violations": []
+    },
+    {
+     "text": "Posts, reels and ads by Otto",
+     "violations": []
+    },
+    {
+     "text": "24",
+     "violations": []
+    },
+    {
+     "text": "hours",
+     "violations": []
+    },
+    {
+     "text": "and your first posts and reels are ready, made from what's already on your website",
+     "violations": []
+    },
+    {
+     "text": "Free week",
+     "violations": []
+    },
+    {
+     "text": "Otto: 7 days free, no card needed",
+     "violations": []
+    }
+   ]
+  },
+  {
+   "id": "nl-a2-texts-v",
+   "angle": "a2",
+   "style": "text_message",
+   "format": "video",
+   "engine_status": "ready",
+   "engine_reasons": [
+    "video not rendered yet (otto_motion)"
+   ],
+   "copy": {
+    "primary": "Every morning at 07:35, Otto tells you what your ads cost yesterday, what they brought in and which posts are waiting.",
+    "headline": "One message at 07:35",
+    "description": "Your marketing, in one message",
+    "cta": "LEARN_MORE"
+   },
+   "lengths": {
+    "primary": 118,
+    "headline": 20,
+    "description": 30
+   },
+   "over_limit": [],
+   "n_texts": 43,
+   "violations": [],
+   "money_figures": [
+    {
+     "text": "Good morning. Yesterday: €18 on ads, 4 enquiries.",
+     "labelled_sample": true
+    },
+    {
+     "text": "Good morning. Yesterday: €18 on ads, 4 enquiries.",
+     "labelled_sample": true
+    }
+   ],
+   "possible_dutch": [],
+   "texts": [
+    {
+     "text": "Every morning at 07:35, Otto tells you what your ads cost yesterday, what they brought in and which posts are waiting.",
+     "violations": []
+    },
+    {
+     "text": "One message at 07:35",
+     "violations": []
+    },
+    {
+     "text": "Your marketing, in one message",
+     "violations": []
+    },
+    {
+     "text": "Otto",
+     "violations": []
+    },
+    {
+     "text": "O",
+     "violations": []
+    },
+    {
+     "text": "brand",
+     "violations": []
+    },
+    {
+     "text": "Sample · Today 07:35",
+     "violations": []
+    },
+    {
+     "text": "Message",
+     "violations": []
+    },
+    {
+     "text": "them",
+     "violations": []
+    },
+    {
+     "text": "Good morning. Yesterday: €18 on ads, 4 enquiries.",
+     "violations": []
+    },
+    {
+     "text": "them",
+     "violations": []
+    },
+    {
+     "text": "Best ad: the reel about your new collection.",
+     "violations": []
+    },
+    {
+     "text": "them",
+     "violations": []
+    },
+    {
+     "text": "3 posts for this week are ready. Want a look?",
+     "violations": []
+    },
+    {
+     "text": "me",
+     "violations": []
+    },
+    {
+     "text": "Yes, show me",
+     "violations": []
+    },
+    {
+     "text": "them",
+     "violations": []
+    },
+    {
+     "text": "Here they are. Tap approve or ask for a change.",
+     "violations": []
+    },
+    {
+     "text": "Know by 07:35.",
+     "violations": []
+    },
+    {
+     "text": "07:35",
+     "violations": []
+    },
+    {
+     "text": "What it cost, what came in, what's waiting.",
+     "violations": []
+    },
+    {
+     "text": "Sample message. You pay Meta directly for your ads.",
+     "violations": []
+    },
+    {
+     "text": "pack",
+     "violations": []
+    },
+    {
+     "text": "Otto",
+     "violations": []
+    },
+    {
+     "text": "O",
+     "violations": []
+    },
+    {
+     "text": "brand",
+     "violations": []
+    },
+    {
+     "text": "Sample · Today 07:35",
+     "violations": []
+    },
+    {
+     "text": "Message",
+     "violations": []
+    },
+    {
+     "text": "them",
+     "violations": []
+    },
+    {
+     "text": "Good morning. Yesterday: €18 on ads, 4 enquiries.",
+     "violations": []
+    },
+    {
+     "text": "them",
+     "violations": []
+    },
+    {
+     "text": "Best ad: the reel about your new collection.",
+     "violations": []
+    },
+    {
+     "text": "them",
+     "violations": []
+    },
+    {
+     "text": "3 posts for this week are ready. Want a look?",
+     "violations": []
+    },
+    {
+     "text": "me",
+     "violations": []
+    },
+    {
+     "text": "Yes, show me",
+     "violations": []
+    },
+    {
+     "text": "them",
+     "violations": []
+    },
+    {
+     "text": "Here they are. Tap approve or ask for a change.",
+     "violations": []
+    },
+    {
+     "text": "Know by 07:35.",
+     "violations": []
+    },
+    {
+     "text": "07:35",
+     "violations": []
+    },
+    {
+     "text": "What it cost, what came in, what's waiting.",
+     "violations": []
+    },
+    {
+     "text": "Sample message. You pay Meta directly for your ads.",
+     "violations": []
+    },
+    {
+     "text": "pack",
+     "violations": []
+    }
+   ]
+  },
+  {
+   "id": "nl-a2-big-v",
+   "angle": "a2",
+   "style": "big_number",
+   "format": "video",
+   "engine_status": "ready",
+   "engine_reasons": [
+    "video not rendered yet (otto_motion)"
+   ],
+   "copy": {
+    "primary": "A monthly PDF tells you too late. Otto sends one short message every morning at 07:35. Read it with your coffee.",
+    "headline": "Know by 07:35 every morning",
+    "description": "Your marketing, in one message",
+    "cta": "LEARN_MORE"
+   },
+   "lengths": {
+    "primary": 112,
+    "headline": 27,
+    "description": 30
+   },
+   "over_limit": [],
+   "n_texts": 29,
+   "violations": [],
+   "money_figures": [],
+   "possible_dutch": [],
+   "texts": [
+    {
+     "text": "A monthly PDF tells you too late. Otto sends one short message every morning at 07:35. Read it with your coffee.",
+     "violations": []
+    },
+    {
+     "text": "Know by 07:35 every morning",
+     "violations": []
+    },
+    {
+     "text": "Your marketing, in one message",
+     "violations": []
+    },
+    {
+     "text": "hero",
+     "violations": []
+    },
+    {
+     "text": "07:35",
+     "violations": []
+    },
+    {
+     "text": "every morning.",
+     "violations": []
+    },
+    {
+     "text": "1 message",
+     "violations": []
+    },
+    {
+     "text": "what it cost, what came in.",
+     "violations": []
+    },
+    {
+     "text": "1 tap",
+     "violations": []
+    },
+    {
+     "text": "to approve.",
+     "violations": []
+    },
+    {
+     "text": "hero",
+     "violations": []
+    },
+    {
+     "text": "One message. Every morning.",
+     "violations": []
+    },
+    {
+     "text": "Every morning.",
+     "violations": []
+    },
+    {
+     "text": "Posts, reels and ads, made by Otto.",
+     "violations": []
+    },
+    {
+     "text": "Try it free for 7 days, no card needed.",
+     "violations": []
+    },
+    {
+     "text": "pack",
+     "violations": []
+    },
+    {
+     "text": "hero",
+     "violations": []
+    },
+    {
+     "text": "07:35",
+     "violations": []
+    },
+    {
+     "text": "every morning.",
+     "violations": []
+    },
+    {
+     "text": "1 message",
+     "violations": []
+    },
+    {
+     "text": "what it cost, what came in.",
+     "violations": []
+    },
+    {
+     "text": "1 tap",
+     "violations": []
+    },
+    {
+     "text": "to approve.",
+     "violations": []
+    },
+    {
+     "text": "hero",
+     "violations": []
+    },
+    {
+     "text": "One message. Every morning.",
+     "violations": []
+    },
+    {
+     "text": "Every morning.",
+     "violations": []
+    },
+    {
+     "text": "Posts, reels and ads, made by Otto.",
+     "violations": []
+    },
+    {
+     "text": "Try it free for 7 days, no card needed.",
+     "violations": []
+    },
+    {
+     "text": "pack",
+     "violations": []
+    }
+   ]
+  },
+  {
+   "id": "nl-a2-notes-v",
+   "angle": "a2",
+   "style": "notes_app",
+   "format": "video",
+   "engine_status": "ready",
+   "engine_reasons": [
+    "video not rendered yet (otto_motion)"
+   ],
+   "copy": {
+    "primary": "Your 07:35 report comes in English, Dutch or German: your choice. If something drops, you know the next morning.",
+    "headline": "One message at 07:35",
+    "description": "Your marketing, in one message",
+    "cta": "LEARN_MORE"
+   },
+   "lengths": {
+    "primary": 112,
+    "headline": 20,
+    "description": 30
+   },
+   "over_limit": [],
+   "n_texts": 25,
+   "violations": [],
+   "money_figures": [],
+   "possible_dutch": [],
+   "texts": [
+    {
+     "text": "Your 07:35 report comes in English, Dutch or German: your choice. If something drops, you know the next morning.",
+     "violations": []
+    },
+    {
+     "text": "One message at 07:35",
+     "violations": []
+    },
+    {
+     "text": "Your marketing, in one message",
+     "violations": []
+    },
+    {
+     "text": "Monday, 07:41",
+     "violations": []
+    },
+    {
+     "text": "Marketing jobs I've dropped",
+     "violations": []
+    },
+    {
+     "text": "posting at 23:00",
+     "violations": []
+    },
+    {
+     "text": "guessing what the ads did",
+     "violations": []
+    },
+    {
+     "text": "reading a monthly PDF",
+     "violations": []
+    },
+    {
+     "text": "reading Otto's 07:35 message",
+     "violations": []
+    },
+    {
+     "text": "Know by 07:35.",
+     "violations": []
+    },
+    {
+     "text": "07:35.",
+     "violations": []
+    },
+    {
+     "text": "In English, Dutch or German: your choice.",
+     "violations": []
+    },
+    {
+     "text": "Try it free for 7 days, no card needed.",
+     "violations": []
+    },
+    {
+     "text": "pack",
+     "violations": []
+    },
+    {
+     "text": "Monday, 07:41",
+     "violations": []
+    },
+    {
+     "text": "Marketing jobs I've dropped",
+     "violations": []
+    },
+    {
+     "text": "posting at 23:00",
+     "violations": []
+    },
+    {
+     "text": "guessing what the ads did",
+     "violations": []
+    },
+    {
+     "text": "reading a monthly PDF",
+     "violations": []
+    },
+    {
+     "text": "reading Otto's 07:35 message",
+     "violations": []
+    },
+    {
+     "text": "Know by 07:35.",
+     "violations": []
+    },
+    {
+     "text": "07:35.",
+     "violations": []
+    },
+    {
+     "text": "In English, Dutch or German: your choice.",
+     "violations": []
+    },
+    {
+     "text": "Try it free for 7 days, no card needed.",
+     "violations": []
+    },
+    {
+     "text": "pack",
+     "violations": []
+    }
+   ]
+  },
+  {
+   "id": "nl-a2-compare",
+   "angle": "a2",
+   "style": "comparison",
+   "format": "image",
+   "engine_status": "ready",
+   "engine_reasons": [],
+   "copy": {
+    "primary": "Every morning at 07:35, Otto tells you what your ads cost yesterday, what they brought in and which posts are waiting.",
+    "headline": "Know by 07:35 every morning",
+    "description": "Your marketing, in one message",
+    "cta": "LEARN_MORE"
+   },
+   "lengths": {
+    "primary": 118,
+    "headline": 27,
+    "description": 30
+   },
+   "over_limit": [],
+   "n_texts": 20,
+   "violations": [],
+   "money_figures": [],
+   "possible_dutch": [],
+   "texts": [
+    {
+     "text": "Every morning at 07:35, Otto tells you what your ads cost yesterday, what they brought in and which posts are waiting.",
+     "violations": []
+    },
+    {
+     "text": "Know by 07:35 every morning",
+     "violations": []
+    },
+    {
+     "text": "Your marketing, in one message",
+     "violations": []
+    },
+    {
+     "text": "Monthly report or *morning message*?",
+     "violations": []
+    },
+    {
+     "text": "Reporting",
+     "violations": []
+    },
+    {
+     "text": "Monthly report",
+     "violations": []
+    },
+    {
+     "text": "Otto at 07:35",
+     "violations": []
+    },
+    {
+     "text": "How often",
+     "violations": []
+    },
+    {
+     "text": "Once a month",
+     "violations": []
+    },
+    {
+     "text": "Every morning",
+     "violations": []
+    },
+    {
+     "text": "What you get",
+     "violations": []
+    },
+    {
+     "text": "A long PDF",
+     "violations": []
+    },
+    {
+     "text": "One short message",
+     "violations": []
+    },
+    {
+     "text": "When something drops",
+     "violations": []
+    },
+    {
+     "text": "Often next month",
+     "violations": []
+    },
+    {
+     "text": "The next morning",
+     "violations": []
+    },
+    {
+     "text": "Who decides",
+     "violations": []
+    },
+    {
+     "text": "You, later",
+     "violations": []
+    },
+    {
+     "text": "You, now",
+     "violations": []
+    },
+    {
+     "text": "Otto: a report at 07:35, every morning.",
+     "violations": []
+    }
+   ]
+  },
+  {
+   "id": "nl-a2-macro",
+   "angle": "a2",
+   "style": "macro_hero",
+   "format": "image",
+   "engine_status": "ready",
+   "engine_reasons": [],
+   "copy": {
+    "primary": "A monthly PDF tells you too late. Otto sends one short message every morning at 07:35. Read it with your coffee.",
+    "headline": "One message at 07:35",
+    "description": "Your marketing, in one message",
+    "cta": "LEARN_MORE"
+   },
+   "lengths": {
+    "primary": 112,
+    "headline": 20,
+    "description": 30
+   },
+   "over_limit": [],
+   "n_texts": 6,
+   "violations": [],
+   "money_figures": [],
+   "possible_dutch": [],
+   "texts": [
+    {
+     "text": "A monthly PDF tells you too late. Otto sends one short message every morning at 07:35. Read it with your coffee.",
+     "violations": []
+    },
+    {
+     "text": "One message at 07:35",
+     "violations": []
+    },
+    {
+     "text": "Your marketing, in one message",
+     "violations": []
+    },
+    {
+     "text": "*07:35*",
+     "violations": []
+    },
+    {
+     "text": "What it cost, what came in.",
+     "violations": []
+    },
+    {
+     "text": "Morning report",
+     "violations": []
+    }
+   ]
+  },
+  {
+   "id": "nl-a2-notes",
+   "angle": "a2",
+   "style": "notes_app",
+   "format": "image",
+   "engine_status": "ready",
+   "engine_reasons": [],
+   "copy": {
+    "primary": "Your 07:35 report comes in English, Dutch or German: your choice. If something drops, you know the next morning.",
+    "headline": "Know by 07:35 every morning",
+    "description": "Your marketing, in one message",
+    "cta": "LEARN_MORE"
+   },
+   "lengths": {
+    "primary": 112,
+    "headline": 27,
+    "description": 30
+   },
+   "over_limit": [],
+   "n_texts": 11,
+   "violations": [],
+   "money_figures": [],
+   "possible_dutch": [],
+   "texts": [
+    {
+     "text": "Your 07:35 report comes in English, Dutch or German: your choice. If something drops, you know the next morning.",
+     "violations": []
+    },
+    {
+     "text": "Know by 07:35 every morning",
+     "violations": []
+    },
+    {
+     "text": "Your marketing, in one message",
+     "violations": []
+    },
+    {
+     "text": "My morning",
+     "violations": []
+    },
+    {
+     "text": "07:30 coffee",
+     "violations": []
+    },
+    {
+     "text": "07:35 read Otto's message",
+     "violations": []
+    },
+    {
+     "text": "07:36 approve three posts",
+     "violations": []
+    },
+    {
+     "text": "07:40 open the shop",
+     "violations": []
+    },
+    {
+     "text": "Today at 07:41",
+     "violations": []
+    },
+    {
+     "text": "Marketing: *done before eight*",
+     "violations": []
+    },
+    {
+     "text": "This is what *07:35* looks like",
+     "violations": []
+    }
+   ]
+  },
+  {
+   "id": "nl-a3-notes-v",
+   "angle": "a3",
+   "style": "notes_app",
+   "format": "video",
+   "engine_status": "ready",
+   "engine_reasons": [
+    "video not rendered yet (otto_motion)"
+   ],
+   "copy": {
+    "primary": "Your customers read Dutch, so your posts should sound Dutch, not like translated English. Otto writes them for your town.",
+    "headline": "Dutch posts. Not translated.",
+    "description": "For shops, cafés and salons",
+    "cta": "LEARN_MORE"
+   },
+   "lengths": {
+    "primary": 121,
+    "headline": 28,
+    "description": 27
+   },
+   "over_limit": [],
+   "n_texts": 25,
+   "violations": [],
+   "money_figures": [],
+   "possible_dutch": [],
+   "texts": [
+    {
+     "text": "Your customers read Dutch, so your posts should sound Dutch, not like translated English. Otto writes them for your town.",
+     "violations": []
+    },
+    {
+     "text": "Dutch posts. Not translated.",
+     "violations": []
+    },
+    {
+     "text": "For shops, cafés and salons",
+     "violations": []
+    },
+    {
+     "text": "Tuesday, 22:15",
+     "violations": []
+    },
+    {
+     "text": "Words my customers never use",
+     "violations": []
+    },
+    {
+     "text": "super excited",
+     "violations": []
+    },
+    {
+     "text": "next level",
+     "violations": []
+    },
+    {
+     "text": "awesome deals",
+     "violations": []
+    },
+    {
+     "text": "just: new in, from Saturday",
+     "violations": []
+    },
+    {
+     "text": "Dutch. Not translated.",
+     "violations": []
+    },
+    {
+     "text": "Not translated.",
+     "violations": []
+    },
+    {
+     "text": "Posts, reels and ads that sound like your business.",
+     "violations": []
+    },
+    {
+     "text": "Otto writes in Dutch or English, for your customers.",
+     "violations": []
+    },
+    {
+     "text": "review_nl",
+     "violations": []
+    },
+    {
+     "text": "Tuesday, 22:15",
+     "violations": []
+    },
+    {
+     "text": "Words my customers never use",
+     "violations": []
+    },
+    {
+     "text": "super excited",
+     "violations": []
+    },
+    {
+     "text": "next level",
+     "violations": []
+    },
+    {
+     "text": "awesome deals",
+     "violations": []
+    },
+    {
+     "text": "just: new in, from Saturday",
+     "violations": []
+    },
+    {
+     "text": "Dutch. Not translated.",
+     "violations": []
+    },
+    {
+     "text": "Not translated.",
+     "violations": []
+    },
+    {
+     "text": "Posts, reels and ads that sound like your business.",
+     "violations": []
+    },
+    {
+     "text": "Otto writes in Dutch or English, for your customers.",
+     "violations": []
+    },
+    {
+     "text": "review_nl",
+     "violations": []
+    }
+   ]
+  },
+  {
+   "id": "nl-a3-versus-v",
+   "angle": "a3",
+   "style": "us_vs_them",
+   "format": "video",
+   "engine_status": "ready",
+   "engine_reasons": [
+    "video not rendered yet (otto_motion)"
+   ],
+   "copy": {
+    "primary": "‘We are super excited to share…’ Sound familiar? That's translated marketing. Otto writes the way you talk.",
+    "headline": "Sounds like your business",
+    "description": "For shops, cafés and salons",
+    "cta": "LEARN_MORE"
+   },
+   "lengths": {
+    "primary": 107,
+    "headline": 25,
+    "description": 27
+   },
+   "over_limit": [],
+   "n_texts": 33,
+   "violations": [],
+   "money_figures": [],
+   "possible_dutch": [],
+   "texts": [
+    {
+     "text": "‘We are super excited to share…’ Sound familiar? That's translated marketing. Otto writes the way you talk.",
+     "violations": []
+    },
+    {
+     "text": "Sounds like your business",
+     "violations": []
+    },
+    {
+     "text": "For shops, cafés and salons",
+     "violations": []
+    },
+    {
+     "text": "vs",
+     "violations": []
+    },
+    {
+     "text": "Translated",
+     "violations": []
+    },
+    {
+     "text": "‘Super excited!’",
+     "violations": []
+    },
+    {
+     "text": "Thanksgiving post",
+     "violations": []
+    },
+    {
+     "text": "Prices in dollars",
+     "violations": []
+    },
+    {
+     "text": "Otto",
+     "violations": []
+    },
+    {
+     "text": "‘New in this week’",
+     "violations": []
+    },
+    {
+     "text": "Sinterklaas",
+     "violations": []
+    },
+    {
+     "text": "Prices in euro",
+     "violations": []
+    },
+    {
+     "text": "For your customers, in their language.",
+     "violations": []
+    },
+    {
+     "text": "Sounds like your business.",
+     "violations": []
+    },
+    {
+     "text": "your business.",
+     "violations": []
+    },
+    {
+     "text": "Otto reads your website and writes the way you talk.",
+     "violations": []
+    },
+    {
+     "text": "Try it free for 7 days, no card needed.",
+     "violations": []
+    },
+    {
+     "text": "review_nl",
+     "violations": []
+    },
+    {
+     "text": "vs",
+     "violations": []
+    },
+    {
+     "text": "Translated",
+     "violations": []
+    },
+    {
+     "text": "‘Super excited!’",
+     "violations": []
+    },
+    {
+     "text": "Thanksgiving post",
+     "violations": []
+    },
+    {
+     "text": "Prices in dollars",
+     "violations": []
+    },
+    {
+     "text": "Otto",
+     "violations": []
+    },
+    {
+     "text": "‘New in this week’",
+     "violations": []
+    },
+    {
+     "text": "Sinterklaas",
+     "violations": []
+    },
+    {
+     "text": "Prices in euro",
+     "violations": []
+    },
+    {
+     "text": "For your customers, in their language.",
+     "violations": []
+    },
+    {
+     "text": "Sounds like your business.",
+     "violations": []
+    },
+    {
+     "text": "your business.",
+     "violations": []
+    },
+    {
+     "text": "Otto reads your website and writes the way you talk.",
+     "violations": []
+    },
+    {
+     "text": "Try it free for 7 days, no card needed.",
+     "violations": []
+    },
+    {
+     "text": "review_nl",
+     "violations": []
+    }
+   ]
+  },
+  {
+   "id": "nl-a3-big-v",
+   "angle": "a3",
+   "style": "big_number",
+   "format": "video",
+   "engine_status": "ready",
+   "engine_reasons": [
+    "video not rendered yet (otto_motion)"
+   ],
+   "copy": {
+    "primary": "Otto reads your website, your prices and your reviews, then writes posts that sound like you, in Dutch or English.",
+    "headline": "Dutch posts. Not translated.",
+    "description": "For shops, cafés and salons",
+    "cta": "LEARN_MORE"
+   },
+   "lengths": {
+    "primary": 114,
+    "headline": 28,
+    "description": 27
+   },
+   "over_limit": [],
+   "n_texts": 29,
+   "violations": [],
+   "money_figures": [],
+   "possible_dutch": [],
+   "texts": [
+    {
+     "text": "Otto reads your website, your prices and your reviews, then writes posts that sound like you, in Dutch or English.",
+     "violations": []
+    },
+    {
+     "text": "Dutch posts. Not translated.",
+     "violations": []
+    },
+    {
+     "text": "For shops, cafés and salons",
+     "violations": []
+    },
+    {
+     "text": "review_nl",
+     "violations": []
+    },
+    {
+     "text": "Dutch.",
+     "violations": []
+    },
+    {
+     "text": "Not translated.",
+     "violations": []
+    },
+    {
+     "text": "Your town.",
+     "violations": []
+    },
+    {
+     "text": "Your customers.",
+     "violations": []
+    },
+    {
+     "text": "Your call.",
+     "violations": []
+    },
+    {
+     "text": "Before anything goes live.",
+     "violations": []
+    },
+    {
+     "text": "review_nl",
+     "violations": []
+    },
+    {
+     "text": "Dutch. Not translated.",
+     "violations": []
+    },
+    {
+     "text": "Not translated.",
+     "violations": []
+    },
+    {
+     "text": "Posts, reels and ads that sound like your business.",
+     "violations": []
+    },
+    {
+     "text": "Try it free for 7 days, no card needed.",
+     "violations": []
+    },
+    {
+     "text": "review_nl",
+     "violations": []
+    },
+    {
+     "text": "review_nl",
+     "violations": []
+    },
+    {
+     "text": "Dutch.",
+     "violations": []
+    },
+    {
+     "text": "Not translated.",
+     "violations": []
+    },
+    {
+     "text": "Your town.",
+     "violations": []
+    },
+    {
+     "text": "Your customers.",
+     "violations": []
+    },
+    {
+     "text": "Your call.",
+     "violations": []
+    },
+    {
+     "text": "Before anything goes live.",
+     "violations": []
+    },
+    {
+     "text": "review_nl",
+     "violations": []
+    },
+    {
+     "text": "Dutch. Not translated.",
+     "violations": []
+    },
+    {
+     "text": "Not translated.",
+     "violations": []
+    },
+    {
+     "text": "Posts, reels and ads that sound like your business.",
+     "violations": []
+    },
+    {
+     "text": "Try it free for 7 days, no card needed.",
+     "violations": []
+    },
+    {
+     "text": "review_nl",
+     "violations": []
+    }
+   ]
+  },
+  {
+   "id": "nl-a3-product",
+   "angle": "a3",
+   "style": "product_hero",
+   "format": "image",
+   "engine_status": "ready",
+   "engine_reasons": [],
+   "copy": {
+    "primary": "Your customers read Dutch, so your posts should sound Dutch, not like translated English. Otto writes them for your town.",
+    "headline": "Sounds like your business",
+    "description": "For shops, cafés and salons",
+    "cta": "LEARN_MORE"
+   },
+   "lengths": {
+    "primary": 121,
+    "headline": 25,
+    "description": 27
+   },
+   "over_limit": [],
+   "n_texts": 8,
+   "violations": [],
+   "money_figures": [],
+   "possible_dutch": [],
+   "texts": [
+    {
+     "text": "Your customers read Dutch, so your posts should sound Dutch, not like translated English. Otto writes them for your town.",
+     "violations": []
+    },
+    {
+     "text": "Sounds like your business",
+     "violations": []
+    },
+    {
+     "text": "For shops, cafés and salons",
+     "violations": []
+    },
+    {
+     "text": "Sounds like *your business*",
+     "violations": []
+    },
+    {
+     "text": "Sample post, written in Dutch",
+     "violations": []
+    },
+    {
+     "text": "Built on your own website",
+     "violations": []
+    },
+    {
+     "text": "You approve every post",
+     "violations": []
+    },
+    {
+     "text": "Posts by Otto",
+     "violations": []
+    }
+   ]
+  },
+  {
+   "id": "nl-a3-post",
+   "angle": "a3",
+   "style": "social_post",
+   "format": "image",
+   "engine_status": "ready",
+   "engine_reasons": [],
+   "copy": {
+    "primary": "‘We are super excited to share…’ Sound familiar? That's translated marketing. Otto writes the way you talk.",
+    "headline": "Dutch posts. Not translated.",
+    "description": "For shops, cafés and salons",
+    "cta": "LEARN_MORE"
+   },
+   "lengths": {
+    "primary": 107,
+    "headline": 28,
+    "description": 27
+   },
+   "over_limit": [],
+   "n_texts": 8,
+   "violations": [],
+   "money_figures": [],
+   "possible_dutch": [],
+   "texts": [
+    {
+     "text": "‘We are super excited to share…’ Sound familiar? That's translated marketing. Otto writes the way you talk.",
+     "violations": []
+    },
+    {
+     "text": "Dutch posts. Not translated.",
+     "violations": []
+    },
+    {
+     "text": "For shops, cafés and salons",
+     "violations": []
+    },
+    {
+     "text": "Otto",
+     "violations": []
+    },
+    {
+     "text": "For small businesses",
+     "violations": []
+    },
+    {
+     "text": "A post about your lunch menu should sound like your café in Haarlem, not like a translation from English. That's why Otto writes in Dutch, from your own website.",
+     "violations": []
+    },
+    {
+     "text": "*Local*, not translated",
+     "violations": []
+    },
+    {
+     "text": "light",
+     "violations": []
+    }
+   ]
+  },
+  {
+   "id": "nl-a3-carousel",
+   "angle": "a3",
+   "style": "carousel",
+   "format": "image",
+   "engine_status": "ready",
+   "engine_reasons": [],
+   "copy": {
+    "primary": "Otto reads your website, your prices and your reviews, then writes posts that sound like you, in Dutch or English.",
+    "headline": "Sounds like your business",
+    "description": "For shops, cafés and salons",
+    "cta": "LEARN_MORE"
+   },
+   "lengths": {
+    "primary": 114,
+    "headline": 25,
+    "description": 27
+   },
+   "over_limit": [],
+   "n_texts": 15,
+   "violations": [],
+   "money_figures": [],
+   "possible_dutch": [],
+   "texts": [
+    {
+     "text": "Otto reads your website, your prices and your reviews, then writes posts that sound like you, in Dutch or English.",
+     "violations": []
+    },
+    {
+     "text": "Sounds like your business",
+     "violations": []
+    },
+    {
+     "text": "For shops, cafés and salons",
+     "violations": []
+    },
+    {
+     "text": "3 lines that give away a *translated* post",
+     "violations": []
+    },
+    {
+     "text": "For owners",
+     "violations": []
+    },
+    {
+     "text": "Swipe",
+     "violations": []
+    },
+    {
+     "text": "‘We are super excited to share’",
+     "violations": []
+    },
+    {
+     "text": "Nobody in Haarlem talks about a new menu like that. Just say what's new.",
+     "violations": []
+    },
+    {
+     "text": "‘Happy Thanksgiving!’",
+     "violations": []
+    },
+    {
+     "text": "Mark what your customers celebrate: Sinterklaas, King's Day, the first terrace day.",
+     "violations": []
+    },
+    {
+     "text": "‘Awesome deals, guys!’",
+     "violations": []
+    },
+    {
+     "text": "Your customers want to know what's new and when you're open. Say it plainly.",
+     "violations": []
+    },
+    {
+     "text": "Otto writes the way you talk",
+     "violations": []
+    },
+    {
+     "text": "Scan your website",
+     "violations": []
+    },
+    {
+     "text": "Free, no signup",
+     "violations": []
+    }
+   ]
+  },
+  {
+   "id": "nl-a4-big-v",
+   "angle": "a4",
+   "style": "big_number",
+   "format": "video",
+   "engine_status": "ready",
+   "engine_reasons": [
+    "video not rendered yet (otto_motion)"
+   ],
+   "copy": {
+    "primary": "Otto plans your month, writes your posts, makes your reels and runs your ads. You tap approve. About 30 minutes a week.",
+    "headline": "You run the business. Otto posts.",
+    "description": "Posts, reels and ads by Otto",
+    "cta": "LEARN_MORE"
+   },
+   "lengths": {
+    "primary": 119,
+    "headline": 33,
+    "description": 28
+   },
+   "over_limit": [],
+   "n_texts": 29,
+   "violations": [],
+   "money_figures": [],
+   "possible_dutch": [],
+   "texts": [
+    {
+     "text": "Otto plans your month, writes your posts, makes your reels and runs your ads. You tap approve. About 30 minutes a week.",
+     "violations": []
+    },
+    {
+     "text": "You run the business. Otto posts.",
+     "violations": []
+    },
+    {
+     "text": "Posts, reels and ads by Otto",
+     "violations": []
+    },
+    {
+     "text": "hero",
+     "violations": []
+    },
+    {
+     "text": "30 min",
+     "violations": []
+    },
+    {
+     "text": "a week, roughly.",
+     "violations": []
+    },
+    {
+     "text": "4 questions",
+     "violations": []
+    },
+    {
+     "text": "at the start, max.",
+     "violations": []
+    },
+    {
+     "text": "1 tap",
+     "violations": []
+    },
+    {
+     "text": "per post.",
+     "violations": []
+    },
+    {
+     "text": "review_nl_en",
+     "violations": []
+    },
+    {
+     "text": "You run it. Otto posts.",
+     "violations": []
+    },
+    {
+     "text": "Otto posts.",
+     "violations": []
+    },
+    {
+     "text": "Posts, reels and ads, ready for your approval.",
+     "violations": []
+    },
+    {
+     "text": "Try it free for 7 days, no card needed.",
+     "violations": []
+    },
+    {
+     "text": "month",
+     "violations": []
+    },
+    {
+     "text": "hero",
+     "violations": []
+    },
+    {
+     "text": "30 min",
+     "violations": []
+    },
+    {
+     "text": "a week, roughly.",
+     "violations": []
+    },
+    {
+     "text": "4 questions",
+     "violations": []
+    },
+    {
+     "text": "at the start, max.",
+     "violations": []
+    },
+    {
+     "text": "1 tap",
+     "violations": []
+    },
+    {
+     "text": "per post.",
+     "violations": []
+    },
+    {
+     "text": "review_nl_en",
+     "violations": []
+    },
+    {
+     "text": "You run it. Otto posts.",
+     "violations": []
+    },
+    {
+     "text": "Otto posts.",
+     "violations": []
+    },
+    {
+     "text": "Posts, reels and ads, ready for your approval.",
+     "violations": []
+    },
+    {
+     "text": "Try it free for 7 days, no card needed.",
+     "violations": []
+    },
+    {
+     "text": "month",
+     "violations": []
+    }
+   ]
+  },
+  {
+   "id": "nl-a4-versus-v",
+   "angle": "a4",
+   "style": "us_vs_them",
+   "format": "video",
+   "engine_status": "ready",
+   "engine_reasons": [
+    "video not rendered yet (otto_motion)"
+   ],
+   "copy": {
+    "primary": "For the webshop posting at 11pm, the café that closes at six, the salon with a full diary: Otto does the marketing.",
+    "headline": "For owners with no marketing team",
+    "description": "Posts, reels and ads by Otto",
+    "cta": "LEARN_MORE"
+   },
+   "lengths": {
+    "primary": 115,
+    "headline": 33,
+    "description": 28
+   },
+   "over_limit": [],
+   "n_texts": 33,
+   "violations": [],
+   "money_figures": [],
+   "possible_dutch": [],
+   "texts": [
+    {
+     "text": "For the webshop posting at 11pm, the café that closes at six, the salon with a full diary: Otto does the marketing.",
+     "violations": []
+    },
+    {
+     "text": "For owners with no marketing team",
+     "violations": []
+    },
+    {
+     "text": "Posts, reels and ads by Otto",
+     "violations": []
+    },
+    {
+     "text": "vs",
+     "violations": []
+    },
+    {
+     "text": "On your own",
+     "violations": []
+    },
+    {
+     "text": "Posting at 23:00",
+     "violations": []
+    },
+    {
+     "text": "Guessing on ads",
+     "violations": []
+    },
+    {
+     "text": "No time for reels",
+     "violations": []
+    },
+    {
+     "text": "With Otto",
+     "violations": []
+    },
+    {
+     "text": "Month planned",
+     "violations": []
+    },
+    {
+     "text": "Report at 07:35",
+     "violations": []
+    },
+    {
+     "text": "Reels, ready",
+     "violations": []
+    },
+    {
+     "text": "You tap approve.",
+     "violations": []
+    },
+    {
+     "text": "Your month, ready.",
+     "violations": []
+    },
+    {
+     "text": "ready.",
+     "violations": []
+    },
+    {
+     "text": "Posts, stories and reels, planned ahead.",
+     "violations": []
+    },
+    {
+     "text": "Try it free for 7 days, no card needed.",
+     "violations": []
+    },
+    {
+     "text": "month",
+     "violations": []
+    },
+    {
+     "text": "vs",
+     "violations": []
+    },
+    {
+     "text": "On your own",
+     "violations": []
+    },
+    {
+     "text": "Posting at 23:00",
+     "violations": []
+    },
+    {
+     "text": "Guessing on ads",
+     "violations": []
+    },
+    {
+     "text": "No time for reels",
+     "violations": []
+    },
+    {
+     "text": "With Otto",
+     "violations": []
+    },
+    {
+     "text": "Month planned",
+     "violations": []
+    },
+    {
+     "text": "Report at 07:35",
+     "violations": []
+    },
+    {
+     "text": "Reels, ready",
+     "violations": []
+    },
+    {
+     "text": "You tap approve.",
+     "violations": []
+    },
+    {
+     "text": "Your month, ready.",
+     "violations": []
+    },
+    {
+     "text": "ready.",
+     "violations": []
+    },
+    {
+     "text": "Posts, stories and reels, planned ahead.",
+     "violations": []
+    },
+    {
+     "text": "Try it free for 7 days, no card needed.",
+     "violations": []
+    },
+    {
+     "text": "month",
+     "violations": []
+    }
+   ]
+  },
+  {
+   "id": "nl-a4-texts-v",
+   "angle": "a4",
+   "style": "text_message",
+   "format": "video",
+   "engine_status": "ready",
+   "engine_reasons": [
+    "video not rendered yet (otto_motion)"
+   ],
+   "copy": {
+    "primary": "Sign in, give Otto your website address, answer four questions at most, and your first posts are ready within 24 hours.",
+    "headline": "You run the business. Otto posts.",
+    "description": "Posts, reels and ads by Otto",
+    "cta": "LEARN_MORE"
+   },
+   "lengths": {
+    "primary": 119,
+    "headline": 33,
+    "description": 28
+   },
+   "over_limit": [],
+   "n_texts": 43,
+   "violations": [],
+   "money_figures": [],
+   "possible_dutch": [],
+   "texts": [
+    {
+     "text": "Sign in, give Otto your website address, answer four questions at most, and your first posts are ready within 24 hours.",
+     "violations": []
+    },
+    {
+     "text": "You run the business. Otto posts.",
+     "violations": []
+    },
+    {
+     "text": "Posts, reels and ads by Otto",
+     "violations": []
+    },
+    {
+     "text": "Otto",
+     "violations": []
+    },
+    {
+     "text": "O",
+     "violations": []
+    },
+    {
+     "text": "brand",
+     "violations": []
+    },
+    {
+     "text": "Sample · Today 08:14",
+     "violations": []
+    },
+    {
+     "text": "Message",
+     "violations": []
+    },
+    {
+     "text": "them",
+     "violations": []
+    },
+    {
+     "text": "Good morning. This week's posts are ready: 3 posts and a reel.",
+     "violations": []
+    },
+    {
+     "text": "me",
+     "violations": []
+    },
+    {
+     "text": "Busy in the shop till 6",
+     "violations": []
+    },
+    {
+     "text": "them",
+     "violations": []
+    },
+    {
+     "text": "No rush. I'll remind you before the first one is due.",
+     "violations": []
+    },
+    {
+     "text": "me",
+     "violations": []
+    },
+    {
+     "text": "All approved",
+     "violations": []
+    },
+    {
+     "text": "them",
+     "violations": []
+    },
+    {
+     "text": "Thanks. The first one goes out Thursday at 12:00.",
+     "violations": []
+    },
+    {
+     "text": "You run it. Otto posts.",
+     "violations": []
+    },
+    {
+     "text": "Otto posts.",
+     "violations": []
+    },
+    {
+     "text": "Approve from your phone, when it suits you.",
+     "violations": []
+    },
+    {
+     "text": "Try it free for 7 days, no card needed.",
+     "violations": []
+    },
+    {
+     "text": "review_nl_en",
+     "violations": []
+    },
+    {
+     "text": "Otto",
+     "violations": []
+    },
+    {
+     "text": "O",
+     "violations": []
+    },
+    {
+     "text": "brand",
+     "violations": []
+    },
+    {
+     "text": "Sample · Today 08:14",
+     "violations": []
+    },
+    {
+     "text": "Message",
+     "violations": []
+    },
+    {
+     "text": "them",
+     "violations": []
+    },
+    {
+     "text": "Good morning. This week's posts are ready: 3 posts and a reel.",
+     "violations": []
+    },
+    {
+     "text": "me",
+     "violations": []
+    },
+    {
+     "text": "Busy in the shop till 6",
+     "violations": []
+    },
+    {
+     "text": "them",
+     "violations": []
+    },
+    {
+     "text": "No rush. I'll remind you before the first one is due.",
+     "violations": []
+    },
+    {
+     "text": "me",
+     "violations": []
+    },
+    {
+     "text": "All approved",
+     "violations": []
+    },
+    {
+     "text": "them",
+     "violations": []
+    },
+    {
+     "text": "Thanks. The first one goes out Thursday at 12:00.",
+     "violations": []
+    },
+    {
+     "text": "You run it. Otto posts.",
+     "violations": []
+    },
+    {
+     "text": "Otto posts.",
+     "violations": []
+    },
+    {
+     "text": "Approve from your phone, when it suits you.",
+     "violations": []
+    },
+    {
+     "text": "Try it free for 7 days, no card needed.",
+     "violations": []
+    },
+    {
+     "text": "review_nl_en",
+     "violations": []
+    }
+   ]
+  },
+  {
+   "id": "nl-a4-product",
+   "angle": "a4",
+   "style": "product_hero",
+   "format": "image",
+   "engine_status": "ready",
+   "engine_reasons": [],
+   "copy": {
+    "primary": "Otto plans your month, writes your posts, makes your reels and runs your ads. You tap approve. About 30 minutes a week.",
+    "headline": "For owners with no marketing team",
+    "description": "Posts, reels and ads by Otto",
+    "cta": "LEARN_MORE"
+   },
+   "lengths": {
+    "primary": 119,
+    "headline": 33,
+    "description": 28
+   },
+   "over_limit": [],
+   "n_texts": 8,
+   "violations": [],
+   "money_figures": [],
+   "possible_dutch": [],
+   "texts": [
+    {
+     "text": "Otto plans your month, writes your posts, makes your reels and runs your ads. You tap approve. About 30 minutes a week.",
+     "violations": []
+    },
+    {
+     "text": "For owners with no marketing team",
+     "violations": []
+    },
+    {
+     "text": "Posts, reels and ads by Otto",
+     "violations": []
+    },
+    {
+     "text": "You run the business. *Otto posts.*",
+     "violations": []
+    },
+    {
+     "text": "Posts, stories and reels",
+     "violations": []
+    },
+    {
+     "text": "Timed for your customers",
+     "violations": []
+    },
+    {
+     "text": "You approve everything",
+     "violations": []
+    },
+    {
+     "text": "Your month, ready",
+     "violations": []
+    }
+   ]
+  },
+  {
+   "id": "nl-a4-search",
+   "angle": "a4",
+   "style": "search",
+   "format": "image",
+   "engine_status": "ready",
+   "engine_reasons": [],
+   "copy": {
+    "primary": "For the webshop posting at 11pm, the café that closes at six, the salon with a full diary: Otto does the marketing.",
+    "headline": "You run the business. Otto posts.",
+    "description": "Posts, reels and ads by Otto",
+    "cta": "LEARN_MORE"
+   },
+   "lengths": {
+    "primary": 115,
+    "headline": 33,
+    "description": 28
+   },
+   "over_limit": [],
+   "n_texts": 9,
+   "violations": [],
+   "money_figures": [],
+   "possible_dutch": [],
+   "texts": [
+    {
+     "text": "For the webshop posting at 11pm, the café that closes at six, the salon with a full diary: Otto does the marketing.",
+     "violations": []
+    },
+    {
+     "text": "You run the business. Otto posts.",
+     "violations": []
+    },
+    {
+     "text": "Posts, reels and ads by Otto",
+     "violations": []
+    },
+    {
+     "text": "no time for social media",
+     "violations": []
+    },
+    {
+     "text": "no time for social media as a business owner",
+     "violations": []
+    },
+    {
+     "text": "no time for social media webshop",
+     "violations": []
+    },
+    {
+     "text": "no time for social media café",
+     "violations": []
+    },
+    {
+     "text": "no time for social media salon",
+     "violations": []
+    },
+    {
+     "text": "Sound familiar? *Otto takes it on.*",
+     "violations": []
+    }
+   ]
+  },
+  {
+   "id": "nl-a4-checklist",
+   "angle": "a4",
+   "style": "checklist",
+   "format": "image",
+   "engine_status": "ready",
+   "engine_reasons": [],
+   "copy": {
+    "primary": "Sign in, give Otto your website address, answer four questions at most, and your first posts are ready within 24 hours.",
+    "headline": "For owners with no marketing team",
+    "description": "Posts, reels and ads by Otto",
+    "cta": "LEARN_MORE"
+   },
+   "lengths": {
+    "primary": 119,
+    "headline": 33,
+    "description": 28
+   },
+   "over_limit": [],
+   "n_texts": 12,
+   "violations": [],
+   "money_figures": [],
+   "possible_dutch": [],
+   "texts": [
+    {
+     "text": "Sign in, give Otto your website address, answer four questions at most, and your first posts are ready within 24 hours.",
+     "violations": []
+    },
+    {
+     "text": "For owners with no marketing team",
+     "violations": []
+    },
+    {
+     "text": "Posts, reels and ads by Otto",
+     "violations": []
+    },
+    {
+     "text": "What you still do",
+     "violations": []
+    },
+    {
+     "text": "With Otto",
+     "violations": []
+    },
+    {
+     "text": "Send your website address",
+     "violations": []
+    },
+    {
+     "text": "Once",
+     "violations": []
+    },
+    {
+     "text": "Answer four questions at most",
+     "violations": []
+    },
+    {
+     "text": "At the start",
+     "violations": []
+    },
+    {
+     "text": "Tap approve",
+     "violations": []
+    },
+    {
+     "text": "About half an hour a week",
+     "violations": []
+    },
+    {
+     "text": "Otto does the rest: planning, writing, design, posting and the morning report.",
+     "violations": []
+    }
+   ]
+  },
+  {
+   "id": "nl-a5-big-v",
+   "angle": "a5",
+   "style": "big_number",
+   "format": "video",
+   "engine_status": "ready",
+   "engine_reasons": [
+    "video not rendered yet (otto_motion)"
+   ],
+   "copy": {
+    "primary": "Try Otto free for 7 days. Sign in with Google, give it your website, and your first posts are ready within 24 hours.",
+    "headline": "Try Otto free for 7 days",
+    "description": "7 days free, no card",
+    "cta": "SIGN_UP"
+   },
+   "lengths": {
+    "primary": 116,
+    "headline": 24,
+    "description": 20
+   },
+   "over_limit": [],
+   "n_texts": 29,
+   "violations": [],
+   "money_figures": [],
+   "possible_dutch": [],
+   "texts": [
+    {
+     "text": "Try Otto free for 7 days. Sign in with Google, give it your website, and your first posts are ready within 24 hours.",
+     "violations": []
+    },
+    {
+     "text": "Try Otto free for 7 days",
+     "violations": []
+    },
+    {
+     "text": "7 days free, no card",
+     "violations": []
+    },
+    {
+     "text": "month",
+     "violations": []
+    },
+    {
+     "text": "7 days",
+     "violations": []
+    },
+    {
+     "text": "free.",
+     "violations": []
+    },
+    {
+     "text": "0 cards",
+     "violations": []
+    },
+    {
+     "text": "needed.",
+     "violations": []
+    },
+    {
+     "text": "24 hours",
+     "violations": []
+    },
+    {
+     "text": "to your first posts.",
+     "violations": []
+    },
+    {
+     "text": "review_nl_en",
+     "violations": []
+    },
+    {
+     "text": "Try Otto for 7 days.",
+     "violations": []
+    },
+    {
+     "text": "7 days.",
+     "violations": []
+    },
+    {
+     "text": "Free, no card needed.",
+     "violations": []
+    },
+    {
+     "text": "Nothing is charged automatically.",
+     "violations": []
+    },
+    {
+     "text": "month",
+     "violations": []
+    },
+    {
+     "text": "month",
+     "violations": []
+    },
+    {
+     "text": "7 days",
+     "violations": []
+    },
+    {
+     "text": "free.",
+     "violations": []
+    },
+    {
+     "text": "0 cards",
+     "violations": []
+    },
+    {
+     "text": "needed.",
+     "violations": []
+    },
+    {
+     "text": "24 hours",
+     "violations": []
+    },
+    {
+     "text": "to your first posts.",
+     "violations": []
+    },
+    {
+     "text": "review_nl_en",
+     "violations": []
+    },
+    {
+     "text": "Try Otto for 7 days.",
+     "violations": []
+    },
+    {
+     "text": "7 days.",
+     "violations": []
+    },
+    {
+     "text": "Free, no card needed.",
+     "violations": []
+    },
+    {
+     "text": "Nothing is charged automatically.",
+     "violations": []
+    },
+    {
+     "text": "month",
+     "violations": []
+    }
+   ]
+  },
+  {
+   "id": "nl-a5-texts-v",
+   "angle": "a5",
+   "style": "text_message",
+   "format": "video",
+   "engine_status": "ready",
+   "engine_reasons": [
+    "video not rendered yet (otto_motion)"
+   ],
+   "copy": {
+    "primary": "After 7 days you decide. Nothing is charged automatically, and if you pick a plan, everything Otto made carries on.",
+    "headline": "No card needed",
+    "description": "7 days free, no card",
+    "cta": "SIGN_UP"
+   },
+   "lengths": {
+    "primary": 115,
+    "headline": 14,
+    "description": 20
+   },
+   "over_limit": [],
+   "n_texts": 39,
+   "violations": [],
+   "money_figures": [],
+   "possible_dutch": [],
+   "texts": [
+    {
+     "text": "After 7 days you decide. Nothing is charged automatically, and if you pick a plan, everything Otto made carries on.",
+     "violations": []
+    },
+    {
+     "text": "No card needed",
+     "violations": []
+    },
+    {
+     "text": "7 days free, no card",
+     "violations": []
+    },
+    {
+     "text": "Otto",
+     "violations": []
+    },
+    {
+     "text": "O",
+     "violations": []
+    },
+    {
+     "text": "brand",
+     "violations": []
+    },
+    {
+     "text": "Today 10:12",
+     "violations": []
+    },
+    {
+     "text": "Message",
+     "violations": []
+    },
+    {
+     "text": "me",
+     "violations": []
+    },
+    {
+     "text": "What happens after the 7 days?",
+     "violations": []
+    },
+    {
+     "text": "them",
+     "violations": []
+    },
+    {
+     "text": "You get an e-mail two days before the end. Pick a plan and everything carries on.",
+     "violations": []
+    },
+    {
+     "text": "me",
+     "violations": []
+    },
+    {
+     "text": "And if I do nothing?",
+     "violations": []
+    },
+    {
+     "text": "them",
+     "violations": []
+    },
+    {
+     "text": "Then it stops. Nothing is charged.",
+     "violations": []
+    },
+    {
+     "text": "7 days free.",
+     "violations": []
+    },
+    {
+     "text": "free.",
+     "violations": []
+    },
+    {
+     "text": "First posts within 24 hours.",
+     "violations": []
+    },
+    {
+     "text": "No card needed. One trial per business.",
+     "violations": []
+    },
+    {
+     "text": "month",
+     "violations": []
+    },
+    {
+     "text": "Otto",
+     "violations": []
+    },
+    {
+     "text": "O",
+     "violations": []
+    },
+    {
+     "text": "brand",
+     "violations": []
+    },
+    {
+     "text": "Today 10:12",
+     "violations": []
+    },
+    {
+     "text": "Message",
+     "violations": []
+    },
+    {
+     "text": "me",
+     "violations": []
+    },
+    {
+     "text": "What happens after the 7 days?",
+     "violations": []
+    },
+    {
+     "text": "them",
+     "violations": []
+    },
+    {
+     "text": "You get an e-mail two days before the end. Pick a plan and everything carries on.",
+     "violations": []
+    },
+    {
+     "text": "me",
+     "violations": []
+    },
+    {
+     "text": "And if I do nothing?",
+     "violations": []
+    },
+    {
+     "text": "them",
+     "violations": []
+    },
+    {
+     "text": "Then it stops. Nothing is charged.",
+     "violations": []
+    },
+    {
+     "text": "7 days free.",
+     "violations": []
+    },
+    {
+     "text": "free.",
+     "violations": []
+    },
+    {
+     "text": "First posts within 24 hours.",
+     "violations": []
+    },
+    {
+     "text": "No card needed. One trial per business.",
+     "violations": []
+    },
+    {
+     "text": "month",
+     "violations": []
+    }
+   ]
+  },
+  {
+   "id": "nl-a5-versus-v",
+   "angle": "a5",
+   "style": "us_vs_them",
+   "format": "video",
+   "engine_status": "ready",
+   "engine_reasons": [
+    "video not rendered yet (otto_motion)"
+   ],
+   "copy": {
+    "primary": "Your first week of posts, stories and reels, in Dutch or English, plus the 07:35 report. Free for 7 days, no card.",
+    "headline": "Try Otto free for 7 days",
+    "description": "7 days free, no card",
+    "cta": "SIGN_UP"
+   },
+   "lengths": {
+    "primary": 114,
+    "headline": 24,
+    "description": 20
+   },
+   "over_limit": [],
+   "n_texts": 33,
+   "violations": [],
+   "money_figures": [],
+   "possible_dutch": [],
+   "texts": [
+    {
+     "text": "Your first week of posts, stories and reels, in Dutch or English, plus the 07:35 report. Free for 7 days, no card.",
+     "violations": []
+    },
+    {
+     "text": "Try Otto free for 7 days",
+     "violations": []
+    },
+    {
+     "text": "7 days free, no card",
+     "violations": []
+    },
+    {
+     "text": "vs",
+     "violations": []
+    },
+    {
+     "text": "DIY",
+     "violations": []
+    },
+    {
+     "text": "Your evenings",
+     "violations": []
+    },
+    {
+     "text": "Filming reels",
+     "violations": []
+    },
+    {
+     "text": "Guessing",
+     "violations": []
+    },
+    {
+     "text": "Otto",
+     "violations": []
+    },
+    {
+     "text": "Posts ready",
+     "violations": []
+    },
+    {
+     "text": "Reels included",
+     "violations": []
+    },
+    {
+     "text": "Report at 07:35",
+     "violations": []
+    },
+    {
+     "text": "7 days free, no card.",
+     "violations": []
+    },
+    {
+     "text": "Try Otto free.",
+     "violations": []
+    },
+    {
+     "text": "free.",
+     "violations": []
+    },
+    {
+     "text": "7 days, no card.",
+     "violations": []
+    },
+    {
+     "text": "Nothing is charged automatically.",
+     "violations": []
+    },
+    {
+     "text": "month",
+     "violations": []
+    },
+    {
+     "text": "vs",
+     "violations": []
+    },
+    {
+     "text": "DIY",
+     "violations": []
+    },
+    {
+     "text": "Your evenings",
+     "violations": []
+    },
+    {
+     "text": "Filming reels",
+     "violations": []
+    },
+    {
+     "text": "Guessing",
+     "violations": []
+    },
+    {
+     "text": "Otto",
+     "violations": []
+    },
+    {
+     "text": "Posts ready",
+     "violations": []
+    },
+    {
+     "text": "Reels included",
+     "violations": []
+    },
+    {
+     "text": "Report at 07:35",
+     "violations": []
+    },
+    {
+     "text": "7 days free, no card.",
+     "violations": []
+    },
+    {
+     "text": "Try Otto free.",
+     "violations": []
+    },
+    {
+     "text": "free.",
+     "violations": []
+    },
+    {
+     "text": "7 days, no card.",
+     "violations": []
+    },
+    {
+     "text": "Nothing is charged automatically.",
+     "violations": []
+    },
+    {
+     "text": "month",
+     "violations": []
+    }
+   ]
+  },
+  {
+   "id": "nl-a5-offer",
+   "angle": "a5",
+   "style": "offer",
+   "format": "image",
+   "engine_status": "ready",
+   "engine_reasons": [],
+   "copy": {
+    "primary": "Try Otto free for 7 days. Sign in with Google, give it your website, and your first posts are ready within 24 hours.",
+    "headline": "No card needed",
+    "description": "7 days free, no card",
+    "cta": "SIGN_UP"
+   },
+   "lengths": {
+    "primary": 116,
+    "headline": 14,
+    "description": 20
+   },
+   "over_limit": [],
+   "n_texts": 13,
+   "violations": [],
+   "money_figures": [],
+   "possible_dutch": [],
+   "texts": [
+    {
+     "text": "Try Otto free for 7 days. Sign in with Google, give it your website, and your first posts are ready within 24 hours.",
+     "violations": []
+    },
+    {
+     "text": "No card needed",
+     "violations": []
+    },
+    {
+     "text": "7 days free, no card",
+     "violations": []
+    },
+    {
+     "text": "Free trial",
+     "violations": []
+    },
+    {
+     "text": "Free",
+     "violations": []
+    },
+    {
+     "text": "7 days, no card",
+     "violations": []
+    },
+    {
+     "text": "Your first week of posts, stories and reels",
+     "violations": []
+    },
+    {
+     "text": "Approve by e-mail, in Telegram or in the app",
+     "violations": []
+    },
+    {
+     "text": "Your report at 07:35",
+     "violations": []
+    },
+    {
+     "text": "Your ads planned for you to see",
+     "violations": []
+    },
+    {
+     "text": "Sign up",
+     "violations": []
+    },
+    {
+     "text": "Sign in with Google. One trial per business. Nothing is charged automatically when it ends.",
+     "violations": []
+    },
+    {
+     "text": "Free week",
+     "violations": []
+    }
+   ]
+  },
+  {
+   "id": "nl-a5-product",
+   "angle": "a5",
+   "style": "product_hero",
+   "format": "image",
+   "engine_status": "ready",
+   "engine_reasons": [],
+   "copy": {
+    "primary": "After 7 days you decide. Nothing is charged automatically, and if you pick a plan, everything Otto made carries on.",
+    "headline": "Try Otto free for 7 days",
+    "description": "7 days free, no card",
+    "cta": "SIGN_UP"
+   },
+   "lengths": {
+    "primary": 115,
+    "headline": 24,
+    "description": 20
+   },
+   "over_limit": [],
+   "n_texts": 8,
+   "violations": [],
+   "money_figures": [],
+   "possible_dutch": [],
+   "texts": [
+    {
+     "text": "After 7 days you decide. Nothing is charged automatically, and if you pick a plan, everything Otto made carries on.",
+     "violations": []
+    },
+    {
+     "text": "Try Otto free for 7 days",
+     "violations": []
+    },
+    {
+     "text": "7 days free, no card",
+     "violations": []
+    },
+    {
+     "text": "7 days *free*",
+     "violations": []
+    },
+    {
+     "text": "No card needed",
+     "violations": []
+    },
+    {
+     "text": "Posts in Dutch or English",
+     "violations": []
+    },
+    {
+     "text": "First posts within 24 hours",
+     "violations": []
+    },
+    {
+     "text": "Free week",
+     "violations": []
+    }
+   ]
+  },
+  {
+   "id": "nl-a5-notes",
+   "angle": "a5",
+   "style": "notes_app",
+   "format": "image",
+   "engine_status": "ready",
+   "engine_reasons": [],
+   "copy": {
+    "primary": "Your first week of posts, stories and reels, in Dutch or English, plus the 07:35 report. Free for 7 days, no card.",
+    "headline": "No card needed",
+    "description": "7 days free, no card",
+    "cta": "SIGN_UP"
+   },
+   "lengths": {
+    "primary": 114,
+    "headline": 14,
+    "description": 20
+   },
+   "over_limit": [],
+   "n_texts": 12,
+   "violations": [],
+   "money_figures": [],
+   "possible_dutch": [],
+   "texts": [
+    {
+     "text": "Your first week of posts, stories and reels, in Dutch or English, plus the 07:35 report. Free for 7 days, no card.",
+     "violations": []
+    },
+    {
+     "text": "No card needed",
+     "violations": []
+    },
+    {
+     "text": "7 days free, no card",
+     "violations": []
+    },
+    {
+     "text": "What you get in the free week",
+     "violations": []
+    },
+    {
+     "text": "Your first week of posts and stories",
+     "violations": []
+    },
+    {
+     "text": "Reels from your own website",
+     "violations": []
+    },
+    {
+     "text": "Approve by e-mail or in the app",
+     "violations": []
+    },
+    {
+     "text": "Your report every morning at 07:35",
+     "violations": []
+    },
+    {
+     "text": "Your ads planned for you to see",
+     "violations": []
+    },
+    {
+     "text": "Today at 09:12",
+     "violations": []
+    },
+    {
+     "text": "*7 days free*, no card",
+     "violations": []
+    },
+    {
+     "text": "Try it first, *then decide*",
+     "violations": []
+    }
+   ]
+  },
+  {
+   "id": "nl-a6-texts-v",
+   "angle": "a6",
+   "style": "text_message",
+   "format": "video",
+   "engine_status": "ready",
+   "engine_reasons": [
+    "video not rendered yet (otto_motion)"
+   ],
+   "copy": {
+    "primary": "Sinterklaas, Christmas, New Year's Eve. Otto plans the run-up ahead, so you can just work. You approve it all first.",
+    "headline": "Your busy season, planned ahead",
+    "description": "Your busy season, planned",
+    "cta": "LEARN_MORE"
+   },
+   "lengths": {
+    "primary": 116,
+    "headline": 31,
+    "description": 25
+   },
+   "over_limit": [],
+   "n_texts": 39,
+   "violations": [],
+   "money_figures": [],
+   "possible_dutch": [],
+   "texts": [
+    {
+     "text": "Sinterklaas, Christmas, New Year's Eve. Otto plans the run-up ahead, so you can just work. You approve it all first.",
+     "violations": []
+    },
+    {
+     "text": "Your busy season, planned ahead",
+     "violations": []
+    },
+    {
+     "text": "Your busy season, planned",
+     "violations": []
+    },
+    {
+     "text": "Otto",
+     "violations": []
+    },
+    {
+     "text": "O",
+     "violations": []
+    },
+    {
+     "text": "brand",
+     "violations": []
+    },
+    {
+     "text": "Sample · 26 October",
+     "violations": []
+    },
+    {
+     "text": "Message",
+     "violations": []
+    },
+    {
+     "text": "them",
+     "violations": []
+    },
+    {
+     "text": "Your November is ready to review.",
+     "violations": []
+    },
+    {
+     "text": "them",
+     "violations": []
+    },
+    {
+     "text": "Sinterklaas gift ideas, gift cards and your late opening hours are in.",
+     "violations": []
+    },
+    {
+     "text": "me",
+     "violations": []
+    },
+    {
+     "text": "Show me",
+     "violations": []
+    },
+    {
+     "text": "them",
+     "violations": []
+    },
+    {
+     "text": "Here's the plan. Tap approve or ask for a change.",
+     "violations": []
+    },
+    {
+     "text": "Your busy season, planned.",
+     "violations": []
+    },
+    {
+     "text": "planned.",
+     "violations": []
+    },
+    {
+     "text": "You approve it all in advance.",
+     "violations": []
+    },
+    {
+     "text": "Try it free for 7 days, no card needed.",
+     "violations": []
+    },
+    {
+     "text": "month",
+     "violations": []
+    },
+    {
+     "text": "Otto",
+     "violations": []
+    },
+    {
+     "text": "O",
+     "violations": []
+    },
+    {
+     "text": "brand",
+     "violations": []
+    },
+    {
+     "text": "Sample · 26 October",
+     "violations": []
+    },
+    {
+     "text": "Message",
+     "violations": []
+    },
+    {
+     "text": "them",
+     "violations": []
+    },
+    {
+     "text": "Your November is ready to review.",
+     "violations": []
+    },
+    {
+     "text": "them",
+     "violations": []
+    },
+    {
+     "text": "Sinterklaas gift ideas, gift cards and your late opening hours are in.",
+     "violations": []
+    },
+    {
+     "text": "me",
+     "violations": []
+    },
+    {
+     "text": "Show me",
+     "violations": []
+    },
+    {
+     "text": "them",
+     "violations": []
+    },
+    {
+     "text": "Here's the plan. Tap approve or ask for a change.",
+     "violations": []
+    },
+    {
+     "text": "Your busy season, planned.",
+     "violations": []
+    },
+    {
+     "text": "planned.",
+     "violations": []
+    },
+    {
+     "text": "You approve it all in advance.",
+     "violations": []
+    },
+    {
+     "text": "Try it free for 7 days, no card needed.",
+     "violations": []
+    },
+    {
+     "text": "month",
+     "violations": []
+    }
+   ]
+  },
+  {
+   "id": "nl-a6-big-v",
+   "angle": "a6",
+   "style": "big_number",
+   "format": "video",
+   "engine_status": "ready",
+   "engine_reasons": [
+    "video not rendered yet (otto_motion)"
+   ],
+   "copy": {
+    "primary": "December is your busiest month and your least free one. Let Otto line up your posts, reels and ads before the rush.",
+    "headline": "Sinterklaas to New Year, sorted",
+    "description": "Your busy season, planned",
+    "cta": "LEARN_MORE"
+   },
+   "lengths": {
+    "primary": 115,
+    "headline": 31,
+    "description": 25
+   },
+   "over_limit": [],
+   "n_texts": 29,
+   "violations": [],
+   "money_figures": [],
+   "possible_dutch": [],
+   "texts": [
+    {
+     "text": "December is your busiest month and your least free one. Let Otto line up your posts, reels and ads before the rush.",
+     "violations": []
+    },
+    {
+     "text": "Sinterklaas to New Year, sorted",
+     "violations": []
+    },
+    {
+     "text": "Your busy season, planned",
+     "violations": []
+    },
+    {
+     "text": "month",
+     "violations": []
+    },
+    {
+     "text": "Sinterklaas.",
+     "violations": []
+    },
+    {
+     "text": "Planned.",
+     "violations": []
+    },
+    {
+     "text": "Christmas.",
+     "violations": []
+    },
+    {
+     "text": "Planned.",
+     "violations": []
+    },
+    {
+     "text": "You?",
+     "violations": []
+    },
+    {
+     "text": "Working.",
+     "violations": []
+    },
+    {
+     "text": "month",
+     "violations": []
+    },
+    {
+     "text": "Your December, already planned.",
+     "violations": []
+    },
+    {
+     "text": "already planned.",
+     "violations": []
+    },
+    {
+     "text": "Posts, reels and ads, made by Otto.",
+     "violations": []
+    },
+    {
+     "text": "Try it free for 7 days, no card needed.",
+     "violations": []
+    },
+    {
+     "text": "month",
+     "violations": []
+    },
+    {
+     "text": "month",
+     "violations": []
+    },
+    {
+     "text": "Sinterklaas.",
+     "violations": []
+    },
+    {
+     "text": "Planned.",
+     "violations": []
+    },
+    {
+     "text": "Christmas.",
+     "violations": []
+    },
+    {
+     "text": "Planned.",
+     "violations": []
+    },
+    {
+     "text": "You?",
+     "violations": []
+    },
+    {
+     "text": "Working.",
+     "violations": []
+    },
+    {
+     "text": "month",
+     "violations": []
+    },
+    {
+     "text": "Your December, already planned.",
+     "violations": []
+    },
+    {
+     "text": "already planned.",
+     "violations": []
+    },
+    {
+     "text": "Posts, reels and ads, made by Otto.",
+     "violations": []
+    },
+    {
+     "text": "Try it free for 7 days, no card needed.",
+     "violations": []
+    },
+    {
+     "text": "month",
+     "violations": []
+    }
+   ]
+  },
+  {
+   "id": "nl-a6-notes-v",
+   "angle": "a6",
+   "style": "notes_app",
+   "format": "video",
+   "engine_status": "ready",
+   "engine_reasons": [
+    "video not rendered yet (otto_motion)"
+   ],
+   "copy": {
+    "primary": "Gift cards, holiday opening hours, your Christmas menu: Otto plans them for the hours your customers are online.",
+    "headline": "Your busy season, planned ahead",
+    "description": "Your busy season, planned",
+    "cta": "LEARN_MORE"
+   },
+   "lengths": {
+    "primary": 112,
+    "headline": 31,
+    "description": 25
+   },
+   "over_limit": [],
+   "n_texts": 25,
+   "violations": [],
+   "money_figures": [],
+   "possible_dutch": [],
+   "texts": [
+    {
+     "text": "Gift cards, holiday opening hours, your Christmas menu: Otto plans them for the hours your customers are online.",
+     "violations": []
+    },
+    {
+     "text": "Your busy season, planned ahead",
+     "violations": []
+    },
+    {
+     "text": "Your busy season, planned",
+     "violations": []
+    },
+    {
+     "text": "Sunday, 21:10",
+     "violations": []
+    },
+    {
+     "text": "Holiday marketing to-do",
+     "violations": []
+    },
+    {
+     "text": "Sinterklaas post",
+     "violations": []
+    },
+    {
+     "text": "gift card reel",
+     "violations": []
+    },
+    {
+     "text": "Christmas menu ad",
+     "violations": []
+    },
+    {
+     "text": "approve the plan",
+     "violations": []
+    },
+    {
+     "text": "Your busy season, planned.",
+     "violations": []
+    },
+    {
+     "text": "planned.",
+     "violations": []
+    },
+    {
+     "text": "Otto plans the busy weeks. You approve.",
+     "violations": []
+    },
+    {
+     "text": "Try it free for 7 days, no card needed.",
+     "violations": []
+    },
+    {
+     "text": "month",
+     "violations": []
+    },
+    {
+     "text": "Sunday, 21:10",
+     "violations": []
+    },
+    {
+     "text": "Holiday marketing to-do",
+     "violations": []
+    },
+    {
+     "text": "Sinterklaas post",
+     "violations": []
+    },
+    {
+     "text": "gift card reel",
+     "violations": []
+    },
+    {
+     "text": "Christmas menu ad",
+     "violations": []
+    },
+    {
+     "text": "approve the plan",
+     "violations": []
+    },
+    {
+     "text": "Your busy season, planned.",
+     "violations": []
+    },
+    {
+     "text": "planned.",
+     "violations": []
+    },
+    {
+     "text": "Otto plans the busy weeks. You approve.",
+     "violations": []
+    },
+    {
+     "text": "Try it free for 7 days, no card needed.",
+     "violations": []
+    },
+    {
+     "text": "month",
+     "violations": []
+    }
+   ]
+  },
+  {
+   "id": "nl-a6-before",
+   "angle": "a6",
+   "style": "before_after",
+   "format": "image",
+   "engine_status": "ready",
+   "engine_reasons": [],
+   "copy": {
+    "primary": "Sinterklaas, Christmas, New Year's Eve. Otto plans the run-up ahead, so you can just work. You approve it all first.",
+    "headline": "Sinterklaas to New Year, sorted",
+    "description": "Your busy season, planned",
+    "cta": "LEARN_MORE"
+   },
+   "lengths": {
+    "primary": 116,
+    "headline": 31,
+    "description": 25
+   },
+   "over_limit": [],
+   "n_texts": 8,
+   "violations": [],
+   "money_figures": [],
+   "possible_dutch": [],
+   "texts": [
+    {
+     "text": "Sinterklaas, Christmas, New Year's Eve. Otto plans the run-up ahead, so you can just work. You approve it all first.",
+     "violations": []
+    },
+    {
+     "text": "Sinterklaas to New Year, sorted",
+     "violations": []
+    },
+    {
+     "text": "Your busy season, planned",
+     "violations": []
+    },
+    {
+     "text": "December: posting something quick every evening",
+     "violations": []
+    },
+    {
+     "text": "Now: the busy weeks planned, approved in one go",
+     "violations": []
+    },
+    {
+     "text": "Without Otto",
+     "violations": []
+    },
+    {
+     "text": "With Otto",
+     "violations": []
+    },
+    {
+     "text": "The holidays",
+     "violations": []
+    }
+   ]
+  },
+  {
+   "id": "nl-a6-product",
+   "angle": "a6",
+   "style": "product_hero",
+   "format": "image",
+   "engine_status": "ready",
+   "engine_reasons": [],
+   "copy": {
+    "primary": "December is your busiest month and your least free one. Let Otto line up your posts, reels and ads before the rush.",
+    "headline": "Your busy season, planned ahead",
+    "description": "Your busy season, planned",
+    "cta": "LEARN_MORE"
+   },
+   "lengths": {
+    "primary": 115,
+    "headline": 31,
+    "description": 25
+   },
+   "over_limit": [],
+   "n_texts": 8,
+   "violations": [],
+   "money_figures": [],
+   "possible_dutch": [],
+   "texts": [
+    {
+     "text": "December is your busiest month and your least free one. Let Otto line up your posts, reels and ads before the rush.",
+     "violations": []
+    },
+    {
+     "text": "Your busy season, planned ahead",
+     "violations": []
+    },
+    {
+     "text": "Your busy season, planned",
+     "violations": []
+    },
+    {
+     "text": "December, *already planned*",
+     "violations": []
+    },
+    {
+     "text": "Sinterklaas and Christmas",
+     "violations": []
+    },
+    {
+     "text": "Gift cards and opening hours",
+     "violations": []
+    },
+    {
+     "text": "You approve it all first",
+     "violations": []
+    },
+    {
+     "text": "The holidays",
+     "violations": []
+    }
+   ]
+  },
+  {
+   "id": "nl-a6-search",
+   "angle": "a6",
+   "style": "search",
+   "format": "image",
+   "engine_status": "ready",
+   "engine_reasons": [],
+   "copy": {
+    "primary": "Gift cards, holiday opening hours, your Christmas menu: Otto plans them for the hours your customers are online.",
+    "headline": "Sinterklaas to New Year, sorted",
+    "description": "Your busy season, planned",
+    "cta": "LEARN_MORE"
+   },
+   "lengths": {
+    "primary": 112,
+    "headline": 31,
+    "description": 25
+   },
+   "over_limit": [],
+   "n_texts": 9,
+   "violations": [],
+   "money_figures": [],
+   "possible_dutch": [],
+   "texts": [
+    {
+     "text": "Gift cards, holiday opening hours, your Christmas menu: Otto plans them for the hours your customers are online.",
+     "violations": []
+    },
+    {
+     "text": "Sinterklaas to New Year, sorted",
+     "violations": []
+    },
+    {
+     "text": "Your busy season, planned",
+     "violations": []
+    },
+    {
+     "text": "christmas social media ideas",
+     "violations": []
+    },
+    {
+     "text": "christmas social media ideas for restaurants",
+     "violations": []
+    },
+    {
+     "text": "christmas social media ideas for shops",
+     "violations": []
+    },
+    {
+     "text": "christmas social media ideas for salons",
+     "violations": []
+    },
+    {
+     "text": "christmas social media ideas for small business",
+     "violations": []
+    },
+    {
+     "text": "No plan for December yet? *Otto has one.*",
+     "violations": []
+    }
+   ]
+  }
+ ],
+ "matrix_gaps": [],
+ "copy_gaps": [],
+ "size": "6 concepts × 6 styles = 36 ads (18 video)",
+ "rules": {
+  "error": null,
+  "baseline": null,
+  "countries": [
+   "NL"
+  ],
+  "industries": {
+   "b2b": "compliance.json"
+  }
+ },
+ "baselines": [
+  "eu-prescription-medicine",
+  "eu-generic-green-claim",
+  "eu-offset-neutral-claim",
+  "eu-gambling-offer",
+  "nl-alcohol-nix18",
+  "nl-alcohol-age-gate",
+  "alcohol-themes",
+  "alcohol-excess",
+  "nl-influencer-disclosure"
+ ]
+}

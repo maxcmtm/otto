@@ -1,0 +1,43 @@
+{
+  "notes": "Presentation only (grounds, music, timing) for Otto's own October launch video cells (ads-2026-10-ie.json); the copy lives in the matrix cells and is copied verbatim by motion/ad-kit/from_matrix.py. Same look as November: light first, porcelain / cobalt grounds, one accent per frame, synthesized music and UI sounds, no voice.",
+  "defaults": {
+    "notes": {
+      "ground": "primary",
+      "endground": "bg",
+      "music": {
+        "bpm": 120,
+        "mood": "calm",
+        "key": "F"
+      }
+    },
+    "texts": {
+      "ground": "wash",
+      "endground": "primary",
+      "music": {
+        "bpm": 120,
+        "mood": "calm",
+        "key": "C"
+      }
+    },
+    "versus": {
+      "ground": "bg",
+      "endground": "night",
+      "music": {
+        "bpm": 120,
+        "mood": "calm",
+        "key": "F"
+      }
+    },
+    "big": {
+      "ground": "primary",
+      "endground": "bg",
+      "music": {
+        "bpm": 120,
+        "mood": "punchy",
+        "key": "C"
+      }
+    }
+  },
+  "roles": {},
+  "cells": {}
+}

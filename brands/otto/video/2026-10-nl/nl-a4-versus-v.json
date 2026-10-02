@@ -1,0 +1,47 @@
+{
+  "id": "nl-a4-versus-v",
+  "style": "versus",
+  "formats": [
+    "9x16"
+  ],
+  "music": {
+    "bpm": 120,
+    "mood": "calm",
+    "key": "F"
+  },
+  "scene": {
+    "ground": "bg"
+  },
+  "versus": {
+    "vs": "vs",
+    "left": {
+      "label": "On your own",
+      "rows": [
+        "Posting at 23:00",
+        "Guessing on ads",
+        "No time for reels"
+      ]
+    },
+    "right": {
+      "label": "With Otto",
+      "image": "month",
+      "rows": [
+        "Month planned",
+        "Report at 07:35",
+        "Reels, ready"
+      ]
+    },
+    "footer": "You tap approve."
+  },
+  "endcard": {
+    "headline": "Your month, ready.",
+    "accent": "ready.",
+    "sub": "Posts, stories and reels, planned ahead.",
+    "fine": "Try it free for 7 days, no card needed.",
+    "products": [
+      "month"
+    ],
+    "logo": "logo_white",
+    "ground": "night"
+  }
+}

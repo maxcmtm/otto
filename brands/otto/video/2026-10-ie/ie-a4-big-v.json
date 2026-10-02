@@ -1,0 +1,44 @@
+{
+  "id": "ie-a4-big-v",
+  "style": "big",
+  "formats": [
+    "9x16"
+  ],
+  "music": {
+    "bpm": 120,
+    "mood": "punchy",
+    "key": "C"
+  },
+  "scene": {
+    "ground": "primary"
+  },
+  "big": {
+    "hero": "hero",
+    "phrases": [
+      {
+        "big": "30 min",
+        "rest": "a week, roughly."
+      },
+      {
+        "big": "4 questions",
+        "rest": "at the start, max."
+      },
+      {
+        "big": "1 tap",
+        "rest": "per post.",
+        "product": "review_ie"
+      }
+    ]
+  },
+  "endcard": {
+    "headline": "You run it. Otto posts.",
+    "accent": "Otto posts.",
+    "sub": "Posts, reels and ads, ready for your approval.",
+    "fine": "Try it free for 7 days, no card needed.",
+    "products": [
+      "month"
+    ],
+    "logo": "logo",
+    "ground": "bg"
+  }
+}

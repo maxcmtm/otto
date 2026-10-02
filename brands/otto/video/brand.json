@@ -33,7 +33,8 @@
     "review_nl": "otto-phone-review-nl-cutout.png",
     "review_ie": "otto-phone-review-ie-cutout.png",
     "logo": "../logo.svg",
-    "logo_white": "../logo-white.svg"
+    "logo_white": "../logo-white.svg",
+    "review_nl_en": "otto-phone-review-nl-en-cutout.png"
   },
   "legal": {}
 }

@@ -1,0 +1,37 @@
+{
+  "id": "ie-a2-notes-v",
+  "style": "notes",
+  "formats": [
+    "9x16",
+    "4x5"
+  ],
+  "music": {
+    "bpm": 120,
+    "mood": "calm",
+    "key": "F"
+  },
+  "scene": {
+    "ground": "primary"
+  },
+  "note": {
+    "meta": "Monday, 7:41 AM",
+    "title": "Marketing jobs I've dropped",
+    "struck": [
+      "posting at 11pm",
+      "guessing what the ads did",
+      "reading a monthly PDF"
+    ],
+    "keep": "reading Otto's 7:35 message"
+  },
+  "endcard": {
+    "headline": "Know by 7:35.",
+    "accent": "7:35.",
+    "sub": "What it cost, what came in, what's waiting.",
+    "fine": "Try it free for 7 days, no card needed.",
+    "products": [
+      "pack"
+    ],
+    "logo": "logo",
+    "ground": "bg"
+  }
+}

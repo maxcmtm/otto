@@ -1,0 +1,47 @@
+{
+  "id": "ie-a5-versus-v",
+  "style": "versus",
+  "formats": [
+    "9x16"
+  ],
+  "music": {
+    "bpm": 120,
+    "mood": "calm",
+    "key": "F"
+  },
+  "scene": {
+    "ground": "bg"
+  },
+  "versus": {
+    "vs": "vs",
+    "left": {
+      "label": "DIY",
+      "rows": [
+        "Your evenings",
+        "Filming reels",
+        "Guessing"
+      ]
+    },
+    "right": {
+      "label": "Otto",
+      "image": "month",
+      "rows": [
+        "Posts ready",
+        "Reels included",
+        "Report at 7:35"
+      ]
+    },
+    "footer": "7 days free, no card."
+  },
+  "endcard": {
+    "headline": "Try Otto free.",
+    "accent": "free.",
+    "sub": "7 days, no card.",
+    "fine": "Nothing is charged automatically.",
+    "products": [
+      "month"
+    ],
+    "logo": "logo_white",
+    "ground": "night"
+  }
+}

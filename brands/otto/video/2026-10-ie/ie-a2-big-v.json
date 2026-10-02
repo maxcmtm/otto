@@ -1,0 +1,44 @@
+{
+  "id": "ie-a2-big-v",
+  "style": "big",
+  "formats": [
+    "9x16"
+  ],
+  "music": {
+    "bpm": 120,
+    "mood": "punchy",
+    "key": "C"
+  },
+  "scene": {
+    "ground": "primary"
+  },
+  "big": {
+    "hero": "hero",
+    "phrases": [
+      {
+        "big": "7:35",
+        "rest": "every morning."
+      },
+      {
+        "big": "1 message",
+        "rest": "what it cost, what came in."
+      },
+      {
+        "big": "1 tap",
+        "rest": "to approve.",
+        "product": "hero"
+      }
+    ]
+  },
+  "endcard": {
+    "headline": "One message. Every morning.",
+    "accent": "Every morning.",
+    "sub": "Posts, reels and ads, made by Otto.",
+    "fine": "Try it free for 7 days, no card needed.",
+    "products": [
+      "pack"
+    ],
+    "logo": "logo",
+    "ground": "bg"
+  }
+}

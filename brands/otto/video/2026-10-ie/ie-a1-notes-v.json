@@ -1,0 +1,37 @@
+{
+  "id": "ie-a1-notes-v",
+  "style": "notes",
+  "formats": [
+    "9x16",
+    "4x5"
+  ],
+  "music": {
+    "bpm": 120,
+    "mood": "calm",
+    "key": "F"
+  },
+  "scene": {
+    "ground": "primary"
+  },
+  "note": {
+    "meta": "Sunday, 9:40 PM",
+    "title": "Things I've stopped doing for a reel",
+    "struck": [
+      "filming during the breakfast rush",
+      "editing till midnight",
+      "typing out captions"
+    ],
+    "keep": "tapping approve"
+  },
+  "endcard": {
+    "headline": "Reels, without the filming.",
+    "accent": "without the filming.",
+    "sub": "Otto makes them from your own website.",
+    "fine": "Try it free for 7 days, no card needed.",
+    "products": [
+      "month"
+    ],
+    "logo": "logo",
+    "ground": "bg"
+  }
+}

@@ -1,0 +1,44 @@
+{
+  "id": "ie-a3-big-v",
+  "style": "big",
+  "formats": [
+    "9x16"
+  ],
+  "music": {
+    "bpm": 120,
+    "mood": "punchy",
+    "key": "C"
+  },
+  "scene": {
+    "ground": "primary"
+  },
+  "big": {
+    "hero": "review_ie",
+    "phrases": [
+      {
+        "big": "Your town.",
+        "rest": "Not California."
+      },
+      {
+        "big": "Your words.",
+        "rest": "From your own website."
+      },
+      {
+        "big": "Your say-so.",
+        "rest": "Before anything goes out.",
+        "product": "review_ie"
+      }
+    ]
+  },
+  "endcard": {
+    "headline": "Sounds like your business.",
+    "accent": "your business.",
+    "sub": "Posts, reels and ads in Irish English.",
+    "fine": "Try it free for 7 days, no card needed.",
+    "products": [
+      "review_ie"
+    ],
+    "logo": "logo",
+    "ground": "bg"
+  }
+}

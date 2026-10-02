@@ -1,0 +1,37 @@
+{
+  "id": "nl-a6-notes-v",
+  "style": "notes",
+  "formats": [
+    "9x16",
+    "4x5"
+  ],
+  "music": {
+    "bpm": 120,
+    "mood": "calm",
+    "key": "F"
+  },
+  "scene": {
+    "ground": "primary"
+  },
+  "note": {
+    "meta": "Sunday, 21:10",
+    "title": "Holiday marketing to-do",
+    "struck": [
+      "Sinterklaas post",
+      "gift card reel",
+      "Christmas menu ad"
+    ],
+    "keep": "approve the plan"
+  },
+  "endcard": {
+    "headline": "Your busy season, planned.",
+    "accent": "planned.",
+    "sub": "Otto plans the busy weeks. You approve.",
+    "fine": "Try it free for 7 days, no card needed.",
+    "products": [
+      "month"
+    ],
+    "logo": "logo",
+    "ground": "bg"
+  }
+}
