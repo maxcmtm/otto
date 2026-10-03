@@ -50,7 +50,7 @@ Visuals: the card is rendered with otto_render's HTML templates (editorial 4:5, 
 cover / one card per point / CTA card) in the brand's look (brand_tokens: profile palette, scan, logo), on the site's own
 photos (brands/<id>/assets/, assets/site/<id>/, else the scanned og:image fetched once through otto_scan's SSRF guard),
 named with otto_paths.token_name + the post's media token, AI marks carried over from a marked source photo
-(otto_provenance.propagate, recorded in post.media_ai), made public with otto_paths.publish. No Leonardo key needed. A reel
+(otto_provenance.propagate, recorded in post.media_ai), made public with otto_paths.publish. No image-generation key needed. A reel
 gets its script, caption and cover; the video itself is the `reels` job's (never blocks the batch). A render that fails
 leaves the copy in approvals without a picture (genvisuals can add one) and files one owner card. A process that cannot start
 headless Chrome (the API service's sandbox, where the trial kickoff's background run lives) leaves copy.render "pending":
@@ -1252,7 +1252,7 @@ def render_pending(bid=None, out=print):
                 upsert_note(d2, b_id, "P2", f"Post images not rendered: {b.get('name') or b_id}",
                             "The copy is in approvals without a picture: " + "; ".join(errors[:4])
                             + ". otto_render needs headless Chrome (OTTO_CHROME); genvisuals.py --brand " + b_id
-                            + " can add images (Leonardo).", "Instagram cannot publish a post without a picture", "Check", [])
+                            + " can add images (Higgsfield GPT Image 2, or Leonardo).", "Instagram cannot publish a post without a picture", "Check", [])
         out(f"{b_id}: {sum(1 for _, m, _ in rendered if m)} card set(s) rendered" + (f", {len(errors)} failed" if errors else ""))
     return done
 
@@ -1574,7 +1574,7 @@ class Run:
             upsert_note(d, self.bid, "P2", f"Post images not rendered: {name}",
                         "The copy is in approvals without a picture: " + "; ".join(self.notes["render"][:4])
                         + ". otto_render needs headless Chrome (OTTO_CHROME); genvisuals.py --brand " + self.bid
-                        + " can add images (Leonardo).", "Instagram cannot publish a post without a picture", "Check", [])
+                        + " can add images (Higgsfield GPT Image 2, or Leonardo).", "Instagram cannot publish a post without a picture", "Check", [])
 
 
 def _public_draft(f):

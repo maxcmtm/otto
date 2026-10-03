@@ -63,6 +63,9 @@ platform/.email-state.json
 platform/.email-state.json.lock
 platform/.email-link-secret
 platform/outbox/
+# AI usage ledgers (otto_copy, otto_imagegen): per-day calls / images / estimated spend, written next to data.json
+platform/copy-usage.json*
+platform/imagegen-usage.json*
 
 # motion: regenerable media (source scripts are committed)
 motion/*/assets/*.mp4

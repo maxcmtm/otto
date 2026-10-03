@@ -107,7 +107,6 @@ NAMED_ASPECTS = {"story": "9:16", "reel": "9:16", "scene": "9:16", "vertical": "
                  "portrait": "4:5", "square": "1:1", "post": "1:1", "landscape": "16:9"}
 SLEEP = time.sleep                          # tests replace SLEEP / CLOCK with a fake clock
 CLOCK = time.monotonic
-_tls = threading.local()
 
 
 # ============================================================================================ errors
@@ -482,7 +481,7 @@ def _call(cfg, method, url, payload=None, idem=None, retries=None, timeout=60, w
             else:
                 cls = ERRORS.get(code, InvalidRequest)
                 raise cls(f"Higgsfield {what}: {WHAT.get(code, 'the request was rejected')} — {detail}", code, correlation_id=corr)
-        except (urllib.error.URLError, socket.timeout, ConnectionError, http.client.HTTPException, TimeoutError) as e:
+        except (urllib.error.URLError, socket.timeout, ConnectionError, http.client.HTTPException, OSError) as e:
             reason = getattr(e, "reason", e)
             last = ServerError(f"Higgsfield {what}: network — {type(e).__name__}: {_scrub(reason, cfg)}")
             wait = _backoff(attempt, 1.0, 30.0)
@@ -507,7 +506,7 @@ def _get_bytes(cfg, url, limit, what="download", tries=3):
             last = DownloadError(f"Higgsfield {what}: HTTP {e.code}", e.code)
             if e.code < 500 and e.code != 429:
                 raise last
-        except (urllib.error.URLError, socket.timeout, ConnectionError, http.client.HTTPException, TimeoutError) as e:
+        except (urllib.error.URLError, socket.timeout, ConnectionError, http.client.HTTPException, OSError) as e:
             last = DownloadError(f"Higgsfield {what}: network — {type(e).__name__}")
         if attempt + 1 < tries:
             SLEEP(_backoff(attempt, 1.0, 10.0))
@@ -546,7 +545,7 @@ def upload_ref(cfg, ref):
             last = ServerError(f"Higgsfield upload: HTTP {e.code}", e.code)
             if e.code < 500:
                 raise last
-        except (urllib.error.URLError, socket.timeout, ConnectionError, http.client.HTTPException, TimeoutError) as e:
+        except (urllib.error.URLError, socket.timeout, ConnectionError, http.client.HTTPException, OSError) as e:
             last = ServerError(f"Higgsfield upload: network — {type(e).__name__}")
         if attempt < 2:
             SLEEP(_backoff(attempt, 1.0, 10.0))
@@ -719,13 +718,6 @@ def usage_today(now=None):
 
 # ============================================================================================ generation
 
-def _sem(cfg):
-    s = getattr(_tls, "sem", None)
-    if s is None or getattr(_tls, "n", None) != cfg["parallel"]:
-        _tls.sem, _tls.n = threading.BoundedSemaphore(cfg["parallel"]), cfg["parallel"]
-    return _tls.sem
-
-
 _proc_lock = threading.Lock()
 _proc_sem = {}
 
@@ -763,8 +755,8 @@ def render(prompt, aspect="1:1", refs=None, model=None, quality=None, resolution
         raise InvalidRequest(f"{spec['label']} takes at most {spec['refs']} reference images, got {len(refs)}")
     body = build_body(m, prompt, asp, q, res, ["https://placeholder.invalid/ref.png"] * len(refs) if refs else None)
     bid = re.sub(r"[^A-Za-z0-9_.-]", "_", str(brand or "otto"))[:60] or "otto"
-    t0 = CLOCK()
     with _slot(cfg):
+        t0 = CLOCK()                                         # the deadline starts once this request has its slot
         ref_urls = [upload_ref(cfg, r) for r in refs]
         body = build_body(m, prompt, asp, body.get("quality"), body.get("resolution"), ref_urls or None)
         usd = estimate(cfg, m, body)
@@ -881,7 +873,6 @@ def generate(prompt, aspect="1:1", refs=None, model=None, out=None, quality=None
         p = _write(dst, data, kind)
         if mark:
             try:
-                sys.path.insert(0, str(HERE)) if str(HERE) not in sys.path else None
                 import otto_provenance as prov
                 prov.mark_safely(p, ["image"], res["tool"], log=log)
             except ImportError:

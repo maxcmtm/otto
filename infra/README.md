@@ -75,7 +75,12 @@ Access (e-mail one-time code) — nobody shares a password, keys go straight int
 12. Secrets (all JSON, owner otto, mode 600 — create each with `sudo -u otto nano /etc/otto/secrets/<file>`):
     `anthropic.json` `{"api_key": "sk-ant-…", "model": "claude-opus-5-5"}` (the AI copywriter: a new trial's first week and
     every brand's next 7 days, `otto_copy.py`; without it new trials wait for a person — docs/AUTH-AND-TRIAL.md) ·
-    `telegram.json` `{"bot_token": "…", "owner_chat_id": "…"}` · `leonardo.json` `{"api_key": "…"}` · `elevenlabs.json` ·
+    `telegram.json` `{"bot_token": "…", "owner_chat_id": "…"}` · `higgsfield.json` `{"key_id": "…", "key_secret": "…",
+    "image_model": "gpt-image-2", "scene_model": "gpt-image-2"}` (Otto's image generator: the Higgsfield Cloud API, pay per
+    use — post visuals and reel scenes, GPT Image 2; optional caps `max_images_day` / `max_usd_day` /
+    `max_images_per_brand_day`; `~/otto-launch-keys/push_secrets.py` writes it from `higgsfield-api.txt`; check with
+    `sudo -u otto python3 /opt/otto/platform/otto_imagegen.py test` — free, no image; `platform/otto_imagegen.py` docstring) ·
+    `leonardo.json` `{"api_key": "…"}` (only the fallback behind Higgsfield) · `elevenlabs.json` ·
     `stripe.json` (payments: `{"secret_key", "publishable_key", "webhook_secrets": ["whsec_…"]}`, docs/BILLING.md; until it exists
     every billing screen says "Payments aren't set up yet") · `whop.json` (legacy founders only, docs/ADMIN.md) · `meta-<brand>.json` / `google-<brand>.json` per client (platform/crons.md) ·
     `email.json` (approval e-mails, docs/ADMIN.md: `link_secret`, `from`, SMTP host/port/user/pass with STARTTLS, or
@@ -146,7 +151,8 @@ The Telegram alert names the unit and, for a job, which client failed and its la
 once every 3 hours.
 
 - **`otto-job@<job>` failed** — `otto logs <job>`. Usual causes: an expired Meta/Google token (update
-  `/etc/otto/secrets/meta-<brand>.json`), Leonardo/ElevenLabs out of credit, a client's site down (competitors). Fix, then
+  `/etc/otto/secrets/meta-<brand>.json`), Higgsfield/Leonardo/ElevenLabs out of credit (Higgsfield: console.higgsfield.ai →
+  top up; the owner console's "AI images" row shows today's images and spend), a client's site down (competitors). Fix, then
   `otto run <job> --brand <id>` (a failed client is not retried by itself the same day, so nothing is sent twice).
   If it keeps failing for one client: `otto pause-brand <id>` and deal with it calmly.
 - **`otto-api` failed** (it crashed 10 times in 5 minutes) — `otto logs api`. Right after a deploy? `otto rollback`.

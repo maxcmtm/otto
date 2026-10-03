@@ -743,6 +743,16 @@ def _copy_setup():
                 "detail": f"Cannot be checked: {type(e).__name__}", "how": "platform/otto_copy.py docstring."}
 
 
+def _imagegen_setup():
+    """AI images (otto_imagegen, Higgsfield Cloud API): key, models, today's images / estimated spend against its caps."""
+    try:
+        import otto_imagegen
+        return otto_imagegen.console_row()
+    except Exception as e:                                   # noqa: BLE001 — setup info only
+        return {"key": "imagegen", "label": "AI images (Higgsfield Cloud API)", "status": "missing",
+                "detail": f"Cannot be checked: {type(e).__name__}", "how": "platform/otto_imagegen.py docstring."}
+
+
 def setup_items(d, sysinfo, billing_meta, events_meta):
     s = sysinfo.get("secrets", {})
     plans_cfg = ap.plans_config()
@@ -782,6 +792,7 @@ def setup_items(d, sysinfo, billing_meta, events_meta):
         _email_setup(sysinfo.get("email") if isinstance(sysinfo.get("email"), dict) else {}, brands),
         _google_setup(),
         _copy_setup(),
+        _imagegen_setup(),
         {"key": "admin_auth", "label": "Console access", "status": "connected" if sysinfo.get("admin_users") else "missing",
          "detail": "Limited to named users" if sysinfo.get("admin_users") else "OTTO_ADMIN_USERS is not set: the console refuses "
                                                                                 "every request that comes through Caddy",

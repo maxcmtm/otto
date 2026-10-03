@@ -76,7 +76,8 @@ brand that answered "no ad budget yet" in onboarding, competitors skips a brand 
 Per-brand overrides (optional, data.json brands[].cron): {"off": ["competitors", …], "ads_budget": 30, "country": "IL",
 "visuals_limit": 12, "per_week": 12}. The ad market for competitors defaults to brands[].countries[0].
 Leonardo key for genvisuals / reels: env LEONARDO_API_KEY, else $OTTO_SECRETS/leonardo.json {"api_key": …} (passed to the
-child's environment only; never printed).
+child's environment only; never printed). Higgsfield (their first provider, otto_imagegen) is read by the child itself from
+$OTTO_SECRETS/higgsfield.json — nothing of it goes through the environment.
 
 Heartbeat: heartbeats.json next to data.json (OTTO_HEARTBEATS) — {"updated", "jobs": {job: {label, schedule, every_min, log,
 started, ended, duration_s, status ok|failed|skipped, exit, summary, brands: {id: {status, exit, duration_s, at, day,

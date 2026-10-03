@@ -94,6 +94,12 @@ DMARC records sit in the same Cloudflare zone.
 5. In the Anthropic Console, create an API key for the AI copywriter (with a monthly spend limit) and put it on the server as
    `/etc/otto/secrets/anthropic.json`: `{"api_key": "sk-ant-…", "model": "claude-opus-5-5"}` (owner `otto`, chmod 600). Without
    it a new trial gets no posts until a person writes them — the steps are in `docs/AUTH-AND-TRIAL.md` ("Anthropic API key").
+6. In the Higgsfield console (console.higgsfield.ai — the **Cloud API**, pay per use; not the Higgsfield app subscription or
+   its MCP), top up the balance and create an API key; save it as one line `KEY_ID:KEY_SECRET` in
+   `~/otto-launch-keys/higgsfield-api.txt` (chmod 600). `push_secrets.py` installs it as `/etc/otto/secrets/higgsfield.json`
+   `{"key_id", "key_secret", "image_model": "gpt-image-2", "scene_model": "gpt-image-2"}` (owner `otto`, chmod 600). Otto then
+   makes post visuals and reel scenes with GPT Image 2 (≈ $0.06–0.10 an image at its defaults, capped at 200 images / $25 a
+   day; Leonardo only as the fallback). Check: `sudo -u otto python3 /opt/otto/platform/otto_imagegen.py test` (free, no image).
 
 Everything after that is scripted in `infra/` (`bootstrap.sh`, `deploy.sh`, `backup.sh`, `restore.sh`, the Caddyfile,
 the systemd units and the workflow). Nobody needs a password shared in chat: keys go into the accounts directly.

@@ -7,8 +7,10 @@
   otto_video.py missing [--brand <id>]                   # ids of reel posts (draft/pending_approval) that have no video yet and
                                                          # whose words are written (hook, caption or script) — the cron loop
 
-A reel = 4–7 scenes. Each scene: one on-brand vertical image (Leonardo, brand palette), a slow
-Ken Burns move, a caption in the brand band (ffmpeg drawtext, same typography as the ad statics),
+A reel = 4–7 scenes. Each scene: one on-brand vertical 9:16 image (GPT Image 2 through the Higgsfield Cloud API when
+otto_imagegen is configured — scene_model, 2k, quality "medium" ≈ $0.06 a scene, at most `parallel` at a time — else Leonardo;
+without either key, or when both fail, the post's own picture / a brand-colour card), a slow Ken Burns move, a caption in
+the brand band (ffmpeg drawtext, same typography as the ad statics),
 optional voice-over (ElevenLabs, $OTTO_SECRETS/elevenlabs.json {api_key, voice_id}) and a music bed
 from assets/music/*.mp3 (royalty-free, optional). 1080×1920, 30 fps, H.264 + AAC, capped at 60 s.
 post.script = [{"text","seconds","visual"}] — if missing, `plan` derives it from hook + caption.
@@ -77,52 +79,83 @@ def _cached(d, stem):
     return hits[0] if hits else None
 
 
+def scene_prompt(p, sc, gv):
+    pal, industry, style = gv.brand_visual(p["brand"])
+    return (f"vertical 9:16 social video frame, {industry or 'brand'}. Brand palette (dominant): {', '.join(pal) or 'brand colors'}. "
+            f"Visual style: {style}. Scene: {sc.get('visual') or sc['text']} (concept only, never render words). "
+            f"Cinematic, premium, no text, no logos, no watermark, clear space in the lower third for a caption.")
+
+
+def _higgsfield_scenes(p, d, stems, prompts, out):
+    """Missing scenes through Higgsfield (otto_imagegen, scene_model, 9:16) → fills out[i]; quiet when it is not configured."""
+    try:
+        import otto_imagegen as ig
+        if not ig.ready():
+            return
+    except Exception as e:                                   # noqa: BLE001 — Leonardo / the fallback still run
+        print("scene images: Higgsfield config unreadable:", type(e).__name__); return
+    todo = sorted(prompts)
+    res = ig.generate_many([{"prompt": prompts[i], "aspect": "9:16", "brand": p["brand"], "purpose": "scene"} for i in todo])
+    for i, r in zip(todo, res):
+        if isinstance(r, Exception):
+            print(f"scene {i + 1} image (Higgsfield) failed: {type(r).__name__}: {r}"); continue
+        data, kind = r["images"][0]
+        f = d / (stems[i] + paths.EXT.get(kind, ".png"))   # named by real type; cached under the scene key
+        f.write_bytes(data)
+        prov.mark_safely(f, ["image"], r["tool"])
+        out[i] = f
+
+
+def _leonardo_scene(gv, key, prompt, d, stem):
+    """One scene through Leonardo → the saved file or None."""
+    import time
+    try:
+        gid = gv.post_json(f"{gv.BASE}/v2/generations", {"model": "gpt-image-2", "parameters": {"width": 768, "height": 1376, "prompt": prompt,
+                           "quality": "HIGH", "quantity": 1, "prompt_enhance": "OFF"}, "public": False}, key)["generate"]["generationId"]
+        for _ in range(40):
+            time.sleep(12)
+            req = urllib.request.Request(f"{gv.BASE}/v1/generations/{gid}", headers={"authorization": f"Bearer {key}"})
+            with urllib.request.urlopen(req, timeout=30) as x:
+                g = json.loads(x.read()).get("generations_by_pk") or {}
+            if g.get("status") == "COMPLETE" and g.get("generated_images"):
+                q = urllib.request.Request(g["generated_images"][0]["url"], headers={"User-Agent": gv.UA})
+                with urllib.request.urlopen(q, timeout=60) as x:
+                    data = x.read()
+                f = d / (stem + paths.EXT.get(paths.sniff(data) or "", ".jpg"))   # named by real type
+                f.write_bytes(data)
+                prov.mark_safely(f, ["image"], gv.TOOL)
+                return f
+            if g.get("status") == "FAILED":
+                return None
+    except Exception as e:
+        print("scene image failed:", e)
+    return None
+
+
 def scene_images(p, script, dry):
-    """One 9:16 image per scene via Leonardo, cached by a hash of the scene (brand + visual + text).
-    Dry/no key → reuse the post image."""
+    """One 9:16 image per scene, cached by a hash of the scene (brand + visual + text): Higgsfield first when configured,
+    then Leonardo for what is still missing, then the fallback. Dry / no key → reuse the post image."""
     d = REELS / p["id"]
     d.mkdir(parents=True, exist_ok=True)
-    out = []
-    try:
+    stems = ["s-" + scene_key(p["brand"], sc.get("visual"), sc.get("text")) for sc in script]
+    out = [_cached(d, stem) for stem in stems]
+    if not dry and any(f is None for f in out):
         import genvisuals as gv
-        key = None if dry else gv.key()
-    except SystemExit:
-        key = None
-    for i, sc in enumerate(script, 1):
-        stem = "s-" + scene_key(p["brand"], sc.get("visual"), sc.get("text"))
-        hit = _cached(d, stem)
-        if hit:
-            out.append(hit); continue
-        f = None
-        if key:
-            pal, industry, style = gv.brand_visual(p["brand"])
-            prompt = (f"vertical 9:16 social video frame, {industry or 'brand'}. Brand palette (dominant): {', '.join(pal) or 'brand colors'}. "
-                      f"Visual style: {style}. Scene: {sc.get('visual') or sc['text']} (concept only, never render words). "
-                      f"Cinematic, premium, no text, no logos, no watermark, clear space in the lower third for a caption.")
+        prompts = {i: scene_prompt(p, sc, gv) for i, sc in enumerate(script) if out[i] is None}
+        _higgsfield_scenes(p, d, stems, prompts, out)
+        rest = [i for i in prompts if out[i] is None]
+        if rest:
             try:
-                gid = gv.post_json(f"{gv.BASE}/v2/generations", {"model": "gpt-image-2", "parameters": {"width": 768, "height": 1376, "prompt": prompt,
-                                   "quality": "HIGH", "quantity": 1, "prompt_enhance": "OFF"}, "public": False}, key)["generate"]["generationId"]
-                import time
-                for _ in range(40):
-                    time.sleep(12)
-                    req = urllib.request.Request(f"{gv.BASE}/v1/generations/{gid}", headers={"authorization": f"Bearer {key}"})
-                    with urllib.request.urlopen(req, timeout=30) as x:
-                        g = json.loads(x.read()).get("generations_by_pk") or {}
-                    if g.get("status") == "COMPLETE" and g.get("generated_images"):
-                        q = urllib.request.Request(g["generated_images"][0]["url"], headers={"User-Agent": gv.UA})
-                        with urllib.request.urlopen(q, timeout=60) as x:
-                            data = x.read()
-                        f = d / (stem + paths.EXT.get(paths.sniff(data) or "", ".jpg"))   # named by real type
-                        f.write_bytes(data)
-                        prov.mark_safely(f, ["image"], gv.TOOL)
-                        break
-                    if g.get("status") == "FAILED":
-                        break
-            except Exception as e:
-                print("scene image failed:", e)
+                key = gv.key()
+            except SystemExit:
+                key = None
+            for i in rest if key else []:
+                out[i] = _leonardo_scene(gv, key, prompts[i], d, stems[i])
+    for i, f in enumerate(out):
         if f is None or not f.exists():
+            stem = stems[i]
             src = paths.local_path(p["image"]) if p.get("image") else None
-            # fallbacks are not cached under the scene key, so the next render with a key retries Leonardo
+            # fallbacks are not cached under the scene key, so the next render with a key retries the generators
             if src and src.exists():
                 f = d / (stem + "-fb" + paths.EXT.get(paths.sniff(src) or "", src.suffix or ".jpg"))
                 shutil.copy(src, f)
@@ -130,7 +163,7 @@ def scene_images(p, script, dry):
                 f = d / (stem + "-fb.jpg")
                 sh([shutil.which("ffmpeg"), "-y", "-loglevel", "error", "-f", "lavfi", "-i", f"color=c={brand_color(p['brand'])}:s={W}x{H}:d=1",
                     "-frames:v", "1", "-q:v", "2", str(f)])
-        out.append(f)
+            out[i] = f
     return out
 
 
@@ -144,9 +177,9 @@ def brand_color(bid):
 
 
 def scene_is_ai(img):
-    """A scene image is generated when it carries an AI mark (XMP / C2PA), or when it is a Leonardo scene from the
-    cache (s-<hash>.<ext>; fallbacks are named s-<hash>-fb.*: the post image, which counts only if it is marked itself,
-    or a solid brand-colour card)."""
+    """A scene image is generated when it carries an AI mark (XMP / C2PA), or when it is a generated scene from the
+    cache (Higgsfield or Leonardo: s-<hash>.<ext>; fallbacks are named s-<hash>-fb.*: the post image, which counts only if
+    it is marked itself, or a solid brand-colour card)."""
     img = Path(img)
     return prov.is_generated(img) or (img.name.startswith("s-") and "-fb" not in img.stem)
 
@@ -164,12 +197,29 @@ def mark_reel(out, imgs, vos):
     """→ the post.media_ai record for the finished reel, or None when nothing in it is synthetic."""
     kinds, tools = [], []
     if any(scene_is_ai(i) for i in imgs):
-        kinds.append("image"); tools.append(genvisuals_tool())
+        kinds.append("image"); tools.extend(scene_tools(imgs))
     if any(vos):
         kinds.append("voice"); tools.append(voice_tool())
     if not kinds:
         return None
     return prov.record(prov.mark_safely(out, kinds, " + ".join(tools), composite=True))
+
+
+def scene_tools(imgs):
+    """The AI systems the reel's generated scenes name in their own marks (e.g. "Higgsfield gpt-image-2"), in order;
+    a generated scene whose mark names none (an upstream C2PA file, an old cached scene) counts as Leonardo's."""
+    tools = []
+    for i in imgs:
+        if not scene_is_ai(i):
+            continue
+        try:
+            t = prov.inspect(i).get("tool")
+        except Exception:                                    # noqa: BLE001
+            t = None
+        t = t or genvisuals_tool()
+        if t not in tools:
+            tools.append(t)
+    return tools or [genvisuals_tool()]
 
 
 def genvisuals_tool():

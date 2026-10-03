@@ -47,6 +47,27 @@ the source line on the image. Adding six statics lowers the video share to 18 of
 Every primary text, headline and description is in the matrices (`brands/otto/ads-2026-10-{nl,ie}.json`, 3 primaries and 2
 headlines per concept, rotated over the six visuals) and in `compliance-report.md`.
 
+### New images for our own creatives (Otto's ads, showcase images): the Higgsfield Cloud API only
+
+From 3 Oct 2026 every new image for Otto's own work is made with the **Higgsfield Cloud API** (pay per use, api.higgsfield.ai,
+GPT Image 2), through the engine's own client — **never through the Higgsfield MCP or the app's subscription credits**:
+
+```sh
+cd ~/otto
+HIGGSFIELD_KEY="$(cat ~/otto-launch-keys/higgsfield-api.txt)" \
+  python3 platform/otto_imagegen.py gen --aspect 1:1 --out launch/2026-10/premium-src/<concept>-bg.png \
+  --prompt "Photographic scene … plain green chroma-key screen … no text, no faces"
+# --aspect 9:16 | 3:4 | 16:9 …   --quality low|medium|high (default high)   --resolution 1k|2k|4k (default 2k)
+# --ref brands/otto/assets/<file>.png  (up to 16 reference images: uploaded through Higgsfield's upload flow)
+# --prompt-file prompt.txt for long prompts · --brand otto (the usage ledger's name) · --no-mark to skip the AI mark
+python3 platform/otto_imagegen.py estimate --aspect 1:1 --quality high     # what one costs (free, no image)
+```
+
+The key is read from the environment (or `<OTTO_SECRETS>/higgsfield.json`), never printed. Each run prints the request id,
+the price and the file it wrote (never the key, never the prompt: only its length and a hash); the file is tagged as AI-generated (IPTC DigitalSourceType in XMP — Higgsfield's PNGs carry no C2PA). Prices
+(3 Oct 2026): 2k high 1:1 $0.373, 2k high 9:16 $0.210, 2k medium 1:1 $0.100, 1k low 1:1 $0.014; type stays set by hand in
+`premium-src/` as before (the model never writes our words). Spend shows in the usage ledger (`otto_imagegen.py status`).
+
 ## 1. Files
 
 | File | What it is |

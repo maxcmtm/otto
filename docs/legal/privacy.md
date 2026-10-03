@@ -91,7 +91,7 @@ We use a small number of companies to run Otto. They process data only on our in
 - **Hetzner** (Germany): our servers and backups.
 - **Cloudflare** (USA, global network): delivery and protection of our websites, and our team's sign-in to the owner console.
 - **Google** (Google Ireland Limited, with Google LLC in the USA): Sign in with Google. You sign in on Google's own page and Google tells us who you are. [REVIEW: Google is an independent controller for your Google account; we list it as a sub-processor for this authentication step.]
-- **AI providers**: Anthropic (USA) for writing and strategy; Leonardo.ai (Australia) for images, including OpenAI's GPT Image models through Leonardo; ElevenLabs (USA) and Higgsfield (USA) for synthetic voice-over and video.
+- **AI providers**: Anthropic (USA) for writing and strategy; Higgsfield (USA) for images, using OpenAI's GPT Image 2, and for some video and voice-over; Leonardo.ai (Australia) as a fallback for images; ElevenLabs (USA) for synthetic voice-over.
 - **Stripe** (Stripe Payments Europe, Ltd., Ireland, with Stripe, Inc. in the USA): payments, subscriptions, invoices and VAT for our own plans (section "Payments").
 - **Telegram**, if you choose it for approvals, and [EMAIL PROVIDER] for e-mails.
 

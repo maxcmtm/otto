@@ -20,7 +20,7 @@ Otto is an AI marketing service: most of what it makes is made with AI. This pag
 | Part of Otto's output | Made with AI? | How |
 |---|---|---|
 | Strategy, monthly plan, captions, ad headlines and texts, video scripts, creator briefs | Yes | Written by Anthropic's Claude models from the business's website, answers and past decisions. Checked automatically against the business's list of words to avoid and, for health brands, against rules on health claims. |
-| Images for posts and reels | Often | Generated with Leonardo.ai (including OpenAI's GPT Image models). |
+| Images for posts, reels and ads | Often | Generated with OpenAI's GPT Image 2 through Higgsfield (Leonardo.ai as a fallback). |
 | Ad images built from templates | Partly | Layouts designed by our team, filled with the business's own logo, photos, prices and reviews; some templates also use an AI-generated image. |
 | Reels and faceless video ads | Yes, partly | Put together automatically from images (often AI-generated), captions, motion templates and royalty-free music. |
 | Voice-overs | Yes | Synthetic voices from ElevenLabs, sometimes through Higgsfield. They are stock synthetic voices; Otto does not clone anyone's voice. [VERIFY: the configured voice IDs are stock voices.] |
@@ -57,7 +57,7 @@ When a business deals with Otto in the app, by e-mail or in Telegram, it is deal
 
 ## Roles under the AI Act
 
-Otto is the **provider** of the Otto system, which is built on general-purpose AI models from Anthropic, OpenAI (through Leonardo), Leonardo, ElevenLabs and Higgsfield. The business that uses Otto and publishes its output is the **deployer**. [REVIEW: confirm this split, in particular whether Otto is also a deployer where it runs campaigns for the client, and whether Otto becomes a provider of a general-purpose AI system.] Otto's uses are not "high-risk" under Annex III of the AI Act. Otto does not target ads by sensitive characteristics: its ad targeting uses only location and age.
+Otto is the **provider** of the Otto system, which is built on general-purpose AI models from Anthropic, OpenAI (through Higgsfield and Leonardo), Higgsfield, Leonardo and ElevenLabs. The business that uses Otto and publishes its output is the **deployer**. [REVIEW: confirm this split, in particular whether Otto is also a deployer where it runs campaigns for the client, and whether Otto becomes a provider of a general-purpose AI system.] Otto's uses are not "high-risk" under Annex III of the AI Act. Otto does not target ads by sensitive characteristics: its ad targeting uses only location and age.
 
 Our team is trained in how Otto's AI works and where it fails (AI Act Article 4), and we give businesses guidance on what to check before approving.
 

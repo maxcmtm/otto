@@ -1,13 +1,18 @@
 #!/usr/bin/env python3
-"""Otto visuals — an on-brand image for every post that needs one (Leonardo GPT Image 2).
+"""Otto visuals — an on-brand image for every post that needs one (GPT Image 2: Higgsfield Cloud API, else Leonardo).
 
   genvisuals.py [--brand <id>] [--ids hg-001,hg-002] [--limit 6] [--status draft,pending_approval] [--dry]
 
 Reads data.json, picks posts without an image (or the given ids), builds a prompt from the brand's
 visual identity plus the post's visual_brief / pillar / hook, fires the generations, polls, saves
-assets/posts/<id>-<token>.jpg (otto_paths.token_name: unguessable; named by the real type — Leonardo returns JPEG; anything else is converted,
-Instagram only takes JPEG), copies it to the public assets dir (otto_paths.publish) and writes
-image + visual_prompt back per post in a short ap.transaction. Sizes by format: story 9:16, feed/carousel 4:5, else 1:1.
+assets/posts/<id>-<token>.jpg (otto_paths.token_name: unguessable; named by the real type — Higgsfield returns PNG, Leonardo
+JPEG; anything that is not JPEG is converted, Instagram only takes JPEG), copies it to the public assets dir (otto_paths.publish)
+and writes image + visual_prompt back per post in a short ap.transaction. Sizes by format: story 9:16, feed/carousel 4:5
+(Higgsfield's GPT Image 2 has no 4:5: 3:4, its nearest), else 1:1.
+Provider order: Higgsfield (otto_imagegen: <OTTO_SECRETS>/higgsfield.json or HIGGSFIELD_KEY; GPT Image 2, 2k, quality
+"medium" by default ≈ $0.08 a 3:4 image; its daily caps and usage ledger) first when it is configured; a post it could not
+make (an error, a cap, a moderation refusal) goes to Leonardo when a Leonardo key exists. With neither key the run stops with
+a message, as before. Real runs log a prompt's length and hash only (--dry prints the prompts; post.visual_prompt keeps it).
 Art direction — the brand guide always wins: the profile's VISUAL IDENTITY "Style:" line, else
 brands/<slug>/*brand-guide*.md (its visual/style sections + don'ts), else the generic industry hint.
 "Photorealistic" is only forced for the generic hint or a guide that asks for photography.
@@ -15,13 +20,14 @@ Rules: no text rendered in-image (Hebrew gets mangled; the caption carries the c
 clear space bottom-right for the logo, only the brand's palette. --dry prints the prompts and stops.
 Provenance (EU AI Act Art. 50(2), otto_provenance): every saved image is marked as AI-generated before it is made public
 (IPTC DigitalSourceType in XMP; a JPEG that already carries the model's signed C2PA manifest is left as it is), carousel
-slides as composites; post.media_ai[<ref>] records it.
-Key: env LEONARDO_API_KEY or platform/.leonardo_key (chmod 600). ~$0.20 per image (HIGH).
+slides as composites; post.media_ai[<ref>] records it (tool "Higgsfield gpt-image-2" or "Leonardo.ai gpt-image-2").
+Leonardo key: env LEONARDO_API_KEY, platform/.leonardo_key (chmod 600) or <OTTO_SECRETS>/leonardo.json. ~$0.20 per image (HIGH).
 """
 import json, os, re, shutil, subprocess, sys, time, urllib.request
 from pathlib import Path
 
 import ap
+import otto_imagegen as imagegen
 import otto_paths as paths
 import otto_provenance as prov
 
@@ -29,10 +35,11 @@ HERE = Path(__file__).parent
 BRANDS = ap.BRANDS
 BASE = "https://cloud.leonardo.ai/api/rest"
 MODEL = "gpt-image-2"
-TOOL = f"Leonardo.ai {MODEL}"                       # what the provenance mark names as the AI system
+TOOL = f"Leonardo.ai {MODEL}"                       # what the provenance mark names as the AI system (Leonardo images)
 OUT = paths.ASSETS / "posts"
 UA = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0 Safari/537.36"
 SIZES = {"story": (768, 1376), "feed": (848, 1264), "carousel": (848, 1264), "square": (1024, 1024)}
+ASPECTS = {"story": "9:16", "feed": "4:5", "carousel": "4:5"}     # Higgsfield: otto_imagegen picks the model's nearest (3:4)
 STYLE_HINT = {"cbd": "premium wellness editorial, botanical, natural light, calm",
               "restaurant": "warm appetizing food photography, natural light, inviting",
               "clinic": "clean clinical-warm, soft light, trust and calm",
@@ -60,7 +67,24 @@ def key():
             return (json.loads(s.read_text()).get("api_key") or "").strip() or sys.exit(f"no api_key in {s}")
         except ValueError:
             sys.exit(f"{s} is not valid JSON")
-    sys.exit("no Leonardo key (LEONARDO_API_KEY, platform/.leonardo_key or <OTTO_SECRETS>/leonardo.json)")
+    sys.exit("no image key: neither Higgsfield (<OTTO_SECRETS>/higgsfield.json or HIGGSFIELD_KEY) nor Leonardo "
+             "(LEONARDO_API_KEY, platform/.leonardo_key or <OTTO_SECRETS>/leonardo.json)")
+
+
+def leonardo_key():
+    """The Leonardo key, or None (key() without the exit: Leonardo is the fallback behind Higgsfield)."""
+    try:
+        return key()
+    except SystemExit:
+        return None
+
+
+def higgsfield_ready():
+    try:
+        return imagegen.ready()
+    except Exception as e:                               # noqa: BLE001 — a broken config never stops the Leonardo path
+        print("higgsfield config unreadable:", type(e).__name__)
+        return False
 
 
 GUIDE_HEAD = re.compile(r"style|visual|art direction|imagery|photograph|motif|aesthetic|look and feel|"
@@ -175,11 +199,12 @@ def post_json(u, body, k):
         return json.loads(x.read())
 
 
-def save_image(pid, data, ai=None, token=None):
-    """Leonardo bytes → assets/posts/<id>-<token>.<real ext> (otto_paths.token_name with the post's media token: never a
-    guessable public name); non-JPEG also gets a .jpg twin (Instagram). Returns the
-    stored ref of the JPEG (or the original if conversion is impossible) after marking it as AI-generated and
-    copying it to the public dir. `ai` (a dict) receives {ref: provenance record} for post.media_ai."""
+def save_image(pid, data, ai=None, token=None, tool=None):
+    """Generated bytes (Higgsfield PNG / Leonardo JPEG) → assets/posts/<id>-<token>.<real ext> (otto_paths.token_name with
+    the post's media token: never a guessable public name); non-JPEG also gets a .jpg twin (Instagram). Returns the
+    stored ref of the JPEG (or the original if conversion is impossible) after marking it as AI-generated (`tool`: the AI
+    system the mark names, default Leonardo's) and copying it to the public dir. `ai` (a dict) receives {ref: provenance
+    record} for post.media_ai."""
     kind = paths.sniff(data) or "jpeg"
     path = OUT / paths.token_name(pid, paths.EXT.get(kind, '.jpg'), token or paths.media_token("post", pid))
     path.write_bytes(data)
@@ -191,7 +216,7 @@ def save_image(pid, data, ai=None, token=None):
             path = jpg
         else:
             print("  warning: not JPEG and no ffmpeg — Instagram will refuse", path.name)
-    info = prov.mark_safely(path, ["image"], TOOL)            # before it is public: the public copy carries the mark
+    info = prov.mark_safely(path, ["image"], tool or TOOL)    # before it is public: the public copy carries the mark
     if ai is not None:
         ai[paths.rel_of(path)] = prov.record(info)
     paths.publish(path)
@@ -225,25 +250,53 @@ def run(bid=None, ids=None, limit=6, statuses=("draft", "pending_approval"), dry
     OUT.mkdir(parents=True, exist_ok=True)
     plans = [(p, prompt_for(d, p)) for p in todo]
     for p, pr in plans:
-        print(f"{'WOULD FIRE' if dry else 'FIRE'} {p['id']} [{p.get('format','post')}]\n   {pr}\n")
+        if dry:
+            print(f"WOULD FIRE {p['id']} [{p.get('format','post')}]\n   {pr}\n")
+        else:                                       # real runs: the prompt carries client data — length and hash only
+            print(f"FIRE {p['id']} [{p.get('format','post')}] {imagegen.prompt_tag(pr)}")
     if dry:
         return None
-    k = key()
+    hf = higgsfield_ready()
+    k = leonardo_key() if hf else key()             # neither key: key() stops the run with its message, as before
+    done, tools, fired = {}, {}, 0
+    if hf:                                          # 1. Higgsfield (GPT Image 2), cfg["parallel"] at a time
+        res = imagegen.generate_many([{"prompt": pr, "aspect": ASPECTS.get(p.get("format", "post"), "1:1"),
+                                       "brand": p["brand"], "purpose": "post"} for p, pr in plans])
+        for (p, pr), r in zip(plans, res):
+            if isinstance(r, Exception):
+                print("HIGGSFIELD FAILED", p["id"], f"{type(r).__name__}: {r}" + ("; trying Leonardo" if k else ""))
+                fired += 1 if getattr(r, "request_id", None) else 0        # accepted by Higgsfield, then failed
+                continue
+            fired += 1
+            data, _kind = r["images"][0]
+            try:
+                ai = {}
+                ref = save_image(p["id"], data, ai, tool=r["tool"])
+                if _patch(p["id"], {"image": ref, "visual_prompt": pr, "visual_at": ap.now_iso(), "media_ai": ai},
+                          force=bool(ids)):
+                    p["image"] = ref
+                done[p["id"]], tools[p["id"]] = ref, r["tool"]
+                print("SAVED", p["id"], ref, len(data), f"higgsfield {r['label']} {r['aspect']} ≈${r['usd']:.3f} {r['seconds']}s")
+            except Exception as e:
+                print("SAVE FAILED", p["id"], e)
+    rest = [(p, pr) for p, pr in plans if not done.get(p["id"])]
     jobs = []
-    for p, pr in plans:
-        w, h = SIZES.get(p.get("format", "post"), SIZES["square"])
-        body = {"model": MODEL, "parameters": {"width": w, "height": h, "prompt": pr,
-                "quality": "HIGH", "quantity": 1, "prompt_enhance": "OFF"}, "public": False}
-        try:
-            gid = post_json(f"{BASE}/v2/generations", body, k)["generate"]["generationId"]
-            jobs.append((p, pr, gid)); print("fired", p["id"], gid)
-        except Exception as e:
-            print("ERR", p["id"], e)
-        time.sleep(1)
-    done, deadline = {}, time.time() + 480
-    while len(done) < len(jobs) and time.time() < deadline:
+    if rest and k:                                  # 2. Leonardo: everything Higgsfield did not make (or all, without it)
+        for p, pr in rest:
+            w, h = SIZES.get(p.get("format", "post"), SIZES["square"])
+            body = {"model": MODEL, "parameters": {"width": w, "height": h, "prompt": pr,
+                    "quality": "HIGH", "quantity": 1, "prompt_enhance": "OFF"}, "public": False}
+            try:
+                gid = post_json(f"{BASE}/v2/generations", body, k)["generate"]["generationId"]
+                jobs.append((p, pr, gid)); print("fired", p["id"], gid)
+            except Exception as e:
+                print("ERR", p["id"], e)
+            time.sleep(1)
+    fired += len(jobs)
+    leo, deadline = {}, time.time() + 480
+    while len(leo) < len(jobs) and time.time() < deadline:
         for p, pr, gid in jobs:
-            if p["id"] in done:
+            if p["id"] in leo:
                 continue
             try:
                 req = urllib.request.Request(f"{BASE}/v1/generations/{gid}", headers={"authorization": f"Bearer {k}"})
@@ -263,19 +316,23 @@ def run(bid=None, ids=None, limit=6, statuses=("draft", "pending_approval"), dry
                         if _patch(p["id"], {"image": ref, "visual_prompt": pr, "visual_at": ap.now_iso(), "media_ai": ai},
                                   force=bool(ids)):
                             p["image"] = ref
-                        done[p["id"]] = ref; print("SAVED", p["id"], ref, len(data))
+                        leo[p["id"]] = ref; tools[p["id"]] = TOOL; print("SAVED", p["id"], ref, len(data))
                     except Exception as e:
-                        done[p["id"]] = None; print("SAVE FAILED", p["id"], e)
+                        leo[p["id"]] = None; print("SAVE FAILED", p["id"], e)
                 else:
-                    done[p["id"]] = None; print("EMPTY", p["id"])
+                    leo[p["id"]] = None; print("EMPTY", p["id"])
             elif g.get("status") == "FAILED":
-                done[p["id"]] = None; print("FAILED", p["id"])
-        if len(done) < len(jobs):
+                leo[p["id"]] = None; print("FAILED", p["id"])
+        if len(leo) < len(jobs):
             time.sleep(12)
+    for pid, ref in leo.items():
+        done[pid] = ref or done.get(pid)
+    for p, pr in plans:
+        done.setdefault(p["id"], None)
     # carousels: 3 slides with the copy on them (hook / point / point), from the base image + 2 more
     try:
         import otto_creative as cre
-        for p, pr, gid in jobs:
+        for p, pr in plans:
             if p.get("format") == "carousel" and p.get("image") and done.get(p["id"]):
                 slides = p.get("slides") or carousel_slides(p)
                 pal = brand_visual(p["brand"])[0]
@@ -286,7 +343,8 @@ def run(bid=None, ids=None, limit=6, statuses=("draft", "pending_approval"), dry
                         cre.overlay_text(paths.local_path(p["image"]), dst, txt, pal[0] if pal else "#2447F0",
                                          pos="bottom" if i > 1 else "center", size=58)
                         # generated image + the post's text: a composite that contains a generated element
-                        ai[paths.rel_of(dst)] = prov.record(prov.mark_safely(dst, ["image"], TOOL, composite=True))
+                        ai[paths.rel_of(dst)] = prov.record(prov.mark_safely(dst, ["image"], tools.get(p["id"], TOOL),
+                                                                             composite=True))
                         paths.publish(dst)
                         files.append(paths.rel_of(dst))
                     except Exception as e:
@@ -296,7 +354,7 @@ def run(bid=None, ids=None, limit=6, statuses=("draft", "pending_approval"), dry
     except Exception as e:
         print("carousel step skipped:", e)
     print("DONE", json.dumps(done))
-    return {"todo": len(todo), "fired": len(jobs), "saved": sum(1 for v in done.values() if v)}
+    return {"todo": len(todo), "fired": fired, "saved": sum(1 for v in done.values() if v)}
 
 
 def main(a):
