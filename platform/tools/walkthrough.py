@@ -25,7 +25,8 @@ PLATFORM = Path(__file__).resolve().parent.parent
 HOME = Path(os.environ.get("OTTO_WALK_HOME") or Path.home() / ".otto-walk")
 WS, SITE = HOME / "ws", HOME / "site"
 KEYS = Path.home() / "otto-launch-keys"
-PORT, API_PORT = 8790, 8163
+PORT = int(os.environ.get("OTTO_WALK_PORT") or 8790)    # a second instance (the filled-in demo, tools/walkthrough_demo.py) runs on 8792
+API_PORT = PORT - 627                                     # 8790 → 8163
 ORIGIN, ADMIN_ORIGIN = f"http://localhost:{PORT}", f"http://127.0.0.1:{PORT}"
 OWNER = "owner@otto.local"
 PROXY_KEY = secrets.token_hex(16)
@@ -43,10 +44,9 @@ def seed():
     (WS / "data.json").write_text(json.dumps({"generated": now, "brands": [], "posts": [], "recommendations": [],
                                               "campaigns": [], "connections": []}, indent=1))
     plans = json.loads((PLATFORM / "plans.json").read_text())
-    ids = {"starter": {"monthly": "price_starter_m", "yearly": "price_starter_y"},
+    ids = {"starter": {"monthly": "price_starter_m"},                                  # monthly subscription only
            "growth": {"monthly": "price_growth_m", "yearly": "price_growth_y"},
-           "scale": {"monthly": "price_scale_m", "yearly": "price_scale_y"},
-           "founding": {"one_time": "price_founding"}}
+           "scale": {"monthly": "price_scale_m", "yearly": "price_scale_y"}}
     for pid, v in ids.items():
         if pid in plans["plans"]:
             plans["plans"][pid]["stripe_price_ids"] = v
@@ -85,6 +85,7 @@ for k in ("OTTO_SINGLE_TENANT", "OTTO_DOMAIN", "OTTO_FALLBACK", "TELEGRAM_BOT_TO
 sys.path.insert(0, str(PLATFORM / "tests"))
 sys.path.insert(0, str(PLATFORM))
 import fake_google as FG          # noqa: E402
+FG.REDIRECT = f"http://localhost:{PORT}/auth/google/callback"   # the stand-in checks the redirect URI of this instance
 import fake_stripe as FS          # noqa: E402
 
 FS.PRICES.update({"price_scale_m": (49900, "month"), "price_scale_y": (499000, "year")})
@@ -124,7 +125,7 @@ def build_site():
     t = p.read_text()
     old = r"""const https = u => /^https:\/\/[^\s"'<>]+$/.test(String(u || "")) ? u : null;"""
     assert old in t, "billing.html: the https() guard moved — update tools/walkthrough.py"
-    t = t.replace(old, r"""const https = u => /^(https:\/\/|http:\/\/localhost:8790\/sim\/pay\/)[^\s"'<>]+$/.test(String(u || "")) ? u : null;""")
+    t = t.replace(old, r"""const https = u => /^(https:\/\/|http:\/\/localhost:PORT\/sim\/pay\/)[^\s"'<>]+$/.test(String(u || "")) ? u : null;""".replace("PORT", str(PORT)))
     t = csp.META.sub("", t)
     pol, _ = csp.policy(t, csp.PAGES["billing.html"])
     t = t.replace('<meta charset="utf-8">\n', '<meta charset="utf-8">\n<meta http-equiv="Content-Security-Policy" content="%s">\n' % pol, 1)

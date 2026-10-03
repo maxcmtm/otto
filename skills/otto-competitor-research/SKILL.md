@@ -22,7 +22,7 @@ description: "Otto's competitor intelligence engine — scan competitors' paid a
 - Use the `browser` tool (Ad Library renders via JS; web_fetch gets little). Snapshot, scroll 2-3 times, screenshot the grid.
 - For each active ad capture: start date (longevity = the #1 proxy for "it works"; anything running 30+ days is a proven winner), format (image/video/carousel), hook (first line), offer/CTA, landing URL, # of ad variants with same creative (many variants = scaling).
 - EU targets: the DSA transparency view also shows reach ranges — record them.
-- Official Ad Library API (free, zero ToS risk) works for EU-served ads — our niches are EU, so it fits: requires FB developer account, then `https://graph.facebook.com/v21.0/ads_archive?...`. Use when we need structured bulk data instead of browsing.
+- Official Ad Library API (free, zero ToS risk) works for EU-served ads — our niches are EU, so it fits: requires FB developer account, then `https://graph.facebook.com/v26.0/ads_archive?...`. Use when we need structured bulk data instead of browsing.
 
 ### TikTok Creative Center (free, no key)
 - Top Ads: `https://ads.tiktok.com/business/creativecenter/inspiration/topads/pc/en` — filter by region + industry; also keyword search competitor names.

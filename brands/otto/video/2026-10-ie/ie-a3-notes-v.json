@@ -14,24 +14,25 @@
     "ground": "primary"
   },
   "note": {
-    "meta": "Tuesday, 10:15 PM",
-    "title": "Words my customers never use",
+    "meta": "Monday, 7:41 AM",
+    "title": "Things I stopped checking",
     "struck": [
-      "awesome",
-      "y'all",
-      "super stoked"
+      "the dashboard at midnight",
+      "three different apps",
+      "a monthly PDF"
     ],
-    "keep": "just: new this week, in Limerick"
+    "keep": "Otto's 7:35 report"
   },
   "endcard": {
-    "headline": "Sounds like your business.",
-    "accent": "your business.",
-    "sub": "Posts, reels and ads in Irish English.",
-    "fine": "Otto writes for your town and your customers.",
+    "headline": "Know by 7:35.",
+    "accent": "7:35.",
+    "sub": "What your ads cost, what they brought in.",
+    "fine": "7 days free, no card. Then €79 a month.",
     "products": [
-      "review_ie"
+      "report_ads"
     ],
     "logo": "logo",
+    "legal": "Monthly plan, no contract, cancel anytime. Prices excl. VAT.",
     "ground": "bg"
   }
 }

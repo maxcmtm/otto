@@ -1,7 +1,7 @@
 {
  "market": "IE",
  "month": "2026-10",
- "checked_texts": 750,
+ "checked_texts": 861,
  "cells": [
   {
    "id": "ie-a1-notes-v",
@@ -10,79 +10,49 @@
    "format": "video",
    "engine_status": "ready",
    "engine_reasons": [
-    "video not rendered yet (otto_motion)"
+    "video not rendered yet (its kit JSON was written by hand: render it with motion/ad-kit)"
    ],
    "copy": {
-    "primary": "You know reels work. You just don't have an evening to film and cut them. Otto makes them from your own website.",
-    "headline": "Reels, without the filming",
-    "description": "Posts, reels and ads by Otto",
+    "primary": "Automate your marketing: posts, reels and stories every week, ads every day, one report at 7:35. You approve with one tap.",
+    "headline": "Automate your marketing",
+    "description": "Posts, reels, stories and ads",
     "cta": "LEARN_MORE"
    },
    "lengths": {
-    "primary": 112,
-    "headline": 26,
-    "description": 28
+    "primary": 122,
+    "headline": 23,
+    "description": 29
    },
    "over_limit": [],
-   "n_texts": 25,
+   "n_texts": 27,
    "violations": [],
-   "money_figures": [],
+   "money_figures": [
+    {
+     "text": "7 days free, no card. Then €79 a month.",
+     "figure": "€79",
+     "kind": "price",
+     "ok": true
+    },
+    {
+     "text": "7 days free, no card. Then €79 a month.",
+     "figure": "€79",
+     "kind": "price",
+     "ok": true
+    }
+   ],
+   "agency_and_figure": [],
    "possible_dutch": [],
    "texts": [
     {
-     "text": "You know reels work. You just don't have an evening to film and cut them. Otto makes them from your own website.",
+     "text": "Automate your marketing: posts, reels and stories every week, ads every day, one report at 7:35. You approve with one tap.",
      "violations": []
     },
     {
-     "text": "Reels, without the filming",
+     "text": "Automate your marketing",
      "violations": []
     },
     {
-     "text": "Posts, reels and ads by Otto",
-     "violations": []
-    },
-    {
-     "text": "Sunday, 9:40 PM",
-     "violations": []
-    },
-    {
-     "text": "Things I've stopped doing for a reel",
-     "violations": []
-    },
-    {
-     "text": "filming during the breakfast rush",
-     "violations": []
-    },
-    {
-     "text": "editing till midnight",
-     "violations": []
-    },
-    {
-     "text": "typing out captions",
-     "violations": []
-    },
-    {
-     "text": "tapping approve",
-     "violations": []
-    },
-    {
-     "text": "Reels, without the filming.",
-     "violations": []
-    },
-    {
-     "text": "without the filming.",
-     "violations": []
-    },
-    {
-     "text": "Otto makes them from your own website.",
-     "violations": []
-    },
-    {
-     "text": "Try it free for 7 days, no card needed.",
-     "violations": []
-    },
-    {
-     "text": "month",
+     "text": "Posts, reels, stories and ads",
      "violations": []
     },
     {
@@ -90,19 +60,19 @@
      "violations": []
     },
     {
-     "text": "Things I've stopped doing for a reel",
+     "text": "Marketing jobs I've automated",
      "violations": []
     },
     {
-     "text": "filming during the breakfast rush",
+     "text": "planning the month",
      "violations": []
     },
     {
-     "text": "editing till midnight",
+     "text": "writing every caption",
      "violations": []
     },
     {
-     "text": "typing out captions",
+     "text": "posting at 11pm",
      "violations": []
     },
     {
@@ -110,23 +80,75 @@
      "violations": []
     },
     {
-     "text": "Reels, without the filming.",
+     "text": "Automate your marketing.",
      "violations": []
     },
     {
-     "text": "without the filming.",
+     "text": "your marketing.",
      "violations": []
     },
     {
-     "text": "Otto makes them from your own website.",
+     "text": "Otto plans, writes, designs and posts.",
      "violations": []
     },
     {
-     "text": "Try it free for 7 days, no card needed.",
+     "text": "7 days free, no card. Then €79 a month.",
      "violations": []
     },
     {
      "text": "month",
+     "violations": []
+    },
+    {
+     "text": "Monthly plan, no contract, cancel anytime. Prices excl. VAT.",
+     "violations": []
+    },
+    {
+     "text": "Sunday, 9:40 PM",
+     "violations": []
+    },
+    {
+     "text": "Marketing jobs I've automated",
+     "violations": []
+    },
+    {
+     "text": "planning the month",
+     "violations": []
+    },
+    {
+     "text": "writing every caption",
+     "violations": []
+    },
+    {
+     "text": "posting at 11pm",
+     "violations": []
+    },
+    {
+     "text": "tapping approve",
+     "violations": []
+    },
+    {
+     "text": "Automate your marketing.",
+     "violations": []
+    },
+    {
+     "text": "your marketing.",
+     "violations": []
+    },
+    {
+     "text": "Otto plans, writes, designs and posts.",
+     "violations": []
+    },
+    {
+     "text": "7 days free, no card. Then €79 a month.",
+     "violations": []
+    },
+    {
+     "text": "month",
+     "violations": []
+    },
+    {
+     "text": "Monthly plan, no contract, cancel anytime. Prices excl. VAT.",
      "violations": []
     }
    ]
@@ -138,95 +160,49 @@
    "format": "video",
    "engine_status": "ready",
    "engine_reasons": [
-    "video not rendered yet (otto_motion)"
+    "video not rendered yet (its kit JSON was written by hand: render it with motion/ad-kit)"
    ],
    "copy": {
-    "primary": "Your menu, your rooms, your last few jobs: it's all on your website already. Otto turns it into reels. No filming.",
-    "headline": "Your website, as a reel",
-    "description": "Posts, reels and ads by Otto",
+    "primary": "From posting when you remember to a plan that runs every day. Otto plans, writes, designs and posts. You run the business.",
+    "headline": "Take your marketing to the next level",
+    "description": "Posts, reels, stories and ads",
     "cta": "LEARN_MORE"
    },
    "lengths": {
-    "primary": 114,
-    "headline": 23,
-    "description": 28
+    "primary": 122,
+    "headline": 37,
+    "description": 29
    },
    "over_limit": [],
-   "n_texts": 33,
+   "n_texts": 35,
    "violations": [],
-   "money_figures": [],
+   "money_figures": [
+    {
+     "text": "7 days free, no card. Then €79 a month.",
+     "figure": "€79",
+     "kind": "price",
+     "ok": true
+    },
+    {
+     "text": "7 days free, no card. Then €79 a month.",
+     "figure": "€79",
+     "kind": "price",
+     "ok": true
+    }
+   ],
+   "agency_and_figure": [],
    "possible_dutch": [],
    "texts": [
     {
-     "text": "Your menu, your rooms, your last few jobs: it's all on your website already. Otto turns it into reels. No filming.",
+     "text": "From posting when you remember to a plan that runs every day. Otto plans, writes, designs and posts. You run the business.",
      "violations": []
     },
     {
-     "text": "Your website, as a reel",
+     "text": "Take your marketing to the next level",
      "violations": []
     },
     {
-     "text": "Posts, reels and ads by Otto",
-     "violations": []
-    },
-    {
-     "text": "vs",
-     "violations": []
-    },
-    {
-     "text": "DIY reel",
-     "violations": []
-    },
-    {
-     "text": "Film it",
-     "violations": []
-    },
-    {
-     "text": "Cut it",
-     "violations": []
-    },
-    {
-     "text": "Caption it",
-     "violations": []
-    },
-    {
-     "text": "Otto",
-     "violations": []
-    },
-    {
-     "text": "From your site",
-     "violations": []
-    },
-    {
-     "text": "Ready to go",
-     "violations": []
-    },
-    {
-     "text": "You approve",
-     "violations": []
-    },
-    {
-     "text": "You tap. Otto does the rest.",
-     "violations": []
-    },
-    {
-     "text": "Your website, as a reel.",
-     "violations": []
-    },
-    {
-     "text": "as a reel.",
-     "violations": []
-    },
-    {
-     "text": "Otto makes reels from what's already on your site.",
-     "violations": []
-    },
-    {
-     "text": "Try it free for 7 days, no card needed.",
-     "violations": []
-    },
-    {
-     "text": "review_ie",
+     "text": "Posts, reels, stories and ads",
      "violations": []
     },
     {
@@ -234,59 +210,127 @@
      "violations": []
     },
     {
-     "text": "DIY reel",
+     "text": "By hand",
      "violations": []
     },
     {
-     "text": "Film it",
+     "text": "Planning at night",
      "violations": []
     },
     {
-     "text": "Cut it",
+     "text": "Writing captions",
      "violations": []
     },
     {
-     "text": "Caption it",
+     "text": "Posting late",
      "violations": []
     },
     {
-     "text": "Otto",
+     "text": "With Otto",
      "violations": []
     },
     {
-     "text": "From your site",
+     "text": "Month planned",
      "violations": []
     },
     {
-     "text": "Ready to go",
+     "text": "Captions written",
      "violations": []
     },
     {
-     "text": "You approve",
+     "text": "Posted on time",
      "violations": []
     },
     {
-     "text": "You tap. Otto does the rest.",
+     "text": "You tap approve.",
      "violations": []
     },
     {
-     "text": "Your website, as a reel.",
+     "text": "Take your marketing to the next level.",
      "violations": []
     },
     {
-     "text": "as a reel.",
+     "text": "the next level.",
      "violations": []
     },
     {
-     "text": "Otto makes reels from what's already on your site.",
+     "text": "Posts, reels, stories and ads. You approve.",
      "violations": []
     },
     {
-     "text": "Try it free for 7 days, no card needed.",
+     "text": "7 days free, no card. Then €79 a month.",
      "violations": []
     },
     {
-     "text": "review_ie",
+     "text": "month",
+     "violations": []
+    },
+    {
+     "text": "Monthly plan, no contract, cancel anytime. Prices excl. VAT.",
+     "violations": []
+    },
+    {
+     "text": "vs",
+     "violations": []
+    },
+    {
+     "text": "By hand",
+     "violations": []
+    },
+    {
+     "text": "Planning at night",
+     "violations": []
+    },
+    {
+     "text": "Writing captions",
+     "violations": []
+    },
+    {
+     "text": "Posting late",
+     "violations": []
+    },
+    {
+     "text": "With Otto",
+     "violations": []
+    },
+    {
+     "text": "Month planned",
+     "violations": []
+    },
+    {
+     "text": "Captions written",
+     "violations": []
+    },
+    {
+     "text": "Posted on time",
+     "violations": []
+    },
+    {
+     "text": "You tap approve.",
+     "violations": []
+    },
+    {
+     "text": "Take your marketing to the next level.",
+     "violations": []
+    },
+    {
+     "text": "the next level.",
+     "violations": []
+    },
+    {
+     "text": "Posts, reels, stories and ads. You approve.",
+     "violations": []
+    },
+    {
+     "text": "7 days free, no card. Then €79 a month.",
+     "violations": []
+    },
+    {
+     "text": "month",
+     "violations": []
+    },
+    {
+     "text": "Monthly plan, no contract, cancel anytime. Prices excl. VAT.",
      "violations": []
     }
    ]
@@ -298,139 +342,167 @@
    "format": "video",
    "engine_status": "ready",
    "engine_reasons": [
-    "video not rendered yet (otto_motion)"
+    "video not rendered yet (its kit JSON was written by hand: render it with motion/ad-kit)"
    ],
    "copy": {
-    "primary": "Try Otto free for 7 days: your first reels, made from your own site. Nothing goes out until you say so.",
-    "headline": "Reels, without the filming",
-    "description": "Posts, reels and ads by Otto",
+    "primary": "Your marketing department in one app: posts, reels, stories and ads. 7 days free, then €79 a month. Cancel anytime.",
+    "headline": "Automate your marketing",
+    "description": "Posts, reels, stories and ads",
     "cta": "LEARN_MORE"
    },
    "lengths": {
-    "primary": 103,
-    "headline": 26,
-    "description": 28
+    "primary": 115,
+    "headline": 23,
+    "description": 29
    },
    "over_limit": [],
-   "n_texts": 29,
+   "n_texts": 31,
    "violations": [],
-   "money_figures": [],
+   "money_figures": [
+    {
+     "text": "Your marketing department in one app: posts, reels, stories and ads. 7 days free, then €79 a month. Cancel anytime.",
+     "figure": "€79",
+     "kind": "price",
+     "ok": true
+    },
+    {
+     "text": "7 days free, no card. Then €79 a month.",
+     "figure": "€79",
+     "kind": "price",
+     "ok": true
+    },
+    {
+     "text": "7 days free, no card. Then €79 a month.",
+     "figure": "€79",
+     "kind": "price",
+     "ok": true
+    }
+   ],
+   "agency_and_figure": [],
    "possible_dutch": [],
    "texts": [
     {
-     "text": "Try Otto free for 7 days: your first reels, made from your own site. Nothing goes out until you say so.",
+     "text": "Your marketing department in one app: posts, reels, stories and ads. 7 days free, then €79 a month. Cancel anytime.",
      "violations": []
     },
     {
-     "text": "Reels, without the filming",
+     "text": "Automate your marketing",
      "violations": []
     },
     {
-     "text": "Posts, reels and ads by Otto",
+     "text": "Posts, reels, stories and ads",
      "violations": []
     },
     {
-     "text": "review_ie",
+     "text": "month",
      "violations": []
     },
     {
-     "text": "0 evenings",
+     "text": "Posts.",
      "violations": []
     },
     {
-     "text": "spent filming.",
+     "text": "Every week.",
      "violations": []
     },
     {
-     "text": "0 hours",
+     "text": "Ads.",
      "violations": []
     },
     {
-     "text": "spent editing.",
+     "text": "Every day.",
      "violations": []
     },
     {
-     "text": "1 tap",
+     "text": "1 report",
      "violations": []
     },
     {
-     "text": "to approve the reel.",
+     "text": "at 7:35, every morning.",
      "violations": []
     },
     {
-     "text": "review_ie",
+     "text": "report_ads",
      "violations": []
     },
     {
-     "text": "Reels, without the filming.",
+     "text": "Marketing, automated.",
      "violations": []
     },
     {
-     "text": "without the filming.",
+     "text": "automated.",
      "violations": []
     },
     {
-     "text": "Made from your own website.",
+     "text": "You run the business. Otto runs the marketing.",
      "violations": []
     },
     {
-     "text": "Try it free for 7 days, no card needed.",
+     "text": "7 days free, no card. Then €79 a month.",
      "violations": []
     },
     {
-     "text": "review_ie",
+     "text": "month",
      "violations": []
     },
     {
-     "text": "review_ie",
+     "text": "Monthly plan, no contract, cancel anytime. Prices excl. VAT.",
      "violations": []
     },
     {
-     "text": "0 evenings",
+     "text": "month",
      "violations": []
     },
     {
-     "text": "spent filming.",
+     "text": "Posts.",
      "violations": []
     },
     {
-     "text": "0 hours",
+     "text": "Every week.",
      "violations": []
     },
     {
-     "text": "spent editing.",
+     "text": "Ads.",
      "violations": []
     },
     {
-     "text": "1 tap",
+     "text": "Every day.",
      "violations": []
     },
     {
-     "text": "to approve the reel.",
+     "text": "1 report",
      "violations": []
     },
     {
-     "text": "review_ie",
+     "text": "at 7:35, every morning.",
      "violations": []
     },
     {
-     "text": "Reels, without the filming.",
+     "text": "report_ads",
      "violations": []
     },
     {
-     "text": "without the filming.",
+     "text": "Marketing, automated.",
      "violations": []
     },
     {
-     "text": "Made from your own website.",
+     "text": "automated.",
      "violations": []
     },
     {
-     "text": "Try it free for 7 days, no card needed.",
+     "text": "You run the business. Otto runs the marketing.",
      "violations": []
     },
     {
-     "text": "review_ie",
+     "text": "7 days free, no card. Then €79 a month.",
+     "violations": []
+    },
+    {
+     "text": "month",
+     "violations": []
+    },
+    {
+     "text": "Monthly plan, no contract, cancel anytime. Prices excl. VAT.",
      "violations": []
     }
    ]
@@ -443,52 +515,112 @@
    "engine_status": "ready",
    "engine_reasons": [],
    "copy": {
-    "primary": "You know reels work. You just don't have an evening to film and cut them. Otto makes them from your own website.",
-    "headline": "Your website, as a reel",
-    "description": "Posts, reels and ads by Otto",
+    "primary": "Automate your marketing: posts, reels and stories every week, ads every day, one report at 7:35. You approve with one tap.",
+    "headline": "Take your marketing to the next level",
+    "description": "Posts, reels, stories and ads",
     "cta": "LEARN_MORE"
    },
    "lengths": {
-    "primary": 112,
-    "headline": 23,
-    "description": 28
+    "primary": 122,
+    "headline": 37,
+    "description": 29
    },
    "over_limit": [],
    "n_texts": 8,
    "violations": [],
    "money_figures": [],
+   "agency_and_figure": [],
    "possible_dutch": [],
    "texts": [
     {
-     "text": "You know reels work. You just don't have an evening to film and cut them. Otto makes them from your own website.",
+     "text": "Automate your marketing: posts, reels and stories every week, ads every day, one report at 7:35. You approve with one tap.",
      "violations": []
     },
     {
-     "text": "Your website, as a reel",
+     "text": "Take your marketing to the next level",
      "violations": []
     },
     {
-     "text": "Posts, reels and ads by Otto",
+     "text": "Posts, reels, stories and ads",
      "violations": []
     },
     {
-     "text": "Your website, *as a reel*",
+     "text": "Automate your *marketing*",
      "violations": []
     },
     {
-     "text": "Made from your own site",
+     "text": "Posts, reels and stories",
      "violations": []
     },
     {
-     "text": "Ready for your approval",
+     "text": "Ads planned and run",
      "violations": []
     },
     {
-     "text": "Free for 7 days",
+     "text": "A report at 7:35",
      "violations": []
     },
     {
-     "text": "Reels by Otto",
+     "text": "Marketing by Otto",
+     "violations": []
+    }
+   ]
+  },
+  {
+   "id": "ie-a1-before",
+   "angle": "a1",
+   "style": "before_after",
+   "format": "image",
+   "engine_status": "ready",
+   "engine_reasons": [],
+   "copy": {
+    "primary": "From posting when you remember to a plan that runs every day. Otto plans, writes, designs and posts. You run the business.",
+    "headline": "Automate your marketing",
+    "description": "Posts, reels, stories and ads",
+    "cta": "LEARN_MORE"
+   },
+   "lengths": {
+    "primary": 122,
+    "headline": 23,
+    "description": 29
+   },
+   "over_limit": [],
+   "n_texts": 8,
+   "violations": [],
+   "money_figures": [],
+   "agency_and_figure": [],
+   "possible_dutch": [],
+   "texts": [
+    {
+     "text": "From posting when you remember to a plan that runs every day. Otto plans, writes, designs and posts. You run the business.",
+     "violations": []
+    },
+    {
+     "text": "Automate your marketing",
+     "violations": []
+    },
+    {
+     "text": "Posts, reels, stories and ads",
+     "violations": []
+    },
+    {
+     "text": "Posting when you remember",
+     "violations": []
+    },
+    {
+     "text": "A plan that runs every day",
+     "violations": []
+    },
+    {
+     "text": "Before",
+     "violations": []
+    },
+    {
+     "text": "With Otto",
+     "violations": []
+    },
+    {
+     "text": "Next level",
      "violations": []
     }
    ]
@@ -501,163 +633,246 @@
    "engine_status": "ready",
    "engine_reasons": [],
    "copy": {
-    "primary": "Your menu, your rooms, your last few jobs: it's all on your website already. Otto turns it into reels. No filming.",
-    "headline": "Reels, without the filming",
-    "description": "Posts, reels and ads by Otto",
-    "cta": "LEARN_MORE"
-   },
-   "lengths": {
-    "primary": 114,
-    "headline": 26,
-    "description": 28
-   },
-   "over_limit": [],
-   "n_texts": 9,
-   "violations": [],
-   "money_figures": [],
-   "possible_dutch": [],
-   "texts": [
-    {
-     "text": "Your menu, your rooms, your last few jobs: it's all on your website already. Otto turns it into reels. No filming.",
-     "violations": []
-    },
-    {
-     "text": "Reels, without the filming",
-     "violations": []
-    },
-    {
-     "text": "Posts, reels and ads by Otto",
-     "violations": []
-    },
-    {
-     "text": "how to make reels for my business",
-     "violations": []
-    },
-    {
-     "text": "how to make reels for my business without filming",
-     "violations": []
-    },
-    {
-     "text": "how to make reels for my business fast",
-     "violations": []
-    },
-    {
-     "text": "how to make reels for my business with no time",
-     "violations": []
-    },
-    {
-     "text": "how to make reels for my business ideas",
-     "violations": []
-    },
-    {
-     "text": "Sound familiar? *Otto makes them for you.*",
-     "violations": []
-    }
-   ]
-  },
-  {
-   "id": "ie-a1-number",
-   "angle": "a1",
-   "style": "big_number",
-   "format": "image",
-   "engine_status": "ready",
-   "engine_reasons": [],
-   "copy": {
-    "primary": "Try Otto free for 7 days: your first reels, made from your own site. Nothing goes out until you say so.",
-    "headline": "Your website, as a reel",
-    "description": "Posts, reels and ads by Otto",
-    "cta": "LEARN_MORE"
-   },
-   "lengths": {
-    "primary": 103,
-    "headline": 23,
-    "description": 28
-   },
-   "over_limit": [],
-   "n_texts": 8,
-   "violations": [],
-   "money_figures": [],
-   "possible_dutch": [],
-   "texts": [
-    {
-     "text": "Try Otto free for 7 days: your first reels, made from your own site. Nothing goes out until you say so.",
-     "violations": []
-    },
-    {
-     "text": "Your website, as a reel",
-     "violations": []
-    },
-    {
-     "text": "Posts, reels and ads by Otto",
-     "violations": []
-    },
-    {
-     "text": "24",
-     "violations": []
-    },
-    {
-     "text": "hours",
-     "violations": []
-    },
-    {
-     "text": "and your first posts and reels are ready, made from what's already on your website",
-     "violations": []
-    },
-    {
-     "text": "Free week",
-     "violations": []
-    },
-    {
-     "text": "Otto: 7 days free, no card needed",
-     "violations": []
-    }
-   ]
-  },
-  {
-   "id": "ie-a2-texts-v",
-   "angle": "a2",
-   "style": "text_message",
-   "format": "video",
-   "engine_status": "ready",
-   "engine_reasons": [
-    "video not rendered yet (otto_motion)"
-   ],
-   "copy": {
-    "primary": "Every morning at 7:35, Otto tells you what your ads cost yesterday, what came in and which posts wait for your tap.",
-    "headline": "One message at 7:35",
-    "description": "Your marketing, in one message",
+    "primary": "Your marketing department in one app: posts, reels, stories and ads. 7 days free, then €79 a month. Cancel anytime.",
+    "headline": "Take your marketing to the next level",
+    "description": "Posts, reels, stories and ads",
     "cta": "LEARN_MORE"
    },
    "lengths": {
     "primary": 115,
-    "headline": 19,
-    "description": 30
+    "headline": 37,
+    "description": 29
    },
    "over_limit": [],
-   "n_texts": 43,
+   "n_texts": 9,
    "violations": [],
    "money_figures": [
     {
-     "text": "Morning. Yesterday: €18 on ads, 4 enquiries.",
-     "labelled_sample": true
-    },
-    {
-     "text": "Morning. Yesterday: €18 on ads, 4 enquiries.",
-     "labelled_sample": true
+     "text": "Your marketing department in one app: posts, reels, stories and ads. 7 days free, then €79 a month. Cancel anytime.",
+     "figure": "€79",
+     "kind": "price",
+     "ok": true
     }
    ],
+   "agency_and_figure": [],
    "possible_dutch": [],
    "texts": [
     {
-     "text": "Every morning at 7:35, Otto tells you what your ads cost yesterday, what came in and which posts wait for your tap.",
+     "text": "Your marketing department in one app: posts, reels, stories and ads. 7 days free, then €79 a month. Cancel anytime.",
      "violations": []
     },
     {
-     "text": "One message at 7:35",
+     "text": "Take your marketing to the next level",
      "violations": []
     },
     {
-     "text": "Your marketing, in one message",
+     "text": "Posts, reels, stories and ads",
+     "violations": []
+    },
+    {
+     "text": "how to automate social media",
+     "violations": []
+    },
+    {
+     "text": "how to automate social media posts",
+     "violations": []
+    },
+    {
+     "text": "how to automate social media for small business",
+     "violations": []
+    },
+    {
+     "text": "how to automate social media marketing",
+     "violations": []
+    },
+    {
+     "text": "how to automate social media and ads",
+     "violations": []
+    },
+    {
+     "text": "Looking for this? *Meet Otto.*",
+     "violations": []
+    }
+   ]
+  },
+  {
+   "id": "ie-a1-premium",
+   "angle": "a1",
+   "style": "editorial",
+   "format": "image",
+   "engine_status": "ready",
+   "engine_reasons": [],
+   "copy": {
+    "primary": "Automate your marketing: posts, reels and stories every week, ads every day, one report at 7:35. You approve with one tap.",
+    "headline": "Automate your marketing",
+    "description": "Posts, reels, stories and ads",
+    "cta": "LEARN_MORE"
+   },
+   "lengths": {
+    "primary": 122,
+    "headline": 23,
+    "description": 29
+   },
+   "over_limit": [],
+   "n_texts": 8,
+   "violations": [],
+   "money_figures": [
+    {
+     "text": "7 days free, no card. Then €79 a month.",
+     "figure": "€79",
+     "kind": "price",
+     "ok": true
+    }
+   ],
+   "agency_and_figure": [],
+   "possible_dutch": [],
+   "texts": [
+    {
+     "text": "Automate your marketing: posts, reels and stories every week, ads every day, one report at 7:35. You approve with one tap.",
+     "violations": []
+    },
+    {
+     "text": "Automate your marketing",
+     "violations": []
+    },
+    {
+     "text": "Posts, reels, stories and ads",
+     "violations": []
+    },
+    {
+     "text": "Automate your marketing.",
+     "violations": []
+    },
+    {
+     "text": "Marketing by Otto",
+     "violations": []
+    },
+    {
+     "text": "Posts, reels, stories and ads, made for you. You approve with one tap.",
+     "violations": []
+    },
+    {
+     "text": "Try 7 days free",
+     "violations": []
+    },
+    {
+     "text": "7 days free, no card. Then €79 a month.",
+     "violations": []
+    }
+   ]
+  },
+  {
+   "id": "ie-a2-versus-v",
+   "angle": "a2",
+   "style": "us_vs_them",
+   "format": "video",
+   "engine_status": "ready",
+   "engine_reasons": [
+    "video not rendered yet (its kit JSON was written by hand: render it with motion/ad-kit)"
+   ],
+   "copy": {
+    "primary": "€1,000+ a month for posts and ads. That's what a social media agency charges. Otto does both for €79 a month.",
+    "headline": "Stop paying agency prices",
+    "description": "€79 a month, excl. VAT",
+    "cta": "LEARN_MORE"
+   },
+   "lengths": {
+    "primary": 109,
+    "headline": 25,
+    "description": 22
+   },
+   "over_limit": [],
+   "n_texts": 35,
+   "violations": [],
+   "money_figures": [
+    {
+     "text": "€1,000+ a month for posts and ads. That's what a social media agency charges. Otto does both for €79 a month.",
+     "figure": "€1,000+",
+     "kind": "agency range (sourced)",
+     "ok": true
+    },
+    {
+     "text": "€1,000+ a month for posts and ads. That's what a social media agency charges. Otto does both for €79 a month.",
+     "figure": "€79",
+     "kind": "price",
+     "ok": true
+    },
+    {
+     "text": "€79 a month, excl. VAT",
+     "figure": "€79",
+     "kind": "price",
+     "ok": true
+    },
+    {
+     "text": "€500–1,500 a month",
+     "figure": "€500–1,500",
+     "kind": "agency range (sourced)",
+     "ok": true
+    },
+    {
+     "text": "€79 a month",
+     "figure": "€79",
+     "kind": "price",
+     "ok": true
+    },
+    {
+     "text": "Posts and ads for €79 a month.",
+     "figure": "€79",
+     "kind": "price",
+     "ok": true
+    },
+    {
+     "text": "€500–1,500 a month",
+     "figure": "€500–1,500",
+     "kind": "agency range (sourced)",
+     "ok": true
+    },
+    {
+     "text": "€79 a month",
+     "figure": "€79",
+     "kind": "price",
+     "ok": true
+    },
+    {
+     "text": "Posts and ads for €79 a month.",
+     "figure": "€79",
+     "kind": "price",
+     "ok": true
+    }
+   ],
+   "agency_and_figure": [],
+   "possible_dutch": [],
+   "texts": [
+    {
+     "text": "€1,000+ a month for posts and ads. That's what a social media agency charges. Otto does both for €79 a month.",
+     "violations": []
+    },
+    {
+     "text": "Stop paying agency prices",
+     "violations": []
+    },
+    {
+     "text": "€79 a month, excl. VAT",
+     "violations": []
+    },
+    {
+     "text": "vs",
+     "violations": []
+    },
+    {
+     "text": "Agency",
+     "violations": []
+    },
+    {
+     "text": "€500–1,500 a month",
+     "violations": []
+    },
+    {
+     "text": "Posts only",
+     "violations": []
+    },
+    {
+     "text": "A briefing first",
      "violations": []
     },
     {
@@ -665,79 +880,63 @@
      "violations": []
     },
     {
-     "text": "O",
+     "text": "€79 a month",
      "violations": []
     },
     {
-     "text": "brand",
+     "text": "Posts and ads",
      "violations": []
     },
     {
-     "text": "Sample · Today 7:35 AM",
+     "text": "Ready in minutes",
      "violations": []
     },
     {
-     "text": "Message",
+     "text": "You approve every post.",
      "violations": []
     },
     {
-     "text": "them",
+     "text": "Stop paying agency prices.",
      "violations": []
     },
     {
-     "text": "Morning. Yesterday: €18 on ads, 4 enquiries.",
+     "text": "agency prices.",
      "violations": []
     },
     {
-     "text": "them",
+     "text": "Posts and ads for €79 a month.",
      "violations": []
     },
     {
-     "text": "Best ad: the boiler service reel.",
+     "text": "Agency prices: public 2026 price lists.",
      "violations": []
     },
     {
-     "text": "them",
+     "text": "campaign",
      "violations": []
     },
     {
-     "text": "2 posts for this week are ready. Want a look?",
+     "text": "Monthly plan, no contract, cancel anytime. Prices excl. VAT.",
      "violations": []
     },
     {
-     "text": "me",
+     "text": "vs",
      "violations": []
     },
     {
-     "text": "Go on",
+     "text": "Agency",
      "violations": []
     },
     {
-     "text": "them",
+     "text": "€500–1,500 a month",
      "violations": []
     },
     {
-     "text": "Here they are. Tap approve or ask for a change.",
+     "text": "Posts only",
      "violations": []
     },
     {
-     "text": "Know by 7:35.",
-     "violations": []
-    },
-    {
-     "text": "7:35",
-     "violations": []
-    },
-    {
-     "text": "What it cost, what came in, what's waiting.",
-     "violations": []
-    },
-    {
-     "text": "Sample message. You pay Meta directly for your ads.",
-     "violations": []
-    },
-    {
-     "text": "pack",
+     "text": "A briefing first",
      "violations": []
     },
     {
@@ -745,79 +944,251 @@
      "violations": []
     },
     {
-     "text": "O",
+     "text": "€79 a month",
      "violations": []
     },
     {
-     "text": "brand",
+     "text": "Posts and ads",
      "violations": []
     },
     {
-     "text": "Sample · Today 7:35 AM",
+     "text": "Ready in minutes",
      "violations": []
     },
     {
-     "text": "Message",
+     "text": "You approve every post.",
      "violations": []
     },
     {
-     "text": "them",
+     "text": "Stop paying agency prices.",
      "violations": []
     },
     {
-     "text": "Morning. Yesterday: €18 on ads, 4 enquiries.",
+     "text": "agency prices.",
      "violations": []
     },
     {
-     "text": "them",
+     "text": "Posts and ads for €79 a month.",
      "violations": []
     },
     {
-     "text": "Best ad: the boiler service reel.",
+     "text": "Agency prices: public 2026 price lists.",
      "violations": []
     },
     {
-     "text": "them",
+     "text": "campaign",
      "violations": []
     },
     {
-     "text": "2 posts for this week are ready. Want a look?",
+     "text": "Monthly plan, no contract, cancel anytime. Prices excl. VAT.",
+     "violations": []
+    }
+   ]
+  },
+  {
+   "id": "ie-a2-search-v",
+   "angle": "a2",
+   "style": "search",
+   "format": "video",
+   "engine_status": "ready",
+   "engine_reasons": [
+    "video not rendered yet (its kit JSON was written by hand: render it with motion/ad-kit)"
+   ],
+   "copy": {
+    "primary": "Paying an agency to post for you? Otto plans, writes, designs and posts, and runs your ads as well. All for €79 a month.",
+    "headline": "Your marketing team for €79 a month",
+    "description": "€79 a month, excl. VAT",
+    "cta": "LEARN_MORE"
+   },
+   "lengths": {
+    "primary": 120,
+    "headline": 35,
+    "description": 22
+   },
+   "over_limit": [],
+   "n_texts": 31,
+   "violations": [],
+   "money_figures": [
+    {
+     "text": "Paying an agency to post for you? Otto plans, writes, designs and posts, and runs your ads as well. All for €79 a month.",
+     "figure": "€79",
+     "kind": "price",
+     "ok": true
+    },
+    {
+     "text": "Your marketing team for €79 a month",
+     "figure": "€79",
+     "kind": "price",
+     "ok": true
+    },
+    {
+     "text": "€79 a month, excl. VAT",
+     "figure": "€79",
+     "kind": "price",
+     "ok": true
+    },
+    {
+     "text": "Posts and ads for €79 a month",
+     "figure": "€79",
+     "kind": "price",
+     "ok": true
+    },
+    {
+     "text": "Your marketing team for €79 a month.",
+     "figure": "€79",
+     "kind": "price",
+     "ok": true
+    },
+    {
+     "text": "€79 a month.",
+     "figure": "€79",
+     "kind": "price",
+     "ok": true
+    },
+    {
+     "text": "Posts and ads for €79 a month",
+     "figure": "€79",
+     "kind": "price",
+     "ok": true
+    },
+    {
+     "text": "Your marketing team for €79 a month.",
+     "figure": "€79",
+     "kind": "price",
+     "ok": true
+    },
+    {
+     "text": "€79 a month.",
+     "figure": "€79",
+     "kind": "price",
+     "ok": true
+    }
+   ],
+   "agency_and_figure": [],
+   "possible_dutch": [],
+   "texts": [
+    {
+     "text": "Paying an agency to post for you? Otto plans, writes, designs and posts, and runs your ads as well. All for €79 a month.",
      "violations": []
     },
     {
-     "text": "me",
+     "text": "Your marketing team for €79 a month",
      "violations": []
     },
     {
-     "text": "Go on",
+     "text": "€79 a month, excl. VAT",
      "violations": []
     },
     {
-     "text": "them",
+     "text": "Search",
      "violations": []
     },
     {
-     "text": "Here they are. Tap approve or ask for a change.",
+     "text": "social media agency price",
      "violations": []
     },
     {
-     "text": "Know by 7:35.",
+     "text": "social media agency price per month",
      "violations": []
     },
     {
-     "text": "7:35",
+     "text": "social media agency price ireland",
      "violations": []
     },
     {
-     "text": "What it cost, what came in, what's waiting.",
+     "text": "social media agency price per post",
      "violations": []
     },
     {
-     "text": "Sample message. You pay Meta directly for your ads.",
+     "text": "social media agency price list",
      "violations": []
     },
     {
-     "text": "pack",
+     "text": "o",
+     "violations": []
+    },
+    {
+     "text": "Posts and ads for €79 a month",
+     "violations": []
+    },
+    {
+     "text": "Otto plans, writes, designs and posts your social media and runs your ads. 7 days free, no card.",
+     "violations": []
+    },
+    {
+     "text": "Your marketing team for €79 a month.",
+     "violations": []
+    },
+    {
+     "text": "€79 a month.",
+     "violations": []
+    },
+    {
+     "text": "Posts, reels, stories and ads, done for you.",
+     "violations": []
+    },
+    {
+     "text": "7 days free, no card.",
+     "violations": []
+    },
+    {
+     "text": "campaign",
+     "violations": []
+    },
+    {
+     "text": "Search",
+     "violations": []
+    },
+    {
+     "text": "social media agency price",
+     "violations": []
+    },
+    {
+     "text": "social media agency price per month",
+     "violations": []
+    },
+    {
+     "text": "social media agency price ireland",
+     "violations": []
+    },
+    {
+     "text": "social media agency price per post",
+     "violations": []
+    },
+    {
+     "text": "social media agency price list",
+     "violations": []
+    },
+    {
+     "text": "o",
+     "violations": []
+    },
+    {
+     "text": "Posts and ads for €79 a month",
+     "violations": []
+    },
+    {
+     "text": "Otto plans, writes, designs and posts your social media and runs your ads. 7 days free, no card.",
+     "violations": []
+    },
+    {
+     "text": "Your marketing team for €79 a month.",
+     "violations": []
+    },
+    {
+     "text": "€79 a month.",
+     "violations": []
+    },
+    {
+     "text": "Posts, reels, stories and ads, done for you.",
+     "violations": []
+    },
+    {
+     "text": "7 days free, no card.",
+     "violations": []
+    },
+    {
+     "text": "campaign",
      "violations": []
     }
    ]
@@ -829,267 +1200,197 @@
    "format": "video",
    "engine_status": "ready",
    "engine_reasons": [
-    "video not rendered yet (otto_motion)"
+    "video not rendered yet (its kit JSON was written by hand: render it with motion/ad-kit)"
    ],
    "copy": {
-    "primary": "A monthly PDF tells you too late. Otto sends one short message every morning at 7:35. Read it with your tea.",
-    "headline": "Know by 7:35 every morning",
-    "description": "Your marketing, in one message",
+    "primary": "Posts, reels, stories and ads, without the agency invoice. €79 a month, no contract, cancel anytime.",
+    "headline": "Stop paying agency prices",
+    "description": "€79 a month, excl. VAT",
     "cta": "LEARN_MORE"
    },
    "lengths": {
-    "primary": 108,
-    "headline": 26,
-    "description": 30
+    "primary": 100,
+    "headline": 25,
+    "description": 22
    },
    "over_limit": [],
-   "n_texts": 29,
+   "n_texts": 31,
    "violations": [],
-   "money_figures": [],
-   "possible_dutch": [],
-   "texts": [
+   "money_figures": [
     {
-     "text": "A monthly PDF tells you too late. Otto sends one short message every morning at 7:35. Read it with your tea.",
-     "violations": []
+     "text": "Posts, reels, stories and ads, without the agency invoice. €79 a month, no contract, cancel anytime.",
+     "figure": "€79",
+     "kind": "price",
+     "ok": true
     },
     {
-     "text": "Know by 7:35 every morning",
-     "violations": []
+     "text": "€79 a month, excl. VAT",
+     "figure": "€79",
+     "kind": "price",
+     "ok": true
     },
     {
-     "text": "Your marketing, in one message",
-     "violations": []
+     "text": "€1,000+",
+     "figure": "€1,000+",
+     "kind": "agency range (sourced)",
+     "ok": true
     },
     {
-     "text": "hero",
-     "violations": []
+     "text": "€79",
+     "figure": "€79",
+     "kind": "price",
+     "ok": true
     },
     {
-     "text": "7:35",
-     "violations": []
+     "text": "Posts and ads for €79 a month.",
+     "figure": "€79",
+     "kind": "price",
+     "ok": true
     },
     {
-     "text": "every morning.",
-     "violations": []
+     "text": "€1,000+",
+     "figure": "€1,000+",
+     "kind": "agency range (sourced)",
+     "ok": true
     },
     {
-     "text": "1 message",
-     "violations": []
+     "text": "€79",
+     "figure": "€79",
+     "kind": "price",
+     "ok": true
     },
     {
-     "text": "what it cost, what came in.",
-     "violations": []
-    },
-    {
-     "text": "1 tap",
-     "violations": []
-    },
-    {
-     "text": "to approve.",
-     "violations": []
-    },
-    {
-     "text": "hero",
-     "violations": []
-    },
-    {
-     "text": "One message. Every morning.",
-     "violations": []
-    },
-    {
-     "text": "Every morning.",
-     "violations": []
-    },
-    {
-     "text": "Posts, reels and ads, made by Otto.",
-     "violations": []
-    },
-    {
-     "text": "Try it free for 7 days, no card needed.",
-     "violations": []
-    },
-    {
-     "text": "pack",
-     "violations": []
-    },
-    {
-     "text": "hero",
-     "violations": []
-    },
-    {
-     "text": "7:35",
-     "violations": []
-    },
-    {
-     "text": "every morning.",
-     "violations": []
-    },
-    {
-     "text": "1 message",
-     "violations": []
-    },
-    {
-     "text": "what it cost, what came in.",
-     "violations": []
-    },
-    {
-     "text": "1 tap",
-     "violations": []
-    },
-    {
-     "text": "to approve.",
-     "violations": []
-    },
-    {
-     "text": "hero",
-     "violations": []
-    },
-    {
-     "text": "One message. Every morning.",
-     "violations": []
-    },
-    {
-     "text": "Every morning.",
-     "violations": []
-    },
-    {
-     "text": "Posts, reels and ads, made by Otto.",
-     "violations": []
-    },
-    {
-     "text": "Try it free for 7 days, no card needed.",
-     "violations": []
-    },
-    {
-     "text": "pack",
-     "violations": []
+     "text": "Posts and ads for €79 a month.",
+     "figure": "€79",
+     "kind": "price",
+     "ok": true
     }
-   ]
-  },
-  {
-   "id": "ie-a2-notes-v",
-   "angle": "a2",
-   "style": "notes_app",
-   "format": "video",
-   "engine_status": "ready",
-   "engine_reasons": [
-    "video not rendered yet (otto_motion)"
    ],
-   "copy": {
-    "primary": "If something drops, it's in the next morning's report, with a fix already drafted. You decide what happens.",
-    "headline": "One message at 7:35",
-    "description": "Your marketing, in one message",
-    "cta": "LEARN_MORE"
-   },
-   "lengths": {
-    "primary": 107,
-    "headline": 19,
-    "description": 30
-   },
-   "over_limit": [],
-   "n_texts": 25,
-   "violations": [],
-   "money_figures": [],
+   "agency_and_figure": [],
    "possible_dutch": [],
    "texts": [
     {
-     "text": "If something drops, it's in the next morning's report, with a fix already drafted. You decide what happens.",
+     "text": "Posts, reels, stories and ads, without the agency invoice. €79 a month, no contract, cancel anytime.",
      "violations": []
     },
     {
-     "text": "One message at 7:35",
+     "text": "Stop paying agency prices",
      "violations": []
     },
     {
-     "text": "Your marketing, in one message",
+     "text": "€79 a month, excl. VAT",
      "violations": []
     },
     {
-     "text": "Monday, 7:41 AM",
+     "text": "campaign",
      "violations": []
     },
     {
-     "text": "Marketing jobs I've dropped",
+     "text": "€1,000+",
      "violations": []
     },
     {
-     "text": "posting at 11pm",
+     "text": "a month at an agency, for posts and ads.",
      "violations": []
     },
     {
-     "text": "guessing what the ads did",
+     "text": "€79",
      "violations": []
     },
     {
-     "text": "reading a monthly PDF",
+     "text": "a month with Otto. Posts and ads.",
      "violations": []
     },
     {
-     "text": "reading Otto's 7:35 message",
+     "text": "1 tap",
      "violations": []
     },
     {
-     "text": "Know by 7:35.",
+     "text": "to approve each post.",
      "violations": []
     },
     {
-     "text": "7:35.",
+     "text": "post_carousel",
      "violations": []
     },
     {
-     "text": "What it cost, what came in, what's waiting.",
+     "text": "Without the agency invoice.",
      "violations": []
     },
     {
-     "text": "Try it free for 7 days, no card needed.",
+     "text": "agency invoice.",
      "violations": []
     },
     {
-     "text": "pack",
+     "text": "Posts and ads for €79 a month.",
      "violations": []
     },
     {
-     "text": "Monday, 7:41 AM",
+     "text": "Ad spend is paid to Meta directly.",
      "violations": []
     },
     {
-     "text": "Marketing jobs I've dropped",
+     "text": "campaign",
      "violations": []
     },
     {
-     "text": "posting at 11pm",
+     "text": "Monthly plan, no contract, cancel anytime. Prices excl. VAT.",
      "violations": []
     },
     {
-     "text": "guessing what the ads did",
+     "text": "campaign",
      "violations": []
     },
     {
-     "text": "reading a monthly PDF",
+     "text": "€1,000+",
      "violations": []
     },
     {
-     "text": "reading Otto's 7:35 message",
+     "text": "a month at an agency, for posts and ads.",
      "violations": []
     },
     {
-     "text": "Know by 7:35.",
+     "text": "€79",
      "violations": []
     },
     {
-     "text": "7:35.",
+     "text": "a month with Otto. Posts and ads.",
      "violations": []
     },
     {
-     "text": "What it cost, what came in, what's waiting.",
+     "text": "1 tap",
      "violations": []
     },
     {
-     "text": "Try it free for 7 days, no card needed.",
+     "text": "to approve each post.",
      "violations": []
     },
     {
-     "text": "pack",
+     "text": "post_carousel",
+     "violations": []
+    },
+    {
+     "text": "Without the agency invoice.",
+     "violations": []
+    },
+    {
+     "text": "agency invoice.",
+     "violations": []
+    },
+    {
+     "text": "Posts and ads for €79 a month.",
+     "violations": []
+    },
+    {
+     "text": "Ad spend is paid to Meta directly.",
+     "violations": []
+    },
+    {
+     "text": "campaign",
+     "violations": []
+    },
+    {
+     "text": "Monthly plan, no contract, cancel anytime. Prices excl. VAT.",
      "violations": []
     }
    ]
@@ -1102,138 +1403,987 @@
    "engine_status": "ready",
    "engine_reasons": [],
    "copy": {
-    "primary": "Every morning at 7:35, Otto tells you what your ads cost yesterday, what came in and which posts wait for your tap.",
-    "headline": "Know by 7:35 every morning",
-    "description": "Your marketing, in one message",
+    "primary": "€1,000+ a month for posts and ads. That's what a social media agency charges. Otto does both for €79 a month.",
+    "headline": "Your marketing team for €79 a month",
+    "description": "€79 a month, excl. VAT",
     "cta": "LEARN_MORE"
    },
    "lengths": {
-    "primary": 115,
-    "headline": 26,
-    "description": 30
+    "primary": 109,
+    "headline": 35,
+    "description": 22
    },
    "over_limit": [],
    "n_texts": 20,
    "violations": [],
-   "money_figures": [],
+   "money_figures": [
+    {
+     "text": "€1,000+ a month for posts and ads. That's what a social media agency charges. Otto does both for €79 a month.",
+     "figure": "€1,000+",
+     "kind": "agency range (sourced)",
+     "ok": true
+    },
+    {
+     "text": "€1,000+ a month for posts and ads. That's what a social media agency charges. Otto does both for €79 a month.",
+     "figure": "€79",
+     "kind": "price",
+     "ok": true
+    },
+    {
+     "text": "Your marketing team for €79 a month",
+     "figure": "€79",
+     "kind": "price",
+     "ok": true
+    },
+    {
+     "text": "€79 a month, excl. VAT",
+     "figure": "€79",
+     "kind": "price",
+     "ok": true
+    },
+    {
+     "text": "€1,000+",
+     "figure": "€1,000+",
+     "kind": "agency range (sourced)",
+     "ok": true
+    },
+    {
+     "text": "€79",
+     "figure": "€79",
+     "kind": "price",
+     "ok": true
+    },
+    {
+     "text": "€500–1,500",
+     "figure": "€500–1,500",
+     "kind": "agency range (sourced)",
+     "ok": true
+    }
+   ],
+   "agency_and_figure": [],
    "possible_dutch": [],
    "texts": [
     {
-     "text": "Every morning at 7:35, Otto tells you what your ads cost yesterday, what came in and which posts wait for your tap.",
+     "text": "€1,000+ a month for posts and ads. That's what a social media agency charges. Otto does both for €79 a month.",
      "violations": []
     },
     {
-     "text": "Know by 7:35 every morning",
+     "text": "Your marketing team for €79 a month",
      "violations": []
     },
     {
-     "text": "Your marketing, in one message",
+     "text": "€79 a month, excl. VAT",
      "violations": []
     },
     {
-     "text": "Monthly report or *morning message*?",
+     "text": "Agency or *Otto*?",
      "violations": []
     },
     {
-     "text": "Reporting",
+     "text": "Your social media, per month",
      "violations": []
     },
     {
-     "text": "Monthly report",
+     "text": "Agency",
      "violations": []
     },
     {
-     "text": "Otto at 7:35",
+     "text": "Otto",
      "violations": []
     },
     {
-     "text": "How often",
+     "text": "Posts and ads",
      "violations": []
     },
     {
-     "text": "Once a month",
+     "text": "€1,000+",
      "violations": []
     },
     {
-     "text": "Every morning",
+     "text": "€79",
      "violations": []
     },
     {
-     "text": "What you get",
+     "text": "Posts only",
      "violations": []
     },
     {
-     "text": "A long PDF",
+     "text": "€500–1,500",
      "violations": []
     },
     {
-     "text": "One short message",
+     "text": "Included",
      "violations": []
     },
     {
-     "text": "When something drops",
+     "text": "First week",
      "violations": []
     },
     {
-     "text": "Often next month",
+     "text": "After a briefing",
      "violations": []
     },
     {
-     "text": "The next morning",
+     "text": "Ready in minutes",
      "violations": []
     },
     {
-     "text": "Who decides",
+     "text": "Who approves",
      "violations": []
     },
     {
-     "text": "You, later",
+     "text": "You",
      "violations": []
     },
     {
-     "text": "You, now",
+     "text": "You, with one tap",
      "violations": []
     },
     {
-     "text": "Otto: a report at 7:35, every morning.",
+     "text": "Agency prices: public 2026 price lists of social media agencies in the Netherlands and Ireland. Otto: excl. VAT, monthly, cancel anytime; ad spend is paid to Meta directly.",
      "violations": []
     }
    ]
   },
   {
-   "id": "ie-a2-macro",
+   "id": "ie-a2-product",
    "angle": "a2",
+   "style": "product_hero",
+   "format": "image",
+   "engine_status": "ready",
+   "engine_reasons": [],
+   "copy": {
+    "primary": "Paying an agency to post for you? Otto plans, writes, designs and posts, and runs your ads as well. All for €79 a month.",
+    "headline": "Stop paying agency prices",
+    "description": "€79 a month, excl. VAT",
+    "cta": "LEARN_MORE"
+   },
+   "lengths": {
+    "primary": 120,
+    "headline": 25,
+    "description": 22
+   },
+   "over_limit": [],
+   "n_texts": 8,
+   "violations": [],
+   "money_figures": [
+    {
+     "text": "Paying an agency to post for you? Otto plans, writes, designs and posts, and runs your ads as well. All for €79 a month.",
+     "figure": "€79",
+     "kind": "price",
+     "ok": true
+    },
+    {
+     "text": "€79 a month, excl. VAT",
+     "figure": "€79",
+     "kind": "price",
+     "ok": true
+    },
+    {
+     "text": "Your marketing team for *€79 a month*",
+     "figure": "€79",
+     "kind": "price",
+     "ok": true
+    }
+   ],
+   "agency_and_figure": [],
+   "possible_dutch": [],
+   "texts": [
+    {
+     "text": "Paying an agency to post for you? Otto plans, writes, designs and posts, and runs your ads as well. All for €79 a month.",
+     "violations": []
+    },
+    {
+     "text": "Stop paying agency prices",
+     "violations": []
+    },
+    {
+     "text": "€79 a month, excl. VAT",
+     "violations": []
+    },
+    {
+     "text": "Your marketing team for *€79 a month*",
+     "violations": []
+    },
+    {
+     "text": "Ads run per angle",
+     "violations": []
+    },
+    {
+     "text": "Reported at 7:35",
+     "violations": []
+    },
+    {
+     "text": "Posts, reels and stories",
+     "violations": []
+    },
+    {
+     "text": "Instead of an agency",
+     "violations": []
+    }
+   ]
+  },
+  {
+   "id": "ie-a2-number",
+   "angle": "a2",
+   "style": "big_number",
+   "format": "image",
+   "engine_status": "ready",
+   "engine_reasons": [],
+   "copy": {
+    "primary": "Posts, reels, stories and ads, without the agency invoice. €79 a month, no contract, cancel anytime.",
+    "headline": "Your marketing team for €79 a month",
+    "description": "€79 a month, excl. VAT",
+    "cta": "LEARN_MORE"
+   },
+   "lengths": {
+    "primary": 100,
+    "headline": 35,
+    "description": 22
+   },
+   "over_limit": [],
+   "n_texts": 8,
+   "violations": [],
+   "money_figures": [
+    {
+     "text": "Posts, reels, stories and ads, without the agency invoice. €79 a month, no contract, cancel anytime.",
+     "figure": "€79",
+     "kind": "price",
+     "ok": true
+    },
+    {
+     "text": "Your marketing team for €79 a month",
+     "figure": "€79",
+     "kind": "price",
+     "ok": true
+    },
+    {
+     "text": "€79 a month, excl. VAT",
+     "figure": "€79",
+     "kind": "price",
+     "ok": true
+    },
+    {
+     "text": "€79",
+     "figure": "€79",
+     "kind": "price",
+     "ok": true
+    }
+   ],
+   "agency_and_figure": [],
+   "possible_dutch": [],
+   "texts": [
+    {
+     "text": "Posts, reels, stories and ads, without the agency invoice. €79 a month, no contract, cancel anytime.",
+     "violations": []
+    },
+    {
+     "text": "Your marketing team for €79 a month",
+     "violations": []
+    },
+    {
+     "text": "€79 a month, excl. VAT",
+     "violations": []
+    },
+    {
+     "text": "€79",
+     "violations": []
+    },
+    {
+     "text": "a month",
+     "violations": []
+    },
+    {
+     "text": "Monthly plan",
+     "violations": []
+    },
+    {
+     "text": "for your posts, reels, stories and ads. Planned, made and posted for you.",
+     "violations": []
+    },
+    {
+     "text": "Excl. VAT. Monthly, cancel anytime. Ad spend is paid to Meta directly.",
+     "violations": []
+    }
+   ]
+  },
+  {
+   "id": "ie-a2-premium",
+   "angle": "a2",
+   "style": "editorial",
+   "format": "image",
+   "engine_status": "ready",
+   "engine_reasons": [],
+   "copy": {
+    "primary": "€1,000+ a month for posts and ads. That's what a social media agency charges. Otto does both for €79 a month.",
+    "headline": "Stop paying agency prices",
+    "description": "€79 a month, excl. VAT",
+    "cta": "LEARN_MORE"
+   },
+   "lengths": {
+    "primary": 109,
+    "headline": 25,
+    "description": 22
+   },
+   "over_limit": [],
+   "n_texts": 12,
+   "violations": [],
+   "money_figures": [
+    {
+     "text": "€1,000+ a month for posts and ads. That's what a social media agency charges. Otto does both for €79 a month.",
+     "figure": "€1,000+",
+     "kind": "agency range (sourced)",
+     "ok": true
+    },
+    {
+     "text": "€1,000+ a month for posts and ads. That's what a social media agency charges. Otto does both for €79 a month.",
+     "figure": "€79",
+     "kind": "price",
+     "ok": true
+    },
+    {
+     "text": "€79 a month, excl. VAT",
+     "figure": "€79",
+     "kind": "price",
+     "ok": true
+    },
+    {
+     "text": "Otto does your posts and ads for €79 a month.",
+     "figure": "€79",
+     "kind": "price",
+     "ok": true
+    },
+    {
+     "text": "€79 a month",
+     "figure": "€79",
+     "kind": "price",
+     "ok": true
+    },
+    {
+     "text": "€1,000+ a month",
+     "figure": "€1,000+",
+     "kind": "agency range (sourced)",
+     "ok": true
+    }
+   ],
+   "agency_and_figure": [],
+   "possible_dutch": [],
+   "texts": [
+    {
+     "text": "€1,000+ a month for posts and ads. That's what a social media agency charges. Otto does both for €79 a month.",
+     "violations": []
+    },
+    {
+     "text": "Stop paying agency prices",
+     "violations": []
+    },
+    {
+     "text": "€79 a month, excl. VAT",
+     "violations": []
+    },
+    {
+     "text": "Stop paying agency prices.",
+     "violations": []
+    },
+    {
+     "text": "Otto does your posts and ads for €79 a month.",
+     "violations": []
+    },
+    {
+     "text": "Try 7 days free",
+     "violations": []
+    },
+    {
+     "text": "€79 a month",
+     "violations": []
+    },
+    {
+     "text": "posts, reels, stories and ads",
+     "violations": []
+    },
+    {
+     "text": "Social media agency",
+     "violations": []
+    },
+    {
+     "text": "€1,000+ a month",
+     "violations": []
+    },
+    {
+     "text": "for posts and ads",
+     "violations": []
+    },
+    {
+     "text": "Agency prices: public 2026 price lists, NL/IE. Prices excl. VAT.",
+     "violations": []
+    }
+   ]
+  },
+  {
+   "id": "ie-a3-texts-v",
+   "angle": "a3",
+   "style": "text_message",
+   "format": "video",
+   "engine_status": "ready",
+   "engine_reasons": [
+    "video not rendered yet (its kit JSON was written by hand: render it with motion/ad-kit)"
+   ],
+   "copy": {
+    "primary": "Every morning at 7:35: what your ads cost yesterday and what they brought in. Spend, clicks, enquiries. One message.",
+    "headline": "Your ads report, every day at 7:35",
+    "description": "One report, every morning",
+    "cta": "LEARN_MORE"
+   },
+   "lengths": {
+    "primary": 116,
+    "headline": 34,
+    "description": 25
+   },
+   "over_limit": [],
+   "n_texts": 43,
+   "violations": [],
+   "money_figures": [
+    {
+     "text": "Morning. €18 spent yesterday, 31 clicks, 4 enquiries.",
+     "figure": "€18",
+     "kind": "sample report figure",
+     "ok": true
+    },
+    {
+     "text": "Morning. €18 spent yesterday, 31 clicks, 4 enquiries.",
+     "figure": "€18",
+     "kind": "sample report figure",
+     "ok": true
+    }
+   ],
+   "agency_and_figure": [],
+   "possible_dutch": [],
+   "texts": [
+    {
+     "text": "Every morning at 7:35: what your ads cost yesterday and what they brought in. Spend, clicks, enquiries. One message.",
+     "violations": []
+    },
+    {
+     "text": "Your ads report, every day at 7:35",
+     "violations": []
+    },
+    {
+     "text": "One report, every morning",
+     "violations": []
+    },
+    {
+     "text": "Otto",
+     "violations": []
+    },
+    {
+     "text": "O",
+     "violations": []
+    },
+    {
+     "text": "brand",
+     "violations": []
+    },
+    {
+     "text": "Sample · Today 7:35 AM",
+     "violations": []
+    },
+    {
+     "text": "Message",
+     "violations": []
+    },
+    {
+     "text": "them",
+     "violations": []
+    },
+    {
+     "text": "Morning. €18 spent yesterday, 31 clicks, 4 enquiries.",
+     "violations": []
+    },
+    {
+     "text": "them",
+     "violations": []
+    },
+    {
+     "text": "Best ad: the boiler service, with 2 enquiries.",
+     "violations": []
+    },
+    {
+     "text": "them",
+     "violations": []
+    },
+    {
+     "text": "Want me to pause the weakest one?",
+     "violations": []
+    },
+    {
+     "text": "me",
+     "violations": []
+    },
+    {
+     "text": "Go on, pause it",
+     "violations": []
+    },
+    {
+     "text": "them",
+     "violations": []
+    },
+    {
+     "text": "Grand. 2 posts are waiting for your tap too.",
+     "violations": []
+    },
+    {
+     "text": "Know by 7:35.",
+     "violations": []
+    },
+    {
+     "text": "7:35.",
+     "violations": []
+    },
+    {
+     "text": "Spend, clicks, enquiries. One message.",
+     "violations": []
+    },
+    {
+     "text": "Sample message. Ad spend is paid to Meta directly.",
+     "violations": []
+    },
+    {
+     "text": "report_ads",
+     "violations": []
+    },
+    {
+     "text": "Otto",
+     "violations": []
+    },
+    {
+     "text": "O",
+     "violations": []
+    },
+    {
+     "text": "brand",
+     "violations": []
+    },
+    {
+     "text": "Sample · Today 7:35 AM",
+     "violations": []
+    },
+    {
+     "text": "Message",
+     "violations": []
+    },
+    {
+     "text": "them",
+     "violations": []
+    },
+    {
+     "text": "Morning. €18 spent yesterday, 31 clicks, 4 enquiries.",
+     "violations": []
+    },
+    {
+     "text": "them",
+     "violations": []
+    },
+    {
+     "text": "Best ad: the boiler service, with 2 enquiries.",
+     "violations": []
+    },
+    {
+     "text": "them",
+     "violations": []
+    },
+    {
+     "text": "Want me to pause the weakest one?",
+     "violations": []
+    },
+    {
+     "text": "me",
+     "violations": []
+    },
+    {
+     "text": "Go on, pause it",
+     "violations": []
+    },
+    {
+     "text": "them",
+     "violations": []
+    },
+    {
+     "text": "Grand. 2 posts are waiting for your tap too.",
+     "violations": []
+    },
+    {
+     "text": "Know by 7:35.",
+     "violations": []
+    },
+    {
+     "text": "7:35.",
+     "violations": []
+    },
+    {
+     "text": "Spend, clicks, enquiries. One message.",
+     "violations": []
+    },
+    {
+     "text": "Sample message. Ad spend is paid to Meta directly.",
+     "violations": []
+    },
+    {
+     "text": "report_ads",
+     "violations": []
+    }
+   ]
+  },
+  {
+   "id": "ie-a3-big-v",
+   "angle": "a3",
+   "style": "big_number",
+   "format": "video",
+   "engine_status": "ready",
+   "engine_reasons": [
+    "video not rendered yet (its kit JSON was written by hand: render it with motion/ad-kit)"
+   ],
+   "copy": {
+    "primary": "One campaign, ads for every angle, and one message at 7:35 that says which one works. Read it with your tea.",
+    "headline": "Know what your ads did by 7:35",
+    "description": "One report, every morning",
+    "cta": "LEARN_MORE"
+   },
+   "lengths": {
+    "primary": 108,
+    "headline": 30,
+    "description": 25
+   },
+   "over_limit": [],
+   "n_texts": 31,
+   "violations": [],
+   "money_figures": [
+    {
+     "text": "7 days free, no card. Then €79 a month.",
+     "figure": "€79",
+     "kind": "price",
+     "ok": true
+    },
+    {
+     "text": "7 days free, no card. Then €79 a month.",
+     "figure": "€79",
+     "kind": "price",
+     "ok": true
+    }
+   ],
+   "agency_and_figure": [],
+   "possible_dutch": [],
+   "texts": [
+    {
+     "text": "One campaign, ads for every angle, and one message at 7:35 that says which one works. Read it with your tea.",
+     "violations": []
+    },
+    {
+     "text": "Know what your ads did by 7:35",
+     "violations": []
+    },
+    {
+     "text": "One report, every morning",
+     "violations": []
+    },
+    {
+     "text": "campaign",
+     "violations": []
+    },
+    {
+     "text": "1 campaign",
+     "violations": []
+    },
+    {
+     "text": "Ads for every angle.",
+     "violations": []
+    },
+    {
+     "text": "7:35",
+     "violations": []
+    },
+    {
+     "text": "Spend, clicks, enquiries.",
+     "violations": []
+    },
+    {
+     "text": "1 tap",
+     "violations": []
+    },
+    {
+     "text": "to approve or pause.",
+     "violations": []
+    },
+    {
+     "text": "report_ads",
+     "violations": []
+    },
+    {
+     "text": "Your ads, reported daily.",
+     "violations": []
+    },
+    {
+     "text": "reported daily.",
+     "violations": []
+    },
+    {
+     "text": "Every morning at 7:35.",
+     "violations": []
+    },
+    {
+     "text": "7 days free, no card. Then €79 a month.",
+     "violations": []
+    },
+    {
+     "text": "campaign",
+     "violations": []
+    },
+    {
+     "text": "Monthly plan, no contract, cancel anytime. Prices excl. VAT.",
+     "violations": []
+    },
+    {
+     "text": "campaign",
+     "violations": []
+    },
+    {
+     "text": "1 campaign",
+     "violations": []
+    },
+    {
+     "text": "Ads for every angle.",
+     "violations": []
+    },
+    {
+     "text": "7:35",
+     "violations": []
+    },
+    {
+     "text": "Spend, clicks, enquiries.",
+     "violations": []
+    },
+    {
+     "text": "1 tap",
+     "violations": []
+    },
+    {
+     "text": "to approve or pause.",
+     "violations": []
+    },
+    {
+     "text": "report_ads",
+     "violations": []
+    },
+    {
+     "text": "Your ads, reported daily.",
+     "violations": []
+    },
+    {
+     "text": "reported daily.",
+     "violations": []
+    },
+    {
+     "text": "Every morning at 7:35.",
+     "violations": []
+    },
+    {
+     "text": "7 days free, no card. Then €79 a month.",
+     "violations": []
+    },
+    {
+     "text": "campaign",
+     "violations": []
+    },
+    {
+     "text": "Monthly plan, no contract, cancel anytime. Prices excl. VAT.",
+     "violations": []
+    }
+   ]
+  },
+  {
+   "id": "ie-a3-notes-v",
+   "angle": "a3",
+   "style": "notes_app",
+   "format": "video",
+   "engine_status": "ready",
+   "engine_reasons": [
+    "video not rendered yet (its kit JSON was written by hand: render it with motion/ad-kit)"
+   ],
+   "copy": {
+    "primary": "If something drops, it's in the next morning's report with a fix already drafted. You decide: approve or pause.",
+    "headline": "Your ads report, every day at 7:35",
+    "description": "One report, every morning",
+    "cta": "LEARN_MORE"
+   },
+   "lengths": {
+    "primary": 111,
+    "headline": 34,
+    "description": 25
+   },
+   "over_limit": [],
+   "n_texts": 27,
+   "violations": [],
+   "money_figures": [
+    {
+     "text": "7 days free, no card. Then €79 a month.",
+     "figure": "€79",
+     "kind": "price",
+     "ok": true
+    },
+    {
+     "text": "7 days free, no card. Then €79 a month.",
+     "figure": "€79",
+     "kind": "price",
+     "ok": true
+    }
+   ],
+   "agency_and_figure": [],
+   "possible_dutch": [],
+   "texts": [
+    {
+     "text": "If something drops, it's in the next morning's report with a fix already drafted. You decide: approve or pause.",
+     "violations": []
+    },
+    {
+     "text": "Your ads report, every day at 7:35",
+     "violations": []
+    },
+    {
+     "text": "One report, every morning",
+     "violations": []
+    },
+    {
+     "text": "Monday, 7:41 AM",
+     "violations": []
+    },
+    {
+     "text": "Things I stopped checking",
+     "violations": []
+    },
+    {
+     "text": "the dashboard at midnight",
+     "violations": []
+    },
+    {
+     "text": "three different apps",
+     "violations": []
+    },
+    {
+     "text": "a monthly PDF",
+     "violations": []
+    },
+    {
+     "text": "Otto's 7:35 report",
+     "violations": []
+    },
+    {
+     "text": "Know by 7:35.",
+     "violations": []
+    },
+    {
+     "text": "7:35.",
+     "violations": []
+    },
+    {
+     "text": "What your ads cost, what they brought in.",
+     "violations": []
+    },
+    {
+     "text": "7 days free, no card. Then €79 a month.",
+     "violations": []
+    },
+    {
+     "text": "report_ads",
+     "violations": []
+    },
+    {
+     "text": "Monthly plan, no contract, cancel anytime. Prices excl. VAT.",
+     "violations": []
+    },
+    {
+     "text": "Monday, 7:41 AM",
+     "violations": []
+    },
+    {
+     "text": "Things I stopped checking",
+     "violations": []
+    },
+    {
+     "text": "the dashboard at midnight",
+     "violations": []
+    },
+    {
+     "text": "three different apps",
+     "violations": []
+    },
+    {
+     "text": "a monthly PDF",
+     "violations": []
+    },
+    {
+     "text": "Otto's 7:35 report",
+     "violations": []
+    },
+    {
+     "text": "Know by 7:35.",
+     "violations": []
+    },
+    {
+     "text": "7:35.",
+     "violations": []
+    },
+    {
+     "text": "What your ads cost, what they brought in.",
+     "violations": []
+    },
+    {
+     "text": "7 days free, no card. Then €79 a month.",
+     "violations": []
+    },
+    {
+     "text": "report_ads",
+     "violations": []
+    },
+    {
+     "text": "Monthly plan, no contract, cancel anytime. Prices excl. VAT.",
+     "violations": []
+    }
+   ]
+  },
+  {
+   "id": "ie-a3-macro",
+   "angle": "a3",
    "style": "macro_hero",
    "format": "image",
    "engine_status": "ready",
    "engine_reasons": [],
    "copy": {
-    "primary": "A monthly PDF tells you too late. Otto sends one short message every morning at 7:35. Read it with your tea.",
-    "headline": "One message at 7:35",
-    "description": "Your marketing, in one message",
+    "primary": "Every morning at 7:35: what your ads cost yesterday and what they brought in. Spend, clicks, enquiries. One message.",
+    "headline": "Know what your ads did by 7:35",
+    "description": "One report, every morning",
     "cta": "LEARN_MORE"
    },
    "lengths": {
-    "primary": 108,
-    "headline": 19,
-    "description": 30
+    "primary": 116,
+    "headline": 30,
+    "description": 25
    },
    "over_limit": [],
    "n_texts": 6,
    "violations": [],
    "money_figures": [],
+   "agency_and_figure": [],
    "possible_dutch": [],
    "texts": [
     {
-     "text": "A monthly PDF tells you too late. Otto sends one short message every morning at 7:35. Read it with your tea.",
+     "text": "Every morning at 7:35: what your ads cost yesterday and what they brought in. Spend, clicks, enquiries. One message.",
      "violations": []
     },
     {
-     "text": "One message at 7:35",
+     "text": "Know what your ads did by 7:35",
      "violations": []
     },
     {
-     "text": "Your marketing, in one message",
+     "text": "One report, every morning",
      "violations": []
     },
     {
@@ -1241,49 +2391,157 @@
      "violations": []
     },
     {
-     "text": "What it cost, what came in.",
+     "text": "Spend, clicks, enquiries. Every morning.",
      "violations": []
     },
     {
-     "text": "Morning report",
+     "text": "Your daily ads report",
      "violations": []
     }
    ]
   },
   {
-   "id": "ie-a2-notes",
-   "angle": "a2",
+   "id": "ie-a3-compare",
+   "angle": "a3",
+   "style": "comparison",
+   "format": "image",
+   "engine_status": "ready",
+   "engine_reasons": [],
+   "copy": {
+    "primary": "One campaign, ads for every angle, and one message at 7:35 that says which one works. Read it with your tea.",
+    "headline": "Your ads report, every day at 7:35",
+    "description": "One report, every morning",
+    "cta": "LEARN_MORE"
+   },
+   "lengths": {
+    "primary": 108,
+    "headline": 34,
+    "description": 25
+   },
+   "over_limit": [],
+   "n_texts": 20,
+   "violations": [],
+   "money_figures": [],
+   "agency_and_figure": [],
+   "possible_dutch": [],
+   "texts": [
+    {
+     "text": "One campaign, ads for every angle, and one message at 7:35 that says which one works. Read it with your tea.",
+     "violations": []
+    },
+    {
+     "text": "Your ads report, every day at 7:35",
+     "violations": []
+    },
+    {
+     "text": "One report, every morning",
+     "violations": []
+    },
+    {
+     "text": "Ads dashboard or *7:35 report*?",
+     "violations": []
+    },
+    {
+     "text": "Reporting",
+     "violations": []
+    },
+    {
+     "text": "Ads dashboard",
+     "violations": []
+    },
+    {
+     "text": "Otto at 7:35",
+     "violations": []
+    },
+    {
+     "text": "Where",
+     "violations": []
+    },
+    {
+     "text": "An app you open",
+     "violations": []
+    },
+    {
+     "text": "Your inbox or chat",
+     "violations": []
+    },
+    {
+     "text": "What you see",
+     "violations": []
+    },
+    {
+     "text": "Every metric there is",
+     "violations": []
+    },
+    {
+     "text": "Spend, clicks, enquiries",
+     "violations": []
+    },
+    {
+     "text": "When",
+     "violations": []
+    },
+    {
+     "text": "When you remember",
+     "violations": []
+    },
+    {
+     "text": "Every morning",
+     "violations": []
+    },
+    {
+     "text": "What next",
+     "violations": []
+    },
+    {
+     "text": "You work it out",
+     "violations": []
+    },
+    {
+     "text": "Approve or pause",
+     "violations": []
+    },
+    {
+     "text": "Otto: one report at 7:35 every morning, by e-mail, in Telegram or in the app.",
+     "violations": []
+    }
+   ]
+  },
+  {
+   "id": "ie-a3-notes",
+   "angle": "a3",
    "style": "notes_app",
    "format": "image",
    "engine_status": "ready",
    "engine_reasons": [],
    "copy": {
-    "primary": "If something drops, it's in the next morning's report, with a fix already drafted. You decide what happens.",
-    "headline": "Know by 7:35 every morning",
-    "description": "Your marketing, in one message",
+    "primary": "If something drops, it's in the next morning's report with a fix already drafted. You decide: approve or pause.",
+    "headline": "Know what your ads did by 7:35",
+    "description": "One report, every morning",
     "cta": "LEARN_MORE"
    },
    "lengths": {
-    "primary": 107,
-    "headline": 26,
-    "description": 30
+    "primary": 111,
+    "headline": 30,
+    "description": 25
    },
    "over_limit": [],
    "n_texts": 11,
    "violations": [],
    "money_figures": [],
+   "agency_and_figure": [],
    "possible_dutch": [],
    "texts": [
     {
-     "text": "If something drops, it's in the next morning's report, with a fix already drafted. You decide what happens.",
+     "text": "If something drops, it's in the next morning's report with a fix already drafted. You decide: approve or pause.",
      "violations": []
     },
     {
-     "text": "Know by 7:35 every morning",
+     "text": "Know what your ads did by 7:35",
      "violations": []
     },
     {
-     "text": "Your marketing, in one message",
+     "text": "One report, every morning",
      "violations": []
     },
     {
@@ -1295,11 +2553,11 @@
      "violations": []
     },
     {
-     "text": "7:35 read Otto's message",
+     "text": "7:35 read Otto's report",
      "violations": []
     },
     {
-     "text": "7:36 approve two posts",
+     "text": "7:36 pause one ad, approve two posts",
      "violations": []
     },
     {
@@ -1321,907 +2579,71 @@
    ]
   },
   {
-   "id": "ie-a3-notes-v",
+   "id": "ie-a3-premium",
    "angle": "a3",
-   "style": "notes_app",
-   "format": "video",
-   "engine_status": "ready",
-   "engine_reasons": [
-    "video not rendered yet (otto_motion)"
-   ],
-   "copy": {
-    "primary": "Your posts should sound like you, not a brand from somewhere else. Otto writes in Irish English, for your town.",
-    "headline": "Written for Cork. Not California.",
-    "description": "For trades, cafés and clinics",
-    "cta": "LEARN_MORE"
-   },
-   "lengths": {
-    "primary": 111,
-    "headline": 33,
-    "description": 29
-   },
-   "over_limit": [],
-   "n_texts": 25,
-   "violations": [],
-   "money_figures": [],
-   "possible_dutch": [],
-   "texts": [
-    {
-     "text": "Your posts should sound like you, not a brand from somewhere else. Otto writes in Irish English, for your town.",
-     "violations": []
-    },
-    {
-     "text": "Written for Cork. Not California.",
-     "violations": []
-    },
-    {
-     "text": "For trades, cafés and clinics",
-     "violations": []
-    },
-    {
-     "text": "Tuesday, 10:15 PM",
-     "violations": []
-    },
-    {
-     "text": "Words my customers never use",
-     "violations": []
-    },
-    {
-     "text": "awesome",
-     "violations": []
-    },
-    {
-     "text": "y'all",
-     "violations": []
-    },
-    {
-     "text": "super stoked",
-     "violations": []
-    },
-    {
-     "text": "just: new this week, in Limerick",
-     "violations": []
-    },
-    {
-     "text": "Sounds like your business.",
-     "violations": []
-    },
-    {
-     "text": "your business.",
-     "violations": []
-    },
-    {
-     "text": "Posts, reels and ads in Irish English.",
-     "violations": []
-    },
-    {
-     "text": "Otto writes for your town and your customers.",
-     "violations": []
-    },
-    {
-     "text": "review_ie",
-     "violations": []
-    },
-    {
-     "text": "Tuesday, 10:15 PM",
-     "violations": []
-    },
-    {
-     "text": "Words my customers never use",
-     "violations": []
-    },
-    {
-     "text": "awesome",
-     "violations": []
-    },
-    {
-     "text": "y'all",
-     "violations": []
-    },
-    {
-     "text": "super stoked",
-     "violations": []
-    },
-    {
-     "text": "just: new this week, in Limerick",
-     "violations": []
-    },
-    {
-     "text": "Sounds like your business.",
-     "violations": []
-    },
-    {
-     "text": "your business.",
-     "violations": []
-    },
-    {
-     "text": "Posts, reels and ads in Irish English.",
-     "violations": []
-    },
-    {
-     "text": "Otto writes for your town and your customers.",
-     "violations": []
-    },
-    {
-     "text": "review_ie",
-     "violations": []
-    }
-   ]
-  },
-  {
-   "id": "ie-a3-versus-v",
-   "angle": "a3",
-   "style": "us_vs_them",
-   "format": "video",
-   "engine_status": "ready",
-   "engine_reasons": [
-    "video not rendered yet (otto_motion)"
-   ],
-   "copy": {
-    "primary": "‘Awesome deals, folks!’ Nobody in Galway talks like that. Otto writes the way you'd say it, with prices in euro.",
-    "headline": "Sounds like your business",
-    "description": "For trades, cafés and clinics",
-    "cta": "LEARN_MORE"
-   },
-   "lengths": {
-    "primary": 112,
-    "headline": 25,
-    "description": 29
-   },
-   "over_limit": [],
-   "n_texts": 33,
-   "violations": [],
-   "money_figures": [],
-   "possible_dutch": [],
-   "texts": [
-    {
-     "text": "‘Awesome deals, folks!’ Nobody in Galway talks like that. Otto writes the way you'd say it, with prices in euro.",
-     "violations": []
-    },
-    {
-     "text": "Sounds like your business",
-     "violations": []
-    },
-    {
-     "text": "For trades, cafés and clinics",
-     "violations": []
-    },
-    {
-     "text": "vs",
-     "violations": []
-    },
-    {
-     "text": "Written for the US",
-     "violations": []
-    },
-    {
-     "text": "‘Awesome deals!’",
-     "violations": []
-    },
-    {
-     "text": "Thanksgiving post",
-     "violations": []
-    },
-    {
-     "text": "Prices in dollars",
-     "violations": []
-    },
-    {
-     "text": "Otto",
-     "violations": []
-    },
-    {
-     "text": "‘New this week’",
-     "violations": []
-    },
-    {
-     "text": "Christmas in Cork",
-     "violations": []
-    },
-    {
-     "text": "Prices in euro",
-     "violations": []
-    },
-    {
-     "text": "For your customers, in your words.",
-     "violations": []
-    },
-    {
-     "text": "Written for Cork.",
-     "violations": []
-    },
-    {
-     "text": "Cork.",
-     "violations": []
-    },
-    {
-     "text": "Otto reads your website and writes the way you talk.",
-     "violations": []
-    },
-    {
-     "text": "Try it free for 7 days, no card needed.",
-     "violations": []
-    },
-    {
-     "text": "review_ie",
-     "violations": []
-    },
-    {
-     "text": "vs",
-     "violations": []
-    },
-    {
-     "text": "Written for the US",
-     "violations": []
-    },
-    {
-     "text": "‘Awesome deals!’",
-     "violations": []
-    },
-    {
-     "text": "Thanksgiving post",
-     "violations": []
-    },
-    {
-     "text": "Prices in dollars",
-     "violations": []
-    },
-    {
-     "text": "Otto",
-     "violations": []
-    },
-    {
-     "text": "‘New this week’",
-     "violations": []
-    },
-    {
-     "text": "Christmas in Cork",
-     "violations": []
-    },
-    {
-     "text": "Prices in euro",
-     "violations": []
-    },
-    {
-     "text": "For your customers, in your words.",
-     "violations": []
-    },
-    {
-     "text": "Written for Cork.",
-     "violations": []
-    },
-    {
-     "text": "Cork.",
-     "violations": []
-    },
-    {
-     "text": "Otto reads your website and writes the way you talk.",
-     "violations": []
-    },
-    {
-     "text": "Try it free for 7 days, no card needed.",
-     "violations": []
-    },
-    {
-     "text": "review_ie",
-     "violations": []
-    }
-   ]
-  },
-  {
-   "id": "ie-a3-big-v",
-   "angle": "a3",
-   "style": "big_number",
-   "format": "video",
-   "engine_status": "ready",
-   "engine_reasons": [
-    "video not rendered yet (otto_motion)"
-   ],
-   "copy": {
-    "primary": "Otto reads your website, prices and reviews, then writes posts that sound like you. Nothing goes out without your say-so.",
-    "headline": "Written for Cork. Not California.",
-    "description": "For trades, cafés and clinics",
-    "cta": "LEARN_MORE"
-   },
-   "lengths": {
-    "primary": 121,
-    "headline": 33,
-    "description": 29
-   },
-   "over_limit": [],
-   "n_texts": 29,
-   "violations": [],
-   "money_figures": [],
-   "possible_dutch": [],
-   "texts": [
-    {
-     "text": "Otto reads your website, prices and reviews, then writes posts that sound like you. Nothing goes out without your say-so.",
-     "violations": []
-    },
-    {
-     "text": "Written for Cork. Not California.",
-     "violations": []
-    },
-    {
-     "text": "For trades, cafés and clinics",
-     "violations": []
-    },
-    {
-     "text": "review_ie",
-     "violations": []
-    },
-    {
-     "text": "Your town.",
-     "violations": []
-    },
-    {
-     "text": "Not California.",
-     "violations": []
-    },
-    {
-     "text": "Your words.",
-     "violations": []
-    },
-    {
-     "text": "From your own website.",
-     "violations": []
-    },
-    {
-     "text": "Your say-so.",
-     "violations": []
-    },
-    {
-     "text": "Before anything goes out.",
-     "violations": []
-    },
-    {
-     "text": "review_ie",
-     "violations": []
-    },
-    {
-     "text": "Sounds like your business.",
-     "violations": []
-    },
-    {
-     "text": "your business.",
-     "violations": []
-    },
-    {
-     "text": "Posts, reels and ads in Irish English.",
-     "violations": []
-    },
-    {
-     "text": "Try it free for 7 days, no card needed.",
-     "violations": []
-    },
-    {
-     "text": "review_ie",
-     "violations": []
-    },
-    {
-     "text": "review_ie",
-     "violations": []
-    },
-    {
-     "text": "Your town.",
-     "violations": []
-    },
-    {
-     "text": "Not California.",
-     "violations": []
-    },
-    {
-     "text": "Your words.",
-     "violations": []
-    },
-    {
-     "text": "From your own website.",
-     "violations": []
-    },
-    {
-     "text": "Your say-so.",
-     "violations": []
-    },
-    {
-     "text": "Before anything goes out.",
-     "violations": []
-    },
-    {
-     "text": "review_ie",
-     "violations": []
-    },
-    {
-     "text": "Sounds like your business.",
-     "violations": []
-    },
-    {
-     "text": "your business.",
-     "violations": []
-    },
-    {
-     "text": "Posts, reels and ads in Irish English.",
-     "violations": []
-    },
-    {
-     "text": "Try it free for 7 days, no card needed.",
-     "violations": []
-    },
-    {
-     "text": "review_ie",
-     "violations": []
-    }
-   ]
-  },
-  {
-   "id": "ie-a3-product",
-   "angle": "a3",
-   "style": "product_hero",
+   "style": "editorial",
    "format": "image",
    "engine_status": "ready",
    "engine_reasons": [],
    "copy": {
-    "primary": "Your posts should sound like you, not a brand from somewhere else. Otto writes in Irish English, for your town.",
-    "headline": "Sounds like your business",
-    "description": "For trades, cafés and clinics",
+    "primary": "Every morning at 7:35: what your ads cost yesterday and what they brought in. Spend, clicks, enquiries. One message.",
+    "headline": "Your ads report, every day at 7:35",
+    "description": "One report, every morning",
     "cta": "LEARN_MORE"
    },
    "lengths": {
-    "primary": 111,
-    "headline": 25,
-    "description": 29
+    "primary": 116,
+    "headline": 34,
+    "description": 25
    },
    "over_limit": [],
-   "n_texts": 8,
+   "n_texts": 9,
    "violations": [],
-   "money_figures": [],
-   "possible_dutch": [],
-   "texts": [
+   "money_figures": [
     {
-     "text": "Your posts should sound like you, not a brand from somewhere else. Otto writes in Irish English, for your town.",
-     "violations": []
-    },
-    {
-     "text": "Sounds like your business",
-     "violations": []
-    },
-    {
-     "text": "For trades, cafés and clinics",
-     "violations": []
-    },
-    {
-     "text": "Sounds like *your business*",
-     "violations": []
-    },
-    {
-     "text": "Written in Irish English",
-     "violations": []
-    },
-    {
-     "text": "Built on your own website",
-     "violations": []
-    },
-    {
-     "text": "You approve every post",
-     "violations": []
-    },
-    {
-     "text": "Posts by Otto",
-     "violations": []
+     "text": "7 days free, no card. Then €79 a month.",
+     "figure": "€79",
+     "kind": "price",
+     "ok": true
     }
-   ]
-  },
-  {
-   "id": "ie-a3-post",
-   "angle": "a3",
-   "style": "social_post",
-   "format": "image",
-   "engine_status": "ready",
-   "engine_reasons": [],
-   "copy": {
-    "primary": "‘Awesome deals, folks!’ Nobody in Galway talks like that. Otto writes the way you'd say it, with prices in euro.",
-    "headline": "Written for Cork. Not California.",
-    "description": "For trades, cafés and clinics",
-    "cta": "LEARN_MORE"
-   },
-   "lengths": {
-    "primary": 112,
-    "headline": 33,
-    "description": 29
-   },
-   "over_limit": [],
-   "n_texts": 8,
-   "violations": [],
-   "money_figures": [],
-   "possible_dutch": [],
-   "texts": [
-    {
-     "text": "‘Awesome deals, folks!’ Nobody in Galway talks like that. Otto writes the way you'd say it, with prices in euro.",
-     "violations": []
-    },
-    {
-     "text": "Written for Cork. Not California.",
-     "violations": []
-    },
-    {
-     "text": "For trades, cafés and clinics",
-     "violations": []
-    },
-    {
-     "text": "Otto",
-     "violations": []
-    },
-    {
-     "text": "For small businesses",
-     "violations": []
-    },
-    {
-     "text": "A post about your boiler service should sound like a plumber in Cork, not a brand in California. That's why Otto writes in Irish English, from your own website.",
-     "violations": []
-    },
-    {
-     "text": "*Local*, not generic",
-     "violations": []
-    },
-    {
-     "text": "light",
-     "violations": []
-    }
-   ]
-  },
-  {
-   "id": "ie-a3-myth",
-   "angle": "a3",
-   "style": "myth_fact",
-   "format": "image",
-   "engine_status": "ready",
-   "engine_reasons": [],
-   "copy": {
-    "primary": "Otto reads your website, prices and reviews, then writes posts that sound like you. Nothing goes out without your say-so.",
-    "headline": "Sounds like your business",
-    "description": "For trades, cafés and clinics",
-    "cta": "LEARN_MORE"
-   },
-   "lengths": {
-    "primary": 121,
-    "headline": 25,
-    "description": 29
-   },
-   "over_limit": [],
-   "n_texts": 7,
-   "violations": [],
-   "money_figures": [],
-   "possible_dutch": [],
-   "texts": [
-    {
-     "text": "Otto reads your website, prices and reviews, then writes posts that sound like you. Nothing goes out without your say-so.",
-     "violations": []
-    },
-    {
-     "text": "Sounds like your business",
-     "violations": []
-    },
-    {
-     "text": "For trades, cafés and clinics",
-     "violations": []
-    },
-    {
-     "text": "AI marketing always sounds generic.",
-     "violations": []
-    },
-    {
-     "text": "Otto builds your brand profile from your own website, your wording and your reviews, then asks you at most four questions.",
-     "violations": []
-    },
-    {
-     "text": "About AI marketing",
-     "violations": []
-    },
-    {
-     "text": "How Otto sets up a new brand",
-     "violations": []
-    }
-   ]
-  },
-  {
-   "id": "ie-a4-big-v",
-   "angle": "a4",
-   "style": "big_number",
-   "format": "video",
-   "engine_status": "ready",
-   "engine_reasons": [
-    "video not rendered yet (otto_motion)"
    ],
-   "copy": {
-    "primary": "Otto plans your month, writes your posts, makes your reels and runs your ads. You tap approve. About 30 minutes a week.",
-    "headline": "You run the business. Otto posts.",
-    "description": "Posts, reels and ads by Otto",
-    "cta": "LEARN_MORE"
-   },
-   "lengths": {
-    "primary": 119,
-    "headline": 33,
-    "description": 28
-   },
-   "over_limit": [],
-   "n_texts": 29,
-   "violations": [],
-   "money_figures": [],
+   "agency_and_figure": [],
    "possible_dutch": [],
    "texts": [
     {
-     "text": "Otto plans your month, writes your posts, makes your reels and runs your ads. You tap approve. About 30 minutes a week.",
+     "text": "Every morning at 7:35: what your ads cost yesterday and what they brought in. Spend, clicks, enquiries. One message.",
      "violations": []
     },
     {
-     "text": "You run the business. Otto posts.",
+     "text": "Your ads report, every day at 7:35",
      "violations": []
     },
     {
-     "text": "Posts, reels and ads by Otto",
+     "text": "One report, every morning",
      "violations": []
     },
     {
-     "text": "hero",
+     "text": "7:35. Your ads, reported.",
      "violations": []
     },
     {
-     "text": "30 min",
+     "text": "Your daily ads report",
      "violations": []
     },
     {
-     "text": "a week, roughly.",
+     "text": "Spend, clicks, enquiries. Every morning.",
      "violations": []
     },
     {
-     "text": "4 questions",
+     "text": "Try 7 days free",
      "violations": []
     },
     {
-     "text": "at the start, max.",
+     "text": "Sample report",
      "violations": []
     },
     {
-     "text": "1 tap",
-     "violations": []
-    },
-    {
-     "text": "per post.",
-     "violations": []
-    },
-    {
-     "text": "review_ie",
-     "violations": []
-    },
-    {
-     "text": "You run it. Otto posts.",
-     "violations": []
-    },
-    {
-     "text": "Otto posts.",
-     "violations": []
-    },
-    {
-     "text": "Posts, reels and ads, ready for your approval.",
-     "violations": []
-    },
-    {
-     "text": "Try it free for 7 days, no card needed.",
-     "violations": []
-    },
-    {
-     "text": "month",
-     "violations": []
-    },
-    {
-     "text": "hero",
-     "violations": []
-    },
-    {
-     "text": "30 min",
-     "violations": []
-    },
-    {
-     "text": "a week, roughly.",
-     "violations": []
-    },
-    {
-     "text": "4 questions",
-     "violations": []
-    },
-    {
-     "text": "at the start, max.",
-     "violations": []
-    },
-    {
-     "text": "1 tap",
-     "violations": []
-    },
-    {
-     "text": "per post.",
-     "violations": []
-    },
-    {
-     "text": "review_ie",
-     "violations": []
-    },
-    {
-     "text": "You run it. Otto posts.",
-     "violations": []
-    },
-    {
-     "text": "Otto posts.",
-     "violations": []
-    },
-    {
-     "text": "Posts, reels and ads, ready for your approval.",
-     "violations": []
-    },
-    {
-     "text": "Try it free for 7 days, no card needed.",
-     "violations": []
-    },
-    {
-     "text": "month",
-     "violations": []
-    }
-   ]
-  },
-  {
-   "id": "ie-a4-versus-v",
-   "angle": "a4",
-   "style": "us_vs_them",
-   "format": "video",
-   "engine_status": "ready",
-   "engine_reasons": [
-    "video not rendered yet (otto_motion)"
-   ],
-   "copy": {
-    "primary": "For the plumber under a sink all day and the café that closes at five: Otto does the marketing, you make the calls.",
-    "headline": "For owners with no marketing team",
-    "description": "Posts, reels and ads by Otto",
-    "cta": "LEARN_MORE"
-   },
-   "lengths": {
-    "primary": 115,
-    "headline": 33,
-    "description": 28
-   },
-   "over_limit": [],
-   "n_texts": 33,
-   "violations": [],
-   "money_figures": [],
-   "possible_dutch": [],
-   "texts": [
-    {
-     "text": "For the plumber under a sink all day and the café that closes at five: Otto does the marketing, you make the calls.",
-     "violations": []
-    },
-    {
-     "text": "For owners with no marketing team",
-     "violations": []
-    },
-    {
-     "text": "Posts, reels and ads by Otto",
-     "violations": []
-    },
-    {
-     "text": "vs",
-     "violations": []
-    },
-    {
-     "text": "On your own",
-     "violations": []
-    },
-    {
-     "text": "Posting at 11pm",
-     "violations": []
-    },
-    {
-     "text": "Guessing on ads",
-     "violations": []
-    },
-    {
-     "text": "No time for reels",
-     "violations": []
-    },
-    {
-     "text": "With Otto",
-     "violations": []
-    },
-    {
-     "text": "Month planned",
-     "violations": []
-    },
-    {
-     "text": "Report at 7:35",
-     "violations": []
-    },
-    {
-     "text": "Reels, ready",
-     "violations": []
-    },
-    {
-     "text": "You tap approve.",
-     "violations": []
-    },
-    {
-     "text": "Your month, ready.",
-     "violations": []
-    },
-    {
-     "text": "ready.",
-     "violations": []
-    },
-    {
-     "text": "Posts, stories and reels, planned ahead.",
-     "violations": []
-    },
-    {
-     "text": "Try it free for 7 days, no card needed.",
-     "violations": []
-    },
-    {
-     "text": "month",
-     "violations": []
-    },
-    {
-     "text": "vs",
-     "violations": []
-    },
-    {
-     "text": "On your own",
-     "violations": []
-    },
-    {
-     "text": "Posting at 11pm",
-     "violations": []
-    },
-    {
-     "text": "Guessing on ads",
-     "violations": []
-    },
-    {
-     "text": "No time for reels",
-     "violations": []
-    },
-    {
-     "text": "With Otto",
-     "violations": []
-    },
-    {
-     "text": "Month planned",
-     "violations": []
-    },
-    {
-     "text": "Report at 7:35",
-     "violations": []
-    },
-    {
-     "text": "Reels, ready",
-     "violations": []
-    },
-    {
-     "text": "You tap approve.",
-     "violations": []
-    },
-    {
-     "text": "Your month, ready.",
-     "violations": []
-    },
-    {
-     "text": "ready.",
-     "violations": []
-    },
-    {
-     "text": "Posts, stories and reels, planned ahead.",
-     "violations": []
-    },
-    {
-     "text": "Try it free for 7 days, no card needed.",
-     "violations": []
-    },
-    {
-     "text": "month",
+     "text": "7 days free, no card. Then €79 a month.",
      "violations": []
     }
    ]
@@ -2233,115 +2655,36 @@
    "format": "video",
    "engine_status": "ready",
    "engine_reasons": [
-    "video not rendered yet (otto_motion)"
+    "video not rendered yet (its kit JSON was written by hand: render it with motion/ad-kit)"
    ],
    "copy": {
-    "primary": "Sign in, give Otto your website address, answer four questions at most, and your first posts are ready within 24 hours.",
-    "headline": "You run the business. Otto posts.",
-    "description": "Posts, reels and ads by Otto",
+    "primary": "Product ads, offers, comparisons, story ads. Otto designs your ads in your brand and runs them. You approve each one.",
+    "headline": "The ads Otto makes for you",
+    "description": "Designed, run and reported",
     "cta": "LEARN_MORE"
    },
    "lengths": {
-    "primary": 119,
-    "headline": 33,
-    "description": 28
+    "primary": 117,
+    "headline": 26,
+    "description": 26
    },
    "over_limit": [],
-   "n_texts": 43,
+   "n_texts": 39,
    "violations": [],
    "money_figures": [],
+   "agency_and_figure": [],
    "possible_dutch": [],
    "texts": [
     {
-     "text": "Sign in, give Otto your website address, answer four questions at most, and your first posts are ready within 24 hours.",
+     "text": "Product ads, offers, comparisons, story ads. Otto designs your ads in your brand and runs them. You approve each one.",
      "violations": []
     },
     {
-     "text": "You run the business. Otto posts.",
+     "text": "The ads Otto makes for you",
      "violations": []
     },
     {
-     "text": "Posts, reels and ads by Otto",
-     "violations": []
-    },
-    {
-     "text": "Otto",
-     "violations": []
-    },
-    {
-     "text": "O",
-     "violations": []
-    },
-    {
-     "text": "brand",
-     "violations": []
-    },
-    {
-     "text": "Sample · Today 8:14 AM",
-     "violations": []
-    },
-    {
-     "text": "Message",
-     "violations": []
-    },
-    {
-     "text": "them",
-     "violations": []
-    },
-    {
-     "text": "Morning. This week's posts are ready: 3 posts and a reel.",
-     "violations": []
-    },
-    {
-     "text": "me",
-     "violations": []
-    },
-    {
-     "text": "On a job till 6",
-     "violations": []
-    },
-    {
-     "text": "them",
-     "violations": []
-    },
-    {
-     "text": "No rush. I'll remind you before the first one is due.",
-     "violations": []
-    },
-    {
-     "text": "me",
-     "violations": []
-    },
-    {
-     "text": "All approved",
-     "violations": []
-    },
-    {
-     "text": "them",
-     "violations": []
-    },
-    {
-     "text": "Grand. The first one goes out Thursday at 12:00.",
-     "violations": []
-    },
-    {
-     "text": "You run it. Otto posts.",
-     "violations": []
-    },
-    {
-     "text": "Otto posts.",
-     "violations": []
-    },
-    {
-     "text": "Approve from your phone, when it suits you.",
-     "violations": []
-    },
-    {
-     "text": "Try it free for 7 days, no card needed.",
-     "violations": []
-    },
-    {
-     "text": "review_ie",
+     "text": "Designed, run and reported",
      "violations": []
     },
     {
@@ -2357,7 +2700,7 @@
      "violations": []
     },
     {
-     "text": "Sample · Today 8:14 AM",
+     "text": "Sample · Monday 8:00 AM",
      "violations": []
     },
     {
@@ -2369,15 +2712,7 @@
      "violations": []
     },
     {
-     "text": "Morning. This week's posts are ready: 3 posts and a reel.",
-     "violations": []
-    },
-    {
-     "text": "me",
-     "violations": []
-    },
-    {
-     "text": "On a job till 6",
+     "text": "Morning. Your new ads are ready: four images, two videos.",
      "violations": []
     },
     {
@@ -2385,15 +2720,11 @@
      "violations": []
     },
     {
-     "text": "No rush. I'll remind you before the first one is due.",
-     "violations": []
-    },
-    {
      "text": "me",
      "violations": []
     },
     {
-     "text": "All approved",
+     "text": "That one first",
      "violations": []
     },
     {
@@ -2401,27 +2732,473 @@
      "violations": []
     },
     {
-     "text": "Grand. The first one goes out Thursday at 12:00.",
+     "text": "It runs from today. You'll see what it did at 7:35 tomorrow.",
      "violations": []
     },
     {
-     "text": "You run it. Otto posts.",
+     "text": "Ads, made for you.",
      "violations": []
     },
     {
-     "text": "Otto posts.",
+     "text": "made for you.",
      "violations": []
     },
     {
-     "text": "Approve from your phone, when it suits you.",
+     "text": "Designed, run and reported at 7:35.",
      "violations": []
     },
     {
-     "text": "Try it free for 7 days, no card needed.",
+     "text": "Sample ad for a demo brand. 7 days free, no card.",
      "violations": []
     },
     {
-     "text": "review_ie",
+     "text": "ads_phone",
+     "violations": []
+    },
+    {
+     "text": "story_ad",
+     "violations": []
+    },
+    {
+     "text": "Otto",
+     "violations": []
+    },
+    {
+     "text": "O",
+     "violations": []
+    },
+    {
+     "text": "brand",
+     "violations": []
+    },
+    {
+     "text": "Sample · Monday 8:00 AM",
+     "violations": []
+    },
+    {
+     "text": "Message",
+     "violations": []
+    },
+    {
+     "text": "them",
+     "violations": []
+    },
+    {
+     "text": "Morning. Your new ads are ready: four images, two videos.",
+     "violations": []
+    },
+    {
+     "text": "them",
+     "violations": []
+    },
+    {
+     "text": "me",
+     "violations": []
+    },
+    {
+     "text": "That one first",
+     "violations": []
+    },
+    {
+     "text": "them",
+     "violations": []
+    },
+    {
+     "text": "It runs from today. You'll see what it did at 7:35 tomorrow.",
+     "violations": []
+    },
+    {
+     "text": "Ads, made for you.",
+     "violations": []
+    },
+    {
+     "text": "made for you.",
+     "violations": []
+    },
+    {
+     "text": "Designed, run and reported at 7:35.",
+     "violations": []
+    },
+    {
+     "text": "Sample ad for a demo brand. 7 days free, no card.",
+     "violations": []
+    },
+    {
+     "text": "ads_phone",
+     "violations": []
+    },
+    {
+     "text": "story_ad",
+     "violations": []
+    }
+   ]
+  },
+  {
+   "id": "ie-a4-big-v",
+   "angle": "a4",
+   "style": "big_number",
+   "format": "video",
+   "engine_status": "ready",
+   "engine_reasons": [
+    "video not rendered yet (its kit JSON was written by hand: render it with motion/ad-kit)"
+   ],
+   "copy": {
+    "primary": "Boosting a random post isn't an ad campaign. Otto makes proper ads for every angle and tests them side by side.",
+    "headline": "Your ads, designed and run by Otto",
+    "description": "Designed, run and reported",
+    "cta": "LEARN_MORE"
+   },
+   "lengths": {
+    "primary": 111,
+    "headline": 34,
+    "description": 26
+   },
+   "over_limit": [],
+   "n_texts": 33,
+   "violations": [],
+   "money_figures": [
+    {
+     "text": "7 days free, then €79 a month. Monthly plan, no contract. Excl. VAT.",
+     "figure": "€79",
+     "kind": "price",
+     "ok": true
+    },
+    {
+     "text": "7 days free, then €79 a month. Monthly plan, no contract. Excl. VAT.",
+     "figure": "€79",
+     "kind": "price",
+     "ok": true
+    }
+   ],
+   "agency_and_figure": [],
+   "possible_dutch": [],
+   "texts": [
+    {
+     "text": "Boosting a random post isn't an ad campaign. Otto makes proper ads for every angle and tests them side by side.",
+     "violations": []
+    },
+    {
+     "text": "Your ads, designed and run by Otto",
+     "violations": []
+    },
+    {
+     "text": "Designed, run and reported",
+     "violations": []
+    },
+    {
+     "text": "ads_phone",
+     "violations": []
+    },
+    {
+     "text": "Feed ads.",
+     "violations": []
+    },
+    {
+     "text": "Offers. Comparisons.",
+     "violations": []
+    },
+    {
+     "text": "Story ads.",
+     "violations": []
+    },
+    {
+     "text": "Every angle, tested.",
+     "violations": []
+    },
+    {
+     "text": "1 tap",
+     "violations": []
+    },
+    {
+     "text": "to approve each one.",
+     "violations": []
+    },
+    {
+     "text": "story_ad",
+     "violations": []
+    },
+    {
+     "text": "The ads Otto makes.",
+     "violations": []
+    },
+    {
+     "text": "Otto makes.",
+     "violations": []
+    },
+    {
+     "text": "Designed, run and reported for you.",
+     "violations": []
+    },
+    {
+     "text": "Sample ads for demo brands.",
+     "violations": []
+    },
+    {
+     "text": "ads_phone",
+     "violations": []
+    },
+    {
+     "text": "story_ad",
+     "violations": []
+    },
+    {
+     "text": "7 days free, then €79 a month. Monthly plan, no contract. Excl. VAT.",
+     "violations": []
+    },
+    {
+     "text": "ads_phone",
+     "violations": []
+    },
+    {
+     "text": "Feed ads.",
+     "violations": []
+    },
+    {
+     "text": "Offers. Comparisons.",
+     "violations": []
+    },
+    {
+     "text": "Story ads.",
+     "violations": []
+    },
+    {
+     "text": "Every angle, tested.",
+     "violations": []
+    },
+    {
+     "text": "1 tap",
+     "violations": []
+    },
+    {
+     "text": "to approve each one.",
+     "violations": []
+    },
+    {
+     "text": "story_ad",
+     "violations": []
+    },
+    {
+     "text": "The ads Otto makes.",
+     "violations": []
+    },
+    {
+     "text": "Otto makes.",
+     "violations": []
+    },
+    {
+     "text": "Designed, run and reported for you.",
+     "violations": []
+    },
+    {
+     "text": "Sample ads for demo brands.",
+     "violations": []
+    },
+    {
+     "text": "ads_phone",
+     "violations": []
+    },
+    {
+     "text": "story_ad",
+     "violations": []
+    },
+    {
+     "text": "7 days free, then €79 a month. Monthly plan, no contract. Excl. VAT.",
+     "violations": []
+    }
+   ]
+  },
+  {
+   "id": "ie-a4-versus-v",
+   "angle": "a4",
+   "style": "us_vs_them",
+   "format": "video",
+   "engine_status": "ready",
+   "engine_reasons": [
+    "video not rendered yet (its kit JSON was written by hand: render it with motion/ad-kit)"
+   ],
+   "copy": {
+    "primary": "Ads for your feed and your stories, made from your own website. Plus your posts and reels, for €79 a month.",
+    "headline": "The ads Otto makes for you",
+    "description": "Designed, run and reported",
+    "cta": "LEARN_MORE"
+   },
+   "lengths": {
+    "primary": 107,
+    "headline": 26,
+    "description": 26
+   },
+   "over_limit": [],
+   "n_texts": 37,
+   "violations": [],
+   "money_figures": [
+    {
+     "text": "Ads for your feed and your stories, made from your own website. Plus your posts and reels, for €79 a month.",
+     "figure": "€79",
+     "kind": "price",
+     "ok": true
+    },
+    {
+     "text": "7 days free, then €79 a month. Monthly plan, no contract. Excl. VAT.",
+     "figure": "€79",
+     "kind": "price",
+     "ok": true
+    },
+    {
+     "text": "7 days free, then €79 a month. Monthly plan, no contract. Excl. VAT.",
+     "figure": "€79",
+     "kind": "price",
+     "ok": true
+    }
+   ],
+   "agency_and_figure": [],
+   "possible_dutch": [],
+   "texts": [
+    {
+     "text": "Ads for your feed and your stories, made from your own website. Plus your posts and reels, for €79 a month.",
+     "violations": []
+    },
+    {
+     "text": "The ads Otto makes for you",
+     "violations": []
+    },
+    {
+     "text": "Designed, run and reported",
+     "violations": []
+    },
+    {
+     "text": "vs",
+     "violations": []
+    },
+    {
+     "text": "Boosted post",
+     "violations": []
+    },
+    {
+     "text": "One photo",
+     "violations": []
+    },
+    {
+     "text": "One angle",
+     "violations": []
+    },
+    {
+     "text": "Hope for the best",
+     "violations": []
+    },
+    {
+     "text": "Otto's ads",
+     "violations": []
+    },
+    {
+     "text": "Designed ads",
+     "violations": []
+    },
+    {
+     "text": "Angles tested",
+     "violations": []
+    },
+    {
+     "text": "Report at 7:35",
+     "violations": []
+    },
+    {
+     "text": "You approve each one.",
+     "violations": []
+    },
+    {
+     "text": "Proper ads, not boosted posts.",
+     "violations": []
+    },
+    {
+     "text": "Proper ads,",
+     "violations": []
+    },
+    {
+     "text": "Designed, tested and reported by Otto.",
+     "violations": []
+    },
+    {
+     "text": "Sample ads for demo brands.",
+     "violations": []
+    },
+    {
+     "text": "ads_phone",
+     "violations": []
+    },
+    {
+     "text": "story_ad",
+     "violations": []
+    },
+    {
+     "text": "7 days free, then €79 a month. Monthly plan, no contract. Excl. VAT.",
+     "violations": []
+    },
+    {
+     "text": "vs",
+     "violations": []
+    },
+    {
+     "text": "Boosted post",
+     "violations": []
+    },
+    {
+     "text": "One photo",
+     "violations": []
+    },
+    {
+     "text": "One angle",
+     "violations": []
+    },
+    {
+     "text": "Hope for the best",
+     "violations": []
+    },
+    {
+     "text": "Otto's ads",
+     "violations": []
+    },
+    {
+     "text": "Designed ads",
+     "violations": []
+    },
+    {
+     "text": "Angles tested",
+     "violations": []
+    },
+    {
+     "text": "Report at 7:35",
+     "violations": []
+    },
+    {
+     "text": "You approve each one.",
+     "violations": []
+    },
+    {
+     "text": "Proper ads, not boosted posts.",
+     "violations": []
+    },
+    {
+     "text": "Proper ads,",
+     "violations": []
+    },
+    {
+     "text": "Designed, tested and reported by Otto.",
+     "violations": []
+    },
+    {
+     "text": "Sample ads for demo brands.",
+     "violations": []
+    },
+    {
+     "text": "ads_phone",
+     "violations": []
+    },
+    {
+     "text": "story_ad",
+     "violations": []
+    },
+    {
+     "text": "7 days free, then €79 a month. Monthly plan, no contract. Excl. VAT.",
      "violations": []
     }
    ]
@@ -2434,52 +3211,53 @@
    "engine_status": "ready",
    "engine_reasons": [],
    "copy": {
-    "primary": "Otto plans your month, writes your posts, makes your reels and runs your ads. You tap approve. About 30 minutes a week.",
-    "headline": "For owners with no marketing team",
-    "description": "Posts, reels and ads by Otto",
+    "primary": "Product ads, offers, comparisons, story ads. Otto designs your ads in your brand and runs them. You approve each one.",
+    "headline": "Your ads, designed and run by Otto",
+    "description": "Designed, run and reported",
     "cta": "LEARN_MORE"
    },
    "lengths": {
-    "primary": 119,
-    "headline": 33,
-    "description": 28
+    "primary": 117,
+    "headline": 34,
+    "description": 26
    },
    "over_limit": [],
    "n_texts": 8,
    "violations": [],
    "money_figures": [],
+   "agency_and_figure": [],
    "possible_dutch": [],
    "texts": [
     {
-     "text": "Otto plans your month, writes your posts, makes your reels and runs your ads. You tap approve. About 30 minutes a week.",
+     "text": "Product ads, offers, comparisons, story ads. Otto designs your ads in your brand and runs them. You approve each one.",
      "violations": []
     },
     {
-     "text": "For owners with no marketing team",
+     "text": "Your ads, designed and run by Otto",
      "violations": []
     },
     {
-     "text": "Posts, reels and ads by Otto",
+     "text": "Designed, run and reported",
      "violations": []
     },
     {
-     "text": "You run the business. *Otto posts.*",
+     "text": "The ads *Otto makes*",
      "violations": []
     },
     {
-     "text": "Posts, stories and reels",
+     "text": "Feed ads and offers",
      "violations": []
     },
     {
-     "text": "Timed for your customers",
+     "text": "Story ads, full screen",
      "violations": []
     },
     {
-     "text": "You approve everything",
+     "text": "Sample ads, demo brands",
      "violations": []
     },
     {
-     "text": "Your month, ready",
+     "text": "Made by Otto",
      "violations": []
     }
    ]
@@ -2492,56 +3270,57 @@
    "engine_status": "ready",
    "engine_reasons": [],
    "copy": {
-    "primary": "For the plumber under a sink all day and the café that closes at five: Otto does the marketing, you make the calls.",
-    "headline": "You run the business. Otto posts.",
-    "description": "Posts, reels and ads by Otto",
+    "primary": "Boosting a random post isn't an ad campaign. Otto makes proper ads for every angle and tests them side by side.",
+    "headline": "The ads Otto makes for you",
+    "description": "Designed, run and reported",
     "cta": "LEARN_MORE"
    },
    "lengths": {
-    "primary": 115,
-    "headline": 33,
-    "description": 28
+    "primary": 111,
+    "headline": 26,
+    "description": 26
    },
    "over_limit": [],
    "n_texts": 9,
    "violations": [],
    "money_figures": [],
+   "agency_and_figure": [],
    "possible_dutch": [],
    "texts": [
     {
-     "text": "For the plumber under a sink all day and the café that closes at five: Otto does the marketing, you make the calls.",
+     "text": "Boosting a random post isn't an ad campaign. Otto makes proper ads for every angle and tests them side by side.",
      "violations": []
     },
     {
-     "text": "You run the business. Otto posts.",
+     "text": "The ads Otto makes for you",
      "violations": []
     },
     {
-     "text": "Posts, reels and ads by Otto",
+     "text": "Designed, run and reported",
      "violations": []
     },
     {
-     "text": "no time for social media",
+     "text": "how to make facebook ads",
      "violations": []
     },
     {
-     "text": "no time for social media small business",
+     "text": "how to make facebook ads for my business",
      "violations": []
     },
     {
-     "text": "no time for social media plumber",
+     "text": "how to make facebook ads look professional",
      "violations": []
     },
     {
-     "text": "no time for social media café",
+     "text": "how to make facebook ads step by step",
      "violations": []
     },
     {
-     "text": "no time for social media clinic",
+     "text": "how to make facebook ads for a small business",
      "violations": []
     },
     {
-     "text": "Sound familiar? *Otto takes it on.*",
+     "text": "Or let *Otto make them.*",
      "violations": []
     }
    ]
@@ -2554,68 +3333,150 @@
    "engine_status": "ready",
    "engine_reasons": [],
    "copy": {
-    "primary": "Sign in, give Otto your website address, answer four questions at most, and your first posts are ready within 24 hours.",
-    "headline": "For owners with no marketing team",
-    "description": "Posts, reels and ads by Otto",
+    "primary": "Ads for your feed and your stories, made from your own website. Plus your posts and reels, for €79 a month.",
+    "headline": "Your ads, designed and run by Otto",
+    "description": "Designed, run and reported",
     "cta": "LEARN_MORE"
    },
    "lengths": {
-    "primary": 119,
-    "headline": 33,
-    "description": 28
+    "primary": 107,
+    "headline": 34,
+    "description": 26
    },
    "over_limit": [],
-   "n_texts": 12,
+   "n_texts": 14,
    "violations": [],
-   "money_figures": [],
+   "money_figures": [
+    {
+     "text": "Ads for your feed and your stories, made from your own website. Plus your posts and reels, for €79 a month.",
+     "figure": "€79",
+     "kind": "price",
+     "ok": true
+    }
+   ],
+   "agency_and_figure": [],
    "possible_dutch": [],
    "texts": [
     {
-     "text": "Sign in, give Otto your website address, answer four questions at most, and your first posts are ready within 24 hours.",
+     "text": "Ads for your feed and your stories, made from your own website. Plus your posts and reels, for €79 a month.",
      "violations": []
     },
     {
-     "text": "For owners with no marketing team",
+     "text": "Your ads, designed and run by Otto",
      "violations": []
     },
     {
-     "text": "Posts, reels and ads by Otto",
+     "text": "Designed, run and reported",
      "violations": []
     },
     {
-     "text": "What you still do",
+     "text": "Every ad Otto makes",
      "violations": []
     },
     {
-     "text": "With Otto",
+     "text": "Made by Otto",
      "violations": []
     },
     {
-     "text": "Send your website address",
+     "text": "Designed in your brand",
      "violations": []
     },
     {
-     "text": "Once",
+     "text": "Colours, fonts, products",
      "violations": []
     },
     {
-     "text": "Answer four questions at most",
+     "text": "Every angle tested",
      "violations": []
     },
     {
-     "text": "At the start",
+     "text": "Side by side",
      "violations": []
     },
     {
-     "text": "Tap approve",
+     "text": "Checked before it runs",
      "violations": []
     },
     {
-     "text": "About half an hour a week",
+     "text": "Claims and ad rules",
      "violations": []
     },
     {
-     "text": "Otto does the rest: planning, writing, design, posting and the morning report.",
+     "text": "Reported at 7:35",
+     "violations": []
+    },
+    {
+     "text": "Spend, clicks, enquiries",
+     "violations": []
+    },
+    {
+     "text": "Plus posts, reels and stories. You approve it all.",
+     "violations": []
+    }
+   ]
+  },
+  {
+   "id": "ie-a4-premium",
+   "angle": "a4",
+   "style": "editorial",
+   "format": "image",
+   "engine_status": "ready",
+   "engine_reasons": [],
+   "copy": {
+    "primary": "Product ads, offers, comparisons, story ads. Otto designs your ads in your brand and runs them. You approve each one.",
+    "headline": "The ads Otto makes for you",
+    "description": "Designed, run and reported",
+    "cta": "LEARN_MORE"
+   },
+   "lengths": {
+    "primary": 117,
+    "headline": 26,
+    "description": 26
+   },
+   "over_limit": [],
+   "n_texts": 8,
+   "violations": [],
+   "money_figures": [
+    {
+     "text": "7 days free, no card. Then €79 a month.",
+     "figure": "€79",
+     "kind": "price",
+     "ok": true
+    }
+   ],
+   "agency_and_figure": [],
+   "possible_dutch": [],
+   "texts": [
+    {
+     "text": "Product ads, offers, comparisons, story ads. Otto designs your ads in your brand and runs them. You approve each one.",
+     "violations": []
+    },
+    {
+     "text": "The ads Otto makes for you",
+     "violations": []
+    },
+    {
+     "text": "Designed, run and reported",
+     "violations": []
+    },
+    {
+     "text": "Ads that stop the scroll. Made for you.",
+     "violations": []
+    },
+    {
+     "text": "Feed and story ads in your brand. You approve every one before it runs.",
+     "violations": []
+    },
+    {
+     "text": "Try 7 days free",
+     "violations": []
+    },
+    {
+     "text": "Sample ads for demo brands",
+     "violations": []
+    },
+    {
+     "text": "7 days free, no card. Then €79 a month.",
      "violations": []
     }
    ]
@@ -2627,139 +3488,161 @@
    "format": "video",
    "engine_status": "ready",
    "engine_reasons": [
-    "video not rendered yet (otto_motion)"
+    "video not rendered yet (its kit JSON was written by hand: render it with motion/ad-kit)"
    ],
    "copy": {
-    "primary": "Try Otto free for 7 days. Sign in with Google, give it your website, and your first posts are ready within 24 hours.",
-    "headline": "Try Otto free for 7 days",
-    "description": "7 days free, no card",
-    "cta": "SIGN_UP"
+    "primary": "Otto plans your month, writes your posts, makes your reels and stories, and posts them on time. You tap approve.",
+    "headline": "You run the business. Otto posts.",
+    "description": "Posts, reels and stories",
+    "cta": "LEARN_MORE"
    },
    "lengths": {
-    "primary": 116,
-    "headline": 24,
-    "description": 20
+    "primary": 112,
+    "headline": 33,
+    "description": 24
    },
    "over_limit": [],
-   "n_texts": 29,
+   "n_texts": 31,
    "violations": [],
-   "money_figures": [],
+   "money_figures": [
+    {
+     "text": "7 days free, no card. Then €79 a month.",
+     "figure": "€79",
+     "kind": "price",
+     "ok": true
+    },
+    {
+     "text": "7 days free, no card. Then €79 a month.",
+     "figure": "€79",
+     "kind": "price",
+     "ok": true
+    }
+   ],
+   "agency_and_figure": [],
    "possible_dutch": [],
    "texts": [
     {
-     "text": "Try Otto free for 7 days. Sign in with Google, give it your website, and your first posts are ready within 24 hours.",
+     "text": "Otto plans your month, writes your posts, makes your reels and stories, and posts them on time. You tap approve.",
      "violations": []
     },
     {
-     "text": "Try Otto free for 7 days",
+     "text": "You run the business. Otto posts.",
      "violations": []
     },
     {
-     "text": "7 days free, no card",
+     "text": "Posts, reels and stories",
      "violations": []
     },
     {
-     "text": "month",
+     "text": "week",
      "violations": []
     },
     {
-     "text": "7 days",
+     "text": "Carousels.",
      "violations": []
     },
     {
-     "text": "free.",
+     "text": "Reels. Stories.",
      "violations": []
     },
     {
-     "text": "0 cards",
+     "text": "Every week.",
      "violations": []
     },
     {
-     "text": "needed.",
+     "text": "Made from your own website.",
      "violations": []
     },
     {
-     "text": "24 hours",
+     "text": "1 tap",
      "violations": []
     },
     {
-     "text": "to your first posts.",
+     "text": "to approve each one.",
      "violations": []
     },
     {
-     "text": "review_ie",
+     "text": "post_carousel",
      "violations": []
     },
     {
-     "text": "Try Otto for 7 days.",
+     "text": "You run it. Otto posts.",
      "violations": []
     },
     {
-     "text": "7 days.",
+     "text": "Otto posts.",
      "violations": []
     },
     {
-     "text": "Free, no card needed.",
+     "text": "Posts, reels and stories, every week.",
      "violations": []
     },
     {
-     "text": "Nothing is charged automatically.",
+     "text": "7 days free, no card. Then €79 a month.",
      "violations": []
     },
     {
-     "text": "month",
+     "text": "week",
      "violations": []
     },
     {
-     "text": "month",
+     "text": "Monthly plan, no contract, cancel anytime. Prices excl. VAT.",
      "violations": []
     },
     {
-     "text": "7 days",
+     "text": "week",
      "violations": []
     },
     {
-     "text": "free.",
+     "text": "Carousels.",
      "violations": []
     },
     {
-     "text": "0 cards",
+     "text": "Reels. Stories.",
      "violations": []
     },
     {
-     "text": "needed.",
+     "text": "Every week.",
      "violations": []
     },
     {
-     "text": "24 hours",
+     "text": "Made from your own website.",
      "violations": []
     },
     {
-     "text": "to your first posts.",
+     "text": "1 tap",
      "violations": []
     },
     {
-     "text": "review_ie",
+     "text": "to approve each one.",
      "violations": []
     },
     {
-     "text": "Try Otto for 7 days.",
+     "text": "post_carousel",
      "violations": []
     },
     {
-     "text": "7 days.",
+     "text": "You run it. Otto posts.",
      "violations": []
     },
     {
-     "text": "Free, no card needed.",
+     "text": "Otto posts.",
      "violations": []
     },
     {
-     "text": "Nothing is charged automatically.",
+     "text": "Posts, reels and stories, every week.",
      "violations": []
     },
     {
-     "text": "month",
+     "text": "7 days free, no card. Then €79 a month.",
+     "violations": []
+    },
+    {
+     "text": "week",
+     "violations": []
+    },
+    {
+     "text": "Monthly plan, no contract, cancel anytime. Prices excl. VAT.",
      "violations": []
     }
    ]
@@ -2771,107 +3654,36 @@
    "format": "video",
    "engine_status": "ready",
    "engine_reasons": [
-    "video not rendered yet (otto_motion)"
+    "video not rendered yet (its kit JSON was written by hand: render it with motion/ad-kit)"
    ],
    "copy": {
-    "primary": "After 7 days you decide. Nothing is charged automatically, and if you pick a plan, everything Otto made carries on.",
-    "headline": "No card needed",
-    "description": "7 days free, no card",
-    "cta": "SIGN_UP"
+    "primary": "Every week: carousels, reels, stories, offers and how-tos, made from your own website, in your brand.",
+    "headline": "Posts, reels and stories, every week",
+    "description": "Posts, reels and stories",
+    "cta": "LEARN_MORE"
    },
    "lengths": {
-    "primary": 115,
-    "headline": 14,
-    "description": 20
+    "primary": 101,
+    "headline": 36,
+    "description": 24
    },
    "over_limit": [],
-   "n_texts": 39,
+   "n_texts": 41,
    "violations": [],
    "money_figures": [],
+   "agency_and_figure": [],
    "possible_dutch": [],
    "texts": [
     {
-     "text": "After 7 days you decide. Nothing is charged automatically, and if you pick a plan, everything Otto made carries on.",
+     "text": "Every week: carousels, reels, stories, offers and how-tos, made from your own website, in your brand.",
      "violations": []
     },
     {
-     "text": "No card needed",
+     "text": "Posts, reels and stories, every week",
      "violations": []
     },
     {
-     "text": "7 days free, no card",
-     "violations": []
-    },
-    {
-     "text": "Otto",
-     "violations": []
-    },
-    {
-     "text": "O",
-     "violations": []
-    },
-    {
-     "text": "brand",
-     "violations": []
-    },
-    {
-     "text": "Today 10:12 AM",
-     "violations": []
-    },
-    {
-     "text": "Message",
-     "violations": []
-    },
-    {
-     "text": "me",
-     "violations": []
-    },
-    {
-     "text": "What happens after the 7 days?",
-     "violations": []
-    },
-    {
-     "text": "them",
-     "violations": []
-    },
-    {
-     "text": "You get an e-mail two days before the end. Pick a plan and everything carries on.",
-     "violations": []
-    },
-    {
-     "text": "me",
-     "violations": []
-    },
-    {
-     "text": "And if I do nothing?",
-     "violations": []
-    },
-    {
-     "text": "them",
-     "violations": []
-    },
-    {
-     "text": "Then it stops. Nothing is charged.",
-     "violations": []
-    },
-    {
-     "text": "7 days free.",
-     "violations": []
-    },
-    {
-     "text": "free.",
-     "violations": []
-    },
-    {
-     "text": "First posts within 24 hours.",
-     "violations": []
-    },
-    {
-     "text": "No card needed. One trial per business.",
-     "violations": []
-    },
-    {
-     "text": "month",
+     "text": "Posts, reels and stories",
      "violations": []
     },
     {
@@ -2887,7 +3699,7 @@
      "violations": []
     },
     {
-     "text": "Today 10:12 AM",
+     "text": "Sample · Monday 8:00 AM",
      "violations": []
     },
     {
@@ -2895,11 +3707,7 @@
      "violations": []
     },
     {
-     "text": "me",
-     "violations": []
-    },
-    {
-     "text": "What happens after the 7 days?",
+     "text": "them",
      "violations": []
     },
     {
@@ -2907,7 +3715,7 @@
      "violations": []
     },
     {
-     "text": "You get an e-mail two days before the end. Pick a plan and everything carries on.",
+     "text": "Morning. This week's carousel is ready, plus a reel and 3 stories.",
      "violations": []
     },
     {
@@ -2915,7 +3723,7 @@
      "violations": []
     },
     {
-     "text": "And if I do nothing?",
+     "text": "Run off my feet till 6",
      "violations": []
     },
     {
@@ -2923,27 +3731,111 @@
      "violations": []
     },
     {
-     "text": "Then it stops. Nothing is charged.",
+     "text": "No rush. I'll remind you before the first one is due.",
      "violations": []
     },
     {
-     "text": "7 days free.",
+     "text": "me",
      "violations": []
     },
     {
-     "text": "free.",
+     "text": "All approved",
      "violations": []
     },
     {
-     "text": "First posts within 24 hours.",
+     "text": "Your week of posts, ready.",
      "violations": []
     },
     {
-     "text": "No card needed. One trial per business.",
+     "text": "ready.",
      "violations": []
     },
     {
-     "text": "month",
+     "text": "Approve from your phone, when it suits you.",
+     "violations": []
+    },
+    {
+     "text": "Sample message. 7 days free, no card.",
+     "violations": []
+    },
+    {
+     "text": "week",
+     "violations": []
+    },
+    {
+     "text": "Otto",
+     "violations": []
+    },
+    {
+     "text": "O",
+     "violations": []
+    },
+    {
+     "text": "brand",
+     "violations": []
+    },
+    {
+     "text": "Sample · Monday 8:00 AM",
+     "violations": []
+    },
+    {
+     "text": "Message",
+     "violations": []
+    },
+    {
+     "text": "them",
+     "violations": []
+    },
+    {
+     "text": "them",
+     "violations": []
+    },
+    {
+     "text": "Morning. This week's carousel is ready, plus a reel and 3 stories.",
+     "violations": []
+    },
+    {
+     "text": "me",
+     "violations": []
+    },
+    {
+     "text": "Run off my feet till 6",
+     "violations": []
+    },
+    {
+     "text": "them",
+     "violations": []
+    },
+    {
+     "text": "No rush. I'll remind you before the first one is due.",
+     "violations": []
+    },
+    {
+     "text": "me",
+     "violations": []
+    },
+    {
+     "text": "All approved",
+     "violations": []
+    },
+    {
+     "text": "Your week of posts, ready.",
+     "violations": []
+    },
+    {
+     "text": "ready.",
+     "violations": []
+    },
+    {
+     "text": "Approve from your phone, when it suits you.",
+     "violations": []
+    },
+    {
+     "text": "Sample message. 7 days free, no card.",
+     "violations": []
+    },
+    {
+     "text": "week",
      "violations": []
     }
    ]
@@ -2955,95 +3847,49 @@
    "format": "video",
    "engine_status": "ready",
    "engine_reasons": [
-    "video not rendered yet (otto_motion)"
+    "video not rendered yet (its kit JSON was written by hand: render it with motion/ad-kit)"
    ],
    "copy": {
-    "primary": "Your first week of posts, stories and reels, approvals from your phone and the 7:35 report. Free for 7 days, no card.",
-    "headline": "Try Otto free for 7 days",
-    "description": "7 days free, no card",
-    "cta": "SIGN_UP"
+    "primary": "For the plumber under a sink all day and the café that closes at five: Otto does the posts, you make the calls.",
+    "headline": "You run the business. Otto posts.",
+    "description": "Posts, reels and stories",
+    "cta": "LEARN_MORE"
    },
    "lengths": {
-    "primary": 117,
-    "headline": 24,
-    "description": 20
+    "primary": 111,
+    "headline": 33,
+    "description": 24
    },
    "over_limit": [],
-   "n_texts": 33,
+   "n_texts": 35,
    "violations": [],
-   "money_figures": [],
+   "money_figures": [
+    {
+     "text": "7 days free, no card. Then €79 a month.",
+     "figure": "€79",
+     "kind": "price",
+     "ok": true
+    },
+    {
+     "text": "7 days free, no card. Then €79 a month.",
+     "figure": "€79",
+     "kind": "price",
+     "ok": true
+    }
+   ],
+   "agency_and_figure": [],
    "possible_dutch": [],
    "texts": [
     {
-     "text": "Your first week of posts, stories and reels, approvals from your phone and the 7:35 report. Free for 7 days, no card.",
+     "text": "For the plumber under a sink all day and the café that closes at five: Otto does the posts, you make the calls.",
      "violations": []
     },
     {
-     "text": "Try Otto free for 7 days",
+     "text": "You run the business. Otto posts.",
      "violations": []
     },
     {
-     "text": "7 days free, no card",
-     "violations": []
-    },
-    {
-     "text": "vs",
-     "violations": []
-    },
-    {
-     "text": "DIY",
-     "violations": []
-    },
-    {
-     "text": "Your evenings",
-     "violations": []
-    },
-    {
-     "text": "Filming reels",
-     "violations": []
-    },
-    {
-     "text": "Guessing",
-     "violations": []
-    },
-    {
-     "text": "Otto",
-     "violations": []
-    },
-    {
-     "text": "Posts ready",
-     "violations": []
-    },
-    {
-     "text": "Reels included",
-     "violations": []
-    },
-    {
-     "text": "Report at 7:35",
-     "violations": []
-    },
-    {
-     "text": "7 days free, no card.",
-     "violations": []
-    },
-    {
-     "text": "Try Otto free.",
-     "violations": []
-    },
-    {
-     "text": "free.",
-     "violations": []
-    },
-    {
-     "text": "7 days, no card.",
-     "violations": []
-    },
-    {
-     "text": "Nothing is charged automatically.",
-     "violations": []
-    },
-    {
-     "text": "month",
+     "text": "Posts, reels and stories",
      "violations": []
     },
     {
@@ -3051,93 +3897,460 @@
      "violations": []
     },
     {
-     "text": "DIY",
+     "text": "Posting by hand",
      "violations": []
     },
     {
-     "text": "Your evenings",
+     "text": "Same photo again",
      "violations": []
     },
     {
-     "text": "Filming reels",
+     "text": "No time for reels",
      "violations": []
     },
     {
-     "text": "Guessing",
+     "text": "Posting at 11pm",
      "violations": []
     },
     {
-     "text": "Otto",
+     "text": "With Otto",
      "violations": []
     },
     {
-     "text": "Posts ready",
+     "text": "A planned mix",
      "violations": []
     },
     {
-     "text": "Reels included",
+     "text": "Reels every month",
      "violations": []
     },
     {
-     "text": "Report at 7:35",
+     "text": "Posted on time",
      "violations": []
     },
     {
-     "text": "7 days free, no card.",
+     "text": "You tap approve.",
      "violations": []
     },
     {
-     "text": "Try Otto free.",
+     "text": "Every week, planned.",
      "violations": []
     },
     {
-     "text": "free.",
+     "text": "planned.",
      "violations": []
     },
     {
-     "text": "7 days, no card.",
+     "text": "Carousels, reels, stories, offers and how-tos.",
      "violations": []
     },
     {
-     "text": "Nothing is charged automatically.",
+     "text": "7 days free, no card. Then €79 a month.",
      "violations": []
     },
     {
-     "text": "month",
+     "text": "week",
+     "violations": []
+    },
+    {
+     "text": "Monthly plan, no contract, cancel anytime. Prices excl. VAT.",
+     "violations": []
+    },
+    {
+     "text": "vs",
+     "violations": []
+    },
+    {
+     "text": "Posting by hand",
+     "violations": []
+    },
+    {
+     "text": "Same photo again",
+     "violations": []
+    },
+    {
+     "text": "No time for reels",
+     "violations": []
+    },
+    {
+     "text": "Posting at 11pm",
+     "violations": []
+    },
+    {
+     "text": "With Otto",
+     "violations": []
+    },
+    {
+     "text": "A planned mix",
+     "violations": []
+    },
+    {
+     "text": "Reels every month",
+     "violations": []
+    },
+    {
+     "text": "Posted on time",
+     "violations": []
+    },
+    {
+     "text": "You tap approve.",
+     "violations": []
+    },
+    {
+     "text": "Every week, planned.",
+     "violations": []
+    },
+    {
+     "text": "planned.",
+     "violations": []
+    },
+    {
+     "text": "Carousels, reels, stories, offers and how-tos.",
+     "violations": []
+    },
+    {
+     "text": "7 days free, no card. Then €79 a month.",
+     "violations": []
+    },
+    {
+     "text": "week",
+     "violations": []
+    },
+    {
+     "text": "Monthly plan, no contract, cancel anytime. Prices excl. VAT.",
      "violations": []
     }
    ]
   },
   {
-   "id": "ie-a5-offer",
+   "id": "ie-a5-product",
    "angle": "a5",
-   "style": "offer",
+   "style": "product_hero",
    "format": "image",
    "engine_status": "ready",
    "engine_reasons": [],
    "copy": {
-    "primary": "Try Otto free for 7 days. Sign in with Google, give it your website, and your first posts are ready within 24 hours.",
-    "headline": "No card needed",
+    "primary": "Otto plans your month, writes your posts, makes your reels and stories, and posts them on time. You tap approve.",
+    "headline": "Posts, reels and stories, every week",
+    "description": "Posts, reels and stories",
+    "cta": "LEARN_MORE"
+   },
+   "lengths": {
+    "primary": 112,
+    "headline": 36,
+    "description": 24
+   },
+   "over_limit": [],
+   "n_texts": 8,
+   "violations": [],
+   "money_figures": [],
+   "agency_and_figure": [],
+   "possible_dutch": [],
+   "texts": [
+    {
+     "text": "Otto plans your month, writes your posts, makes your reels and stories, and posts them on time. You tap approve.",
+     "violations": []
+    },
+    {
+     "text": "Posts, reels and stories, every week",
+     "violations": []
+    },
+    {
+     "text": "Posts, reels and stories",
+     "violations": []
+    },
+    {
+     "text": "You run the business. *Otto posts.*",
+     "violations": []
+    },
+    {
+     "text": "Posts, reels and stories",
+     "violations": []
+    },
+    {
+     "text": "Every week, planned",
+     "violations": []
+    },
+    {
+     "text": "You approve each one",
+     "violations": []
+    },
+    {
+     "text": "Sample posts",
+     "violations": []
+    }
+   ]
+  },
+  {
+   "id": "ie-a5-notes",
+   "angle": "a5",
+   "style": "notes_app",
+   "format": "image",
+   "engine_status": "ready",
+   "engine_reasons": [],
+   "copy": {
+    "primary": "Every week: carousels, reels, stories, offers and how-tos, made from your own website, in your brand.",
+    "headline": "You run the business. Otto posts.",
+    "description": "Posts, reels and stories",
+    "cta": "LEARN_MORE"
+   },
+   "lengths": {
+    "primary": 101,
+    "headline": 33,
+    "description": 24
+   },
+   "over_limit": [],
+   "n_texts": 12,
+   "violations": [],
+   "money_figures": [],
+   "agency_and_figure": [],
+   "possible_dutch": [],
+   "texts": [
+    {
+     "text": "Every week: carousels, reels, stories, offers and how-tos, made from your own website, in your brand.",
+     "violations": []
+    },
+    {
+     "text": "You run the business. Otto posts.",
+     "violations": []
+    },
+    {
+     "text": "Posts, reels and stories",
+     "violations": []
+    },
+    {
+     "text": "This week's posts",
+     "violations": []
+    },
+    {
+     "text": "Mon: carousel, 3 ways with sourdough",
+     "violations": []
+    },
+    {
+     "text": "Tue: reel, Saturday prep",
+     "violations": []
+    },
+    {
+     "text": "Wed: story, open late Friday",
+     "violations": []
+    },
+    {
+     "text": "Thu: offer, lunch and coffee",
+     "violations": []
+    },
+    {
+     "text": "Fri: how-to, keep bread fresh",
+     "violations": []
+    },
+    {
+     "text": "Sample week",
+     "violations": []
+    },
+    {
+     "text": "*Made by Otto*, approved by me",
+     "violations": []
+    },
+    {
+     "text": "A week of posts, *done*",
+     "violations": []
+    }
+   ]
+  },
+  {
+   "id": "ie-a5-checklist",
+   "angle": "a5",
+   "style": "checklist",
+   "format": "image",
+   "engine_status": "ready",
+   "engine_reasons": [],
+   "copy": {
+    "primary": "For the plumber under a sink all day and the café that closes at five: Otto does the posts, you make the calls.",
+    "headline": "Posts, reels and stories, every week",
+    "description": "Posts, reels and stories",
+    "cta": "LEARN_MORE"
+   },
+   "lengths": {
+    "primary": 111,
+    "headline": 36,
+    "description": 24
+   },
+   "over_limit": [],
+   "n_texts": 14,
+   "violations": [],
+   "money_figures": [],
+   "agency_and_figure": [],
+   "possible_dutch": [],
+   "texts": [
+    {
+     "text": "For the plumber under a sink all day and the café that closes at five: Otto does the posts, you make the calls.",
+     "violations": []
+    },
+    {
+     "text": "Posts, reels and stories, every week",
+     "violations": []
+    },
+    {
+     "text": "Posts, reels and stories",
+     "violations": []
+    },
+    {
+     "text": "What's in your month",
+     "violations": []
+    },
+    {
+     "text": "Made by Otto",
+     "violations": []
+    },
+    {
+     "text": "Feed posts and carousels",
+     "violations": []
+    },
+    {
+     "text": "Products, tips, behind the scenes",
+     "violations": []
+    },
+    {
+     "text": "Reels",
+     "violations": []
+    },
+    {
+     "text": "Made from your website",
+     "violations": []
+    },
+    {
+     "text": "Stories",
+     "violations": []
+    },
+    {
+     "text": "Opening hours, news, offers",
+     "violations": []
+    },
+    {
+     "text": "Offers, how-tos, reviews",
+     "violations": []
+    },
+    {
+     "text": "Planned around your calendar",
+     "violations": []
+    },
+    {
+     "text": "You approve every post before it goes out.",
+     "violations": []
+    }
+   ]
+  },
+  {
+   "id": "ie-a5-premium",
+   "angle": "a5",
+   "style": "editorial",
+   "format": "image",
+   "engine_status": "ready",
+   "engine_reasons": [],
+   "copy": {
+    "primary": "Otto plans your month, writes your posts, makes your reels and stories, and posts them on time. You tap approve.",
+    "headline": "You run the business. Otto posts.",
+    "description": "Posts, reels and stories",
+    "cta": "LEARN_MORE"
+   },
+   "lengths": {
+    "primary": 112,
+    "headline": 33,
+    "description": 24
+   },
+   "over_limit": [],
+   "n_texts": 8,
+   "violations": [],
+   "money_figures": [
+    {
+     "text": "7 days free, no card. Then €79 a month.",
+     "figure": "€79",
+     "kind": "price",
+     "ok": true
+    }
+   ],
+   "agency_and_figure": [],
+   "possible_dutch": [],
+   "texts": [
+    {
+     "text": "Otto plans your month, writes your posts, makes your reels and stories, and posts them on time. You tap approve.",
+     "violations": []
+    },
+    {
+     "text": "You run the business. Otto posts.",
+     "violations": []
+    },
+    {
+     "text": "Posts, reels and stories",
+     "violations": []
+    },
+    {
+     "text": "You run the business. Otto posts.",
+     "violations": []
+    },
+    {
+     "text": "Posts, reels and stories",
+     "violations": []
+    },
+    {
+     "text": "Every week, planned and made for you. One tap to approve.",
+     "violations": []
+    },
+    {
+     "text": "Try 7 days free",
+     "violations": []
+    },
+    {
+     "text": "7 days free, no card. Then €79 a month.",
+     "violations": []
+    }
+   ]
+  },
+  {
+   "id": "ie-a6-notes-v",
+   "angle": "a6",
+   "style": "notes_app",
+   "format": "video",
+   "engine_status": "ready",
+   "engine_reasons": [
+    "video not rendered yet (its kit JSON was written by hand: render it with motion/ad-kit)"
+   ],
+   "copy": {
+    "primary": "Launching a business? Marketing is handled from day one: posts, stories, reels and ads. Try Otto free for 7 days.",
+    "headline": "Launching? Try Otto free for 7 days",
     "description": "7 days free, no card",
     "cta": "SIGN_UP"
    },
    "lengths": {
-    "primary": 116,
-    "headline": 14,
+    "primary": 113,
+    "headline": 35,
     "description": 20
    },
    "over_limit": [],
-   "n_texts": 13,
+   "n_texts": 27,
    "violations": [],
-   "money_figures": [],
+   "money_figures": [
+    {
+     "text": "7 days free, no card. Then €79 a month.",
+     "figure": "€79",
+     "kind": "price",
+     "ok": true
+    },
+    {
+     "text": "7 days free, no card. Then €79 a month.",
+     "figure": "€79",
+     "kind": "price",
+     "ok": true
+    }
+   ],
+   "agency_and_figure": [],
    "possible_dutch": [],
    "texts": [
     {
-     "text": "Try Otto free for 7 days. Sign in with Google, give it your website, and your first posts are ready within 24 hours.",
+     "text": "Launching a business? Marketing is handled from day one: posts, stories, reels and ads. Try Otto free for 7 days.",
      "violations": []
     },
     {
-     "text": "No card needed",
+     "text": "Launching? Try Otto free for 7 days",
      "violations": []
     },
     {
@@ -3145,7 +4358,567 @@
      "violations": []
     },
     {
-     "text": "Free trial",
+     "text": "Thursday, 11:10 PM",
+     "violations": []
+    },
+    {
+     "text": "Opening week to-do",
+     "violations": []
+    },
+    {
+     "text": "sign the lease",
+     "violations": []
+    },
+    {
+     "text": "order the stock",
+     "violations": []
+    },
+    {
+     "text": "get the sign up",
+     "violations": []
+    },
+    {
+     "text": "marketing: Otto has it",
+     "violations": []
+    },
+    {
+     "text": "You open. Otto does the marketing.",
+     "violations": []
+    },
+    {
+     "text": "Otto does the marketing.",
+     "violations": []
+    },
+    {
+     "text": "Your first week of posts, ready in minutes.",
+     "violations": []
+    },
+    {
+     "text": "7 days free, no card. Then €79 a month.",
+     "violations": []
+    },
+    {
+     "text": "post_opening",
+     "violations": []
+    },
+    {
+     "text": "Monthly plan, no contract, cancel anytime. Prices excl. VAT.",
+     "violations": []
+    },
+    {
+     "text": "Thursday, 11:10 PM",
+     "violations": []
+    },
+    {
+     "text": "Opening week to-do",
+     "violations": []
+    },
+    {
+     "text": "sign the lease",
+     "violations": []
+    },
+    {
+     "text": "order the stock",
+     "violations": []
+    },
+    {
+     "text": "get the sign up",
+     "violations": []
+    },
+    {
+     "text": "marketing: Otto has it",
+     "violations": []
+    },
+    {
+     "text": "You open. Otto does the marketing.",
+     "violations": []
+    },
+    {
+     "text": "Otto does the marketing.",
+     "violations": []
+    },
+    {
+     "text": "Your first week of posts, ready in minutes.",
+     "violations": []
+    },
+    {
+     "text": "7 days free, no card. Then €79 a month.",
+     "violations": []
+    },
+    {
+     "text": "post_opening",
+     "violations": []
+    },
+    {
+     "text": "Monthly plan, no contract, cancel anytime. Prices excl. VAT.",
+     "violations": []
+    }
+   ]
+  },
+  {
+   "id": "ie-a6-texts-v",
+   "angle": "a6",
+   "style": "text_message",
+   "format": "video",
+   "engine_status": "ready",
+   "engine_reasons": [
+    "video not rendered yet (its kit JSON was written by hand: render it with motion/ad-kit)"
+   ],
+   "copy": {
+    "primary": "7 days free, no card. Then €79 a month (excl. VAT), monthly, cancel anytime. Nothing is charged automatically.",
+    "headline": "7 days free. Then €79 a month.",
+    "description": "7 days free, no card",
+    "cta": "SIGN_UP"
+   },
+   "lengths": {
+    "primary": 110,
+    "headline": 30,
+    "description": 20
+   },
+   "over_limit": [],
+   "n_texts": 41,
+   "violations": [],
+   "money_figures": [
+    {
+     "text": "7 days free, no card. Then €79 a month (excl. VAT), monthly, cancel anytime. Nothing is charged automatically.",
+     "figure": "€79",
+     "kind": "price",
+     "ok": true
+    },
+    {
+     "text": "7 days free. Then €79 a month.",
+     "figure": "€79",
+     "kind": "price",
+     "ok": true
+    },
+    {
+     "text": "Carry on for €79 a month and keep it all. Or stop, and nothing is charged.",
+     "figure": "€79",
+     "kind": "price",
+     "ok": true
+    },
+    {
+     "text": "Then €79 a month. Cancel anytime.",
+     "figure": "€79",
+     "kind": "price",
+     "ok": true
+    },
+    {
+     "text": "Carry on for €79 a month and keep it all. Or stop, and nothing is charged.",
+     "figure": "€79",
+     "kind": "price",
+     "ok": true
+    },
+    {
+     "text": "Then €79 a month. Cancel anytime.",
+     "figure": "€79",
+     "kind": "price",
+     "ok": true
+    }
+   ],
+   "agency_and_figure": [],
+   "possible_dutch": [],
+   "texts": [
+    {
+     "text": "7 days free, no card. Then €79 a month (excl. VAT), monthly, cancel anytime. Nothing is charged automatically.",
+     "violations": []
+    },
+    {
+     "text": "7 days free. Then €79 a month.",
+     "violations": []
+    },
+    {
+     "text": "7 days free, no card",
+     "violations": []
+    },
+    {
+     "text": "Otto",
+     "violations": []
+    },
+    {
+     "text": "O",
+     "violations": []
+    },
+    {
+     "text": "brand",
+     "violations": []
+    },
+    {
+     "text": "Today 10:12 AM",
+     "violations": []
+    },
+    {
+     "text": "Message",
+     "violations": []
+    },
+    {
+     "text": "me",
+     "violations": []
+    },
+    {
+     "text": "What happens after the 7 days?",
+     "violations": []
+    },
+    {
+     "text": "them",
+     "violations": []
+    },
+    {
+     "text": "Carry on for €79 a month and keep it all. Or stop, and nothing is charged.",
+     "violations": []
+    },
+    {
+     "text": "me",
+     "violations": []
+    },
+    {
+     "text": "Is there a contract?",
+     "violations": []
+    },
+    {
+     "text": "them",
+     "violations": []
+    },
+    {
+     "text": "No. It's monthly. Cancel anytime on your Billing page.",
+     "violations": []
+    },
+    {
+     "text": "7 days free.",
+     "violations": []
+    },
+    {
+     "text": "free.",
+     "violations": []
+    },
+    {
+     "text": "Then €79 a month. Cancel anytime.",
+     "violations": []
+    },
+    {
+     "text": "No card needed.",
+     "violations": []
+    },
+    {
+     "text": "month",
+     "violations": []
+    },
+    {
+     "text": "Monthly plan, no contract, cancel anytime. Prices excl. VAT.",
+     "violations": []
+    },
+    {
+     "text": "Otto",
+     "violations": []
+    },
+    {
+     "text": "O",
+     "violations": []
+    },
+    {
+     "text": "brand",
+     "violations": []
+    },
+    {
+     "text": "Today 10:12 AM",
+     "violations": []
+    },
+    {
+     "text": "Message",
+     "violations": []
+    },
+    {
+     "text": "me",
+     "violations": []
+    },
+    {
+     "text": "What happens after the 7 days?",
+     "violations": []
+    },
+    {
+     "text": "them",
+     "violations": []
+    },
+    {
+     "text": "Carry on for €79 a month and keep it all. Or stop, and nothing is charged.",
+     "violations": []
+    },
+    {
+     "text": "me",
+     "violations": []
+    },
+    {
+     "text": "Is there a contract?",
+     "violations": []
+    },
+    {
+     "text": "them",
+     "violations": []
+    },
+    {
+     "text": "No. It's monthly. Cancel anytime on your Billing page.",
+     "violations": []
+    },
+    {
+     "text": "7 days free.",
+     "violations": []
+    },
+    {
+     "text": "free.",
+     "violations": []
+    },
+    {
+     "text": "Then €79 a month. Cancel anytime.",
+     "violations": []
+    },
+    {
+     "text": "No card needed.",
+     "violations": []
+    },
+    {
+     "text": "month",
+     "violations": []
+    },
+    {
+     "text": "Monthly plan, no contract, cancel anytime. Prices excl. VAT.",
+     "violations": []
+    }
+   ]
+  },
+  {
+   "id": "ie-a6-versus-v",
+   "angle": "a6",
+   "style": "us_vs_them",
+   "format": "video",
+   "engine_status": "ready",
+   "engine_reasons": [
+    "video not rendered yet (its kit JSON was written by hand: render it with motion/ad-kit)"
+   ],
+   "copy": {
+    "primary": "New café, B&B or trade? Otto does the posts and the ads from day one. Your first week is ready within minutes.",
+    "headline": "Launching? Try Otto free for 7 days",
+    "description": "7 days free, no card",
+    "cta": "SIGN_UP"
+   },
+   "lengths": {
+    "primary": 110,
+    "headline": 35,
+    "description": 20
+   },
+   "over_limit": [],
+   "n_texts": 35,
+   "violations": [],
+   "money_figures": [
+    {
+     "text": "Then €79 a month.",
+     "figure": "€79",
+     "kind": "price",
+     "ok": true
+    },
+    {
+     "text": "Then €79 a month.",
+     "figure": "€79",
+     "kind": "price",
+     "ok": true
+    }
+   ],
+   "agency_and_figure": [],
+   "possible_dutch": [],
+   "texts": [
+    {
+     "text": "New café, B&B or trade? Otto does the posts and the ads from day one. Your first week is ready within minutes.",
+     "violations": []
+    },
+    {
+     "text": "Launching? Try Otto free for 7 days",
+     "violations": []
+    },
+    {
+     "text": "7 days free, no card",
+     "violations": []
+    },
+    {
+     "text": "vs",
+     "violations": []
+    },
+    {
+     "text": "On your own",
+     "violations": []
+    },
+    {
+     "text": "Posts at midnight",
+     "violations": []
+    },
+    {
+     "text": "No time for reels",
+     "violations": []
+    },
+    {
+     "text": "Ads? Later.",
+     "violations": []
+    },
+    {
+     "text": "With Otto",
+     "violations": []
+    },
+    {
+     "text": "Week one ready",
+     "violations": []
+    },
+    {
+     "text": "Reels in 24 hours",
+     "violations": []
+    },
+    {
+     "text": "Ads planned",
+     "violations": []
+    },
+    {
+     "text": "7 days free, no card.",
+     "violations": []
+    },
+    {
+     "text": "Launching? Marketing's handled.",
+     "violations": []
+    },
+    {
+     "text": "handled.",
+     "violations": []
+    },
+    {
+     "text": "Try Otto free for 7 days. No card.",
+     "violations": []
+    },
+    {
+     "text": "Then €79 a month.",
+     "violations": []
+    },
+    {
+     "text": "post_opening",
+     "violations": []
+    },
+    {
+     "text": "Monthly plan, no contract, cancel anytime. Prices excl. VAT.",
+     "violations": []
+    },
+    {
+     "text": "vs",
+     "violations": []
+    },
+    {
+     "text": "On your own",
+     "violations": []
+    },
+    {
+     "text": "Posts at midnight",
+     "violations": []
+    },
+    {
+     "text": "No time for reels",
+     "violations": []
+    },
+    {
+     "text": "Ads? Later.",
+     "violations": []
+    },
+    {
+     "text": "With Otto",
+     "violations": []
+    },
+    {
+     "text": "Week one ready",
+     "violations": []
+    },
+    {
+     "text": "Reels in 24 hours",
+     "violations": []
+    },
+    {
+     "text": "Ads planned",
+     "violations": []
+    },
+    {
+     "text": "7 days free, no card.",
+     "violations": []
+    },
+    {
+     "text": "Launching? Marketing's handled.",
+     "violations": []
+    },
+    {
+     "text": "handled.",
+     "violations": []
+    },
+    {
+     "text": "Try Otto free for 7 days. No card.",
+     "violations": []
+    },
+    {
+     "text": "Then €79 a month.",
+     "violations": []
+    },
+    {
+     "text": "post_opening",
+     "violations": []
+    },
+    {
+     "text": "Monthly plan, no contract, cancel anytime. Prices excl. VAT.",
+     "violations": []
+    }
+   ]
+  },
+  {
+   "id": "ie-a6-offer",
+   "angle": "a6",
+   "style": "offer",
+   "format": "image",
+   "engine_status": "ready",
+   "engine_reasons": [],
+   "copy": {
+    "primary": "Launching a business? Marketing is handled from day one: posts, stories, reels and ads. Try Otto free for 7 days.",
+    "headline": "7 days free. Then €79 a month.",
+    "description": "7 days free, no card",
+    "cta": "SIGN_UP"
+   },
+   "lengths": {
+    "primary": 113,
+    "headline": 30,
+    "description": 20
+   },
+   "over_limit": [],
+   "n_texts": 13,
+   "violations": [],
+   "money_figures": [
+    {
+     "text": "7 days free. Then €79 a month.",
+     "figure": "€79",
+     "kind": "price",
+     "ok": true
+    },
+    {
+     "text": "Then €79 a month, excl. VAT",
+     "figure": "€79",
+     "kind": "price",
+     "ok": true
+    }
+   ],
+   "agency_and_figure": [],
+   "possible_dutch": [],
+   "texts": [
+    {
+     "text": "Launching a business? Marketing is handled from day one: posts, stories, reels and ads. Try Otto free for 7 days.",
+     "violations": []
+    },
+    {
+     "text": "7 days free. Then €79 a month.",
+     "violations": []
+    },
+    {
+     "text": "7 days free, no card",
+     "violations": []
+    },
+    {
+     "text": "Try Otto free",
      "violations": []
     },
     {
@@ -3161,673 +4934,27 @@
      "violations": []
     },
     {
-     "text": "Approve by e-mail, in Telegram or in the app",
-     "violations": []
-    },
-    {
-     "text": "Your report at 7:35",
-     "violations": []
-    },
-    {
-     "text": "Your ads planned for you to see",
-     "violations": []
-    },
-    {
-     "text": "Sign up",
-     "violations": []
-    },
-    {
-     "text": "Sign in with Google. One trial per business. Nothing is charged automatically when it ends.",
-     "violations": []
-    },
-    {
-     "text": "Free week",
-     "violations": []
-    }
-   ]
-  },
-  {
-   "id": "ie-a5-product",
-   "angle": "a5",
-   "style": "product_hero",
-   "format": "image",
-   "engine_status": "ready",
-   "engine_reasons": [],
-   "copy": {
-    "primary": "After 7 days you decide. Nothing is charged automatically, and if you pick a plan, everything Otto made carries on.",
-    "headline": "Try Otto free for 7 days",
-    "description": "7 days free, no card",
-    "cta": "SIGN_UP"
-   },
-   "lengths": {
-    "primary": 115,
-    "headline": 24,
-    "description": 20
-   },
-   "over_limit": [],
-   "n_texts": 8,
-   "violations": [],
-   "money_figures": [],
-   "possible_dutch": [],
-   "texts": [
-    {
-     "text": "After 7 days you decide. Nothing is charged automatically, and if you pick a plan, everything Otto made carries on.",
-     "violations": []
-    },
-    {
-     "text": "Try Otto free for 7 days",
-     "violations": []
-    },
-    {
-     "text": "7 days free, no card",
-     "violations": []
-    },
-    {
-     "text": "7 days *free*",
-     "violations": []
-    },
-    {
-     "text": "No card needed",
-     "violations": []
-    },
-    {
-     "text": "Written in Irish English",
-     "violations": []
-    },
-    {
-     "text": "First posts within 24 hours",
-     "violations": []
-    },
-    {
-     "text": "Free week",
-     "violations": []
-    }
-   ]
-  },
-  {
-   "id": "ie-a5-notes",
-   "angle": "a5",
-   "style": "notes_app",
-   "format": "image",
-   "engine_status": "ready",
-   "engine_reasons": [],
-   "copy": {
-    "primary": "Your first week of posts, stories and reels, approvals from your phone and the 7:35 report. Free for 7 days, no card.",
-    "headline": "No card needed",
-    "description": "7 days free, no card",
-    "cta": "SIGN_UP"
-   },
-   "lengths": {
-    "primary": 117,
-    "headline": 14,
-    "description": 20
-   },
-   "over_limit": [],
-   "n_texts": 12,
-   "violations": [],
-   "money_figures": [],
-   "possible_dutch": [],
-   "texts": [
-    {
-     "text": "Your first week of posts, stories and reels, approvals from your phone and the 7:35 report. Free for 7 days, no card.",
-     "violations": []
-    },
-    {
-     "text": "No card needed",
-     "violations": []
-    },
-    {
-     "text": "7 days free, no card",
-     "violations": []
-    },
-    {
-     "text": "What you get in the free week",
-     "violations": []
-    },
-    {
-     "text": "Your first week of posts and stories",
-     "violations": []
-    },
-    {
-     "text": "Reels from your own website",
-     "violations": []
-    },
-    {
-     "text": "Approve by e-mail or in the app",
-     "violations": []
-    },
-    {
      "text": "Your report every morning at 7:35",
      "violations": []
     },
     {
-     "text": "Your ads planned for you to see",
+     "text": "Your ads planned, ready to run",
      "violations": []
     },
     {
-     "text": "Today at 9:12 AM",
+     "text": "Then €79 a month, excl. VAT",
      "violations": []
     },
     {
-     "text": "*7 days free*, no card",
+     "text": "Start free",
      "violations": []
     },
     {
-     "text": "Try it first, *then decide*",
+     "text": "Sign in with Google. Monthly plan, no contract, cancel anytime. Nothing is charged unless you choose a plan.",
      "violations": []
-    }
-   ]
-  },
-  {
-   "id": "ie-a6-texts-v",
-   "angle": "a6",
-   "style": "text_message",
-   "format": "video",
-   "engine_status": "ready",
-   "engine_reasons": [
-    "video not rendered yet (otto_motion)"
-   ],
-   "copy": {
-    "primary": "Christmas is your busiest month and your least free one. Otto plans the run-up ahead, so you can just work it.",
-    "headline": "Christmas, sorted before the rush",
-    "description": "Your busy season, planned",
-    "cta": "LEARN_MORE"
-   },
-   "lengths": {
-    "primary": 110,
-    "headline": 33,
-    "description": 25
-   },
-   "over_limit": [],
-   "n_texts": 39,
-   "violations": [],
-   "money_figures": [],
-   "possible_dutch": [],
-   "texts": [
-    {
-     "text": "Christmas is your busiest month and your least free one. Otto plans the run-up ahead, so you can just work it.",
-     "violations": []
-    },
-    {
-     "text": "Christmas, sorted before the rush",
-     "violations": []
-    },
-    {
-     "text": "Your busy season, planned",
-     "violations": []
-    },
-    {
-     "text": "Otto",
-     "violations": []
-    },
-    {
-     "text": "O",
-     "violations": []
-    },
-    {
-     "text": "brand",
-     "violations": []
-    },
-    {
-     "text": "Sample · 26 October",
-     "violations": []
-    },
-    {
-     "text": "Message",
-     "violations": []
-    },
-    {
-     "text": "them",
-     "violations": []
-    },
-    {
-     "text": "Your November is ready to review.",
-     "violations": []
-    },
-    {
-     "text": "them",
-     "violations": []
-    },
-    {
-     "text": "The Christmas menu and gift vouchers are in it.",
-     "violations": []
-    },
-    {
-     "text": "me",
-     "violations": []
-    },
-    {
-     "text": "Show me",
-     "violations": []
-    },
-    {
-     "text": "them",
-     "violations": []
-    },
-    {
-     "text": "Here's the plan. Tap approve or ask for a change.",
-     "violations": []
-    },
-    {
-     "text": "Christmas, sorted early.",
-     "violations": []
-    },
-    {
-     "text": "sorted early.",
-     "violations": []
-    },
-    {
-     "text": "You approve it all in advance.",
-     "violations": []
-    },
-    {
-     "text": "Try it free for 7 days, no card needed.",
-     "violations": []
-    },
-    {
-     "text": "month",
-     "violations": []
-    },
-    {
-     "text": "Otto",
-     "violations": []
-    },
-    {
-     "text": "O",
-     "violations": []
-    },
-    {
-     "text": "brand",
-     "violations": []
-    },
-    {
-     "text": "Sample · 26 October",
-     "violations": []
-    },
-    {
-     "text": "Message",
-     "violations": []
-    },
-    {
-     "text": "them",
-     "violations": []
-    },
-    {
-     "text": "Your November is ready to review.",
-     "violations": []
-    },
-    {
-     "text": "them",
-     "violations": []
-    },
-    {
-     "text": "The Christmas menu and gift vouchers are in it.",
-     "violations": []
-    },
-    {
-     "text": "me",
-     "violations": []
-    },
-    {
-     "text": "Show me",
-     "violations": []
-    },
-    {
-     "text": "them",
-     "violations": []
-    },
-    {
-     "text": "Here's the plan. Tap approve or ask for a change.",
-     "violations": []
-    },
-    {
-     "text": "Christmas, sorted early.",
-     "violations": []
-    },
-    {
-     "text": "sorted early.",
-     "violations": []
-    },
-    {
-     "text": "You approve it all in advance.",
-     "violations": []
-    },
-    {
-     "text": "Try it free for 7 days, no card needed.",
-     "violations": []
-    },
-    {
-     "text": "month",
-     "violations": []
-    }
-   ]
-  },
-  {
-   "id": "ie-a6-big-v",
-   "angle": "a6",
-   "style": "big_number",
-   "format": "video",
-   "engine_status": "ready",
-   "engine_reasons": [
-    "video not rendered yet (otto_motion)"
-   ],
-   "copy": {
-    "primary": "Gift vouchers, Christmas opening hours, the festive menu: Otto plans them for the hours your customers are online.",
-    "headline": "Your busy season, planned ahead",
-    "description": "Your busy season, planned",
-    "cta": "LEARN_MORE"
-   },
-   "lengths": {
-    "primary": 114,
-    "headline": 31,
-    "description": 25
-   },
-   "over_limit": [],
-   "n_texts": 29,
-   "violations": [],
-   "money_figures": [],
-   "possible_dutch": [],
-   "texts": [
-    {
-     "text": "Gift vouchers, Christmas opening hours, the festive menu: Otto plans them for the hours your customers are online.",
-     "violations": []
-    },
-    {
-     "text": "Your busy season, planned ahead",
-     "violations": []
-    },
-    {
-     "text": "Your busy season, planned",
-     "violations": []
-    },
-    {
-     "text": "month",
-     "violations": []
-    },
-    {
-     "text": "Christmas.",
-     "violations": []
-    },
-    {
-     "text": "Planned.",
-     "violations": []
-    },
-    {
-     "text": "New Year.",
-     "violations": []
-    },
-    {
-     "text": "Planned.",
-     "violations": []
-    },
-    {
-     "text": "You?",
-     "violations": []
-    },
-    {
-     "text": "Working.",
-     "violations": []
-    },
-    {
-     "text": "month",
-     "violations": []
-    },
-    {
-     "text": "Christmas, already planned.",
-     "violations": []
-    },
-    {
-     "text": "already planned.",
-     "violations": []
-    },
-    {
-     "text": "Posts, reels and ads, made by Otto.",
-     "violations": []
-    },
-    {
-     "text": "Try it free for 7 days, no card needed.",
-     "violations": []
-    },
-    {
-     "text": "month",
-     "violations": []
-    },
-    {
-     "text": "month",
-     "violations": []
-    },
-    {
-     "text": "Christmas.",
-     "violations": []
-    },
-    {
-     "text": "Planned.",
-     "violations": []
-    },
-    {
-     "text": "New Year.",
-     "violations": []
-    },
-    {
-     "text": "Planned.",
-     "violations": []
-    },
-    {
-     "text": "You?",
-     "violations": []
-    },
-    {
-     "text": "Working.",
-     "violations": []
-    },
-    {
-     "text": "month",
-     "violations": []
-    },
-    {
-     "text": "Christmas, already planned.",
-     "violations": []
-    },
-    {
-     "text": "already planned.",
-     "violations": []
-    },
-    {
-     "text": "Posts, reels and ads, made by Otto.",
-     "violations": []
-    },
-    {
-     "text": "Try it free for 7 days, no card needed.",
-     "violations": []
-    },
-    {
-     "text": "month",
-     "violations": []
-    }
-   ]
-  },
-  {
-   "id": "ie-a6-notes-v",
-   "angle": "a6",
-   "style": "notes_app",
-   "format": "video",
-   "engine_status": "ready",
-   "engine_reasons": [
-    "video not rendered yet (otto_motion)"
-   ],
-   "copy": {
-    "primary": "Start now and Otto lines up your posts, reels and ads for the busy weeks. You approve it all in advance.",
-    "headline": "Christmas, sorted before the rush",
-    "description": "Your busy season, planned",
-    "cta": "LEARN_MORE"
-   },
-   "lengths": {
-    "primary": 104,
-    "headline": 33,
-    "description": 25
-   },
-   "over_limit": [],
-   "n_texts": 25,
-   "violations": [],
-   "money_figures": [],
-   "possible_dutch": [],
-   "texts": [
-    {
-     "text": "Start now and Otto lines up your posts, reels and ads for the busy weeks. You approve it all in advance.",
-     "violations": []
-    },
-    {
-     "text": "Christmas, sorted before the rush",
-     "violations": []
-    },
-    {
-     "text": "Your busy season, planned",
-     "violations": []
-    },
-    {
-     "text": "Sunday, 9:10 PM",
-     "violations": []
-    },
-    {
-     "text": "Christmas marketing to-do",
-     "violations": []
-    },
-    {
-     "text": "opening hours post",
-     "violations": []
-    },
-    {
-     "text": "gift voucher reel",
-     "violations": []
-    },
-    {
-     "text": "festive menu ad",
-     "violations": []
-    },
-    {
-     "text": "approve the plan",
-     "violations": []
-    },
-    {
-     "text": "Christmas, sorted early.",
-     "violations": []
-    },
-    {
-     "text": "sorted early.",
-     "violations": []
-    },
-    {
-     "text": "Otto plans the busy weeks. You approve.",
-     "violations": []
-    },
-    {
-     "text": "Try it free for 7 days, no card needed.",
-     "violations": []
-    },
-    {
-     "text": "month",
-     "violations": []
-    },
-    {
-     "text": "Sunday, 9:10 PM",
-     "violations": []
-    },
-    {
-     "text": "Christmas marketing to-do",
-     "violations": []
-    },
-    {
-     "text": "opening hours post",
-     "violations": []
-    },
-    {
-     "text": "gift voucher reel",
-     "violations": []
-    },
-    {
-     "text": "festive menu ad",
-     "violations": []
-    },
-    {
-     "text": "approve the plan",
-     "violations": []
-    },
-    {
-     "text": "Christmas, sorted early.",
-     "violations": []
-    },
-    {
-     "text": "sorted early.",
-     "violations": []
-    },
-    {
-     "text": "Otto plans the busy weeks. You approve.",
-     "violations": []
-    },
-    {
-     "text": "Try it free for 7 days, no card needed.",
-     "violations": []
-    },
-    {
-     "text": "month",
-     "violations": []
-    }
-   ]
-  },
-  {
-   "id": "ie-a6-before",
-   "angle": "a6",
-   "style": "before_after",
-   "format": "image",
-   "engine_status": "ready",
-   "engine_reasons": [],
-   "copy": {
-    "primary": "Christmas is your busiest month and your least free one. Otto plans the run-up ahead, so you can just work it.",
-    "headline": "Your busy season, planned ahead",
-    "description": "Your busy season, planned",
-    "cta": "LEARN_MORE"
-   },
-   "lengths": {
-    "primary": 110,
-    "headline": 31,
-    "description": 25
-   },
-   "over_limit": [],
-   "n_texts": 8,
-   "violations": [],
-   "money_figures": [],
-   "possible_dutch": [],
-   "texts": [
-    {
-     "text": "Christmas is your busiest month and your least free one. Otto plans the run-up ahead, so you can just work it.",
-     "violations": []
-    },
-    {
-     "text": "Your busy season, planned ahead",
-     "violations": []
-    },
-    {
-     "text": "Your busy season, planned",
-     "violations": []
-    },
-    {
-     "text": "December: posting something quick every evening",
-     "violations": []
-    },
-    {
-     "text": "Now: the busy weeks planned, approved in one go",
-     "violations": []
-    },
-    {
-     "text": "Without Otto",
-     "violations": []
-    },
-    {
-     "text": "With Otto",
-     "violations": []
     },
     {
-     "text": "The holidays",
+     "text": "Free week",
      "violations": []
     }
    ]
@@ -3840,146 +4967,222 @@
    "engine_status": "ready",
    "engine_reasons": [],
    "copy": {
-    "primary": "Gift vouchers, Christmas opening hours, the festive menu: Otto plans them for the hours your customers are online.",
-    "headline": "Christmas, sorted before the rush",
-    "description": "Your busy season, planned",
-    "cta": "LEARN_MORE"
+    "primary": "7 days free, no card. Then €79 a month (excl. VAT), monthly, cancel anytime. Nothing is charged automatically.",
+    "headline": "Launching? Try Otto free for 7 days",
+    "description": "7 days free, no card",
+    "cta": "SIGN_UP"
    },
    "lengths": {
-    "primary": 114,
-    "headline": 33,
-    "description": 25
+    "primary": 110,
+    "headline": 35,
+    "description": 20
    },
    "over_limit": [],
    "n_texts": 8,
    "violations": [],
-   "money_figures": [],
+   "money_figures": [
+    {
+     "text": "7 days free, no card. Then €79 a month (excl. VAT), monthly, cancel anytime. Nothing is charged automatically.",
+     "figure": "€79",
+     "kind": "price",
+     "ok": true
+    }
+   ],
+   "agency_and_figure": [],
    "possible_dutch": [],
    "texts": [
     {
-     "text": "Gift vouchers, Christmas opening hours, the festive menu: Otto plans them for the hours your customers are online.",
+     "text": "7 days free, no card. Then €79 a month (excl. VAT), monthly, cancel anytime. Nothing is charged automatically.",
      "violations": []
     },
     {
-     "text": "Christmas, sorted before the rush",
+     "text": "Launching? Try Otto free for 7 days",
      "violations": []
     },
     {
-     "text": "Your busy season, planned",
+     "text": "7 days free, no card",
      "violations": []
     },
     {
-     "text": "Christmas, *already planned*",
+     "text": "You open the doors. *Otto does the marketing.*",
      "violations": []
     },
     {
-     "text": "Christmas menu and vouchers",
+     "text": "First week ready in minutes",
      "violations": []
     },
     {
-     "text": "Holiday opening hours",
+     "text": "Reels within 24 hours",
      "violations": []
     },
     {
-     "text": "You approve it all first",
+     "text": "7 days free, no card",
      "violations": []
     },
     {
-     "text": "The holidays",
+     "text": "New business?",
      "violations": []
     }
    ]
   },
   {
-   "id": "ie-a6-carousel",
+   "id": "ie-a6-checklist",
    "angle": "a6",
-   "style": "carousel",
+   "style": "checklist",
    "format": "image",
    "engine_status": "ready",
    "engine_reasons": [],
    "copy": {
-    "primary": "Start now and Otto lines up your posts, reels and ads for the busy weeks. You approve it all in advance.",
-    "headline": "Your busy season, planned ahead",
-    "description": "Your busy season, planned",
-    "cta": "LEARN_MORE"
+    "primary": "New café, B&B or trade? Otto does the posts and the ads from day one. Your first week is ready within minutes.",
+    "headline": "7 days free. Then €79 a month.",
+    "description": "7 days free, no card",
+    "cta": "SIGN_UP"
    },
    "lengths": {
-    "primary": 104,
-    "headline": 31,
-    "description": 25
+    "primary": 110,
+    "headline": 30,
+    "description": 20
    },
    "over_limit": [],
-   "n_texts": 17,
+   "n_texts": 14,
    "violations": [],
-   "money_figures": [],
+   "money_figures": [
+    {
+     "text": "7 days free. Then €79 a month.",
+     "figure": "€79",
+     "kind": "price",
+     "ok": true
+    },
+    {
+     "text": "7 days free, no card. Then €79 a month, excl. VAT. Monthly, cancel anytime.",
+     "figure": "€79",
+     "kind": "price",
+     "ok": true
+    }
+   ],
+   "agency_and_figure": [],
    "possible_dutch": [],
    "texts": [
     {
-     "text": "Start now and Otto lines up your posts, reels and ads for the busy weeks. You approve it all in advance.",
+     "text": "New café, B&B or trade? Otto does the posts and the ads from day one. Your first week is ready within minutes.",
      "violations": []
     },
     {
-     "text": "Your busy season, planned ahead",
+     "text": "7 days free. Then €79 a month.",
      "violations": []
     },
     {
-     "text": "Your busy season, planned",
+     "text": "7 days free, no card",
      "violations": []
     },
     {
-     "text": "4 posts every local business can make *this Christmas*",
+     "text": "Opening checklist",
      "violations": []
     },
     {
-     "text": "For owners",
+     "text": "New business",
      "violations": []
     },
     {
-     "text": "Swipe",
+     "text": "Keys",
      "violations": []
     },
     {
-     "text": "Your Christmas opening hours",
+     "text": "Done",
      "violations": []
     },
     {
-     "text": "The most-asked question in December. Post it early and pin it.",
+     "text": "Stock",
      "violations": []
     },
     {
-     "text": "Gift vouchers",
+     "text": "Done",
      "violations": []
     },
     {
-     "text": "The last-minute present people are glad to find. Say how to buy one.",
+     "text": "Card machine",
      "violations": []
     },
     {
-     "text": "The people behind it",
+     "text": "Done",
      "violations": []
     },
     {
-     "text": "A photo of the team getting ready for the busiest weeks.",
+     "text": "Marketing",
      "violations": []
     },
     {
-     "text": "Thank you",
+     "text": "Otto: posts, stories, reels and ads",
      "violations": []
     },
     {
-     "text": "A short thank-you to your regulars before the year closes.",
+     "text": "7 days free, no card. Then €79 a month, excl. VAT. Monthly, cancel anytime.",
+     "violations": []
+    }
+   ]
+  },
+  {
+   "id": "ie-a6-premium",
+   "angle": "a6",
+   "style": "editorial",
+   "format": "image",
+   "engine_status": "ready",
+   "engine_reasons": [],
+   "copy": {
+    "primary": "Launching a business? Marketing is handled from day one: posts, stories, reels and ads. Try Otto free for 7 days.",
+    "headline": "Launching? Try Otto free for 7 days",
+    "description": "7 days free, no card",
+    "cta": "SIGN_UP"
+   },
+   "lengths": {
+    "primary": 113,
+    "headline": 35,
+    "description": 20
+   },
+   "over_limit": [],
+   "n_texts": 8,
+   "violations": [],
+   "money_figures": [
+    {
+     "text": "7 days free. No card. Then €79 a month. Cancel anytime.",
+     "figure": "€79",
+     "kind": "price",
+     "ok": true
+    }
+   ],
+   "agency_and_figure": [],
+   "possible_dutch": [],
+   "texts": [
+    {
+     "text": "Launching a business? Marketing is handled from day one: posts, stories, reels and ads. Try Otto free for 7 days.",
      "violations": []
     },
     {
-     "text": "Otto plans all four for you",
+     "text": "Launching? Try Otto free for 7 days",
      "violations": []
     },
     {
-     "text": "Scan your website",
+     "text": "7 days free, no card",
      "violations": []
     },
     {
-     "text": "Free, no signup",
+     "text": "Launching? Marketing’s handled.",
+     "violations": []
+    },
+    {
+     "text": "New business?",
+     "violations": []
+    },
+    {
+     "text": "7 days free. No card. Then €79 a month. Cancel anytime.",
+     "violations": []
+    },
+    {
+     "text": "Try 7 days free",
+     "violations": []
+    },
+    {
+     "text": "Monthly plan, no contract. Prices excl. VAT.",
      "violations": []
     }
    ]
@@ -3987,7 +5190,7 @@
  ],
  "matrix_gaps": [],
  "copy_gaps": [],
- "size": "6 concepts × 6 styles = 36 ads (18 video)",
+ "size": "6 concepts × 7 styles = 42 ads (18 video)",
  "rules": {
   "error": null,
   "baseline": null,

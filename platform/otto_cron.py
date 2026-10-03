@@ -33,8 +33,12 @@ Jobs — wall-clock times are LOCAL: a per-brand job at the brand's time (brands
   growth        05:10 owner         once        otto_growth.py rollup [--send on the owner's days 1-3: the month marker sends once]
   competitors   Mon 06:00 brand     per brand   otto_competitors.py sweep B [--country C]
   insights      Fri 06:00 brand     per brand   otto_insights.py --brand B
+  insights-daily 07:05 brand        per brand   otto_insights.py daily --brand B   (Instagram account + Facebook Page numbers
+                                                of the last 3 days, followers, live stories, the 30-day baseline at connect;
+                                                plan: reports)
   plan-month    25th 06:00 brand    per brand   otto_plan.py build B <the brand's next month>
-  ads-plan      25th 06:15 brand    per brand   otto_ads.py plan B <next month> [--budget N]
+  ads-plan      25th 06:15 brand    per brand   otto_ads.py plan B <next month> [--budget N]   (then the copywriter writes the
+                                                month's ad copy: otto_copy.spawn_ads → otto-copy-queue)
   whop-sync     02:20 (UTC)         once        otto_whop.py backfill        (only once api_key + company_id exist)
   track-prune   1st 04:00 (UTC)     once        otto_track.py prune --days 400
   retention     04:40 owner         once        otto_retention.py run   (deletion 90 days after a plan ended, notices, leads)
@@ -42,7 +46,12 @@ Jobs — wall-clock times are LOCAL: a per-brand job at the brand's time (brands
                                                 the first week's copy when the kickoff's background run did not finish)
   copy          05:30 brand         per brand   otto_copy.py daily --brand B   (the AI copywriter keeps the next 7 days written:
                                                 copy + cards → pending_approval, before the 07:35 report; plan: organic;
-                                                without an Anthropic key it does nothing and says so)
+                                                with paid ads it also fills the ad copy gaps: angles.json, this month's
+                                                and next month's matrix; without an Anthropic key it does nothing and says so)
+  ad-videos     19:15 brand         per brand   otto_advideo.py daily --brand B   (the scripted faceless video cells of this
+                                                month's and next month's matrix → mp4s in the brand's look, under the plan's
+                                                cap; the copywriter already queues them after writing — this catches up;
+                                                plan: video ads)
 A local job's timer ticks every hour at the job's minute; each tick runs the brands (or the owner job) whose local time has
 reached the job's time today, on the right local weekday / day of month, and that have not run it yet that local day. A tick
 up to 3 hours late still counts (a reboot or an outage catches up); later than that, the day is skipped. Each brand runs once
@@ -119,6 +128,7 @@ JOBS = {
     "growth": Job("Growth ledger", None, "05:10", 1440, "growth.log", ONCE, False, 20),
     "competitors": Job("Competitor sweep", None, "Mon 06:00", 10080, "competitors.log", BRAND, False, 45),
     "insights": Job("Insights", None, "Fri 06:00", 10080, "insights.log", BRAND, False, 30),
+    "insights-daily": Job("Account numbers", None, "07:05", 1440, "insights.log", BRAND, False, 20),
     "plan-month": Job("Monthly plan", None, "25th 06:00", 44640, "plan.log", BRAND, False, 20),
     "ads-plan": Job("Monthly paid plan", None, "25th 06:15", 44640, "ads.log", BRAND, False, 30),
     "whop-sync": Job("Whop safety sync", "*-*-* 02:20:00", None, 1440, "whop.log", ONCE, False, 20),
@@ -135,6 +145,11 @@ JOBS["trials"] = Job("Free trials", "*-*-* *:05:00", None, 60, "trials.log", ONC
 # ---- the AI copywriter (otto_copy.py): every active brand's next 7 days get copy + cards before the 07:35 report. The kill
 # switch does not stop it (writing drafts for approval publishes nothing). ----
 JOBS["copy"] = Job("Copywriter", None, "05:30", 1440, "copy.log", BRAND, False, 45)
+# ---- video ads (otto_advideo.py): the month's scripted faceless video cells → mp4s in the brand's look. The copywriter's run
+# already queues them right after it writes; this is the nightly catch-up (retries, fixed copy, stale renders), in the
+# evening render slot so a month's videos are in long before the next 06:00 launch. Renders publish nothing: the kill switch
+# does not stop it. One render at a time per server (otto_advideo's own lock); 120 min per brand, the run ends itself at 105. ----
+JOBS["ad-videos"] = Job("Video ads", None, "19:15", 1440, "video.log", BRAND, False, 120)
 LEONARDO_JOBS = ("genvisuals", "reels")
 
 # one unit of work: brand id ("*" = a job that runs once), argv, why it is skipped (None = run it), for reels the command
@@ -248,12 +263,12 @@ def brand_skip(b, job):
 
 # plans.json gates: job → the plan feature it needs ("ads" = paid ads on any network). ads-guard is not here on purpose.
 PLAN_GATES = {"ads-plan": "ads", "ads-launch": "ads", "ads-report": "ads", "reels": "reels", "cards": "telegram",
-              "insights": "reports", "competitors": "competitor_sweep", "genvisuals": "organic", "plan-month": "organic",
+              "insights": "reports", "insights-daily": "reports", "competitors": "competitor_sweep", "genvisuals": "organic", "plan-month": "organic",
               "email-cards": "organic", "email-recs": "organic",     # e-mail approvals come with every plan that makes content
-              "copy": "organic",
+              "copy": "organic", "ad-videos": "video_ads",
               "morning-report": "reports"}
 GATE_TEXT = {"reels": "reels", "telegram": "Telegram approvals", "reports": "reports", "competitor_sweep": "competitor sweep",
-             "organic": "organic content"}
+             "organic": "organic content", "video_ads": "video ads"}
 
 
 def plan_skip(job, b, d, today, force=False):
@@ -347,12 +362,16 @@ def brand_task(job, b, d, today, brands_dir, day=None):
         return T([PY, script("otto_report.py"), "send", "--brand", bid])
     if job == "copy":
         return T([PY, script("otto_copy.py"), "daily", "--brand", bid])
+    if job == "ad-videos":
+        return T([PY, script("otto_advideo.py"), "daily", "--brand", bid])
     if job == "ads-report":                          # the Telegram morning report carries the paid numbers: no 2nd message
         import otto_email
         quiet = "telegram" in otto_email.approval_channels(b) and all(ap.plan_of(d, bid)["features"].get(f) for f in ("reports", "telegram"))
         return T([PY, script("otto_ads.py"), "report", "--brand", bid] + (["--no-send"] if quiet else []))
     if job == "insights":
         return T([PY, script("otto_insights.py"), "--brand", bid])
+    if job == "insights-daily":
+        return T([PY, script("otto_insights.py"), "daily", "--brand", bid])
     if job == "competitors":
         folder = Path(brands_dir) / bid
         if not (folder / "competitors.json").exists() and not (folder / "brand-profile.md").exists():

@@ -1,0 +1,45 @@
+{
+  "id": "nl-a2-search-v",
+  "style": "search",
+  "formats": [
+    "9x16"
+  ],
+  "music": {
+    "bpm": 120,
+    "mood": "calm",
+    "key": "F"
+  },
+  "scene": {
+    "ground": "bg"
+  },
+  "search": {
+    "placeholder": "Search",
+    "query": "social media agency price",
+    "suggestions": [
+      "social media agency price per month",
+      "social media agency price netherlands",
+      "social media agency price per post",
+      "social media agency price list"
+    ],
+    "pick": 3,
+    "result": {
+      "site": "Otto",
+      "url": "Marketing for small businesses",
+      "favicon": "o",
+      "title": "Posts and ads for €79 a month",
+      "snippet": "Otto plans, writes, designs and posts your social media and runs your ads. 7 days free, no card.",
+      "image": "campaign"
+    }
+  },
+  "endcard": {
+    "headline": "Your marketing team for €79 a month.",
+    "accent": "€79 a month.",
+    "sub": "Posts, reels, stories and ads, done for you.",
+    "fine": "7 days free, no card.",
+    "products": [
+      "campaign"
+    ],
+    "logo": "logo_white",
+    "ground": "primary"
+  }
+}

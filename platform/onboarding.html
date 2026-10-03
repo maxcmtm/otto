@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <!-- CSP: script-src lists the sha256 of every inline script element in this page. After editing one, the browser refuses it and its console prints the new hash: replace the old one here (or recompute all of them). -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-k61m0I1J14kexYIFnvbFTWo9EFcCf6U74ofQvMqbgqQ=' 'sha256-V/Pn4m52odlTLzTxJMw2u6KstVSKFct1G3Nge3dqNiw=' 'sha256-aSX2oKbxkP7TlL0D9exZPRdwV+onWN7wyzlAcQ8IwNM='; style-src 'self' 'unsafe-inline'; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-src 'none'; worker-src 'none'; manifest-src 'self'; img-src 'self' data: https:; media-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-k61m0I1J14kexYIFnvbFTWo9EFcCf6U74ofQvMqbgqQ=' 'sha256-EwWwrovqxfwF0shTjQaCEIDdj+7hZP6Q91wa31CCn2o=' 'sha256-aSX2oKbxkP7TlL0D9exZPRdwV+onWN7wyzlAcQ8IwNM='; style-src 'self' 'unsafe-inline'; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-src 'none'; worker-src 'none'; manifest-src 'self'; img-src 'self' data: https:; media-src 'none'">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <script>
 /* Head script: js + motion flags, and a chosen language (assets/i18n/site-lang.js), before first paint. */
@@ -248,6 +248,10 @@ html.motion .st.is-in{animation:st-in var(--dur-slow) var(--ease-out) both}
 .rl-i::before{content:"";width:8px;height:8px;border-radius:50%;box-shadow:inset 0 0 0 1.5px var(--line)}
 .rl li.on .rl-i::before{display:none}
 .rl li.on .rl-i{color:var(--accent)}
+.rl li.on .rl-i::after{content:"";width:14px;height:14px;border-radius:50%;border:1.5px solid color-mix(in srgb,currentColor 30%,transparent);border-top-color:currentColor;animation:spin .8s linear infinite}
+/* a row the scan has passed by the clock: no tick until the answer is in (the server reads everything in one go) */
+.rl li.past .rl-i::before{width:6px;height:6px;background:var(--ink-3);box-shadow:none}
+.rl li.past b{color:var(--ink-2)}
 .rl li.done .rl-i::before,.rl li.miss .rl-i::before{display:none}
 .rl-i .ck{display:none;width:18px;height:18px;stroke-width:2;color:var(--green)}
 .rl-i .ck path{stroke-dasharray:24;stroke-dashoffset:24;transition:stroke-dashoffset 240ms var(--ease-out)}
@@ -261,8 +265,14 @@ html.motion .st.is-in{animation:st-in var(--dur-slow) var(--ease-out) both}
 .rl-r:empty{display:none}
 .rl-sw{display:inline-flex;gap:3px;margin-right:6px;vertical-align:-3px}
 .rl-sw i{width:14px;height:14px;border-radius:50%;box-shadow:inset 0 0 0 1px rgba(0,0,0,.12)}
-.panel-f{display:flex;align-items:center;gap:8px;padding:14px 18px;border-top:var(--hair) solid var(--line);font-size:14px;line-height:1.45;color:var(--ink-2);min-height:50px}
-.panel-f .spin{color:var(--accent)}
+/* the panel's status line, under its header: what Otto is doing now, then what it found (in view on a phone, not under the list) */
+.panel-f{display:flex;align-items:center;gap:8px;padding:14px 18px;border-bottom:var(--hair) solid var(--line);font-size:14px;line-height:1.45;color:var(--ink-2);min-height:50px}
+.panel-f .spin{color:var(--accent);align-self:flex-start;margin-top:3px}   /* on the first line when the words wrap */
+/* the scan is one request (up to 20 s, no progress from the server): a bar along the header's edge fills with the time spent,
+   slowing as it goes, and reaches the end only when the answer is in */
+#read .panel-h{position:relative}
+#read .panel-h::after{content:"";position:absolute;left:0;right:0;bottom:calc(-1 * var(--hair));height:2px;background:var(--accent);transform:scaleX(var(--p,0));transform-origin:left;opacity:0;transition:transform .4s linear,opacity var(--dur-base) var(--ease-out)}
+#read.is-live .panel-h::after{opacity:1}
 
 /* ============ Step 2 · Your brand ============ */
 .bcard{padding:18px;border-radius:var(--r-panel);background:var(--surface);box-shadow:inset 0 0 0 var(--hair) var(--line);display:grid;gap:14px;max-width:520px}
@@ -416,6 +426,12 @@ html.motion .st.is-in{animation:st-in var(--dur-slow) var(--ease-out) both}
 .setup.is-local .i{color:var(--ink-2)}
 .setup.is-err .i{color:var(--red)}
 .setup .btn{margin-top:10px}
+/* when the first week gets written (the server's work.copy): a thin moving line only while Otto writes it now */
+.wk-bar{display:block;position:relative;height:2px;max-width:240px;margin-top:10px;border-radius:1px;overflow:hidden;background:color-mix(in srgb,var(--accent) 16%,transparent)}
+.wk-bar i{position:absolute;top:0;bottom:0;left:0;width:36%;border-radius:inherit;background:var(--accent);animation:wkind 2.4s var(--ease-in-out) infinite}
+@keyframes wkind{from{transform:translateX(-100%)}to{transform:translateX(280%)}}
+#open-app.is-pending{pointer-events:none;opacity:.72}
+@media (prefers-reduced-motion:reduce){.wk-bar{display:none}}
 .notif{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:18px;background:var(--elevated);box-shadow:var(--shadow-2);max-width:460px}
 .notif .mark{width:32px;height:32px;border-radius:9px}
 .notif .mark::after{inset:8px}
@@ -518,7 +534,7 @@ footer .f-lang a:hover{color:var(--ink)}
       <h1 class="t1" id="s1-h" tabindex="-1" data-i18n="s1.h">Let’s start with your website.</h1>
       <p class="lead" data-i18n-rich="s1.lead">Otto reads it the way a new marketer would on their first morning: <b>what you sell, how you sound and what your customers say.</b></p>
       <form class="scan" id="scan" autocomplete="off" novalidate>
-        <input id="site" type="text" inputmode="url" placeholder="yourcompany.com" aria-label="Your website" data-i18n-attr="placeholder:s1.ph aria-label:s1.aria" aria-describedby="scan-err" spellcheck="false" autocapitalize="off" autocorrect="off">
+        <input id="site-url" type="text" inputmode="url" placeholder="yourcompany.com" aria-label="Your website" data-i18n-attr="placeholder:s1.ph aria-label:s1.aria" aria-describedby="scan-err" spellcheck="false" autocapitalize="off" autocorrect="off">
         <button class="btn btn-primary" type="submit" id="scan-btn"><span class="scan-idle" id="scan-idle">Read my site</span><span class="scan-busy" data-i18n="s1.reading"><span class="spin" aria-hidden="true"></span>Reading</span></button>
       </form>
       <p class="scan-err" id="scan-err" aria-live="polite"></p>
@@ -527,6 +543,7 @@ footer .f-lang a:hover{color:var(--ink)}
     <div class="st-body">
       <div class="panel" id="read">
         <div class="panel-h"><b id="read-h" data-i18n="s1.panel">What Otto reads</b><span class="tag" id="read-tag">Not started</span></div>
+        <p class="panel-f" id="read-now" aria-live="polite">Type your address and Otto starts reading.</p>
         <ol class="rl" id="rl">
           <li data-k="open"><span class="rl-i"><svg class="ck" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg><i class="dash"></i></span><div><b data-i18n="s1.r1">Opening your site</b><span class="rl-r"></span></div></li>
           <li data-k="look"><span class="rl-i"><svg class="ck" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg><i class="dash"></i></span><div><b data-i18n="s1.r2">Colours, fonts and logo</b><span class="rl-r"></span></div></li>
@@ -534,7 +551,6 @@ footer .f-lang a:hover{color:var(--ink)}
           <li data-k="proof"><span class="rl-i"><svg class="ck" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg><i class="dash"></i></span><div><b data-i18n="s1.r4">Proof and customer words</b><span class="rl-r"></span></div></li>
           <li data-k="draft"><span class="rl-i"><svg class="ck" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg><i class="dash"></i></span><div><b data-i18n="s1.r5">Drafting your brand profile</b><span class="rl-r"></span></div></li>
         </ol>
-        <p class="panel-f" id="read-now" aria-live="polite">Type your address and Otto starts reading.</p>
       </div>
       <div class="act" id="act1" hidden>
         <p class="act-note" id="act1-note"></p>
@@ -656,7 +672,7 @@ footer .f-lang a:hover{color:var(--ink)}
 
 <footer><div class="wrap"><span>Otto · 2026</span><span data-i18n="foot.note">Your answers stay on this device until setup finishes.</span><a href="legal/terms.html" target="_blank" rel="noopener" data-i18n="foot.terms">Terms</a><a href="legal/privacy.html" target="_blank" rel="noopener" data-i18n="foot.privacy">Privacy</a><a href="legal/dpa.html" target="_blank" rel="noopener" data-i18n="foot.dpa">Data processing agreement</a><nav class="f-lang" aria-label="Language" data-i18n-attr="aria-label:lang.label"><a href="?lang=en" data-lang="en" lang="en" hreflang="en">English</a><span aria-hidden="true">·</span><a href="?lang=nl" data-lang="nl" lang="nl" hreflang="nl">Nederlands</a><span aria-hidden="true">·</span><a href="?lang=de" data-lang="de" lang="de" hreflang="de">Deutsch</a></nav></div></footer>
 
-<script src="assets/i18n/site-lang.js?v=1" data-page="onboarding"></script>
+<script src="assets/i18n/site-lang.js?v=2" data-page="onboarding"></script>
 <script>
 /* Otto onboarding. Five steps, one state object saved to sessionStorage on every change (a refresh resumes).
    Step 1 calls the real /otto-peek; step 5 posts everything to /otto-api/onboard and, while that route
@@ -685,6 +701,8 @@ var siteLang = function () { return LG ? LG.lang : 'en'; };
 var wait = function (ms) { return new Promise(function (r) { setTimeout(r, RM ? Math.min(ms, 60) : ms); }); };
 var backoff = function (ms) { return new Promise(function (r) { setTimeout(r, ms); }); };   /* server rate limits: real time, even with reduced motion */
 var KEY = 'otto.onboarding', STEPS = [TK('step.site', 'Your site'), TK('step.brand', 'Your brand'), TK('step.questions', 'Four questions'), TK('step.connect', 'Connect'), TK('step.week', 'First week')];
+/* the steps' URL hashes. No element may carry one of these as its id: the browser scrolls to (and focuses) an element the URL
+   names once the page has loaded, so a #site matching the site field opened step 1 on a phone scrolled past its heading */
 var HASH = ['site', 'brand', 'questions', 'connect', 'week'];
 var PEEK = ['/otto-peek'];   /* same origin only (CSP connect-src 'self'); locally the sim server proxies it */
 /* The signed-in route first: it also makes this login a member of the brand, so the app opens straight onto it. A buyer
@@ -708,8 +726,16 @@ function save(quiet) {
   var el = $('#saved'); el.classList.remove('is-off');
   clearTimeout(savedT); savedT = setTimeout(function () { el.classList.add('is-off'); }, 2400);
 }
-function cleanDomain(v) { return String(v || '').trim().replace(/^https?:\/\//i, '').replace(/^www\./i, '').replace(/[\/?#].*$/, '').replace(/\.$/, '').toLowerCase(); }
-function validDomain(v) { return /^(?=.{4,253}$)([a-z0-9¡-￿]([a-z0-9¡-￿-]{0,61}[a-z0-9¡-￿])?\.)+[a-z¡-￿]{2,63}$/i.test(v) && !/\.(local|internal|localhost|lan)$/i.test(v); }
+/* what people type → the site to read: a mistyped scheme ("http//", "https:/"), www., a path, query or #hash and a trailing
+   dot go; a free Wix site keeps its /site path (the subdomain's root is empty) */
+function cleanDomain(v) {
+  v = String(v || '').trim().replace(/^mailto:/i, '').replace(/^[a-z]{3,6}:?\/\/+|^https?:\/?/i, '').replace(/^www\./i, '');
+  var wix = /^([^\/?#]+\.wixsite\.com)(\/[a-z0-9_-]{1,64})?/i.exec(v);
+  return (wix ? wix[1].replace(/\.$/, '') + (wix[2] || '') : v.replace(/[\/?#].*$/, '').replace(/\.$/, '')).toLowerCase();
+}
+function validDomain(v) { v = String(v).replace(/^([^\/]+\.wixsite\.com)\/[a-z0-9_-]{1,64}$/i, '$1'); return /^(?=.{4,253}$)([a-z0-9¡-￿]([a-z0-9¡-￿-]{0,61}[a-z0-9¡-￿])?\.)+[a-z¡-￿]{2,63}$/i.test(v) && !/\.(local|internal|localhost|lan)$/i.test(v); }
+var FREE_MAIL = /^(gmail|googlemail|hotmail|outlook|live|msn|yahoo|ymail|icloud|me|mac|aol|proton|protonmail|pm|gmx|web|t-online|mail|ziggo|kpnmail|kpnplanet|planet|home|xs4all|hetnet|casema|upcmail|chello|online|telfort|tele2|quicknet|zeelandnet|solcon|caiway|eircom|eir|vodafone|btinternet|sky|virginmedia|skynet|telenet|yandex|zoho|fastmail|hey|tutanota)\.[a-z.]{2,6}$/i;
+var SHARED_HOST = /(^|\.)(instagram\.com|instagr\.am|facebook\.com|fb\.com|fb\.me|tiktok\.com|linkedin\.com|twitter\.com|x\.com|youtube\.com|youtu\.be|pinterest\.[a-z.]+|threads\.net|linktr\.ee|beacons\.ai|wa\.me|t\.me|etsy\.com|bol\.com|marktplaats\.nl|google\.[a-z.]+|goo\.gl|g\.page|treatwell\.[a-z.]+|thuisbezorgd\.nl|just-eat\.[a-z.]+|deliveroo\.[a-z.]+|ubereats\.com|booking\.com|tripadvisor\.[a-z.]+|airbnb\.[a-z.]+|yelp\.[a-z.]+|fresha\.com|salonized\.com)$/i;
 (function boot() {
   var saved = null; try { saved = JSON.parse(read(KEY) || 'null'); } catch (e) {}
   var q = cleanDomain(new URLSearchParams(location.search).get('site'));
@@ -735,6 +761,8 @@ function domainName(host) {   // the business part of the host, as otto_onboard.
   return titleCase((core.length ? core[core.length - 1] : l[0]) || T('brand.fallback', 'Your brand'));
 }
 function known(ind) { return ind && !/unknown/i.test(ind) ? ind : ''; }
+/* a site Otto couldn't read: its country's language until the owner says otherwise (bakkerij.nl → Dutch), as the server does */
+function tldLang(site) { var t = String(site || '').split('/')[0].split('.').pop().toLowerCase(); return own({ nl: 'nl', be: 'nl', de: 'de', at: 'de', ch: 'de', fr: 'fr', es: 'es', it: 'it', pt: 'pt', pl: 'pl', dk: 'da', se: 'sv', gr: 'el', tr: 'tr', ro: 'ro', hu: 'hu' }, t) || 'en'; }
 function fontName(f) { return String(f || '').replace(/([a-z])([A-Z])/g, '$1 $2').replace(/([A-Z])([A-Z][a-z])/g, '$1 $2').trim(); }
 function sentence(q) { q = String(q || ''); var dg = (q.match(/\d/g) || []).length; return q.length >= 30 && dg / q.length < 0.06 && !/[•|]/.test(q) && q.split(/\s+/).length >= 6 && !/testimonial|compensation|results may vary|not intended|disclaimer|terms of|privacy|cookie|affiliate/i.test(q); }
 function unstar(q) { return String(q || '').replace(/[\u2605\u2606\u2729\u2B50\uFE0F]/g, '').replace(/\s{2,}/g, ' ').trim(); }
@@ -754,7 +782,7 @@ function V() {
     proof: c.proof || (p.trust || []).slice(0, 3), quote: customerQuotes(p)[0] || '', quotes: customerQuotes(p),
     palette: hexes(c.palette || (p.palette || []).slice(0, 5)), neutrals: hexes((p.neutrals || []).slice(0, 2)),
     fonts: c.fonts || (p.fonts || []).slice(0, 3).map(fontName), logo: c.logo_wrong ? '' : safeLogo(p.logo), logoWrong: !!c.logo_wrong,
-    language: String(c.language || (p.languages || [])[0] || 'en'), socials: p.socials && typeof p.socials === 'object' ? p.socials : {}, platform: p.platform || '', pages: N(p.pages)
+    language: String(c.language || (p.languages || [])[0] || tldLang(S.site)), socials: p.socials && typeof p.socials === 'object' ? p.socials : {}, platform: p.platform || '', pages: N(p.pages)
   };
 }
 var HEALTH = /cbd|hemp|cannab|clinic|medical|dental|therap|psycholog|supplement|nutrition|pharma|physio|aesthetic|med ?spa|beauty/i;
@@ -826,9 +854,9 @@ W.addEventListener('popstate', function () {
 });
 
 /* ---------- 1 · Your site: the real /otto-peek, with a real progress state ---------- */
-var siteIn = $('#site'), scanBtn = $('#scan-btn'), rl = $('#rl'), readNow = $('#read-now'), readTag = $('#read-tag');
+var siteIn = $('#site-url'), scanBtn = $('#scan-btn'), rl = $('#rl'), readNow = $('#read-now'), readTag = $('#read-tag');
 var ROWKEYS = ['open', 'look', 'sell', 'proof', 'draft'];
-var NOW = [TK('s1.now1', 'Opening {domain}'), TK('s1.now2', 'Reading colours, fonts and logo'), TK('s1.now3', 'Working out what you sell'), TK('s1.now4', 'Collecting proof and customer words'), TK('s1.r5', 'Drafting your brand profile')];
+var NOW = [TK('s1.now1', 'Opening {domain}'), TK('s1.now2', 'Reading colours, fonts and logo'), TK('s1.now3', 'Working out what you sell'), TK('s1.now4', 'Collecting proof and customer words')];   /* rows 1 to 4, by the clock */
 function li(k) { return $('li[data-k="' + k + '"]', rl); }
 function mark(i, state, result) { var el = li(ROWKEYS[i]); el.className = state || ''; if (result != null) $('.rl-r', el).innerHTML = result; }
 function resetRead() { ROWKEYS.forEach(function (k, i) { mark(i, '', ''); }); }
@@ -856,6 +884,7 @@ function showFail(kind) {
   ROWKEYS.forEach(function (k, i) { mark(i, i === 0 ? 'miss' : '', i === 0 ? esc(T('s1.miss', 'Couldn’t read it from here')) : ''); });
   readTag.textContent = T('s1.notread', 'Not read'); readTag.className = 'tag';
   readNow.textContent = kind === 'invalid' ? T('s1.failinvalid', 'Check the address and read it again. If the site isn’t live yet, continue: you’ll fill in the basics next.') :
+    kind === 'parked' ? T('s1.failparked', 'There’s no website at this address yet: the page is empty or the domain is parked. Check the address, or continue and fill in the basics yourself.') :
     T('s1.failread', 'Some sites turn automated visitors away. Continue anyway: you’ll fill in the basics next, and Otto tries again after setup.');
   $('#act1').hidden = false;   /* a buyer is never stuck here: a new or offline site can still be set up by hand */
   $('#go2').textContent = T('btn.anyway', 'Continue anyway');
@@ -873,37 +902,53 @@ async function fetchPeek(domain, signal) {
   }
   return last || { status: 0 };
 }
+/* The scan is one request: the server reads the site (up to 20 s) and answers once, with no progress to report. So the list
+   says what Otto reads, in that order, as the seconds pass (a row is ticked only when the answer is in), the bar along the
+   header fills with the time spent and slows as it goes (it reaches the end only with the answer), and a slow site gets a
+   calm word at 12 s. */
+var LIVE_AT = [0, 2000, 4500, 7000], ALMOST_AT = 9500, SLOW_AT = 12000;
 var scanning = false;
-async function runScan(domain, tries) {
+async function runScan(domain, tries, t0) {
   if (scanning) return; scanning = true; tries = tries || 0;
   var err = $('#scan-err'); err.textContent = ''; $('#scan').classList.remove('is-bad');
   S.site = domain; S.peek = null; S.peekErr = null; S.peekHanded = false; S.cor = {}; save(true);
   scanBtn.classList.add('is-busy'); scanBtn.disabled = true; $('#act1').hidden = true;
-  resetRead(); readTag.innerHTML = '<span class="spin" aria-hidden="true"></span>'; readTag.className = 'pill is-work';
-  var t0 = performance.now(), i = 0;
-  mark(0, 'on'); readNow.innerHTML = '<span class="spin" aria-hidden="true"></span><span>' + esc(T(NOW[0], { domain: domain })) + '…</span>';
-  var tick = setInterval(function () {
-    var s = Math.round((performance.now() - t0) / 1000);
-    if (i < 2 && s >= (i + 1) * 2) { mark(i, 'done', ''); i++; mark(i, 'on'); }
-    readNow.innerHTML = '<span class="spin" aria-hidden="true"></span><span>' + esc(T(NOW[i], { domain: domain })) + '… <span class="tnum ink-3">' + s + ' s</span></span>';
-  }, 250);
+  resetRead(); readTag.innerHTML = '<span class="spin" aria-hidden="true"></span><span class="tnum" id="read-secs"></span>'; readTag.className = 'pill is-work';
+  t0 = t0 || performance.now();   /* a retry after the server's rate limit keeps the clock running */
+  var panel = $('#read'), i = -1, said = '';
+  panel.style.setProperty('--p', '0'); panel.classList.add('is-live');
+  var step = function () {
+    var t = performance.now() - t0, s = 0;
+    while (s + 1 < LIVE_AT.length && t >= LIVE_AT[s + 1]) s++;
+    if (s !== i) { i = s; for (var j = 0; j < LIVE_AT.length; j++) mark(j, j < s ? 'past' : j === s ? 'on' : ''); }
+    var line = t >= SLOW_AT ? T('s1.slow', 'Still reading. Slow sites can take up to 20 seconds.') : (t >= ALMOST_AT ? T('s1.almost', 'Almost there. Some sites are slow') : T(NOW[i], { domain: domain })) + '…';
+    if (line !== said) { said = line; readNow.innerHTML = '<span class="spin" aria-hidden="true"></span><span>' + esc(line) + '</span>'; }   /* aria-live: only when it changes */
+    var sec = $('#read-secs'); if (sec) sec.textContent = t >= 1000 ? Math.floor(t / 1000) + ' s' : '';
+    panel.style.setProperty('--p', (0.92 * (1 - Math.exp(-t / 7000))).toFixed(3));   /* 47% at 5 s, 75% at 12 s, 87% at 20 s */
+  };
+  step();
+  var tick = setInterval(step, 250);
   var ctl = new AbortController(), to = setTimeout(function () { ctl.abort(); }, 25000), out = { status: 0 };
   try { out = await fetchPeek(domain, ctl.signal); } catch (e) { out = { status: 0 }; }
   clearTimeout(to); clearInterval(tick);
   var ms = Math.round(performance.now() - t0);
   scanning = false; scanBtn.classList.remove('is-busy'); scanBtn.disabled = false;
-  if (out.status === 429 && tries < 2) { readNow.textContent = T('s1.moment', 'One moment…'); await backoff(4200); return runScan(domain, tries + 1); }
+  if (out.status === 429 && tries < 2) { readNow.textContent = T('s1.moment', 'One moment…'); await backoff(4200); return runScan(domain, tries + 1, t0); }
   if (out.status === 200 && out.body && !out.body.error) {
     S.peek = out.body; S.peekMs = ms; S.peekAt = Date.now(); save();
-    for (; i < ROWKEYS.length; i++) { mark(i, 'on'); await wait(200); mark(i, 'done', ''); }
+    panel.style.setProperty('--p', '1');   /* the end of the bar: the answer is in, and only now does a row get its tick */
+    for (var k = 0; k < ROWKEYS.length; k++) { mark(k, 'on'); await wait(120); mark(k, 'done', ''); }
+    panel.classList.remove('is-live');
     showDone(S.peek, ms);
     $('#scan-idle').textContent = T('s1.again', 'Read again');
     $('#go2').focus({ preventScroll: true });
     return;
   }
+  panel.classList.remove('is-live');
   if (S.handoff) { S.peek = S.handoff; S.peekAt = Date.now(); delete S.handoff; S.peekHanded = true; save(); showDone(S.peek, 0); readNow.textContent = T('s1.handoff', 'Using the scan from a moment ago. Next, check what Otto found.'); return; }
-  S.peekErr = out.status === 404 || out.status === 400 ? 'invalid' : 'unreadable'; save();   /* 404: no such site (DNS); 400: an address Otto won't open */
-  scanErr = out.status === 404 || out.status === 400 ? { status: out.status, domain: domain } : null;
+  var code = out.body && typeof out.body.code === 'string' ? out.body.code : '';   /* why, in a word the page can say: platform_page, email, empty */
+  S.peekErr = out.status === 404 || out.status === 400 ? 'invalid' : code === 'empty' ? 'parked' : 'unreadable'; save();   /* 404: no such site (DNS); 400: an address Otto won't open */
+  scanErr = out.status === 404 || out.status === 400 ? { status: code === 'platform_page' ? 'social' : code === 'email' ? 'email' : out.status, domain: domain } : null;
   if (scanErr) { scanErrText(); $('#scan').classList.add('is-bad'); }
   showFail(S.peekErr);
 }
@@ -911,13 +956,17 @@ var scanErr = null;          /* the error under the field, kept so it can be sai
 function scanErrText() {
   if (!scanErr) return;
   $('#scan-err').textContent = scanErr.status === 404 ? T('s1.e404', 'Otto couldn’t find a website at {domain}.', { domain: scanErr.domain })
+    : scanErr.status === 'email' ? T('s1.eemail', 'That’s an e-mail address. Enter your website address instead, like yourcompany.com.')
+    : scanErr.status === 'social' ? T('s1.esocial', 'That’s a page on a social network or marketplace. Enter the address of your own website, like yourcompany.com.')
     : scanErr.status === 400 ? T('s1.e400', 'Otto can’t open that address. Check it and try again.')
     : scanErr.status === 'empty' ? T('s1.eempty', 'Enter your website address to start.') : T('s1.einvalid', 'Enter a web address like yourcompany.com.');
 }
 $('#scan').addEventListener('submit', function (e) {
   e.preventDefault();
-  var v = cleanDomain(siteIn.value);
-  if (!validDomain(v)) { scanErr = { status: v ? 'invalid' : 'empty' }; scanErrText(); $('#scan').classList.add('is-bad'); siteIn.focus(); return; }
+  var raw = siteIn.value.trim().replace(/^mailto:/i, ''), em = /^[^@\s\/]+@([a-z0-9-]+(\.[a-z0-9-]+)+)\.?$/i.exec(raw);
+  var v = cleanDomain(em ? em[1] : raw);       /* jan@bakkerij.nl → bakkerij.nl; a mailbox (gmail.com …) is no website */
+  var bad = em && FREE_MAIL.test(em[1]) ? 'email' : v && SHARED_HOST.test(v.split('/')[0]) ? 'social' : !validDomain(v) ? (v ? 'invalid' : 'empty') : '';
+  if (bad) { scanErr = { status: bad }; scanErrText(); $('#scan').classList.add('is-bad'); siteIn.focus(); return; }
   siteIn.value = v; runScan(v);
 });
 siteIn.addEventListener('input', function () { $('#scan').classList.remove('is-bad'); $('#scan-err').textContent = ''; scanErr = null; });
@@ -982,8 +1031,9 @@ function darkGround(tile) {
 }
 function wireLogos(root) {
   $$('[data-logo] img', root).forEach(function (img) {
-    var tile = img.parentNode;
-    if (/yellow|white|weiss|light|inverse|invert|negative|reverse|knockout/i.test(img.getAttribute('src').split('?')[0].split('/').pop())) darkGround(tile);
+    var tile = img.parentNode, tone = S.peek && !S.cor.logo_wrong ? S.peek.logo_tone : null;   /* the server read the logo's pixels */
+    if (tone === 'light' || /yellow|white|weiss|light|inverse|invert|negative|reverse|knockout/i.test(img.getAttribute('src').split('?')[0].split('/').pop())) darkGround(tile);
+    else if (tone === 'dark') tile.style.setProperty('background', '#F4F2EE');   /* a dark logo stays visible on the dark theme */
     img.addEventListener('error', function () { tile.classList.remove('is-dark'); tile.innerHTML = '<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="5" width="16" height="14" rx="2.5"/><path d="m4.5 16 4.5-4.5 4 4 2.5-2.5 4 4"/></svg>'; });
     /* no pixel probe: reading the pixels needs CORS, which most sites don't send, and every refusal is a console error.
        A white logo the file name doesn't give away keeps a hairline shadow (CSS) so it never disappears on the light tile. */
@@ -1290,11 +1340,25 @@ function renderSetup() {
   var el = $('#setup'), s = S.submit || { status: 'sending' }, v = V();
   el.className = 'setup is-' + (s.status === 'ok' ? 'ok' : s.status === 'local' || s.status === 'exists' ? 'local' : s.status === 'error' ? 'err' : 'work');
   if (s.status === 'sending') el.innerHTML = '<span class="spin" aria-hidden="true"></span><div><b>' + esc(T('setup.sending', 'Setting up {name}', { name: v.name })) + '</b>' + esc(T('setup.sending.d', 'Reading the rest of the site and writing your brand profile. This takes a moment.')) + '</div>';
-  else if (s.status === 'ok') { var r = s.res || {}, tr = r.trial || null; el.innerHTML = CK + '<div><b>' + esc(T('setup.ok', '{name} is set up', { name: r.name || v.name })) + '</b>' + (r.scan && r.scan.source === 'site' ? esc(TN('setup.pages', N(r.scan.pages), '1 page read.', '{n} pages read.')) + ' ' : '') + esc(T('setup.ok.d', 'Brand profile, strategy and your answers are saved on Otto’s server.')) + (tr ? '<span class="trial-line">' + esc(trialText(tr)) + (tr.granted ? '' : ' <a class="link" href="index.html#billing" id="add-card">' + esc(T('setup.addcard', 'Add a card')) + '</a>') + '</span>' : '') + '</div>'; }
+  else if (s.status === 'ok') { var r = s.res || {}, tr = r.trial || null; el.innerHTML = CK + '<div><b>' + esc(T('setup.ok', '{name} is set up', { name: r.name || v.name })) + '</b>' + (r.scan && r.scan.source === 'site' ? esc(TN('setup.pages', N(r.scan.pages), '1 page read.', '{n} pages read.')) + ' ' : '') + esc(T('setup.ok.d', 'Brand profile, strategy and your answers are saved on Otto’s server.')) + (tr ? '<span class="trial-line">' + esc(trialText(tr)) + (tr.granted ? '' : ' <a class="link" href="index.html#billing" id="add-card">' + esc(T('setup.addcard', 'Add a card')) + '</a>') + '</span>' : '') + weekLine(r.work && r.work.copy) + '</div>'; }
   else if (s.status === 'exists') el.innerHTML = '<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10.5" width="14" height="10" rx="2.5"/><path d="M8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5"/></svg><div><b>' + esc(T('setup.exists', '{site} is already set up with Otto', { site: S.site })) + '</b>' + esc(s.signedIn ? T('setup.exists.other', 'It belongs to another sign-in. Ask whoever set it up to add you.') : T('setup.exists.signin', 'Sign in to Otto to change it.')) + ' ' + esc(T('setup.still', 'Your answers are still on this device.')) + '</div>';
   else if (s.status === 'local') el.innerHTML = '<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="3.5" width="12" height="17" rx="2.5"/><path d="M10.5 17.5h3"/></svg><div><b>' + esc(T('bar.saved', 'Saved on this device')) + '</b>' + esc(T('setup.local', 'Otto will finish setup when you connect.')) + (s.detail ? ' <span class="ink-3">' + esc(s.detail === 'site' ? T('setup.local.site', 'Add your website address in step 1 first.') : s.detail) + '</span>' : '') + '</div>';
   else el.innerHTML = '<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5v5.5M12 16.2v.3"/></svg><div><b>' + esc(T('setup.err', 'Otto couldn’t save this')) + '</b>' + esc(errText(s.detail)) + ' ' + esc(T('setup.still', 'Your answers are still on this device.')) + '<br><button class="btn btn-quiet btn-sm" type="button" id="retry">' + esc(T('setup.retry', 'Try again')) + '</button></div>';
   var rb = $('#retry'); if (rb) rb.addEventListener('click', function () { submit(true); });
+  /* "Open Otto" waits while the setup is being saved: the app has nothing to show before the brand exists */
+  var oa = $('#open-app'), wait = s.status === 'sending';
+  oa.classList.toggle('is-pending', wait);
+  if (wait) { oa.setAttribute('aria-disabled', 'true'); oa.setAttribute('aria-busy', 'true'); if (!oa.querySelector('.spin')) oa.insertAdjacentHTML('afterbegin', '<span class="spin" aria-hidden="true"></span>'); }
+  else { oa.removeAttribute('aria-disabled'); oa.removeAttribute('aria-busy'); var sp = oa.querySelector('.spin'); if (sp) sp.remove(); }
+}
+/* when the first week gets written — the server's honest answer (otto_progress): now, at a set time, or by Otto's team */
+function weekLine(c) {
+  if (!c || !c.state || c.state === 'done') return '';
+  var t, now = c.state === 'writing' || c.state === 'queued', w = wall(c.next_run), mins = Math.max(1, N(c.eta_minutes) || 1);
+  if (now) t = TN('setup.week.writing', mins, 'Otto is writing your first week now, about 1 minute. Open Otto to watch the posts come in.', 'Otto is writing your first week now, about {n} minutes. Open Otto to watch the posts come in.');
+  else if (c.state === 'scheduled' && w) t = T('setup.week.scheduled', 'Otto writes your first week by {when}. The posts appear in Otto as soon as they’re ready.', { when: (w.toDateString() === new Date().toDateString() ? '' : dayWord(w) + ' ') + hm(w) });
+  else t = T('setup.week.waiting', 'Otto’s team is preparing your first week. The posts appear in Otto as soon as they’re ready.');
+  return '<span class="trial-line">' + esc(t) + (now ? '<span class="wk-bar" aria-hidden="true"><i></i></span>' : '') + '</span>';
 }
 /* the trial line: the server's English sentence, or the same facts in the visitor's language */
 var DENIED = { off: TK('trial.off', 'Free trials are not available right now.'), email: TK('trial.email', 'This Google account already had its free trial.'),
@@ -1312,7 +1376,11 @@ var SERVER_ERR = { 'that website address does not exist (check the spelling)': T
   'that is not a website address Otto can read (use the public address, like example.com)': TK('err.unreadable', 'That is not a website address Otto can read (use the public address, like example.com).'),
   'the website address needs a domain, like example.com': TK('err.domain', 'The website address needs a domain, like example.com.'),
   'Fonts must be font names, like Inter or Playfair Display': TK('err.fonts', 'Fonts must be font names, like Inter or Playfair Display.'),
-  'Colours must be hex codes like #2F5D50': TK('err.colours', 'Colours must be hex codes like #2F5D50.') };
+  'Colours must be hex codes like #2F5D50': TK('err.colours', 'Colours must be hex codes like #2F5D50.'),
+  'that is an e-mail address: enter your website address instead, like example.com': TK('err.email', 'That is an e-mail address: enter your website address instead, like example.com.'),
+  'that is a page on a social network or marketplace, not your own website: enter your website address, like example.com': TK('err.platform', 'That is a page on a social network or marketplace, not your own website: enter your website address, like example.com.'),
+  'a website address has no spaces in it, like example.com': TK('err.spaces', 'A website address has no spaces in it, like example.com.'),
+  'that website address is too long: enter just the domain, like example.com': TK('err.long', 'That website address is too long: enter just the domain, like example.com.') };
 function errText(detail) {
   if (!detail) return T('setup.wrong', 'Something went wrong.');
   var raw = String(detail.raw || detail), k = own(SERVER_ERR, raw);
@@ -1357,7 +1425,7 @@ async function submit(force) {
   sending = false; S.submit = out; save(); if (S.step === 5) RENDER[5]();
 }
 $('#edit-answers').addEventListener('click', function () { go(3); });
-$('#open-app').addEventListener('click', function () { store('otto.site', S.site); });
+$('#open-app').addEventListener('click', function (e) { if (this.getAttribute('aria-disabled') === 'true') { e.preventDefault(); return; } store('otto.site', S.site); });
 /* The app lives next to this page on app.<domain> and on the old box (/otto/), but a visitor who arrives from the landing's
    public onboarding is on the apex, where index.html is the landing: send them to the app's own host there. */
 (function () {
@@ -1415,13 +1483,14 @@ if (LG) LG.on(function () {
 });
 
 /* ---------- start ---------- */
+if ('scrollRestoration' in history) history.scrollRestoration = 'manual';   /* every step opens at its top, a reload and Back too */
 var start = HASH.indexOf(location.hash.slice(1)) + 1;
 var n = start >= 1 && start <= S.reached ? start : S.step;
 history.replaceState({ step: n }, '', '#' + HASH[n - 1]);
 go(n, { silent: true });
 if (n === 5 && (!S.submit || S.submit.status === 'sending')) submit();
 if (n === 1 && S.site && !S.peek && !S.peekErr) { siteIn.value = S.site; runScan(S.site); }
-else if (n === 1 && !S.site) siteIn.focus({ preventScroll: true });
+else if (n === 1 && !S.site && W.matchMedia('(hover: hover) and (pointer: fine)').matches) siteIn.focus({ preventScroll: true });   /* not on a phone: no keyboard over the heading */
 })();
 </script>
 <script>(function(n,L){var o={p:L.pathname.replace(/[^A-Za-z0-9\/._~-]/g,'').slice(0,120),ev:[{e:'view'}]};if(n.doNotTrack==='1'||n.globalPrivacyControl===true)o.anon=1;try{n.sendBeacon('/otto-track',JSON.stringify(o))}catch(e){}})(navigator,location);</script>

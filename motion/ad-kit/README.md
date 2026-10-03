@@ -130,7 +130,7 @@ Common fields: `id`, `style`, `angle` (a note of which strategy angle it serves)
 | texts | `thread: { name, initial, stamp, placeholder, avatar?: "brand", messages: [{from:"them"\|"me", text} \| {from:"me", photo:"photo"}] }`. The first message (either side) is already on screen at the start. `avatar: "brand"` gives the brand a coloured avatar (for support threads). | `cps` 21, `dots` 0.7, `photoHold` 0.85, `hold` 1.25, `firstInstant` true |
 | versus | `versus: { vs, left: { label, illo:"tub"\|"plate" \| image, rows }, right: { label, image, rows }, footer }`. Row words share one size that fits both columns. The footer is a marker that wraps to two lines. | `rowsAt` 1.5, `footerGap` 0.75, `hold` 2.0 |
 | big | `big: { hero, phrases: [{ big, rest? }, …, { big, rest?, product }] }` (a long `rest` wraps to two lines; if the last `product` is the hero itself, the hero settles instead of doubling) | `firstAt` 1.5, `everyBeats` 3, `hold` 2.5 |
-| reel | `reel: { vo: [..script..], lines: [..on-screen..], cues: [{ clip: "vo/x-00.wav", line: 0, shot: { asset, kind: "cutout"\|"photo", move: "turn"\|"rise" } }, { clip, line, stat: true }, { clip, line }, …, { clip, endcard: true }] }`. `clip` paths are relative to the ad JSON. A `stat` line "Label: +20.5%" becomes a count-up card (up to two stack). A cue with no shot and no stat sets its line large. | `startAt` 0.3, `gap` 0.14, `tail` 1.5 |
+| reel | `reel: { vo: [..script..], lines: [..on-screen..], cues: [{ clip: "vo/x-00.wav", line: 0, shot: { asset, kind: "cutout"\|"photo", move: "turn"\|"rise" } }, { clip, line, stat: true }, { clip, line }, …, { clip, endcard: true }] }`. `clip` paths are relative to the ad JSON; a cue without a clip lasts its `dur` (default 2 s): a silent reel. A `stat` line "Label: +20.5%" becomes a count-up card (up to two stack). A cue with no shot and no stat sets its line large. | `startAt` 0.3, `gap` 0.14, `tail` 1.5 |
 
 Durations are computed: `endAt` (always on a beat) + the end card (3.2 s). Keep copy short enough to land at
 10–15 s: 3–4 struck lines, 4–7 messages, 3 row pairs, 3 phrases. `schedule.json` in the project shows the result.
@@ -161,8 +161,14 @@ cd ../../platform && python3 otto_creative.py matrix <id> 2026-10 --check     # 
 - **Render names:** use `ship.mjs … --name <cell-id>-9x16`. Add a `4x5` build when the cell's sizes include
   `feed`.
 - **Engine hookup:** the engine takes a video cell once the cell has a `file` (otto_creative `build_matrix`).
-  Until then `--check` reports it `ready` with "video not rendered yet". `VIDEO_KITS` in otto_styles maps
-  `reel` to otto_motion, which is still right for 30–60 s explainer reels; short reel *ads* render here.
+  For client brands that is automatic: `platform/otto_advideo.py` renders every cell the copywriter scripted (beats in
+  the cell's `data`, no kit JSON) with this kit — the brand's look from its scan (colours, display font, logo, product
+  cut-out / photos), 9:16 plus 4:5 for notes / texts, Meta's 9:16 safe zone checked (`hyperframes check --caption-zone`
+  for the top 14 % / bottom 20 %), and sets the cell's `file`, `poster`, `status: "rendered"` and `render`
+  (`render.files["4x5"]` is the feed version). A cell with a hand-made kit JSON (like Otto's own launch) is left to
+  whoever wrote it: `--check` reports it `ready` with "video not rendered yet". A reel cue without a voice `clip` may
+  carry its own `dur` (seconds; otto_advideo's silent reels time each line by its length). `VIDEO_KITS` in otto_styles
+  maps `reel` to otto_motion, which is still right for 30–60 s explainer reels; short reel *ads* render here.
 
 ## How Otto fills it for a new client
 

@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <!-- CSP: script-src lists the sha256 of every inline script element in this page. After editing one, the browser refuses it and its console prints the new hash: replace the old one here (or recompute all of them). -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-rQLzk+ojqEr339bcDXMJGzFgf+8J7CwELHBHPybD7Zk='; style-src 'self' 'unsafe-inline'; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-src 'none'; worker-src 'none'; manifest-src 'self'; img-src 'self' data: blob: https:; media-src 'self' blob: https:">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-4lFFNOdeMK1RtMhO3hfo1+foKB78v77V2d8vAZHYue0='; style-src 'self' 'unsafe-inline'; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-src 'none'; worker-src 'none'; manifest-src 'self'; img-src 'self' data: blob: https:; media-src 'self' blob: https:">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="color-scheme" content="light dark">
 <meta name="theme-color" content="#F5F7FB" media="(prefers-color-scheme: light)">
@@ -275,6 +275,7 @@ html.dragging,html.dragging *{cursor:grabbing!important;-webkit-user-select:none
 .tbtn{display:inline-flex;align-items:center;height:36px;padding:0 10px;border-radius:999px;font:600 15px/1 var(--font);letter-spacing:-.01em;color:var(--accent);white-space:nowrap}
 .tbtn:hover{background:var(--hover)}
 .tbtn.quiet{font-weight:500;color:var(--ink-2)}
+.tbtn[disabled]:not(.is-pending){opacity:.4;pointer-events:none}
 .ibtn{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;color:var(--ink-2)}
 .ibtn:hover{background:var(--hover);color:var(--ink)}
 .ibtn .i{width:20px;height:20px;stroke-width:1.8}
@@ -320,15 +321,7 @@ html.dragging,html.dragging *{cursor:grabbing!important;-webkit-user-select:none
 .rs{display:flex;flex-direction:column;transition:transform 700ms var(--spring-smooth)}
 .rs>span,.rx{display:block;height:var(--lh,1.2em);line-height:var(--lh,1.2em)}
 
-/* growth */
-.gcard{padding:16px}
-.gcard+.gcard{margin-top:12px}
-.g-top{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
-.g-brand{font:600 15px/20px var(--font);letter-spacing:-.012em}
-.g-when{font:400 13px/18px var(--font);color:var(--ink-2);margin-left:auto}
-.g-big{display:flex;align-items:baseline;gap:10px;margin-top:8px;flex-wrap:wrap}
-.g-big .n{font:700 34px/41px var(--font);letter-spacing:-.022em;--lh:41px;display:flex}
-.g-big .l{font:400 15px/20px var(--font);color:var(--ink-2)}
+/* charts and changes (Results) */
 .dl{font:500 13px/18px var(--font);color:var(--ink-3);font-variant-numeric:tabular-nums;white-space:nowrap}
 .dl.up{color:var(--green)}
 .dl.dn{color:var(--red)}
@@ -346,22 +339,6 @@ html.dragging,html.dragging *{cursor:grabbing!important;-webkit-user-select:none
 .c-leg{display:flex;align-items:center;gap:6px}
 .c-leg i{width:12px;height:2px;border-radius:1px;background:var(--accent);display:inline-block}
 .c-leg i.pv{background:var(--ink-3);opacity:.5;margin-left:6px}
-.bars-w{margin-top:18px}
-.bars-h{font:500 13px/18px var(--font);color:var(--ink-2);margin-bottom:8px}
-.bars{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:8px;align-items:end;height:64px}
-.bar-c{display:flex;flex-direction:column;align-items:stretch;justify-content:flex-end;height:100%;gap:4px}
-.bar-t{flex:1;display:flex;align-items:flex-end}
-.bar{display:block;width:100%;border-radius:3px 3px 2px 2px;background:var(--ink-3);opacity:.28;transform-origin:50% 100%}
-.bar.cur{background:var(--accent);opacity:1}
-.bar-l{font:400 11px/14px var(--font);color:var(--ink-3);text-align:center;letter-spacing:0}
-.kpis{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--hair);background:var(--line);border-radius:10px;overflow:hidden;margin-top:18px;box-shadow:0 0 0 var(--hair) var(--line)}
-.kpi{background:var(--surface);padding:10px 12px;min-width:0}
-.kpi .n{font:600 17px/22px var(--font);letter-spacing:-.02em;font-variant-numeric:tabular-nums;white-space:nowrap}
-.kpi .l{font:400 12px/16px var(--font);letter-spacing:0;color:var(--ink-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.kpi .dl{font-size:12px;line-height:16px}
-.g-foot{font:400 12px/16px var(--font);letter-spacing:0;color:var(--ink-3);margin-top:12px;display:flex;flex-wrap:wrap;gap:4px 12px}
-@media (max-width:420px){.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
-
 /* hold to approve all */
 .hold{display:inline-flex;align-items:center;gap:10px;height:44px;padding:0 18px 0 12px;border-radius:999px;background:var(--surface);color:var(--ink);
   box-shadow:inset 0 0 0 var(--hair) var(--line),var(--shadow-1);font:600 15px/1 var(--font);letter-spacing:-.01em;-webkit-touch-callout:none;touch-action:manipulation}
@@ -395,7 +372,6 @@ html.dragging,html.dragging *{cursor:grabbing!important;-webkit-user-select:none
 /* the free trial: one calm line under Today's date, and the Account group */
 .trial-l{font:400 13px/18px var(--font);color:var(--ink-2);margin-top:4px}
 .trial-l button,.lnk{color:var(--accent);font:inherit;padding:0;background:none;border:0;cursor:pointer}
-.side-acct{padding:0 10px 10px;font:400 12px/16px var(--font);color:var(--ink-3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .empty-t{font:600 20px/25px var(--font);letter-spacing:-.017em}
 .empty-s{font:400 15px/20px var(--font);color:var(--ink-2);margin-top:6px;text-wrap:balance}
 .err-card{padding:20px 16px;display:grid;gap:4px;justify-items:start}
@@ -418,6 +394,58 @@ html.dragging,html.dragging *{cursor:grabbing!important;-webkit-user-select:none
 .sk-tx{flex:1;display:grid;gap:8px}
 .sk-l1{height:14px;width:82%}
 .sk-l2{height:12px;width:46%}
+.sk-th.sm{width:44px;height:44px;border-radius:10px}
+.skrow.sm{min-height:64px}
+.skrow.sm+.skrow.sm::before{left:72px}
+.skline{display:flex;align-items:center;min-height:48px;padding:10px 16px;position:relative}
+.skline+.skline::before{content:"";position:absolute;top:0;right:0;left:16px;height:var(--hair);background:var(--line)}
+.sk-cal{height:280px;margin:2px 0;border-radius:12px;background:radial-gradient(circle,var(--skel) 0 15px,transparent 16px) 0 0/calc(100% / 7) 56px repeat}
+@media (min-width:1024px){.sk-cal{height:340px;background-size:calc(100% / 7) 68px}}
+
+/* ---------- work in progress (brands[].work, posts[].work: otto_progress) ----------
+   Motion only for work that is happening now (writing, queued, rendering); work a later run does, or Otto's team, gets a
+   still placeholder and words. Bars are thin, one accent, no gimmicks. */
+.sk.still::after{display:none}
+.sk-t{display:block;height:13px;width:72%;margin:4px 0 3px;border-radius:5px}
+.wl{color:var(--accent);font-weight:500}
+.wl.q{color:var(--ink-3);font-weight:400}
+.shim{position:relative;overflow:hidden;background:var(--skel)!important;color:transparent}
+.shim::after{content:"";position:absolute;inset:0;transform:translateX(-100%);background:linear-gradient(90deg,transparent,var(--shim),transparent);animation:shim 1.5s var(--ease-in-out) infinite}
+.tile.wk-m,.thumb.wk-m{color:var(--ink-3)}
+.tile.wk-m .i,.thumb.wk-m .i{opacity:.55}
+.vbar{position:absolute;left:6px;right:6px;bottom:5px;height:2px;border-radius:1px;background:rgba(255,255,255,.28);overflow:hidden;z-index:1}
+.tile .vbar{background:color-mix(in srgb,var(--accent) 18%,transparent)}
+.vbar i,.pbar.ind i{position:absolute;top:0;bottom:0;left:0;width:36%;border-radius:inherit;background:var(--accent);animation:ind 2.4s var(--ease-in-out) infinite}
+.thumb .vbar i{background:#fff}
+@keyframes ind{from{transform:translateX(-100%)}to{transform:translateX(280%)}}
+.pbar{position:relative;height:4px;border-radius:2px;background:var(--surface-2);overflow:hidden;margin-top:12px}
+.pbar>i{display:block;height:100%;border-radius:inherit;background:var(--accent);transition:width 700ms var(--ease-out)}
+.pbar.still>i{background:var(--ink-3)}
+.wcard{padding:16px;margin:0 0 16px}
+.wc-h{display:flex;align-items:baseline;gap:12px}
+.wc-t{flex:1;min-width:0;font:600 15px/20px var(--font);letter-spacing:-.012em;text-wrap:balance}
+.wc-n{flex:none;font:500 13px/18px var(--font);color:var(--ink-2);font-variant-numeric:tabular-nums}
+.wc-s{font:400 13px/18px var(--font);color:var(--ink-2);margin-top:8px;text-wrap:pretty}
+.wc-a{display:flex;align-items:center;gap:6px;margin-top:12px}
+.wc-a .tbtn{margin-left:-4px}
+.wcard.ok .wc-t::before{content:"";display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--green);margin-right:8px;vertical-align:1px}
+.dm.wk{display:grid;place-items:center;align-content:center;gap:10px;padding:28px;text-align:center}
+.dm-w{position:relative;z-index:1;font:500 15px/20px var(--font);color:var(--ink-2)}
+.dm .sk-lines{position:relative;z-index:1;display:grid;gap:10px;justify-items:center;width:100%}
+.dm .sk-lines .sk{height:16px;width:78%}
+.dm .sk-lines .sk+.sk{width:54%}
+.dnote.work{background:var(--accent-tint);color:var(--ink);display:flex;flex-direction:column;gap:8px}
+.dnote.work.q{background:var(--surface-2);color:var(--ink-2)}
+.dnote.work .pbar{margin-top:2px;background:color-mix(in srgb,var(--accent) 14%,transparent)}
+
+/* a control waiting for the server: spinner in place, disabled, aria-busy */
+.bspin{width:16px;height:16px;flex:none;border-radius:50%;border:2px solid currentColor;border-right-color:transparent;animation:spin .8s linear infinite}
+.tbtn .bspin,.lnk .bspin{width:13px;height:13px;border-width:1.75px;margin-right:6px}
+.lnk .bspin{display:inline-block;vertical-align:-2px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.is-pending{pointer-events:none;cursor:default}
+.btn.is-pending[disabled],.btn.is-pending[aria-disabled=true]{opacity:.72}
+.gbtn.is-pending{opacity:.72}
 
 /* ---------- calendar ---------- */
 .cal-wrap{display:block}
@@ -507,7 +535,7 @@ html.dragging,html.dragging *{cursor:grabbing!important;-webkit-user-select:none
 .sh-f .grow{flex:1.6}
 .sh-f .btn{flex:1;padding:0 12px}
 .sheet .list,.sheet .card{background:var(--sheet-card)}
-.sheet .sw,.sheet .sw-fg,.sheet .kpi{background:var(--sheet-card)}
+.sheet .sw,.sheet .sw-fg{background:var(--sheet-card)}
 @media (min-width:1024px){
   .layer{display:grid;place-items:center}
   .sheet{position:relative;bottom:auto;left:auto;right:auto;width:min(560px,calc(100% - 64px));max-height:min(860px,calc(100% - 64px));border-radius:20px;transform-origin:50% 50%}
@@ -605,13 +633,155 @@ html[data-vt=close]::view-transition-old(sheet):only-child{animation:vt-sink .28
 @keyframes vt-pop{from{opacity:0;transform:scale(.96)}}
 @keyframes vt-fade{to{opacity:0;transform:scale(.97)}}
 
+/* ---------- account menu (initials: top right on phones, the sidebar's foot on desktop) ---------- */
+.me{width:32px;height:32px;border-radius:50%;flex:none;display:grid;place-items:center;background:var(--surface-2);color:var(--ink);
+  font:600 13px/1 var(--font);letter-spacing:0;box-shadow:inset 0 0 0 var(--hair) var(--line)}
+button.me:hover{background:color-mix(in srgb,var(--surface-2) 90%,var(--ink))}
+.side-me{display:flex;align-items:center;gap:10px;width:100%;min-height:48px;padding:6px 10px;margin:auto 0 8px;border-radius:10px;text-align:left;color:var(--ink-2)}
+.side-me+.side-foot{margin-top:0}
+.side-me[aria-current=page]{background:var(--sel);color:var(--ink)}
+.side-me:hover{background:var(--hover);color:var(--ink)}
+.side-me .me{width:30px;height:30px;font-size:12px}
+.sm-t{flex:1;min-width:0;display:grid}
+.sm-n{font:500 13px/17px var(--font);color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sm-e{font:400 12px/16px var(--font);color:var(--ink-3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.acct-nav{display:flex;gap:6px;overflow-x:auto;margin:-6px calc(-1 * var(--pad)) 22px;padding:2px var(--pad);scrollbar-width:none}
+.acct-nav::-webkit-scrollbar{display:none}
+.acct-nav a{flex:none;height:32px;display:inline-flex;align-items:center;padding:0 12px;border-radius:999px;font:500 13px/1 var(--font);color:var(--ink-2);
+  background:var(--surface);box-shadow:inset 0 0 0 var(--hair) var(--line)}
+.acct-nav a:hover{color:var(--ink)}
+.acct-nav a[aria-current=page]{background:var(--ink);color:var(--bg);box-shadow:none}
+@media (min-width:1024px){.acct-nav{margin-left:0;margin-right:0;padding-left:0}}
+.menu .line{min-height:52px}
+.menu .line .i{width:20px;height:20px;color:var(--ink-2)}
+
+/* ---------- small segmented controls (period, Month | List) ---------- */
+.seg.mini{margin:0;max-width:none;min-width:150px}
+.seg.mini button{height:30px;padding:0 10px;font-size:13px}
+#rs-period{min-width:228px}
+@media (max-width:600px){.lt-row .lt-act{margin-left:0;width:100%}#rs-period{width:100%}}
+.cal-nav{display:inline-flex;align-items:center;gap:6px}
+.cal-list{max-width:720px}
+.cl-sub{margin:-8px 2px 14px}
+
+/* ---------- Today: the report line, Yesterday, this month's work, the connect checklist ---------- */
+.card-h{display:flex;align-items:baseline;gap:8px;padding:14px 16px 0}
+.card-h h2,.card-h h3{font:600 15px/20px var(--font);letter-spacing:-.012em}
+.card-h .sub{font:400 13px/18px var(--font);color:var(--ink-2)}
+.card-h .more{margin-left:auto;font:500 13px/18px var(--font);color:var(--accent);border-radius:6px;white-space:nowrap}
+.card-h .more:hover{text-decoration:underline;text-underline-offset:3px}
+.ystrip{margin-top:20px}
+.yt-g{display:grid;grid-template-columns:repeat(4,minmax(0,1fr))}
+.yt{padding:10px 16px 14px;min-width:0;text-align:left;display:flex;flex-direction:column;border-radius:0}
+.yt+.yt{box-shadow:inset var(--hair) 0 0 var(--line)}
+button.yt:hover{background:var(--hover)}
+.yt .n{font:600 22px/28px var(--font);letter-spacing:-.02em;font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.yt .l{font:400 13px/18px var(--font);color:var(--ink-2)}
+.yt .s{font:400 12px/16px var(--font);color:var(--ink-3);margin-top:2px;text-wrap:pretty}
+.yt .s.up{color:var(--green)}.yt .s.dn{color:var(--amber)}
+.na{font:500 15px/28px var(--font);color:var(--ink-3);letter-spacing:-.01em}
+.yt-wide{grid-column:span 3}
+.yt-msg{font:400 13px/18px var(--font);color:var(--ink-2);text-wrap:pretty;margin-top:4px}
+@media (max-width:640px){
+  .yt-g{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .yt:nth-child(3){box-shadow:inset 0 var(--hair) 0 var(--line)}
+  .yt:nth-child(4){box-shadow:inset var(--hair) var(--hair) 0 var(--line)}
+  .yt-wide{grid-column:span 1}
+}
+.ledger{padding:4px 16px 8px}
+.lg-r{display:grid;grid-template-columns:minmax(64px,auto) minmax(0,1fr);align-items:center;gap:4px 14px;padding:11px 0;position:relative}
+.lg-r+.lg-r{box-shadow:inset 0 var(--hair) 0 var(--line)}
+.lg-l{font:500 15px/20px var(--font);letter-spacing:-.012em}
+.lg-v{font:400 13px/18px var(--font);color:var(--ink-2);font-variant-numeric:tabular-nums;text-align:right;text-wrap:pretty}
+.lg-v b{font-weight:600;color:var(--ink)}
+.lg-bar{grid-column:1/-1;height:6px;border-radius:3px;background:var(--surface-2);overflow:hidden;position:relative}
+.lg-bar>i{position:absolute;top:0;bottom:0;left:0;border-radius:inherit;background:var(--accent);opacity:.35;transition:width 700ms var(--ease-out)}
+.lg-bar>b{position:absolute;top:0;bottom:0;left:0;border-radius:inherit;background:var(--accent);transition:width 700ms var(--ease-out)}
+.lg-k{display:flex;gap:14px;font:400 12px/16px var(--font);color:var(--ink-3);padding:2px 0 8px;flex-wrap:wrap}
+.lg-k i{display:inline-block;width:10px;height:6px;border-radius:2px;background:var(--accent);margin-right:6px;vertical-align:1px}
+.lg-k i.mk2{opacity:.35}
+.chk{list-style:none}
+.chk li{display:flex;align-items:center;gap:12px;min-height:60px;padding:10px 12px 10px 16px;position:relative}
+.chk li+li::before{content:"";position:absolute;top:0;right:0;left:52px;height:var(--hair);background:var(--line)}
+.ck{width:24px;height:24px;border-radius:50%;flex:none;display:grid;place-items:center;box-shadow:inset 0 0 0 1.5px var(--ink-3);color:var(--on-accent)}
+.ck.on{background:var(--green);box-shadow:none}
+.ck.bad{box-shadow:inset 0 0 0 1.5px var(--red)}
+.ck .i{width:14px;height:14px;stroke-width:2.6}
+.chk .rt-m{white-space:normal;text-wrap:pretty}
+.prow.plan{min-height:64px}
+.prow.plan .tile{background:var(--accent-tint);color:var(--accent)}
+
+/* ---------- Results ---------- */
+.wh{padding:16px}
+.wh p{font:400 17px/24px var(--font);letter-spacing:-.016em;text-wrap:pretty}
+.wh p+p{margin-top:6px}
+.wh .dim{color:var(--ink-2)}
+.rs-grp{font:600 13px/18px var(--font);color:var(--ink-2);padding:0 2px 8px;margin-top:22px;display:flex;gap:8px;align-items:baseline}
+.rs-grp .sub{font-weight:400;color:var(--ink-3)}
+.rs-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--hair);background:var(--line);border:var(--hair) solid var(--line);border-radius:14px;overflow:hidden;box-shadow:var(--lift)}
+@media (min-width:760px){.rs-grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
+.rtile{background:var(--surface);padding:12px 14px 14px;min-width:0;text-align:left;display:flex;flex-direction:column;gap:1px;border-radius:0}
+button.rtile:hover{background:var(--row-h)}
+.rtile .l{font:400 13px/18px var(--font);color:var(--ink-2)}
+.rtile .n{font:600 24px/30px var(--font);letter-spacing:-.022em;font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rtile .na{font:400 13px/18px var(--font);color:var(--ink-3);text-wrap:pretty;margin-top:4px}
+.rtile .dl{white-space:normal}
+.rs-card{padding:14px 16px 16px;margin-top:12px}
+.rs-card .seg{margin:0 0 4px;max-width:360px}
+.rs-chart .chart{margin-top:22px}
+.c-mark{position:absolute;top:0;bottom:6px;width:0;border-left:1px dashed var(--ink-3);opacity:.6;pointer-events:none}
+.c-mark span{position:absolute;top:-18px;left:4px;font:400 11px/14px var(--font);color:var(--ink-3);white-space:nowrap}
+.adg{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
+@media (max-width:420px){.adg{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}}
+@media (min-width:1024px){#v-review .adg{grid-template-columns:repeat(auto-fill,minmax(124px,1fr))}#v-review .adt-w q{font-size:15px;line-height:20px}}
+.adt{display:flex;flex-direction:column;gap:6px;text-align:left;min-width:0;border-radius:12px}
+.adt-m{position:relative;aspect-ratio:4/5;border-radius:12px;overflow:hidden;background:var(--surface-2)}
+.adt-m img,.adt-m video{width:100%;height:100%;object-fit:cover}
+.adt-m::after{content:"";position:absolute;inset:0;border-radius:inherit;box-shadow:inset 0 0 0 var(--hair) var(--img-edge);pointer-events:none}
+.adt-w{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:space-between;padding:12px;background:var(--surface);
+  box-shadow:inset 0 0 0 var(--hair) var(--line);border-radius:inherit}
+.adt-t{display:grid;gap:8px;min-height:0;overflow:hidden}
+.adt-w q{quotes:none;font:600 16px/21px var(--font);letter-spacing:-.016em;color:var(--ink);display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden;text-wrap:balance}
+.adt-p{font:400 12px/16px var(--font);color:var(--ink-2);display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden;text-wrap:pretty}
+.adt-k{align-self:flex-start;height:24px;padding:0 9px;border-radius:7px;background:var(--surface-2);font:600 11.5px/24px var(--font);color:var(--ink);white-space:nowrap;max-width:100%;overflow:hidden;text-overflow:ellipsis}
+.adt-w small{font:400 12px/16px var(--font);color:var(--ink-3);display:flex;align-items:center;gap:6px}
+.adt-w small .i{width:14px;height:14px}
+.adt-b{position:absolute;left:8px;top:8px;height:22px;padding:0 8px;border-radius:999px;background:rgba(0,0,0,.5);color:#fff;font:600 11px/22px var(--font);letter-spacing:.01em}
+.adt-c{font:500 13px/18px var(--font);color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding:0 2px}
+.adt-s{font:400 12px/16px var(--font);color:var(--ink-2);padding:0 2px;font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.adt-s .ok{color:var(--green)}
+.ad-ang+.ad-ang{margin-top:22px}
+.ad-plan{padding:16px;display:grid;gap:12px}
+.ad-plan .btn{justify-self:start}
+@media (max-width:600px){.ad-plan .btn{justify-self:stretch}}
+.ad-plan p{font:400 15px/21px var(--font);color:var(--ink-2);text-wrap:pretty}
+.ad-plan p b{color:var(--ink);font-weight:600}
+.tscroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+table.ct{width:100%;min-width:560px;border-collapse:collapse;font:400 14px/20px var(--font);font-variant-numeric:tabular-nums}
+.ct caption{text-align:left}
+.ct th{font:500 12px/16px var(--font);color:var(--ink-2);text-align:right;padding:12px 12px 8px;white-space:nowrap}
+.ct td{text-align:right;padding:11px 12px;box-shadow:inset 0 var(--hair) 0 var(--line);white-space:nowrap}
+.ct th:first-child,.ct td:first-child{text-align:left;padding-left:16px;white-space:normal}
+.ct th:last-child,.ct td:last-child{padding-right:16px}
+.ct td.na{font:inherit;color:var(--ink-3)}
+.rs-foot{font:400 12px/16px var(--font);color:var(--ink-3);margin-top:20px;text-wrap:pretty}
+.ad-sheet .dfacts{grid-template-columns:auto 1fr}
+.ad-copy{font:400 15px/21px var(--font);margin-top:14px;white-space:pre-wrap;text-wrap:pretty}
+.ad-head{font:600 17px/22px var(--font);letter-spacing:-.02em;margin-top:12px}
+.ad-cta{display:inline-flex;align-items:center;height:30px;padding:0 12px;border-radius:8px;background:var(--surface-2);font:600 13px/1 var(--font);margin-top:12px}
+.cn-p{font:400 15px/21px var(--font);color:var(--ink-2);text-wrap:pretty;margin-top:12px}
+.cn-p:first-child{margin-top:4px}
+.cn-p b{color:var(--ink);font-weight:600}
+
 @media (prefers-reduced-transparency:reduce){
   .topbar,.tabbar{background:var(--bg);-webkit-backdrop-filter:none;backdrop-filter:none}
 }
 @media (prefers-contrast:more){:root{--line:#9AA3B5;--ink-3:#5B6478}}
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{animation-duration:1ms!important;animation-iteration-count:1!important;transition-duration:1ms!important;transition-delay:0ms!important}
-  .sk::after{display:none}
+  .sk::after,.shim::after{display:none}
+  .vbar,.pbar.ind{display:none}
+  .pbar>i{transition:none}
   ::view-transition-group(*),::view-transition-old(*),::view-transition-new(*){animation:none!important}
 }
 </style>
@@ -624,10 +794,10 @@ html[data-vt=close]::view-transition-old(sheet):only-child{animation:vt-sink .28
       <a href="#today" data-view="today"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 10.2 12 4.3l7.5 5.9v8.3a1.5 1.5 0 0 1-1.5 1.5h-3.5v-5.2h-5v5.2H6a1.5 1.5 0 0 1-1.5-1.5z"/></svg>Today</a>
       <a href="#review" data-view="review"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.25"/><path d="m8.4 12.2 2.5 2.5 4.8-5"/></svg>Review<span class="cnt" id="side-cnt" hidden></span></a>
       <a href="#calendar" data-view="calendar"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="5.25" width="16" height="14.5" rx="3"/><path d="M4 9.75h16M8.5 3.5v3.25M15.5 3.5v3.25"/></svg>Calendar</a>
-      <a href="#posts" data-view="posts"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="7.5" width="12.5" height="12.5" rx="2.5"/><path d="M8 4.25h9.25A2.75 2.75 0 0 1 20 7v9.25"/></svg>Posts</a>
-      <a href="#settings" data-view="settings"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h8.5M17.5 8H20M4 16h2.5M11.5 16H20"/><circle cx="15" cy="8" r="2.25"/><circle cx="9" cy="16" r="2.25"/></svg>Settings</a>
+      <a href="#results" data-view="results"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 19.5h15"/><path d="M7.5 16v-4.5M12 16V7.5M16.5 16v-6.5"/></svg>Results</a>
+      <!-- Leads (P1) joins here as the fifth section: an <a href="#leads" data-view="leads">, a VIEWS entry and its <section> -->
     </nav>
-    <p class="side-acct" id="side-acct" hidden></p>
+    <button type="button" class="side-me tap" id="side-me" data-menu aria-haspopup="dialog" hidden><span class="me" aria-hidden="true"></span><span class="sm-t"><span class="sm-n"></span><span class="sm-e"></span></span></button>
     <p class="side-foot" id="side-foot"></p>
   </aside>
 
@@ -635,7 +805,7 @@ html[data-vt=close]::view-transition-old(sheet):only-child{animation:vt-sink .28
     <div class="tb">
       <span class="tb-l"><span class="mark sm" aria-hidden="true"></span></span>
       <span class="tb-t" id="tb-t" aria-hidden="true">Today</span>
-      <span class="tb-r"><span class="chip-mode" hidden title="Changes made here are not saved">Preview</span></span>
+      <span class="tb-r"><span class="chip-mode" hidden title="Changes made here are not saved">Preview</span><button type="button" class="me tap" id="tb-me" data-menu aria-haspopup="dialog" aria-label="Account menu" hidden></button></span>
     </div>
   </header>
 
@@ -671,28 +841,28 @@ html[data-vt=close]::view-transition-old(sheet):only-child{animation:vt-sink .28
         <header class="lt lt-row">
           <div><p class="lt-eye" id="cal-year">&nbsp;</p><h1 class="lt-h" id="h-calendar" tabindex="-1"><span id="cal-month">Calendar</span></h1></div>
           <div class="lt-act">
+            <div class="seg mini" id="cal-mode" role="tablist" aria-label="Calendar view" style="--n:2"><span class="seg-th" aria-hidden="true"></span><button type="button" role="tab" aria-selected="true" aria-controls="cal-wrap" data-cm="month">Month</button><button type="button" role="tab" aria-selected="false" aria-controls="cal-list" data-cm="list" tabindex="-1">List</button></div>
+            <span class="cal-nav" id="cal-nav">
             <button type="button" class="btn gray sm tap" id="cal-today">Today</button>
             <button type="button" class="ibtn tap" id="cal-prev" aria-label="Previous month"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M14.5 6l-6 6 6 6"/></svg></button>
             <button type="button" class="ibtn tap" id="cal-next" aria-label="Next month"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m9.5 6 6 6-6 6"/></svg></button>
+            </span>
           </div>
         </header>
-        <div class="cal-wrap">
+        <div class="cal-wrap" id="cal-wrap" role="tabpanel">
           <div>
             <div class="card cal-card">
               <div class="dow" aria-hidden="true"><span><b class="sm">M</b><b class="lg">Mon</b></span><span><b class="sm">T</b><b class="lg">Tue</b></span><span><b class="sm">W</b><b class="lg">Wed</b></span><span><b class="sm">T</b><b class="lg">Thu</b></span><span><b class="sm">F</b><b class="lg">Fri</b></span><span><b class="sm">S</b><b class="lg">Sat</b></span><span><b class="sm">S</b><b class="lg">Sun</b></span></div>
-              <div class="cgrid" id="cal-grid" role="grid" aria-labelledby="h-calendar"></div>
+              <div class="cgrid" id="cal-grid" role="grid" aria-labelledby="h-calendar" aria-busy="true"><div class="sk sk-cal" style="grid-column:1/-1" aria-hidden="true"></div></div>
             </div>
             <div class="legend" aria-hidden="true"><span><i class="mk"></i>Post</span><span><i class="mk reel"></i>Reel</span><span><i class="mk need"></i>Needs you</span><span><i class="mk done"></i>Published</span><span><i class="lfl"></i>Ad campaign</span></div>
             <p class="cal-sum" id="cal-sum"></p>
           </div>
-          <aside class="cal-side" id="cal-side" aria-live="polite"></aside>
+          <aside class="cal-side" id="cal-side" aria-live="polite"><div aria-hidden="true"><span class="sk sk-sh" style="margin:2px 2px 12px"></span><div class="list"><div class="skrow sm"><span class="sk sk-th sm"></span><span class="sk-tx"><span class="sk sk-l1"></span><span class="sk sk-l2"></span></span></div><div class="skrow sm"><span class="sk sk-th sm"></span><span class="sk-tx"><span class="sk sk-l1"></span><span class="sk sk-l2"></span></span></div></div></div></aside>
         </div>
-      </div>
-    </section>
-
-    <section class="view" id="v-posts" data-v="posts" aria-labelledby="h-posts" tabindex="-1" hidden>
-      <div class="page">
-        <header class="lt"><h1 class="lt-h" id="h-posts" tabindex="-1">Posts</h1><p class="lt-sub" id="posts-sub">&nbsp;</p></header>
+        <div class="cal-list" id="cal-list" role="tabpanel" aria-label="All posts" hidden>
+        <p class="lt-sub cl-sub" id="posts-sub">&nbsp;</p>
+        <div id="posts-work"></div>
         <div class="seg" id="posts-seg" role="tablist" aria-label="Filter posts" style="--n:4">
           <span class="seg-th" aria-hidden="true"></span>
           <button type="button" role="tab" aria-selected="true" aria-controls="posts-body" data-pf="all">All</button>
@@ -700,14 +870,26 @@ html[data-vt=close]::view-transition-old(sheet):only-child{animation:vt-sink .28
           <button type="button" role="tab" aria-selected="false" aria-controls="posts-body" data-pf="published" tabindex="-1">Published</button>
           <button type="button" role="tab" aria-selected="false" aria-controls="posts-body" data-pf="drafts" tabindex="-1">Drafts</button>
         </div>
-        <div id="posts-body" role="tabpanel" aria-labelledby="h-posts"></div>
+        <div id="posts-body" role="tabpanel" aria-label="Posts" aria-busy="true"><div class="list" aria-hidden="true"><div class="skrow sm"><span class="sk sk-th sm"></span><span class="sk-tx"><span class="sk sk-l1"></span><span class="sk sk-l2"></span></span></div><div class="skrow sm"><span class="sk sk-th sm"></span><span class="sk-tx"><span class="sk sk-l1"></span><span class="sk sk-l2"></span></span></div><div class="skrow sm"><span class="sk sk-th sm"></span><span class="sk-tx"><span class="sk sk-l1"></span><span class="sk sk-l2"></span></span></div><div class="skrow sm"><span class="sk sk-th sm"></span><span class="sk-tx"><span class="sk sk-l1"></span><span class="sk sk-l2"></span></span></div><div class="skrow sm"><span class="sk sk-th sm"></span><span class="sk-tx"><span class="sk sk-l1"></span><span class="sk sk-l2"></span></span></div></div></div>
+        </div>
       </div>
     </section>
 
-    <section class="view" id="v-settings" data-v="settings" aria-labelledby="h-settings" tabindex="-1" hidden>
+    <section class="view" id="v-results" data-v="results" aria-labelledby="h-results" tabindex="-1" hidden>
+      <div class="page wide">
+        <header class="lt lt-row">
+          <div><h1 class="lt-h" id="h-results" tabindex="-1">Results</h1><p class="lt-sub" id="rs-sub">&nbsp;</p></div>
+          <div class="lt-act"><div class="seg mini" id="rs-period" role="radiogroup" aria-label="Period" style="--n:3"><span class="seg-th" aria-hidden="true"></span><button type="button" role="radio" aria-checked="true" data-rp="7">7 days</button><button type="button" role="radio" aria-checked="false" data-rp="30" tabindex="-1">30 days</button><button type="button" role="radio" aria-checked="false" data-rp="90" tabindex="-1">90 days</button></div></div>
+        </header>
+        <div id="results-body" aria-busy="true"><div aria-hidden="true"><div class="card note-card"><span class="sk sk-h1"></span><span class="sk sk-h2"></span></div><div class="card stats" style="margin-top:16px"><div class="stat"><span class="sk sk-n"></span><span class="sk sk-l"></span></div><div class="stat"><span class="sk sk-n"></span><span class="sk sk-l"></span></div><div class="stat"><span class="sk sk-n"></span><span class="sk sk-l"></span></div></div></div></div>
+      </div>
+    </section>
+
+    <section class="view" id="v-acct" data-v="acct" aria-labelledby="h-acct" tabindex="-1" hidden>
       <div class="page">
-        <header class="lt"><h1 class="lt-h" id="h-settings" tabindex="-1">Settings</h1></header>
-        <div id="settings-body"></div>
+        <header class="lt"><p class="lt-eye">Account</p><h1 class="lt-h" id="h-acct" tabindex="-1">Account</h1></header>
+        <nav class="acct-nav" id="acct-nav" aria-label="Account pages"></nav>
+        <div id="settings-body" aria-busy="true"><div aria-hidden="true"><section class="grp"><h2 class="grp-h"><span class="sk sk-sh"></span></h2><div class="list"><div class="skline"><span class="sk sk-l1"></span></div><div class="skline"><span class="sk sk-l1"></span></div><div class="skline"><span class="sk sk-l1"></span></div></div></section><section class="grp"><h2 class="grp-h"><span class="sk sk-sh"></span></h2><div class="list"><div class="skline"><span class="sk sk-l1"></span></div><div class="skline"><span class="sk sk-l1"></span></div></div></section></div></div>
       </div>
     </section>
   </main>
@@ -716,8 +898,7 @@ html[data-vt=close]::view-transition-old(sheet):only-child{animation:vt-sink .28
     <a href="#today" data-view="today"><span class="ti"><svg class="i o" viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 10.2 12 4.3l7.5 5.9v8.3a1.5 1.5 0 0 1-1.5 1.5h-3.5v-5.2h-5v5.2H6a1.5 1.5 0 0 1-1.5-1.5z"/></svg><svg class="i g f" viewBox="0 0 24 24" aria-hidden="true"><path d="M3.9 9.6 11.1 3.9a1.5 1.5 0 0 1 1.8 0l7.2 5.7c.4.3.6.7.6 1.2v7.7a2 2 0 0 1-2 2h-3.9v-5.4a.8.8 0 0 0-.8-.8H10a.8.8 0 0 0-.8.8v5.4H5.3a2 2 0 0 1-2-2v-7.7c0-.5.2-.9.6-1.2z"/></svg></span>Today</a>
     <a href="#review" data-view="review"><span class="ti"><svg class="i o" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.25"/><path d="m8.4 12.2 2.5 2.5 4.8-5"/></svg><svg class="i f" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="currentColor" stroke="none"/><path class="cut" d="m8.3 12.2 2.6 2.6 4.9-5.1" stroke-width="1.9"/></svg><span class="badge" id="tab-badge" hidden></span></span>Review</a>
     <a href="#calendar" data-view="calendar"><span class="ti"><svg class="i o" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="5.25" width="16" height="14.5" rx="3"/><path d="M4 9.75h16M8.5 3.5v3.25M15.5 3.5v3.25"/></svg><svg class="i f" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5.25h10a3 3 0 0 1 3 3v1.5H4v-1.5a3 3 0 0 1 3-3z" fill="currentColor" stroke="none"/><rect x="4" y="5.25" width="16" height="14.5" rx="3"/><path d="M8.5 3.5v3.25M15.5 3.5v3.25"/></svg></span>Calendar</a>
-    <a href="#posts" data-view="posts"><span class="ti"><svg class="i o" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="7.5" width="12.5" height="12.5" rx="2.5"/><path d="M8 4.25h9.25A2.75 2.75 0 0 1 20 7v9.25"/></svg><svg class="i f" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="7.5" width="12.5" height="12.5" rx="2.5" fill="currentColor"/><path d="M8 4.25h9.25A2.75 2.75 0 0 1 20 7v9.25"/></svg></span>Posts</a>
-    <a href="#settings" data-view="settings"><span class="ti"><svg class="i o" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h8.5M17.5 8H20M4 16h2.5M11.5 16H20"/><circle cx="15" cy="8" r="2.25"/><circle cx="9" cy="16" r="2.25"/></svg><svg class="i f" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h8.5M17.5 8H20M4 16h2.5M11.5 16H20"/><circle cx="15" cy="8" r="2.6" fill="currentColor"/><circle cx="9" cy="16" r="2.6" fill="currentColor"/></svg></span>Settings</a>
+    <a href="#results" data-view="results"><span class="ti"><svg class="i o" viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 19.5h15"/><path d="M7.5 16v-4.5M12 16V7.5M16.5 16v-6.5"/></svg><svg class="i f" viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 19.5h15"/><rect x="6" y="11" width="3" height="5.5" rx="1" fill="currentColor"/><rect x="10.5" y="7" width="3" height="9.5" rx="1" fill="currentColor"/><rect x="15" y="9" width="3" height="7.5" rx="1" fill="currentColor"/></svg></span>Results</a>
   </nav>
 </div>
 
@@ -734,6 +915,7 @@ html[data-vt=close]::view-transition-old(sheet):only-child{animation:vt-sink .28
 <div class="toast" id="toast" hidden></div>
 <label class="hap" aria-hidden="true"><input type="checkbox" switch tabindex="-1"></label>
 <div id="safe-probe" aria-hidden="true"></div>
+<p class="sr" id="work-live" aria-live="polite"></p>
 <p class="sr" id="sw-help">Press A to approve, S to skip, C to ask for changes, Enter to open.</p>
 <noscript><p style="padding:24px;font:15px/1.4 -apple-system,system-ui,sans-serif">Otto needs JavaScript to show your posts.</p></noscript>
 
@@ -874,8 +1056,10 @@ function campPill(c){
 /* Client-facing filter: internal strategy notes never reach the owner's screen. */
 const INTERNAL = /\b(native|mcp|openclaw|pricing|otto|phase|leonardo|video_generate|pilot)\b/i;
 const QUEUE_DUP = /\bapprove\b.*\bposts?\b|\breview (the )?queue\b|waiting for (your )?review/i;
+/* the month's paid plan is a decision in Review ("Your ads for <month>"), never a suggestion card */
+const PLAN_CARD = r => r.source === "otto_ads" && (r.action === "approve_plan" || /^Approve the \d{4}-\d{2} paid plan/.test(r.title || ""));
 function pickRec(d){
-  const recs = (d.recommendations || []).filter(r => r.status !== "dismissed" && r.status !== "done")
+  const recs = (d.recommendations || []).filter(r => r.status !== "dismissed" && r.status !== "done" && !PLAN_CARD(r))
     .filter(r => !INTERNAL.test([r.title, r.why, r.impact, r.cta].join(" ")))
     .filter(r => !QUEUE_DUP.test([r.title, r.cta].join(" ")));
   const rank = p => own({P0: 0, P1: 1, P2: 2}, p) ?? 3;
@@ -906,19 +1090,61 @@ function runRollers(){
   requestAnimationFrame(() => requestAnimationFrame(go));
 }
 
+/* ================= work in progress (GET /otto-api/data → brands[].work, posts[].work: otto_progress) =================
+   What Otto is making right now, said as it is. writing / queued / rendering: a run is on it (shimmer, an ETA, the app polls);
+   scheduled: the next automatic run does it ("Ready by 05:30": a still placeholder); waiting: the Otto team prepares it (no
+   spinner). Without work from the server (an older API, the local preview) an unwritten draft only says it is not written yet. */
+const workOf = id => { const b = brands().find(x => x.id === id); return b && b.work && typeof b.work === "object" ? b.work : null; };
+const isActive = s => s === "writing" || s === "queued" || s === "rendering";
+const etaTxt = m => N(m) <= 1 ? "less than a minute" : `about ${N(m)} min`;
+function byWhen(s){                            // a run's time (brand wall clock, like slots): "05:30", "tomorrow 05:30", "Wed 7 Oct, 05:30"
+  const d = toDate(s); if(!d) return "";
+  const k = dayDiff(d);
+  return (k === 0 ? "" : k === 1 ? "tomorrow " : WD[d.getDay()] + " " + dayMon(d) + ", ") + hhmm(d);
+}
+const WPART = {copy: "copy", image: "images", video: "reels"};
+function workLabel(what, st, w, bw){
+  const part = (bw && own(bw, WPART[what])) || {}, by = byWhen(w.next_run || part.next_run);
+  if(what === "copy") return st === "writing" ? "Writing…" + (part.eta_minutes ? " " + etaTxt(part.eta_minutes) : "")
+    : st === "queued" ? "Queued" : st === "scheduled" && by ? `Ready by ${by}` : "With the Otto team";
+  if(what === "image") return st === "rendering" ? "Adding the image…" : st === "scheduled" && by ? `Image by ${by}` : "Image with the Otto team";
+  return st === "rendering" ? "Making the video…" : st === "scheduled" && by ? `Video by ${by}` : "Video with the Otto team";
+}
+function postWork(p){
+  const w = p.work;
+  if(w && typeof w === "object" && own(WPART, w.what)){
+    const st = String(w.state || "waiting");
+    return {what: w.what, state: st, active: isActive(st), label: workLabel(w.what, st, w, workOf(p.brand))};
+  }
+  if(p.status === "draft" && !H(p) && !p.caption && !workOf(p.brand)) return {what: "copy", state: "unknown", active: false, label: "Not written yet"};
+  return null;
+}
+const unwritten = (p, wk) => !H(p) && !!wk && wk.what === "copy";
+/* the title line: the hook, or a placeholder the width of one (shimmering only while a run writes it) */
+function titleH(p, wk){
+  const t = H(p);
+  if(t) return `<span class="rt-t" dir="auto">${esc(t)}</span>`;
+  return `<span class="sk sk-t${wk && wk.active ? "" : " still"}" aria-hidden="true"></span><span class="sr">${wk ? "Not written yet." : "Untitled post."}</span>`;
+}
+const wlH = wk => wk ? `<span class="wl${wk.active ? "" : " q"}">${esc(wk.label)}</span>` : "";
+const vbarH = wk => wk && wk.what === "video" ? `<span class="vbar" aria-hidden="true"><i></i></span>` : "";
+
 /* ================= rows ================= */
 function thumbH(p, size){
+  const wk = postWork(p), cls = "thumb" + (size ? " " + size : "");
+  if(wk && wk.what === "image" && !p.image) return `<span class="${cls} wk-m${wk.active ? " shim" : ""}" data-thumb="${esc(p.id)}">${wk.active ? "" : IC.photo}</span>`;
   const badge = /^(reel|video|story)$/.test(p.format || "") ? `<span class="th-b">${IC.play}</span>` : p.format === "carousel" ? `<span class="th-b">${IC.stack}</span>` : "";
-  const cls = "thumb" + (size ? " " + size : "");
-  if(p.image) return `<span class="${cls}" data-thumb="${esc(p.id)}"><img src="${esc(p.image)}" alt="" loading="lazy" decoding="async" draggable="false" data-fail="thumb">${badge}</span>`;
-  return `<span class="${cls}" data-thumb="${esc(p.id)}">${/^(reel|video|story)$/.test(p.format || "") ? IC.reel : IC.photo}</span>`;
+  if(p.image) return `<span class="${cls}" data-thumb="${esc(p.id)}"><img src="${esc(p.image)}" alt="" loading="lazy" decoding="async" draggable="false" data-fail="thumb">${wk && wk.what === "video" ? "" : badge}${vbarH(wk)}</span>`;
+  return `<span class="${cls}" data-thumb="${esc(p.id)}">${/^(reel|video|story)$/.test(p.format || "") ? IC.reel : IC.photo}${vbarH(wk)}</span>`;
 }
 document.addEventListener("error", e => { const t = e.target; if(t && t.tagName === "IMG" && t.dataset.fail){ if(t.dataset.fail === "dm") dmFail(t); else mediaFail(t); } }, true);
 function mediaFail(img){ const t = img.parentElement; if(!t) return; img.remove(); t.insertAdjacentHTML("afterbegin", IC.photo); }
-const tileH = k => `<span class="tile" title="${esc(plat(k))}">${IC[k] || IC.photo}</span>`;
+const tileH = (k, wk) => wk && wk.what === "image" ? `<span class="tile wk-m${wk.active ? " shim" : ""}" aria-hidden="true">${wk.active ? "" : IC.photo}</span>`
+  : `<span class="tile" title="${esc(plat(k))}" style="position:relative">${IC[k] || IC.photo}${vbarH(wk)}</span>`;
 function pendMeta(p){
   if(isPast(p)) return `<span class="late">Slot passed · ${esc(when(p.slot))}</span>`;
-  return esc([brands().length > 1 ? brandName(p.brand) : "", plat(p.platform), when(p.slot)].filter(Boolean).join(" · "));
+  const wk = postWork(p);
+  return (wk ? wlH(wk) + " · " : "") + esc([brands().length > 1 ? brandName(p.brand) : "", plat(p.platform), when(p.slot)].filter(Boolean).join(" · "));
 }
 function pendRowH(p){
   const t = esc(H(p)) || "Untitled post", id = esc(p.id);
@@ -932,10 +1158,12 @@ function pendRowH(p){
   </div>`;
 }
 function postRowH(p){
-  const meta = [when(p.slot) || "No time set", plat(p.platform), p.format && p.format !== "post" ? (own(FMT, p.format) || cap1(p.format)) : "",
-    p.status === "published" && p.metrics && p.metrics.reach ? "Reach " + fmtN(p.metrics.reach) : ""].filter(Boolean).join(" · ");
-  return `<button type="button" class="prow" data-open="${esc(p.id)}" data-fk="p:${esc(p.id)}">${p.image ? thumbH(p, "sm") : tileH(p.platform)}
-    <span class="rt"><span class="rt-t" dir="auto">${esc(H(p)) || '<span class="ph">Copy in progress</span>'}</span><span class="rt-m">${esc(meta)}</span></span>${postPill(p)}</button>`;
+  const wk = postWork(p), fmt = p.format && p.format !== "post" ? (own(FMT, p.format) || cap1(p.format)) : "";
+  const meta = [when(p.slot) || "No time set", plat(p.platform), fmt, p.status === "published" && p.metrics && p.metrics.reach ? "Reach " + fmtN(p.metrics.reach) : ""].filter(Boolean).join(" · ");
+  // still being made: the time first, then what is happening (the tile already shows the network)
+  const m = wk ? `${esc(when(p.slot) || "No time set")} · ${wlH(wk)}${fmt ? " · " + esc(fmt) : ""}` : esc(meta);
+  return `<button type="button" class="prow" data-open="${esc(p.id)}" data-fk="p:${esc(p.id)}">${p.image ? thumbH(p, "sm") : tileH(p.platform, wk)}
+    <span class="rt">${titleH(p, wk)}<span class="rt-m">${m}</span></span>${unwritten(p, wk) ? "" : postPill(p)}</button>`;
 }
 const sec = (title, extra, body, cls) => `<section class="sec${cls ? " " + cls : ""}"><div class="sec-h"><h2>${esc(title)}</h2>${extra || ""}</div>${body}</section>`;
 const holdH = n => `<button type="button" class="hold tap" data-hold data-fk="hold" aria-label="Approve all ${n} posts. Press and hold."><svg class="hold-ring" viewBox="0 0 24 24" aria-hidden="true"><circle class="hr-bg" cx="12" cy="12" r="9.5"/><circle class="hr-fg" cx="12" cy="12" r="9.5" pathLength="1"/><path class="hr-ck" d="M8 12.4l2.7 2.7 5.3-5.5" pathLength="1"/></svg><span>Hold to approve all</span></button>`;
@@ -953,7 +1181,7 @@ function render(o){
   const first = !RENDERED, before = first ? null : listIds();
   const ae = document.activeElement;
   const fk = ae && ae.dataset && ae.dataset.fk && $("app").contains(ae) ? ae.dataset.fk : null;
-  renderChrome(); renderToday(first); renderReview(); renderCalendar(); renderPosts(); renderSettings();
+  renderChrome(); renderToday(first); renderReview(); renderCalendar(); renderPosts(); renderResults(); renderSettings();
   RENDERED = true;
   const want = o.focus || fk;
   if(want && !STACK.length){ const sel = `[data-fk="${cssq(want)}"]`, el = $("v-" + VIEW).querySelector(sel) || $$(sel).find(shown); if(el && shown(el)) el.focus({preventScroll: true}); }
@@ -961,7 +1189,8 @@ function render(o){
     const was = before[l.dataset.list]; if(!was) return;
     $$(":scope > .sw", l).forEach(r => { if(!was.includes(r.dataset.id)) expand(r); });
   });
-  runRollers(); armCharts(); onViewScroll();
+  REC_PEND.forEach(paintRecPending);
+  runRollers(); runBars(); announceWork(); armCharts(); onViewScroll();
 }
 function renderChrome(){
   refreshCounts();
@@ -969,13 +1198,19 @@ function renderChrome(){
   $("side-foot").textContent = updatedText();
   const tb = trialBrand(), tl = $("trial-l"), n = tb ? N(tb.plan_view.trial.days_left) : 0, due = pastDue();
   tl.hidden = !tb && !due;
-  if(due) tl.innerHTML = `<span style="color:var(--red)">Your last payment didn't go through${due.many ? "" : " for " + esc(due.name)}.</span> · <a class="lnk" href="${esc(billingHref(due.brand))}">Update payment method</a>`;
+  if(due) tl.innerHTML = `<span style="color:var(--red)">Your last payment didn't go through${due.many ? "" : " for " + esc(due.name)}.</span> · <a class="lnk" href="${esc(billingHref(due.brand))}" data-nav>Update payment method</a>`;
   else if(tb) tl.innerHTML = `${n} ${n === 1 ? "day" : "days"} left in your trial · <button type="button" data-billing>Add a card</button>`;
-  const sa = $("side-acct"); sa.hidden = !(ME && ME.signed_in && ME.email);
-  if(!sa.hidden) sa.innerHTML = `${esc(ME.email)}${ME.via === "google" ? ` · <button type="button" class="lnk" data-signout>Sign out</button>` : ""}`;
+  // the account menu: initials top right on phones, name and e-mail at the sidebar's foot on desktop
+  const ini = initials(), sm = $("side-me"), tm = $("tb-me");
+  sm.hidden = tm.hidden = !brands().length && !(ME && ME.signed_in);
+  tm.textContent = ini; sm.querySelector(".me").textContent = ini;
+  sm.querySelector(".sm-n").textContent = (ME && ME.name) || (brands().length === 1 ? brands()[0].name : "Account");
+  sm.querySelector(".sm-e").textContent = (ME && ME.signed_in && ME.email) || "Account and settings";
+  sm.setAttribute("aria-label", "Account menu" + (ME && ME.email ? ", " + ME.email : ""));
+  if(VIEW === "acct") sm.setAttribute("aria-current", "page"); else sm.removeAttribute("aria-current");
 }
 function refreshCounts(){
-  const n = pendingList().length, b = $("tab-badge"), c = $("side-cnt");
+  const n = pendingList().length + plansWaiting().length, b = $("tab-badge"), c = $("side-cnt");
   const prev = b.dataset.n;
   if(prev !== String(n)){
     b.hidden = !n; c.hidden = !n;
@@ -996,12 +1231,10 @@ function activityOf(){
   if(pub.length) return {t: pub.length === 1 ? `Publishing to ${plat(pub[0].platform)}` : `Publishing ${pub.length} posts`, work: true};
   const rew = P.filter(p => p.status === "draft" && p.edit_note);
   if(rew.length) return {t: rew.length === 1 ? `Rewriting “${short(H(rew[0]), 28)}”` : `Rewriting ${rew.length} posts you changed`, work: true};
-  const dr = P.filter(p => p.status === "draft" && isFuture(p)).sort(bySlot);
-  if(dr.length){
-    if(dr.length > 1) return {t: `Drafting ${dr.length} upcoming posts`, work: true};
-    const d = toDate(dr[0].slot), k = dayDiff(d), noun = /^(reel|video)$/.test(dr[0].format || "") ? "reel" : "post";
-    const day = k === 0 ? "today's" : k === 1 ? "tomorrow's" : k < 7 ? d.toLocaleDateString("en-GB", {weekday: "long"}) + "'s" : "";
-    return {t: day ? `Drafting ${day} ${noun}` : `Drafting the ${noun} for ${dayMon(d)}`, work: true};
+  const wa = workActivity(); if(wa) return wa;
+  if(!brands().some(b => workOf(b.id))){                  // no work from the server (older API, local preview): say only what is so
+    const dr = P.filter(p => p.status === "draft" && isFuture(p) && !H(p));
+    if(dr.length) return {t: `${dr.length} upcoming ${plural(dr.length, "post")} not written yet`, work: false};
   }
   const g = DATA.growth || {};
   const drop = Object.values(g).map(x => (x.mom || {}).reach).filter(v => v != null && v <= -20).sort((a, b) => a - b)[0];
@@ -1009,6 +1242,79 @@ function activityOf(){
   const nx = nextUp()[0];
   if(nx) return {t: pendingList().length ? `Next post ${when(nx.slot)}` : `All caught up · next post ${when(nx.slot)}`, work: false};
   return null;
+}
+/* the activity pill's line for what Otto is making (brands[].work), most urgent first; work: true only while a run is on it */
+function workActivity(){
+  const W = brands().map(b => [b, workOf(b.id)]).filter(x => x[1]);
+  if(!W.length) return null;
+  const part = k => W.map(([b, w]) => [b, own(w, k) || {}]);
+  const C = part("copy"), I = part("images"), R = part("reels");
+  const inS = (L, s) => L.filter(([, x]) => x.state === s), left = L => L.reduce((a, [, x]) => a + Math.max(0, N(x.total) - N(x.done)), 0);
+  const cnt = L => L.reduce((a, [, x]) => a + N(x.pending), 0);
+  const soon = L => L.map(([, x]) => x.next_run).filter(Boolean).sort()[0];
+  const posts = n => `${n} ${plural(n, "post")}`;
+  let L = inS(C, "writing");
+  if(L.length){
+    const fw = L.length === 1 && L[0][1].first_week, x = L[0][1];
+    if(fw) return {t: `Writing your first week · ${N(x.done)} of ${N(x.total)}`, work: true};
+    return {t: `Writing ${posts(left(L))}` + (x.eta_minutes ? ` · ${etaTxt(Math.max(...L.map(([, y]) => N(y.eta_minutes))))}` : ""), work: true};
+  }
+  if((L = inS(C, "queued")).length) return {t: L.length === 1 && L[0][1].first_week ? "Starting on your first week" : `Starting on ${posts(left(L))}`, work: true};
+  if((L = inS(I, "rendering")).length) return {t: `Adding images to ${posts(cnt(L))}`, work: true};
+  if((L = inS(R, "rendering")).length) return {t: cnt(L) === 1 ? "Making a reel video" : `Making ${cnt(L)} reel videos`, work: true};
+  if((L = inS(C, "scheduled")).length) return {t: `${cap1(posts(left(L)))} ready by ${byWhen(soon(L))}`, work: false};
+  if((L = inS(C, "waiting")).length && left(L)) return {t: `${cap1(posts(left(L)))} with the Otto team`, work: false};
+  if((L = inS(I, "scheduled")).length) return {t: `${cnt(L)} ${plural(cnt(L), "image")} ready by ${byWhen(soon(L))}`, work: false};
+  if((L = inS(R, "scheduled")).length) return {t: `${cnt(L) === 1 ? "Reel video" : cnt(L) + " reel videos"} ready by ${byWhen(soon(L))}`, work: false};
+  return null;
+}
+/* the progress card at the top of Today and Posts: the first week while it is being made (then once: "ready to review"),
+   or any run writing right now. A determinate bar while a run writes (n of N), words only when a person prepares it. */
+const FW_KEY = "otto.first-week-seen.";
+function fwSeen(bid){ try{ return localStorage.getItem(FW_KEY + bid) === "1"; }catch(_){ return false; } }
+function fwHide(bid){ try{ localStorage.setItem(FW_KEY + bid, "1"); }catch(_){} WK.hidden.add(bid); }
+const WK = {bars: {}, hidden: new Set(), live: ""};
+function pbarH(key, n, of, label, still){
+  const p = of ? Math.min(1, n / of) : 0, was = own(WK.bars, key);
+  WK.bars[key] = p;
+  return `<div class="pbar${still ? " still" : ""}" role="progressbar" aria-label="${esc(label)}" aria-valuemin="0" aria-valuemax="${of}" aria-valuenow="${n}" aria-valuetext="${n} of ${of}"><i style="width:${((was == null || RM() ? p : was) * 100).toFixed(1)}%" data-w="${(p * 100).toFixed(1)}"></i></div>`;
+}
+function runBars(){ requestAnimationFrame(() => requestAnimationFrame(() => $$(".pbar>i[data-w]").forEach(i => { i.style.width = i.dataset.w + "%"; i.removeAttribute("data-w"); }))); }
+function workCard(b){
+  const w = workOf(b.id); if(!w) return null;
+  const c = own(w, "copy") || {}, im = own(w, "images") || {}, fw = !!c.first_week, of = N(c.total), n = Math.min(N(c.done), of);
+  const whose = fw ? "your first week" : "your next posts", name = brands().length > 1 ? b.name : "";
+  if(c.state === "writing" || c.state === "queued"){
+    const t = c.state === "writing" ? `Otto is writing ${whose}` : `Otto is starting on ${whose}`;
+    const eta = c.eta_minutes ? `${cap1(etaTxt(c.eta_minutes))} left. ` : "";
+    return {b, t, n, of, cls: "", say: `${t}: ${n} of ${of} posts ready.`,
+      bar: c.state === "queued" && !n ? `<div class="pbar ind" role="progressbar" aria-label="${esc(t)}"><i></i></div>` : pbarH(b.id, n, of, "Posts written"),
+      s: eta + "Each post appears in Review as soon as it's written. You can leave this page; Otto keeps going."};
+  }
+  if(!fw) return null;
+  if(c.state === "scheduled") return {b, t: `Your first week: ${n} of ${of} posts ready`, n: null, cls: "", say: "",
+    bar: n ? pbarH(b.id, n, of, "Posts written", true) : "", s: `Otto writes the rest by ${byWhen(c.next_run)}. They appear in Review as soon as they're ready.`};
+  if(c.state === "waiting") return {b, t: "The Otto team is preparing your first week", n: null, cls: "", say: "",
+    bar: "", s: (n ? `${n} of ${of} posts are ready. ` : "") + "The posts appear in Review as soon as they're ready."};
+  if(c.state === "done" && (im.state === "rendering" || im.state === "scheduled")) return {b, t: "Adding images to your first week", n: null, cls: "",
+    say: im.state === "rendering" ? "Adding images to your first week." : "",
+    bar: im.state === "rendering" ? `<div class="pbar ind" role="progressbar" aria-label="Adding images"><i></i></div>` : "",
+    s: im.state === "rendering" ? "The posts are written; their images follow in a moment." : `The posts are written; their images are ready by ${byWhen(im.next_run)}.`};
+  const waiting = posts().filter(p => p.brand === b.id && p.status === "pending_approval").length;
+  if(c.state === "done" && waiting && !fwSeen(b.id) && !WK.hidden.has(b.id)) return {b, t: "Your first week is ready to review", n: null, cls: " ok",
+    say: "Your first week is ready to review.", bar: "", s: `${numw(waiting)} ${plural(waiting, "post")} ${waiting === 1 ? "is" : "are"} waiting for you. Nothing goes out without your approval.`,
+    act: `<button type="button" class="btn gray sm tap" data-go="review" data-wk-seen="${esc(b.id)}" data-fk="wk-go:${esc(b.id)}">Review</button><button type="button" class="tbtn quiet tap" data-wk-seen="${esc(b.id)}" data-fk="wk-hide:${esc(b.id)}">Not now</button>`};
+  return null;
+}
+function workCardsH(where){
+  return brands().map(workCard).filter(Boolean).map(k => `<section class="card wcard${k.cls}" data-wcard="${esc(k.b.id)}" aria-label="${esc(k.t + (brands().length > 1 ? ", " + k.b.name : ""))}">
+    <div class="wc-h"><p class="wc-t">${esc(k.t)}</p>${k.n != null ? `<span class="wc-n">${k.n} of ${k.of}</span>` : ""}</div>
+    ${brands().length > 1 ? `<p class="wc-s" style="margin-top:2px">${esc(k.b.name)}</p>` : ""}${k.bar}<p class="wc-s">${esc(k.s)}</p>${k.act ? `<div class="wc-a">${k.act}</div>` : ""}</section>`).join("");
+}
+/* one polite announcement when what Otto is making changes (the cards themselves are re-rendered, so not live regions) */
+function announceWork(){
+  const s = brands().map(workCard).filter(Boolean).map(k => k.say).filter(Boolean).join(" ");
+  if(s !== WK.live){ WK.live = s; $("work-live").textContent = s; }
 }
 let ACT_TXT = null;
 function setActivity(a){
@@ -1026,142 +1332,263 @@ function setActivity(a){
   play(el, [{width: w0 + "px"}, {width: w1 + "px"}], {duration: 480, easing: EZ.smooth}).then(drop);
   play(t, [{opacity: 0}, {opacity: 1}], {duration: 180, easing: "linear"}).then(drop);
 }
+/* ================= the dashboard blocks (GET /otto-api/data → brands[].today / ledger / results / ad_review: otto_dashboard)
+   today = the 07:35 report's own model (the same function as the e-mail, in English); ledger = this month's work and the
+   connect checklist; results = 7 / 30 / 90 days against the period before; ad_review = the month's ads for Review. A number
+   the server does not have arrives as null with a state that says why: the app says that, never a zero. */
+const blk = (b, k) => { const x = b ? own(b, k) : null; return x && typeof x === "object" ? x : null; };
+function money(v, cur, dig){
+  if(v == null || !Number.isFinite(Number(v))) return "—";
+  const n = Number(v), d = dig != null ? dig : (Math.abs(n - Math.round(n)) < .005 ? 0 : 2);
+  return curSym(cur) + n.toLocaleString("en-GB", {minimumFractionDigits: d, maximumFractionDigits: d});
+}
+const intN = v => Math.round(N(v)).toLocaleString("en-GB");
+const KIND = {leads: ["enquiry", "enquiries"], purchases: ["sale", "sales"], conversions: ["conversion", "conversions"]};
+const kindW = (k, n) => { const w = own(KIND, k) || ["result", "results"]; return Math.round(N(n)) === 1 ? w[0] : w[1]; };
+const isoDay = s => { const d = toDate(String(s || "") + "T12:00"); return d; };
+const shortDay = s => { const d = isoDay(s); return d ? dayMon(d) : ""; };
+
+/* ---------- connect (Today's banner, the checklist, Connections): the honest next step ---------- */
+const CONNECT = {
+  meta: {title: "Instagram and Facebook", help: "meta",
+    why: "Otto publishes the posts you approve, in their slots, and reads their numbers for Results and your 07:35 report. For that it needs your Facebook Page and your Instagram account.",
+    done: "Otto publishes your approved posts and reads their numbers for Results and your 07:35 report."},
+  ad_account: {title: "Meta ad account", help: "ad_account",
+    why: "Your ads run from your own Meta ad account, so the spend is billed to you by Meta, and their results come from it.",
+    done: "Your ads run from it and their results come from it every morning at 07:15."},
+  google: {title: "Google Ads", help: "google_ads",
+    why: "Search ads run from your own Google Ads account, and their results come from it.",
+    done: "Your search ads run from it and their results come from it every morning."}
+};
+function connItem(bid, kind){
+  const b = brands().find(x => x.id === bid), L = blk(b, "ledger");
+  const c = L && Array.isArray(L.connect) ? L.connect.find(x => x.id === kind) : null;
+  if(c) return c;
+  const cid = (kind === "google" ? "gads-" : "meta-") + bid, raw = (DATA.connections || []).find(x => x.id === cid);
+  const st = raw ? (raw.status === "connected" ? "connected" : /expired|error|disconnected|revoked|invalid/i.test(raw.status || "") ? "broken" : "not_connected") : "not_connected";
+  const asked = b && b.connect_help && typeof b.connect_help === "object" ? own(b.connect_help, kind === "google" ? "google_ads" : kind) : null;
+  return {id: kind, state: st, done: st === "connected", requested: asked && asked.at};
+}
+function openConnect(kind, bid, opener){
+  const k = own(CONNECT, kind) ? kind : "meta", C = CONNECT[k];
+  bid = bid || (brands()[0] || {}).id; if(!bid) return;
+  const c = connItem(bid, k), st = c.done ? "connected" : c.state === "broken" ? "broken" : "not_connected";
+  const many = brands().length > 1 ? ` · ${esc(brandName(bid))}` : "";
+  const pill = st === "connected" ? pillH("Connected", "ok") : st === "broken" ? pillH("Reconnect needed", "bad") : c.requested ? pillH("Requested", "need") : pillH("Not connected", "quiet");
+  let body = `<div class="dmeta" style="margin-top:0">${pill}${many ? `<span>${many.slice(3)}</span>` : ""}</div>`;
+  if(st === "connected") body += `<p class="cn-p">${esc(C.done)}</p>`;
+  else {
+    body += `<p class="cn-p">${esc(C.why)}</p>`
+      + `<p class="cn-p">Connecting from the app isn't switched on yet. When it is, you do it here with ${k === "google" ? "Google's" : "Meta's"} own sign-in: you choose the ${k === "meta" ? "Page and the account" : "account"}, and Otto never sees your password.</p>`
+      + `<p class="cn-p">Until then, Otto's team links it with you. ${k === "meta" ? "Your posts keep coming meanwhile: they wait for your approval in Review, and nothing is published." : "Nothing is spent until your ads are approved and live."}</p>`
+      + (c.requested ? `<p class="cn-p"><b>You asked on ${esc(dayMon(new Date(c.requested)))}.</b> Otto's team has your request.</p>` : "");
+  }
+  const foot = st === "connected" ? "" : c.requested
+    ? `<button type="button" class="btn gray lg block tap" data-close>Done</button>`
+    : `<button type="button" class="btn pri lg block tap" data-ask="${esc(C.help)}" data-b="${esc(bid)}" data-fk="ask-${esc(k)}">Ask Otto's team to ${st === "broken" ? "reconnect" : "connect"} it</button>`;
+  present(makeSheet({id: "cn", size: "auto", title: C.title, body, foot, opener}));
+}
+async function askConnect(btn){
+  const what = btn.dataset.ask, bid = btn.dataset.b, b = brands().find(x => x.id === bid); if(!b) return;
+  pending(btn, true);
+  try{
+    const data = await send({kind: "brand", id: bid, connect_help: what});
+    if(data) adopt(data); else { b.connect_help = Object.assign({}, b.connect_help, {[what]: {at: new Date().toISOString()}}); scheduleRender(); }
+    const s = STACK[STACK.length - 1]; if(s) await closeSheet(s);
+    toast("Sent to Otto's team");
+  }catch(e){ pending(btn, false); toast("Couldn't send. " + errText(e), {err: true}); }
+}
+
+/* ---------- today ---------- */
 function bannersH(){
-  const out = [], meta = (DATA.connections || []).filter(c => /instagram|facebook|meta/i.test(c.service || ""));
-  const broken = meta.filter(c => /expired|error|disconnected|revoked|invalid/i.test(c.status || ""));
-  const bn = (t, cls, label, go) => `<div class="card banner ${cls}"><i class="bd" aria-hidden="true"></i><p class="bt">${esc(t)}</p><button type="button" class="tbtn tap" data-go="${esc(go)}">${esc(label)}</button></div>`;
-  const sv = String(broken.length ? broken[0].service : "");
-  if(broken.length) out.push(bn(`${/instagram/i.test(sv) && /facebook/i.test(sv) ? "Instagram and Facebook" : /instagram/i.test(sv) ? "Instagram" : "Facebook"} disconnected. Posts are paused until you reconnect.`, "bad", "Reconnect", "settings"));
-  else if(meta.some(c => c.status !== "connected")) out.push(bn("Connect Instagram and Facebook so Otto can publish.", "warn", "Connect", "settings"));
+  const out = [];
+  const bn = (t, cls, btn) => `<div class="card banner ${cls}"><i class="bd" aria-hidden="true"></i><p class="bt">${esc(t)}</p>${btn}</div>`;
+  brands().forEach(b => {
+    const c = connItem(b.id, "meta"), name = brands().length > 1 ? b.name + ": " : "";
+    if(c.done) return;
+    if(c.state === "broken") out.push(bn(`${name}Instagram and Facebook need reconnecting. Posts are paused until they are.`, "bad",
+      `<button type="button" class="tbtn tap" data-connect="meta" data-b="${esc(b.id)}" data-fk="bn-meta:${esc(b.id)}">Reconnect</button>`));
+    else if(c.requested) out.push(bn(`${name}Otto's team is linking Instagram and Facebook with you. Approved posts go out once it's done.`, "warn",
+      `<button type="button" class="tbtn quiet tap" data-connect="meta" data-b="${esc(b.id)}" data-fk="bn-meta:${esc(b.id)}">Details</button>`));
+    else if(!weekOne(b)) out.push(bn(`${name}Connect Instagram and Facebook so Otto can publish.`, "warn",   // week 1: the checklist says it
+      `<button type="button" class="tbtn tap" data-connect="meta" data-b="${esc(b.id)}" data-fk="bn-meta:${esc(b.id)}">Connect</button>`));
+  });
   const failed = posts().filter(p => p.status === "failed");
-  if(failed.length) out.push(bn(failed.length === 1 ? `A post couldn't publish: “${short(H(failed[0]), 48)}”` : `${numw(failed.length)} posts couldn't publish.`, "bad", "View", failed.length === 1 ? "open:" + failed[0].id : "posts"));
+  if(failed.length) out.push(bn(failed.length === 1 ? `A post couldn't publish: “${short(H(failed[0]), 48)}”` : `${numw(failed.length)} posts couldn't publish.`, "bad",
+    `<button type="button" class="tbtn tap" data-go="${esc(failed.length === 1 ? "open:" + failed[0].id : "list")}">View</button>`));
   return out.join("");
 }
+/* Yesterday, as the 07:35 report counts it (brands[].today): reached · enquiries · spent · cost per enquiry */
+function ystripH(b){
+  const t = blk(b, "today"); if(!t) return "";
+  const y = t.yesterday || {}, p = t.paid, many = brands().length > 1;
+  const tile = (key, val, label, sub, cls) => `<button type="button" class="yt tap" data-go="results" data-rb="${esc(b.id)}" data-fk="yt:${esc(b.id)}:${key}"><span class="n">${val}</span><span class="l">${esc(label)}</span>${sub ? `<span class="s${cls ? " " + cls : ""}">${esc(sub)}</span>` : ""}</button>`;
+  const na = s => `<span class="na">${esc(s)}</span>`;
+  const reached = y.reach != null ? esc(intN(y.reach)) : na(N(y.posts) ? "Not in yet" : "No posts");
+  const rsub = N(y.posts) ? (N(y.with_numbers) < N(y.posts) ? "Meta reports 24–48 h after a post" : `From ${N(y.posts)} ${plural(N(y.posts), "post")}`) : "Nothing went out";
+  let tiles;
+  if(p && p.state === "ok"){
+    const k = p.kind || "leads", cur = p.currency;
+    tiles = tile("reach", reached, "Reached", rsub)
+      + tile("res", esc(intN(p.results)), cap1(kindW(k, 2)), p.avg7 != null ? `7-day average ${Number(p.avg7).toLocaleString("en-GB", {maximumFractionDigits: 1})}` : "")
+      + tile("spend", esc(money(p.spend, cur)), "Spent on ads", p.budget ? (p.within ? `Within ${money(p.budget, cur)} a day` : `Above ${money(p.budget, cur)} a day`) : "", p.budget && !p.within ? "dn" : "")
+      + tile("cost", p.cost != null ? esc(money(p.cost, cur, 2)) : na(`No ${kindW(k, 2)}`), `Per ${kindW(k, 1)}`, p.month ? `${money(p.month.spent, cur)} of ${money(p.month.planned, cur)} this month` : "");
+  } else if(p){
+    const msg = {trial: "Your ads are ready. They start when you choose a plan; nothing is spent in the trial.",
+      not_connected: "Connect your Meta ad account to see what your ads bring.",
+      pending: "Yesterday's ad numbers arrive after 07:15.",
+      idle: "No ads ran yesterday." + (p.next ? ` They start ${shortDay(p.next)}.` : "")}[p.state] || "";
+    const act = p.state === "not_connected" ? `<button type="button" class="tbtn tap" data-connect="ad_account" data-b="${esc(b.id)}" style="margin:6px 0 0 -10px">Connect</button>` : "";
+    tiles = tile("reach", reached, "Reached", rsub) + `<div class="yt yt-wide"><span class="l">Ads</span><span class="yt-msg">${esc(msg)}</span>${act}</div>`;
+  } else {
+    tiles = tile("posts", esc(intN(y.posts)), plural(N(y.posts), "Post") + " out", N(y.failed) ? `${N(y.failed)} couldn't publish` : "", N(y.failed) ? "dn" : "")
+      + tile("reach", reached, "Reached", N(y.posts) && N(y.with_numbers) < N(y.posts) ? "Meta reports 24–48 h after a post" : "")
+      + tile("eng", y.reactions != null ? esc(intN(y.reactions)) : na(N(y.posts) ? "Not in yet" : "—"), "Reactions", "")
+      + tile("clicks", y.clicks != null ? esc(intN(y.clicks)) : na(N(y.posts) ? "Not in yet" : "—"), "Clicks", "");
+  }
+  return `<section class="card ystrip" aria-labelledby="ys-${esc(b.id)}"><div class="card-h"><h2 id="ys-${esc(b.id)}">Yesterday${many ? " · " + esc(b.name) : ""}</h2><span class="sub">${esc(shortDay(t.day))}</span><a href="#results" class="more" data-view="results">See results</a></div><div class="yt-g">${tiles}</div></section>`;
+}
+/* week 1: nothing has gone out yet and no ad has spent — the checklist instead of a strip of "not in yet" */
+const weekOne = b => { const R = blk(b, "results"), t = blk(b, "today"); return !!R && R.state === "empty" && !(t && t.paid && t.paid.state === "ok"); };
+function checklistH(b, o){
+  o = o || {};
+  const L = blk(b, "ledger"), C = L && Array.isArray(L.connect) ? L.connect : [];
+  if(!C.length) return "";
+  const done = C.filter(c => c.done).length;
+  if(done === C.length && !o.always) return "";
+  const act = c => {
+    if(c.done) return "";
+    if(c.id === "meta" || c.id === "ad_account") return `<button type="button" class="btn gray sm tap" data-connect="${esc(c.id)}" data-b="${esc(b.id)}" data-fk="ck-${esc(c.id)}:${esc(b.id)}">${c.requested ? "Requested" : c.state === "broken" ? "Reconnect" : c.id === "meta" ? "Connect" : "How"}</button>`;
+    if(c.id === "approvals") return `<button type="button" class="btn gray sm tap" data-acct="notifications" data-fk="ck-appr:${esc(b.id)}">Choose</button>`;
+    return "";
+  };
+  const li = c => `<li><span class="ck${c.done ? " on" : c.state === "broken" ? " bad" : ""}" aria-hidden="true">${c.done ? IC.check : ""}</span><span class="rt"><span class="rt-t one">${esc(c.label)}<span class="sr">${c.done ? ", done" : ", to do"}</span></span><span class="rt-m">${esc(c.detail || "")}</span></span>${act(c)}</li>`;
+  return `<section class="card${o.cls ? " " + o.cls : ""}" aria-labelledby="ck-h-${esc(b.id)}"><div class="card-h"><h2 id="ck-h-${esc(b.id)}">${esc(o.title || "Get set up")}${brands().length > 1 ? " · " + esc(b.name) : ""}</h2><span class="sub">${done} of ${C.length} done</span></div><ul class="chk">${C.map(li).join("")}</ul></section>`;
+}
+/* this month's work: posts, stories and reels made (and out) against the month's plan; the ads; the ad budget */
+function ledgerH(b, o){
+  o = o || {};
+  const L = blk(b, "ledger"); if(!L) return "";
+  const rows = [];
+  [["Posts", L.posts], ["Stories", L.stories], ["Reels", L.reels]].forEach(([label, x]) => {
+    if(!x || !N(x.planned)) return;
+    const of = N(x.planned), made = Math.min(N(x.made), of), out = Math.min(N(x.out), of);
+    if(!made){ rows.push(`<div class="lg-r"><span class="lg-l">${label}</span><span class="lg-v"><b>${of}</b> planned · none made yet</span></div>`); return; }
+    rows.push(`<div class="lg-r"><span class="lg-l">${label}</span><span class="lg-v"><b>${made}</b> of ${of} made${out ? ` · ${out} out` : ""}</span>
+      <div class="lg-bar" role="progressbar" aria-label="${label} made this month" aria-valuemin="0" aria-valuemax="${of}" aria-valuenow="${made}" aria-valuetext="${made} of ${of} made, ${out} published"><i style="width:${(made / of * 100).toFixed(1)}%"></i><b style="width:${(out / of * 100).toFixed(1)}%"></b></div></div>`);
+  });
+  const A = L.ads, Bu = L.budget;
+  if(A){
+    const d = N(A.designed), mix = A.angles && A.styles ? ` · ${A.angles} ${plural(A.angles, "angle")} × ${A.styles} ${plural(A.styles, "style")}` : "";
+    const v = A.state === "live" ? `<b>${N(A.live)}</b> live${d ? ` of ${d}` : ""}${mix}`
+      : !d ? "None planned for this month yet"
+      : A.trial ? `<b>${d}</b> designed${mix} · they start with a plan`
+      : A.state === "draft" ? `<b>${d}</b> designed · waiting for your approval`
+      : A.state === "approved" ? `<b>${d}</b> approved · they launch on schedule` : `<b>${d}</b> designed${mix}`;
+    rows.push(`<div class="lg-r"><span class="lg-l">Ads</span><span class="lg-v">${v}</span></div>`);
+  }
+  if(Bu && (N(Bu.planned) || Bu.spent != null)){
+    const cur = Bu.currency, pl = N(Bu.planned);
+    const v = Bu.spent != null ? `<b>${esc(money(Bu.spent, cur))}</b> of ${esc(money(pl, cur))} spent` : `${esc(money(pl, cur))} planned · ${A && A.state === "live" ? "spend shows after the first ads report" : "nothing spent yet"}`;
+    rows.push(`<div class="lg-r"><span class="lg-l">Ad budget</span><span class="lg-v">${v}</span>${Bu.spent != null && pl ? `<div class="lg-bar" role="progressbar" aria-label="Ad budget spent this month" aria-valuemin="0" aria-valuemax="${pl}" aria-valuenow="${Math.min(N(Bu.spent), pl)}" aria-valuetext="${esc(money(Bu.spent, cur))} of ${esc(money(pl, cur))}"><b style="width:${Math.min(100, N(Bu.spent) / pl * 100).toFixed(1)}%"></b></div>` : ""}</div>`);
+  }
+  const body = rows.length ? rows.join("") : `<p class="lg-r" style="display:block"><span class="lg-v" style="text-align:left;display:block">Nothing is planned for ${esc(L.label || "this month")} yet.</span></p>`;
+  const key = rows.some(r => /lg-bar/.test(r)) && (N((L.posts || {}).out) || N((L.stories || {}).out) || N((L.reels || {}).out)) ? `<p class="lg-k" aria-hidden="true"><span><i></i>Out</span><span><i class="mk2"></i>Made</span></p>` : "";
+  return `<section class="card" aria-labelledby="lg-h-${esc(b.id)}"><div class="card-h"><h2 id="lg-h-${esc(b.id)}">${esc(o.title || "This month's work")}${brands().length > 1 ? " · " + esc(b.name) : ""}</h2><span class="sub">${esc(L.label || "")}</span></div><div class="ledger">${body}${key}</div></section>`;
+}
+/* the month's paid plan waiting for approval: one row in "Needs you", the ads themselves in Review */
+const plansWaiting = () => brands().map(b => [b, blk(b, "ad_review")]).filter(([, A]) => A && A.plan_rec && A.state === "proposed"
+  && (DATA.recommendations || []).some(r => r.id === A.plan_rec && r.status === "proposed"));
+function planRowH([b, A]){
+  const bu = A.budget, many = brands().length > 1 ? `${b.name} · ` : "";
+  const meta = [`${N(A.count)} ${plural(N(A.count), "ad")}`, bu && bu.total ? `about ${money(bu.total, bu.currency)}` : "", A.trial ? "start with a plan" : ""].filter(Boolean).join(" · ");
+  return `<button type="button" class="prow plan" data-go="review" data-fk="plan:${esc(b.id)}"><span class="tile">${IC.ad}</span><span class="rt"><span class="rt-t one">${esc(many)}Your ads for ${esc(A.label)}</span><span class="rt-m">${esc(meta)}</span></span>${pillH("Needs you", "need")}</button>`;
+}
 function renderToday(first){
-  const P = pendingList(), n = P.length;
+  const P = pendingList(), n = P.length, B = brands();
   $("t-date").textContent = new Date().toLocaleDateString("en-GB", {weekday: "long", day: "numeric", month: "long"});
   setActivity(activityOf());
   const late = P.filter(isPast).length;
+  const making = B.some(b => { const c = own(workOf(b.id) || {}, "copy") || {}; return c.first_week ? c.state !== "done" : isActive(c.state); });
   let s1, s2 = "";
   if(n){
     s1 = `${numw(n)} ${plural(n, "post")} ${n === 1 ? "needs" : "need"} you.`;
     if(late === n) s2 = n === 1 ? "Its slot has passed." : n === 2 ? "Both are past their slot." : `All ${numw(n).toLowerCase()} are past their slot.`;
     else if(late) s2 = `${numw(late)} ${late === 1 ? "is" : "are"} past ${late === 1 ? "its" : "their"} slot.`;
     else s2 = `The first is due ${when(P[0].slot)}.`;
+  } else if(making && !nextUp().length){
+    s1 = "Nothing needs you yet."; s2 = "Posts appear here as they're ready.";
   } else {
     s1 = "You're all caught up.";
     const nx = nextUp()[0];
     s2 = nx ? `Next post ${when(nx.slot)}.` : "New posts will appear here when they're ready.";
   }
-  const Ps = posts();
-  const sch = Ps.filter(p => p.status === "approved" || p.status === "scheduled").length, pub = Ps.filter(p => p.status === "published").length;
-  const reach = Object.values(DATA.growth || {}).reduce((a, x) => a + (((x.months || {})[x.current] || {}).reach || 0), 0);
-  const third = reach ? [fmtN(reach), "Reach this month"] : [String(brands().length), plural(brands().length, "Brand")];
-  const stat = (k, v, l) => `<div class="stat"><div class="n">${rollH("st-" + k, v, first ? "0" : null)}</div><div class="l">${esc(l)}</div></div>`;
-  const main = bannersH()
-    + `<div class="hero"><p class="hero-t">${esc(s1)} <span class="dim">${esc(s2)}</span></p>${n ? `<button type="button" class="btn pri lg tap" data-go="review-all" data-fk="hero-cta">Review ${n} ${plural(n, "post")}</button>` : ""}</div>`
-    + `<div class="card stats">${stat("sch", sch, "Scheduled")}${stat("pub", pub, "Published")}${stat("x", third[0], third[1])}</div>`
-    + (n ? sec("Needs you", n > 3 ? `<a href="#review" class="more" data-view="review">See all ${n}</a>` : "", `<div class="list" role="list" data-list="today-need">${P.slice(0, 3).map(pendRowH).join("")}</div>`) : "")
-    + (nextUp().length ? sec("Up next", "", `<div class="list">${nextUp().slice(0, 3).map(postRowH).join("")}</div>`) : "");
-  const side = resultsH(first) + recH();
+  // the report's own sentence about yesterday (one brand: the 07:35 line; several: each brand has its strip)
+  const t = B.length === 1 ? blk(B[0], "today") : null, line = t && t.line ? String(t.line) : "";
+  const strips = B.map(b => weekOne(b) ? checklistH(b, {cls: "ystrip"}) : ystripH(b)).join("");
+  const plans = plansWaiting();
+  const need = (plans.length || n) ? sec("Needs you", n > 3 ? `<a href="#review" class="more" data-view="review">See all ${n}</a>` : "",
+    (plans.length ? `<div class="list" style="margin-bottom:${n ? 12 : 0}px">${plans.map(planRowH).join("")}</div>` : "")
+    + (n ? `<div class="list" role="list" data-list="today-need">${P.slice(0, 3).map(pendRowH).join("")}</div>` : "")) : "";
+  const wk = nextUp(), soon = wk.filter(p => { const d = toDate(p.slot); return d && d - new Date() < 7 * 864e5; });
+  const week = soon.length ? sec("This week", `<a href="#calendar" class="more" data-view="calendar">Calendar</a>`, `<div class="list">${soon.slice(0, 5).map(postRowH).join("")}</div>`)
+    : wk.length ? sec("Up next", "", `<div class="list">${wk.slice(0, 3).map(postRowH).join("")}</div>`) : "";
+  const main = workCardsH("today") + bannersH()
+    + `<div class="hero"><p class="hero-t">${line ? esc(line) + " " : ""}${esc(s1)} <span class="dim">${esc(s2)}</span></p>${n ? `<button type="button" class="btn pri lg tap" data-go="review-all" data-fk="hero-cta">Review ${n} ${plural(n, "post")}</button>` : ""}</div>`
+    + strips + need + week;
+  const side = B.map(b => `<div class="sec">${ledgerH(b)}</div>`).join("") + recH();
   const body = $("today-body");
   body.innerHTML = `<div class="tgrid"><div class="tmain">${main}</div><div class="tside">${side}</div></div>`;
   body.removeAttribute("aria-busy");
 }
+/* the one suggestion: a set-up card ("Connect Instagram") opens the Connect sheet instead of being marked done */
+const STEP_GO = {meta: ["connect", "meta"], google_ads: ["connect", "google"], telegram: ["acct", "notifications"]};
 function recH(){
   const r = pickRec(DATA); if(!r) return "";
   const why = r.why ? String(r.why).split(/(?<=[.!?])\s/)[0] : "";
+  const go = own(STEP_GO, r.onboard_step);
+  const act = go ? (go[0] === "connect" ? `<button type="button" class="tbtn tap" data-connect="${go[1]}" data-b="${esc(r.brand || "")}" data-fk="rec-yes">${esc(r.cta || "Connect")}</button>`
+      : `<button type="button" class="tbtn tap" data-acct="${go[1]}" data-fk="rec-yes">${esc(r.cta || "Open")}</button>`)
+    : `<button type="button" class="tbtn tap" data-rec-act="done" data-fk="rec-yes">${esc(r.cta || "Done")}</button>`;
   return sec("Suggestion", "", `<div class="card rec" data-rec="${esc(r.id)}"><p class="rec-t">${esc(r.title)}</p>${why ? `<p class="rec-w">${esc(why)}</p>` : ""}
-    <div class="rec-a"><button type="button" class="tbtn quiet tap" data-rec-act="dismissed" data-fk="rec-no">Not now</button><button type="button" class="tbtn tap" data-rec-act="done" data-fk="rec-yes">${esc(r.cta || "Done")}</button></div></div>`);
+    <div class="rec-a"><button type="button" class="tbtn quiet tap" data-rec-act="dismissed" data-fk="rec-no">Not now</button>${act}</div></div>`);
 }
 
-/* ---------- growth + charts ---------- */
-function growthLive(){
-  const g = DATA.growth || {};
-  return Object.keys(g).filter(id => { const x = g[id] || {}, m = x.months || {}, c = own(m, x.current) || {}, p = own(m, x.previous) || {};
-    return c.posts || p.posts || c.spend || p.spend || c.reach || p.reach; });
-}
-function delta(v, kind){                      // kind: pct | abs | inv (lower is better; otto_growth already inverts cpl)
-  if(v == null) return `<span class="dl">No prior month</span>`;
-  if(v === 0) return `<span class="dl">No change</span>`;
-  const pct = Math.abs(v).toFixed(0) + "%";
-  const txt = kind === "inv" ? pct + (v > 0 ? " lower" : " higher") : kind === "abs" ? (v > 0 ? "+" : "−") + fmtN(Math.abs(v)) : (v > 0 ? "+" : "−") + pct;
-  return `<span class="dl ${v > 0 ? "up" : "dn"}">${txt}</span>`;
-}
-const monS = ym => MON[+String(ym).slice(5, 7) - 1] || "";
-const monL = ym => new Date(ym + "-01T12:00").toLocaleDateString("en-GB", {month: "long"});
-function resultsH(first){
-  const ids = growthLive();
-  if(!ids.length) return sec("Results", "", `<div class="card note-card">Results start after the first published week. Reach, engagement and leads will show up here.</div>`);
-  const quiet = Object.keys(DATA.growth || {}).filter(id => !ids.includes(id));
-  return sec("Results", "", ids.map(id => gcardH(id, first)).join("")
-    + (quiet.length ? `<p class="hint">${esc(quiet.map(brandName).filter(Boolean).join(" and "))}: results start with the first published week.</p>` : ""));
-}
-function gcardH(id, first){
-  const x = own(DATA.growth, id) || {}, M = x.months || {}, c = own(M, x.current) || {}, p = own(M, x.previous) || {}, m = x.mom || {}, cur = curSym(x.currency);
-  const paid = c.spend || p.spend || c.results || p.results;
-  const kp = [["Engagement", fmtN(c.engagement), delta(m.engagement, "pct")], ["Posts published", fmtN(c.posts), delta(m.posts, "abs")],
-    ["Followers", c.followers != null ? fmtN(c.followers) : "—", delta(m.followers, "abs")]];
-  if(paid) kp.push(["Leads and sales", fmtN(Math.round(c.results || 0)), delta(m.results, "pct")], ["Paid spend", cur + fmtN(Math.round(c.spend || 0)), delta(m.spend, "pct")],
-    ["Cost per result", c.cpl != null ? cur + c.cpl : "—", delta(m.cpl, "inv")]);
-  const upd = toDate(x.updated_at);
-  return `<article class="card gcard">
-    <header class="g-top"><span class="g-brand">${esc(brandName(id) || id)}</span><span class="g-when">${esc(monL(x.current))} vs ${esc(monL(x.previous))}</span></header>
-    <div class="g-big"><span class="n">${rollH("g-" + id, fmtN(c.reach || 0), first ? "0" : null)}</span><span class="l">Reach</span>${delta(m.reach, "pct")}</div>
-    ${chartH(id, x)}${barsH(id, x)}
-    <div class="kpis">${kp.map(k => `<div class="kpi"><div class="n">${esc(k[1])}</div><div class="l">${esc(k[0])}</div>${k[2]}</div>`).join("")}</div>
-    <footer class="g-foot">${x.best_pillar ? `<span>Best pillar: ${esc(x.best_pillar)}</span>` : ""}${x.started ? `<span>With Otto since ${esc(dayMon(new Date(x.started)))}</span>` : ""}${upd ? `<span>Updated ${esc(dayMon(upd))}</span>` : ""}</footer>
-  </article>`;
-}
+/* ---------- charts (Results): cumulative, this period against the one before ---------- */
 const CH = {};
 const CW = 600, CHt = 150, CT = 10, CB = 6;
 const toPath = pts => { let d = "", pen = false; pts.forEach(p => { if(!p){ return; } d += (pen ? "L" : "M") + p[0].toFixed(1) + "," + p[1].toFixed(1); pen = true; }); return d; };
-function chartH(key, x){
-  const daily = x.daily || [];
-  const metric = daily.some(r => r.reach7 != null) ? "reach7" : daily.some(r => r.spend) ? "spend" : null;
-  if(!metric || !x.current || !x.previous) return "";
-  const nOf = ym => new Date(+ym.slice(0, 4), +ym.slice(5, 7), 0).getDate();
-  const nC = nOf(x.current), nP = nOf(x.previous);
-  const cur = Array(nC).fill(null), prev = Array(nP).fill(null);
-  daily.forEach(r => { const v = r[metric]; if(v == null || !r.dt) return; const ym = r.dt.slice(0, 7), i = +r.dt.slice(8, 10) - 1;
-    if(ym === x.current) cur[i] = +v; else if(ym === x.previous) prev[i] = +v; });
-  const vals = cur.concat(prev).filter(v => v != null);
-  if(cur.filter(v => v != null).length < 2 && prev.filter(v => v != null).length < 2) return "";
-  const max = Math.max(1, ...vals) * 1.08;
-  const pts = (arr, n) => arr.map((v, i) => v == null ? null : [i / (n - 1) * CW, CT + (1 - v / max) * (CHt - CT - CB)]);
-  const cp = pts(cur, nC), pp = pts(prev, nP), old = CH[key];
-  const money = metric === "spend", cs = curSym(x.currency);
-  CH[key] = {cp, pp, cur, prev, nC, nP, cm: x.current, pm: x.previous, fmt: v => money ? cs + fmtN(Math.round(v)) : fmtN(Math.round(v)), old: old && old.drawn ? old : null, drawn: false};
-  let li = -1; cp.forEach((p, i) => { if(p) li = i; });
+/* running total of a daily series; null before the first number, a day without a number adds nothing */
+function cumul(arr){ let s = null; return arr.map(v => { if(v != null){ s = (s || 0) + N(v); } return s; }); }
+function rchartH(key, cur, prev, o){
+  const c = cumul(cur), p = cumul(prev), n = cur.length;
+  if(c.filter(v => v != null).length < 2) return `<p class="hint" style="padding:16px 2px 0">Not enough days with numbers to draw yet.</p>`;
+  const hasPrev = p.some(v => v != null);
+  const max = Math.max(1, ...c.filter(v => v != null), ...(hasPrev ? p.filter(v => v != null) : [])) * 1.08;
+  const pts = arr => arr.map((v, i) => v == null ? null : [i / Math.max(1, n - 1) * CW, CT + (1 - v / max) * (CHt - CT - CB)]);
+  const cp = pts(c), pp = hasPrev ? pts(p) : [], old = CH[key];
+  const day = i => { const d = new Date(o.from + "T12:00"); d.setDate(d.getDate() + i); return dayMon(d); };
+  const pday = i => { const d = new Date(o.prevFrom + "T12:00"); d.setDate(d.getDate() + i); return dayMon(d); };
+  CH[key] = {cp, pp, cur: c, prev: hasPrev ? p : Array(n).fill(null), nC: n, nP: n, fmt: o.fmt, lab: i => day(i), plab: i => pday(i),
+    old: old && old.drawn ? old : null, drawn: false};
+  let li = -1; cp.forEach((q, i) => { if(q) li = i; });
   const end = li >= 0 ? `<i class="c-end" style="left:${(cp[li][0] / CW * 100).toFixed(2)}%;top:${(cp[li][1] / CHt * 100).toFixed(2)}%"></i>` : "";
-  const label = `${money ? "Paid spend per day" : "Seven-day reach"} for ${monL(x.current)} compared with ${monL(x.previous)}. Latest ${li >= 0 ? CH[key].fmt(cur[li]) : "not available"}.`;
+  const mk = o.mark != null && o.mark > 0 && o.mark < n ? `<i class="c-mark" style="left:${(o.mark / (n - 1) * 100).toFixed(2)}%"><span>With Otto since ${esc(day(o.mark))}</span></i>` : "";
+  const label = `${o.label} added up over the ${n} days to ${day(n - 1)}: ${li >= 0 ? o.fmt(c[li]) : "not available"}` + (hasPrev ? `; the ${n} days before: ${o.fmt(p.filter(v => v != null).slice(-1)[0] || 0)}.` : ". No earlier period to compare with.");
   return `<div class="chart" data-chart="${esc(key)}" tabindex="0" role="img" aria-label="${esc(label)}">
-    <svg viewBox="0 0 ${CW} ${CHt}" preserveAspectRatio="none" aria-hidden="true"><line class="c-base" x1="0" y1="${CHt - CB}" x2="${CW}" y2="${CHt - CB}"/><path class="c-prev" d="${toPath(pp)}"/><path class="c-cur" d="${toPath(cp)}" pathLength="1"/></svg>
-    ${end}<i class="c-xh" hidden></i><i class="c-xd" hidden></i><span class="c-tip" hidden></span></div>
-    <div class="c-axis"><span>1 ${esc(monS(x.current))}</span><span class="c-leg"><i></i>${esc(monS(x.current))}<i class="pv"></i>${esc(monS(x.previous))}</span><span>${nC} ${esc(monS(x.current))}</span></div>`;
-}
-function barsH(key, x){
-  const ks = Object.keys(x.months || {}).sort().slice(-6);
-  const metric = ks.some(k => x.months[k].reach) ? "reach" : ks.some(k => x.months[k].spend) ? "spend" : null;
-  if(!metric || ks.length < 2) return "";
-  const vals = ks.map(k => +x.months[k][metric] || 0), max = Math.max(1, ...vals);
-  return `<div class="bars-w"><p class="bars-h">${metric === "reach" ? "Reach by month" : "Paid spend by month"}</p><div class="bars" data-bars="${esc(key)}">${ks.map((k, i) =>
-    `<span class="bar-c" title="${esc(monL(k))}: ${esc(fmtN(vals[i]))}"><span class="bar-t"><span class="bar${k === x.current ? " cur" : ""}" style="height:${Math.max(4, vals[i] / max * 100).toFixed(1)}%"></span></span><span class="bar-l">${esc(monS(k))}</span></span>`).join("")}</div></div>`;
+    <svg viewBox="0 0 ${CW} ${CHt}" preserveAspectRatio="none" aria-hidden="true"><line class="c-base" x1="0" y1="${CHt - CB}" x2="${CW}" y2="${CHt - CB}"/>${hasPrev ? `<path class="c-prev" d="${toPath(pp)}" stroke-dasharray="4 4"/>` : ""}<path class="c-cur" d="${toPath(cp)}" pathLength="1"/></svg>
+    ${end}${mk}<i class="c-xh" hidden></i><i class="c-xd" hidden></i><span class="c-tip" hidden></span></div>
+    <div class="c-axis"><span>${esc(day(0))}</span><span class="c-leg"><i></i>These ${n} days${hasPrev ? `<i class="pv"></i>The ${n} before` : ""}</span><span>${esc(day(n - 1))}</span></div>`;
 }
 let CIO = null;
 function inView(el){ const r = el.getBoundingClientRect(); return r.bottom > 0 && r.top < innerHeight && r.width > 0; }
 function armCharts(){
-  const targets = $$(".chart:not([data-armed]), .bars:not([data-armed])");
+  const targets = $$(".chart:not([data-armed])");
   if(!targets.length) return;
   if(!CIO && "IntersectionObserver" in window) CIO = new IntersectionObserver(es => es.forEach(e => { if(e.isIntersecting){ CIO.unobserve(e.target); reveal(e.target); } }), {threshold: .25});
   targets.forEach(el => { el.dataset.armed = "1"; if(!CIO || inView(el)) reveal(el); else CIO.observe(el); wireChart(el); });
 }
 function reveal(el){
-  if(el.classList.contains("bars")){
-    if(RM()) return;
-    $$(".bar", el).forEach((b, i) => play(b, [{transform: "scaleY(0)"}, {transform: "scaleY(1)"}], {duration: 500, delay: i * 40, easing: EZ.pop, fill: "backwards"}));
-    return;
-  }
   const st = CH[el.dataset.chart]; if(!st) return;
   const path = el.querySelector(".c-cur"), ghost = el.querySelector(".c-prev"), end = el.querySelector(".c-end");
   st.drawn = true;
@@ -1170,30 +1597,29 @@ function reveal(el){
     const o = st.old, t0 = performance.now();
     const lerp = (a, b, t) => b.map((p, i) => p && a[i] ? [p[0], a[i][1] + (p[1] - a[i][1]) * t] : p);
     const step = now => { const t = Math.min(1, (now - t0) / 480), e = 1 - Math.pow(1 - t, 3);
-      path.setAttribute("d", toPath(lerp(o.cp, st.cp, e))); if(o.pp.length === st.pp.length) ghost.setAttribute("d", toPath(lerp(o.pp, st.pp, e)));
+      path.setAttribute("d", toPath(lerp(o.cp, st.cp, e))); if(ghost && o.pp.length === st.pp.length) ghost.setAttribute("d", toPath(lerp(o.pp, st.pp, e)));
       if(t < 1) requestAnimationFrame(step); };
     requestAnimationFrame(step);
     return;
   }
   path.style.strokeDasharray = "1 1";
   play(path, [{strokeDashoffset: 1}, {strokeDashoffset: 0}], {duration: 900, easing: EZ.out, fill: "backwards"}).then(() => { path.style.strokeDasharray = ""; });
-  play(ghost, [{opacity: 0}, {opacity: 1}], {duration: 560, delay: 240, easing: "linear", fill: "backwards"});
+  if(ghost) play(ghost, [{opacity: 0}, {opacity: 1}], {duration: 560, delay: 240, easing: "linear", fill: "backwards"});
   if(end) play(end, [{opacity: 0, transform: "translate(-50%,-50%) scale(.3)"}, {opacity: 1, transform: "translate(-50%,-50%) scale(1)"}], {duration: 500, delay: 820, easing: EZ.pop, fill: "backwards"});
 }
 function wireChart(el){
-  if(!el.classList.contains("chart")) return;
   const st = () => CH[el.dataset.chart];
   const show = i => {
     const s = st(); if(!s) return;
     i = clamp(i, 0, s.nC - 1);
-    const pi = Math.round(i / (s.nC - 1) * (s.nP - 1)), v = s.cur[i], pv = s.prev[pi];
+    const pi = Math.round(i / Math.max(1, s.nC - 1) * (s.nP - 1)), v = s.cur[i], pv = s.prev[pi];
     if(v == null && pv == null) return;
     el._i = i;
-    const xh = el.querySelector(".c-xh"), xd = el.querySelector(".c-xd"), tip = el.querySelector(".c-tip"), x = i / (s.nC - 1) * 100;
+    const xh = el.querySelector(".c-xh"), xd = el.querySelector(".c-xd"), tip = el.querySelector(".c-tip"), x = i / Math.max(1, s.nC - 1) * 100;
     xh.hidden = false; xh.style.left = x + "%";
-    if(v != null){ xd.hidden = false; xd.style.left = x + "%"; xd.style.top = (s.cp[i][1] / CHt * 100) + "%"; } else xd.hidden = true;
+    if(v != null && s.cp[i]){ xd.hidden = false; xd.style.left = x + "%"; xd.style.top = (s.cp[i][1] / CHt * 100) + "%"; } else xd.hidden = true;
     tip.hidden = false; tip.style.left = clamp(x, 14, 86) + "%";
-    tip.innerHTML = `<b>${i + 1} ${esc(monS(s.cm))} · ${v != null ? esc(s.fmt(v)) : "—"}</b>${pv != null ? `<span>${esc(monS(s.pm))} ${esc(s.fmt(pv))}</span>` : ""}`;
+    tip.innerHTML = `<b>${esc(s.lab(i))} · ${v != null ? esc(s.fmt(v)) : "—"}</b>${pv != null ? `<span>${esc(s.plab(pi))} ${esc(s.fmt(pv))}</span>` : ""}`;
   };
   const hide = () => { ["c-xh", "c-xd", "c-tip"].forEach(c => { const n = el.querySelector("." + c); if(n) n.hidden = true; }); };
   el.addEventListener("pointermove", e => { const s = st(); if(!s) return; const r = el.getBoundingClientRect(); show(Math.round((e.clientX - r.left) / r.width * (s.nC - 1))); });
@@ -1205,6 +1631,215 @@ function wireChart(el){
       show((el._i ?? li) + (e.key === "ArrowRight" ? 1 : -1)); }
     if(e.key === "Escape") hide();
   });
+}
+
+/* ---------- results ---------- */
+let RP = "7", RB = null, RMET = null;
+const AD_REG = {};                                  // data-ad key → the ad (Review's matrix cell or a Results ad) for its sheet
+function resBrand(){ const B = brands(); return B.find(b => b.id === RB) || B.find(b => blk(b, "results")) || B[0] || null; }
+function dl(v, p, kind){
+  if(v == null) return "";
+  if(p == null) return `<span class="dl">No earlier period yet</span>`;
+  const d = N(v) - N(p);
+  if(Math.abs(d) < 1e-9) return `<span class="dl">Same as before</span>`;
+  if(kind === "abs") return `<span class="dl ${d > 0 ? "up" : "dn"}">${d > 0 ? "+" : "−"}${esc(intN(Math.abs(d)))} on before</span>`;
+  if(!N(p)) return `<span class="dl up">Up from none</span>`;
+  const pct = Math.abs(d / N(p) * 100), t = (pct < 1 ? "<1" : pct.toFixed(0)) + "%";
+  if(kind === "inv") return `<span class="dl ${d < 0 ? "up" : "dn"}">${t} ${d < 0 ? "lower" : "higher"}</span>`;
+  if(kind === "neutral") return `<span class="dl">${d > 0 ? "+" : "−"}${t} on before</span>`;
+  return `<span class="dl ${d > 0 ? "up" : "dn"}">${d > 0 ? "+" : "−"}${t} on before</span>`;
+}
+const NA = {not_connected: "Appears once Instagram is connected", pending: "Not in yet: Meta reports a day or two later", none: "No posts went out",
+  trial: "Starts when you choose a plan", idle: "No ads ran", no_results: "Nothing to divide by yet", no_plan: "Not in your plan"};
+function rtileH(label, x, fmt, kind, go){
+  x = x || {};
+  const has = x.v != null;
+  const val = has ? `<span class="n">${esc(fmt(x.v))}</span>` : `<span class="na">${esc(own(NA, x.state) || "Not in yet")}</span>`;
+  let extra = has && x.days != null && x.days > 0 && x.days < N(RP) ? `<span class="dl">From ${x.days} of ${RP} days</span>` : dl(has ? x.v : null, x.prev, kind);
+  if(has && x.prev != null && x.waiting) extra = extra.replace(" on before", "").replace("</span>", " so far</span>");   // numbers still coming in
+  const inner = `<span class="l">${esc(label)}</span>${val}${extra}`;
+  return go ? `<button type="button" class="rtile tap" data-scroll="${go}">${inner}</button>` : `<div class="rtile">${inner}</div>`;
+}
+function bestPostsH(P){
+  const L = (P.best_posts || []).map(x => {
+    const p = byId(x.id); if(!p) return "";
+    const bits = [x.reach != null ? `${intN(x.reach)} reached` : "", x.saves ? `${intN(x.saves)} saves` : "", x.clicks ? `${intN(x.clicks)} clicks` : ""].filter(Boolean).join(" · ");
+    return `<button type="button" class="prow" data-open="${esc(p.id)}" data-fk="bp:${esc(p.id)}">${p.image ? thumbH(p, "sm") : tileH(p.platform)}<span class="rt"><span class="rt-t" dir="auto">${esc(H(p) || "Untitled post")}</span><span class="rt-m">${esc([plat(p.platform), p.format && p.format !== "post" ? own(FMT, p.format) || "" : "", bits].filter(Boolean).join(" · "))}</span></span>${x.reason ? pillH(x.reason, "ok") : ""}</button>`;
+  }).join("");
+  return L;
+}
+function adTileH(key, a, o){
+  o = o || {};
+  AD_REG[key] = a;
+  const m = a.media || {}, vid = /video|creator/.test(a.format || "") || !!m.video;
+  const media = m.image ? `<img src="${esc(m.image)}" alt="" loading="lazy" decoding="async" data-fail="thumb">`
+    : m.video ? (m.poster ? `<img src="${esc(m.poster)}" alt="" loading="lazy" decoding="async" data-fail="thumb">` : `<video src="${esc(m.video)}" muted playsinline preload="metadata" aria-hidden="true"></video>`)
+    : `<span class="adt-w"><span class="adt-t"><q dir="auto">${esc(a.headline || a.primary || a.style_label || "")}</q>${a.headline && a.primary ? `<span class="adt-p" dir="auto">${esc(a.primary)}</span>` : ""}</span>${a.cta_label ? `<span class="adt-k">${esc(a.cta_label)}</span>` : `<small>${vid ? IC.reel : IC.photo}${esc(a.style_label || "")}</small>`}</span>`;
+  const badge = o.rank ? `<span class="adt-b">#${o.rank}</span>` : vid && (m.image || m.video) ? `<span class="adt-b">Video</span>` : "";
+  return `<button type="button" class="adt tap" data-ad="${esc(key)}" data-fk="ad:${esc(key)}" aria-label="${esc((o.title || a.style_label || "Ad") + (o.sub2 ? ", " + o.sub2 : "") + (a.headline ? ": " + a.headline : ""))}"><span class="adt-m">${media}${badge}</span><span class="adt-c" dir="auto">${esc(o.title || a.style_label || "")}</span>${o.sub2 ? `<span class="adt-s">${esc(o.sub2)}</span>` : ""}${o.sub ? `<span class="adt-s">${o.sub}</span>` : ""}</button>`;
+}
+function adSub(a){
+  const k = a.kind || "leads";
+  return a.results ? `${esc(intN(a.results))} ${kindW(k, a.results)} · <span class="ok">${esc(money(a.cost, RESCUR))} each</span>` : `${esc(money(a.spend, RESCUR))} spent · no ${kindW(k, 2)} yet`;
+}
+let RESCUR = "EUR";
+function campTableH(P, kind){
+  const rows = P.adsets || []; if(!rows.length) return "";
+  const td = (v, f) => v == null ? `<td class="na">—</td>` : `<td>${esc(f(v))}</td>`;
+  const lvl = P.adsets_level === "campaign" ? "Campaign" : "Ad set", many = new Set(rows.map(r => r.campaign).filter(Boolean)).size > 1;
+  return `<div class="card"><div class="tscroll" tabindex="0" role="region" aria-label="${lvl === "Campaign" ? "Campaigns" : "Ad sets"} table"><table class="ct"><caption class="sr">${lvl === "Campaign" ? "Campaigns" : "Ad sets"}: spend, clicks, ${kindW(kind, 2)}, cost each and status</caption>
+    <thead><tr><th scope="col">${lvl}</th><th scope="col">Spent</th><th scope="col">Clicks</th><th scope="col">${esc(cap1(kindW(kind, 2)))}</th><th scope="col">Cost each</th><th scope="col">Status</th></tr></thead>
+    <tbody>${rows.map(r => `<tr><td dir="auto">${esc(r.name || "")}${r.network === "Google" ? ` <span class="ph">· Google</span>` : ""}${many && r.campaign ? `<br><span class="ph" style="font-size:12px">${esc(r.campaign)}</span>` : ""}</td>${td(r.spend, v => money(v, RESCUR))}${td(r.link_clicks, intN)}${td(r.results, intN)}${td(r.cost, v => money(v, RESCUR, 2))}<td>${esc(r.status || "")}</td></tr>`).join("")}</tbody></table></div></div>`;
+}
+function resultsWeekOneH(b, R){
+  const conn = R.connected, many = brands().length > 1 ? ` for ${esc(b.name)}` : "";
+  return `<div class="card wh"><p>Your first numbers${many} are on their way.</p><p class="dim">Meta reports results 24–48 hours after a post goes out, so your numbers show here a day or two after your first post${conn ? "" : ". They start once Instagram and Facebook are connected"}. Until then, here is what Otto has made for you.</p></div>`
+    + `<div style="margin-top:16px">${checklistH(b, {title: "Connect to start measuring"})}</div>`
+    + `<div style="margin-top:16px">${ledgerH(b, {title: "Made for you this month"})}</div>`
+    + sec("What you'll see here", "", `<div class="card note-card">People reached, engagement, new followers and link clicks for your posts${R.paid_plan ? "; enquiries, ad spend and what each enquiry cost for your ads" : ""}. Every period is compared with the one before it, and the same numbers come in your 07:35 report.</div>`);
+}
+function renderResults(){
+  const B = brands(), b = resBrand(), R = blk(b, "results");
+  $$("#rs-period [data-rp]").forEach(x => { const on = x.dataset.rp === RP; x.setAttribute("aria-checked", on); x.tabIndex = on ? 0 : -1; });
+  $("rs-period").style.setProperty("--i", ["7", "30", "90"].indexOf(RP));
+  const body = $("results-body");
+  if(!b || !R){
+    $("rs-sub").textContent = "";
+    $("rs-period").hidden = true;
+    body.innerHTML = `<div class="empty"><p class="empty-t">Results aren't available right now.</p><p class="empty-s">They come back on the next refresh.</p></div>`;
+    body.removeAttribute("aria-busy"); return;
+  }
+  RESCUR = R.currency || "EUR";
+  const P = (R.periods || {})[RP] || {}, nb = P.numbers || {}, kind = (nb.results || {}).kind || "leads";
+  const pick = B.length > 1 ? `<div class="seg" role="radiogroup" aria-label="Brand" style="--n:${B.length};--i:${B.indexOf(b)};margin-bottom:18px"><span class="seg-th" aria-hidden="true"></span>${B.map(x => `<button type="button" role="radio" aria-checked="${x.id === b.id}" tabindex="${x.id === b.id ? 0 : -1}" data-rb="${esc(x.id)}">${esc(x.name)}</button>`).join("")}</div>` : "";
+  $("rs-period").hidden = R.state === "empty";
+  if(R.state === "empty"){
+    $("rs-sub").textContent = "Nothing to measure yet";
+    body.innerHTML = pick + resultsWeekOneH(b, R); body.removeAttribute("aria-busy"); return;
+  }
+  $("rs-sub").textContent = P.from ? `${shortDay(P.from)} – ${shortDay(P.to)}, against the ${P.days} days before` : "";
+  const sum = (P.summary || []).length ? P.summary.map((s, i) => `<p${i ? ' class="dim"' : ""}>${esc(s)}</p>`).join("") : `<p>Not much happened in these ${P.days} days yet.</p>`;
+  let h = pick + `<section class="card wh" aria-labelledby="wh-h"><h2 class="sr" id="wh-h">What happened</h2>${sum}</section>`;
+  const fN = v => intN(v), fM = v => money(v, RESCUR), fM2 = v => money(v, RESCUR, 2);
+  h += `<h2 class="rs-grp">Organic<span class="sub">Instagram and Facebook posts</span></h2><div class="rs-grid">`
+    + rtileH("People reached", Object.assign({}, nb.reach, {waiting: N((nb.reach || {}).posts) > N((nb.reach || {}).with_numbers)}), fN, "pct", "rs-posts")
+    + rtileH("Engagement", Object.assign({}, nb.engagement, {waiting: N((nb.reach || {}).posts) > N((nb.reach || {}).with_numbers)}), fN, "pct", "rs-posts")
+    + rtileH("New followers", nb.followers, v => (N(v) > 0 ? "+" : "") + intN(v), "abs") + rtileH("Link clicks", nb.link_clicks, fN, "pct") + `</div>`;
+  if((nb.reach || {}).with_numbers != null && N((nb.reach || {}).posts) > N((nb.reach || {}).with_numbers))
+    h += `<p class="hint">${N(nb.reach.posts) - N(nb.reach.with_numbers)} of the ${N(nb.reach.posts)} posts ${N(nb.reach.posts) - N(nb.reach.with_numbers) === 1 ? "has" : "have"} no numbers yet: Meta reports them 24–48 hours after a post, so the comparison is so far.</p>`;
+  if(R.paid_plan){
+    const st = (nb.results || {}).state;
+    if(st === "ok"){
+      h += `<h2 class="rs-grp">Ads<span class="sub">Meta${(P.adsets || []).some(a => a.network === "Google") ? " and Google" : ""}</span></h2><div class="rs-grid">`
+        + rtileH(cap1(kindW(kind, 2)), nb.results, fN, "abs", "rs-camps") + rtileH("Ad spend", nb.spend, fM, "neutral", "rs-camps")
+        + rtileH(`Cost per ${kindW(kind, 1)}`, nb.cost, fM2, "inv", "rs-camps") + rtileH("Clicks from ads", nb.ad_clicks, fN, "pct", "rs-camps") + `</div>`;
+    } else {
+      const msg = {trial: "Your ads are designed and ready. They start when you choose a plan; nothing is spent in the trial.",
+        not_connected: "Connect your Meta ad account and your ads' results show here: enquiries, spend and what each enquiry cost.",
+        pending: "Your ads are approved. Their first numbers arrive the morning after they start.",
+        idle: "No ads ran in these days."}[st] || "";
+      h += `<h2 class="rs-grp">Ads</h2><div class="card note-card">${esc(msg)}${st === "not_connected" ? ` <button type="button" class="lnk" data-connect="ad_account" data-b="${esc(b.id)}">Connect</button>` : st === "trial" ? ` <a class="lnk" href="#review" data-view="review">See your ads</a>` : ""}</div>`;
+    }
+  }
+  // the chart: one metric at a time, these days against the ones before
+  const S = R.series || {}, tot = (S.reach || []).length, n = N(P.days) || 7;
+  const sl = (k, a, z) => (S[k] || []).slice(a, z);
+  const avail = [["reach", "Reached"], ["results", cap1(kindW(kind, 2))], ["spend", "Spent"]].filter(([k]) => sl(k, tot - n, tot).some(v => v != null) && (k === "reach" || R.paid_plan));
+  if(avail.length){
+    const okR = (nb.results || {}).state === "ok" && N((nb.results || {}).v) > 0;
+    const m = avail.some(a => a[0] === RMET) ? RMET : (okR && avail.some(a => a[0] === "results") ? "results" : avail[0][0]);
+    const fmt = m === "spend" ? fM : fN;
+    const startI = R.started ? Math.round((new Date(R.started + "T12:00") - new Date(P.from + "T12:00")) / 864e5) : null;
+    h += `<section class="card rs-card rs-chart" aria-labelledby="ch-h"><div class="card-h" style="padding:0 0 10px"><h2 id="ch-h">${esc(avail.find(a => a[0] === m)[1])}, added up</h2></div>`
+      + (avail.length > 1 ? `<div class="seg" role="radiogroup" aria-label="Chart" style="--n:${avail.length};--i:${avail.findIndex(a => a[0] === m)}"><span class="seg-th" aria-hidden="true"></span>${avail.map(([k, t]) => `<button type="button" role="radio" aria-checked="${k === m}" tabindex="${k === m ? 0 : -1}" data-rm="${k}">${esc(t)}</button>`).join("")}</div>` : "")
+      + rchartH(`rs-${b.id}-${RP}-${m}`, sl(m, tot - n, tot), sl(m, tot - 2 * n, tot - n), {fmt, label: avail.find(a => a[0] === m)[1], from: P.from, prevFrom: P.prev_from, mark: startI})
+      + `</section>`;
+  }
+  // best posts: each opens the post
+  const bp = bestPostsH(P);
+  h += `<div id="rs-posts">${sec("Best posts", "", bp ? `<div class="list">${bp}</div>` : `<div class="card note-card">${N(P.posts) ? "Your posts' numbers come in 24–48 hours after they go out." : `No posts went out in these ${P.days} days.`}</div>`)}</div>`;
+  // the ads, ranked by what they brought: each opens the ad
+  const ads = P.ads || [];
+  if(ads.length){
+    const top = ads.slice(0, DESK() ? 4 : 2);
+    h += sec("Your ads", ads.length > top.length ? `<button type="button" class="more" data-ads-all="${esc(b.id)}">See all ${ads.length}</button>` : "",
+      `<div class="adg">${top.map((a, i) => adTileH(`rs:${b.id}:${RP}:${a.ad_id}`, a, {rank: i + 1, title: a.angle || a.name, sub2: a.style_label || "", sub: adSub(a)})).join("")}</div>`
+      + (N(P.ads_days) < N(P.days) ? `<p class="hint">Meta's numbers per ad are kept for 14 days, so this ranking covers the last ${N(P.ads_days)} ${plural(N(P.ads_days), "day")}.</p>` : `<p class="hint">Ranked by ${kindW(kind, 2)}, then by what each cost.</p>`));
+  }
+  if((P.adsets || []).length) h += `<div id="rs-camps">${sec(P.adsets_level === "campaign" ? "Campaigns" : "Ad sets", "", campTableH(P, kind)
+    + (P.adsets_level === "adset" && N(P.ads_days) < N(P.days) ? `<p class="hint">Per ad set from the last ${N(P.ads_days)} days (Meta's numbers per ad are kept for 14 days).</p>` : ""))}</div>`;
+  const bf = R.before;
+  if(bf){
+    const bits = [bf.reach != null ? `${intN(bf.reach)} accounts reached on Instagram` : "", bf.followers != null ? `${N(bf.followers) >= 0 ? "+" : "−"}${intN(Math.abs(bf.followers))} followers` : "",
+      bf.interactions != null ? `${intN(bf.interactions)} interactions` : "", bf.link_taps != null ? `${intN(bf.link_taps)} link taps` : ""].filter(Boolean);
+    if(bits.length) h += sec("Before Otto", "", `<div class="card note-card">${esc(cap1(bits.join(" · ")))} in the ${N(bf.days) || 30} days before you joined${bf.joined ? ` on ${esc(shortDay(bf.joined))}` : ""}.<br><span class="ph">Meta's account numbers for that time, for context: they count differently from the post numbers above.${bf.final ? "" : " Meta can still update them."}</span></div>`);
+  }
+  const ud = R.updated || {};
+  h += `<p class="rs-foot">Numbers from Meta${ud.ads_day ? `; ads as of the ${esc(shortDay(ud.ads_day))} 07:15 report` : ""}. Meta can take up to two days to report a post or an ad. Ad results count a click within 7 days or a view within 1 day, as Ads Manager does.</p>`;
+  body.innerHTML = h; body.removeAttribute("aria-busy");
+}
+function openAdsAll(bid, opener){
+  const b = brands().find(x => x.id === bid), R = blk(b, "results"), P = R && (R.periods || {})[RP]; if(!P) return;
+  const rows = (P.ads || []).map((a, i) => { const key = `rs:${b.id}:${RP}:${a.ad_id}`; AD_REG[key] = a;
+    const m = a.media || {}, th = m.image || m.poster ? `<span class="thumb sm"><img src="${esc(m.image || m.poster)}" alt="" loading="lazy" data-fail="thumb"></span>` : `<span class="tile">${IC.ad}</span>`;
+    return `<button type="button" class="prow" data-ad="${esc(key)}">${th}<span class="rt"><span class="rt-t one" dir="auto">#${i + 1} ${esc([a.angle, a.style_label].filter(Boolean).join(" · ") || a.name)}</span><span class="rt-m">${adSub(a)}</span></span>${a.status ? pillH(a.status, a.status === "Live" ? "ok" : "quiet") : ""}</button>`; }).join("");
+  present(makeSheet({id: "ads", size: "half", title: `Your ads · ${P.days} days`, body: `<div class="list">${rows}</div>`, opener}));
+}
+function openAd(key, opener){
+  const a = own(AD_REG, key); if(!a) return;
+  const m = a.media || {};
+  const media = m.video ? `<figure class="dm tall"><video src="${esc(m.video)}"${m.poster ? ` poster="${esc(m.poster)}"` : ""} controls playsinline preload="metadata"></video></figure>`
+    : m.image ? `<figure class="dm" style="aspect-ratio:4/5"><img src="${esc(m.image)}" alt="" decoding="async" data-fail="dm" data-alt="${esc(a.headline || "")}"></figure>`
+    : `<figure class="dm txt" style="aspect-ratio:auto;min-height:180px"><p dir="auto">${esc(a.headline || a.primary || "")}</p></figure>`;
+  const facts = [];
+  if(a.spend != null){
+    const k = a.kind || "leads";
+    facts.push(["Spent", money(a.spend, RESCUR)], [cap1(kindW(k, 2)), a.results != null ? intN(a.results) : "—"], ["Cost each", a.cost != null ? money(a.cost, RESCUR, 2) : "—"],
+      ["Clicks", a.link_clicks != null ? intN(a.link_clicks) : "—"], ["Status", a.status || ""]);
+  }
+  const body = media + `<div class="dmeta">${esc([a.style_label, a.format === "video" ? "Video" : a.format === "creator" ? "Creator video" : "Image"].filter(Boolean).join(" · "))}</div>`
+    + (m.image || m.video ? "" : `<p class="dnote work q">The ${/video|creator/.test(a.format || "") ? "video" : "picture"} is made when your ads launch; here are its words and its style.</p>`)
+    + (a.headline ? `<p class="ad-head" dir="auto">${esc(a.headline)}</p>` : "")
+    + (a.primary ? `<p class="ad-copy" dir="auto">${esc(a.primary)}</p>` : "")
+    + (a.description ? `<p class="dh-s" style="margin-top:8px" dir="auto">${esc(a.description)}</p>` : "")
+    + (a.cta_label ? `<span class="ad-cta">${esc(a.cta_label)}</span>` : "")
+    + (facts.length ? `<dl class="dfacts">${facts.map(f => `<dt>${esc(f[0])}</dt><dd>${esc(f[1])}</dd>`).join("")}</dl>` : "");
+  present(makeSheet({id: "ad", size: "full", cls: "ad-sheet", head: `<div class="dh"><h2 class="sh-t" id="ad-t">${esc(a.angle || a.style_label || "Ad")}</h2><p class="dh-s">${esc(a.angle ? a.style_label || "" : "")}</p></div>`, body, opener}));
+}
+
+/* ---------- review: the month's ads, before the paid plan is approved ---------- */
+function adReviewH(){
+  return brands().map(b => {
+    const A = blk(b, "ad_review"); if(!A) return "";
+    const angles = (A.angles || []).filter(g => (g.cells || []).length);
+    const card = A.plan_rec && (DATA.recommendations || []).some(r => r.id === A.plan_rec && r.status === "proposed");
+    if(!angles.length && !card) return "";
+    const bu = A.budget, cur = bu ? bu.currency : "EUR";
+    const size = `<b>${N(A.count)} ${plural(N(A.count), "ad")}</b> in ${angles.length} ${plural(angles.length, "angle")}`;
+    const lead = card ? `${size}${bu && bu.total ? `, about ${esc(money(bu.total, cur))} over ${esc(A.label)} in ${N(A.campaigns)} ${plural(N(A.campaigns), "campaign")}` : ""}. Nothing is spent until you approve.${A.trial ? " They start when you choose a plan; nothing is spent in the trial." : ""}`
+      : A.state === "live" ? `${size}. They're live: see what they bring in Results.`
+      : A.state === "approved" ? `${size}. Approved: Otto launches them on schedule.${A.trial ? " They start when you choose a plan; nothing is spent in the trial." : ""}` : `${size}.`;
+    const btn = card ? `<button type="button" class="btn pri tap" data-plan-rec="${esc(A.plan_rec)}" data-fk="plan-ok:${esc(b.id)}">Approve ads and budget</button>` : "";
+    const unrendered = A.state !== "live" && angles.some(g => g.cells.some(c => !c.media));
+    const fmtL = c => c.format === "video" ? "Video" : c.format === "creator" ? "Creator video" : "Image";
+    const grid = angles.map(g => `<div class="ad-ang"><h3 class="sub-h">${esc(g.name)}<span class="grp-u">· ${g.cells.length} ${plural(g.cells.length, "ad")}</span></h3><div class="adg">${g.cells.map(c => adTileH(`rv:${b.id}:${c.id}`, Object.assign({angle: g.name}, c), {title: c.style_label, sub: esc(fmtL(c))})).join("")}</div></div>`).join("");
+    return sec(`Your ads for ${A.label}${brands().length > 1 ? " · " + b.name : ""}`, "", `<div class="card ad-plan"><p>${lead}</p>${btn}</div>`
+      + (unrendered ? `<p class="hint">Pictures and videos are made when the ads launch. Until then each tile shows the ad's words and its style; tap one to read it in full.</p>` : "")
+      + `<div style="margin-top:16px">${grid}</div>`);
+  }).join("");
+}
+async function approvePlan(id, btn){
+  if(REC_PEND.has(id)) return;
+  REC_PEND.add(id); pending(btn, true);
+  let data = null, err = null;
+  try{ data = await send({kind: "rec", id, status: "done"}); }catch(e){ err = e; }
+  REC_PEND.delete(id); pending(btn, false);
+  if(err && !err.saved){ toast("Couldn't approve. " + errText(err), {err: true}); return; }
+  haptic();
+  if(data) adopt(data); else { const r = (DATA.recommendations || []).find(x => x.id === id); if(r) r.status = err ? "approved" : "done"; scheduleRender(); }
+  if(err){ toast(String(err.message), {err: true, ms: 8000}); return; }
+  const q = data && (data.recommendations || []).find(x => x.id === id);
+  toast(q && q.action_result ? cap1(String(q.action_result)) + "." : "Ads and budget approved");
 }
 
 /* ---------- review ---------- */
@@ -1220,10 +1855,13 @@ function renderReview(){
     h += MQ.fine.matches ? `<p class="hint">Select a post and press <kbd>A</kbd> to approve, <kbd>S</kbd> to skip or <kbd>C</kbd> to ask for changes.</p>`
                          : `<p class="hint">Swipe right to approve, left to skip. Tap a post to read it in full.</p>`;
     if(n > 1) h += `<div class="holdbar phone-only">${holdH(n)}</div>`;
-  } else {
-    const nx = nextUp()[0];
-    h += `<div class="empty"><p class="empty-t">You're all caught up.</p><p class="empty-s">${nx ? `Next post goes out ${esc(longWhen(nx.slot))}.` : "New posts will appear here when Otto has them ready."}</p></div>`;
+  } else if(!plansWaiting().length){
+    const nx = nextUp()[0], wa = workActivity();
+    h += wa && !nx ? `<div class="empty"><p class="empty-t">Nothing to review yet.</p><p class="empty-s">${esc(wa.work ? `Otto is ${wa.t.split(" · ")[0].charAt(0).toLowerCase() + wa.t.split(" · ")[0].slice(1)}. Each post appears here as soon as it's ready.` : (/with the Otto team$/.test(wa.t) ? "The Otto team is preparing your posts" : wa.t) + ". They appear here as soon as they're ready.")}</p></div>`
+      : `<div class="empty"><p class="empty-t">You're all caught up.</p><p class="empty-s">${nx ? `Next post goes out ${esc(longWhen(nx.slot))}.` : "New posts will appear here when Otto has them ready."}</p></div>`;
   }
+  else h += `<p class="hint" style="padding-top:0">No posts are waiting for you.</p>`;
+  h += adReviewH();
   const rew = posts().filter(p => p.status === "draft" && p.edit_note).sort(bySlot);
   if(rew.length) h += sec("With Otto", "", `<div class="list">${rew.map(postRowH).join("")}</div>`);
   const body = $("review-body");
@@ -1238,9 +1876,20 @@ let CAL = null;
 const FLIGHT_OK = ["approved", "live", "paused", "ended"];
 const postsOnIso = iso => posts().filter(p => { const d = toDate(p.slot); return d && isoD(d) === iso; }).sort(bySlot);
 const flightsOn = iso => (DATA.campaigns || []).filter(c => FLIGHT_OK.includes(c.status) && c.start <= iso && iso <= c.end);
+let CALMODE = "month";
+function setCalMode(k, focus){
+  if(k !== "month" && k !== "list") return;
+  CALMODE = k;
+  $("cal-wrap").hidden = k !== "month"; $("cal-list").hidden = k !== "list"; $("cal-nav").hidden = k !== "month";
+  $$("#cal-mode [data-cm]").forEach(b => { const on = b.dataset.cm === k; b.setAttribute("aria-selected", on); b.tabIndex = on ? 0 : -1; });
+  $("cal-mode").style.setProperty("--i", k === "list" ? 1 : 0);
+  if(k === "list"){ $("cal-year").textContent = "Calendar"; $("cal-month").textContent = "All posts"; } else if(DATA) renderCalendar();
+  if(focus){ const b = document.querySelector(`#cal-mode [data-cm="${k}"]`); if(b) b.focus(); }
+}
 function renderCalendar(){
   const now = new Date();
   if(!CAL) CAL = {y: now.getFullYear(), m: now.getMonth(), sel: isoD(now)};
+  if(CALMODE === "list"){ setCalMode("list"); return; }
   const y = CAL.y, m = CAL.m, first = new Date(y, m, 1), days = new Date(y, m + 1, 0).getDate(), lead = (first.getDay() + 6) % 7;
   $("cal-month").textContent = first.toLocaleDateString("en-GB", {month: "long"});
   $("cal-year").textContent = String(y);
@@ -1268,7 +1917,7 @@ function renderCalendar(){
     }
     if(dow === 6) h += `</div>`;
   }
-  $("cal-grid").innerHTML = h;
+  $("cal-grid").innerHTML = h; $("cal-grid").removeAttribute("aria-busy");
   $("cal-sum").textContent = nPosts ? `${nPosts} ${plural(nPosts, "post")} this month` + (nNeed ? ` · ${nNeed} ${nNeed === 1 ? "needs" : "need"} you` : "") + (camps.size ? ` · ${camps.size} ad ${plural(camps.size, "campaign")}` : "") : "Nothing planned this month yet.";
   $("cal-today").disabled = now.getFullYear() === y && now.getMonth() === m && CAL.sel === todayIso;
   $("cal-side").innerHTML = dayPanelH(CAL.sel);
@@ -1276,8 +1925,8 @@ function renderCalendar(){
 function dayListH(iso){
   const ps = postsOnIso(iso), fl = flightsOn(iso);
   if(!ps.length && !fl.length) return `<div class="list"><p class="dempty">Nothing planned for this day.</p></div>`;
-  return `<div class="list">${ps.map(p => `<button type="button" class="drow" data-open="${esc(p.id)}" data-fk="d:${esc(p.id)}"><span class="dtime">${esc(hhmm(toDate(p.slot)))}</span>
-      <span class="rt"><span class="rt-t" dir="auto">${esc(H(p)) || '<span class="ph">Copy in progress</span>'}</span><span class="rt-m">${esc([brands().length > 1 ? brandName(p.brand) : "", plat(p.platform), p.format && p.format !== "post" ? (own(FMT, p.format) || cap1(p.format)) : ""].filter(Boolean).join(" · "))}</span></span>${postPill(p)}</button>`).join("")
+  return `<div class="list">${ps.map(p => { const wk = postWork(p); return `<button type="button" class="drow" data-open="${esc(p.id)}" data-fk="d:${esc(p.id)}"><span class="dtime">${esc(hhmm(toDate(p.slot)))}</span>
+      <span class="rt">${titleH(p, wk)}<span class="rt-m">${wk ? wlH(wk) + " · " : ""}${esc([brands().length > 1 ? brandName(p.brand) : "", plat(p.platform), p.format && p.format !== "post" ? (own(FMT, p.format) || cap1(p.format)) : ""].filter(Boolean).join(" · "))}</span></span>${unwritten(p, wk) ? "" : postPill(p)}</button>`; }).join("")
     + fl.map(c => `<div class="drow"><span class="dtime">All day</span><span class="rt"><span class="rt-t">${esc(c.name)}</span><span class="rt-m">${c.network === "google" ? "Google Ads" : "Meta ads"} · ${esc(c.currency || "€")}${esc(c.daily_budget)} a day</span></span>${campPill(c)}</div>`).join("")}</div>`;
 }
 const longDay = iso => new Date(iso + "T12:00").toLocaleDateString("en-GB", {weekday: "long", day: "numeric", month: "long"});
@@ -1318,7 +1967,8 @@ function renderPosts(){
   const camps = DATA.campaigns || [];
   if(PF === "all" && camps.length) h += `<section class="grp"><h2 class="grp-h"><span>Ad campaigns</span></h2><div class="list">${camps.map(c => `<div class="prow static">${`<span class="tile">${IC.ad}</span>`}
     <span class="rt"><span class="rt-t">${esc(c.name)}</span><span class="rt-m">${c.network === "google" ? "Google Ads" : "Meta ads"} · ${esc(c.currency || "€")}${esc(c.daily_budget)} a day${c.start ? ` · ${esc(dayMon(new Date(c.start + "T12:00")))} to ${esc(dayMon(new Date(c.end + "T12:00")))}` : ""}</span></span>${campPill(c)}</div>`).join("")}</div></section>`;
-  $("posts-body").innerHTML = h;
+  $("posts-body").innerHTML = h; $("posts-body").removeAttribute("aria-busy");
+  $("posts-work").innerHTML = workCardsH("posts");
 }
 function setPF(k, focus){
   if(!PF_OK[k] || k === PF) return;
@@ -1436,55 +2086,106 @@ async function setLang(bid, v){
     toast(`E-mails and reports in ${LANGS.find(x => x[0] === v)[1]}`);
   }catch(e){ b.comms_lang = prev; paintLang(bid); toast("Couldn't save. " + errText(e), {err: true}); }
 }
-function renderSettings(){
-  const d = DATA, B = brands();
+/* ---------- account pages (the account menu): Brand · Plan & billing · Connections · Notifications · Account ---------- */
+const ACCT = [["brand", "Brand"], ["plan", "Plan & billing"], ["connections", "Connections"], ["notifications", "Notifications"], ["account", "Account"]];
+const ACCT_IC = {
+  brand: '<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 20.25V5.5A1.75 1.75 0 0 1 6.75 3.75h10.5A1.75 1.75 0 0 1 19 5.5v14.75l-7-3.5z"/></svg>',
+  plan: '<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><rect x="3.75" y="6" width="16.5" height="12" rx="2.5"/><path d="M3.75 10h16.5M7 14.5h3"/></svg>',
+  connections: '<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M10 14a4 4 0 0 0 5.66 0l3-3a4 4 0 0 0-5.66-5.66l-1 1"/><path d="M14 10a4 4 0 0 0-5.66 0l-3 3a4 4 0 0 0 5.66 5.66l1-1"/></svg>',
+  notifications: '<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 16.5V11a5.5 5.5 0 0 1 11 0v5.5l1.5 1.5H5z"/><path d="M10 20.5a2.2 2.2 0 0 0 4 0"/></svg>',
+  account: '<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8.5" r="3.75"/><path d="M4.75 20a7.25 7.25 0 0 1 14.5 0"/></svg>'
+};
+let PAGE = "account";
+const pageTitle = k => (ACCT.find(x => x[0] === k) || ACCT[4])[1];
+function brandPage(B){
   let h = "";
-  h += planGroup(B);
-  h += approvalsGroup(B);
-  h += langGroup(B);
-  h += groupH("Connections", (d.connections || []).map(c => lineH(esc(c.service), esc(c.brand), connPill(c.status))).join(""));
-  // paid (otto_ads.py report writes ads[brand].daily; campaigns[] from otto_ads.py plan/launch)
-  const ads = d.ads || {}, camps = d.campaigns || [];
-  if(Object.keys(ads).length || camps.length){
-    h += groupH("Paid", B.filter(b => own(ads, b.id) || camps.some(c => c.brand === b.id)).map(b => {
-      const a = own(ads, b.id) || {}, days = Object.keys(a.daily || {}).sort(), last = days.length ? a.daily[days[days.length - 1]] : null;
-      const y = net => last && last[net] ? last[net].yesterday : null;
-      const m = y("meta"), g = y("google"), cur = (a.targets || {}).currency || "€";
-      const cnt = s => camps.filter(c => c.brand === b.id && c.status === s).length;
-      // the ads report's own flags, or connections[] ("connected" once the brand's credentials are installed: server overlay)
-      const cx = pre => (d.connections || []).some(c => c.id === pre + "-" + b.id && c.status === "connected");
-      const conn = {meta: !!(a.connections || {}).meta || cx("meta"), google: !!(a.connections || {}).google || cx("gads")};
-      const net = (name, v, unit, on) => v
-        ? lineH(`${name}, yesterday`, "", `${esc(cur)}${Math.round(N(v.spend))} · ${Math.round(N(v.results))} ${unit} · ${v.cpl != null ? esc(cur) + Math.round(N(v.cpl) * 100) / 100 + " each" : "no cost data"}`, true)
-        : lineH(name, "", on ? pillH("Connected", "ok") : pillH("Not connected", "quiet"));
-      const held = camps.filter(c => c.brand === b.id && c.compliance_hold).length;
-      const counts = [cnt("live") + " live", cnt("approved") + " scheduled", cnt("draft") ? cnt("draft") + " draft" : "", held ? held + " on hold for copy review" : ""].filter(Boolean).join(" · ");
-      return lineH(`<b style="font-weight:600">${esc(b.name)}</b>`, "", esc(counts), true) + net("Meta ads", m, "leads or purchases", conn.meta) + net("Google Ads", g, "conversions", conn.google);
-    }).join(""));
-  }
-  // signals: what the owner's decisions taught Otto + competitor sweep
-  const tl = d.taste_log || [], cw = d.competitors || {};
-  if(tl.length || Object.keys(cw).length){
-    const agg = new Map();
-    tl.forEach(t => { const k = String(t.pillar || "Other"); if(!agg.has(k)) agg.set(k, {a: 0, s: 0}); if(t.decision === "approve") agg.get(k).a++; if(t.decision === "skip") agg.get(k).s++; });
-    const taste = [...agg.entries()].map(([k, v]) => ({k, a: v.a, s: v.s, net: v.a - v.s})).sort((x, z) => z.net - x.net).slice(0, 5)
-      .map(r => lineH(esc(r.k), "", `${r.a} approved · ${r.s} skipped`, true)).join("");
-    const comp = Object.entries(cw).map(([b, c]) => {
-      const items = (c.items || []).slice(0, 4).map(it => esc(it.name) + (it.error ? " (unreachable)" : (it.promos || []).length ? ` (${esc(it.promos.slice(0, 2).join(", "))})` : "")).join(", ");
-      const wn = c.last_sweep ? (isNaN(new Date(c.last_sweep)) ? esc(c.last_sweep) : dayMon(new Date(c.last_sweep))) : "";
-      return lineH(`Competitors · ${esc(brandName(b) || b)}`, [items, wn ? "Checked " + wn : ""].filter(Boolean).join(" · "), `${N(c.changes)} change${N(c.changes) === 1 ? "" : "s"}`, true);
+  B.forEach(b => {
+    const rows = lineH(esc(b.name), b.url ? `<a href="https://${esc(String(b.url).replace(/^https?:\/\//, ""))}" target="_blank" rel="noopener" class="lnk">${esc(String(b.url).replace(/^https?:\/\//, ""))}</a>` : "", "")
+      + (Array.isArray(b.pillars) && b.pillars.length ? lineH("What your posts are about", esc(b.pillars.join(" · ")), "") : "");
+    h += groupH(B.length > 1 ? b.name : "Your brand", rows);
+  });
+  // what the owner's decisions taught Otto + the competitor sweep
+  const d = DATA, tl = d.taste_log || [], cw = d.competitors || {};
+  const agg = new Map();
+  tl.forEach(t => { const k = String(t.pillar || "Other"); if(!agg.has(k)) agg.set(k, {a: 0, s: 0}); if(t.decision === "approve") agg.get(k).a++; if(t.decision === "skip") agg.get(k).s++; });
+  const taste = [...agg.entries()].map(([k, v]) => ({k, a: v.a, s: v.s, net: v.a - v.s})).sort((x, z) => z.net - x.net).slice(0, 5)
+    .map(r => lineH(esc(r.k), "", `${r.a} approved · ${r.s} skipped`, true)).join("");
+  h += taste ? groupH("What Otto learned from you", taste) : `<section class="grp"><h2 class="grp-h"><span>What Otto learned from you</span></h2><p class="hint" style="padding-top:0">Every post you approve or skip teaches Otto what you like. It shows here once you've decided on a few.</p></section>`;
+  const comp = Object.entries(cw).map(([b, c]) => {
+    const items = (c.items || []).slice(0, 4).map(it => esc(it.name) + (it.error ? " (unreachable)" : (it.promos || []).length ? ` (${esc(it.promos.slice(0, 2).join(", "))})` : "")).join(", ");
+    const wn = c.last_sweep ? (isNaN(new Date(c.last_sweep)) ? esc(c.last_sweep) : dayMon(new Date(c.last_sweep))) : "";
+    return lineH(B.length > 1 ? esc(brandName(b) || b) : "Competitors Otto watches", [items, wn ? "Checked " + wn : ""].filter(Boolean).join(" · "), `${N(c.changes)} change${N(c.changes) === 1 ? "" : "s"}`, true);
+  }).join("");
+  if(comp) h += groupH("Competitors", comp);
+  return h;
+}
+function planPage(B){
+  let h = planGroup(B);
+  const bl = ((ME && ME.billing) || []).filter(x => x && x.status !== "canceled");
+  if(ME && ME.via === "google") h += groupH("Billing", bl.map(billingLine).join("")
+    + `<div class="line"><a class="btn gray block tap" data-nav href="${esc(billingHref(bl.length === 1 ? bl[0].brand : ""))}">${bl.length ? "Manage billing" : "Billing and plans"}</a></div>`);
+  h += `<p class="hint">Monthly, no contract. Cancel on the Billing page any time.</p>`;
+  return h;
+}
+function connectionsPage(B){
+  let h = "";
+  B.forEach(b => {
+    const L = blk(b, "ledger"), C = L && Array.isArray(L.connect) ? L.connect.filter(c => c.id !== "site") : [];
+    const rows = C.map(c => {
+      const pill = c.done ? pillH(c.id === "approvals" ? "Set" : "Connected", "ok") : c.state === "broken" ? pillH("Reconnect needed", "bad") : c.requested ? pillH("Requested", "need") : pillH(c.id === "approvals" ? "Not paired" : "Not connected", "quiet");
+      const btn = c.id === "approvals" ? `<button type="button" class="btn gray sm tap" data-acct="notifications">Change</button>`
+        : `<button type="button" class="btn gray sm tap" data-connect="${esc(c.id)}" data-b="${esc(b.id)}" data-fk="cn-${esc(c.id)}:${esc(b.id)}">${c.done ? "Details" : c.state === "broken" ? "Reconnect" : "Connect"}</button>`;
+      return `<div class="line"><span class="rt"><span class="rt-t one">${esc(c.label)}</span><span class="rt-m wrap">${esc(c.detail || "")}</span></span>${pill}${btn}</div>`;
     }).join("");
-    h += groupH("Signals", taste + comp);
-  }
-  // activity: one static line per job
+    const known = new Set(["meta-" + b.id, "tg-" + b.id]);
+    const more = (DATA.connections || []).filter(c => !known.has(c.id) && (String(c.id || "").endsWith("-" + b.id) || c.brand === b.name)).map(c => {
+      const g = /^gads-/.test(c.id || "");
+      return `<div class="line"><span class="rt"><span class="rt-t one">${esc(c.service || "")}</span></span>${connPill(c.status)}${g ? `<button type="button" class="btn gray sm tap" data-connect="google" data-b="${esc(b.id)}">${c.status === "connected" ? "Details" : "Connect"}</button>` : ""}</div>`;
+    }).join("");
+    h += groupH(B.length > 1 ? b.name : "Your accounts", rows + more);
+  });
+  return h + `<p class="hint">Every connection uses the service's own sign-in. Otto never sees or stores your passwords.</p>`;
+}
+function accountPage(){
+  let h = accountGroup();
+  const d = DATA;
   const rows = (d.fleet || []).map(a => ({job: jobOf(a), a})).filter(x => x.job)
     .sort((x, z) => JOB_ORDER.indexOf(x.job) - JOB_ORDER.indexOf(z.job))
     .map(({job, a}) => lineH(job, esc((a.feed || []).find(t => t && !PERSONA.test(t)) || JOB_DEFAULT[job]))).join("");
   h += groupH("Activity", rows);
-  h += accountGroup();
   h += groupH("About", lineH("Data", LIVE ? "Live from your account" : "Preview. Changes made here are not saved.", LIVE ? pillH("Live", "ok") : pillH("Preview", "quiet"))
     + (updatedText() ? lineH("Last update", "", esc(updatedText().replace(/^Updated /, "")), true) : ""));
-  $("settings-body").innerHTML = h;
+  return h;
+}
+function renderSettings(){
+  const B = brands();
+  $("h-acct").textContent = pageTitle(PAGE);
+  const nav = $("acct-nav");
+  nav.innerHTML = ACCT.map(([k, t]) => `<a href="#${k}" data-acct="${k}"${k === PAGE ? ' aria-current="page"' : ""}>${esc(t)}</a>`).join("");
+  const on = nav.querySelector("[aria-current]"); if(on) nav.scrollLeft = Math.max(0, on.offsetLeft - nav.offsetLeft - 16);     // the current page's chip in view
+  const h = PAGE === "brand" ? brandPage(B) : PAGE === "plan" ? planPage(B) : PAGE === "connections" ? connectionsPage(B)
+    : PAGE === "notifications" ? approvalsGroup(B) + langGroup(B) : accountPage();
+  $("settings-body").innerHTML = h; $("settings-body").removeAttribute("aria-busy");
+}
+/* the account menu: initials top right (phones), the sidebar's foot (desktop) */
+function initials(){
+  const src = (ME && (ME.name || ME.email)) || (brands()[0] || {}).name || "";
+  const w = String(src).replace(/@.*/, "").split(/[\s._-]+/).filter(Boolean);
+  return ((w[0] || "?")[0] + (w.length > 1 ? w[1][0] : "")).toUpperCase();
+}
+function openMenu(opener){
+  const who = ME && ME.signed_in && ME.email ? ME.email : "";
+  const body = (who ? `<p class="hint" style="padding:0 2px 10px">${esc(who)}</p>` : "")
+    + `<div class="list menu">${ACCT.map(([k, t]) => `<button type="button" class="line tap" data-acct="${k}" data-fk="menu:${k}">${own(ACCT_IC, k)}<span class="rt"><span class="rt-t one">${esc(t)}</span></span>${IC.chev}</button>`).join("")}</div>`
+    + (ME && ME.via === "google" ? `<div style="margin-top:16px"><button type="button" class="btn gray block tap" data-signout>Sign out</button></div>` : "");
+  present(makeSheet({id: "menu", size: "auto", title: "Account", body, opener}));
+}
+async function goAcct(k){
+  if(!ACCT.some(x => x[0] === k)) k = "account";
+  while(STACK.length) await closeSheet(STACK[STACK.length - 1], {refocus: false});
+  PAGE = k; renderSettings();
+  setView("acct", {focus: true, page: k});
+  $("v-acct").scrollTo({top: 0});
 }
 
 /* ================= account: Google sign-in, the free trial, "add a card" (GET /auth/me) ================= */
@@ -1499,7 +2200,7 @@ async function loadMe(){
 }
 function trialBrand(){ return brands().find(b => b.plan_view && (b.plan_view.trial || {}).state === "running") || null; }
 const GLOGO = `<svg viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>`;
-function gbtnH(){ return `<a class="gbtn tap" href="/auth/google/start?next=${encodeURIComponent(location.pathname + location.search + location.hash)}">${GLOGO}<span>Continue with Google</span></a>`; }
+function gbtnH(){ return `<a class="gbtn tap" data-nav href="/auth/google/start?next=${encodeURIComponent(location.pathname + location.search + location.hash)}">${GLOGO}<span>Continue with Google</span></a>`; }
 const eurM = v => v == null ? "" : `€${N(v).toLocaleString("en-GB")} a month`;
 /* a link the app follows: https, or a page of this app on its own origin (the Billing page also on a plain-http local host) */
 const httpsUrl = u => { const s = String(u || ""); if (!/^[^\s"'<>]+$/.test(s)) return false; if (/^https:\/\//.test(s)) return true;
@@ -1523,18 +2224,15 @@ function accountGroup(){
   if(!ME || !ME.signed_in || !ME.email) return "";
   const t = ME.trial || {}, n = N(t.days_left);
   const st = t.state === "running" ? `Free trial · ${n} ${n === 1 ? "day" : "days"} left` : t.state === "converted" ? "Paid" : "";
-  const B = (ME.billing || []).filter(x => x && x.status !== "canceled");
-  return groupH("Account", lineH(esc(ME.email), ME.via === "google" ? "Signed in with Google" : "Signed in", st ? esc(st) : "", true)
-    + B.map(billingLine).join("")
-    + (ME.via === "google" ? `<div class="line"><a class="btn gray block tap" href="${esc(billingHref(B.length === 1 ? B[0].brand : ""))}">${B.length ? "Manage billing" : "Billing and plans"}</a></div>` : "")
+  return groupH("Signed in", lineH(esc(ME.email), ME.via === "google" ? "Signed in with Google" : "Signed in", st ? esc(st) : "", true)
     + (ME.via === "google" ? `<div class="line"><button type="button" class="btn gray block tap" data-signout>Sign out</button></div>` : ""));
 }
 async function openBilling(opener){
-  if(!ME) await loadMe();
+  if(!ME){ pending(opener, true); await loadMe(); pending(opener, false); }
   const offers = ((ME && ME.checkout) || []).filter(o => o && o.label);
   const tb = trialBrand(), t = tb && tb.plan_view.trial;
   const rows = offers.map(o => lineH(`<b style="font-weight:600">${esc(o.label)}</b>`, esc((o.lines || []).slice(0, 2).join(" · ")), esc(eurM(o.monthly_eur)), true)
-    + `<div class="line">${httpsUrl(o.checkout_url) ? `<a class="btn pri block tap" href="${esc(o.checkout_url)}">Continue with ${esc(o.label)}</a>` : `<span class="rt"><span class="rt-m">${o.why === "not_configured" ? "Payments aren't set up yet." : esc(o.label) + " is not on sale yet."}</span></span>`}</div>`).join("");
+    + `<div class="line">${httpsUrl(o.checkout_url) ? `<a class="btn pri block tap" data-nav href="${esc(o.checkout_url)}">Continue with ${esc(o.label)}</a>` : `<span class="rt"><span class="rt-m">${o.why === "not_configured" ? "Payments aren't set up yet." : esc(o.label) + " is not on sale yet."}</span></span>`}</div>`).join("");
   const lead = t && t.ends_at ? `Your trial runs until ${dayMon(new Date(t.ends_at))}. Choose a plan to keep going after it: your first charge is when the trial ends, never before.` : "Choose a plan to continue.";
   present(makeSheet({id: "billing", size: "auto", title: "Add a card", opener,
     body: `<p class="hint">${esc(lead)}</p><div class="list">${rows || lineH("Plans", "Plans open soon.", "")}</div><p class="hint">You pay on Otto's Billing page by card, SEPA Direct Debit, iDEAL or Bancontact. Prices exclude VAT; with a VAT ID the EU reverse charge applies.</p>`}));
@@ -1546,22 +2244,35 @@ async function signOut(){
 document.addEventListener("click", e => {
   const b = e.target.closest && e.target.closest("[data-billing],[data-signout]"); if(!b) return;
   e.preventDefault();
-  if(b.hasAttribute("data-signout")) signOut(); else openBilling(b);
+  if(b.hasAttribute("data-signout")){ pending(b, true); signOut(); } else openBilling(b);
 });
 
-/* ================= views (tabs) ================= */
-const VIEWS = ["today", "review", "calendar", "posts", "settings"];
-const TITLES = {today: "Today", review: "Review", calendar: "Calendar", posts: "Posts", settings: "Settings"};
-const LEGACY = {top: "today", "queue-sec": "review", "plan-sec": "calendar", "pipeline-sec": "posts", "growth-sec": "today", settings: "settings"};
+/* ================= views (tabs) =================
+   Four sections (Leads joins as the fifth: add it to VIEWS + TITLES, the nav and its <section>) and the account pages behind
+   the account menu (#brand, #plan, #connections, #notifications, #account: one view, "acct"). Old links keep working:
+   #posts opens the Calendar's list, #settings (the approval e-mail's "Open Otto" for a set-up step) opens Connections. */
+const VIEWS = ["today", "review", "calendar", "results", "acct"];
+const TITLES = {today: "Today", review: "Review", calendar: "Calendar", results: "Results", acct: "Account"};
+const LEGACY = {top: "today", "queue-sec": "review", "plan-sec": "calendar", "pipeline-sec": "calendar", posts: "calendar",
+  "growth-sec": "results", settings: "acct"};
 let VIEW = "today";
-function viewFromHash(){ const h = decodeURIComponent(location.hash.slice(1)); return VIEWS.includes(h) ? h : (LEGACY[h] || null); }
+function viewFromHash(){
+  const h = decodeURIComponent(location.hash.slice(1));
+  if(ACCT.some(x => x[0] === h)){ PAGE = h; return "acct"; }
+  if(h === "settings") PAGE = "connections";
+  if(h === "posts" || h === "pipeline-sec") CALMODE = "list";
+  return VIEWS.includes(h) && h !== "acct" ? h : (LEGACY[h] || null);
+}
+const hashOf = v => v === "acct" ? PAGE : v;
 function setView(v, o){
   o = o || {};
   if(!VIEWS.includes(v)) v = "today";
+  if(v === "acct" && o.page && ACCT.some(x => x[0] === o.page)){ PAGE = o.page; if(DATA) renderSettings(); }
   const prev = VIEW;
   if(v === prev){
     if(o.fromTab){ const el = $("v-" + v); el.scrollTo({top: 0, behavior: RM() ? "auto" : "smooth"}); }
     if(o.focus) $("h-" + v).focus({preventScroll: true});
+    if(location.hash.slice(1) !== hashOf(v)) history.replaceState(null, "", "#" + hashOf(v));
     syncNav(); return;
   }
   VIEW = v;
@@ -1574,13 +2285,14 @@ function setView(v, o){
     play(b, [{opacity: 0, transform: `translate3d(${8 * dir}px,0,0)`}, {opacity: 1, transform: "none"}], {duration: 180, easing: EZ.out}).then(x => { drop(x); busy(-1); });
   } else a.hidden = true;
   syncNav();
-  if(location.hash.slice(1) !== v) history.replaceState(null, "", "#" + v);
+  if(location.hash.slice(1) !== hashOf(v)) history.replaceState(null, "", "#" + hashOf(v));
   if(o.focus) $("h-" + v).focus({preventScroll: true});
   onViewScroll(); armCharts();
 }
 function syncNav(){
   $$("a[data-view]").forEach(a => { if(a.closest(".tabbar,.snav")){ if(a.dataset.view === VIEW) a.setAttribute("aria-current", "page"); else a.removeAttribute("aria-current"); } });
-  $("tb-t").textContent = TITLES[VIEW];
+  $("tb-t").textContent = VIEW === "acct" ? pageTitle(PAGE) : TITLES[VIEW];
+  const sm = $("side-me"); if(VIEW === "acct") sm.setAttribute("aria-current", "page"); else sm.removeAttribute("aria-current");
 }
 function onViewScroll(){
   const v = $("v-" + VIEW), h = $("h-" + VIEW); if(!v || !h) return;
@@ -1590,7 +2302,7 @@ function onViewScroll(){
 VIEWS.forEach(k => $("v-" + k).addEventListener("scroll", onViewScroll, {passive: true}));
 addEventListener("hashchange", async () => {
   if(location.hash === "#billing" && DATA){ history.replaceState(null, "", "#" + VIEW); return openBilling(); }
-  const v = viewFromHash(); if(v) return setView(v);
+  const v = viewFromHash(); if(v) return setView(v, v === "acct" ? {page: PAGE} : {});
   // a second approval-e-mail link opened in this tab while a sheet is up: close what is open, then show that post
   DEEP = deepLink(); if(!DEEP || !DATA) return;
   while(STACK.length) await closeSheet(STACK[STACK.length - 1], {refocus: false});
@@ -1598,6 +2310,27 @@ addEventListener("hashchange", async () => {
 });
 
 /* ================= actions ================= */
+/* a control waiting for the server: a spinner in place, disabled, aria-busy — until the answer comes (or the page leaves) */
+function pending(el, on){
+  if(!el) return;
+  el.classList.toggle("is-pending", !!on);
+  const btn = el.tagName === "BUTTON";
+  if(on){
+    el.setAttribute("aria-busy", "true");
+    if(btn) el.disabled = true; else el.setAttribute("aria-disabled", "true");
+    if(!el.querySelector(":scope > .bspin")) el.insertAdjacentHTML("afterbegin", '<span class="bspin" aria-hidden="true"></span>');
+  } else {
+    el.removeAttribute("aria-busy");
+    if(btn) el.disabled = false; else el.removeAttribute("aria-disabled");
+    const s = el.querySelector(":scope > .bspin"); if(s) s.remove();
+  }
+}
+/* a link that leaves for another page (Billing, checkout, setup): pending until the next page takes over */
+document.addEventListener("click", e => {
+  const a = e.target.closest && e.target.closest("a[data-nav]");
+  if(a && !e.defaultPrevented && e.button === 0 && !e.metaKey && !e.ctrlKey && !e.shiftKey && !e.altKey && a.target !== "_blank") pending(a, true);
+});
+addEventListener("pageshow", e => { if(e.persisted) $$(".is-pending").forEach(el => pending(el, false)); });
 const INFLIGHT = new Map();                   // id -> status we asked for (re-applied over fresher server data)
 const QUEUE = new Map();                      // per-id request chain: an Undo never overtakes its approve
 function enqueue(id, fn){ const p = (QUEUE.get(id) || Promise.resolve()).catch(() => {}).then(fn); QUEUE.set(id, p); return p; }
@@ -1676,8 +2409,32 @@ async function approveAll(){
   if(bad) toast(`Couldn't approve ${bad} ${plural(bad, "post")}. ${errText(res.find(r => r.status === "rejected").reason)}`, {err: true});
   if(LIVE) refresh();
 }
-async function recAct(id, status){
-  const r = (DATA.recommendations || []).find(x => x.id === id); if(!r) return;
+/* a suggestion card: "Not now" is instant (with Undo); its action button ("Approve plan", "Done") waits for the server with a
+   spinner in place, since approving can start real work (a month of campaigns) — the card leaves only once it is saved */
+const REC_PEND = new Set();
+function paintRecPending(id){
+  const card = document.querySelector(`[data-rec="${cssq(id)}"]`); if(!card) return;
+  const on = REC_PEND.has(id);
+  if(on) card.setAttribute("aria-busy", "true"); else card.removeAttribute("aria-busy");
+  $$("[data-rec-act]", card).forEach(b => { if(b.dataset.recAct === "dismissed") b.disabled = on; else pending(b, on); });
+}
+async function recAct(id, status, btn){
+  const r = (DATA.recommendations || []).find(x => x.id === id); if(!r || REC_PEND.has(id)) return;
+  if(status !== "dismissed"){
+    REC_PEND.add(id); paintRecPending(id);
+    let data = null, err = null;
+    try{ data = await send({kind: "rec", id, status}); }catch(e){ err = e; }
+    REC_PEND.delete(id);
+    if(err && !err.saved){ paintRecPending(id); toast("Couldn't save. " + errText(err), {err: true}); return; }
+    r.status = err ? "approved" : status;
+    const card = document.querySelector(`[data-rec="${cssq(id)}"]`), secEl = card && card.closest(".sec");
+    if(secEl){ busy(+1); await collapse(secEl); busy(-1); }
+    if(data) adopt(data); else scheduleRender();
+    if(err){ toast(String(err.message), {err: true, ms: 8000}); return; }
+    const q = data && (data.recommendations || []).find(x => x.id === id);
+    toast(q && q.action_result ? cap1(String(q.action_result)) + "." : "Marked as done");       // e.g. "2 campaign(s) approved for October 2026"
+    return;
+  }
   const prev = r.status; r.status = status;
   const card = document.querySelector(`[data-rec="${cssq(id)}"]`);
   const secEl = card && card.closest(".sec");
@@ -2005,19 +2762,34 @@ function wireSheetDrag(s){
 let DT = null;
 function dHeadH(p){
   const P = pendingList(), i = P.findIndex(x => x.id === p.id);
-  const pos = i >= 0 && P.length > 1 ? `${i + 1} of ${P.length}` : (own(PS, p.status) || [""])[0];
+  const pos = i >= 0 && P.length > 1 ? `${i + 1} of ${P.length}` : unwritten(p, postWork(p)) ? "Not written yet" : (own(PS, p.status) || [""])[0];
   return `<div class="dh"><h2 class="sh-t" id="dt-t">${esc(brandName(p.brand) || plat(p.platform))}</h2><p class="dh-s">${esc(pos)}</p></div>`
     + (i >= 0 && P.length > 1 ? `<div class="dh-nav"><button type="button" class="ibtn tap" data-dnav="-1" aria-label="Previous post">${IC.up}</button><button type="button" class="ibtn tap" data-dnav="1" aria-label="Next post">${IC.down}</button></div>` : "");
 }
+/* what the detail sheet says about a post still being made: one plain sentence, a thin bar while a run is on it */
+function dWorkH(p, wk){
+  if(!wk) return "";
+  const bw = workOf(p.brand) || {}, part = own(bw, WPART[wk.what]) || {}, by = byWhen((p.work || {}).next_run || part.next_run);
+  const eta = part.eta_minutes && wk.active ? ` About ${N(part.eta_minutes) <= 1 ? "a minute" : N(part.eta_minutes) + " minutes"} left.` : "";
+  const T = {copy: {writing: "Otto is writing this post now.", queued: "Otto starts writing this post in a moment.",
+      scheduled: by ? `Otto writes this post by ${by}.` : "", waiting: H(p) ? "The Otto team is checking this post before it reaches you." : "The Otto team is preparing this post.", unknown: "This post is not written yet."},
+    image: {rendering: "Otto is adding the image now.", scheduled: by ? `The image is ready by ${by}.` : "", waiting: "The Otto team is adding the image."},
+    video: {rendering: "Otto is making the video now.", scheduled: by ? `The video is ready by ${by}. The cover and caption are ready now.` : "", waiting: "The Otto team is making the video."}};
+  const s = (own(T, wk.what) || {})[wk.state] || "The Otto team is preparing this post.";
+  return `<div class="dnote work${wk.active ? "" : " q"}"><span>${esc(s + eta)}</span>${wk.active ? `<div class="pbar ind" role="progressbar" aria-label="${esc(wk.label)}"><i></i></div>` : ""}</div>`;
+}
 function dBodyH(p){
   let media;
+  const wk = postWork(p);
   if(p.video) media = `<figure class="dm tall"><video src="${esc(p.video)}"${p.image ? ` poster="${esc(p.image)}"` : ""} controls playsinline preload="metadata"></video></figure>`;
   else if(p.image) media = `<figure class="dm"><img src="${esc(p.image)}" alt="" decoding="async" draggable="false" data-fail="dm" data-alt="${esc(H(p))}"></figure>`;
-  else media = `<figure class="dm txt"><p dir="auto">${esc(H(p)) || "Copy in progress"}</p></figure>`;
+  else if(wk && (wk.what === "image" || unwritten(p, wk))) media = `<figure class="dm wk${wk.active ? " shim" : ""}" aria-hidden="true">${H(p) ? `<p class="dm-w" dir="auto">${esc(H(p))}</p>` : `<div class="sk-lines"><span class="sk${wk.active ? "" : " still"}"></span><span class="sk${wk.active ? "" : " still"}"></span></div>`}</figure>`;
+  else media = `<figure class="dm txt"><p dir="auto">${esc(H(p)) || "Not written yet"}</p></figure>`;
   const facts = [["Pillar", p.pillar], ["Format", p.format ? (own(FMT, p.format) || cap1(p.format)) : ""], ["Brand", brands().length > 1 ? brandName(p.brand) : ""],
     ["Reach", p.metrics && p.metrics.reach ? fmtN(p.metrics.reach) : ""], ["Saves", p.metrics && p.metrics.saves ? fmtN(p.metrics.saves) : ""],
     ["Your note", p.edit_note || ""]].filter(f => f[1]);
-  return `${media}<div class="dmeta">${postPill(p)}<span>${esc(plat(p.platform))} · ${esc(longWhen(p.slot))}</span></div>
+  return `${media}<div class="dmeta">${unwritten(p, wk) ? "" : postPill(p)}<span>${esc(plat(p.platform))} · ${esc(longWhen(p.slot))}</span></div>
+    ${dWorkH(p, wk)}
     ${p.status === "pending_approval" && isPast(p) ? `<p class="dnote warn">This slot has passed. Posts approved after their slot are not published automatically.</p>` : ""}
     ${p.status === "failed" && p.error ? `<p class="dnote bad">${esc(cap1(p.error))}</p>` : ""}
     ${C(p) ? `<p class="dcap" dir="auto">${esc(C(p))}</p>` : ""}
@@ -2128,12 +2900,22 @@ function timelineH(){
   });
   Object.entries(DATA.competitors || {}).forEach(([b, c]) => { const t = today(c.last_sweep); if(t) ev.push({t, h: `Checked ${(c.items || []).length || ""} competitors for ${esc(brandName(b) || b)}${N(c.changes) ? ` · ${N(c.changes)} ${plural(N(c.changes), "change")}` : ""}`.replace("Checked  ", "Checked ")}); });
   (DATA.edit_requests || []).forEach(r => { const t = today(r.ts), p = byId(r.post); if(t && p) ev.push({t, h: `You asked for changes to ${q(p)}`}); });
+  brands().forEach(b => { const w = workOf(b.id); if(!w) return;
+    const c = own(w, "copy") || {}, im = own(w, "images") || {}, rl = own(w, "reels") || {}, nm = brands().length > 1 ? ` for ${esc(b.name)}` : "";
+    if(c.state === "writing") ev.push({t: now, h: `Writing ${c.first_week ? "your first week" : "your next posts"}${nm} · ${N(c.done)} of ${N(c.total)} ready`, cls: "now"});
+    else if(c.state === "queued") ev.push({t: now, h: `Starting on ${c.first_week ? "your first week" : "your next posts"}${nm}`, cls: "now"});
+    if(im.state === "rendering") ev.push({t: now, h: `Adding images to ${N(im.pending)} ${plural(N(im.pending), "post")}${nm}`, cls: "now"});
+    let t;
+    if(c.state === "scheduled" && (t = today(c.next_run)) && t > now) ev.push({t, h: `Otto writes ${Math.max(0, N(c.total) - N(c.done))} ${plural(Math.max(0, N(c.total) - N(c.done)), "post")}${nm}`, cls: "later"});
+    if(rl.state === "scheduled" && (t = today(rl.next_run)) && t > now) ev.push({t, h: `${N(rl.pending) === 1 ? "The reel video is" : N(rl.pending) + " reel videos are"} made${nm}`, cls: "later"});
+  });
   ev.sort((a, b) => a.t - b.t);
   const past = ev.filter(e => e.cls !== "later"), later = ev.filter(e => e.cls === "later");
   const li = e => `<li class="${e.cls || ""}"><time>${e.cls === "now" ? "Now" : hhmm(e.t)}</time><i class="td" aria-hidden="true"></i><span>${e.h}</span></li>`;
   if(!ev.length){
     const a = activityOf(), nx = nextUp()[0];
-    return `<p class="sheet-empty">Nothing has happened yet today.${a && a.work ? ` Otto is ${esc(a.t.charAt(0).toLowerCase() + a.t.slice(1))}.` : ""}${nx ? ` The next post goes out ${esc(longWhen(nx.slot))}.` : ""}</p>`;
+    const at = a ? a.t.split(" · ")[0] : "";
+    return `<p class="sheet-empty">Nothing has happened yet today.${a && a.work ? ` Otto is ${esc(at.charAt(0).toLowerCase() + at.slice(1))}.` : ""}${nx ? ` The next post goes out ${esc(longWhen(nx.slot))}.` : ""}</p>`;
   }
   return `<ol class="tl">${past.map(li).join("")}${later.length ? `<li class="tl-sep">Later today</li>${later.map(li).join("")}` : ""}</ol>`;
 }
@@ -2184,10 +2966,26 @@ document.addEventListener("click", e => {
   const dn = t.closest("[data-dnav]"); if(dn && DT){ const n = dNeighbor(DT.id, +dn.dataset.dnav); if(n) dSwap(n, +dn.dataset.dnav); return; }
   const chip = t.closest("[data-chip]"); if(chip){ chip.setAttribute("aria-pressed", chip.getAttribute("aria-pressed") !== "true"); const s = STACK[STACK.length - 1]; if(s && s.sync) s.sync(); return; }
   const sendB = t.closest("[data-send]"); if(sendB){ sendChange(sendB); return; }
-  const go = t.closest("[data-go]"); if(go){ goTo(go.dataset.go, go); return; }
+  const ws = t.closest("[data-wk-seen]");
+  if(ws){ fwHide(ws.dataset.wkSeen);
+    if(ws.dataset.go){ goTo(ws.dataset.go, ws); scheduleRender(); return; }
+    const card = ws.closest(".wcard"); if(card){ busy(+1); collapse(card).then(() => { busy(-1); scheduleRender({focus: "hero-cta"}); }); } return; }
+  const menu = t.closest("[data-menu]"); if(menu){ openMenu(menu); return; }
+  const ac = t.closest("[data-acct]"); if(ac){ e.preventDefault(); goAcct(ac.dataset.acct); return; }
+  const ask = t.closest("[data-ask]"); if(ask){ askConnect(ask); return; }
+  const cn = t.closest("[data-connect]"); if(cn){ openConnect(cn.dataset.connect, cn.dataset.b, cn); return; }
+  const pr = t.closest("[data-plan-rec]"); if(pr){ approvePlan(pr.dataset.planRec, pr); return; }
+  const adb = t.closest("[data-ad]"); if(adb){ openAd(adb.dataset.ad, adb); return; }
+  const aa = t.closest("[data-ads-all]"); if(aa){ openAdsAll(aa.dataset.adsAll, aa); return; }
+  const rp = t.closest("[data-rp]"); if(rp){ if(RP !== rp.dataset.rp){ RP = rp.dataset.rp; renderResults(); armCharts(); } return; }
+  const rm = t.closest("[data-rm]"); if(rm){ if(RMET !== rm.dataset.rm){ RMET = rm.dataset.rm; renderResults(); armCharts(); } return; }
+  const cm = t.closest("[data-cm]"); if(cm){ setCalMode(cm.dataset.cm); if(cm.dataset.cm === "list") renderPosts(); return; }
+  const sc = t.closest("[data-scroll]"); if(sc){ const el = $(sc.dataset.scroll); if(el) el.scrollIntoView({behavior: RM() ? "auto" : "smooth", block: "start"}); return; }
+  const go = t.closest("[data-go]"); if(go){ if(go.dataset.rb) RB = go.dataset.rb; if(go.dataset.go === "reload") pending(go, true); goTo(go.dataset.go, go); return; }
+  const rbb = t.closest("[data-rb]"); if(rbb){ if(RB !== rbb.dataset.rb){ RB = rbb.dataset.rb; RMET = null; renderResults(); armCharts(); } return; }
   const act = t.closest("[data-act]"); if(act){ const r = act.closest("[data-id]"); if(r) rowAct(r.dataset.id, act.dataset.act, act); return; }
   const open = t.closest("[data-open]"); if(open){ openDetail(open.dataset.open, {from: open, opener: open}); return; }
-  const ra = t.closest("[data-rec-act]"); if(ra){ const r = ra.closest("[data-rec]"); if(r) recAct(r.dataset.rec, ra.dataset.recAct); return; }
+  const ra = t.closest("[data-rec-act]"); if(ra){ const r = ra.closest("[data-rec]"); if(r) recAct(r.dataset.rec, ra.dataset.recAct, ra); return; }
   const pf = t.closest("[data-pf]"); if(pf){ setPF(pf.dataset.pf); return; }
   const apb = t.closest("[data-appr]"); if(apb){ const box = apb.closest("[data-appr-b]"); if(box) setApprovals(box.dataset.apprB, apb.dataset.appr); return; }
   const lgb = t.closest("[data-lang]"); if(lgb){ const box = lgb.closest("[data-lang-b]"); if(box) setLang(box.dataset.langB, lgb.dataset.lang); return; }
@@ -2196,6 +2994,7 @@ document.addEventListener("click", e => {
 });
 function goTo(k, el){
   if(k === "review-all"){ const p = pendingList()[0]; if(p) openDetail(p.id, {opener: el}); return; }
+  if(k === "list"){ setCalMode("list"); renderPosts(); setView("calendar", {focus: true}); return; }
   if(k === "reload"){ location.reload(); return; }
   if(k.startsWith("open:")){ openDetail(k.slice(5), {opener: el}); return; }
   setView(k, {focus: true});
@@ -2214,6 +3013,16 @@ $("cal-grid").addEventListener("keydown", e => {
   if(d.getMonth() !== CAL.m || d.getFullYear() !== CAL.y) shiftMonth((d.getFullYear() - CAL.y) * 12 + d.getMonth() - CAL.m, iso);
   else pickDay(iso, false);
   const n = document.querySelector(`#cal-grid [data-day="${iso}"]`); if(n) n.focus();
+});
+/* arrow keys move the choice in the small segmented controls (period, chart, brand, Month | List) */
+document.addEventListener("keydown", e => {
+  const x = e.target.closest && e.target.closest("[data-rp],[data-rm],[data-cm],.seg [data-rb]"); if(!x) return;
+  const step = {ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1}[e.key]; if(!step) return;
+  e.preventDefault();
+  const sibs = $$(":scope > button", x.parentElement), nx = sibs[(sibs.indexOf(x) + step + sibs.length) % sibs.length];
+  const attr = ["rp", "rm", "cm", "rb"].find(k => nx.dataset[k] != null), val = nx.dataset[attr];
+  nx.click();
+  const again = document.querySelector(`[data-${attr}="${cssq(val)}"]`); if(again) again.focus();
 });
 $("posts-seg").addEventListener("keydown", e => {
   const keys = Object.keys(PF_OK), i = keys.indexOf(PF);
@@ -2300,6 +3109,7 @@ function boot(d, live){
   if(!$("gate").hidden){ $("gate").hidden = true; $("app").hidden = false; }
   document.documentElement.classList.toggle("preview", !live);
   render();
+  armWorkPoll();
   if(DEMO) requestAnimationFrame(() => runDemo(DEMO));
   else if(DEEP) requestAnimationFrame(openDeep);
   else if(location.hash === "#billing" && live) requestAnimationFrame(() => { history.replaceState(null, "", "#today"); openBilling(); });
@@ -2313,7 +3123,7 @@ const GATES = {
     a: `<button type="button" class="btn pri lg block tap" data-gate="reload">Sign in</button>`,
     n: "Use the email address you checked out with."},
   setup: {h: "Your brand is being set up.", s: "You're signed in, but no brand is linked to this sign-in yet. If you haven't finished setting up Otto, pick up where you left off.",
-    a: `<a class="btn pri lg block tap" href="onboarding.html">Continue setup</a><button type="button" class="btn gray lg block tap" data-gate="reload">Try again</button>`,
+    a: `<a class="btn pri lg block tap" data-nav href="onboarding.html">Continue setup</a><button type="button" class="btn gray lg block tap" data-gate="reload">Try again</button>`,
     n: "Already finished? Linking your brand to your sign-in can take a few minutes after payment."},
   offline: {h: "Otto can't be reached right now.", s: "Your posts and approvals are safe. Check your connection; this page tries again on its own.",
     a: `<button type="button" class="btn pri lg block tap" data-gate="retry">Try again</button>`, n: ""},
@@ -2326,7 +3136,7 @@ const GATES = {
 function paywallH(pay){
   const offers = (Array.isArray(pay.checkout) ? pay.checkout : []).filter(o => o && o.label);
   return offers.map((o, i) => httpsUrl(o.checkout_url)
-      ? `<a class="btn ${i ? "gray" : "pri"} lg block tap" href="${esc(o.checkout_url)}">Continue with ${esc(o.label)}${o.monthly_eur != null ? " · " + esc(eurM(o.monthly_eur)) : ""}</a>`
+      ? `<a class="btn ${i ? "gray" : "pri"} lg block tap" data-nav href="${esc(o.checkout_url)}">Continue with ${esc(o.label)}${o.monthly_eur != null ? " · " + esc(eurM(o.monthly_eur)) : ""}</a>`
       : `<button type="button" class="btn gray lg block" disabled>${o.why === "not_configured" ? "Payments aren't set up yet" : esc(o.label) + ": not on sale yet"}</button>`).join("")
     + `<button type="button" class="btn gray lg block tap" data-gate="retry">I've added a card</button>`
     + `<button type="button" class="btn gray lg block tap" data-signout>Sign out</button>`;
@@ -2352,7 +3162,8 @@ function gate(kind, info){
 }
 $("gate").addEventListener("click", e => {
   const b = e.target.closest("[data-gate]"); if(!b) return;
-  if(b.dataset.gate === "reload") location.reload(); else load(true);
+  pending(b, true);
+  if(b.dataset.gate === "reload") location.reload(); else load(true).finally(() => pending(b, false));
 });
 addEventListener("online", () => { if(GATE === "offline") load(true); });
 async function fetchData(){
@@ -2369,7 +3180,26 @@ async function fetchData(){
   return d && typeof d === "object" && !Array.isArray(d) ? {data: d} : {down: true};
 }
 function refresh(){
-  return fetchData().then(o => { if(o.gate) gate(o.gate, o.info); else if(o.data) adopt(o.data); }).catch(() => {});
+  return fetchData().then(o => { if(o.gate) gate(o.gate, o.info); else if(o.data) adopt(o.data); }).catch(() => {}).then(armWorkPoll);
+}
+/* while Otto is making something (brands[].work.active) the app asks every 10 s, backing off to 60 s while nothing moves;
+   it stops once the work is done and while the tab is hidden (visibilitychange) */
+const WP = {t: 0, delay: 10000, sig: null};
+const workActive = () => brands().some(b => { const w = workOf(b.id); return !!(w && w.active); });
+const workSig = () => brands().map(b => { const w = workOf(b.id) || {}, c = w.copy || {};
+  return [b.id, c.state, c.done, c.total, (w.images || {}).state, (w.images || {}).pending, (w.reels || {}).state].join(":"); }).join("|");
+function armWorkPoll(){
+  clearTimeout(WP.t); WP.t = 0;
+  if(!LIVE || document.hidden || !workActive()){ WP.delay = 10000; WP.sig = null; return; }
+  const s = workSig();
+  WP.delay = s !== WP.sig ? 10000 : Math.min(60000, Math.round(WP.delay * 1.5));
+  WP.sig = s;
+  WP.t = setTimeout(function tick(){
+    WP.t = 0;
+    if(!LIVE || document.hidden) return;
+    if(STACK.length || BUSY || SW || HOLD){ WP.t = setTimeout(tick, 4000); return; }      // never mid-gesture or in a sheet
+    refresh();
+  }, WP.delay);
 }
 async function load(again){
   let o = {down: true};
@@ -2386,14 +3216,24 @@ async function load(again){
   gate("offline");
 }
 // live polling: the activity pill and counts follow real job states; never while the owner is mid-gesture or in a sheet
-setInterval(() => { if(LIVE && !document.hidden && !STACK.length && !BUSY && !SW && !HOLD) refresh(); }, 30000);
-document.addEventListener("visibilitychange", () => { if(!document.hidden && LIVE && !STACK.length) refresh(); });
+setInterval(() => { if(LIVE && !document.hidden && !STACK.length && !BUSY && !SW && !HOLD && !WP.t) refresh(); }, 30000);
+document.addEventListener("visibilitychange", () => {
+  if(document.hidden){ clearTimeout(WP.t); WP.t = 0; return; }
+  if(LIVE && !STACK.length) refresh();
+});
 MQ.desk.addEventListener && MQ.desk.addEventListener("change", () => { while(STACK.length){ const s = STACK.pop(); s.layer.remove(); } DT = null; $("app").inert = false; $("app").classList.remove("behind"); $("app").style.transform = ""; document.documentElement.classList.remove("sheet-open"); toastOffset(); if(DATA) render(); });
 
-/* Screenshot hook, harmless: ?demo-state=review|calendar|posts|settings|detail|change|day|timeline|swipe|approve|hold|empty|skeleton|error.
+/* Screenshot hook, harmless: ?demo-state=review|calendar|list|results|brand|plan|connections|notifications|account|menu|connect|
+   ad|detail|change|day|timeline|swipe|approve|hold|empty|skeleton|error (posts / settings: the old names of list / connections).
    Only UI state; nothing is posted (the mutating ones run only in preview, where actions stay local). */
 function runDemo(k){
   const P = pendingList(), p0 = P[0];
+  if(k === "posts" || k === "list"){ setCalMode("list"); renderPosts(); return setView("calendar", {animate: false}); }
+  if(k === "settings") k = "connections";
+  if(ACCT.some(x => x[0] === k)) return setView("acct", {animate: false, page: k});
+  if(k === "menu") return openMenu($("tb-me"));
+  if(k === "connect") return openConnect("meta");
+  if(k === "ad"){ setView("review", {animate: false}); const a = document.querySelector("#v-review [data-ad]"); if(a) openAd(a.dataset.ad, a); return; }
   if(VIEWS.includes(k)) return setView(k, {animate: false});
   if(k === "detail" && p0){ setView("review", {animate: false}); openDetail(p0.id, {}); }
   if(k === "change" && p0){ setView("review", {animate: false}); openDetail(p0.id, {}); setTimeout(() => { const s = openChange(p0.id); const c = s && s.sheet.querySelector("[data-chip]"); if(c){ c.setAttribute("aria-pressed", "true"); s.sync(); } }, 700); }

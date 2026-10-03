@@ -9,7 +9,8 @@
   otto_watch.py watch                 -> hourly guard: metric drops vs 7-day avg, missed publishes, approvals about to miss
                                          their slot. Sends only when something is wrong — each alert in its brand's comms_lang.
 
-State: metrics_history.jsonl (one snapshot/day), .watch-state.json (alert dedup, 1/day per key) — both next to data.json.
+State: metrics_history.jsonl (one snapshot/day of metrics[brand] without its day series / baseline — otto_insights keeps
+those in data.json), .watch-state.json (alert dedup, 1/day per key) — both next to data.json.
 Reads data.json through ap (OTTO_DATA respected); slot times are brand-local (ap.slot_dt, brands[].tz).
 Only numeric metric values are compared / summed (Graph can hand back None, dicts or strings).
 Sending: the brand owner's Telegram bot ($OTTO_SECRETS/telegram.json, same as the approval cards — on a per-client instance
@@ -100,12 +101,21 @@ def history():
     return rows
 
 
+SNAPSHOT_SKIP = ("daily", "baseline")     # metrics[brand] series (otto_insights) live in data.json, not in every snapshot line
+
+
+def snapshot_metrics(metrics):
+    """metrics[brand] as one history line keeps it: the flat numbers + account, without the day series and the baseline."""
+    return {bid: ({k: v for k, v in m.items() if k not in SNAPSHOT_SKIP} if isinstance(m, dict) else m)
+            for bid, m in (metrics or {}).items()}
+
+
 def snapshot(d):
     today = datetime.now(timezone.utc).date().isoformat()
     rows = history()
     if rows and rows[-1].get("date") == today:
         return rows
-    rows.append({"date": today, "metrics": d.get("metrics", {})})
+    rows.append({"date": today, "metrics": snapshot_metrics(d.get("metrics", {}))})
     with HIST.open("a") as f:
         f.write(json.dumps(rows[-1], ensure_ascii=False) + "\n")
     return rows

@@ -1,37 +1,37 @@
 {
-  "notes": "Otto's own ads (B2B: small-business owners in NL and IE). Country baselines NL + IE apply automatically; industry b2b exempts the consumer-only price/urgency rules, so 'excl. btw' / 'excl. VAT' is fine. Otto's own rules below: never Native's language (autopilot, paste your website, walk away), no guaranteed results, no invented scarcity, no price-versus-agency framing, no multiplier claims. Competitor names are blocked through competitors.json. For a market check, the render workspace sets countries to that market only (NL matrix → [\"NL\"], IE matrix → [\"IE\"]). Edit freely; 're:' entries are case-insensitive regexes.",
-  "countries": [
-    "NL",
-    "IE"
-  ],
-  "industries": [
-    "b2b"
-  ],
-  "banned": [
-    "re:\\bauto-?pilot\\b",
-    "re:\\bautomatische piloot\\b",
-    "re:\\bpaste (?:in )?your (?:website|site|url|link)\\b",
-    "re:\\bplak (?:je|jouw) (?:website|site|url|link)\\b",
-    "re:\\bwalk away\\b",
-    "re:\\bset it and forget it\\b",
-    "re:\\bguarantee[sd]?\\b[^.\\n]{0,30}\\b(?:results|leads|sales|customers|clients|growth|bookings)\\b",
-    "re:\\bgegarandeerd\\w*\\b",
-    "re:\\bresultaatgarantie\\b",
-    "re:\\b(?:only|just) \\d+ (?:seats|spots|places) left\\b",
-    "re:\\bnog (?:maar |slechts )?\\d+ plek(?:ken|jes)?\\b",
-    "re:\\b\\d+\\s?[x×] (?:more|meer)\\b",
-    "re:\\b(?:agency|agencies|bureau|bureaus|marketingbureau\\w*)\\b[^.\\n]{0,60}€\\s?\\d",
-    "re:€\\s?\\d[^.\\n]{0,60}\\b(?:agency|agencies|bureau|bureaus|marketingbureau\\w*)\\b",
-    "re:\\b(?:ai|a\\.i\\.) slop\\b",
-    "re:\\bviral\\b",
-    "re:\\blaatste kans\\b",
-    "re:\\blast chance\\b",
-    "re:\\b(?:only|alleen) (?:today|vandaag)\\b",
-    "re:\\bwees er snel bij\\b",
-    "re:\\bdon'?t miss out\\b"
-  ],
-  "required_disclaimer": null,
-  "disclaimer_on": [
-    "posts"
-  ]
+ "notes": "Otto's own ads (B2B: small-business owners in NL and IE). Country baselines NL + IE apply automatically; industry b2b exempts the consumer-only price/urgency rules, so 'excl. btw' / 'excl. VAT' is fine. Otto's own rules below: never Native's language (autopilot, paste your website, walk away), no guaranteed results, no invented scarcity, agency prices only as the sourced ranges (€500–1,500 a month just for posts, €1,000+ for posts and ads — research/EU-LAUNCH-AND-PRICING-2026-09.md §3.4; Max's direction 2 Oct 2026), no multiplier claims. Competitor names are blocked through competitors.json. For a market check, the render workspace sets countries to that market only (NL matrix → [\"NL\"], IE matrix → [\"IE\"]). Edit freely; 're:' entries are case-insensitive regexes.",
+ "countries": [
+  "NL",
+  "IE"
+ ],
+ "industries": [
+  "b2b"
+ ],
+ "banned": [
+  "re:\\bauto-?pilot\\b",
+  "re:\\bautomatische piloot\\b",
+  "re:\\bpaste (?:in )?your (?:website|site|url|link)\\b",
+  "re:\\bplak (?:je|jouw) (?:website|site|url|link)\\b",
+  "re:\\bwalk away\\b",
+  "re:\\bset it and forget it\\b",
+  "re:\\bguarantee[sd]?\\b[^.\\n]{0,30}\\b(?:results|leads|sales|customers|clients|growth|bookings)\\b",
+  "re:\\bgegarandeerd\\w*\\b",
+  "re:\\bresultaatgarantie\\b",
+  "re:\\b(?:only|just) \\d+ (?:seats|spots|places) left\\b",
+  "re:\\bnog (?:maar |slechts )?\\d+ plek(?:ken|jes)?\\b",
+  "re:\\b\\d+\\s?[x×] (?:more|meer)\\b",
+  "re:\\b(?:agency|agencies|bureau|bureaus|marketingbureau\\w*)\\b[^.\\n]{0,60}€\\s?(?!500\\s?[–-]\\s?1[.,]500\\b|1[.,]000\\+)\\d",
+  "re:€\\s?(?!500\\s?[–-]\\s?1[.,]500\\b|1[.,]000\\+)\\d[^.\\n]{0,60}\\b(?:agency|agencies|bureau|bureaus|marketingbureau\\w*)\\b",
+  "re:\\b(?:ai|a\\.i\\.) slop\\b",
+  "re:\\bviral\\b",
+  "re:\\blaatste kans\\b",
+  "re:\\blast chance\\b",
+  "re:\\b(?:only|alleen) (?:today|vandaag)\\b",
+  "re:\\bwees er snel bij\\b",
+  "re:\\bdon'?t miss out\\b"
+ ],
+ "required_disclaimer": null,
+ "disclaimer_on": [
+  "posts"
+ ]
 }

@@ -54,6 +54,8 @@ OTTO_DOMAIN=$(printf '%s' "${OTTO_DOMAIN:-}" | tr 'A-Z' 'a-z')
 . /etc/os-release
 [[ ${ID:-} == ubuntu && ${VERSION_ID:-} == 24.04 ]] || warn "made for Ubuntu 24.04, this is ${PRETTY_NAME:-unknown} — continuing"
 ARCH=$(dpkg --print-architecture)
+NODE_MAJOR=22                       # Node LTS for HyperFrames (engines: node >= 22)
+HF_PKG=hyperframes@0.8.91           # the HyperFrames CLI the video ads render with: = motion/ad-kit/ship.mjs (a test checks)
 
 install -d -m 0755 -o root -g root /etc/otto
 umask 022
@@ -76,8 +78,9 @@ add_repo() {   # name, signing-key URL, sources line — official vendor repos o
 	fi
 	printf '%s\n' "$3" >"/etc/apt/sources.list.d/$1.list"
 }
+# Node 22 LTS: HyperFrames (the video ads' renderer, motion/ad-kit) needs node >= 22; NodeSource's 20.x line is end of life
 add_repo nodesource https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key \
-	"deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_20.x nodistro main"
+	"deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_${NODE_MAJOR}.x nodistro main"
 add_repo caddy https://dl.cloudsmith.io/public/caddy/stable/gpg.key \
 	"deb [signed-by=/etc/apt/keyrings/caddy.gpg] https://dl.cloudsmith.io/public/caddy/stable/deb/debian any-version main"
 chrome=()
@@ -92,10 +95,12 @@ else
 fi
 apt-get update -q
 apt-get install -y -q --no-install-recommends \
-	git python3 python3-systemd ffmpeg rsync zstd age rclone ufw fail2ban unattended-upgrades logrotate sudo \
+	git python3 python3-systemd python3-numpy python3-scipy ffmpeg rsync zstd age rclone ufw fail2ban unattended-upgrades logrotate sudo \
 	fontconfig fonts-dejavu-core fonts-dejavu-extra fonts-noto-core fonts-noto-ui-core fonts-noto-mono fonts-noto-color-emoji \
 	nodejs caddy "${chrome[@]}"
-note "python $(python3 -c 'import sys; print(sys.version.split()[0])') · node $(node --version) · caddy $(caddy version | cut -d' ' -f1) · ffmpeg $(ffmpeg -version | head -n1 | cut -d' ' -f3)${chrome:+ · $(google-chrome-stable --version 2>/dev/null)}"
+node_have=$(node --version 2>/dev/null | sed 's/^v//; s/\..*//')
+[[ ${node_have:-0} -ge $NODE_MAJOR ]] || die "node $(node --version 2>/dev/null || echo missing) is older than $NODE_MAJOR (NodeSource node_$NODE_MAJOR.x did not install)"
+note "python $(python3 -c 'import sys; print(sys.version.split()[0])') · node $(node --version) · npx $(npx --version) · caddy $(caddy version | cut -d' ' -f1) · ffmpeg $(ffmpeg -version | head -n1 | cut -d' ' -f3)${chrome:+ · $(google-chrome-stable --version 2>/dev/null)}"
 timedatectl set-timezone UTC 2>/dev/null || true
 if [[ -z $(swapon --show --noheadings) && ! -e /swapfile ]]; then   # headless Chrome + ffmpeg peaks; 2 GB of swap as a cushion
 	if fallocate -l 2G /swapfile && chmod 0600 /swapfile && mkswap -q /swapfile && swapon /swapfile; then
@@ -118,6 +123,9 @@ install -d -m 0755 -o otto -g otto /var/lib/otto/public /var/lib/otto/public/ass
 install -d -m 0750 -o otto -g otto /var/lib/otto/queue /var/lib/otto/queue/copy   # new trials for the copywriter (otto-copy-queue.path)
 install -d -m 0755 -o otto -g otto /srv/otto /srv/otto/site /srv/otto/app /srv/otto/admin /srv/otto/static
 install -d -m 0750 -o otto -g otto /var/cache/otto
+install -d -m 0750 -o otto -g otto /var/cache/otto/npm          # npx (HyperFrames) cache: the otto user's own, never ~/.npm
+# a ~/.npm that a root `npx` once created is root-owned deep inside (EACCES in _cacache): hand it back to otto
+[[ -d /home/otto/.npm ]] && chown -R otto:otto /home/otto/.npm
 install -d -m 0755 -o otto -g otto /opt/otto
 install -d -m 0755 /etc/caddy/otto.d /usr/local/lib/otto
 
@@ -169,7 +177,12 @@ env_default OTTO_BACKUP_KEEP_DAILY 14
 env_default OTTO_BACKUP_KEEP_WEEKLY 8
 env_default OTTO_BACKUP_SECRETS 1 "1 = the encrypted backup also carries /etc/otto/secrets (needed to rebuild a server without re-connecting every client)"
 env_default RCLONE_CONFIG /etc/otto/secrets/rclone.conf
-env_default OTTO_COPY_QUEUE /var/lib/otto/queue/copy "a new trial's first week: the API queues it, otto-copy-queue.path writes and designs it at once"
+env_default OTTO_COPY_QUEUE /var/lib/otto/queue/copy "a new trial's first week (queued by the API), a planned month's ad copy (queued by otto_ads plan) and a written month's video ads (queued by the copywriter): otto-copy-queue.path runs them at once"
+env_default npm_config_cache /var/cache/otto/npm "npx (HyperFrames, the video ads' renderer) caches its packages here — writable by otto, never a root-owned ~/.npm"
+env_default HYPERFRAMES_NO_TELEMETRY 1 "the HyperFrames CLI sends no usage telemetry from client renders"
+env_default DO_NOT_TRACK 1
+env_default HYPERFRAMES_NO_UPDATE_CHECK 1 "HyperFrames stays at the pinned version (motion/ad-kit/ship.mjs): no update checks, no self-install"
+env_default HYPERFRAMES_NO_AUTO_INSTALL 1
 env_default PYTHONUNBUFFERED 1
 env_default LANG C.UTF-8
 want_domain=$OTTO_DOMAIN
@@ -300,6 +313,25 @@ EOF
 fi
 SRC=/opt/otto/infra
 [[ -f $SRC/Caddyfile && -d $SRC/systemd ]] || die "$SRC is incomplete — is $OTTO_BRANCH the branch with infra/?"
+
+# ------------------------------------------------------------------ the video ads' renderer (HyperFrames via npx, as otto)
+say "video ads renderer ($HF_PKG)"
+grep -q "npx --yes $HF_PKG" /opt/otto/motion/ad-kit/ship.mjs 2>/dev/null ||
+	warn "motion/ad-kit/ship.mjs pins another HyperFrames than $HF_PKG — update HF_PKG here (and otto_advideo.HF_PKG)"
+hf() { as_otto env npm_config_cache=/var/cache/otto/npm HYPERFRAMES_NO_TELEMETRY=1 DO_NOT_TRACK=1 HYPERFRAMES_NO_UPDATE_CHECK=1 \
+	HYPERFRAMES_NO_AUTO_INSTALL=1 bash -c 'cd /tmp && npx --yes "$@"' _ "$HF_PKG" "$@"; }
+if hf_v=$(hf --version 2>/dev/null | tail -n1) && [[ -n $hf_v ]]; then
+	# the managed chrome-headless-shell (~otto/.cache): renders use it instead of downloading it on the first video
+	if hf browser ensure >/dev/null 2>&1; then
+		note "HyperFrames $hf_v ready (npm cache /var/cache/otto/npm, Chrome: $(hf browser path 2>/dev/null | tail -n1))"
+	else
+		warn "hyperframes browser ensure failed — the first video render downloads Chrome itself"
+	fi
+else
+	warn "npx $HF_PKG did not run (network?) — video ads render once it does; re-run bootstrap to warm the cache"
+	todo "Video ads: run  sudo -u otto -H env npm_config_cache=/var/cache/otto/npm npx --yes $HF_PKG browser ensure  (or re-run bootstrap), then: sudo -u otto python3 /opt/otto/platform/otto_advideo.py check"
+fi
+python3 -c 'import numpy, scipy' 2>/dev/null || warn "python3-numpy / python3-scipy missing — the video ads' music cannot be made"
 
 # ------------------------------------------------------------------ root-owned tools (never run root code from the otto-writable checkout)
 install -m 0755 -o root -g root "$SRC/cloudflare-ips.sh" /usr/local/sbin/otto-cloudflare-ips

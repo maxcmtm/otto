@@ -1412,6 +1412,8 @@ def render_report(b, m, recipient, cfg, now, secret, verify=True):
         extra = []
         if p.get("cost") and p.get("avg7") is not None:       # the tile shows the 7-day average; the cost goes here
             extra.append(rp.cost_line(t, p["kind"], p["cost"], p["currency"]))
+        if p.get("messages"):                                  # click-to-Messenger / Instagram / WhatsApp conversations
+            extra.append(t("report.messages", n=p["messages"]))
         if p.get("best"):
             extra.append(t("report.best_ad", name=p["best"]["name"], cost=rp.cost_phrase(t, p["best"]["kind"], p["best"]["cost"], p["currency"])))
         if p.get("month"):

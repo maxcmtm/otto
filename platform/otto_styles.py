@@ -17,14 +17,17 @@ visuals. Otto prepares every client the same way:
                "ads": [{"id", "style", "slot", "format": "image" | "video" | "creator", "size": "feed" | ["feed", "story"],
                         "data": {…the template's fields…},                                        image cells
                         "video": {"kit": "notes", "data": "video/2026-10/a1-notes_app.json"},    video cells (ad-kit / reel
-                                 data relative to brands/<id>/; otto_motion renders it and sets the cell's "file")
+                                 data relative to brands/<id>/: a hand-made kit JSON; a cell whose beats the copywriter
+                                 wrote in "data" is rendered by otto_advideo, which sets "file" (9:16 mp4), "poster",
+                                 "status": "rendered" and "render" {hash, files {9x16, 4x5}, …})
                         "creator": {"persona", "hook", "script", "shot_list", "length", "disclosure",
                                     "name", "consent"},                                          creator cells ("file" =
                                  the real creator's footage, set when it arrives)
                         "brief", "added": "YYYY-MM-DD",
                         "primary" / "headline" / "description" / "cta" (optional per-cell overrides of the angle's copy),
                         "status": "dropped" (optional — the copywriter parks a cell) | "hold" + "hold_reason"
-                                  ("licence pending": reported by --check, never launched, out of coverage)}]}]}
+                                  ("licence pending": reported by --check, never launched, out of coverage) |
+                                  "rendered" (otto_advideo: the faceless video's files are in — informational)}]}]}
 
 One angle = one concept = one Meta ad set whose ads are the styles (otto_ads.launch_meta), so Meta tests executions
 inside a concept and concepts against each other. The copy is angle-level on purpose — the test is about the visual:
@@ -50,6 +53,10 @@ Refresh (refresh_gaps, after launch): +2 new creatives per angle per week, each 
 plan_matrix(bid) writes nothing: it returns a deterministic skeleton — angles assigned to families, styles picked per slot
 by fit (angle kind, stage) and by what the brand really has (no review styles without verbatim reviews, no product styles
 without a product image, no offer without a real offer), maximising variety, each cell with a brief for the copywriter.
+Whoever saves a fresh skeleton stamps it ("skeleton": fingerprint(m)); untouched_skeleton(m) is then True until anyone
+edits an angle or a cell. The copywriter (otto_copy.write_ads) fills the skeleton's copy by itself: the angles' headlines /
+primaries / description / cta (+ Google RSA lines), every image cell's render data, every faceless video cell's kit copy
+and — on plans with creator_briefs — the creator briefs; what it wrote carries "copy": {"by": "otto_copy", …}.
 Reviews must be verbatim from proof_bank; no ad names a competitor from competitors.json; every cell's texts (a creator's
 script included) pass otto_compliance before anything renders (otto_creative.build).
 """
@@ -394,6 +401,20 @@ def load_matrix(bid, ym):
     if not isinstance(m, dict) or not isinstance(m.get("angles"), list):
         raise ValueError(f"{f.name} has no angles[] list")
     return m
+
+
+def fingerprint(m):
+    """A short hash of a matrix's angles — what plan() / matrix --plan stamp as "skeleton" when they write a fresh skeleton,
+    so the copywriter (otto_copy.write_ads) can tell a skeleton nobody has touched (safe to re-plan from new angles) from
+    one a person has edited (never re-planned)."""
+    import hashlib
+    blob = json.dumps((m or {}).get("angles") or [], sort_keys=True, ensure_ascii=False)
+    return hashlib.sha256(blob.encode("utf-8")).hexdigest()[:16]
+
+
+def untouched_skeleton(m):
+    """True when the matrix is still exactly the skeleton the planner wrote (its "skeleton" stamp matches its angles)."""
+    return bool(isinstance(m, dict) and m.get("skeleton") and m["skeleton"] == fingerprint(m))
 
 
 def save_matrix(bid, ym, m):
@@ -1167,6 +1188,22 @@ def video_data_path(bid, cell):
     return None
 
 
+def video_hash(cell):
+    """A faceless video cell's beats as rendered: its kit and its copy data (beats + end card). otto_advideo stamps it on the
+    cell ("render": {"hash"}) and renders again when it changes; validate_cell treats such a video as stale (scripted)."""
+    import hashlib
+    st = resolve(cell.get("style"))
+    kit = (cell.get("video") or {}).get("kit") or (STYLES[st]["video"] if st else None)
+    blob = json.dumps({"kit": kit, "data": cell.get("data") or {}}, sort_keys=True, ensure_ascii=False)
+    return hashlib.sha256(blob.encode("utf-8")).hexdigest()[:16]
+
+
+def video_stale(cell):
+    """True when otto_advideo rendered this cell from beats that have changed since."""
+    r = cell.get("render") if isinstance(cell.get("render"), dict) else {}
+    return bool(r.get("hash")) and r["hash"] != video_hash(cell)
+
+
 def cell_texts(bid, cell, angle=None, i=0):
     """Every text a viewer of this ad reads: its copy (the cell's or the angle's), the render data, the kit data of a
     video cell, a creator's hook / script / on-screen text."""
@@ -1348,15 +1385,24 @@ def validate_cell(cell, ctx, angle=None, i=0):
         vd = (cell.get("video") or {}).get("data")
         vp = video_data_path(ctx["bid"], cell)
         rendered = bool(cell.get("file")) and _media_file(ctx["bid"], cell["file"]) is not None
-        if cell.get("file") and not rendered:
-            errors.append(f"video file {cell['file']} is not on disk")
-        if cell.get("poster") and not _media_file(ctx["bid"], cell["poster"]):
-            errors.append(f"poster {cell['poster']} is not on disk")
-        if rendered:
+        ours = isinstance(cell.get("render"), dict) and bool(cell["render"].get("hash"))      # rendered by otto_advideo
+        poster_ok = not cell.get("poster") or _media_file(ctx["bid"], cell["poster"]) is not None
+        if ours and (not rendered or not poster_ok or video_stale(cell)):
+            # Otto's own render whose beats changed since (or whose files are gone): never launched with old copy —
+            # scripted again, otto_advideo renders it anew
+            rendered = False
+            scripted.append("copy changed since the video was rendered — re-render pending (otto_advideo)" if video_stale(cell)
+                            else "the rendered video is not on disk — re-render pending (otto_advideo)")
+        else:
+            if cell.get("file") and not rendered:
+                errors.append(f"video file {cell['file']} is not on disk")
+            if not poster_ok:
+                errors.append(f"poster {cell['poster']} is not on disk")
+        if rendered or scripted:
             pass                                          # the finished video is the deliverable: no kit JSON needed any more
         elif not (isinstance(vd, dict) and vd) and not vp:
             if _filled(cell.get("data")) and data_texts(cell.get("data")):   # copy + beats written, kit JSON not yet
-                scripted.append(f"copy written, kit JSON {vd or '(no video.data path)'} not generated yet (motion)")
+                scripted.append("copy written, the video is not rendered yet (otto_advideo renders it)")
             else:
                 unwritten.append(f"video data not written ({vd or 'no path'})")
         elif vp:                                          # an ad-kit ad file: {"id", "style": <kit>, "formats", <style data>, "endcard"}
@@ -1400,10 +1446,11 @@ def validate_cell(cell, ctx, angle=None, i=0):
 
 def check_matrix(bid, ym=None, matrix=None, today=None):
     """Coverage gaps, copy gaps (headlines / primaries per angle), refresh gaps (after launch) + every cell's status:
-    ready | planned (creator brief written, footage not in) | scripted (video copy / beats written, the kit JSON not
-    generated yet — a motion production gap) | unwritten (a writing gap) | invalid | violation (otto_compliance) | pending
-    (template not on disk) | hold (parked on purpose, e.g. licence pending: never launched, left out of coverage).
-    Video cells are ready once their kit data is written (otto_motion renders them later)."""
+    ready | planned (creator brief written, footage not in) | scripted (video copy / beats written, not rendered yet — or
+    rendered from beats that changed since: otto_advideo renders it; a production gap, not a writing one) | unwritten (a
+    writing gap) | invalid | violation (otto_compliance) | pending (template not on disk) | hold (parked on purpose, e.g.
+    licence pending: never launched, left out of coverage). A video cell is ready once its video is rendered ("file"), or
+    once a hand-made kit JSON exists (rendered by whoever wrote it)."""
     import otto_compliance as comp
     m = matrix if matrix is not None else load_matrix(bid, ym)
     if m is None:
@@ -1439,7 +1486,7 @@ def check_matrix(bid, ym=None, matrix=None, today=None):
             if st == "pending":
                 reasons.append(f"template {', '.join(t for t in templates(style) if not template_ready(t))} not on disk yet")
             if st == "ready" and fmt(c) == "video" and not c.get("file"):
-                reasons.append("video not rendered yet (otto_motion)")
+                reasons.append("video not rendered yet (its kit JSON was written by hand: render it with motion/ad-kit)")
             rows.append({"angle": a.get("id"), "id": c.get("id"), "style": style or c.get("style"), "format": fmt(c),
                          "status": st, "reasons": reasons, "warnings": v["warnings"], "violations": viol,
                          "copy": ad_copy(a, c, i)})

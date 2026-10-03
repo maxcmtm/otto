@@ -1,7 +1,10 @@
-# A trial kickoff (otto_copy.spawn_week in the API) drops <brand>.week into the queue; this starts otto-copy-queue.service at
-# once, in the jobs' sandbox where headless Chrome can render the first week's images (the API's own sandbox cannot).
+# A trial kickoff (otto_copy.spawn_week in the API) drops <brand>.week into the queue, a planned ad month (otto_copy.spawn_ads
+# from otto_ads plan / otto_creative matrix --plan) drops <brand>.<YYYY-MM>.ads, a month whose ad copy was just written
+# (otto_advideo.spawn at the end of otto_copy.write_ads) drops <brand>.<YYYY-MM>.videos; this starts otto-copy-queue.service
+# at once, in the jobs' sandbox where headless Chrome can render the first week's images and the video ads (the API's own
+# sandbox cannot). While files are left (a render queued again after its budget) systemd starts the service again.
 [Unit]
-Description=Otto copywriter queue (new trials)
+Description=Otto copywriter queue (new trials, planned ad months, video ads)
 Documentation=file:///opt/otto/infra/README.md
 
 [Path]

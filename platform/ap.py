@@ -655,9 +655,13 @@ def plan_for_price(price_id):
 
 
 def price_for(plan_id, interval):
-    """The Stripe price id that sells `plan_id` at `interval` ("month" | "year" | "one_time"), or None (not on sale yet)."""
+    """The Stripe price id that sells `plan_id` at `interval` ("month" | "year" | "one_time"), or None (not on sale yet).
+    A plan without a yearly price in plans.json (yearly_eur null: Starter is a monthly subscription, Max 2 Oct 2026) is never
+    sold yearly, whatever its stripe_price_ids hold."""
     key = {v: k for k, v in STRIPE_INTERVALS.items()}.get(interval)
     p = plans_config()["plans"].get(plan_id) or {}
+    if key == "yearly" and p.get("yearly_eur") is None:
+        return None
     return (p.get("stripe_price_ids") or {}).get(key) if key else None
 
 

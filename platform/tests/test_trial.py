@@ -266,10 +266,10 @@ class TrialTest(unittest.TestCase):
         self.assertIn("Approvals by e-mail", bv["plan_view"]["included"])
         st, me = req("GET", "/auth/me", sid=sid)
         offers = {o["plan"]: o for o in me["checkout"]}
-        self.assertEqual(sorted(offers), ["growth", "starter"])
+        self.assertEqual(sorted(offers), ["starter"], "only the approved price (Starter, EUR 79 a month) is offered")
         self.assertEqual(offers["starter"]["checkout_url"], "https://app.otto.example/billing.html?plan=starter",
                          "Otto's own Billing page, never a third-party checkout")
-        self.assertEqual((offers["starter"]["month"], offers["starter"]["year"], offers["growth"]["year"]), (True, False, True))
+        self.assertEqual((offers["starter"]["month"], offers["starter"]["year"]), (True, False))
         self.assertEqual(me["billing_url"], "https://app.otto.example/billing.html")
         self.assertNotIn("whop", json.dumps(me))
         self.assertIn("trial=granted", (TMP / "actions.log").read_text())
@@ -376,6 +376,29 @@ class TrialTest(unittest.TestCase):
         st, _ = req("POST", "/otto-api/decide", {"id": "x-001", "decision": "approve"}, sid)
         self.assertEqual(st, 402)
         self.assertTrue(ap.brand(ap.load(), bid), "nothing was deleted")
+
+    def test_the_reminders_quote_starter_at_79_in_every_language(self):
+        """Starter is EUR 79 a month, a monthly subscription (approved by Max, 2 Oct 2026): the "add a card" offers carry it
+        and the day-5 / day-7 e-mails say it in English, Dutch and German, with no yearly price; Growth's is still a draft."""
+        import otto_i18n
+        offers = {o["plan"]: o for o in otto_trial.checkout_offers()}
+        self.assertEqual((offers["starter"]["monthly_eur"], offers["starter"]["yearly_eur"], offers["starter"]["draft"]), (79, None, False))
+        self.assertFalse(offers["starter"]["year"], "Starter is a monthly subscription: never offered yearly")
+        self.assertNotIn("growth", offers, "Growth's price is still a draft: never offered")
+        now = datetime(2031, 3, 3, 9, 0, tzinfo=timezone.utc)
+        want = {"en": ("Plans start at €79 a month.", "Starter · €79 a month"),
+                "nl": ("Plannen beginnen bij € 79 per maand.", "Starter · € 79 per maand"),
+                "de": ("Tarife gibt es ab 79 € im Monat.", "Starter · 79 € im Monat")}
+        for lang, (line, offer) in want.items():
+            d = {"brands": [{"id": "kz", "name": "Koffiezon", "tz": "Europe/Amsterdam", "comms_lang": lang}]}
+            u = {"email": "eva@koffiezon.nl", "brands": ["kz"], "trial_ends_at": "2031-03-05T09:00:00Z"}
+            self.assertIn(otto_i18n.Tr(lang).money(79, "EUR"), line)
+            for key in ("day5", "day7"):
+                _, html_body, text = otto_trial.render(key, u, d, now)
+                self.assertIn(line, text, f"{lang} {key}")
+                self.assertIn(offer, text, f"{lang} {key}")
+                self.assertNotIn("99", text.replace("2031", ""), f"{lang} {key}: an old price")
+                self.assertNotIn("790", text, f"{lang} {key}: no yearly Starter price")
 
     def test_an_expired_trial_never_falls_back_to_the_free_content_plan(self):
         sid, out = self.trial_brand()

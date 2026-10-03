@@ -1546,7 +1546,7 @@ class AdMatrixLaunchQATest(unittest.TestCase):
         m = self._matrix([scripted, empty])
         rows = {r["id"]: r for r in otto_styles.check_matrix("t-mxqa", matrix=m)["cells"]}
         self.assertEqual(rows["a1-search"]["status"], "scripted")
-        self.assertIn("not generated yet (motion)", " ".join(rows["a1-search"]["reasons"]))
+        self.assertIn("not rendered yet (otto_advideo", " ".join(rows["a1-search"]["reasons"]))
         self.assertEqual(rows["a1-notes_app"]["status"], "unwritten")
         cr, _ = self._build(m, "cp-qa-scripted")
         self.assertEqual([v["id"] for v in cr["matrix"]["scripted_videos"]], ["a1-search"])

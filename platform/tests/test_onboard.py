@@ -355,6 +355,58 @@ class HttpTest(unittest.TestCase):
             self.assertEqual(quiet(call, json.dumps({"site": "peek-only.net"}).encode(), "3.3.3.3")[0], 200)
 
 
+class TypedSiteTest(unittest.TestCase):
+    """What a buyer types at step 1 (found in the 2026-10 scan QA): their Instagram, an e-mail address, a bare domain that only
+    answers as www., a free Wix site under a path, a Dutch shop with translations."""
+
+    def setUp(self):
+        otto_onboard._rl_last.clear()
+
+    def body(self, site, **answers):
+        return json.dumps({"site": site, "answers": answers}).encode()
+
+    def test_a_page_on_instagram_is_no_brand(self):
+        """instagram.com/<name> once became brand "instagram" — every later Instagram user got "already set up"."""
+        with fake_web({"instagram.com": canned("instagram.com", "Instagram")}):
+            for i, typed in enumerate(("instagram.com/lot61coffee", "https://www.instagram.com/other/", "linktr.ee/bakkerij")):
+                code, res = quiet(otto_onboard.http_create, self.body(typed), f"5.5.5.{i}")
+                self.assertEqual((code, res["error"]), (400, otto_onboard.PLATFORM_PAGE), typed)
+        self.assertFalse(any(b["url"] in ("instagram.com", "linktr.ee") for b in ap.load()["brands"]))
+
+    def test_an_email_address_and_a_private_address_say_what_to_do(self):
+        code, res = quiet(otto_onboard.http_create, self.body("jan@bakkerij-typed.nl"), "5.5.6.1")
+        self.assertEqual((code, res["error"]), (400, otto_onboard.EMAIL_TYPED))
+        code, res = quiet(otto_onboard.http_create, self.body("10.0.0.1"), "5.5.6.2")
+        self.assertEqual((code, res["error"]), (400, otto_onboard.NOT_READABLE), "never 'unsupported or unsafe url'")
+
+    def test_a_bare_domain_that_only_answers_on_www(self):
+        read = []
+        with fake_web({"www-only.nl": canned("www-only.nl", "Www Only", langs=("nl",))}):
+            otto_scan.host_status = lambda u: "ok" if "//www." in u else "not_found"
+            orig_scan = otto_scan.scan
+            otto_scan.scan = lambda url, **kw: read.append(url) or orig_scan(url, **kw)
+            code, res = quiet(otto_onboard.http_create, self.body("www-only.nl"), "5.5.7.1")
+        self.assertEqual((code, read), (200, ["https://www.www-only.nl"]))
+        self.assertEqual(brand_of(res["brand"])["url"], "www-only.nl")
+
+    def test_brand_language_is_what_the_site_is_written_in(self):
+        """A Dutch shop with German and English copies was "NL/DE" (hreflang, alphabetical); Loavies came out "EN/ES"."""
+        dutch = canned("translated-shop.nl", "Vertaald", langs=("nl", "de", "en", "fr"))
+        dutch["content_languages"] = ["nl"]
+        older = canned("older-scan.nl", "Oud", langs=("nl", "de"))           # a scan.json from before content_languages
+        with fake_web({"translated-shop.nl": dutch, "older-scan.nl": older}):
+            _, a = quiet(otto_onboard.http_create, self.body("translated-shop.nl"), "5.5.8.1")
+            _, b = quiet(otto_onboard.http_create, self.body("older-scan.nl"), "5.5.8.2")
+        self.assertEqual((brand_of(a["brand"])["lang"], brand_of(b["brand"])["lang"]), ("NL", "NL"))
+
+    def test_a_free_wix_site_keeps_its_path(self):
+        with fake_web({"jannekemoor.wixsite.com": canned("jannekemoor.wixsite.com", "Jannekes Bakkerij", langs=("nl",))}):
+            code, res = quiet(otto_onboard.http_create, self.body("jannekemoor.wixsite.com/bakkerij"), "5.5.9.1")
+        self.assertEqual(code, 200)
+        self.assertEqual(brand_of(res["brand"])["url"], "jannekemoor.wixsite.com/bakkerij", "the rescan reads the site, not a 404")
+        self.assertEqual(otto_onboard.host_key("jannekemoor.wixsite.com/bakkerij"), "jannekemoor.wixsite.com")
+
+
 class PublicOnboardTest(unittest.TestCase):
     """/otto-onboard has no login: it may create a brand, never change one (a paying client's name, scan corrections, proof,
     strategy and never-say list would otherwise be anyone's to rewrite)."""

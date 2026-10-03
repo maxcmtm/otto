@@ -300,7 +300,7 @@ def ingest(body, ip, headers, now=None):
 # ---------------- Meta Conversions API (consented events only; see the module docstring) ----------------
 
 CAPI_FILE = "meta-capi.json"
-CAPI_GRAPH = "https://graph.facebook.com/" + os.environ.get("GRAPH_API_VERSION", "v25.0")
+CAPI_GRAPH = "https://graph.facebook.com/" + (os.environ.get("GRAPH_API_VERSION") or "v26.0")     # = otto_publish.GRAPH_VERSION
 CAPI_TIMEOUT = 6
 CAPI_MAX_THREADS = 4                       # a slow Graph API never piles up threads: past this, events are dropped
 CONSENT_COOKIE, CONSENT_GRANTED, FBC_COOKIE = "otto_consent", "v1.granted", "otto_fbc"

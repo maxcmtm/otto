@@ -15,23 +15,24 @@
   },
   "note": {
     "meta": "Sunday, 9:40 PM",
-    "title": "Things I've stopped doing for a reel",
+    "title": "Marketing jobs I've automated",
     "struck": [
-      "filming during the breakfast rush",
-      "editing till midnight",
-      "typing out captions"
+      "planning the month",
+      "writing every caption",
+      "posting at 11pm"
     ],
     "keep": "tapping approve"
   },
   "endcard": {
-    "headline": "Reels, without the filming.",
-    "accent": "without the filming.",
-    "sub": "Otto makes them from your own website.",
-    "fine": "Try it free for 7 days, no card needed.",
+    "headline": "Automate your marketing.",
+    "accent": "your marketing.",
+    "sub": "Otto plans, writes, designs and posts.",
+    "fine": "7 days free, no card. Then €79 a month.",
     "products": [
       "month"
     ],
     "logo": "logo",
+    "legal": "Monthly plan, no contract, cancel anytime. Prices excl. VAT.",
     "ground": "bg"
   }
 }

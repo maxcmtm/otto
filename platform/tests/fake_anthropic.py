@@ -10,6 +10,10 @@ block after an empty thinking block); `replies` queues special answers for the n
   ("text", "…")                                          a message whose text block is this (bad JSON, prose, …)
   ("refusal", category)                                  stop_reason refusal
   ("max_tokens",)                                        stop_reason max_tokens, half a JSON
+A callable may also return a dict: it is sent as the whole JSON answer (the ad requests: {"angle", "cells"} / {"angles"}).
+The ad copywriter's requests (otto_copy.write_ads — told apart by their JSON schema) get clean defaults too: make_angles
+answers an angles.json build ({"angles": [...]}, one per <existing> id and per new id), make_ad a matrix concept
+({"angle": {...}, "cells": [...]} for every cell in <cells>, data in the style's or the video kit's shape).
 Stdlib only; no network beyond 127.0.0.1.
 """
 import http.server, itertools, json, re, threading
@@ -53,6 +57,136 @@ def make(slot, i=0):
                        {"text": "Then taste the difference.", "seconds": 6, "visual": "A steaming cup on the counter."},
                        {"text": "Find our beans in the webshop.", "seconds": 6, "visual": "The bag next to the cup."}]
     return p
+
+
+def user_text(body):
+    text = ""
+    for m in body.get("messages") or []:
+        c = m.get("content")
+        text += c if isinstance(c, str) else "".join(x.get("text", "") for x in c or [] if isinstance(x, dict))
+    return text
+
+
+def ad_kind(body):
+    """"ad" (a matrix concept), "angles" (an angles.json build) or None (posts) — from the request's JSON schema."""
+    props = ((((body.get("output_config") or {}).get("format") or {}).get("schema") or {}).get("properties") or {})
+    return "ad" if "cells" in props else "angles" if "angles" in props else None
+
+
+def block(body, tag):
+    m = re.search(rf"<{tag}>\s*(.*?)\s*</{tag}>", user_text(body), re.S)
+    return json.loads(m.group(1)) if m else None
+
+
+AD_HEADLINES = ["Read the roast date first", "Fresh beans, dated bags", "Coffee that tells you its age", "Roasted in Utrecht"]
+AD_PRIMARIES = ["Every bag shows its roast date, so you know how fresh your coffee is before you open it.",
+                "Coffee tastes flat at home? Start with beans that show their roast date on the front.",
+                "Small batches, roasted in Utrecht since 2014.\nPick a bag in the webshop."]
+RSA = (["Fresh Coffee Beans", "Roasted in Utrecht", "Roast Date on Every Bag", "Small-Batch Coffee"],
+       ["Every bag shows its roast date. Order fresh beans from the Utrecht roastery.",
+        "Small batches, roasted in Utrecht since 2014."])
+END = {"headline": "Fresh beans, dated bags.", "accent": "dated bags.", "sub": "Roasted in Utrecht.", "fine": "", "legal": ""}
+AD_DATA = {
+    "notes_app": {"title": "Before I buy coffee", "items": ["Check the roast date", "Smell the beans", "Grind at home"], "mode": "checklist",
+                  "photo": "invented.png", "theme": "dark"},
+    "search": {"query": "fresh coffee beans", "suggestions": ["fresh coffee beans utrecht", "fresh coffee beans roast date",
+                                                              "fresh coffee beans subscription"], "headline": "Looking for *fresh beans*?"},
+    "text_message": {"contact": "Bean Bros", "messages": [{"from": "me", "text": "Do your bags show the roast date?"},
+                                                          {"from": "them", "text": "Every bag, right on the front."}]},
+    "social_post": {"name": "Bean Bros", "text": "Every bag shows its roast date. Roasted in Utrecht."},
+    "big_number": {"number": "2014", "label": "Roasting small batches in Utrecht since", "kicker": "Since"},
+    "us_vs_them": {"headline": "Know *when* it was roasted", "us": {"name": "Bean Bros"}, "them": {"name": "Supermarket coffee"},
+                   "rows": [{"label": "Roast date on the bag", "us": True, "them": False},
+                            {"label": "Roasted in Utrecht", "us": True, "them": "Unknown"},
+                            {"label": "Small batches", "us": True, "them": "Varies"}]},
+    "comparison": {"title": "Supermarket or *fresh*?", "columns": [{"name": "Supermarket"}, {"name": "Bean Bros", "highlight": True}],
+                   "rows": [{"label": "Roast date on the bag", "values": ["no", "yes"]}, {"label": "Small batches", "values": ["no", "yes"]},
+                            {"label": "Roasted in Utrecht", "values": ["no", "yes"]}]},
+    "before_after": {"before": "Flat coffee from an old bag", "after": "A fresh bag with its roast date", "kicker": "Mornings"},
+    "offer": {"name": "Yearly subscription", "price": "€ 79", "cta": "Subscribe", "features": ["Fresh beans", "Roast date on every bag"]},
+    "myth_fact": {"myth": "All coffee beans taste the same.", "fact": "Fresh beans show their roast date, and you can taste it.",
+                  "source": "Roasted in Utrecht since 2014"},
+    "checklist": {"title": "3 things to check before you buy beans", "items": ["The roast date", "Where it was roasted", "Whole beans"]},
+    "carousel": {"cover": {"headline": "How to read a coffee bag"}, "slides": [{"title": "The roast date", "body": "Fresh beans taste brighter."},
+                                                                               {"title": "Where it was roasted"}],
+                 "end": {"headline": "Ready for a better cup?", "cta": "Shop beans"}},
+    "editorial": {"headline": "Fresh beans, *dated* bags"},
+    "product_hero": {"headline": "Fresh beans, *dated* bags", "callouts": ["Roast date on the front", "Roasted in Utrecht"]},
+    "macro_hero": {"word": "*Fresh*", "sub": "Every bag shows its roast date"},
+    "quote": {"quote": "Best beans in town, every single time.", "name": "Kim"},
+    "review_cards": {"reviews": [{"text": "Best beans in town, every single time.", "name": "Kim"}]},
+}
+KIT_DATA = {
+    "notes": {"note": {"meta": "Sunday, 9:40", "title": "Coffee rules", "struck": ["beans without a date", "pre-ground bags", "flat mornings"],
+                       "keep": "the roast date on the front"}},
+    "search": {"search": {"placeholder": "Search", "query": "fresh coffee beans", "suggestions": ["fresh coffee beans utrecht",
+                                                                                                  "fresh coffee beans roast date"],
+                          "pick": 1, "result": {"site": "Bean Bros", "url": "Specialty coffee roasters", "title": "Fresh roasted coffee",
+                                                "snippet": "Every bag shows its roast date.", "image": "pack"}}},
+    "texts": {"thread": {"name": "Bean Bros", "initial": "B", "stamp": "Today 9:14", "placeholder": "Message",
+                         "messages": [{"from": "me", "text": "Do your bags show the roast date?"},
+                                      {"from": "them", "text": "Every bag, right on the front."},
+                                      {"from": "me", "text": "And where is it roasted?"},
+                                      {"from": "them", "text": "In Utrecht, in small batches."}]}},
+    "versus": {"versus": {"vs": "vs", "left": {"label": "Supermarket bag", "rows": ["No roast date", "Pre-ground", "Flat taste"], "illo": "tub"},
+                          "right": {"label": "Bean Bros", "rows": ["Roast date on the front", "Whole beans", "Bright taste"]},
+                          "footer": "Read the date."}},
+    "big": {"big": {"hero": "pack", "phrases": [{"big": "Small", "rest": "batches."}, {"big": "Dated", "rest": "bags."},
+                                                {"big": "Utrecht", "rest": "since 2014."}]}},
+    "reel": {"vo": ["Every bag shows its roast date.", "Small batches, roasted in Utrecht.", "Pick a bag in the webshop."],
+             "lines": ["Roast date on every bag", "Roasted in Utrecht", "In the webshop"]},
+}
+CREATOR = {"hook": "Show the roast date on the front of the bag", "script": ["Show the bag and point at the roast date",
+                                                                             "Say in your own words how you brew your morning coffee",
+                                                                             "Grind the beans on camera"],
+           "shot_list": ["Close-up of the roast date", "Hands grinding the beans", "The cup on the counter"]}
+
+
+def cell_data(c):
+    if c.get("format") == "creator":
+        return dict(CREATOR)
+    if c.get("format") == "video":
+        return dict(json.loads(json.dumps(KIT_DATA.get(c.get("kit"), KIT_DATA["notes"]))), endcard=dict(END))
+    return json.loads(json.dumps(AD_DATA.get(c.get("style"), {"headline": "Fresh beans, dated bags"})))
+
+
+def make_ad(body):
+    """A clean answer to a matrix-concept request: the concept's copy + every cell in <cells>."""
+    concept = block(body, "concept") or {}
+    cells = block(body, "cells") or []
+    rsa = "rsa_headlines (4-5)" in user_text(body)
+    angle = {"id": concept.get("id", ""), "headlines": AD_HEADLINES[:2], "primaries": list(AD_PRIMARIES), "description": "Roasted in Utrecht",
+             "cta": "SHOP_NOW", "rsa_headlines": RSA[0] if rsa else [], "rsa_descriptions": RSA[1] if rsa else [],
+             "proof": "Roasted in Utrecht since 2014", "why": "Shows first-time buyers what makes the beans different.",
+             "facts_used": ["Roasted in Utrecht since 2014"]}
+    return {"angle": angle, "cells": [{"id": c["id"], "data_json": json.dumps(cell_data(c)), "why": "The roast date as proof.",
+                                       "facts_used": []} for c in cells]}
+
+
+NOTES = {"pain": "Coffee tastes flat at home: the beans were roasted long ago, and the bag never says when.",
+         "identity": "For home baristas who brew every morning and want beans that show their roast date.",
+         "enemy": "Supermarket bags without a roast date against dated small-batch bags from Utrecht.",
+         "offer": "The yearly subscription (€ 79): fresh beans with the roast date on every bag.",
+         "experience": "A morning with fresh beans: grind, brew and taste the difference.",
+         "moment": "The new roast of the month."}
+
+
+def make_angles(body):
+    """A clean answer to an angles.json build: ad copy for every <existing> id, one concept per new "nK: family"."""
+    text = user_text(body)
+    rsa = "rsa_headlines (4-5" in text
+    out = []
+    ids = [(x["id"], x.get("family") or "pain", None) for x in block(body, "existing") or []]
+    m = re.search(r"new concepts, one per family \(id: family\): ([^\n]*)", text)
+    ids += [(k, fam, True) for k, fam in re.findall(r"(n\d+): (\w+)", m.group(1))] if m else []
+    for i, (k, fam, new) in enumerate(ids):
+        out.append({"id": k, "angle": NOTES.get(fam, NOTES["pain"]) if new else "", "family": fam if fam in NOTES else "pain",
+                    "stage": "hot" if fam == "offer" else "cold", "persona": "p1" if fam == "identity" else "",
+                    "from_competitors": fam == "enemy", "headline": AD_HEADLINES[i % len(AD_HEADLINES)],
+                    "primary": AD_PRIMARIES[i % len(AD_PRIMARIES)], "description": "Roasted in Utrecht",
+                    "proof": "Roasted in Utrecht since 2014", "rsa_headlines": RSA[0] if rsa else [],
+                    "rsa_descriptions": RSA[1] if rsa else [], "why": "A concept the brand's data backs.", "facts_used": []})
+    return {"angles": out}
 
 
 class FakeAnthropic:
@@ -105,8 +239,16 @@ class FakeAnthropic:
                     m = me.message(body, '{"posts": [{"id": "')
                     m["stop_reason"] = "max_tokens"
                     return self._answer(200, m)
-                posts = r(body, slots, k) if callable(r) else [make(s, i + 7 * k) for i, s in enumerate(slots)]
-                return self._answer(200, me.message(body, json.dumps({"posts": posts})))
+                kind = ad_kind(body)
+                if callable(r):
+                    posts = r(body, slots, k)
+                elif kind == "ad":
+                    posts = make_ad(body)
+                elif kind == "angles":
+                    posts = make_angles(body)
+                else:
+                    posts = [make(s, i + 7 * k) for i, s in enumerate(slots)]
+                return self._answer(200, me.message(body, json.dumps(posts if isinstance(posts, dict) else {"posts": posts})))
 
         self.srv = http.server.ThreadingHTTPServer(("127.0.0.1", 0), H)
         threading.Thread(target=self.srv.serve_forever, daemon=True).start()

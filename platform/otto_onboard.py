@@ -111,19 +111,33 @@ FIRST_REVIEW = {"email": "by e-mail in the 07:35 morning report, or in the app",
 # site → host key → slug
 # ---------------------------------------------------------------------------------------------------------------
 
+NOT_READABLE = "that is not a website address Otto can read (use the public address, like example.com)"
+EMAIL_TYPED = "that is an e-mail address: enter your website address instead, like example.com"
+PLATFORM_PAGE = "that is a page on a social network or marketplace, not your own website: enter your website address, like example.com"
+
+
 def site_url(site):
-    """Validate the site the owner typed → normalised https URL. Raises ValueError for anything that isn't a public
-    http(s) web address (the DNS / public-IP check happens on every fetch in otto_scan)."""
+    """Validate the site the owner typed → normalised https URL. Raises ValueError, in words the owner can act on, for
+    anything that isn't a public http(s) web address of their own (the DNS / public-IP check happens on every fetch in
+    otto_scan): an e-mail address, a page on Instagram / Facebook / Etsy … (a shared host is no brand's identity)."""
     s = str(site or "").strip()
-    if not s or len(s) > 300 or re.search(r"\s", s):
+    if not s:
         raise ValueError("a website address is required")
+    if len(s) > 300:
+        raise ValueError("that website address is too long: enter just the domain, like example.com")
+    if re.search(r"\s", s):
+        raise ValueError("a website address has no spaces in it, like example.com")
+    if otto_scan.email_site(s)[0]:
+        raise ValueError(EMAIL_TYPED)
     url = otto_scan.normalize_url(s)
     try:
         _, host, _ = otto_scan.check_url(url)
     except otto_scan.Blocked as e:
-        raise ValueError("that is not a website address Otto can read (use the public address, like example.com)")
+        raise ValueError(NOT_READABLE)
     if "." not in host.strip(".") and not _is_ip(host):
         raise ValueError("the website address needs a domain, like example.com")
+    if otto_scan.platform_page(url):
+        raise ValueError(PLATFORM_PAGE)
     return url
 
 
@@ -411,7 +425,8 @@ def apply_corrections(s, cor):
 
     idn, vis, com = s.setdefault("identity", {}), s.setdefault("visual", {}), s.setdefault("commerce", {})
     if cor.get("name"):
-        put("name", idn.get("site_name") or idn.get("title") or "", cor["name"]); idn["site_name"] = cor["name"]
+        put("name", idn.get("name") or idn.get("site_name") or idn.get("title") or "", cor["name"])
+        idn["site_name"] = idn["name"] = cor["name"]
     if cor.get("description"):
         put("description", idn.get("description") or "", cor["description"]); idn["description"] = cor["description"]
     if cor.get("industry"):
@@ -429,6 +444,7 @@ def apply_corrections(s, cor):
         langs = s.get("languages") or []
         new = [cor["language"]] + [x for x in langs if x != cor["language"]]
         put("languages", langs, new); s["languages"] = new
+        s["content_languages"] = [cor["language"]]          # the owner's word: Otto writes in this one
     if cor.get("logo_wrong"):
         put("logo", vis.get("logo"), None); vis["logo"] = None
     if not was:
@@ -438,7 +454,7 @@ def apply_corrections(s, cor):
 
 def brand_name(s, host):
     idn = (s or {}).get("identity") or {}
-    name = idn.get("site_name") or re.split(r"\s+[|–—·:-]\s+|\s[|]\s?", idn.get("title") or "")[0].strip()
+    name = idn.get("name") or idn.get("site_name") or re.split(r"\s+[|–—·:-]\s+|\s[|]\s?", idn.get("title") or "")[0].strip()
     return (name or base_slug(host).capitalize())[:80]
 
 
@@ -576,7 +592,11 @@ def create(site, answers=None, peek=None, dry=False, scan=True, deadline=40.0, n
         apply_corrections(s, a["corrections"])
 
     industry = (s or {}).get("industry") or a["corrections"].get("industry") or "Unknown (?)"
-    langs = (s or {}).get("languages") or ([a["corrections"]["language"]] if a["corrections"].get("language") else [])
+    # the languages the site's text is written in (not every hreflang translation: "NL/DE" for a Dutch shop with a German
+    # copy, "EN/ES" from an alphabetical list, would have Otto write in the wrong second language)
+    langs = ((s or {}).get("content_languages") or ((s or {}).get("languages") or [])[:1]
+             or ([a["corrections"]["language"]] if a["corrections"].get("language") else [])
+             or [otto_scan.accept_language(key).split(",")[0]])     # unread bakkerij.nl writes Dutch, not English
     shop = bool(s) and bool(SHOP_PLATFORM.search(str(s.get("platform") or ""))
                             or (SHOP_INDUSTRY.search(industry) and (s.get("commerce") or {}).get("prices")))
     if not a["goal"]:
@@ -619,7 +639,7 @@ def create(site, answers=None, peek=None, dry=False, scan=True, deadline=40.0, n
                 raise Exists("this site is already set up with Otto: sign in to change it")
             if created:
                 plan_id, billing = ap.new_brand_plan()      # "starter"; "not billed yet" until a subscription is linked
-                b = {"id": slug, "name": name, "url": key, "lang": lang, "tz": tz, "status": "onboarding",
+                b = {"id": slug, "name": name, "url": key + otto_scan.site_path(url), "lang": lang, "tz": tz, "status": "onboarding",
                      "pillars": pillars_for(industry), "compliance": note, "plan": plan_id, "approvals": a["approvals"],
                      "comms_lang": a.get("comms_lang") or "en",
                      "copy_auto": True}                # self-serve: the copywriter (otto_copy) keeps its next 7 days written
@@ -825,17 +845,18 @@ def http_create(raw, ip, cached_peek=None, deadline=25.0, public=False, bids=Non
             if len(_public_creates) >= PUBLIC_CREATES_PER_HOUR:
                 return 429, {"error": "too many new sign-ups right now, try again later"}
             _public_creates.append(now)
-    st = otto_scan.host_status(url)
+    typed = url
+    st, url = otto_scan.site_status(url)                 # example.nl that only answers as www.example.nl is read there
     if st != "ok":
         return 400, {"error": "that website address does not exist (check the spelling)" if st == "not_found"
-                     else "unsupported or unsafe url"}
+                     else NOT_READABLE}
     if not _busy.acquire(timeout=2):
         return 503, {"error": "busy, try again in a few seconds"}
     try:
         peek = None
         if cached_peek:
             try:
-                peek = cached_peek(url)
+                peek = cached_peek(typed) or (cached_peek(url) if url != typed else None)
             except Exception:
                 peek = None
         return 200, create(url, req.get("answers"), peek=peek, deadline=deadline, allow_update=allow_update,

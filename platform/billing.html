@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <!-- CSP: script-src lists the sha256 of every inline script element in this page. After editing one, the browser refuses it and its console prints the new hash: replace the old one here (or recompute all of them). -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-OSTWHjy1qrVNvIGs3Y2CGcAz2DzO5qsYZ/5xgZ1NsYQ=' https://js.stripe.com https://*.js.stripe.com; style-src 'self' 'unsafe-inline'; font-src 'self'; connect-src 'self' https://api.stripe.com https://checkout.stripe.com; object-src 'none'; base-uri 'self'; form-action 'self'; frame-src https://js.stripe.com https://*.js.stripe.com https://hooks.stripe.com https://checkout.stripe.com; worker-src 'none'; manifest-src 'self'; img-src 'self' data: https://*.stripe.com; media-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-2L0U907ubm6b3qBhCBA8jEccOuFffQspE/QGxbokD9c=' https://js.stripe.com https://*.js.stripe.com; style-src 'self' 'unsafe-inline'; font-src 'self'; connect-src 'self' https://api.stripe.com https://checkout.stripe.com; object-src 'none'; base-uri 'self'; form-action 'self'; frame-src https://js.stripe.com https://*.js.stripe.com https://hooks.stripe.com https://checkout.stripe.com; worker-src 'none'; manifest-src 'self'; img-src 'self' data: https://*.stripe.com; media-src 'none'">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
 <meta name="referrer" content="same-origin">
@@ -116,7 +116,21 @@ h1{font:700 34px/41px var(--font);letter-spacing:-.021em}
 .center{text-align:center;padding:40px 0}
 .spin{width:28px;height:28px;border-radius:50%;border:2.5px solid var(--line);border-top-color:var(--accent);margin:0 auto 14px;animation:spin .9s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
-@media (prefers-reduced-motion:reduce){.spin{animation-duration:3s}.btn{transition:none}}
+/* a button waiting for the server: spinner in place, disabled, aria-busy */
+.bspin{width:15px;height:15px;flex:none;border-radius:50%;border:2px solid currentColor;border-right-color:transparent;animation:spin .8s linear infinite}
+.is-pending{pointer-events:none}
+.btn.is-pending[disabled]{opacity:.72}
+.lnk .bspin{display:inline-block;width:12px;height:12px;border-width:1.75px;margin-right:6px;vertical-align:-1px}
+/* first load: placeholders the shape of the page, never an empty screen */
+.sk{display:block;border-radius:6px;background:color-mix(in srgb,var(--ink) 6%,transparent);position:relative;overflow:hidden}
+.sk::after{content:"";position:absolute;inset:0;transform:translateX(-100%);background:linear-gradient(90deg,transparent,color-mix(in srgb,var(--surface) 55%,transparent),transparent);animation:shim 1.5s ease-in-out infinite}
+@keyframes shim{to{transform:translateX(100%)}}
+.sk-sub{width:200px;height:15px;margin-top:6px}
+.sk-h{width:90px;height:13px;margin:0 2px 10px}
+.sk-big{width:46%;height:24px}
+.sk-l{width:72%;height:13px;margin-top:12px}
+.sk-btn{width:150px;height:44px;border-radius:999px;margin-top:16px}
+@media (prefers-reduced-motion:reduce){.spin{animation-duration:3s}.btn{transition:none}.sk::after{display:none}}
 .inv a{font:500 14px/20px var(--font)}
 .toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);max-width:calc(100% - 40px);padding:12px 16px;border-radius:12px;background:var(--ink);color:var(--bg);font:500 14px/20px var(--font);box-shadow:var(--shadow-2);opacity:0;pointer-events:none;transition:opacity var(--dur-fast)}
 .toast.on{opacity:1}
@@ -132,8 +146,8 @@ h1{font:700 34px/41px var(--font);letter-spacing:-.021em}
 </header>
 <main class="page" id="main" aria-live="polite">
   <h1 id="h">Billing</h1>
-  <p class="sub" id="sub">Loading…</p>
-  <div id="view"></div>
+  <p class="sub" id="sub"><span class="sk sk-sub" aria-hidden="true"></span><span class="sr">Loading your billing…</span></p>
+  <div id="view" aria-busy="true"><div class="grp" aria-hidden="true"><span class="sk sk-h"></span><div class="card"><span class="sk sk-big"></span><span class="sk sk-l"></span><span class="sk sk-btn"></span></div></div></div>
 </main>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 <script src="https://js.stripe.com/v3/"></script>
@@ -153,7 +167,17 @@ let STRIPE = null, EMBED = null, ELEMENTS = null, BUSY = false;
 
 function toast(t){ const el = $("toast"); el.textContent = t; el.classList.add("on"); clearTimeout(toast.t); toast.t = setTimeout(() => el.classList.remove("on"), 3600); }
 function head(h, sub){ $("h").textContent = h; $("sub").textContent = sub || ""; document.title = "Otto · " + h; }
-function view(html){ $("view").innerHTML = html; }
+function view(html){ $("view").innerHTML = html; $("view").removeAttribute("aria-busy"); }
+/* a control waiting for the server: a spinner in place, disabled, aria-busy — until the answer (the view is redrawn after) */
+function pending(el, on){
+  if(!el) return;
+  el.classList.toggle("is-pending", !!on);
+  if(on){ el.setAttribute("aria-busy", "true"); if(el.tagName === "BUTTON") el.disabled = true; else el.setAttribute("aria-disabled", "true");
+    if(!el.querySelector(":scope > .bspin")) el.insertAdjacentHTML("afterbegin", '<span class="bspin" aria-hidden="true"></span>'); }
+  else { el.removeAttribute("aria-busy"); if(el.tagName === "BUTTON") el.disabled = false; else el.removeAttribute("aria-disabled");
+    const s = el.querySelector(":scope > .bspin"); if(s) s.remove(); }
+}
+function loadingView(){ $("view").setAttribute("aria-busy", "true"); $("view").innerHTML = `<div class="grp" aria-hidden="true"><span class="sk sk-h"></span><div class="card"><span class="sk sk-big"></span><span class="sk sk-l"></span><span class="sk sk-btn"></span></div></div>`; }
 async function api(path, body){
   let r, j = null;
   try{
@@ -276,21 +300,24 @@ function planCard(o, mode, cur){
   const isCur = cur && cur.plan === o.plan && cur.interval === IVAL;
   let btn;
   if(!ACC.configured) btn = `<button type="button" class="btn gray block" disabled>Payments aren't set up yet</button>`;
-  else if(!has) btn = `<button type="button" class="btn gray block" disabled>Not on sale yet</button>`;
+  else if(!has) btn = `<button type="button" class="btn gray block" disabled>${IVAL === "year" && o.yearly_eur == null && o.month ? "Monthly subscription only" : "Not on sale yet"}</button>`;
   else if(isCur) btn = `<button type="button" class="btn gray block" disabled>Your plan</button>`;
   else btn = `<button type="button" class="btn ${o.plan === "growth" ? "pri" : "gray"} block" data-${mode === "change" ? "switch" : "buy"}="${esc(o.plan)}">${mode === "change" ? "Switch to " : "Continue with "}${esc(o.label)}</button>`;
   return `<div class="plan${isCur ? " cur" : ""}"><h3>${esc(o.label)}</h3><p class="price">${price != null ? esc(money(price)) + ` <small>${IVAL === "year" ? "a year" : "a month"} · excl. VAT</small>` : "&nbsp;"}</p>
-    ${IVAL === "year" && o.monthly_eur ? `<p class="rt-m">Two months free</p>` : ""}${btn}</div>`;
+    ${IVAL === "year" && o.monthly_eur && o.yearly_eur != null ? `<p class="rt-m">Two months free</p>` : ""}${btn}</div>`;
 }
+/* the Monthly / Yearly switch only when some plan can be bought yearly (Starter is a monthly subscription: no yearly price) */
+function yearly(){ return (ACC.offers || []).some(o => o.plan !== "founding" && o.year && o.yearly_eur != null); }
 function plansH(mode, cur){
   const O = (ACC.offers || []).filter(o => o.plan !== "founding");
+  if(!yearly()) IVAL = "month";
   const conf = OPEN.switch ? (() => {
     const o = O.find(x => x.plan === OPEN.switch); if(!o || !cur) return "";
     const up = (o.monthly_eur || 0) > (curPrice(cur) || 0) || (o.monthly_eur === curPrice(cur) && IVAL === "year");
     return `<div class="confirm"><b>Switch to ${esc(o.label)} (${IVAL === "year" ? "yearly" : "monthly"})?</b> ${up ? "It starts now. You pay the prorated difference today, and the new price from your next charge." : `It starts at the end of this period (${esc(day(cur.period_end))}). Nothing changes until then.`}
       <div class="row"><button type="button" class="btn pri" data-switch-go="${esc(o.plan)}">Switch</button><button type="button" class="btn gray" data-switch-cancel>Not now</button></div></div>`;
   })() : "";
-  return `<div class="grp"><div class="grp-h">${mode === "change" ? "Change plan" : "Choose a plan"}<span class="r"><span class="seg" role="group" aria-label="Billing period"><button type="button" data-iv="month" aria-pressed="${IVAL === "month"}">Monthly</button><button type="button" data-iv="year" aria-pressed="${IVAL === "year"}">Yearly</button></span></span></div>
+  return `<div class="grp"><div class="grp-h">${mode === "change" ? "Change plan" : "Choose a plan"}${yearly() ? `<span class="r"><span class="seg" role="group" aria-label="Billing period"><button type="button" data-iv="month" aria-pressed="${IVAL === "month"}">Monthly</button><button type="button" data-iv="year" aria-pressed="${IVAL === "year"}">Yearly</button></span></span>` : ""}</div>
     <div class="plans">${O.map(o => planCard(o, mode, cur)).join("") || `<div class="card rt-m">Plans open soon.</div>`}</div>${conf}
     <p class="hint">${mode === "change" ? "Upgrades start right away (you pay the difference today); downgrades start at the end of the period you've paid for." : "Prices exclude VAT. Otto is for businesses: add your VAT ID at checkout and the EU reverse charge applies."}</p></div>`;
 }
@@ -319,7 +346,7 @@ function invoicesH(){
 async function checkout(plan, interval){
   destroyEmbed();
   const O = (ACC.offers || []).find(o => o.plan === plan), founding = plan === "founding";
-  IVAL = interval === "year" ? "year" : "month";
+  IVAL = interval === "year" && !(O && !O.year) ? "year" : "month";     /* a monthly-only plan (Starter) never opens yearly */
   const label = founding ? ((ACC.founding && ACC.founding.label) || "Founding pilot") : (O ? O.label : plan);
   head(label, ACC.brand ? `For ${ACC.brand.name}` : "");
   if(!ACC.configured){ view(notSetUp() + `<p class="hint"><a href="billing.html">Back to Billing</a></p>`); return; }
@@ -339,7 +366,10 @@ async function checkout(plan, interval){
     $("checkout").innerHTML = ""; $("co-err").textContent = r.j.error || "The payment form could not load. Try again in a minute.";
     return;
   }
-  if(r.j.ui === "hosted" && https(r.j.url)){ location.assign(r.j.url); return; }
+  if(r.j.ui === "hosted" && https(r.j.url)){
+    $("checkout").innerHTML = `<div class="center"><div class="spin" aria-hidden="true"></div><p class="rt-m" role="status">Opening Stripe's secure checkout…</p></div>`;
+    location.assign(r.j.url); return;
+  }
   const s = stripe();
   if(!s){ $("checkout").innerHTML = ""; $("co-err").textContent = "The payment form could not load (a blocker may stop js.stripe.com). Allow it and reload."; return; }
   try{
@@ -382,21 +412,24 @@ async function confirming(sid){
 async function openPm(){
   OPEN.pm = true;
   const box = $("pm-box"); if(box) box.hidden = false;
+  const pmEl = $("pm-el");
+  if(pmEl && !$("pm-wait")) pmEl.insertAdjacentHTML("beforebegin", `<div class="center" id="pm-wait" style="padding:20px 0"><div class="spin" aria-hidden="true"></div><p class="rt-m" role="status">Loading the secure card form…</p></div>`);
   const r = await api("/billing/payment-method", {brand: BRAND});
-  if(r.status !== 200){ $("pm-err").textContent = r.j.error || "Could not start. Try again."; return; }
+  if(r.status !== 200){ const w = $("pm-wait"); if(w) w.remove(); $("pm-err").textContent = r.j.error || "Could not start. Try again."; return; }
   const s = stripe();
-  if(!s){ $("pm-err").textContent = "The card form could not load (a blocker may stop js.stripe.com)."; return; }
+  if(!s){ const w = $("pm-wait"); if(w) w.remove(); $("pm-err").textContent = "The card form could not load (a blocker may stop js.stripe.com)."; return; }
   ELEMENTS = s.elements({clientSecret: r.j.client_secret, appearance: appearance()});
   const el = ELEMENTS.create("payment", {layout: "tabs"});
-  el.on("loaderror", () => { const e = $("pm-err"); if(e) e.textContent = "The card form could not load. Reload the page and try again."; });
+  el.on("ready", () => { const w = $("pm-wait"); if(w) w.remove(); });
+  el.on("loaderror", () => { const w = $("pm-wait"); if(w) w.remove(); const e = $("pm-err"); if(e) e.textContent = "The card form could not load. Reload the page and try again."; });
   el.mount("#pm-el");
   ELEMENTS.ret = r.j.return_url;
 }
 async function savePm(btn){
   if(!ELEMENTS || BUSY) return;
-  BUSY = true; btn.disabled = true; $("pm-err").textContent = "";
+  BUSY = true; pending(btn, true); $("pm-err").textContent = "";
   const {error} = await STRIPE.confirmSetup({elements: ELEMENTS, redirect: "if_required", confirmParams: {return_url: ELEMENTS.ret || location.href}});
-  BUSY = false; btn.disabled = false;
+  BUSY = false; pending(btn, false);
   if(error){ $("pm-err").textContent = error.message || "The payment method was not saved."; return; }
   OPEN.pm = false; ELEMENTS = null;
   toast("Payment method saved. It's used for your next charge.");
@@ -404,12 +437,12 @@ async function savePm(btn){
 }
 
 /* ---------- actions ---------- */
-async function post(path, body, okMsg){
+async function post(path, body, okMsg, btn){
   if(BUSY) return null;
-  BUSY = true;
+  BUSY = true; pending(btn, true);
   const r = await api(path, Object.assign({brand: BRAND}, body || {}));
   BUSY = false;
-  if(r.status !== 200){ toast(r.j.error || "Something went wrong. Try again."); return null; }
+  if(r.status !== 200){ pending(btn, false); toast(r.j.error || "Something went wrong. Try again."); return null; }
   toast(r.j.message || okMsg || "Done.");
   OPEN = {};
   await load(); account();
@@ -418,7 +451,7 @@ async function post(path, body, okMsg){
 document.addEventListener("click", async e => {
   const t = e.target.closest("button,a"); if(!t) return;
   const d = t.dataset;
-  if(d.reload !== undefined) return location.reload();
+  if(d.reload !== undefined){ pending(t, true); return location.reload(); }
   if(d.iv){ IVAL = d.iv; return account(); }
   if(d.civ){ return checkout(new URLSearchParams(location.search).get("plan") || Q.get("plan"), d.civ); }
   if(d.buy){ return checkout(d.buy, IVAL); }
@@ -426,22 +459,22 @@ document.addEventListener("click", async e => {
   if(d.open){ OPEN[d.open] = !OPEN[d.open]; if(d.open === "change") OPEN.switch = null; return account(); }
   if(d.switch){ OPEN.switch = d.switch; return account(); }
   if(d.switchCancel !== undefined){ OPEN.switch = null; return account(); }
-  if(d.switchGo){ t.disabled = true; return post("/billing/change", {plan: d.switchGo, interval: IVAL}); }
-  if(d.keep !== undefined){ const s = ACC.subscription; return post("/billing/change", {plan: s.plan, interval: s.interval}); }
-  if(d.cancel !== undefined){ t.disabled = true; return post("/billing/cancel"); }
-  if(d.resume !== undefined){ t.disabled = true; return post("/billing/resume"); }
+  if(d.switchGo){ return post("/billing/change", {plan: d.switchGo, interval: IVAL}, null, t); }
+  if(d.keep !== undefined){ const s = ACC.subscription; return post("/billing/change", {plan: s.plan, interval: s.interval}, null, t); }
+  if(d.cancel !== undefined){ return post("/billing/cancel", null, null, t); }
+  if(d.resume !== undefined){ return post("/billing/resume", null, null, t); }
   if(d.pm !== undefined){ if(!$("pm-box")) return toast("Choose a plan first: the payment method is added at checkout."); if(!OPEN.pm) openPm(); return $("pm-box").scrollIntoView({behavior: "smooth", block: "center"}); }
   if(d.pmClose !== undefined){ OPEN.pm = false; ELEMENTS = null; return account(); }
   if(t.id === "pm-save") return savePm(t);
-  if(d.portal !== undefined){ const r = await api("/billing/portal", {brand: BRAND}); if(r.status === 200 && https(r.j.url)) location.assign(r.j.url); else toast(r.j.error || "Not available."); }
+  if(d.portal !== undefined){ pending(t, true); const r = await api("/billing/portal", {brand: BRAND}); if(r.status === 200 && https(r.j.url)) location.assign(r.j.url); else { pending(t, false); toast(r.j.error || "Not available."); } }
 });
 document.addEventListener("change", async e => {
-  if(e.target.id === "bp"){ BRAND = e.target.value; OPEN = {}; destroyEmbed(); setUrl({brand: BRAND}); if(await load()) account(); }
+  if(e.target.id === "bp"){ BRAND = e.target.value; OPEN = {}; destroyEmbed(); setUrl({brand: BRAND}); loadingView(); if(await load()) account(); }
 });
 document.addEventListener("submit", e => {
   if(e.target.id !== "vat-f") return;
   e.preventDefault();
-  post("/billing/tax-id", {value: $("vat-in").value.trim()});
+  post("/billing/tax-id", {value: $("vat-in").value.trim()}, null, e.target.querySelector("button[type=submit]"));
 });
 start();
 </script>

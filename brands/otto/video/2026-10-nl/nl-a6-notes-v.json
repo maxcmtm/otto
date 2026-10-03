@@ -14,24 +14,25 @@
     "ground": "primary"
   },
   "note": {
-    "meta": "Sunday, 21:10",
-    "title": "Holiday marketing to-do",
+    "meta": "Thursday, 23:10",
+    "title": "Opening week to-do",
     "struck": [
-      "Sinterklaas post",
-      "gift card reel",
-      "Christmas menu ad"
+      "sign the lease",
+      "order the coffee",
+      "paint the front"
     ],
-    "keep": "approve the plan"
+    "keep": "marketing: Otto has it"
   },
   "endcard": {
-    "headline": "Your busy season, planned.",
-    "accent": "planned.",
-    "sub": "Otto plans the busy weeks. You approve.",
-    "fine": "Try it free for 7 days, no card needed.",
+    "headline": "You open. Otto does the marketing.",
+    "accent": "Otto does the marketing.",
+    "sub": "Your first week of posts, ready in minutes.",
+    "fine": "7 days free, no card. Then €79 a month.",
     "products": [
-      "month"
+      "post_opening"
     ],
     "logo": "logo",
+    "legal": "Monthly plan, no contract, cancel anytime. Prices excl. VAT.",
     "ground": "bg"
   }
 }

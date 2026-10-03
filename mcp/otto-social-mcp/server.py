@@ -6,7 +6,7 @@ One instance per client agent (stdio). Tenant identity comes entirely from env:
                       instagram_basic, instagram_content_publish
   META_PAGE_ID        Facebook Page id
   META_IG_USER_ID     Instagram Business account id (optional; IG tools error without it)
-  GRAPH_API_VERSION   optional, default v25.0
+  GRAPH_API_VERSION   optional, default v26.0 (the engine's otto_publish.GRAPH_VERSION)
 
 Tools: fb_page_post, ig_publish_image, ig_publish_carousel, ig_publish_reel,
 ig_publish_story, ig_publishing_limit, page_insights.
@@ -21,7 +21,7 @@ import time
 import requests
 from mcp.server.mcpserver import MCPServer
 
-GRAPH = "https://graph.facebook.com/" + os.environ.get("GRAPH_API_VERSION", "v25.0")
+GRAPH = "https://graph.facebook.com/" + (os.environ.get("GRAPH_API_VERSION") or "v26.0")
 TOKEN = os.environ.get("META_ACCESS_TOKEN", "")
 PAGE_ID = os.environ.get("META_PAGE_ID", "")
 IG_USER_ID = os.environ.get("META_IG_USER_ID", "")
@@ -150,9 +150,10 @@ def ig_publishing_limit() -> dict:
 
 
 @mcp.tool()
-def page_insights(metrics: str = "page_impressions,page_post_engagements",
+def page_insights(metrics: str = "page_media_view,page_total_media_view_unique,page_post_engagements",
                   period: str = "day") -> dict:
-    """Fetch Facebook Page insights. metrics is a comma-separated Graph metric list."""
+    """Fetch Facebook Page insights. metrics is a comma-separated Graph metric list. Meta retired page_impressions* and
+    page_fans* (invalid-metric error since 15.11.2025): use page_media_view / page_total_media_view_unique / page_follows."""
     return _call("GET", f"{PAGE_ID}/insights", metric=metrics, period=period)
 
 

@@ -166,7 +166,13 @@ class ResolutionTest(unittest.TestCase):
         P = cfg["plans"]
         self.assertEqual(cfg["defaults"]["legacy"], "founding")
         self.assertEqual(cfg["defaults"]["new"], "starter")
-        self.assertEqual((P["starter"]["monthly_eur"], P["starter"]["yearly_eur"], P["starter"]["status"]), (99, 990, "draft"))
+        # Starter: EUR 79 a month, a monthly subscription (no yearly price), approved by Max on 2 Oct 2026
+        # (docs/MESSAGE-2026-10.md); every other priced plan stays draft
+        self.assertEqual((P["starter"]["monthly_eur"], P["starter"]["yearly_eur"], P["starter"]["status"]), (79, None, "approved"))
+        self.assertNotIn("yearly", P["starter"]["stripe_price_ids"], "no yearly Stripe price slot for a monthly-only plan")
+        self.assertEqual((P["starter"]["price_approved"]["by"], P["starter"]["price_approved"]["on"]), ("Max", "2026-10-02"))
+        for pid in ("growth", "scale", "agency", "founding"):
+            self.assertEqual(P[pid]["status"], "draft", f"{pid}: only Starter's price is approved")
         self.assertEqual((P["starter"]["features"]["ads_meta"], P["starter"]["features"]["ads_google"]), (True, False))
         self.assertEqual(P["starter"]["limits"]["ad_matrix_preset"], "micro")
         self.assertEqual((P["growth"]["limits"]["ad_spend_managed_eur_month"], P["growth"]["limits"]["reels_per_month"]), (5000, 8))
@@ -177,7 +183,7 @@ class ResolutionTest(unittest.TestCase):
         self.assertFalse(P["content"]["features"]["ads_meta"] or P["content"]["features"]["ads_google"])
         self.assertEqual(P["founding"]["founding_bridge"], {"growth_eur": 179, "starter_eur": 79, "locked_months": 12, "seat_cap": 50})
         self.assertEqual(P["founding"]["features"], P["growth"]["features"], "founding runs as Growth during the pilot")
-        for pid in ("starter", "growth", "scale", "agency"):
+        for pid in ("growth", "scale", "agency"):
             self.assertEqual(P[pid]["yearly_eur"], 10 * P[pid]["monthly_eur"], "yearly = two months free")
 
     def test_legacy_explicit_and_unknown(self):

@@ -1,0 +1,729 @@
+{
+ "_about": "Recorded-shape Graph API v26.0 answers (developers.facebook.com reference shapes, values invented) for tests/test_metrics.py. No network.",
+ "ig_account_day": {
+  "data": [
+   {
+    "name": "reach",
+    "period": "day",
+    "title": "Accounts reached",
+    "total_value": {
+     "value": 1840
+    },
+    "id": "17841400000000001/insights/reach/day"
+   },
+   {
+    "name": "views",
+    "period": "day",
+    "title": "Views",
+    "total_value": {
+     "value": 5210
+    },
+    "id": "17841400000000001/insights/views/day"
+   },
+   {
+    "name": "accounts_engaged",
+    "period": "day",
+    "total_value": {
+     "value": 96
+    },
+    "id": "17841400000000001/insights/accounts_engaged/day"
+   },
+   {
+    "name": "total_interactions",
+    "period": "day",
+    "total_value": {
+     "value": 212
+    },
+    "id": "17841400000000001/insights/total_interactions/day"
+   },
+   {
+    "name": "likes",
+    "period": "day",
+    "total_value": {
+     "value": 160
+    },
+    "id": "17841400000000001/insights/likes/day"
+   },
+   {
+    "name": "comments",
+    "period": "day",
+    "total_value": {
+     "value": 21
+    },
+    "id": "17841400000000001/insights/comments/day"
+   },
+   {
+    "name": "shares",
+    "period": "day",
+    "total_value": {
+     "value": 9
+    },
+    "id": "17841400000000001/insights/shares/day"
+   },
+   {
+    "name": "saves",
+    "period": "day",
+    "total_value": {
+     "value": 18
+    },
+    "id": "17841400000000001/insights/saves/day"
+   },
+   {
+    "name": "replies",
+    "period": "day",
+    "total_value": {
+     "value": 4
+    },
+    "id": "17841400000000001/insights/replies/day"
+   },
+   {
+    "name": "profile_links_taps",
+    "period": "day",
+    "total_value": {
+     "value": 7
+    },
+    "id": "17841400000000001/insights/profile_links_taps/day"
+   }
+  ]
+ },
+ "ig_follows_day": {
+  "data": [
+   {
+    "name": "follows_and_unfollows",
+    "period": "day",
+    "title": "Follows and unfollows",
+    "total_value": {
+     "breakdowns": [
+      {
+       "dimension_keys": [
+        "follow_type"
+       ],
+       "results": [
+        {
+         "dimension_values": [
+          "FOLLOWER"
+         ],
+         "value": 14
+        },
+        {
+         "dimension_values": [
+          "NON_FOLLOWER"
+         ],
+         "value": 3
+        }
+       ]
+      }
+     ]
+    },
+    "id": "17841400000000001/insights/follows_and_unfollows/day"
+   }
+  ]
+ },
+ "ig_reach_series": {
+  "data": [
+   {
+    "name": "reach",
+    "period": "day",
+    "title": "Accounts reached",
+    "values": [
+     {
+      "value": 1500,
+      "end_time": "2026-09-03T07:00:00+0000"
+     },
+     {
+      "value": 1620,
+      "end_time": "2026-09-04T07:00:00+0000"
+     },
+     {
+      "value": 1710,
+      "end_time": "2026-10-02T07:00:00+0000"
+     },
+     {
+      "value": 999,
+      "end_time": "2026-10-03T07:00:00+0000"
+     }
+    ],
+    "id": "17841400000000001/insights/reach/day"
+   }
+  ]
+ },
+ "ig_profile": {
+  "followers_count": 2310,
+  "media_count": 148,
+  "id": "17841400000000001"
+ },
+ "fb_page_day": {
+  "data": [
+   {
+    "name": "page_media_view",
+    "period": "day",
+    "values": [
+     {
+      "value": 900,
+      "end_time": "2026-09-29T07:00:00+0000"
+     },
+     {
+      "value": 1100,
+      "end_time": "2026-09-30T07:00:00+0000"
+     },
+     {
+      "value": 1250,
+      "end_time": "2026-10-01T07:00:00+0000"
+     },
+     {
+      "value": 1300,
+      "end_time": "2026-10-02T07:00:00+0000"
+     },
+     {
+      "value": 50,
+      "end_time": "2026-10-03T07:00:00+0000"
+     }
+    ],
+    "id": "1020000000001/insights/page_media_view/day"
+   },
+   {
+    "name": "page_total_media_view_unique",
+    "period": "day",
+    "values": [
+     {
+      "value": 610,
+      "end_time": "2026-09-30T07:00:00+0000"
+     },
+     {
+      "value": 700,
+      "end_time": "2026-10-01T07:00:00+0000"
+     },
+     {
+      "value": 720,
+      "end_time": "2026-10-02T07:00:00+0000"
+     }
+    ],
+    "id": "1020000000001/insights/page_total_media_view_unique/day"
+   },
+   {
+    "name": "page_post_engagements",
+    "period": "day",
+    "values": [
+     {
+      "value": 40,
+      "end_time": "2026-09-30T07:00:00+0000"
+     },
+     {
+      "value": 55,
+      "end_time": "2026-10-01T07:00:00+0000"
+     },
+     {
+      "value": 61,
+      "end_time": "2026-10-02T07:00:00+0000"
+     }
+    ],
+    "id": "1020000000001/insights/page_post_engagements/day"
+   },
+   {
+    "name": "page_follows",
+    "period": "day",
+    "values": [
+     {
+      "value": 805,
+      "end_time": "2026-09-30T07:00:00+0000"
+     },
+     {
+      "value": 809,
+      "end_time": "2026-10-01T07:00:00+0000"
+     },
+     {
+      "value": 812,
+      "end_time": "2026-10-02T07:00:00+0000"
+     }
+    ],
+    "id": "1020000000001/insights/page_follows/day"
+   },
+   {
+    "name": "page_daily_follows",
+    "period": "day",
+    "values": [
+     {
+      "value": 2,
+      "end_time": "2026-09-30T07:00:00+0000"
+     },
+     {
+      "value": 4,
+      "end_time": "2026-10-01T07:00:00+0000"
+     },
+     {
+      "value": 3,
+      "end_time": "2026-10-02T07:00:00+0000"
+     }
+    ],
+    "id": "1020000000001/insights/page_daily_follows/day"
+   },
+   {
+    "name": "page_daily_unfollows_unique",
+    "period": "day",
+    "values": [
+     {
+      "value": 0,
+      "end_time": "2026-09-30T07:00:00+0000"
+     },
+     {
+      "value": 0,
+      "end_time": "2026-10-01T07:00:00+0000"
+     },
+     {
+      "value": 1,
+      "end_time": "2026-10-02T07:00:00+0000"
+     }
+    ],
+    "id": "1020000000001/insights/page_daily_unfollows_unique/day"
+   }
+  ]
+ },
+ "fb_page_week": {
+  "data": [
+   {
+    "name": "page_total_media_view_unique",
+    "period": "week",
+    "values": [
+     {
+      "value": 3900,
+      "end_time": "2026-10-01T07:00:00+0000"
+     },
+     {
+      "value": 4200,
+      "end_time": "2026-10-02T07:00:00+0000"
+     }
+    ]
+   },
+   {
+    "name": "page_post_engagements",
+    "period": "week",
+    "values": [
+     {
+      "value": 300,
+      "end_time": "2026-10-01T07:00:00+0000"
+     },
+     {
+      "value": 330,
+      "end_time": "2026-10-02T07:00:00+0000"
+     }
+    ]
+   }
+  ]
+ },
+ "fb_followers": {
+  "followers_count": 812,
+  "fan_count": 790,
+  "id": "1020000000001"
+ },
+ "fb_post_insights": {
+  "data": [
+   {
+    "name": "post_total_media_view_unique",
+    "period": "lifetime",
+    "values": [
+     {
+      "value": 640
+     }
+    ]
+   },
+   {
+    "name": "post_media_view",
+    "period": "lifetime",
+    "values": [
+     {
+      "value": 910
+     }
+    ]
+   },
+   {
+    "name": "post_clicks",
+    "period": "lifetime",
+    "values": [
+     {
+      "value": 23
+     }
+    ]
+   }
+  ]
+ },
+ "fb_post_fields": {
+  "shares": {
+   "count": 4
+  },
+  "comments": {
+   "data": [],
+   "summary": {
+    "total_count": 6
+   }
+  },
+  "reactions": {
+   "data": [],
+   "summary": {
+    "total_count": 51
+   }
+  },
+  "id": "1020000000001_99"
+ },
+ "ig_reel_insights": {
+  "data": [
+   {
+    "name": "reach",
+    "period": "lifetime",
+    "values": [
+     {
+      "value": 4100
+     }
+    ]
+   },
+   {
+    "name": "views",
+    "period": "lifetime",
+    "values": [
+     {
+      "value": 7300
+     }
+    ]
+   },
+   {
+    "name": "saved",
+    "period": "lifetime",
+    "values": [
+     {
+      "value": 88
+     }
+    ]
+   },
+   {
+    "name": "likes",
+    "period": "lifetime",
+    "values": [
+     {
+      "value": 230
+     }
+    ]
+   },
+   {
+    "name": "comments",
+    "period": "lifetime",
+    "values": [
+     {
+      "value": 17
+     }
+    ]
+   },
+   {
+    "name": "shares",
+    "period": "lifetime",
+    "values": [
+     {
+      "value": 31
+     }
+    ]
+   },
+   {
+    "name": "total_interactions",
+    "period": "lifetime",
+    "values": [
+     {
+      "value": 366
+     }
+    ]
+   },
+   {
+    "name": "ig_reels_avg_watch_time",
+    "period": "lifetime",
+    "values": [
+     {
+      "value": 6420
+     }
+    ]
+   },
+   {
+    "name": "ig_reels_video_view_total_time",
+    "period": "lifetime",
+    "values": [
+     {
+      "value": 46866000
+     }
+    ]
+   }
+  ]
+ },
+ "err_ig_invalid_metric": {
+  "error": {
+   "message": "(#100) metric[9] must be one of the following values: reach, follower_count, online_followers, accounts_engaged, total_interactions, likes, comments, shares, saves, replies, engaged_audience_demographics, reached_audience_demographics, follower_demographics, follows_and_unfollows, profile_links_taps, views, reposts",
+   "type": "OAuthException",
+   "code": 100,
+   "fbtrace_id": "AbCdEfGh123"
+  }
+ },
+ "err_fb_invalid_metric": {
+  "error": {
+   "message": "(#100) The value must be a valid insights metric",
+   "type": "OAuthException",
+   "code": 100,
+   "fbtrace_id": "AbCdEfGh124"
+  }
+ },
+ "err_story_not_enough": {
+  "error": {
+   "message": "(#10) Not enough viewers for the media to show insights",
+   "type": "OAuthException",
+   "code": 10,
+   "fbtrace_id": "AbCdEfGh125"
+  }
+ },
+ "err_token_expired": {
+  "error": {
+   "message": "Error validating access token: Session has expired on Thursday, 01-Oct-26 10:00:00 PDT.",
+   "type": "OAuthException",
+   "code": 190,
+   "error_subcode": 463,
+   "fbtrace_id": "AbCdEfGh126"
+  }
+ },
+ "err_bad_since": {
+  "error": {
+   "message": "(#100) The since parameter must be a valid unix timestamp or date string",
+   "type": "OAuthException",
+   "code": 100,
+   "fbtrace_id": "AbCdEfGh127"
+  }
+ },
+ "ads_campaign_yesterday": {
+  "data": [
+   {
+    "campaign_id": "120210000001",
+    "campaign_name": "Lead form · kitchens",
+    "objective": "OUTCOME_LEADS",
+    "spend": "42.10",
+    "impressions": "5120",
+    "reach": "3900",
+    "frequency": "1.312821",
+    "cpm": "8.222656",
+    "clicks": "140",
+    "inline_link_clicks": "96",
+    "ctr": "2.734375",
+    "cpc": "0.300714",
+    "actions": [
+     {
+      "action_type": "link_click",
+      "value": "96"
+     },
+     {
+      "action_type": "post_engagement",
+      "value": "180"
+     },
+     {
+      "action_type": "lead",
+      "value": "9"
+     },
+     {
+      "action_type": "onsite_conversion.lead_grouped",
+      "value": "7"
+     },
+     {
+      "action_type": "offsite_conversion.fb_pixel_lead",
+      "value": "2"
+     }
+    ],
+    "cost_per_action_type": [
+     {
+      "action_type": "lead",
+      "value": "4.677778"
+     }
+    ],
+    "date_start": "2026-10-01",
+    "date_stop": "2026-10-01"
+   },
+   {
+    "campaign_id": "120210000002",
+    "campaign_name": "Shop · autumn",
+    "objective": "OUTCOME_SALES",
+    "spend": "30.00",
+    "impressions": "2400",
+    "reach": "2000",
+    "frequency": "1.2",
+    "cpm": "12.5",
+    "clicks": "60",
+    "inline_link_clicks": "44",
+    "ctr": "2.5",
+    "cpc": "0.5",
+    "actions": [
+     {
+      "action_type": "link_click",
+      "value": "44"
+     },
+     {
+      "action_type": "omni_purchase",
+      "value": "2"
+     },
+     {
+      "action_type": "purchase",
+      "value": "2"
+     },
+     {
+      "action_type": "offsite_conversion.fb_pixel_purchase",
+      "value": "2"
+     },
+     {
+      "action_type": "lead",
+      "value": "1"
+     },
+     {
+      "action_type": "offsite_conversion.fb_pixel_lead",
+      "value": "1"
+     }
+    ],
+    "purchase_roas": [
+     {
+      "action_type": "omni_purchase",
+      "value": "3.4"
+     }
+    ],
+    "date_start": "2026-10-01",
+    "date_stop": "2026-10-01"
+   },
+   {
+    "campaign_id": "120210000003",
+    "campaign_name": "Boost · ask us",
+    "objective": "OUTCOME_ENGAGEMENT",
+    "spend": "8.00",
+    "impressions": "3100",
+    "reach": "2800",
+    "frequency": "1.107143",
+    "cpm": "2.580645",
+    "clicks": "70",
+    "inline_link_clicks": "12",
+    "ctr": "2.258065",
+    "cpc": "0.114286",
+    "actions": [
+     {
+      "action_type": "post_engagement",
+      "value": "340"
+     },
+     {
+      "action_type": "link_click",
+      "value": "12"
+     },
+     {
+      "action_type": "onsite_conversion.messaging_conversation_started_7d",
+      "value": "5"
+     }
+    ],
+    "date_start": "2026-10-01",
+    "date_stop": "2026-10-01"
+   }
+  ],
+  "paging": {
+   "cursors": {
+    "before": "MAZDZD",
+    "after": "MgZDZD"
+   }
+  }
+ },
+ "ads_ad_yesterday": {
+  "data": [
+   {
+    "ad_id": "120210000101",
+    "ad_name": "Lead form · kitchens · a1-before-after",
+    "adset_id": "120210000011",
+    "adset_name": "NL 25-55",
+    "campaign_id": "120210000001",
+    "campaign_name": "Lead form · kitchens",
+    "objective": "OUTCOME_LEADS",
+    "spend": "25.10",
+    "impressions": "3000",
+    "reach": "2400",
+    "frequency": "1.25",
+    "cpm": "8.37",
+    "clicks": "90",
+    "inline_link_clicks": "60",
+    "ctr": "3.0",
+    "cpc": "0.28",
+    "actions": [
+     {
+      "action_type": "lead",
+      "value": "6"
+     },
+     {
+      "action_type": "onsite_conversion.lead_grouped",
+      "value": "5"
+     },
+     {
+      "action_type": "offsite_conversion.fb_pixel_lead",
+      "value": "1"
+     }
+    ]
+   },
+   {
+    "ad_id": "120210000102",
+    "ad_name": "Lead form · kitchens · a2-price",
+    "adset_id": "120210000011",
+    "adset_name": "NL 25-55",
+    "campaign_id": "120210000001",
+    "campaign_name": "Lead form · kitchens",
+    "objective": "OUTCOME_LEADS",
+    "spend": "17.00",
+    "impressions": "2120",
+    "reach": "1700",
+    "frequency": "1.247059",
+    "cpm": "8.02",
+    "clicks": "50",
+    "inline_link_clicks": "36",
+    "ctr": "2.36",
+    "cpc": "0.34",
+    "actions": [
+     {
+      "action_type": "onsite_conversion.lead_grouped",
+      "value": "2"
+     },
+     {
+      "action_type": "offsite_conversion.fb_pixel_lead",
+      "value": "1"
+     }
+    ]
+   },
+   {
+    "ad_id": "120210000301",
+    "ad_name": "Boost · ask us · chat",
+    "adset_id": "120210000031",
+    "adset_name": "Followers",
+    "campaign_id": "120210000003",
+    "campaign_name": "Boost · ask us",
+    "objective": "OUTCOME_ENGAGEMENT",
+    "spend": "8.00",
+    "impressions": "3100",
+    "reach": "2800",
+    "clicks": "70",
+    "inline_link_clicks": "12",
+    "ctr": "2.26",
+    "actions": [
+     {
+      "action_type": "post_engagement",
+      "value": "340"
+     },
+     {
+      "action_type": "onsite_conversion.messaging_conversation_started_7d",
+      "value": "5"
+     }
+    ]
+   },
+   {
+    "ad_id": "120210000302",
+    "ad_name": "Boost · paused",
+    "adset_id": "120210000031",
+    "adset_name": "Followers",
+    "campaign_id": "120210000003",
+    "campaign_name": "Boost · ask us",
+    "objective": "OUTCOME_ENGAGEMENT",
+    "spend": "0",
+    "impressions": "0"
+   }
+  ]
+ },
+ "act_currency": {
+  "currency": "EUR",
+  "id": "act_1234567890"
+ }
+}

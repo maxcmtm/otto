@@ -14,24 +14,25 @@
     "ground": "primary"
   },
   "note": {
-    "meta": "Tuesday, 22:15",
-    "title": "Words my customers never use",
+    "meta": "Monday, 07:41",
+    "title": "Things I stopped checking",
     "struck": [
-      "super excited",
-      "next level",
-      "awesome deals"
+      "the dashboard at midnight",
+      "three different apps",
+      "a monthly PDF"
     ],
-    "keep": "just: new in, from Saturday"
+    "keep": "Otto's 07:35 report"
   },
   "endcard": {
-    "headline": "Dutch. Not translated.",
-    "accent": "Not translated.",
-    "sub": "Posts, reels and ads that sound like your business.",
-    "fine": "Otto writes in Dutch or English, for your customers.",
+    "headline": "Know by 07:35.",
+    "accent": "07:35.",
+    "sub": "In English, Dutch or German: your choice.",
+    "fine": "7 days free, no card. Then €79 a month.",
     "products": [
-      "review_nl"
+      "report_ads"
     ],
     "logo": "logo",
+    "legal": "Monthly plan, no contract, cancel anytime. Prices excl. VAT.",
     "ground": "bg"
   }
 }

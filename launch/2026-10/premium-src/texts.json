@@ -1,0 +1,100 @@
+{
+ "nl": {
+  "automate": {
+   "headline": "Automate your marketing.",
+   "sub": "Posts, reels, stories and ads, made for you. You approve with one tap.",
+   "cta": "Try 7 days free",
+   "fine": "7 days free, no card. Then €79 a month.",
+   "kicker": "Marketing by Otto"
+  },
+  "agency": {
+   "headline": "Stop paying agency prices.",
+   "sub": "Otto does your posts and ads for €79 a month.",
+   "cta": "Try 7 days free",
+   "fine": "Agency prices: public 2026 price lists, NL/IE. Prices excl. VAT.",
+   "left_label": "Social media agency",
+   "left_figure": "€500–1,500 a month",
+   "left_note": "just for posts",
+   "tag": "€79 a month",
+   "tag_note": "posts, reels, stories and ads"
+  },
+  "report": {
+   "headline": "07:35. Your ads, reported.",
+   "sub": "Spend, clicks, enquiries. Every morning.",
+   "cta": "Try 7 days free",
+   "fine": "7 days free, no card. Then €79 a month.",
+   "kicker": "Your daily ads report",
+   "tag": "Sample report"
+  },
+  "ads": {
+   "headline": "Ads that stop the scroll. Made for you.",
+   "sub": "Feed and story ads in your brand. You approve every one before it runs.",
+   "cta": "Try 7 days free",
+   "fine": "7 days free, no card. Then €79 a month.",
+   "tag": "Sample ads for demo brands"
+  },
+  "posts": {
+   "headline": "You run the business. Otto posts.",
+   "sub": "Every week, planned and made for you. One tap to approve.",
+   "cta": "Try 7 days free",
+   "fine": "7 days free, no card. Then €79 a month.",
+   "kicker": "Posts, reels and stories"
+  },
+  "launch": {
+   "headline": "Launching? Marketing’s handled.",
+   "sub": "7 days free. No card. Then €79 a month. Cancel anytime.",
+   "cta": "Try 7 days free",
+   "fine": "Monthly plan, no contract. Prices excl. VAT.",
+   "kicker": "New business?"
+  }
+ },
+ "ie": {
+  "automate": {
+   "headline": "Automate your marketing.",
+   "sub": "Posts, reels, stories and ads, made for you. You approve with one tap.",
+   "cta": "Try 7 days free",
+   "fine": "7 days free, no card. Then €79 a month.",
+   "kicker": "Marketing by Otto"
+  },
+  "agency": {
+   "headline": "Stop paying agency prices.",
+   "sub": "Otto does your posts and ads for €79 a month.",
+   "cta": "Try 7 days free",
+   "fine": "Agency prices: public 2026 price lists, NL/IE. Prices excl. VAT.",
+   "left_label": "Social media agency",
+   "left_figure": "€1,000+ a month",
+   "left_note": "for posts and ads",
+   "tag": "€79 a month",
+   "tag_note": "posts, reels, stories and ads"
+  },
+  "report": {
+   "headline": "7:35. Your ads, reported.",
+   "sub": "Spend, clicks, enquiries. Every morning.",
+   "cta": "Try 7 days free",
+   "fine": "7 days free, no card. Then €79 a month.",
+   "kicker": "Your daily ads report",
+   "tag": "Sample report"
+  },
+  "ads": {
+   "headline": "Ads that stop the scroll. Made for you.",
+   "sub": "Feed and story ads in your brand. You approve every one before it runs.",
+   "cta": "Try 7 days free",
+   "fine": "7 days free, no card. Then €79 a month.",
+   "tag": "Sample ads for demo brands"
+  },
+  "posts": {
+   "headline": "You run the business. Otto posts.",
+   "sub": "Every week, planned and made for you. One tap to approve.",
+   "cta": "Try 7 days free",
+   "fine": "7 days free, no card. Then €79 a month.",
+   "kicker": "Posts, reels and stories"
+  },
+  "launch": {
+   "headline": "Launching? Marketing’s handled.",
+   "sub": "7 days free. No card. Then €79 a month. Cancel anytime.",
+   "cta": "Try 7 days free",
+   "fine": "Monthly plan, no contract. Prices excl. VAT.",
+   "kicker": "New business?"
+  }
+ }
+}

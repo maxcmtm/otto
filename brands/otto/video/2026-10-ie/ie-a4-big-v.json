@@ -13,32 +13,34 @@
     "ground": "primary"
   },
   "big": {
-    "hero": "hero",
+    "hero": "ads_phone",
     "phrases": [
       {
-        "big": "30 min",
-        "rest": "a week, roughly."
+        "big": "Feed ads.",
+        "rest": "Offers. Comparisons."
       },
       {
-        "big": "4 questions",
-        "rest": "at the start, max."
+        "big": "Story ads.",
+        "rest": "Every angle, tested."
       },
       {
         "big": "1 tap",
-        "rest": "per post.",
-        "product": "review_ie"
+        "rest": "to approve each one.",
+        "product": "story_ad"
       }
     ]
   },
   "endcard": {
-    "headline": "You run it. Otto posts.",
-    "accent": "Otto posts.",
-    "sub": "Posts, reels and ads, ready for your approval.",
-    "fine": "Try it free for 7 days, no card needed.",
+    "headline": "The ads Otto makes.",
+    "accent": "Otto makes.",
+    "sub": "Designed, run and reported for you.",
+    "fine": "Sample ads for demo brands.",
     "products": [
-      "month"
+      "ads_phone",
+      "story_ad"
     ],
     "logo": "logo",
+    "legal": "7 days free, then €79 a month. Monthly plan, no contract. Excl. VAT.",
     "ground": "bg"
   }
 }

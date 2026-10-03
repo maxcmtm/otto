@@ -1,0 +1,48 @@
+{
+  "id": "nl-a2-versus-v",
+  "style": "versus",
+  "formats": [
+    "9x16"
+  ],
+  "music": {
+    "bpm": 120,
+    "mood": "calm",
+    "key": "F"
+  },
+  "scene": {
+    "ground": "bg"
+  },
+  "versus": {
+    "vs": "vs",
+    "left": {
+      "label": "Agency",
+      "rows": [
+        "€500–1,500 a month",
+        "Posts only",
+        "A briefing first"
+      ]
+    },
+    "right": {
+      "label": "Otto",
+      "image": "campaign",
+      "rows": [
+        "€79 a month",
+        "Posts and ads",
+        "Ready in minutes"
+      ]
+    },
+    "footer": "You approve every post."
+  },
+  "endcard": {
+    "headline": "Stop paying agency prices.",
+    "accent": "agency prices.",
+    "sub": "Posts and ads for €79 a month.",
+    "fine": "Agency prices: public 2026 price lists.",
+    "products": [
+      "campaign"
+    ],
+    "logo": "logo_white",
+    "legal": "Monthly plan, no contract, cancel anytime. Prices excl. VAT.",
+    "ground": "night"
+  }
+}

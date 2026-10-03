@@ -3,8 +3,13 @@
 Date: 2026-09-30 · Author: Claude Code (head of growth pass) · Decision owner: Max · Status: plan, ready for decision
 **Update 2026-10-02 (launch pass):** the paid launch moved forward to **Saturday 3 October 2026** (was Monday 2 November).
 **Both markets run English ads** (Max's rule: English is the main language; NL/DE are a translation option on the site).
-The Dutch-language ad variants are kept only as an optional later test. The ads show no prices. Budget and pacing below are
-for October. The launch kit (matrices, renders, Ads Manager import files, the 15-minute upload steps, the day-3 and day-7
+The Dutch-language ad variants are kept only as an optional later test. Budget and pacing below are for October.
+**Update 2026-10-02 evening (new direction, Max):** the launch ads were rebuilt around the message house
+`docs/MESSAGE-2026-10.md`: automate your marketing, stop paying agency prices (Otto for €79 a month), launch without the
+marketing worry, take your marketing to the next level, the daily 07:35 ads report, the ads Otto makes and the posts it makes
+every week — the whole marketing department, about half organic and half paid. The ads now name the price, only as
+"€79 a month" (one public plan, monthly: no contract, cancel anytime, excl. VAT; never "from", never a yearly price). §1.1, §1.3, §3.2,
+§3.3 and §4.2–4.3 below are updated; everything else is unchanged. The launch kit (matrices, renders, Ads Manager import files, the 15-minute upload steps, the day-3 and day-7
 decisions) is in `launch/2026-10/`; start with its `README.md`. The organic, event and partner sections (§6, §7) keep
 their November dates.
 Builds on: `research/EU-LAUNCH-AND-PRICING-2026-09.md` (§1, §5.3, §6.5, §7, §8), `research/COMPETITORS-2026-09.md` (§3–§6),
@@ -19,11 +24,11 @@ on it. Sources are listed in §13.
 
 | Question | Answer |
 |---|---|
-| What we sell from 3 October | What the landing sells today (changed on 30.09): a **free 7-day trial** (Google sign-in, no card, nothing charged automatically; first posts within 24 hours), with the **founding pilot, €197 once** as the pay-once alternative on the landing. After the trial: a monthly plan (Starter €99 / Growth €249, still drafts awaiting Max's approval). **The ads sell the free trial only and show no prices** until Max approves them. |
+| What we sell from 3 October | What the landing sells today (changed on 30.09): a **free 7-day trial** (Google sign-in, no card, nothing charged automatically; first posts within 24 hours), with the **founding pilot, €197 once** as the pay-once alternative on the landing. After the trial: **€79 a month** (one public plan, monthly, no contract, excl. VAT; Max, 2 Oct). **The ads sell the free trial and name the price only as "€79 a month"** (never "from €79"; docs/MESSAGE-2026-10.md as updated by Max). |
 | Where | **Netherlands** (English ads written for Dutch small businesses) and **Ireland** (Irish English), launched together on **Saturday 3 October 2026**. The earlier date was 2 Nov. The Dutch-language NL ads (`ads-2026-11-nl.json`) are kept only as an optional later test. Flanders joins as a spillover once NL is on target (§3.6). |
 | Test budget | **€50 a day per country (€100/day) for 30 days, 3 Oct – 1 Nov = €3,000 media**. Creator-owners (€900) join from week 2–3 at the earliest, once real customers exist. The Dutch reviewer (about €300) is now needed only for the site's Nederlands strings and a later Dutch ad test. **Total ≈ €3,000–4,200.** |
 | Campaign structure | Per market: **one Leads campaign with Advantage+ campaign budget** (formerly CBO) and **one ad set per concept (6)**. It optimises for **CompleteRegistration**: the Google sign-up, i.e. the trial start, server-confirmed and sent through the Conversions API. **Lead** (scan result) is the fallback (`launch/2026-10/README.md` §4). Broad + Advantage+ audience, with a vertical interest stack as suggestions. |
-| Creative | October launch, per market: **36 English ads, 6 concepts × 6 cells, 18 video (50 %)**. That is 18 statics (4:5, plus 9:16 and 1:1 where the template has them) and 18 faceless videos, all rendered and reviewed (`launch/2026-10/`). No creator cells at launch: the founder-led creator videos (briefs ready, real owners only) join later. |
+| Creative | October launch, per market: **36 English ads, 6 concepts × 6 cells, 18 video (50 %)**, built on the message house (`docs/MESSAGE-2026-10.md`): automate your marketing · stop paying agency prices · your ads, reported at 07:35 · the ads Otto makes · launch without the marketing worry · next level, 7 days free. That is 18 statics (4:5, plus 9:16 and 1:1 where the template has them) and 18 faceless videos, all rendered and reviewed (`launch/2026-10/`). No creator cells at launch: the founder-led creator videos (briefs ready, real owners only) join later. |
 | Funnel targets (§5.3) | CTR ≥ 0.8 % · CPC ≤ €1.30 · 20 % of visitors scan · **≤ €8 per scan result** · ≤ €30 per trial start · 18–25 % of trials pay · **plan €150–300 per paying customer**. |
 | What €3,000 should buy | **~100 trial starts and 10–20 paying customers** (plan, EU §5.3); the funnel midpoint allows ~25. Payback 1.8–3.5 months on a monthly plan. |
 | Measurement | Privacy-first: a consent banner (reject = accept), first-party cookieless analytics for everything, and Meta only through the server-side Conversions API for visitors who pressed Accept. Shipped in this pass (§5.4). |
@@ -39,8 +44,9 @@ on it. Sources are listed in §13.
 ### 1.1 Offer and message
 
 - **Offer (live on the landing today):** a free 7-day trial — sign in with Google, no card, one trial per business; the first week of posts, stories and reels, approvals by e-mail, in Telegram or in the app, the 07:35 report, paid ads planned for preview (they launch once a plan is chosen); an e-mail two days before the end and nothing charged automatically. The founding pilot (€197 once, excl. VAT) stays as the pay-once alternative. Monthly prices are **not** stated in ads until Max approves them and they exist on Whop; the ads say "no card, nothing charged automatically", which is the full truth about the trial's cost.
-- **Three concepts carry the launch** (COMPETITORS §6): **the 7:35 message** (accountability), **your website, as a reel** (the video gap), **local, not translated** (Native reaches 2 of 86 ads into NL; Holo translates). Three more complete the six families the engine requires: owners-not-marketers (identity), the free week (offer), December planned in November (moment).
-- **Never:** "autopilot", "paste your website", "walk away", price-versus-agency framing, invented results or reviews, fake scarcity, competitor names. These are enforced in `brands/otto/compliance.json` and `competitors.json`, so the engine blocks them before anything renders.
+- **The message (since 2 Oct evening): `docs/MESSAGE-2026-10.md`** — "Automate your marketing." Otto plans, writes, designs and posts the social media and runs the ads; the owner approves each post with one tap and sees every morning at 07:35 what the ads cost and what they brought in. Max: show the paid ads and the campaigns more than the organic posts.
+- **Six concepts on the pillars** (one per engine family; a5 is the second identity angle that stands in for "moment"), about half organic and half paid: **a1 automate your marketing** (identity, the umbrella: posts every week, ads every day, one report at 07:35; "take your marketing to the next level"), **a2 stop paying agency prices** (enemy: agencies €500–1,500 a month just for posts, €1,000+ for posts and ads, Otto €79 a month), **a3 your ads, reported at 07:35** (experience: the campaign Otto runs, an ad set per angle, and the morning report with spend, clicks and enquiries labelled "Sample"), **a4 the ads Otto makes** (pain: sample ads for fictional demo brands), **a5 you run it, Otto posts** (identity: posts, reels and stories every week), **a6 launching? 7 days free** (offer: launch without the marketing worry; 7 days free, then €79 a month, monthly, no contract). The earlier October concepts (reels without the filming, local not translated, the busy season) are retired; the 07:35 message, "you run it, Otto posts" and the 7-days-free lines carry over. Their November reference matrices stay in §4.2b.
+- **Never:** "autopilot", "paste your website", "walk away", invented customers, results, reviews or statistics, results promises, fake scarcity, competitor or agency names, a price other than "€79 a month" (never "from €79", never a yearly price), agency figures beyond the sourced ranges. `brands/otto/compliance.json` and `competitors.json` enforce most of this before anything renders. **Open item:** compliance.json still carries the two September "price-versus-agency" regexes (the word agency and a euro figure in one sentence). The new copy keeps them apart sentence by sentence, so the check passes, but the rule no longer matches the direction; `launch/2026-10/render.py compliance` audits every euro figure against the message house instead (README §8).
 - **Proof we can use now:** product facts from the landing (07:35 report, first posts within 24 h, ~30 min a week, at most four questions, nothing goes out without approval, 7 days free with no card) and the offer. **No customer reviews or results exist yet**; every figure in a report screen is labelled "Sample"/"Voorbeeld".
 
 ### 1.2 Must be true before the first euro is spent
@@ -60,12 +66,12 @@ on it. Sources are listed in §13.
 ### 1.3 The offer changed to a free trial (30.09) — what that means for the ads
 
 The landing's CTAs became "Start free 7-day trial" with Google sign-in while this plan was written. Done in this pass:
-- Concept **a5** in both matrices is now the free trial ("Probeer Otto 7 dagen gratis" / "Try Otto free for 7 days"), with the founding pilot named only as the pay-once alternative; every end card's fine print is the trial line ("7 dagen gratis proberen, geen creditcard nodig" / "Try it free for 7 days, no card needed"); `"Google"` is in `rules.allowed_names`. When Max approves a monthly price, these checked lines can add it (NL / IE baselines and Otto's own rules, 0 violations):
+- Concept **a5** in both matrices is now the free trial ("Probeer Otto 7 dagen gratis" / "Try Otto free for 7 days"), with the founding pilot named only as the pay-once alternative; every end card's fine print is the trial line ("7 dagen gratis proberen, geen creditcard nodig" / "Try it free for 7 days, no card needed"); `"Google"` is in `rules.allowed_names`. When Max approves a monthly price, these checked lines can add it (NL / IE baselines and Otto's own rules, 0 violations; *superseded on 2 Oct: the price is €79 a month and the October ads use "Then €79 a month", see the October bullets below*):
   - NL: "Probeer Otto 7 dagen gratis. Daarna €99 per maand, excl. btw, maandelijks opzegbaar." · "7 dagen gratis, daarna €99 per maand excl. btw" · "Log in met Google en je eerste posts staan binnen 24 uur klaar om goed te keuren."
   - IE: "Try Otto free for 7 days. Then €99 a month, excl. VAT, cancel any month." · "7 days free, then €99 a month excl. VAT" · "Sign in with Google and your first posts are ready for your approval within 24 hours."
 - Measurement needs no rework: every "get started / start trial / sign up" CTA click already maps to **InitiateCheckout**, and the server that completes a sign-up calls `otto_track.capi_track("signup" | "trial_start", …)` → **CompleteRegistration / StartTrial** (§5.4). Switch the campaign's optimisation event from Lead to CompleteRegistration once it fires ≥ 25 times a week per market.
 - **October launch (2 Oct), superseding the two points above for the ads:**
-  - The ads are English in both markets and carry **no prices**: the founding-pilot line is out of a5 (the landing still offers it), and the monthly-price lines wait for Max's approval.
+  - The ads are English in both markets. ~~They carry no prices~~ **Since 2 Oct evening they name the price, only as "€79 a month"** (one public plan, monthly, no contract) (excl. VAT where the format has room for it; the landing carries the VAT note and the agency-price source line). The founding-pilot line stays out of the ads.
   - The campaign optimises on **CompleteRegistration from day 1**. Lead is the fallback (day-7 rule in `launch/2026-10/README.md`).
 
 ---
@@ -128,8 +134,8 @@ first two weeks is media only.
 
 ### 3.2 One ad set per concept (6 per market)
 
-Ad set names come from the October matrices (`ad_set`): `NL · a1 · Reels without the filming` … `IE · a6 · Christmas, sorted
-early`. Each ad set runs that concept's six cells: 3 statics (4:5; the 9:16 version via placement customisation) and 3
+Ad set names come from the October matrices (`ad_set`): `NL · a1 · Automate your marketing` … `IE · a6 · Launching? 7 days
+free`. Each ad set runs that concept's six cells: 3 statics (4:5; the 9:16 version via placement customisation) and 3
 faceless videos (9:16). A creator video joins as a new cell when the footage and the owner's signed release arrive.
 
 ### 3.3 Audiences
@@ -138,14 +144,18 @@ faceless videos (9:16). A creator video joins as a new cell when the footage and
 - **Advantage+ audience on**, with the vertical stack of the concept's persona as the suggestion. Meta treats suggestions as a starting point, not a limit.
 - **Interest stacks** (check each in Ads Manager before use: Meta removed or merged many detailed-targeting options between June 2025 and January 2026 (unv. for individual options)):
 
-| Market | Vertical (EU §7) | Suggested interests / behaviours | Used on |
+| Market | Vertical (EU §7) | Suggested interests / behaviours | Used on (October concepts) |
 |---|---|---|---|
-| NL | E-commerce / Shopify (no supplements) | Shopify, E-commerce, Online shopping (business), Small business owners, Facebook page admins | a2, a4, a5 |
-| NL | Hospitality (café, lunchroom, restaurant, B&B) | Restaurants, Coffeehouses, Hospitality industry, Small business owners | a1, a6 |
-| NL | Salons and local services (non-medical) | Hairdresser, Beauty salon, Nail salon, Small business owners | a3 |
-| IE | Trades and local services | Plumbing, Construction, Electrician, Small business owners, Facebook page admins | a2, a4 |
-| IE | Hospitality and tourism | Restaurants, Bed and breakfast, Hotels, Tourism | a1, a6 |
-| IE | Dental and physio clinics | Physical therapy, Dentistry, Small business owners | a3, a5 |
+| NL | E-commerce / Shopify (no supplements) | Shopify, E-commerce, Online advertising, Small business owners, Facebook page admins | a1, a3, a4 |
+| NL | Owners comparing marketing help | Small business owners, Social media marketing, Digital marketing, Facebook page admins | a2 |
+| NL | Hospitality and salons (café, lunchroom, restaurant, hairdresser) | Restaurants, Coffeehouses, Hairdresser, Beauty salon, Small business owners | a5 |
+| NL | New businesses | Entrepreneurship, Small business owners, Restaurants, Coffeehouses | a6 |
+| IE | Trades and local services | Plumbing, Construction, Electrician, Online advertising, Small business owners, Facebook page admins | a1, a3 |
+| IE | Owners comparing marketing help | Small business owners, Social media marketing, Digital marketing, Facebook page admins | a2 |
+| IE | Hospitality, tourism and clinics | Restaurants, Bed and breakfast, Hotels, Physical therapy, Dentistry, Online advertising | a4, a5 |
+| IE | New businesses | Entrepreneurship, Small business owners, Restaurants, Bed and breakfast | a6 |
+
+The per-concept lists are in `launch/2026-10/campaign.json` (`audience.suggestions`).
 
 ### 3.4 Exclusions
 
@@ -171,34 +181,37 @@ From day 15, if NL cost per scan result ≤ €8: duplicate the two best NL ad s
 
 | What | Where |
 |---|---|
-| Brand | `brands/otto/`: `brand-profile.md` (personas per NL/IE vertical, visual identity), `strategy.json` (6 personas, pains, objections, proof bank, offer, targets), `compliance.json`, `competitors.json`, `angles.json` (ad copy per market), `render.json` (Mona Sans + the landing's tokens), `logo.svg` / `logo-white.svg`, `assets/` (phone cutouts of the real app: review NL/IE, 07:35 report, month) |
+| Brand | `brands/otto/`: `brand-profile.md` (personas per NL/IE vertical, visual identity), `strategy.json` (6 personas, pains, objections, proof bank, offer, targets), `compliance.json`, `competitors.json`, `angles.json` (ad copy per market), `render.json` (Mona Sans + the landing's tokens), `logo.svg` / `logo-white.svg`, `assets/` (phone cutouts of the real app: review NL/IE, 07:35 report, month; since 2 Oct also the 07:35 ads report, the campaign, "This week", sample posts, the ads phone and story ad, drawn by `launch/2026-10/phones.py`; `assets/showcase/` = sample ads for fictional demo brands) |
 | Matrices | **October launch (live): `brands/otto/ads-2026-10-nl.json`, `brands/otto/ads-2026-10-ie.json`** (English, no creator cells, `rules.slots` without creator). November reference: `ads-2026-11-nl.json` (Dutch, optional later test), `ads-2026-11-ie.json` (the `ads-YYYY-MM.json` schema, preset `launch`) |
 | Video kit data | `brands/otto/video/brand.json`, `presentation-2026-{10,11}-{nl,ie}.json`, `video/2026-10-{nl,ie}/*.json` (18 per market, October) and `video/2026-11-{nl,ie}/*.json` (13 per market), written by `motion/ad-kit/from_matrix.py`, copy verbatim |
 | Creator briefs | `brands/otto/creator-briefs-2026-11.md` (generated from the creator cells) |
 | Launch kit | `launch/2026-10/`: renders (`creatives/`), contact sheets (`sheets/`), Ads Manager import files (`import/`, `meta-bulk-import.xlsx`), `compliance-report.md`, `build.py` (rebuild with the domain), `render.py` (re-render / re-check), `README.md` |
 
-### 4.2 The October launch matrices (live from 3 Oct; English in both markets)
+### 4.2 The October launch matrices (live from 3 Oct; English in both markets; rebuilt 2 Oct evening)
 
-Per market: **6 concepts × 6 cells = 36 ads, 18 video (50 %)**, 5 styles per concept. The cells are the November concepts
-minus the creator cells, plus one more faceless video per concept. The engine's `--check` passes: 36 ready, 0 gaps, 0 copy
-gaps, 0 violations. `launch/2026-10/compliance-report.md` checks 750 texts per market: 0 violations, every primary text
-≤ 125 characters, headlines ≤ 40, descriptions ≤ 30. No prices; the only euro figures are sample report numbers on a
-screen labelled "Sample".
+Per market: **6 concepts × 6 cells = 36 ads, 18 video (50 %)**, 5–6 styles per concept, built on the message house
+(`docs/MESSAGE-2026-10.md`) and Max's three follow-ups of 2 Oct: show the paid ads and the campaign Otto runs; sell the whole
+marketing department (about half organic, half paid); one public plan, so the price is "€79 a month" (monthly, no contract,
+cancel anytime; never "from", never a yearly price). The engine's `--check` passes: 36 ready, 0 gaps, 0 copy gaps, 0
+violations. `launch/2026-10/compliance-report.md` checks 808 texts per market: 0 violations, every primary text ≤ 125
+characters, headlines ≤ 40, descriptions ≤ 30; every euro figure is "€79 a month", a sourced agency range (€500–1,500 just for
+posts, €1,000+ for posts and ads) or a sample report figure on a screen labelled "Sample".
 
-| Concept | NL (English for Dutch small businesses) | IE (Irish English) |
-|---|---|---|
-| a1 pain · cold | Reels without the filming | Reels without the filming |
-| a2 experience · warm | The 07:35 message (the report's language is the owner's choice) | The 7:35 message |
-| a3 enemy · cold | Local, not translated (Otto writes your posts in Dutch) | Local, not generic (written for Cork, not California) |
-| a4 identity · cold | You run it, Otto posts | You run it, Otto posts |
-| a5 offer · hot (SIGN_UP) | 7 days free | 7 days free |
-| a6 moment · warm | The busy season, planned (Sinterklaas to New Year) | Christmas, sorted early |
+| Concept | Family · stage | Headlines (NL; IE writes 7:35) | Styles |
+|---|---|---|---|
+| a1 Automate your marketing (umbrella + next level) | identity · cold | Automate your marketing / Take your marketing to the next level | notes video · versus video · big video · product hero (the planned month) · before/after · search |
+| a2 Stop paying agency prices | enemy (competitor research) · cold | Stop paying agency prices / Your marketing team for €79 a month | versus video · search video · big video · comparison table · product hero (the campaign phone) · big number |
+| a3 Your ads, reported at 07:35 (the campaign + the report) | experience · warm | Your ads report, every day at 07:35 / Know what your ads did by 07:35 | texts video · big video · notes video · macro hero (the report phone) · comparison · notes |
+| a4 The ads Otto makes (sample ads for demo brands) | pain · cold | The ads Otto makes for you / Your ads, designed and run by Otto | texts video · big video · versus video · product hero (ads phone + story ad) · search · checklist |
+| a5 You run it, Otto posts (posts, reels, stories every week) | identity · cold | You run the business. Otto posts. / Posts, reels and stories, every week | big video · texts video · versus video · product hero (sample posts) · notes · checklist |
+| a6 Launching? 7 days free | offer · hot (SIGN_UP) | Launching? Try Otto free for 7 days / 7 days free. Then €79 a month. | notes video · texts video · versus video · offer · product hero (the opening post) · checklist |
 
-Styles per concept: 3 faceless videos from notes / texts / versus / big, plus 3 statics from product hero / macro hero /
-search / notes / comparison / social post / myth-fact / checklist / offer / before-after / carousel / big number. The a6
-moment moved from "December, planned in November" to "the busy season, planned ahead" because sign-ups now start in
-October. The NL phones show a new English cut-out (`assets/otto-phone-review-nl-en-cutout.png`). The Dutch post appears
-only on a3 NL, labelled as a sample, as proof that Otto writes in Dutch.
+NL copy is written for Dutch owners (24-hour times, the 07:35 report "in English, Dutch or German: your choice"), IE copy
+for Irish owners (7:35, "your say-so", "Grand", trades, B&Bs, clinics; IE's agency line is "€1,000+ a month for posts and
+ads"). No Dutch-language text appears in the October kit. New phone cut-outs (`brands/otto/assets/`, drawn by
+`launch/2026-10/phones.py`): the 07:35 ads report (spent, clicks, enquiries), the campaign (an ad set per angle), "This
+week" (six post types), sample posts, the ads phone with four showcase ads and a showcase ad's 9:16 version as a story.
+Every figure and post on them is labelled "Sample"; the showcase ads are fictional demo brands, captioned as such.
 
 ### 4.2b The November matrices (reference; the Dutch-language NL cells are kept only as an optional later test)
 
@@ -228,18 +241,17 @@ Every angle has 2–3 primary texts. A native Dutch review pass (fresh eyes) was
 
 ### 4.3 What was rendered and reviewed
 
-- **October launch (2 Oct):** everything is in `launch/2026-10/`:
-  - **Statics:** 36 static cells, 114 files (4:5 for every cell, 9:16 and 1:1 where the template supports them).
-  - **Videos:** 36 faceless videos, 9–15 s, 9:16, plus 4:5 versions of the notes and texts kits. 52 renders, none failed.
-  - **Review:** every file was looked at on contact sheets. Fixes made:
-    - NL "07:35" crowded the phone on the macro card → product rises from the bottom.
-    - A two-line subline touched the Reels UI zone at 9:16 → shortened.
-    - The a2 big video showed the same phone twice → it settles on one.
-    - The a5 versus label broke as "Otto, 7 / days free" → the offer moved to the footer.
-    - A chat bubble left "in." alone on a line → rewritten.
-    - The myth card's 1:1 label fell under 4.5:1 → feed only.
-  - Details in its `README.md`. Below: the September pass on the November matrices.
-
+- **October launch (rebuilt 2–3 Oct):** everything is in `launch/2026-10/`:
+  - **Statics:** 18 per market, 47 files (4:5 for every cell, 9:16 and 1:1 where the template supports them).
+  - **Videos:** 18 faceless videos per market, 9–15 s, 9:16, plus 4:5 versions of the notes and texts kits: 25 renders per
+    market, none failed. Every 9:16 render is patched into Meta's Stories/Reels safe zone by `render.py` (text between 269
+    and 1536 px; the ad-kit templates themselves still aim at 200–1560 px, see `launch/2026-10/README.md` §8).
+  - **Review:** every static and every video's key frames were looked at on contact sheets, plus frame checks against the
+    safe-zone lines. The fixes (search pill and result title, end-card logo and fine-print orphan, overflowing versus rows,
+    a chat bubble hidden under the header, awkward chat and notes line breaks, IE table labels, a 1:1 checklist overflow,
+    a grey placeholder phone) are listed in `launch/2026-10/README.md` §8.
+  - The earlier October pass (the morning of 2 Oct: reels without the filming, local not translated …) was deleted.
+  - Below: the September pass on the November matrices (reference).
 - **All 18 image cells per market**, feed and story (36 files each), rendered with `otto_creative.py matrix otto 2026-11 --render` in an isolated workspace, and reviewed card by card on contact sheets. Fixes made during review: phone cutouts re-cut so the renderer treats them as packshots (the offer card had cropped the phone full-bleed), "Sample" moved onto the visible side of the report screen, checklist ticks, an internal proof id removed from a source line, a stray tiny phone removed, a wrapping callout shortened, a white logo for dark video end cards.
 - **8 faceless videos** (4 per market) with `motion/ad-kit` (`build.mjs` → `ship.mjs`: check, render, −14 LUFS, poster, web copy, key-frame sheet): NL a2 texts (the 07:35 message), a1 notes, a3 versus, a5 big; IE a2 texts, a1 notes, a3 versus, a4 big. 10–16 s, 9:16, synthesized music and UI sounds, no voice. The other 9 per market are scripted (kit JSON written) and render with the same two commands.
 - Files: see "Report" in the handover; contact sheets and videos are in the session scratchpad, not in the repo.

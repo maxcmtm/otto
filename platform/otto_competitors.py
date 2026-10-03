@@ -282,10 +282,30 @@ def angles(bid):
     for it in load_list(bid):
         for f, n in (it.get("formats") or {}).items():
             formats[f] = formats.get(f, 0) + n
-    data = {"angles": out[:12], "formats": formats, "updated": today()}
+    # what the file already holds is never thrown away by a re-run: an angle whose text is unchanged keeps its written ad
+    # copy (a person's or the copywriter's, otto_copy) and its other fields; the angles the copywriter built from the
+    # brand's own data (by "otto_copy") stay after the research ones; with no research angles at all the old list stays
+    old_file = BRANDS / bid / "angles.json"
+    try:
+        old = json.loads(old_file.read_text()) if old_file.exists() else {}
+    except (OSError, ValueError):
+        old = None                                   # unreadable: a person's broken edit — leave it alone
+    if old is None:
+        print(f"{bid}: angles.json is unreadable — not rewritten")
+        return {}
+    old_angles = [a for a in (old.get("angles") or []) if isinstance(a, dict) and a.get("angle")] if isinstance(old, dict) else []
+    key = lambda t: re.sub(r"\W+", " ", str(t or "").lower()).strip()
+    by_text = {key(a["angle"]): a for a in old_angles}
+    merged = [dict(by_text.get(key(a["angle"]), {}), **a) for a in out]
+    have = {key(a["angle"]) for a in merged}
+    merged += [a for a in old_angles if a.get("by") == "otto_copy" and key(a["angle"]) not in have]
+    if not out and old_angles:
+        merged = old_angles
+    data = dict(old if isinstance(old, dict) else {}, angles=merged[:12], formats=formats or (old or {}).get("formats") or {},
+                updated=today())
     (BRANDS / bid).mkdir(parents=True, exist_ok=True)
     (BRANDS / bid / "angles.json").write_text(json.dumps(data, ensure_ascii=False, indent=2) + "\n")
-    print(f"{bid}: {len(out)} angle(s), formats {formats or '—'} → angles.json")
+    print(f"{bid}: {len(out)} research angle(s), {len(data['angles'])} in the file, formats {formats or '—'} → angles.json")
     return data
 
 

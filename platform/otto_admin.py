@@ -55,6 +55,7 @@ from pathlib import Path
 import ap
 import otto_billing
 import otto_email
+import otto_metrics
 import otto_i18n
 import otto_paths
 import otto_stripe
@@ -66,10 +67,16 @@ ADMIN_HTML = HERE / "admin.html"
 LEAD_ROWS, LEAD_STATUSES = 300, ("new", "contacted", "won", "lost")
 WINDOWS = (7, 30, 90)
 PUBLIC_BASE = "/".join(otto_paths.BASE.split("/")[:3])           # scheme://host of OTTO_PUBLIC_BASE (otto_paths.BASE)
-LANDING_SECTIONS = ["top", "work", "story", "reads", "plans", "asks", "publishes", "reports", "replaces", "watch", "pricing", "faq", "final"]
-SECTION_LABELS = {"top": "Hero and scan", "work": "Pilot work", "story": "How it works", "reads": "Reads", "plans": "Plans",
-                  "asks": "Asks (review)", "publishes": "Publishes", "reports": "Reports", "replaces": "What Otto replaces",
-                  "watch": "Films", "pricing": "Pricing", "faq": "FAQ", "final": "Final call to action"}
+LANDING_SECTIONS = ["top", "story", "reads", "plans", "asks", "posts", "ads", "campaign", "reports", "agency", "launch", "next-level",
+                    "pricing", "faq", "final"]        # landing.html's <section id> / .chapter id, top to bottom (Oct 2026)
+SECTION_LABELS = {"top": "Hero and scan", "story": "Automate your marketing", "reads": "Reads", "plans": "Plans",
+                  "asks": "You approve (review)", "ads": "Ads Otto makes", "campaign": "A campaign Otto runs",
+                  "reports": "Daily 07:35 ads report", "posts": "Posts Otto makes", "agency": "Otto or an agency",
+                  "launch": "Launching a business", "next-level": "Next level (before and after)", "pricing": "Offer and price",
+                  "faq": "FAQ", "final": "Final call to action",
+                  # sections of the September page, still in older events
+                  "work": "Pilot work (old page)", "publishes": "Publishes (old page)", "replaces": "What Otto replaces (old page)",
+                  "watch": "Films (old page)"}
 # job, label, log file (next to data.json; the cron line appends stdout there), expected cadence in minutes
 CRON_JOBS = [("publish", "Publisher", "publish.log", 15), ("watch", "Guard and morning report", "watch.log", 60),
              ("telegram", "Approval cards", "telegram.log", 1440), ("visuals", "Visuals", "genvisuals.log", 1440),
@@ -330,6 +337,27 @@ def build_leads(vis, domains, customers, overlay, now):
 # brands (clients) health
 # ============================================================================================
 
+def _paid_numbers(d, bid, ym):
+    """Yesterday and the month so far in the 07:35 report's own numbers (otto_metrics.paid_day: spend, leads = Meta `lead`,
+    cost per lead = the lead campaigns' spend / their leads, sales, conversations started). Never raises."""
+    try:
+        return otto_metrics.console_view(((d.get("ads") or {}).get(bid) or {}).get("daily"), ym)
+    except Exception as e:                                   # noqa: BLE001 — one odd entry never takes the console down
+        return {"yesterday": None, "month": None, "error": f"{type(e).__name__}: {e}"[:160]}
+
+
+def _insights_state(d, bid):
+    """Is Otto getting the brand's organic numbers? Last account pull, its errors, the baseline window (otto_insights)."""
+    m = (d.get("metrics") or {}).get(bid)
+    m = m if isinstance(m, dict) else {}
+    acct = m.get("account") if isinstance(m.get("account"), dict) else {}
+    base = m.get("baseline") if isinstance(m.get("baseline"), dict) else None
+    daily = m.get("daily") if isinstance(m.get("daily"), dict) else {}
+    return {"pulled_at": acct.get("pulled_at"), "errors": (acct.get("errors") or [])[:4], "last_day": max(daily) if daily else None,
+            "followers": {k: (acct.get(k) or {}).get("followers") for k in ("ig", "fb") if acct.get(k)},
+            "baseline": {k: base.get(k) for k in ("since", "until", "final", "errors")} if base else None}
+
+
 def _month_overlap_days(start, end, ym):
     try:
         s, e = date.fromisoformat(start), date.fromisoformat(end)
@@ -503,6 +531,7 @@ def brand_health(d, sysinfo, customers, now):
             "compliance_holds": len(held_posts) + len(held_camps),
             "campaigns": {"total": len(camps), "live": cst["live"], "approved": cst["approved"], "draft": cst["draft"],
                           "failed": cst["failed"], "budget_month": round(budget, 2), "spend_month": round(spend, 2)},
+            "paid": _paid_numbers(d, bid, ym), "insights": _insights_state(d, bid),
             "campaign_list": [dict({k: c.get(k) for k in ("id", "name", "network", "status", "start", "end", "daily_budget",
                                                            "objective", "compliance_hold", "error")},
                                    currency=ap.currency_code(c.get("currency_code") or c.get("currency")) or brand_cur)
@@ -628,7 +657,8 @@ def _billing_setup(billing_meta, plans_cfg, legacy_n):
     sellable = [pid for pid in (plans_cfg.get("order") or []) if pid in plans_cfg["plans"] and plans_cfg["plans"][pid].get("public")
                 and plans_cfg["plans"][pid].get("monthly_eur") is not None]
     priced = {pid: [k for k in ("monthly", "yearly") if (plans_cfg["plans"][pid].get("stripe_price_ids") or {}).get(k)] for pid in sellable}
-    full = [pid for pid, ks in priced.items() if len(ks) == 2]
+    wanted = {pid: ["monthly"] + (["yearly"] if plans_cfg["plans"][pid].get("yearly_eur") is not None else []) for pid in sellable}
+    full = [pid for pid, ks in priced.items() if all(k in ks for k in wanted[pid])]       # Starter: monthly only (no yearly_eur)
     none = [pid for pid, ks in priced.items() if not ks]
     bad_prices = {k: v for k, v in (chk.get("prices") or {}).items() if v != "ok"}
     found = (plans_cfg["plans"].get("founding") or {}).get("stripe_price_ids") or {}
@@ -655,8 +685,9 @@ def _billing_setup(billing_meta, plans_cfg, legacy_n):
          "detail": (f"On sale: {', '.join(full) or 'none'}" + (f" · not on sale yet: {', '.join(none)}" if none else "")
                     + (f" · founding seat: {'on' if found.get('one_time') else 'off'}")
                     + (f" · problems: {'; '.join(f'{k} {v}' for k, v in list(bad_prices.items())[:3])}" if bad_prices else "") + checked),
-         "how": "Stripe → Product catalog: one product per plan (Starter, Growth, Scale, Agency), each with a monthly and a yearly EUR "
-                "price, tax behaviour exclusive. Put the price ids (price_…) into plans.json stripe_price_ids {monthly, yearly}; "
+         "how": "Stripe → Product catalog: one product per plan (Starter, Growth, Scale, Agency), each with a monthly EUR price (and a "
+                "yearly one where plans.json has yearly_eur; Starter is a monthly subscription only), tax behaviour exclusive. Put "
+                "the price ids (price_…) into plans.json stripe_price_ids {monthly, yearly}; "
                 "founding.stripe_price_ids.one_time switches the €197 seat on (off while null)."},
         {"key": "stripe_tax", "label": "Stripe Tax (EU VAT, reverse charge)",
          "status": "connected" if chk.get("tax") == "active" else "missing" if chk.get("at") else "waiting",
@@ -1565,7 +1596,9 @@ def sample_inputs(now):
             "studio-mira.example", "", "ferro-gym.example", "web.de", "", "bloom-and-root.example", "", "cantina-norte.example",
             "linden-apotheke.example"]                        # "" = linked to a sample brand below
     plans = dict(whop.PLANS)                                 # the legacy Whop founding seat (read-only list)
-    price_of = {"starter": (99, 990), "growth": (249, 2490)}
+    _pp = ap.plans_config()["plans"]                           # the sample bills what plans.json charges (Starter EUR 79 a month)
+    price_of = {pid: (_pp.get(pid, {}).get("monthly_eur") or m, _pp.get(pid, {}).get("yearly_eur"))
+                for pid, m in (("starter", 79), ("growth", 249))}
     customers, payments = {}, {}
     for i, name in enumerate(first):
         started = now - timedelta(days=int(85 * (1 - i / len(first)) ** 1.3) + 1, hours=R.randint(0, 20))
@@ -1588,7 +1621,7 @@ def sample_inputs(now):
             amount, n_pay, reason = 197, 1, "one_time"
         else:
             plan = "growth" if i % 3 == 2 else "starter"
-            year = i % 5 == 4
+            year = i % 5 == 4 and price_of[plan][1] is not None             # Starter is monthly only
             cid = f"sub_sample{i:03d}"
             amount = price_of[plan][1 if year else 0]
             status = {"completed": "active", "canceled": "canceled"}.get(st, st)
@@ -1679,17 +1712,16 @@ def sample_inputs(now):
                 events.append({"ts": ts, "e": "scan_start", "v": v, "s": s, "p": "/pilot-landing.html", "domain": dom})
                 events.append({"ts": ts, "e": "scan_result", "v": v, "s": s, "p": "/pilot-landing.html", "domain": dom, "ok": R.random() < 0.85})
             if depth > 0.55 and R.random() < 0.12:
-                where = R.choices(["pricing", "nav", "dock", "final", "menu"], [44, 22, 16, 12, 6])[0]
-                events.append({"ts": ts, "e": "cta", "v": v, "s": s, "p": "/pilot-landing.html", "id": f"get_started@{where}"})
+                where = R.choices(["top", "pricing", "nav", "dock", "final", "launch", "menu"], [30, 26, 16, 12, 8, 4, 4])[0]
+                events.append({"ts": ts, "e": "cta", "v": v, "s": s, "p": "/pilot-landing.html", "id": f"start_trial@{where}"})
             if depth > 0.3 and R.random() < 0.05:
                 events.append({"ts": ts, "e": "cta", "v": v, "s": s, "p": "/pilot-landing.html", "id": "scan_first@final"})
             if depth > 0.8 and R.random() < 0.3:
                 events.append({"ts": ts, "e": "faq_open", "v": v, "s": s, "p": "/pilot-landing.html",
-                               "q": R.choice(["does-anything-publish-without-my-approval", "how-is-this-different-from-a-scheduler-plus-chatgpt",
-                                              "will-the-content-actually-sound-like-my-brand", "what-if-im-not-around-to-approve",
-                                              "which-channels-and-languages", "what-do-i-need-to-bring", "what-happens-after-the-pilot"])})
-            if depth > 0.7 and R.random() < 0.08:
-                events.append({"ts": ts, "e": "video_play", "v": v, "s": s, "p": "/pilot-landing.html", "id": R.choice(["showreel", "explainer"])})
+                               "q": R.choice(["how-much-does-otto-cost", "whats-included-in-the-79", "what-happens-after-the-7-days",
+                                              "can-i-cancel-anytime", "does-anything-go-out-without-my-approval",
+                                              "will-the-ads-and-posts-sound-like-my-brand", "which-languages",
+                                              "how-is-this-different-from-a-scheduler-plus-chatgpt", "what-do-i-need-to-bring"])})
     events.sort(key=lambda e: e["ts"])
     # the paying sample customers who scanned first
     for i, dom in enumerate(["salt-and-sage.example", "hafen-physio.example", "atelier-kobalt.example"]):

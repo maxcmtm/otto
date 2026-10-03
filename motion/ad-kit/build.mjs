@@ -180,7 +180,7 @@ function main() {
   const clips = [];
   if (ad.style === "reel") {
     ad.__clipDur = ad.reel.cues.map((c) => {
-      if (!c.clip) return 2.0;
+      if (!c.clip) return c.dur || 2.0; // a silent cue (no voice clip): its own length, else 2 s
       const src = path.resolve(path.dirname(adPath), c.clip);
       const dur = parseFloat(execFileSync("ffprobe", ["-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", src], { encoding: "utf8" }));
       clips.push({ src, clip: c.clip });

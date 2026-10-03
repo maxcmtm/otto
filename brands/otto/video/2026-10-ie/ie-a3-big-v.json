@@ -13,32 +13,33 @@
     "ground": "primary"
   },
   "big": {
-    "hero": "review_ie",
+    "hero": "campaign",
     "phrases": [
       {
-        "big": "Your town.",
-        "rest": "Not California."
+        "big": "1 campaign",
+        "rest": "Ads for every angle."
       },
       {
-        "big": "Your words.",
-        "rest": "From your own website."
+        "big": "7:35",
+        "rest": "Spend, clicks, enquiries."
       },
       {
-        "big": "Your say-so.",
-        "rest": "Before anything goes out.",
-        "product": "review_ie"
+        "big": "1 tap",
+        "rest": "to approve or pause.",
+        "product": "report_ads"
       }
     ]
   },
   "endcard": {
-    "headline": "Sounds like your business.",
-    "accent": "your business.",
-    "sub": "Posts, reels and ads in Irish English.",
-    "fine": "Try it free for 7 days, no card needed.",
+    "headline": "Your ads, reported daily.",
+    "accent": "reported daily.",
+    "sub": "Every morning at 7:35.",
+    "fine": "7 days free, no card. Then €79 a month.",
     "products": [
-      "review_ie"
+      "campaign"
     ],
     "logo": "logo",
+    "legal": "Monthly plan, no contract, cancel anytime. Prices excl. VAT.",
     "ground": "bg"
   }
 }

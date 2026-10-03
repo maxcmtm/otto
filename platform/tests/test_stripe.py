@@ -31,7 +31,7 @@ CLEAR = ("OTTO_ADMIN_USERS", "OTTO_SINGLE_TENANT", "OTTO_PROXY_KEY", "OTTO_DOMAI
 PROXIED = {"X-Real-IP": "203.0.113.30"}
 ANSWERS = {"goal": "sales", "budget": "300_1000", "approvals": "email"}
 WH_NEW, WH_OLD = "whsec_new_test_secret_do_not_use", "whsec_old_test_secret_do_not_use"
-PRICES = {"starter": {"monthly": "price_starter_m", "yearly": "price_starter_y"},
+PRICES = {"starter": {"monthly": "price_starter_m"},                       # Starter: a monthly subscription, no yearly price
           "growth": {"monthly": "price_growth_m", "yearly": "price_growth_y"}}
 
 
@@ -275,11 +275,13 @@ class CheckoutTest(unittest.TestCase):
     def test_yearly_and_hosted_fallback(self):
         sid, bid = trial_brand()
         stripe_json(checkout_ui="hosted", publishable_key=None)
-        st, co = checkout(sid, "starter", "year")
+        st, out = checkout(sid, "starter", "year")
+        self.assertEqual((st, out["code"]), (409, "not_on_sale"), "Starter is monthly only")
+        st, co = checkout(sid, "growth", "year")
         self.assertEqual((st, co["ui"]), (200, "hosted"), co)
         self.assertTrue(co["url"].startswith("https://checkout.stripe.com/"))
         p = S["stripe"].last("POST", "/v1/checkout/sessions")["params"]
-        self.assertEqual(p["line_items[0][price]"], "price_starter_y")
+        self.assertEqual(p["line_items[0][price]"], "price_growth_y")
         self.assertNotIn("ui_mode", p)
         self.assertTrue(p["success_url"].startswith("https://app.otto.example/billing.html?session_id="))
         self.assertIn("canceled=1", p["cancel_url"])
@@ -292,7 +294,8 @@ class CheckoutTest(unittest.TestCase):
         self.assertEqual(checkout(sid, "growth", "week")[0], 400)
         st, me = req("GET", "/auth/me", sid=sid)
         offers = {o["plan"]: o for o in me["checkout"]}
-        self.assertEqual(offers["growth"]["checkout_url"], "https://app.otto.example/billing.html?plan=growth")
+        self.assertEqual(offers["starter"]["checkout_url"], "https://app.otto.example/billing.html?plan=starter")
+        self.assertNotIn("growth", offers, "a draft price (Growth) is never offered")
         self.assertTrue(me["payments"])
 
     def test_founding_seat_is_off_until_a_price_is_set(self):
@@ -347,7 +350,7 @@ class WebhookTest(unittest.TestCase):
         self.assertFalse(otto_stripe.verify(body, f"t=abc,v1={new_v1}", [WH_NEW])[0])
 
     def test_http_webhook_refuses_bad_signatures_and_replays(self):
-        evt = S["stripe"].event("invoice.paid", {"id": "in_orphan", "customer": "cus_x", "amount_paid": 9900, "currency": "eur"})
+        evt = S["stripe"].event("invoice.paid", {"id": "in_orphan", "customer": "cus_x", "amount_paid": 7900, "currency": "eur"})
         body = json.dumps(evt).encode()
         st, out = hook(None, WH_NEW, body=body)
         self.assertEqual((st, out.get("type")), (200, "invoice.paid"))
@@ -482,14 +485,15 @@ class AccountTest(unittest.TestCase):
         st, acc = req("GET", f"/billing/account?brand={self.bid}", sid=self.sid)
         self.assertEqual(st, 200, acc)
         sub = acc["subscription"]
-        self.assertEqual((sub["plan"], sub["label"], sub["interval"], sub["amount"], sub["status"]), ("starter", "Starter", "month", 99.0, "active"))
+        self.assertEqual((sub["plan"], sub["label"], sub["interval"], sub["amount"], sub["status"]), ("starter", "Starter", "month", 79.0, "active"))
         self.assertTrue(sub["renews"])
         self.assertEqual((acc["payment_method"]["brand"], acc["payment_method"]["last4"]), ("visa", "4242"))
         self.assertEqual(acc["tax_ids"][0]["value"], "NL123456789B01")
         self.assertTrue(acc["invoices"] and acc["invoices"][0]["pdf"].startswith("https://pay.stripe.com/"))
         self.assertEqual((acc["configured"], acc["publishable_key"], acc["portal"]), (True, "pk_test_otto_fake", False))
         self.assertNotIn(F.KEY, json.dumps(acc))
-        self.assertIn("growth", [o["plan"] for o in acc["offers"]])
+        self.assertIn("starter", [o["plan"] for o in acc["offers"]])
+        self.assertNotIn("growth", [o["plan"] for o in acc["offers"]], "Growth's price is a draft: not offered")
 
     def test_upgrade_now_prorated(self):
         st, out = req("POST", "/billing/change", {"brand": self.bid, "plan": "growth", "interval": "month"}, self.sid)
@@ -519,6 +523,12 @@ class AccountTest(unittest.TestCase):
         self.assertEqual(req("POST", "/billing/change", {"brand": self.bid, "plan": "growth", "interval": "month"}, self.sid)[1]["code"], "same_plan")
 
     def test_monthly_to_yearly_is_now_yearly_to_monthly_at_period_end(self):
+        st, out = req("POST", "/billing/change", {"brand": self.bid, "plan": "starter", "interval": "year"}, self.sid)
+        self.assertEqual((st, out["code"]), (409, "not_on_sale"), "Starter is a monthly subscription")
+        # the rule itself, on a plan that has a yearly price
+        plans = json.loads((TMP / "plans.json").read_text())
+        plans["plans"]["starter"].update(yearly_eur=790, stripe_price_ids={"monthly": "price_starter_m", "yearly": "price_starter_y"})
+        (TMP / "plans.json").write_text(json.dumps(plans, indent=1))
         st, out = req("POST", "/billing/change", {"brand": self.bid, "plan": "starter", "interval": "year"}, self.sid)
         self.assertEqual(out["when"], "now")
         st, out = req("POST", "/billing/change", {"brand": self.bid, "plan": "starter", "interval": "month"}, self.sid)

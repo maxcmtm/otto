@@ -28,14 +28,16 @@ day, success or not — a failure alerts and `otto run <job> --brand B` repeats 
 | `ads-report` | 07:15 brand | `otto_ads.py report --brand B [--no-send]` (yesterday's paid numbers for the 07:35 report; `--no-send` when the brand's Telegram report carries them) | each active brand |
 | `growth` | 05:10 owner | `otto_growth.py rollup` (+ `--send` on the owner's days 1–3; the month marker sends it once) | once |
 | `competitors` | Mon 06:00 brand | `otto_competitors.py sweep B [--country C]` | each active brand with a competitor list |
-| `insights` | Fri 06:00 brand | `otto_insights.py --brand B` | each active brand |
+| `insights` | Fri 06:00 brand | `otto_insights.py --brand B` (per-post numbers of the week, Page reach of the week, winners → "Double down" card) | each active brand |
+| `insights-daily` | 07:05 brand | `otto_insights.py daily --brand B` — Instagram account + Facebook Page numbers of the last 3 complete days (re-pulled: Meta lags up to 48 h) into `metrics[brand].daily`, followers, stories still alive (24 h), and at connect time the **baseline**: the 30 days before the brand joined Otto (`metrics[brand].baseline`). Metric names: "Meta numbers" below | each active brand with Meta credentials, on a plan with reports |
 | `plan-month` | 25th 06:00 brand | `otto_plan.py build B <the brand's next month>` | each active brand not planned yet |
-| `ads-plan` | 25th 06:15 brand | `otto_ads.py plan B <next month> [--budget N]` | each active brand not planned yet, with an ad budget |
+| `ads-plan` | 25th 06:15 brand | `otto_ads.py plan B <next month> [--budget N]` — then the copywriter writes the month's ad copy right away (`otto_copy.spawn_ads`: queued for `otto-copy-queue.service` on the server) | each active brand not planned yet, with an ad budget |
 | `whop-sync` | 02:20 UTC | `otto_whop.py backfill` | once, when api_key + company_id exist (LEGACY: the founding seats sold on Whop; Stripe needs no sync — its webhook is the source of truth) |
 | `track-prune` | 1st 04:00 UTC | `otto_track.py prune --days 400` | once |
 | `retention` | 04:40 owner | `otto_retention.py run` (client data 90 days after the plan ended, owner notices 14 and 3 days before, export first; exports after 30 days; leads after `OTTO_LEAD_RETENTION_DAYS`) | once (the kill switch does not stop it) |
 | `trials` | hourly :05 UTC | `otto_trial.py run` (free trials: a trial that ended without a card → plan `none`; the day-5 / day-7 / day-8 e-mails, once each; idle accounts without a brand after 90 days; a new trial's first week still unwritten 15 min after its kickoff is written inline, and cards the kickoff's background run left pending are rendered) | once (the kill switch does not stop it) |
-| `copy` | 05:30 brand | `otto_copy.py daily --brand B` — the AI copywriter (Claude API, `anthropic.json`): every draft slot in the next 7 days gets copy + its rendered card and goes to `pending_approval` before the 07:35 report; a post failing compliance / the no-invention guard twice stays a draft with an owner card. Without a key it does nothing (the console's Setup says so) | each active brand with organic content (`brands[].cron.off: ["copy"]` keeps a brand hand-written) |
+| `copy` | 05:30 brand | `otto_copy.py daily --brand B` — the AI copywriter (Claude API, `anthropic.json`): every draft slot in the next 7 days gets copy + its rendered card and goes to `pending_approval` before the 07:35 report; a post failing compliance / the no-invention guard twice stays a draft with an owner card. With paid ads it also fills the ad copy gaps (`angles.json`, this month's matrix, next month's once planned; held parts → owner card "Ad copy held for review"). Without a key it does nothing (the console's Setup says so) | each active brand with organic content (`brands[].cron.off: ["copy"]` keeps a brand hand-written) |
+| `ad-videos` | 19:15 brand | `otto_advideo.py daily --brand B` — the faceless **video ads**: every scripted video cell of this month's (and, once the 25th planned it, next month's) ad matrix becomes a 9:16 mp4 (+ 4:5 for the notes / texts styles) in the brand's look (colours, display font, logo, product cut-out / site photos) with the HyperFrames ad kit (`motion/ad-kit`), up to the plan's `video_ads_per_month` (Starter 10) in concept order: Meta's 9:16 safe zone checked, 9–30 s, ≤ 10 MB, poster jpg, unguessable public names, AI provenance when a placed picture is AI-made; the cell → `status: rendered` with `file` / `poster` / `render`, which the launch reads. Cached by the beats (new copy → rendered again). The copywriter already queues a month's videos right after it writes them (`<id>.<month>.videos` → `otto-copy-queue.service`); this is the nightly catch-up (failures after 6 h, copy a person fixed, stale videos), in the evening so the videos are in before the next 06:00 launch. One render at a time per server, 15 min per render, the run stops itself after 100 min; a cell failing in two runs → owner card "Video ads not rendering: <Brand>" | each active brand whose plan has video ads |
 
 "Active" = `brands[].status == "active"` (or no status); onboarding and paused brands (`brands[].paused` / status `paused`) are
 skipped and the heartbeat says why. A sign-up leaves "onboarding" when a running subscription is linked to it (a Stripe checkout
@@ -105,6 +107,8 @@ What "safe to re-run" really means per job:
 0 3 * * 1    cd /home/ubuntu/.openclaw/workspace-maximus/autopilot/platform && flock -n /tmp/otto-competitors-cmtm.lock python3 otto_competitors.py sweep cmtm --country IL >> competitors.log 2>&1
 # weekly insights + winners (Fri 06:00 IL)
 0 3 * * 5    cd /home/ubuntu/.openclaw/workspace-maximus/autopilot/platform && flock -n /tmp/otto-insights.lock python3 otto_insights.py >> insights.log 2>&1
+# daily Instagram account + Facebook Page numbers, stories, the 30-day baseline at connect (07:05 IL)
+5 4 * * *    cd /home/ubuntu/.openclaw/workspace-maximus/autopilot/platform && flock -n /tmp/otto-insights-daily.lock python3 otto_insights.py daily >> insights.log 2>&1
 # monthly plan for next month (25th, 06:00 IL) — one line per brand; $(date -d '+1 month' +%Y-%m)
 0 3 25 * *   cd /home/ubuntu/.openclaw/workspace-maximus/autopilot/platform && flock -n /tmp/otto-plan-happygarden.lock python3 otto_plan.py build happygarden $(date -d '+1 month' +\%Y-\%m) >> plan.log 2>&1
 0 3 25 * *   cd /home/ubuntu/.openclaw/workspace-maximus/autopilot/platform && flock -n /tmp/otto-plan-cmtm.lock python3 otto_plan.py build cmtm $(date -d '+1 month' +\%Y-\%m) >> plan.log 2>&1
@@ -113,9 +117,35 @@ What "safe to re-run" really means per job:
 15 3 25 * *  cd /home/ubuntu/.openclaw/workspace-maximus/autopilot/platform && flock -n /tmp/otto-ads-plan-cmtm.lock python3 otto_ads.py plan cmtm $(date -d '+1 month' +\%Y-\%m) --budget 30 >> ads.log 2>&1
 ```
 
-Copy for planned posts is written by the engine itself now (`otto_copy.py`, the `copy` job and the trial kickoff); an agent
-only reviews it and fixes what the copywriter held. Agent-side steps that are still not cron (they need the LLM): rewriting
-`edit_requests[]`, the ad matrix copy, completing the ad-library half of the competitor sweep, the Sunday weekly card.
+## Meta numbers (Graph API v26.0): what Otto asks for
+
+One version for everything (`otto_publish.GRAPH_VERSION`, env `GRAPH_API_VERSION`, default `v26.0`). The full map and the
+parsing live in `otto_metrics.py` (`python3 otto_metrics.py map`). A metric Meta refuses (error 100, "invalid metric") is
+dropped from the request and logged once (one `meta: Meta refused …` line in the job log), remembered 30 days in
+`.graph-metrics.json` next to data.json (`python3 otto_metrics.py refused`), and never fails the pull.
+
+| what | old (refused by Meta now) | new |
+|---|---|---|
+| Page reach (week) | `page_impressions_unique` (retired 15.11.2025) | `page_total_media_view_unique` period=week → `metrics[b].page_reach_week` |
+| Page views / reach (day) | `page_impressions`, `page_impressions_unique` | `page_media_view` → `fb.views`, `page_total_media_view_unique` → `fb.viewers` |
+| Page followers | `page_fans`, `page_fan_adds`, `page_fan_removes` | `page_follows` → `fb.followers`, `page_daily_follows` → `fb.follows`, `page_daily_unfollows_unique` → `fb.unfollows`; field `followers_count` → `metrics[b].followers` |
+| Page engagement | — | `page_post_engagements`, `page_total_actions`, `page_views_total` |
+| Facebook post reach | `post_impressions_unique` | `post_total_media_view_unique` → `reach`, `post_media_view` → `views`, `post_clicks` → `clicks` (+ reactions / comments / shares from the post's fields) |
+| Instagram account | not pulled before | `reach`, `views`, `accounts_engaged`, `total_interactions`, `likes`, `comments`, `shares`, `saves`, `replies`, `profile_links_taps`, `follows_and_unfollows` (breakdown `follow_type`) → `metrics[b].daily[day].ig`; `followers_count` → `metrics[b].account.ig.followers` |
+| Instagram account (retired) | `impressions` (21.04.2025), `profile_views`, `website_clicks`, `email_contacts`, `phone_call_clicks`, `get_directions_clicks` (v21, 08.01.2025) | `views`; `profile_links_taps`; website visits from Otto's own UTM tracking (`otto_track`) |
+| Instagram media | `impressions`, `plays`, `video_views` | feed: `reach`, `views`, `saved`, `likes`, `comments`, `shares`, `total_interactions`, `profile_visits`, `follows`; reel: + `ig_reels_avg_watch_time`, `ig_reels_video_view_total_time`; story (24 h only — pulled by `insights-daily` and once more at 20–24 h by the publish tick): `reach`, `views`, `replies`, `shares`, `total_interactions`, `follows`, `profile_visits` |
+| Ads | `actions` read at the API's own default | `use_unified_attribution_setting=true` (each ad set's setting = Ads Manager; Meta's default 7-day click + 1-day view — 7d_view / 28d_view stopped 12.01.2026); + `frequency`, `cpm`, `cost_per_action_type`; per campaign and, for yesterday, per ad (`ads[b].daily[d].meta.ads`, kept 14 days) |
+| Leads | first present of `lead` / `onsite_conversion.lead_grouped` / `offsite_conversion.fb_pixel_lead` (unchanged — never added) | + `leads_form` / `leads_website` split; cost per lead = the lead campaigns' spend / their leads (no longer mixed with sales or Google conversions in the 07:35 report); `onsite_conversion.messaging_conversation_started_7d` → `messages` per campaign and per ad |
+
+Limits to know: Pages need 100+ likes for insights; Meta keeps 2 years and serves ≤ 90 days per Page query; Instagram
+`follows_and_unfollows` needs 100+ followers; numbers settle after up to 48 h (the daily job re-pulls 3 days, the baseline
+is re-pulled once when it was taken inside that window). The 07:35 report and the owner console both count paid numbers
+with `otto_metrics.paid_day`.
+
+Copy for planned posts and the monthly ad copy (angles, the ad matrix, Google lines) are written by the engine itself now
+(`otto_copy.py`: the `copy` job, the trial kickoff, `ads-plan`); an agent only reviews them and fixes what the copywriter held.
+Agent-side steps that are still not cron (they need the LLM): rewriting `edit_requests[]`, completing the ad-library half of
+the competitor sweep, the Sunday weekly card.
 `otto-autopilot/SKILL.md` is the schedule for those.
 
 Telegram button handling is a long-running poller, not a cron. New server: `infra/systemd/otto-telegram.service` (system
@@ -133,6 +163,10 @@ RestartSec=5
 WantedBy=default.target
 ```
 Reels + ad statics need `ffmpeg`/`ffprobe` and a bold TTF (`apt install ffmpeg fonts-dejavu-core`; or set OTTO_FONT).
+Video ads (`otto_advideo.py`) also need Node ≥ 22 + npx (HyperFrames `hyperframes@0.8.91`, pinned in `motion/ad-kit/ship.mjs`),
+`python3-numpy` + `python3-scipy` (the kit's synthesized music) and a writable npm cache (`npm_config_cache`, never a
+root-owned `~/.npm`): `infra/bootstrap.sh` installs and warms all of it (`npx hyperframes browser ensure` as otto);
+`python3 otto_advideo.py check` says what this machine has.
 Hebrew/Arabic text: if this ffmpeg's drawtext lists `text_shaping` (`ffmpeg -h filter=drawtext`, Ubuntu builds with
 libfribidi do) Otto passes `text_shaping=1`; otherwise it pre-reorders RTL lines itself.
 

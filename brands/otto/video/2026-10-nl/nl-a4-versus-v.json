@@ -15,33 +15,35 @@
   "versus": {
     "vs": "vs",
     "left": {
-      "label": "On your own",
+      "label": "Boosted post",
       "rows": [
-        "Posting at 23:00",
-        "Guessing on ads",
-        "No time for reels"
+        "One photo",
+        "One angle",
+        "Hope for the best"
       ]
     },
     "right": {
-      "label": "With Otto",
-      "image": "month",
+      "label": "Otto's ads",
+      "image": "story_ad",
       "rows": [
-        "Month planned",
-        "Report at 07:35",
-        "Reels, ready"
+        "Designed ads",
+        "Angles tested",
+        "Report at 07:35"
       ]
     },
-    "footer": "You tap approve."
+    "footer": "You approve each one."
   },
   "endcard": {
-    "headline": "Your month, ready.",
-    "accent": "ready.",
-    "sub": "Posts, stories and reels, planned ahead.",
-    "fine": "Try it free for 7 days, no card needed.",
+    "headline": "Proper ads, not boosted posts.",
+    "accent": "Proper ads,",
+    "sub": "Designed, tested and reported by Otto.",
+    "fine": "Sample ads for demo brands.",
     "products": [
-      "month"
+      "ads_phone",
+      "story_ad"
     ],
     "logo": "logo_white",
+    "legal": "7 days free, then €79 a month. Monthly plan, no contract. Excl. VAT.",
     "ground": "night"
   }
 }

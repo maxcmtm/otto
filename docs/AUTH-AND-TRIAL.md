@@ -15,9 +15,9 @@ This is how it works, what is stored, and what Max has to set up (Google Cloud h
 3. **Account + trial.** The first sign-in creates the account (data.json `users[]`) and starts the trial clock: 7 days from that
    moment, no card. A returning sign-in finds the same account (by Google account id, else by e-mail).
 4. **Onboarding.** The first brand the account sets up runs on the **trial plan** until the trial ends: Starter's organic posts,
-   stories, reels, the monthly competitor sweep and reports all run for real (status "active"). Paid ads are planned and the ad
-   matrix is rendered so the client sees them, but no campaign launches (`ads_launch: false`), and video ads are capped at 3
-   previews.
+   stories, reels, the monthly competitor sweep and reports all run for real (status "active"). Paid ads are previewed: the
+   month's ad matrix is planned and written (below) so the client sees them, but no campaign launches (`ads_launch: false`),
+   and video ads are capped at 3 previews.
 
    **The first week, written for them.** Onboarding plans the trial's weeks on the spot (`otto_trial.kickoff`) and starts
    the AI copywriter in the background (`otto_copy.py week`, the request does not wait). Within minutes every post of the next
@@ -28,6 +28,20 @@ This is how it works, what is stored, and what Max has to set up (Google Cloud h
    one-tap Approve · Skip · Change. A post that still fails a check stays a draft for the Otto team (owner card "Copy held for
    review"), never in front of the client. Without an Anthropic key nothing is generated and the owner card "New trial: write
    the first week for X" is the manual fallback.
+   The client watches it honestly (`otto_progress` → `/otto-api/data` `brands[].work` + `posts[].work`): onboarding's last
+   step and the app say "Otto is writing your first week" with an n-of-N bar and an ETA only while a run really writes (the
+   app polls every ~10 s, backing off to 60 s), "Ready by 15:05" when the next automatic run will do it, and "The Otto team
+   is preparing your first week" — no spinner — when nothing automatic will (no key); then, once, "Your first week is ready
+   to review".
+
+   **Its ads, written too.** Right after the first week of posts (in the same background run: `otto_copy.finish_trial` →
+   `trial_ads`) the copywriter writes the ads the trial previews: the brand's ad concepts (`angles.json`, one per angle family
+   of Starter's micro matrix — pain, identity, enemy, offer — from the site, the strategy and the competitor list, each with
+   its headline, primary text and description), the trial month's ad matrix (planned on the spot when the month has none: 4
+   concepts × 5 styles) and every concept's and visual's copy — headlines, primary texts, the words on each image, the
+   faceless videos' beats — through the same compliance and no-invention checks as the posts (a part that still fails is
+   held for the Otto team: owner card "Ad copy held for review"). Nothing launches during the trial; once a card is on file,
+   the next paid plan (the 25th) plans the campaigns and the copywriter writes that month's copy the moment it is planned.
 5. **During the trial** the app shows one calm line: "N days left in your trial · Add a card". E-mails (to the Google address):
    - 2 days before the end: "2 days left in your Otto trial"
    - in the last 24 hours: "Your Otto trial ends today" (or "tomorrow", by the local clock)
@@ -107,7 +121,8 @@ and the UI hides the Google button.
   the trial → paid conversion rate, and the funnel visitors → scans → sign-ups → trials → paid.
 - The first week's copy: `brands[].kickoff = {done, at, months, planned, copy_needed, copy_try_at}`. `otto_copy` writes the posts
   (post.copy = `{by, model, at, attempts, state written | held | failed, render?}`), then `otto_trial.copy_done` clears
-  `copy_needed` and the owner card is marked done. The `trials` job catches up a week still unwritten 15 minutes after its
+  `copy_needed` and the owner card is marked done, and the trial month's ads are written (`otto_copy.trial_ads`:
+  `angles.json`, `ads-<month>.json` planned when missing, every concept and cell with `copy = {by: "otto_copy", …}`). The `trials` job catches up a week still unwritten 15 minutes after its
   kickoff (at most three brands an hour, inline: a systemd oneshot would kill a spawned child). Caps, the usage ledger
   (`copy-usage.json`) and every check are in the `platform/otto_copy.py` docstring; `otto_copy.py status` shows them.
 
@@ -159,7 +174,8 @@ the founding seats sold on Whop; there is no Whop checkout any more.
    model's safety classifier declines is retried on Anthropic's recommended fallback model), `"enabled"` (false switches it
    off without removing the key). Nothing to restart: every run reads the file.
 4. Check: `python3 /opt/otto/platform/otto_copy.py status` (key set, model, today's usage), then
-   `otto_copy.py week --brand <an existing brand> --dry` (what it would write; nothing is sent). The owner console's Setup shows
+   `otto_copy.py week --brand <an existing brand> --dry` and `otto_copy.py ads --brand <a brand with paid ads> --dry` (what it
+   would write; nothing is sent). The owner console's Setup shows
    "AI copywriter (Claude API)" connected, with today's calls, tokens and estimated spend against the caps.
 
 ### 4. Local development (optional)

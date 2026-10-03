@@ -92,12 +92,14 @@ the caller's own brands only (404 otherwise), JSON + an allowed Origin for POSTs
 5. **Invoices** (Settings → Billing → Invoices): invoice number prefix (e.g. `OTTO`), the company's legal details, VAT
    number and address in the footer, payment terms. Subscriptions create invoices automatically; the one-time founding seat
    creates one through Checkout (`invoice_creation`).
-6. **Products and prices** (Product catalog), EUR, recurring, tax behaviour exclusive — from `plans.json` (draft prices,
-   status "draft" until Max approves them; yearly = 10 × monthly):
+6. **Products and prices** (Product catalog), EUR, recurring, tax behaviour exclusive — from `plans.json` (yearly = 10 ×
+   monthly where a plan has a yearly price). Starter's price is **approved**: €79 a month, a **monthly subscription only**
+   (no yearly price: `yearly_eur` null, no `yearly` price id; Max, 2 Oct 2026, `"status": "approved"`). Every other price is
+   still `"status": "draft"` until Max approves it — create those in Stripe only once approved:
 
    | Product | Monthly | Yearly | plans.json |
    |---|---|---|---|
-   | Otto Starter | €99 | €990 | `starter.stripe_price_ids.monthly` / `.yearly` |
+   | Otto Starter (approved) | €79 | — (monthly only) | `starter.stripe_price_ids.monthly` |
    | Otto Growth | €249 | €2,490 | `growth.stripe_price_ids…` |
    | Otto Scale | €499 | €4,990 | `scale.stripe_price_ids…` |
    | Otto Agency (5 workspaces) | €499 | €4,990 | `agency.stripe_price_ids…` |
@@ -164,7 +166,7 @@ about **7.2 % + €0.26** conservatively, about 4.7 % + €0.26 for a domestic E
 
 | Payment | Stripe, EEA card | Stripe, SEPA / iDEAL | Stripe, premium card | Whop (≈7.2 % + €0.26) |
 |---|---|---|---|---|
-| Starter €99 / month | €2.92 (2.9 %) | €1.54 (1.6 %) | €4.21 (4.3 %) | €7.39 (7.5 %) |
+| Starter €79 / month | €2.38 (3.0 %) | €1.30 (1.6 %) | €3.41 (4.3 %) | €5.95 (7.5 %) |
 | Growth €249 / month | €6.97 (2.8 %) | €3.34 (1.3 %) | €10.21 (4.1 %) | €18.19 (7.3 %) |
 | Growth €2,490 / year | €67.48 (2.7 %) | €30.23 (1.2 %) | €99.85 (4.0 %) | €179.54 (7.2 %) |
 | €20,000 MRR (about 80 payments) | ≈ €560 / month | ≈ €270 | ≈ €820 | ≈ €1,460 |

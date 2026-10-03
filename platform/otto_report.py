@@ -23,6 +23,9 @@ Fresh numbers first (skipped with --no-refresh / --dry): when today's paid numbe
 `ads-report` job pulls them at 07:15) the report pulls them itself (otto_ads.report --no-send), and yesterday's published posts
 get their per-post numbers pulled from the Graph API (otto_insights.pull_post). Nothing is invented: a post without numbers
 says they follow tomorrow, a brand without an ad account is asked to connect one, an empty day says so in one line.
+Paid numbers are counted by otto_metrics.paid_day — the same function the owner console (otto_admin) uses: enquiries = Meta's
+`lead` results of the lead campaigns, cost per enquiry = those campaigns' spend / their leads (never mixed with sales or
+Google conversions), conversations started (onsite_conversion.messaging_conversation_started_7d) as their own line.
 The job: otto_cron `morning-report` (07:35 brand time, per brand). Stdlib only; data.json writes go through ap.transaction().
 """
 import contextlib, fcntl, json, os, re, secrets, sys
@@ -174,18 +177,10 @@ def _day_entry(daily, data_day):
 
 
 def _day_numbers(e):
-    """(spend, {kind: results}) for one ads.daily entry."""
-    spend, by = 0.0, {}
-    for net in ("meta", "google"):
-        y = ((e or {}).get(net) or {}).get("yesterday") or {}
-        spend += float(n0(y.get("spend")))
-        if net == "meta":
-            for k, v in (y.get("results_by_type") or {}).items():
-                if ap.num(v):
-                    by[k] = by.get(k, 0) + float(v)
-        elif ap.num(y.get("results")):
-            by["conversions"] = by.get("conversions", 0) + float(y["results"])
-    return spend, by
+    """(spend, {kind: results}) for one ads.daily entry — otto_metrics.paid_day, the numbers the owner console shows too."""
+    import otto_metrics
+    x = otto_metrics.paid_day(e)
+    return x["spend"], x["by"]
 
 
 def paid(d, b, today, yday, now):
@@ -205,14 +200,15 @@ def paid(d, b, today, yday, now):
     connected = bool(conns.get("meta") or conns.get("google")) or _creds(bid)
     if not isinstance(entry, dict):
         return {"state": "pending" if connected else "not_connected", "next": nxt}
+    import otto_metrics
     ym, yg = entry.get("meta") or {}, entry.get("google") or {}
-    tm, tg = ym.get("yesterday") or {}, yg.get("yesterday") or {}
-    spend, by = _day_numbers(entry)
+    tg = yg.get("yesterday") or {}
+    pd = otto_metrics.paid_day(entry)              # the same numbers the owner console shows (otto_admin)
+    spend, by = pd["spend"], pd["by"]
     cur = ym.get("currency") or yg.get("currency") or ap.brand_currency(d, bid)
     conv = {k: by[k] for k in RESULT_KINDS if by.get(k)}
     results = sum(conv.values())
     rows = [r for r in ym.get("campaigns") or [] if isinstance(r, dict)]
-    conv_spend = sum(float(n0(r.get("spend"))) for r in rows if r.get("conversion")) + float(n0(tg.get("spend")))
     if spend <= 0 and not results:
         return {"state": "idle", "next": nxt}
     kind = next((k for k in RESULT_KINDS if conv.get(k)), None)
@@ -260,8 +256,9 @@ def paid(d, b, today, yday, now):
                     planned += float(n0(c.get("daily_budget"))) * ((hi - lo).days + 1)
         month = {"spent": spent, "planned": planned} if planned > 0 else None
     return {"state": "ok", "spend": spend, "currency": cur, "results": results, "by": conv, "kind": kind,
-            "cost": round(conv_spend / results, 2) if results and conv_spend else None,
-            "link_clicks": int(n0(tm.get("link_clicks")) + n0(tg.get("clicks"))), "budget": budget or None,
+            "cost": pd["cost"].get(kind),           # this kind's own spend / its own results: never leads + sales mixed
+            "costs": pd["cost"], "messages": int(pd["messages"]),
+            "link_clicks": pd["link_clicks"], "budget": budget or None,
             "best": best_out, "chart": chart if sum(1 for x in chart if x["spend"] is not None) >= 3 else None,
             "avg7": avg7, "month": month, "networks": [n for n in ("meta", "google") if entry.get(n)], "next": nxt}
 
@@ -375,29 +372,37 @@ def n_waiting(m):
     return len(dc["posts"]), len(dc["plans"]) + len(dc["recs"])
 
 
-def summary(m):
-    """The opening lines — the ad's "Goedemorgen. Gisteren: € 18 aan advertenties, 4 aanvragen. 3 posts wachten op je."."""
+def summary_parts(m):
+    """The opening lines in their three parts: {"greeting", "yesterday" (what went out and what the ads did), "waiting"
+    (what waits for the client)}. summary() joins them; the app's Today (otto_dashboard) shows "yesterday" from this same
+    function, so the app and the 07:35 message never word or count yesterday differently."""
     t, p = m["t"], m["paid"]
-    parts = [t("report.greeting")]
+    yday = ""
     if p and p.get("state") == "ok":
-        parts.append(t("report.sum.paid", spend=t.money(p["spend"], p["currency"]), results=results_phrase(t, p["by"])))
+        yday = t("report.sum.paid", spend=t.money(p["spend"], p["currency"]), results=results_phrase(t, p["by"]))
     if m["yday"] and not (p and p.get("state") == "ok"):
         if m["organic"] and m["organic"]["reach"]:
-            parts.append(t("report.sum.organic_reach", n=len(m["yday"]), reach=t.num(m["organic"]["reach"])))
+            yday = t("report.sum.organic_reach", n=len(m["yday"]), reach=t.num(m["organic"]["reach"]))
         else:
-            parts.append(t("report.sum.organic", n=len(m["yday"])))
+            yday = t("report.sum.organic", n=len(m["yday"]))
     elif not m["yday"] and not (p and p.get("state") == "ok"):
-        parts.append(t("report.sum.starting") if not m["ever"] else t("report.sum.quiet"))
+        yday = t("report.sum.starting") if not m["ever"] else t("report.sum.quiet")
     posts, other = n_waiting(m)
     if posts and other:
-        parts.append(t("report.sum.both", posts=t("noun.post", n=posts), decisions=t("noun.decision", n=other)))
+        waiting = t("report.sum.both", posts=t("noun.post", n=posts), decisions=t("noun.decision", n=other))
     elif posts:
-        parts.append(t("report.sum.waiting", n=posts))
+        waiting = t("report.sum.waiting", n=posts)
     elif other:
-        parts.append(t("report.sum.decisions", n=other))
+        waiting = t("report.sum.decisions", n=other)
     else:
-        parts.append(t("report.sum.clear"))
-    return " ".join(parts)
+        waiting = t("report.sum.clear")
+    return {"greeting": t("report.greeting"), "yesterday": yday, "waiting": waiting}
+
+
+def summary(m):
+    """The opening lines — the ad's "Goedemorgen. Gisteren: € 18 aan advertenties, 4 aanvragen. 3 posts wachten op je."."""
+    s = summary_parts(m)
+    return " ".join(x for x in (s["greeting"], s["yesterday"], s["waiting"]) if x)
 
 
 def subject(m):
@@ -473,6 +478,8 @@ def paid_lines(t, p):
     if p.get("avg7") is not None:
         res.append(t("kpi.avg7", avg=t.num(p["avg7"], 0 if float(p["avg7"]).is_integer() else 1)))
     lines.append(" · ".join(res))
+    if p.get("messages"):
+        lines.append(t("report.messages", n=p["messages"]))
     if p.get("best"):
         lines.append(t("report.best_ad", name=p["best"]["name"], cost=cost_phrase(t, p["best"]["kind"], p["best"]["cost"], p["currency"])))
     if p.get("month"):

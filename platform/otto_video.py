@@ -4,13 +4,16 @@
   otto_video.py plan   <post-id> [--seconds 45]         # scene script from the post (Quill may write post.script first)
   otto_video.py render <post-id> [--dry] [--no-voice]    # scenes → images → voice-over → ffmpeg → assets/reels/<id>-<token>.mp4 → post.video
   otto_video.py demo   <out.mp4> [--voice]               # render a sample reel from existing post images (local check)
-  otto_video.py missing [--brand <id>]                   # ids of reel posts (draft/pending_approval) that have no video yet (cron loop)
+  otto_video.py missing [--brand <id>]                   # ids of reel posts (draft/pending_approval) that have no video yet and
+                                                         # whose words are written (hook, caption or script) — the cron loop
 
 A reel = 4–7 scenes. Each scene: one on-brand vertical image (Leonardo, brand palette), a slow
 Ken Burns move, a caption in the brand band (ffmpeg drawtext, same typography as the ad statics),
 optional voice-over (ElevenLabs, $OTTO_SECRETS/elevenlabs.json {api_key, voice_id}) and a music bed
 from assets/music/*.mp3 (royalty-free, optional). 1080×1920, 30 fps, H.264 + AAC, capped at 60 s.
 post.script = [{"text","seconds","visual"}] — if missing, `plan` derives it from hook + caption.
+A reel whose words are not written yet (no hook, no caption, no script: the copywriter has not reached it) is never rendered:
+`missing` leaves it out and `render` refuses it — a video made from the brand name alone would reach the client's Review.
 Scene images and voice clips are cached per scene under assets/reels/<post-id>/ keyed by a hash of the
 scene text (+ visual / voice), so editing one line of the script re-renders only that scene.
 The finished mp4 is copied to the public assets dir (otto_paths.publish) before post.video is set.
@@ -267,6 +270,22 @@ def assemble(scenes, vos, out_mp4, color, workdir):
     return out_mp4, total
 
 
+REEL_STATUSES = ("draft", "pending_approval")
+
+
+def written(p):
+    """The reel's words exist: a hook, a caption or a script with text (otto_progress counts the same as "written")."""
+    script = p.get("script")
+    has_script = isinstance(script, list) and any(isinstance(x, dict) and str(x.get("text") or "").strip() for x in script)
+    return bool(str(p.get("hook") or "").strip() or str(p.get("caption") or "").strip() or has_script)
+
+
+def missing(d, bid=None):
+    """Reel posts the 18:30 job renders: no video yet, still draft / pending approval, and written."""
+    return [p["id"] for p in d.get("posts", []) if isinstance(p, dict) and p.get("format") == "reel" and not p.get("video")
+            and p.get("status") in REEL_STATUSES and (not bid or p.get("brand") == bid) and written(p)]
+
+
 def _save_script(pid, script):
     with ap.transaction() as d:
         q = ap.post(d, pid)
@@ -279,6 +298,9 @@ def render(pid, dry=False, voice=True):
     p = ap.post(d, pid)
     assert p, f"unknown post {pid}"
     b = ap.brand(d, p["brand"]) or {}
+    if not written(p):
+        print(f"{pid}: not written yet (no hook, caption or script) — no reel is rendered until the copywriter has written it")
+        return None
     script = p.get("script") or plan_script(p, b)
     if dry:
         for i, sc in enumerate(script, 1):
@@ -343,9 +365,7 @@ if __name__ == "__main__":
         demo(a[1], voice="--voice" in a)
     elif cmd == "missing":
         bid = a[a.index("--brand") + 1] if "--brand" in a else None
-        for p in ap.load().get("posts", []):
-            if p.get("format") == "reel" and not p.get("video") and p.get("status") in ("draft", "pending_approval") \
-                    and (not bid or p.get("brand") == bid):
-                print(p["id"])
+        for pid in missing(ap.load(), bid):
+            print(pid)
     else:
         print(__doc__)

@@ -2,7 +2,15 @@
 """Otto dashboard action API. Localhost-only; nginx proxies /otto-api/ behind mm-check auth.
 
 GET  /otto-api/data                 -> data.json (live; a client gets client_view() of their own brands only); every brand
-                                       carries plan_view (ap.plan_view: its plans.json plan, what is included, usage)
+                                       carries plan_view (ap.plan_view: its plans.json plan, what is included, usage) and
+                                       work (otto_progress: what Otto is making right now — copy / images / reels, each
+                                       writing | queued | rendering | scheduled | waiting | done, counts, an ETA, the next
+                                       run), and every post still being made carries work {what, state, next_run?}; no cost,
+                                       token, model or ledger reason ever reaches a client (posts[].copy reaches a client as
+                                       {state} only, compliance_block not at all); every brand also carries today (the
+                                       07:35 report's model in English), ledger (this month's work + the connect checklist),
+                                       results (7 / 30 / 90 days against the period before) and ad_review (the month's ad
+                                       matrix for Review) — otto_dashboard, cut from that brand's own records
 POST /otto-api/action  {"kind":"post","id":"hg-001","status":"approved"}
 POST /otto-api/action  {"kind":"rec","id":"rec-002","status":"done"}
 POST /otto-api/decide  {"id":"hg-001","decision":"approve|skip|later","via":"dashboard"}   (taste log)
@@ -11,6 +19,9 @@ POST /otto-api/action  {"kind":"brand","id":"<brand>","approvals":"email|telegra
 POST /otto-api/action  {"kind":"brand","id":"<brand>","comms_lang":"en|nl|de"}   (the language of what Otto sends the brand:
                                        e-mails, the 07:35 report, one-tap pages, Telegram cards — otto_i18n; same tenant rule;
                                        both keys may come together)
+POST /otto-api/action  {"kind":"brand","id":"<brand>","connect_help":"meta|ad_account|google_ads"}   (the app's Connect sheet:
+                                       connecting from the app is not switched on yet, so the client asks Otto's team to link
+                                       it — brands[].connect_help[<what>] = {at, via} and one owner-only P0 card; same tenant rule)
 GET  /otto-email/act?t=<token>      -> PUBLIC one-tap page from an approval e-mail (otto_email): shows what the button will do,
                                        never acts (mail scanners prefetch links). No login — the signed, single-use, 72-hour token
                                        is the credential. Rate-limited per client (otto_email.rate_ok). Strict CSP (no script).
@@ -108,9 +119,11 @@ from pathlib import Path
 import ap  # same directory — reuse load/transaction
 import otto_admin
 import otto_auth
+import otto_dashboard
 import otto_email
 import otto_i18n
 import otto_onboard
+import otto_progress
 import otto_scan
 import otto_track
 import otto_trial
@@ -196,6 +209,18 @@ CLIENT_HIDDEN_BRAND_KEYS = ("members", "paused", "rescan", "plan_history", "plan
                             "retention_hold", "trial", "activated_by", "activated_at")
 HIDDEN_BRAND_KEY = re.compile(r"^retention|notice")      # every retention / notice field, whatever a later module names it
 CLIENT_DICT_KEYS = ("metrics", "ads", "competitors", "growth")
+CLIENT_HIDDEN_POST_KEYS = ("compliance_block",)            # which compliance rules held a post: the owner's, not the client's
+COPY_STATES = ("written", "held", "failed", "skipped")
+
+
+def client_post(p):
+    """A post as a client gets it: posts[].copy is the copywriter's ledger (model, attempts, held_for / error reasons, job)
+    — only its state reaches the client; the compliance hold's rule list never does."""
+    q = {k: v for k, v in p.items() if k not in CLIENT_HIDDEN_POST_KEYS}
+    if "copy" in q:
+        c = q["copy"] if isinstance(q["copy"], dict) else {}
+        q["copy"] = {"state": c["state"]} if c.get("state") in COPY_STATES else {}
+    return q
 
 
 def rec_visible(r, bids):
@@ -215,6 +240,7 @@ def client_view(d, bids):
                            **({"paused": True} if b.get("paused") else {})) for b in brands]}
     for k in CLIENT_LIST_KEYS:
         out[k] = [x for x in d.get(k) or [] if isinstance(x, dict) and x.get("brand") in bids]
+    out["posts"] = [client_post(p) for p in out["posts"]]
     for k in CLIENT_DICT_KEYS:
         v = d.get(k)
         out[k] = {b: x for b, x in v.items() if b in bids} if isinstance(v, dict) else {}
@@ -266,6 +292,18 @@ def with_plans(d, full=None):
             except Exception as e:                            # the app works without it
                 _log_error("/otto-api/data", 200, f"plan_view {b['id']}: {type(e).__name__}: {e}")
     return d
+
+
+def with_work(view, full=None):
+    """brands[].work + posts[].work (otto_progress): what Otto is making for each brand of the answer right now, so the app
+    shows real progress (and polls while something is being made). Never fails the request."""
+    return otto_progress.with_work(view, full=full, on_error=lambda why: _log_error("/otto-api/data", 200, why))
+
+
+def with_dashboard(view, full=None):
+    """brands[].today / ledger / results / ad_review (otto_dashboard): the 07:35 model, this month's work, Results and the
+    month's ads, each from that brand's own records. Never fails the request."""
+    return otto_dashboard.with_dashboard(view, full=full, on_error=lambda why: _log_error("/otto-api/data", 200, why))
 
 
 def owner_view(d):
@@ -381,24 +419,41 @@ def apply_decision(item_id, decision, via, bids=None):
     return ap.load()
 
 
-BRAND_SETTINGS = ("approvals", "comms_lang")
+BRAND_SETTINGS = ("approvals", "comms_lang", "connect_help")
+CONNECT_HELP = {"meta": "Instagram and Facebook", "ad_account": "the Meta ad account", "google_ads": "Google Ads"}
 
 
 def apply_brand(bid, req, bids=None):
     """A brand setting the client changes in the app's Settings: how approvals reach them (approvals) and the language of
-    what Otto sends them (comms_lang: en | nl | de, otto_i18n). Same tenant rule as apply_action: another brand's id is
-    "unknown" (404). Every value is validated before anything is written."""
+    what Otto sends them (comms_lang: en | nl | de, otto_i18n). connect_help (meta | ad_account | google_ads): the client asks
+    Otto's team to link that account (connecting from the app is not switched on yet) — kept on brands[].connect_help and
+    filed as one owner-only P0 card. Same tenant rule as apply_action: another brand's id is "unknown" (404). Every value is
+    validated before anything is written."""
     if not isinstance(bid, str) or not bid.strip():
         raise ValueError("id must be a string")
     if not any(k in req for k in BRAND_SETTINGS):
-        raise ValueError("nothing to change (approvals, comms_lang)")
+        raise ValueError("nothing to change (approvals, comms_lang, connect_help)")
     value = otto_email.normalize_approvals(req.get("approvals")) if "approvals" in req else None   # ValueError: not email / telegram / app
     lang = otto_i18n.normalize_comms_lang(req.get("comms_lang")) if "comms_lang" in req else None   # ValueError: not en / nl / de
+    help_ = req.get("connect_help") if "connect_help" in req else None
+    if "connect_help" in req and (not isinstance(help_, str) or help_ not in CONNECT_HELP):
+        raise ValueError("connect_help must be meta, ad_account or google_ads")
     lines = []
     with ap.transaction() as d:
         b = ap.brand(d, bid)
         if b is None or (bids is not None and bid not in bids):
             raise KeyError(bid)
+        if help_ is not None:
+            asked = dict(b["connect_help"]) if isinstance(b.get("connect_help"), dict) else {}
+            asked[help_] = {"at": ap.now_iso(), "via": "dashboard"}
+            b["connect_help"] = asked
+            what = CONNECT_HELP[help_]
+            ap.add_rec_once(d, "P0", f"{b.get('name') or bid} asks for help connecting {what}",
+                            f"Asked in the app. Connecting from the app is not switched on yet, so link {what} with them and "
+                            f"install the credentials ({'google' if help_ == 'google_ads' else 'meta'}-{bid}.json in otto-secrets); "
+                            "the app then shows it as connected by itself.", "Unblocks publishing and results", "Done",
+                            brand=bid, source="otto_api", audience="owner", internal=True)
+            lines.append(f"dashboard brand {bid} connect_help {help_}")
         if value is not None:
             before = otto_email.approvals_label(b)
             b["approvals"] = value
@@ -433,7 +488,9 @@ def _cached_peek(url):
 def peek_reason(err):
     """otto_scan's error → a few fixed words for the public page (never an internal address or a stack detail)."""
     e = str(err or "").lower()
-    for keys, why in ((("non-public", "local host", "scheme", "port", "credentials", "no host", "bad host", "too many redirects"),
+    for keys, why in ((("empty page",), "the page is empty: a parked domain or a site that is not built yet"),
+                      (("not a web page",), "the address is a file, not a web page"),
+                      (("non-public", "local host", "scheme", "port", "credentials", "no host", "bad host", "too many redirects"),
                        "the site redirects somewhere Otto does not read"),
                       (("dns", "no address", "name or service", "nodename"), "the domain does not resolve"),
                       (("deadline", "timed out", "timeout"), "the site took too long to answer"),
@@ -445,7 +502,25 @@ def peek_reason(err):
     return f"the site answered HTTP {m.group(1)}" if m else "the site could not be read"
 
 
+def peek_code(err):
+    """otto_scan's error → what the landing / onboarding can tell the visitor to do: "empty" (parked or unbuilt — check
+    the address), "blocked" (the site turns automated visitors away — continue, Otto asks for the basics), "file" (not a
+    web page), else "unreadable"."""
+    e = str(err or "").lower()
+    if "empty page" in e:
+        return "empty"
+    if "not a web page" in e:
+        return "file"
+    m = re.search(r"http (?:error )?(\d{3})", e)
+    if m and m.group(1) in ("401", "403", "406", "429", "451", "503"):
+        return "blocked"
+    return "unreadable"
+
+
 def peek(url, ip):
+    dom, free = otto_scan.email_site(url)
+    if dom:                                                   # "jan@bakkerij.nl": the site is bakkerij.nl (not gmail.com)
+        return 400, {"error": "that is an e-mail address", "code": "email", "site": None if free else dom}
     url = otto_scan.normalize_url(url)
     try:
         otto_scan.check_url(url)                              # syntax only: no DNS before the cache and the rate limit
@@ -453,6 +528,9 @@ def peek(url, ip):
         return 400, {"error": "unsupported or unsafe url"}
     if len(url) > 300:
         return 400, {"error": "unsupported or unsafe url"}
+    platform = otto_scan.platform_page(url)
+    if platform:                                              # instagram.com/name: a page on a shared host, not a site
+        return 400, {"error": "not your own website", "code": "platform_page", "platform": platform}
     now = time.time()
     with _peek_lock:
         hit = _peek_cache.get(url)
@@ -462,7 +540,7 @@ def peek(url, ip):
             return 429, {"error": "slow down"}
         _peek_last[ip] = now
         _prune_last(now)
-    st = otto_scan.host_status(url)                           # DNS: every address must be public
+    st, target = otto_scan.site_status(url)                   # DNS: every address must be public (www. twin if needed)
     if st == "not_found":
         return 404, {"error": "site not found"}
     if st != "ok":
@@ -470,11 +548,11 @@ def peek(url, ip):
     if not _peek_sem.acquire(timeout=2):
         return 503, {"error": "busy — try again in a few seconds"}
     try:
-        result = otto_scan.peek(url, deadline=time.time() + PEEK_DEADLINE)
+        result = otto_scan.peek(target, deadline=time.time() + PEEK_DEADLINE)
     finally:
         _peek_sem.release()
     if "error" in result:
-        return 502, {"error": "could not read the site", "detail": peek_reason(result["error"])}
+        return 502, {"error": "could not read the site", "detail": peek_reason(result["error"]), "code": peek_code(result["error"])}
     with _peek_lock:
         for k in [k for k, (ts, _) in _peek_cache.items() if now - ts >= PEEK_TTL]:
             _peek_cache.pop(k, None)
@@ -727,7 +805,7 @@ class Handler(BaseHTTPRequestHandler):
             except Ambiguous:
                 return self._no_user(ambiguous=True)
             if bids is None:
-                return self._send(200, with_plans(owner_view(ap.load())))
+                return self._send(200, with_dashboard(with_work(with_plans(owner_view(ap.load())))))
             if not bids:
                 return self._send(403, {"error": "no brand is linked to this login yet", "code": "no_brand",
                                         "onboarding": "/onboarding.html" if self._session() else None})
@@ -735,7 +813,7 @@ class Handler(BaseHTTPRequestHandler):
             if pw:
                 return self._send(402, pw)
             d = ap.load()
-            self._send(200, with_plans(client_view(d, bids), full=d))
+            self._send(200, with_dashboard(with_work(with_plans(client_view(d, bids), full=d), full=d), full=d))
         elif path == "/otto-api/admin/snapshot":
             if not self._admin_ok():
                 return self._not_admin()
@@ -834,8 +912,8 @@ class Handler(BaseHTTPRequestHandler):
                 data = apply_brand(req.get("id"), req, bids=bids)
             else:
                 data = apply_action(req.get("kind"), req.get("id"), req.get("status"), req.get("note"), bids=bids)
-            self._send(200, {"ok": True, "data": with_plans(owner_view(data)) if bids is None
-                             else with_plans(client_view(data, bids), full=data)})
+            self._send(200, {"ok": True, "data": with_dashboard(with_work(with_plans(owner_view(data)))) if bids is None
+                             else with_dashboard(with_work(with_plans(client_view(data, bids), full=data), full=data), full=data)})
         except ActionFailed as e:
             self._send(502, {"error": str(e), "saved": True})
         except KeyError as e:
@@ -916,6 +994,13 @@ class Handler(BaseHTTPRequestHandler):
                 self._measure("trial_start", obj["brand"])
             _log(f"onboard {obj['brand']} {'created' if obj['created'] else 'updated'}{' (public)' if public else ''}"
                  + (f" trial={'granted' if tr.get('granted') else tr.get('why')}" if tr else "") + f" ip={self._client_ip()}")
+            if sess:
+                try:                                          # onboarding's last step says when the first week is written
+                    w = otto_progress.copy_summary(obj["brand"])
+                    if w:
+                        obj["work"] = {"copy": w}
+                except Exception as e:
+                    _log_error("/otto-api/onboard", 200, f"work: {type(e).__name__}: {e}")
             if sess and obj.get("created"):
                 try:                                          # paid before the brand existed: link it now
                     linked = otto_trial.link_pending(sess["user"])

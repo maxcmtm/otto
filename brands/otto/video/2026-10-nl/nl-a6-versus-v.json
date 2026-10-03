@@ -1,0 +1,48 @@
+{
+  "id": "nl-a6-versus-v",
+  "style": "versus",
+  "formats": [
+    "9x16"
+  ],
+  "music": {
+    "bpm": 120,
+    "mood": "calm",
+    "key": "F"
+  },
+  "scene": {
+    "ground": "bg"
+  },
+  "versus": {
+    "vs": "vs",
+    "left": {
+      "label": "On your own",
+      "rows": [
+        "Posts at midnight",
+        "No time for reels",
+        "Ads? Later."
+      ]
+    },
+    "right": {
+      "label": "With Otto",
+      "image": "post_opening",
+      "rows": [
+        "Week one ready",
+        "Reels in 24 hours",
+        "Ads planned"
+      ]
+    },
+    "footer": "7 days free, no card."
+  },
+  "endcard": {
+    "headline": "Launching? Marketing's handled.",
+    "accent": "handled.",
+    "sub": "Try Otto free for 7 days. No card.",
+    "fine": "Then €79 a month.",
+    "products": [
+      "post_opening"
+    ],
+    "logo": "logo_white",
+    "legal": "Monthly plan, no contract, cancel anytime. Prices excl. VAT.",
+    "ground": "night"
+  }
+}

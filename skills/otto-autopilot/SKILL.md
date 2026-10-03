@@ -51,8 +51,10 @@ What the agent does (the same day, before anything else):
    next 7 days, step 8 visuals, step 9 into approvals, then `otto_trial.py copy-done <slug>` and resolve the card.
 4. Read a sample of the written week as the client will: voice, variety, nothing invented. Improve the profile / strategy
    (`(?)` items) when the copy shows a gap — the next run reads them.
-The trial plan previews paid ads (matrix planned and rendered) but never launches them; don't promise a live campaign
-before a card is on file. A trial that ends unpaid pauses itself (no action needed); its data is kept 90 days.
+The trial plan previews paid ads but never launches them; don't promise a live campaign before a card is on file. Right
+after the first week of posts the copywriter writes the trial month's ads too (`otto_copy.trial_ads`: `angles.json` built
+when missing, the month's micro matrix planned when there is none, every concept and cell written) — review them like the
+paid months (3b, "Ad copy"). A trial that ends unpaid pauses itself (no action needed); its data is kept 90 days.
 
 ## 1. Daily (every day, no owner action unless a card arrives)
 | when (IL) | what | how |
@@ -98,7 +100,7 @@ it is sent; a violating card is held and filed as a "Compliance hold" recommenda
 | 07:35 daily | Paid report: spend, results, CPL, CTR yesterday + 7d per network, best/worst campaign, one suggested action (as a card) | `otto_ads.py report` (cron) → `ads[brand].daily` + Telegram |
 | 06:00 daily | Launch approved flights whose start date is today (Meta: campaign → ad set → creative → ad, each id saved as it is created so a failed run resumes; Google: Search campaign via one mutate). Compliance check first — violations go on hold + a card | `otto_ads.py launch` (cron) |
 | 06:05 daily | Guard: ended flights paused; CPL 3 days above target → "Pause X?" card (auto-pause only if `ads[brand].auto_pause`) | `otto_ads.py guard` (cron) |
-| 25th monthly | Paid Gantt for next month: evergreen leads/traffic all month, two 5-day boosts of the best organic posts, Google Search on brand + category (skipped for restricted categories; Meta flights on compliance hold) | `otto_ads.py plan <brand> <month>` → drafts + the month's ad matrix skeleton (`ads-<month>.json`, Quill fills it) + ONE recommendation "Approve the paid plan ≈€X" (names the matrix size) |
+| 25th monthly | Paid Gantt for next month: evergreen leads/traffic all month, two 5-day boosts of the best organic posts, Google Search on brand + category (skipped for restricted categories; Meta flights on compliance hold) | `otto_ads.py plan <brand> <month>` → drafts + the month's ad matrix skeleton (`ads-<month>.json`; the copywriter writes its copy within minutes: `otto_copy.py ads`, queued) + ONE recommendation "Approve the paid plan ≈€X" (names the matrix size) |
 | on approval | ✅ on the "Approve the <month> paid plan" card runs `otto_ads.approve(<brand>, <month>)` in the Telegram poller; ✅ on a "Pause …" card pauses exactly the campaign stored on it. Nothing spends before this | automatic (poller) · `otto_ads.py approve` by hand |
 Credentials: `meta-<brand>.json` gains `ad_account_id`, `pixel_id`, `lead_form_id`; `google-<brand>.json` = OAuth client + refresh token + customer id.
 How flights are built: leads + `lead_form_id` → instant-form ads (one ad per static, CTA carries the form); leads without a form →
@@ -110,6 +112,26 @@ currency (a plan in another currency is refused). `brands[].special_ad_categorie
 pharma, supplements…) are planned on compliance hold; `otto_ads.py release <id>` after review, `otto_ads.py retry <id>` after a failure.
 Reporting counts Meta results per objective (leads / purchases / engagements) and link clicks separately; Google conversions
 are never added into the Meta number without a label.
+
+**Ad copy is automatic (since Oct 2026) — the agent reviews.** `otto_copy.py ads --brand <slug> [--month YYYY-MM]` (Claude
+API, same key / caps / ledger as the posts) writes every paid month: `angles.json` built when missing (one concept per angle
+family of the plan's preset, each with headline ≤40 / primary ≤125 first line / description ≤30 / proof, + Google RSA lines
+≤30 / ≤90 on plans with Google), then every concept and cell of `ads-<month>.json` that lacks copy — the concept's 1-2
+headlines, 2-3 primaries, description and Meta button; each image cell's on-visual copy; each faceless video's beats + end
+card (status "scripted" → motion's `from_matrix.py` makes the kit JSON); creator briefs (directions, never a testimonial) only
+on plans with creator briefs. It fills gaps only (a person's copy is never replaced), runs the same compliance + no-invention
+checks as posts plus verbatim reviews and no competitor / platform names, rewrites once, and holds the rest. Triggers: right
+after `otto_ads.py plan` / `matrix --plan`, after a trial's first week, and the 05:30 `copy` job (gaps; this month and next).
+What the agent does after each paid plan (the 25th) and each new trial:
+1. `otto_copy.py status` — the `ads:` line per brand (angles.json, cells written / needing copy, held) and the last ad run.
+2. Owner card **"Ad copy held for review: <Name>"** — the parts the checks kept out (the draft is in the item's
+   `"copy"."draft"` with its `"problems"`). Fix it into the live fields (`headlines` / `primaries` / the cell's `data`, or the
+   angle's `ad` in `angles.json`), drop the `"copy"` state "held", then `otto_creative.py matrix <slug> <month> --check`.
+3. Owner card **"Ad copy not written yet: <Name>"** = API error, refusal or a cap: it retries on its own; `otto_copy.py ads
+   --brand <slug> --month <month>` runs it now.
+4. Read the month as the client will (`matrix --check`, the plan card's preview): one message per concept, variety across
+   concepts, nothing invented, nothing a competitor would object to. Better concepts start in `strategy.json` /
+   `competitor-research.md` — the next month reads them.
 
 ## 3a. Formats, reels and ad creatives — agency-grade, competitor-informed
 - **Format mix** (`otto_plan.py`): carousels / statics / reels per brand from `brands[].format_mix`, else the industry default blended
@@ -124,7 +146,8 @@ are never added into the Meta number without a label.
   6 angles (pain, identity, enemy, experience, offer, moment) × 6 styles (real-creator UGC video, faceless video, product,
   comparison, native screenshot, proof / humor; + a price card on the offer angle), ≥50 % video, 1-2 headlines per angle —
   the Grüns standard (`research/GRUNS-AD-LIBRARY-2026-09.md`); 4 × 5 under ~€36/day. From `brands/<slug>/ads-<YYYY-MM>.json`.
-  `otto_ads.py plan` writes the skeleton; Quill fills it (otto-creative-engine, "Ad matrix"); `matrix --check` must pass. `otto_ads.py launch` builds one CBO campaign with **one ad set per angle**, each
+  `otto_ads.py plan` writes the skeleton; the copywriter fills it by itself (`otto_copy.py ads`, 3b "Ad copy"; it follows
+  Quill's otto-creative-engine "Ad matrix" rules); the agent reviews and `matrix --check` must pass. `otto_ads.py launch` builds one CBO campaign with **one ad set per angle**, each
   style its own ad. Until the matrix has ready cells the old path runs: angle bank (`angles.json` → profile winning angles
   → best hooks) × (static + 3-card carousel + reel) in ONE ad set with Meta dynamic creative. `otto_ads.py report` surfaces
   best/worst. Statics/cards are JPEG, text via ffmpeg drawtext (RTL right-aligned,

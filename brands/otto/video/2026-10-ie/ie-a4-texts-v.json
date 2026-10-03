@@ -17,38 +17,35 @@
     "name": "Otto",
     "initial": "O",
     "avatar": "brand",
-    "stamp": "Sample · Today 8:14 AM",
+    "stamp": "Sample · Monday 8:00 AM",
     "placeholder": "Message",
     "messages": [
       {
         "from": "them",
-        "text": "Morning. This week's posts are ready: 3 posts and a reel."
-      },
-      {
-        "from": "me",
-        "text": "On a job till 6"
+        "text": "Morning. Your new ads are ready: four images, two videos."
       },
       {
         "from": "them",
-        "text": "No rush. I'll remind you before the first one is due."
+        "photo": "ad_1"
       },
       {
         "from": "me",
-        "text": "All approved"
+        "text": "That one first"
       },
       {
         "from": "them",
-        "text": "Grand. The first one goes out Thursday at 12:00."
+        "text": "It runs from today. You'll see what it did at 7:35 tomorrow."
       }
     ]
   },
   "endcard": {
-    "headline": "You run it. Otto posts.",
-    "accent": "Otto posts.",
-    "sub": "Approve from your phone, when it suits you.",
-    "fine": "Try it free for 7 days, no card needed.",
+    "headline": "Ads, made for you.",
+    "accent": "made for you.",
+    "sub": "Designed, run and reported at 7:35.",
+    "fine": "Sample ad for a demo brand. 7 days free, no card.",
     "products": [
-      "review_ie"
+      "ads_phone",
+      "story_ad"
     ],
     "logo": "logo_white",
     "ground": "primary"

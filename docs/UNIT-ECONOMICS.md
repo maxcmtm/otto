@@ -4,7 +4,7 @@ Starter: €79 a month excluding VAT, monthly subscription. Per paying client pe
 
 | Cost | Estimate | Basis |
 |---|---|---|
-| Claude API (otto_copy): ~66 organic posts + 20 ad copies + rewrites | €2.5–4 | claude-opus-5-5 at $4 / $20 per million tokens in / out; ~4 posts per call, ~7k tokens in (mostly cached) and ~4k out per call. The owner console's "AI copywriter" row shows the real spend per day |
+| Claude API (otto_copy): ~66 organic posts + the month's ad copy (micro matrix: 4 concepts × 5 styles, angles, rewrites) | €2.5–4 | claude-opus-5-5 at $4 / $20 per million tokens in / out; posts: ~4 per call, ~7k tokens in (mostly cached) and ~4k out per call; ads: ~5–6 calls a month, ~12k cached + ~1k fresh in and ~3–4k out per call ≈ $0.5 a month. The owner console's "AI copywriter" row shows the real spend per day |
 | Post and ad images (statics) | €0 | otto_render HTML templates + the client's own site photos, on our server |
 | Video ads (10) and reels (4) rendering | €0 | HyperFrames / ffmpeg on our server |
 | Reel scene images (Leonardo, optional) | €2–5 | ~20 scene images a month; without a Leonardo key a reel reuses the post's cover |
@@ -16,7 +16,7 @@ Starter: €79 a month excluding VAT, monthly subscription. Per paying client pe
 
 Not Otto's cost: the client's ad budget (paid to Meta directly by the client) and VAT (added on top; reverse charge for EU businesses).
 
-A trial that does not convert costs about €0.5–1 (its first week of copy and images).
+A trial that does not convert costs about €1–1.5 (its first week of copy and images, and the ad copy of its month).
 
 Acquisition is the big number: at the launch budget (€100 a day) the plan expects about €30 per trial start; at 15–25% trial → paid
 that is €120–200 per paying client, paid back in about 2–3 months of margin. Real numbers come from the owner console (funnel,

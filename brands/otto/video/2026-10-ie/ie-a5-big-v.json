@@ -13,32 +13,33 @@
     "ground": "primary"
   },
   "big": {
-    "hero": "month",
+    "hero": "week",
     "phrases": [
       {
-        "big": "7 days",
-        "rest": "free."
+        "big": "Carousels.",
+        "rest": "Reels. Stories."
       },
       {
-        "big": "0 cards",
-        "rest": "needed."
+        "big": "Every week.",
+        "rest": "Made from your own website."
       },
       {
-        "big": "24 hours",
-        "rest": "to your first posts.",
-        "product": "review_ie"
+        "big": "1 tap",
+        "rest": "to approve each one.",
+        "product": "post_carousel"
       }
     ]
   },
   "endcard": {
-    "headline": "Try Otto for 7 days.",
-    "accent": "7 days.",
-    "sub": "Free, no card needed.",
-    "fine": "Nothing is charged automatically.",
+    "headline": "You run it. Otto posts.",
+    "accent": "Otto posts.",
+    "sub": "Posts, reels and stories, every week.",
+    "fine": "7 days free, no card. Then €79 a month.",
     "products": [
-      "month"
+      "week"
     ],
     "logo": "logo",
+    "legal": "Monthly plan, no contract, cancel anytime. Prices excl. VAT.",
     "ground": "bg"
   }
 }

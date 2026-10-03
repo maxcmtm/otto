@@ -15,33 +15,34 @@
   "versus": {
     "vs": "vs",
     "left": {
-      "label": "DIY",
+      "label": "Posting by hand",
       "rows": [
-        "Your evenings",
-        "Filming reels",
-        "Guessing"
+        "Same photo again",
+        "No time for reels",
+        "Posting at 11pm"
       ]
     },
     "right": {
-      "label": "Otto",
-      "image": "month",
+      "label": "With Otto",
+      "image": "post_reel",
       "rows": [
-        "Posts ready",
-        "Reels included",
-        "Report at 7:35"
+        "A planned mix",
+        "Reels every month",
+        "Posted on time"
       ]
     },
-    "footer": "7 days free, no card."
+    "footer": "You tap approve."
   },
   "endcard": {
-    "headline": "Try Otto free.",
-    "accent": "free.",
-    "sub": "7 days, no card.",
-    "fine": "Nothing is charged automatically.",
+    "headline": "Every week, planned.",
+    "accent": "planned.",
+    "sub": "Carousels, reels, stories, offers and how-tos.",
+    "fine": "7 days free, no card. Then €79 a month.",
     "products": [
-      "month"
+      "week"
     ],
     "logo": "logo_white",
+    "legal": "Monthly plan, no contract, cancel anytime. Prices excl. VAT.",
     "ground": "night"
   }
 }

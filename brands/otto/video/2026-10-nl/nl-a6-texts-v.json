@@ -17,36 +17,37 @@
     "name": "Otto",
     "initial": "O",
     "avatar": "brand",
-    "stamp": "Sample · 26 October",
+    "stamp": "Today 10:12",
     "placeholder": "Message",
     "messages": [
       {
-        "from": "them",
-        "text": "Your November is ready to review."
+        "from": "me",
+        "text": "What happens after the 7 days?"
       },
       {
         "from": "them",
-        "text": "Sinterklaas gift ideas, gift cards and your late opening hours are in."
+        "text": "Carry on for €79 a month and keep it all. Or stop, and nothing is charged."
       },
       {
         "from": "me",
-        "text": "Show me"
+        "text": "Is there a contract?"
       },
       {
         "from": "them",
-        "text": "Here's the plan. Tap approve or ask for a change."
+        "text": "No. It's monthly. Cancel anytime on your Billing page."
       }
     ]
   },
   "endcard": {
-    "headline": "Your busy season, planned.",
-    "accent": "planned.",
-    "sub": "You approve it all in advance.",
-    "fine": "Try it free for 7 days, no card needed.",
+    "headline": "7 days free.",
+    "accent": "free.",
+    "sub": "Then €79 a month. Cancel anytime.",
+    "fine": "No card needed.",
     "products": [
       "month"
     ],
     "logo": "logo_white",
+    "legal": "Monthly plan, no contract, cancel anytime. Prices excl. VAT.",
     "ground": "primary"
   }
 }

@@ -1,0 +1,211 @@
+[
+  {
+    "file": "01-snapleaf-mascots.webp",
+    "brand": "Snapleaf",
+    "category": "Greens gummies",
+    "style": "Playful mascots",
+    "headline": "Greens, but make it fun.",
+    "alt": "Three cartoon lime-green gummy mascots, one shouting into a megaphone, leap around an orange Snapleaf tub amid apple-lime splashes.",
+    "subline": "Chewy apple-lime gummies.",
+    "cta": "Try it",
+    "variants": {
+      "9x16": "01-snapleaf-mascots-9x16.webp"
+    }
+  },
+  {
+    "file": "02-hushroom-in-hand.webp",
+    "brand": "Hushroom",
+    "category": "Mushroom coffee",
+    "style": "Product in hand",
+    "headline": "Slow mornings start here.",
+    "alt": "A hand in a cream knit sleeve holds a sage-and-oat Hushroom mushroom coffee canister up to the camera in a sunlit kitchen.",
+    "subline": "Cocoa-smooth mushroom coffee. One scoop. One stir.",
+    "cta": "Try it",
+    "variants": {
+      "9x16": "02-hushroom-in-hand-9x16.webp",
+      "1.91x1": "02-hushroom-in-hand-1x191.webp"
+    }
+  },
+  {
+    "file": "03-aurive-bw-editorial.webp",
+    "brand": "Aurive",
+    "category": "Skincare serum",
+    "style": "Black-and-white editorial",
+    "headline": "Less, but better.",
+    "alt": "A black-and-white hand lifts the dropper of the only object in colour, a frosted Aurive serum bottle with a gold collar.",
+    "subline": "One serum for every morning.",
+    "cta": "Discover",
+    "variants": {
+      "9x16": "03-aurive-bw-editorial-9x16.webp"
+    }
+  },
+  {
+    "file": "04-korrel-counter.webp",
+    "brand": "Korrel Bakehouse",
+    "category": "Local bakery-café",
+    "style": "Local business · booking",
+    "headline": "Baked at 6. Gone by 10.",
+    "alt": "A rustic bakery counter piled with sourdough, baguettes and croissants around a Korrel Bakehouse paper bag in early-morning light.",
+    "subline": "Reserve your Saturday loaf.",
+    "cta": "Reserve now",
+    "variants": {
+      "9x16": "04-korrel-counter-9x16.webp"
+    }
+  },
+  {
+    "file": "05-snapleaf-diorama.webp",
+    "brand": "Snapleaf",
+    "category": "Greens gummies",
+    "style": "Miniature world",
+    "headline": "Welcome to Greensville.",
+    "alt": "A golden-hour miniature village of broccoli trees, pea hedges and gummy cottages with the Snapleaf tub on the hilltop like a castle.",
+    "subline": "Where greens taste like apple-lime.",
+    "cta": "Explore",
+    "variants": {
+      "9x16": "05-snapleaf-diorama-9x16.webp"
+    }
+  },
+  {
+    "file": "06-hushroom-story-ugc.webp",
+    "brand": "Hushroom",
+    "category": "Mushroom coffee",
+    "style": "Instagram story (UGC)",
+    "headline": "what's in your mug? 👀",
+    "alt": "A casual phone photo of an opened Hushroom canister, a mug of mushroom coffee and half-eaten toast, with an Instagram question sticker on top.",
+    "subline": "my new 7am ritual. tastes like cocoa.",
+    "cta": "See the blend",
+    "variants": {
+      "9x16": "06-hushroom-story-ugc-9x16.webp"
+    }
+  },
+  {
+    "file": "07-aurive-infographic.webp",
+    "brand": "Aurive",
+    "category": "Skincare serum",
+    "style": "Infographic callouts",
+    "headline": "Every detail, considered.",
+    "alt": "A clean infographic of the Aurive serum bottle with thin callout lines labelling the dropper, gold collar, frosted glass and serum texture.",
+    "subline": "Dropper, collar, frosted glass and texture, called out.",
+    "cta": "See the details",
+    "variants": {
+      "9x16": "07-aurive-infographic-9x16.webp"
+    }
+  },
+  {
+    "file": "08-korrel-lifestyle.webp",
+    "brand": "Korrel Bakehouse",
+    "category": "Local bakery-café",
+    "style": "Lifestyle",
+    "headline": "Sundays taste better here.",
+    "alt": "A candid Sunday brunch: friends' hands, cropped at the chin, share croissants, a cinnamon bun, sourdough and cappuccinos beside a Korrel bag.",
+    "subline": "Brunch at Korrel, from 8am.",
+    "cta": "Book a table",
+    "variants": {
+      "9x16": "08-korrel-lifestyle-9x16.webp"
+    }
+  },
+  {
+    "file": "09-snapleaf-macro.webp",
+    "brand": "Snapleaf",
+    "category": "Greens gummies",
+    "style": "Hyper-real macro",
+    "headline": "Not your usual greens.",
+    "alt": "A giant sugar-crusted lime-green gummy glows on a black mirror floor next to a small orange Snapleaf tub.",
+    "subline": "Apple-lime gummies you'll actually crave.",
+    "cta": "Shop now",
+    "variants": {
+      "9x16": "09-snapleaf-macro-9x16.webp"
+    }
+  },
+  {
+    "file": "10-hushroom-flatlay.webp",
+    "brand": "Hushroom",
+    "category": "Mushroom coffee",
+    "style": "Ingredient flat-lay",
+    "headline": "Nothing to hide.",
+    "alt": "A top-down flat-lay of the Hushroom canister and a mug surrounded by labelled coffee beans, cacao nibs, cinnamon, lion's mane and chaga.",
+    "subline": "Everything in your morning cup.",
+    "cta": "Shop the blend",
+    "variants": {
+      "9x16": "10-hushroom-flatlay-9x16.webp"
+    }
+  },
+  {
+    "file": "11-aurive-split.webp",
+    "brand": "Aurive",
+    "category": "Skincare serum",
+    "style": "Split comparison",
+    "headline": "Edit your shelf.",
+    "alt": "A split image: a crowded shelf of plain unbranded bottles on the left, a single Aurive serum on travertine on the right.",
+    "subline": "The usual way vs the Aurive way.",
+    "cta": "Shop now",
+    "variants": {
+      "9x16": "11-aurive-split-9x16.webp"
+    }
+  },
+  {
+    "file": "12-korrel-offer.webp",
+    "brand": "Korrel Bakehouse",
+    "category": "Local bakery-café",
+    "style": "Offer card",
+    "headline": "Coffee's on us.",
+    "alt": "A cream offer card reading \"Coffee's on us\" beside a Korrel paper bag, a sourdough loaf and a latte on a wooden counter.",
+    "subline": "Free filter coffee with any loaf, weekdays before 9am.",
+    "cta": "Visit today",
+    "variants": {
+      "9x16": "12-korrel-offer-9x16.webp"
+    }
+  },
+  {
+    "file": "13-snapleaf-offer.webp",
+    "brand": "Snapleaf",
+    "category": "Greens gummies",
+    "style": "Offer card",
+    "headline": "20% off your first box",
+    "alt": "A bold lime-green offer card with \"20% off your first box\" and a coupon code next to an open Snapleaf tub spilling gummies.",
+    "subline": "Code HELLO20 · Greens gummies, Apple Lime.",
+    "cta": "Order today",
+    "variants": {
+      "9x16": "13-snapleaf-offer-9x16.webp"
+    }
+  },
+  {
+    "file": "14-hushroom-papercraft.webp",
+    "brand": "Hushroom",
+    "category": "Mushroom coffee",
+    "style": "Paper-craft scene",
+    "headline": "Rise slow.",
+    "alt": "A cut-paper sunrise over sage and terracotta paper hills and paper mushrooms, with the Hushroom canister on a cardboard podium.",
+    "subline": "Cocoa-smooth mushroom coffee.",
+    "cta": "Shop now",
+    "variants": {
+      "9x16": "14-hushroom-papercraft-9x16.webp"
+    }
+  },
+  {
+    "file": "15-aurive-macro.webp",
+    "brand": "Aurive",
+    "category": "Skincare serum",
+    "style": "Hyper-real macro",
+    "headline": "One drop. That's the routine.",
+    "alt": "A macro shot of a single golden serum drop hanging from the Aurive glass pipette above the open frosted bottle.",
+    "subline": "Daily Serum No. 01",
+    "cta": "Shop now",
+    "variants": {
+      "9x16": "15-aurive-macro-9x16.webp"
+    }
+  },
+  {
+    "file": "16-korrel-in-hand.webp",
+    "brand": "Korrel Bakehouse",
+    "category": "Local bakery-café",
+    "style": "Product in hand",
+    "headline": "Worth every crumb.",
+    "alt": "A hand pulls open a golden butter croissant close to the camera, showing its flaky honeycomb layers, with a Korrel bag behind.",
+    "subline": "Butter croissants, baked every morning.",
+    "cta": "Order today",
+    "variants": {
+      "9x16": "16-korrel-in-hand-9x16.webp"
+    }
+  }
+]

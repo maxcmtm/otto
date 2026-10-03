@@ -15,33 +15,34 @@
   "versus": {
     "vs": "vs",
     "left": {
-      "label": "DIY reel",
+      "label": "By hand",
       "rows": [
-        "Film it",
-        "Edit it",
-        "Subtitle it"
+        "Planning at night",
+        "Writing captions",
+        "Posting late"
       ]
     },
     "right": {
-      "label": "Otto",
-      "image": "review_nl_en",
+      "label": "With Otto",
+      "image": "month",
       "rows": [
-        "From your site",
-        "Ready to go",
-        "You approve"
+        "Month planned",
+        "Captions written",
+        "Posted on time"
       ]
     },
-    "footer": "You tap. Otto does the rest."
+    "footer": "You tap approve."
   },
   "endcard": {
-    "headline": "Your website, as a reel.",
-    "accent": "as a reel.",
-    "sub": "Otto makes reels from what's already on your site.",
-    "fine": "Try it free for 7 days, no card needed.",
+    "headline": "Take your marketing to the next level.",
+    "accent": "the next level.",
+    "sub": "Posts, reels, stories and ads. You approve.",
+    "fine": "7 days free, no card. Then €79 a month.",
     "products": [
-      "review_nl_en"
+      "month"
     ],
     "logo": "logo_white",
+    "legal": "Monthly plan, no contract, cancel anytime. Prices excl. VAT.",
     "ground": "night"
   }
 }

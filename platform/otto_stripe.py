@@ -742,7 +742,8 @@ def _trial_end(d, bid, now=None):
 
 def offers(d=None, bid=None, current=None):
     """The plans the Billing page offers: plans.json trial.checkout_plans + every other public, priced plan, with what is on
-    sale per interval (a price id in stripe_price_ids)."""
+    sale per interval (a price id in stripe_price_ids). A plan whose price is still "draft" (not approved by Max) is left out,
+    unless it is the client's current plan — so neither the Billing page nor the public /billing/offers shows a draft price."""
     cfg = ap.plans_config()
     tp = cfg["plans"].get(ap.trial_plan_id() or "") or {}
     ids = list(tp.get("checkout_plans") or [x for x in ("starter", "growth") if x in cfg["plans"]])
@@ -752,9 +753,10 @@ def offers(d=None, bid=None, current=None):
         p = cfg["plans"].get(pid)
         if not p:
             continue
-        spi = p.get("stripe_price_ids") or {}
+        if p.get("status") == "draft" and not (current and current.get("plan") == pid):
+            continue                                          # a draft price is never offered (only the client's own plan shows)
         out.append({"plan": pid, "label": p["label"], "monthly_eur": p.get("monthly_eur"), "yearly_eur": p.get("yearly_eur"),
-                    "draft": p.get("status") == "draft", "month": bool(spi.get("monthly")), "year": bool(spi.get("yearly")),
+                    "draft": p.get("status") == "draft", "month": bool(ap.price_for(pid, "month")), "year": bool(ap.price_for(pid, "year")),
                     "current": bool(current and current.get("plan") == pid), "upgrade_to": p.get("upgrade_to")})
     return out
 

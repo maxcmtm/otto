@@ -1,6 +1,8 @@
-# Writes and designs the first week of every queued new trial (otto_copy.py queue), started by otto-copy-queue.path.
+# Writes and designs the first week of every queued new trial, writes the ad copy of every queued ad month and renders the
+# faceless video ads of every queued month (otto_copy.py queue → otto_advideo: node + npx HyperFrames + headless Chrome,
+# 40 min of renders per run, one render at a time per server), started by otto-copy-queue.path.
 [Unit]
-Description=Otto copywriter: first week of new trials
+Description=Otto copywriter: first week of new trials, ad copy of planned months, video ads
 Documentation=file:///opt/otto/infra/README.md
 After=network-online.target
 Wants=network-online.target
@@ -13,7 +15,7 @@ Group=otto
 EnvironmentFile=/etc/otto/otto.env
 WorkingDirectory=/opt/otto/platform
 ExecStart=/usr/bin/python3 /opt/otto/platform/otto_copy.py queue
-TimeoutStartSec=1h
+TimeoutStartSec=2h
 Nice=5
 # headless Chrome renders run here: the same sandbox as otto-job@.service
 PrivateTmp=yes

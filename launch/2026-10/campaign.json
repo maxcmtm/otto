@@ -1,5 +1,5 @@
 {
- "notes": "Otto's own Meta launch, October 2026: the machine-readable campaign spec that build.py turns into the Ads Manager bulk-import files. Human-readable version: README.md. Source of the rules: docs/GO-TO-MARKET-NL-IE.md §2 (budget, pacing, scaling), §3 (structure, audiences, exclusions), §5 (funnel, KPIs). Nothing here has been created in any Meta account.",
+ "notes": "Otto's own Meta launch, October 2026: the machine-readable campaign spec that build.py turns into the Ads Manager bulk-import files. Human-readable version: README.md. Concepts and copy follow docs/MESSAGE-2026-10.md (rebuilt 2 Oct, about half organic and half paid: automate your marketing + next level, agency prices vs €79 a month, the campaign and the 07:35 ads report, the ads Otto makes, you run it Otto posts, launching? 7 days free). Source of the rules: docs/GO-TO-MARKET-NL-IE.md §2 (budget, pacing, scaling), §3 (structure, audiences, exclusions), §5 (funnel, KPIs). Nothing here has been created in any Meta account.",
  "start": "2026-10-03",
  "test_end": "2026-11-01",
  "landing": "https://{DOMAIN}/",
@@ -23,22 +23,60 @@
   "campaign_daily": 50,
   "ad_set_min_daily_days_1_7": 4,
   "pacing": [
-   {"days": "1-7", "dates": "3-9 Oct", "rule": "€50/day per market on Advantage+ campaign budget, €4/day minimum per ad set so each of the six concepts gets a fair read. No edits for 72 hours after launch except disapprovals and broken tracking."},
-   {"days": "8-14", "dates": "10-16 Oct", "rule": "Remove the ad-set minimums; let the campaign budget move to the winners."},
-   {"days": "15-30", "dates": "17 Oct - 1 Nov", "rule": "The scaling rules apply (per market, judged on the last 7 days)."}
+   {
+    "days": "1-7",
+    "dates": "3-9 Oct",
+    "rule": "€50/day per market on Advantage+ campaign budget, €4/day minimum per ad set so each of the six concepts gets a fair read. No edits for 72 hours after launch except disapprovals and broken tracking."
+   },
+   {
+    "days": "8-14",
+    "dates": "10-16 Oct",
+    "rule": "Remove the ad-set minimums; let the campaign budget move to the winners."
+   },
+   {
+    "days": "15-30",
+    "dates": "17 Oct - 1 Nov",
+    "rule": "The scaling rules apply (per market, judged on the last 7 days)."
+   }
   ],
   "scaling": [
-   {"signal": "An ad: ≥ €10 spent and link CTR < 0.5 %, or ≥ €15 spent and 0 scans", "action": "Pause it; replace it in the Monday refresh"},
-   {"signal": "An ad set (concept): ≥ €50 spent and cost per scan result > €16 (2× target)", "action": "Pause it; its budget flows to the others; bring a new concept from the bank next Monday"},
-   {"signal": "Market: cost per paying customer ≤ €150 with ≥ 3 purchases (or ≤ €30 per trial start before purchases exist)", "action": "+20 % budget every 72 h, up to €150/day by day 30"},
-   {"signal": "Market: cost per paying customer €150-300", "action": "Hold budget; refresh creative"},
-   {"signal": "Market: > €300 per paying customer for 7 days, or €600 spent with 0 purchases", "action": "−30 % budget; review landing, offer and sign-up flow before spending more"},
-   {"signal": "One market's cost per paying customer (or per trial start) < 70 % of the other's", "action": "Move €10/day to it (floor €30/day per market so the other keeps learning)"}
+   {
+    "signal": "An ad: ≥ €10 spent and link CTR < 0.5 %, or ≥ €15 spent and 0 scans",
+    "action": "Pause it; replace it in the Monday refresh"
+   },
+   {
+    "signal": "An ad set (concept): ≥ €50 spent and cost per scan result > €16 (2× target)",
+    "action": "Pause it; its budget flows to the others; bring a new concept from the bank next Monday"
+   },
+   {
+    "signal": "Market: cost per paying customer ≤ €150 with ≥ 3 purchases (or ≤ €30 per trial start before purchases exist)",
+    "action": "+20 % budget every 72 h, up to €150/day by day 30"
+   },
+   {
+    "signal": "Market: cost per paying customer €150-300",
+    "action": "Hold budget; refresh creative"
+   },
+   {
+    "signal": "Market: > €300 per paying customer for 7 days, or €600 spent with 0 purchases",
+    "action": "−30 % budget; review landing, offer and sign-up flow before spending more"
+   },
+   {
+    "signal": "One market's cost per paying customer (or per trial start) < 70 % of the other's",
+    "action": "Move €10/day to it (floor €30/day per market so the other keeps learning)"
+   }
   ]
  },
  "markets": {
-  "nl": {"country": "NL", "campaign": "OTTO · NL · Launch · 2026-10", "matrix": "brands/otto/ads-2026-10-nl.json"},
-  "ie": {"country": "IE", "campaign": "OTTO · IE · Launch · 2026-10", "matrix": "brands/otto/ads-2026-10-ie.json"}
+  "nl": {
+   "country": "NL",
+   "campaign": "OTTO · NL · Launch · 2026-10",
+   "matrix": "brands/otto/ads-2026-10-nl.json"
+  },
+  "ie": {
+   "country": "IE",
+   "campaign": "OTTO · IE · Launch · 2026-10",
+   "matrix": "brands/otto/ads-2026-10-ie.json"
+  }
  },
  "audience": {
   "age_min": 25,
@@ -47,22 +85,35 @@
   "languages": "none (many Dutch owners run their phone in English)",
   "placements": "Advantage+ placements (all)",
   "suggestions": {
-   "nl": {"a1": "Restaurants, Coffeehouses, Hospitality industry, Small business owners",
-          "a2": "Shopify, E-commerce, Online shopping (business), Small business owners, Facebook page admins",
-          "a3": "Hairdresser, Beauty salon, Nail salon, Small business owners",
-          "a4": "Shopify, E-commerce, Small business owners, Facebook page admins",
-          "a5": "Shopify, E-commerce, Small business owners",
-          "a6": "Restaurants, Coffeehouses, Hospitality industry, Small business owners"},
-   "ie": {"a1": "Restaurants, Bed and breakfast, Hotels, Tourism",
-          "a2": "Plumbing, Construction, Electrician, Small business owners, Facebook page admins",
-          "a3": "Physical therapy, Dentistry, Small business owners",
-          "a4": "Plumbing, Construction, Electrician, Small business owners",
-          "a5": "Physical therapy, Dentistry, Small business owners",
-          "a6": "Restaurants, Bed and breakfast, Hotels, Tourism"}
+   "nl": {
+    "a1": "Small business owners, Facebook page admins, Shopify, E-commerce",
+    "a2": "Small business owners, Social media marketing, Digital marketing, Facebook page admins",
+    "a3": "Shopify, E-commerce, Online advertising, Small business owners",
+    "a4": "Shopify, E-commerce, Online advertising, Facebook page admins",
+    "a5": "Restaurants, Coffeehouses, Hairdresser, Beauty salon, Small business owners",
+    "a6": "Entrepreneurship, Small business owners, Restaurants, Coffeehouses"
+   },
+   "ie": {
+    "a1": "Small business owners, Facebook page admins, Plumbing, Electrician",
+    "a2": "Small business owners, Social media marketing, Digital marketing, Facebook page admins",
+    "a3": "Plumbing, Construction, Electrician, Online advertising, Small business owners",
+    "a4": "Restaurants, Bed and breakfast, Hotels, Online advertising",
+    "a5": "Restaurants, Bed and breakfast, Physical therapy, Dentistry, Small business owners",
+    "a6": "Entrepreneurship, Small business owners, Restaurants, Bed and breakfast"
+   }
   },
   "exclusions": [
    "Custom audience 'Otto · signed up · 180 days' (website, dataset event CompleteRegistration) — people who already started a trial",
    "Account-level: Otto's own team and pilot brands' page admins (Advertising settings → audience controls / excluded employers where available)"
   ]
- }
+ },
+ "concepts": {
+  "a1": "Automate your marketing (identity, cold; the umbrella + next level: organic and paid)",
+  "a2": "Stop paying agency prices (enemy, cold; sourced agency ranges vs €79 a month)",
+  "a3": "Your ads, reported at 07:35 / 7:35 (experience, warm; the campaign Otto runs + the daily ads report, Sample figures)",
+  "a4": "The ads Otto makes (pain, cold; sample ads for demo brands)",
+  "a5": "You run it, Otto posts (identity, cold; posts, reels and stories every week)",
+  "a6": "Launching? 7 days free (offer, hot, SIGN_UP; launch without the marketing worry, then €79 a month, monthly)"
+ },
+ "price_rule": "Ads name the price only as '€79 a month' (one public plan; never 'from €79'), a monthly plan: 'monthly, no contract, cancel anytime' and 'excl. VAT' where the format has room (end cards carry them on the legal line); never a yearly price. Agency figures only the sourced ranges (€500–1,500 a month just for posts; €1,000+ for posts and ads), never an agency's name. Sample figures (€18, 31 clicks, 4 enquiries, the per-angle spend) only on screens labelled Sample."
 }

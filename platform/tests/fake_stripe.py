@@ -12,7 +12,7 @@ Stdlib only; no network beyond 127.0.0.1.
 import http.server, itertools, json, threading, time, urllib.parse
 
 KEY = "sk_test_otto_fake_do_not_use"
-PRICES = {"price_starter_m": (9900, "month"), "price_starter_y": (99000, "year"), "price_growth_m": (24900, "month"),
+PRICES = {"price_starter_m": (7900, "month"), "price_starter_y": (79000, "year"), "price_growth_m": (24900, "month"),
           "price_growth_y": (249000, "year"), "price_founding": (19700, None)}
 
 

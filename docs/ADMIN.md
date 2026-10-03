@@ -96,7 +96,7 @@ status changes of the founding seats sold on Whop keep arriving; `otto_whop.PLAN
 | `.billing-ref-secret` | — | the key that signs our checkout references when `stripe.json` has no `ref_secret` (600, generated once) |
 | `leads.json` | `OTTO_LEADS` | lead status + notes from the console (600) |
 | `copy-usage.json` | `OTTO_COPY_LEDGER` | the AI copywriter's usage per UTC day and per brand (calls, tokens, cache, estimated USD) and each brand's last run — the daily caps are claimed here before every Claude API call; Setup → "AI copywriter" shows today's line (45 days kept) |
-| `copy.log` | — | the copywriter's output: the daily `copy` job and the trial kickoff's background runs (`otto_copy.py week`) |
+| `copy.log` | — | the copywriter's output: the daily `copy` job, the trial kickoff's background runs (`otto_copy.py week`) and the ad copy started when a month's ads are planned (`otto_copy.py ads`) |
 | `api-errors.log`, `scan.log`, `whop.log`, `stripe.log` | — | API 500s / refused webhooks / Stripe's own error messages (never a body), background re-scans, Whop syncs, Stripe setup checks |
 
 Billing and lead notes are deliberately **not** in `data.json`: the client app reads `data.json` and embeds it in `index.html`.

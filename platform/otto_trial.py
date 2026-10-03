@@ -252,12 +252,12 @@ def checkout_offers(email=None, t=None):
         p = cfg["plans"].get(pid)
         if not p:
             continue
-        spi = p.get("stripe_price_ids") or {}
-        on_sale = bool(spi.get("monthly") or spi.get("yearly"))
+        month, year = bool(ap.price_for(pid, "month")), bool(ap.price_for(pid, "year"))   # no yearly where yearly_eur is null
+        on_sale = month or year
         why = None if live and on_sale else "not_configured" if not live else "not_on_sale"
         out.append({"plan": pid, "label": p["label"], "monthly_eur": p.get("monthly_eur"), "yearly_eur": p.get("yearly_eur"),
                     "draft": p.get("status") == "draft", "lines": plan_lines(p, t), "on_sale": on_sale,
-                    "month": bool(spi.get("monthly")), "year": bool(spi.get("yearly")), "why": why,
+                    "month": month, "year": year, "why": why,
                     "checkout_url": billing_page(pid) if why is None else None})
     return out
 

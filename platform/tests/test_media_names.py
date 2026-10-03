@@ -183,6 +183,11 @@ class NamingTest(unittest.TestCase):
 class MigrationTest(unittest.TestCase):
     def setUp(self):
         reset()
+        # a media file a shipped page uses (the landing showed this reel until Oct 2026): pinned here, so the test does
+        # not depend on what the landing shows today
+        real = otto_paths._static_refs
+        otto_paths._static_refs = lambda: real() | {"assets/reels/hg-spectrum-guide.mp4"}
+        self.addCleanup(setattr, otto_paths, "_static_refs", real)
 
     def listing(self):
         return {r: sorted(str(p.relative_to(TMP / r)) for p in (TMP / r).rglob("*") if p.is_file()) for r in ("assets", "public")}

@@ -283,7 +283,8 @@ LANG_MARKERS = {"en": re.compile(r"\b(the|and|your|with|link in bio|learn more|t
 # ============================================================================================
 
 STEPS = ["scan", "onboard", "strategy", "competitors", "plan-dry", "plan", "copy", "visuals", "compliance", "tg-dry", "tg-cards",
-         "approvals", "publish-dry", "publish", "ads-plan", "ads-launch", "insights", "ads-report", "watch", "growth", "demo", "reels"]
+         "approvals", "publish-dry", "publish", "ads-plan", "ads-launch", "insights", "insights-daily", "ads-report", "watch", "growth",
+         "demo", "reels"]
 ORDER = {"PASS": 0, "SKIP": 1, "WARN": 2, "FAIL": 3}
 
 
@@ -560,6 +561,9 @@ class FakeMeta:
             obj = path.rsplit("/", 1)[0]
             vals = self.post_metrics.get(obj) or {}
             names = params.get("metric", "").split(",")
+            retired = [n for n in names if n.startswith(("page_impressions", "page_fans", "post_impressions")) or n == "impressions"]
+            if retired:                                  # what Meta answers since 15.11.2025 (otto_metrics drops them)
+                raise pub.GraphError("Graph 100: (#100) The value must be a valid insights metric", code=100)
             return {"data": [{"name": n, "values": [{"value": vals.get(n, 1200 if n.startswith("page_") else 0)}]} for n in names if n]}
         if method == "GET" and "followers_count" in params.get("fields", ""):
             return {"followers_count": 1500, "fan_count": 1400}
@@ -1384,7 +1388,8 @@ def step_insights(biz):
     for p in d["posts"]:
         if p.get("remote_id"):
             n = int(hashlib.md5(p["id"].encode()).hexdigest()[:4], 16) % 900 + 100
-            META.post_metrics[p["remote_id"]] = {"post_impressions_unique": n * 3, "post_clicks": n // 10, "reach": n * 3, "saved": n // 20,
+            META.post_metrics[p["remote_id"]] = {"post_total_media_view_unique": n * 3, "post_media_view": n * 4, "post_clicks": n // 10,
+                                                 "reach": n * 3, "views": n * 4, "saved": n // 20,
                                                  "likes": n // 5, "comments": 3, "shares": 2}
     for b in biz:
         slug = b["slug"]
@@ -1400,6 +1405,17 @@ def step_insights(biz):
             R.check(len(recs) <= 1, f"{len(recs)} 'double down' recs after two runs (duplicate)")
             withm = [p for p in posts_of(slug, d) if p.get("metrics") and "error" not in p["metrics"]]
             R.mark("PASS", f"{len(withm)} posts with metrics · metrics[{slug}] = {d.get('metrics', {}).get(slug)} · recs {len(recs)}")
+        with R.step(slug, "insights-daily"):
+            n0 = len(META.calls)
+            _, out, code = call(ins.daily, slug)
+            R.check(code == 0, f"insights daily exited {code}")
+            asked = ",".join(c["path"] for c in META.calls[n0:])
+            R.check(f"IG{slug}/insights" in asked and f"PG{slug}/insights" in asked, "daily asked neither Instagram nor the Page")
+            m = (data().get("metrics") or {}).get(slug) or {}
+            R.check(isinstance(m.get("baseline"), dict) and m["baseline"].get("days") == 30, f"no 30-day baseline: {m.get('baseline')}")
+            R.check(((m.get("account") or {}).get("ig") or {}).get("followers") == 1500, f"Instagram followers missing: {m.get('account')}")
+            R.check(not (m.get("account") or {}).get("errors"), f"account pull errors: {(m.get('account') or {}).get('errors')}")
+            R.mark("PASS", f"{len(m.get('daily') or {})} day(s) · baseline {m['baseline']['since']}…{m['baseline']['until']}")
 
 
 def step_ads_report(biz):

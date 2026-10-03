@@ -13,32 +13,33 @@
     "ground": "primary"
   },
   "big": {
-    "hero": "hero",
+    "hero": "campaign",
     "phrases": [
       {
-        "big": "07:35",
-        "rest": "every morning."
+        "big": "€500–1,500",
+        "rest": "a month at an agency. Just for posts."
       },
       {
-        "big": "1 message",
-        "rest": "what it cost, what came in."
+        "big": "€79",
+        "rest": "a month with Otto. Posts and ads."
       },
       {
         "big": "1 tap",
-        "rest": "to approve.",
-        "product": "hero"
+        "rest": "to approve each post.",
+        "product": "post_carousel"
       }
     ]
   },
   "endcard": {
-    "headline": "One message. Every morning.",
-    "accent": "Every morning.",
-    "sub": "Posts, reels and ads, made by Otto.",
-    "fine": "Try it free for 7 days, no card needed.",
+    "headline": "Without the agency invoice.",
+    "accent": "agency invoice.",
+    "sub": "Posts and ads for €79 a month.",
+    "fine": "Ad spend is paid to Meta directly.",
     "products": [
-      "pack"
+      "campaign"
     ],
     "logo": "logo",
+    "legal": "Monthly plan, no contract, cancel anytime. Prices excl. VAT.",
     "ground": "bg"
   }
 }

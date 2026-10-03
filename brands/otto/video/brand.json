@@ -34,7 +34,18 @@
     "review_ie": "otto-phone-review-ie-cutout.png",
     "logo": "../logo.svg",
     "logo_white": "../logo-white.svg",
-    "review_nl_en": "otto-phone-review-nl-en-cutout.png"
+    "review_nl_en": "otto-phone-review-nl-en-cutout.png",
+    "report_ads": "otto-phone-report-ads-cutout.png",
+    "week": "otto-phone-week-cutout.png",
+    "post_types": "otto-phones-post-types-cutout.png",
+    "post_carousel": "otto-phone-post-carousel-cutout.png",
+    "post_reel": "otto-phone-post-reel-cutout.png",
+    "post_opening": "otto-phone-post-opening-cutout.png",
+    "photo_carousel": "otto-post-carousel-sample.png",
+    "campaign": "otto-phone-campaign-cutout.png",
+    "ads_phone": "otto-phone-ads-cutout.png",
+    "ad_1": "otto-ad-1-sample.png",
+    "story_ad": "otto-phone-story-ad-cutout.png"
   },
   "legal": {}
 }

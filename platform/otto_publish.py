@@ -27,6 +27,8 @@ card check, and copy can change after approval): a violating post goes back to d
 Posts older than --grace minutes past their slot are marked failed ("missed slot") so the
 owner hears about it (otto_watch also alerts) instead of publishing at a random hour.
 Every post is handled in its own try/except and saved on its own. Dry run prints what would go out and touches nothing.
+After each tick (not --dry) Instagram stories 20–24 h old get their last numbers (otto_insights.stories): Meta keeps story
+insights for 24 h only. Read-only and never raises.
 Owner console (otto_admin): while controls.publishing_paused (the kill switch) is set nothing is published, and a paused brand
 (brands[].paused) is skipped; both are checked again right before the call that makes a post public.
 """
@@ -39,7 +41,10 @@ import otto_paths as paths
 
 HERE = Path(__file__).parent
 SECRETS = Path(os.environ.get("OTTO_SECRETS") or HERE.parent.parent / "otto-secrets")
-GRAPH = "https://graph.facebook.com/" + os.environ.get("GRAPH_API_VERSION", "v25.0")
+# One Graph API version for everything Otto asks Meta (publishing, insights, ads, CAPI): v26.0 (29.07.2026). Pinned on
+# purpose — a new version is a reviewed change (otto_metrics has the metric map), never picked up by accident.
+GRAPH_VERSION = os.environ.get("GRAPH_API_VERSION") or "v26.0"
+GRAPH = "https://graph.facebook.com/" + GRAPH_VERSION
 BASE = paths.BASE
 LOG = ap.DATA.parent / "publish.log"          # next to data.json (the workspace platform dir on the server)
 STUCK_AFTER_MIN = 10
@@ -49,9 +54,10 @@ class GraphError(Exception):
     """Meta answered with an error. definite=False when the answer was unreadable (5xx without a body):
     the call may or may not have taken effect."""
 
-    def __init__(self, msg, definite=True):
+    def __init__(self, msg, definite=True, code=None, subcode=None):
         super().__init__(msg)
         self.definite = definite
+        self.code, self.subcode = code, subcode          # Meta's error.code / error_subcode (100 = invalid parameter / metric)
 
 
 class Abort(Exception):
@@ -78,7 +84,7 @@ def graph(method, path, token, **params):
             raise GraphError(f"HTTP {e.code}", definite=e.code < 500)
     if "error" in out:
         err = out["error"]
-        raise GraphError(f"Graph {err.get('code')}: {err.get('message')}")
+        raise GraphError(f"Graph {err.get('code')}: {err.get('message')}", code=err.get("code"), subcode=err.get("error_subcode"))
     return out
 
 
@@ -359,6 +365,24 @@ def publish_one(p, slot, missed, dry, grace, base):
 
 
 def run(dry=False, bid=None, grace=180, base=BASE):
+    try:
+        _run(dry, bid, grace, base)
+    finally:
+        if not dry:
+            story_numbers(bid)
+
+
+def story_numbers(bid=None):
+    """Instagram stories 20–24 h old get their last numbers (otto_insights.stories): Meta keeps story insights for 24 h
+    only, and this tick runs every 15 min. Read-only, after the publishing (kill switch or not); never raises."""
+    try:
+        import otto_insights
+        otto_insights.stories(bid)
+    except Exception as e:                     # noqa: BLE001 — numbers never get in the way of publishing
+        print(f"story numbers: {type(e).__name__}: {str(e)[:120]}")
+
+
+def _run(dry, bid, grace, base):
     d = ap.load()
     stuck_alerts(d, dry)
     if ap.paused(d):                                  # owner console kill switch: nothing goes out, nothing is marked missed

@@ -53,6 +53,11 @@ Text on image: "[hook ≤6 words, brand language]" in [font vibe], high contrast
 ```
 
 ## Ad matrix — every Meta campaign, angles × styles (Quill fills it)
+**Automatic since Oct 2026:** `platform/otto_copy.py ads --brand <slug>` (the copywriter on the Claude API) writes this
+month's copy by these rules — `angles.json` when missing, every concept's headlines / primaries / description / cta, every
+cell's `data` (video beats included), creator briefs on plans that have them — right after `otto_ads.py plan`, after a
+trial's first week and in the daily `copy` job. Fill or fix by hand only what it held (owner card "Ad copy held for review",
+the draft in the item's `"copy"."draft"`); never overwrite copy a person wrote (its `"copy".by` is not `otto_copy`).
 **Rule (Max, 2026-09-29):** paid Facebook never runs one editorial static per angle. It runs many angles × many executions,
 image *and* video, the way Grüns does (`research/GRUNS-AD-LIBRARY-2026-09.md`: 823 ads, 32 angles, 59 styles; every serious
 angle in ~9.5 styles, 63 % video, 1-2 headlines reused over many visuals). The unit is `brands/<slug>/ads-<YYYY-MM>.json`

@@ -1,5 +1,5 @@
 {
-  "id": "ie-a2-texts-v",
+  "id": "nl-a3-texts-v",
   "style": "texts",
   "formats": [
     "9x16",
@@ -17,38 +17,38 @@
     "name": "Otto",
     "initial": "O",
     "avatar": "brand",
-    "stamp": "Sample · Today 7:35 AM",
+    "stamp": "Sample · Today 07:35",
     "placeholder": "Message",
     "messages": [
       {
         "from": "them",
-        "text": "Morning. Yesterday: €18 on ads, 4 enquiries."
+        "text": "Morning. €18 spent yesterday, 31 clicks, 4 enquiries."
       },
       {
         "from": "them",
-        "text": "Best ad: the boiler service reel."
+        "text": "Best ad: the lunch deal, with 2 enquiries."
       },
       {
         "from": "them",
-        "text": "2 posts for this week are ready. Want a look?"
+        "text": "Want me to pause the weakest one?"
       },
       {
         "from": "me",
-        "text": "Go on"
+        "text": "Yes, pause it"
       },
       {
         "from": "them",
-        "text": "Here they are. Tap approve or ask for a change."
+        "text": "Done. 3 posts are waiting for your tap too."
       }
     ]
   },
   "endcard": {
-    "headline": "Know by 7:35.",
-    "accent": "7:35",
-    "sub": "What it cost, what came in, what's waiting.",
-    "fine": "Sample message. You pay Meta directly for your ads.",
+    "headline": "Know by 07:35.",
+    "accent": "07:35.",
+    "sub": "Spend, clicks, enquiries. One message.",
+    "fine": "Sample message. Ad spend is paid to Meta directly.",
     "products": [
-      "pack"
+      "report_ads"
     ],
     "logo": "logo_white",
     "ground": "primary"

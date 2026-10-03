@@ -22,33 +22,35 @@
    "proof_humor"
   ],
   "min_styles_per_angle": 5,
-  "note": "October launch (3 Oct 2026): English ads in both markets; no creator cells (creator/UGC briefs are for real owners only and join later as their own cells), so the creator slot is left out and each concept runs 5 styles (6 cells: 3 faceless videos + 3 statics). No prices in ads until Max approves them: the offer is the free 7-day trial."
+  "note": "October launch (3 Oct 2026), rebuilt on 2 Oct around the message house (docs/MESSAGE-2026-10.md) and Max's two updates (show the paid ads and the campaign Otto runs; sell the whole marketing department, about half organic and half paid): English ads in both markets; no creator cells (real owners only, later), so each concept runs 6 cells, 3 faceless videos + 3 statics. The price only as '€79 a month' (one public plan, Max 2 Oct; never 'from €79') (a monthly plan: 'monthly, cancel anytime / no contract' and excl. VAT where there is room; never a yearly price); agency figures only the sourced ranges, never in the same sentence or field as the word agency.",
+  "min_video_share": 0.42,
+  "note_premium": "3 Oct 2026: one premium static per concept added on top of the six cells (generated scene + Otto's real app screens + type set by hand; files in launch/2026-10/creatives/<market>/premium/, cells '<market>-aN-premium', 'premium' = the finished 1:1 + 9:16, never re-rendered from a template). Requested as a stronger feed layer; it lowers the video share to 18 of 42 (43 %), so min_video_share is set to 0.42 here on purpose (the 18 faceless videos stay). Put it back to 0.5 when the premium cells are dropped or get motion versions."
  },
- "notes": "Otto's own launch matrix for the Netherlands, October 2026 (launch 3 Oct; docs/GO-TO-MARKET-NL-IE.md, launch/2026-10/). English copy for Dutch small businesses (owner's rule: English is the main language; the Dutch November matrix ads-2026-11-nl.json is kept only as an optional later test). Euro, Dutch places and dates (Haarlem, Sinterklaas, King's Day), 24-hour times (07:35). Offer: the free 7-day trial; no prices in ads. The Dutch-post phone (review_nl) appears only on concept a3, as the proof that Otto writes the client's posts in Dutch; every other phone shows English. No creator cells; 18 of 36 ads are video.",
+ "notes": "Otto's own launch matrix for the Netherlands, October 2026 (launch 3 Oct; launch/2026-10/). English copy for Dutch small businesses: euro, 24-hour times (07:35), the report 'in English, Dutch or German: your choice'. Concepts = the message-house pillars, about half organic and half paid: a1 automate your marketing + next level (the umbrella), a2 stop paying agency prices, a3 the campaign Otto runs and the daily ads report, a4 the ads Otto makes (sample ads for demo brands), a5 you run it, Otto posts (posts, reels and stories every week), a6 launching? 7 days free (launch without the marketing worry + the offer). Every figure on a screen is labelled Sample. 18 of 36 ads are video.",
  "angles": [
   {
    "id": "a1",
-   "name": "Reels without the filming",
-   "family": "pain",
-   "source": "competitor-research",
-   "angle": "Your website, as a reel: reels work, nobody has an evening to film, edit and subtitle them; Otto makes them from the site (COMPETITORS §6 concept 2)",
-   "persona": "p-nl-horeca",
+   "name": "Automate your marketing",
+   "family": "identity",
+   "source": "profile",
+   "angle": "Pillars 1 + 6 (docs/MESSAGE-2026-10.md), the umbrella: automate your marketing, the whole department — posts, reels and stories every week, ads every day, one report at 07:35; you approve with one tap. Take your marketing to the next level: from posting when you remember to a plan that runs every day.",
+   "persona": "p-nl-shop",
    "stage": "cold",
    "kinds": [
-    "objection",
     "benefit",
-    "audience"
+    "audience",
+    "objection"
    ],
    "headlines": [
-    "Reels, without the filming",
-    "Your website, as a reel"
+    "Automate your marketing",
+    "Take your marketing to the next level"
    ],
    "primaries": [
-    "You know reels work. You just don't have an evening to film and edit them. Otto makes them from your own website.",
-    "Your menu, your products, your opening hours: it's all on your website. Otto turns it into reels. No filming needed.",
-    "Try Otto free for 7 days: your first reels, made from your own site. Nothing goes live without your approval."
+    "Automate your marketing: posts, reels and stories every week, ads every day, one report at 07:35. You approve with one tap.",
+    "From posting when you remember to a plan that runs every day. Otto plans, writes, designs and posts. You run the business.",
+    "Your marketing department in one app: posts, reels, stories and ads. 7 days free, then €79 a month. Cancel anytime."
    ],
-   "description": "Posts, reels and ads by Otto",
+   "description": "Posts, reels, stories and ads",
    "cta": "LEARN_MORE",
    "ads": [
     {
@@ -67,26 +69,27 @@
      "data": {
       "note": {
        "meta": "Sunday, 21:40",
-       "title": "Things I've stopped doing for a reel",
+       "title": "Marketing jobs I've automated",
        "struck": [
-        "filming during the lunch rush",
-        "editing till midnight",
-        "typing subtitles"
+        "planning the month",
+        "writing every caption",
+        "posting at 23:00"
        ],
        "keep": "tapping approve"
       },
       "endcard": {
-       "headline": "Reels, without the filming.",
-       "accent": "without the filming.",
-       "sub": "Otto makes them from your own website.",
-       "fine": "Try it free for 7 days, no card needed.",
+       "headline": "Automate your marketing.",
+       "accent": "your marketing.",
+       "sub": "Otto plans, writes, designs and posts.",
+       "fine": "7 days free, no card. Then €79 a month.",
        "products": [
         "month"
        ],
-       "logo": "logo"
+       "logo": "logo",
+       "legal": "Monthly plan, no contract, cancel anytime. Prices excl. VAT."
       }
      },
-     "brief": "Faceless notes video: three reel chores struck on the beat, the last line kept.",
+     "brief": "Faceless notes video: three marketing chores struck on the beat, the one job left (approve) kept.",
      "added": "2026-10-03"
     },
     {
@@ -103,36 +106,37 @@
       "versus": {
        "vs": "vs",
        "left": {
-        "label": "DIY reel",
+        "label": "By hand",
         "rows": [
-         "Film it",
-         "Edit it",
-         "Subtitle it"
+         "Planning at night",
+         "Writing captions",
+         "Posting late"
         ]
        },
        "right": {
-        "label": "Otto",
-        "image": "review_nl_en",
+        "label": "With Otto",
+        "image": "month",
         "rows": [
-         "From your site",
-         "Ready to go",
-         "You approve"
+         "Month planned",
+         "Captions written",
+         "Posted on time"
         ]
        },
-       "footer": "You tap. Otto does the rest."
+       "footer": "You tap approve."
       },
       "endcard": {
-       "headline": "Your website, as a reel.",
-       "accent": "as a reel.",
-       "sub": "Otto makes reels from what's already on your site.",
-       "fine": "Try it free for 7 days, no card needed.",
+       "headline": "Take your marketing to the next level.",
+       "accent": "the next level.",
+       "sub": "Posts, reels, stories and ads. You approve.",
+       "fine": "7 days free, no card. Then €79 a month.",
        "products": [
-        "review_nl_en"
+        "month"
        ],
-       "logo": "logo_white"
+       "logo": "logo_white",
+       "legal": "Monthly plan, no contract, cancel anytime. Prices excl. VAT."
       }
      },
-     "brief": "Faceless versus video: making a reel yourself against Otto, three rows, fair.",
+     "brief": "Faceless versus video: doing the marketing by hand against Otto, three fair rows.",
      "added": "2026-10-03"
     },
     {
@@ -147,35 +151,36 @@
      },
      "data": {
       "big": {
-       "hero": "review_nl_en",
+       "hero": "month",
        "phrases": [
         {
-         "big": "0 evenings",
-         "rest": "spent filming."
+         "big": "Posts.",
+         "rest": "Every week."
         },
         {
-         "big": "0 hours",
-         "rest": "spent editing."
+         "big": "Ads.",
+         "rest": "Every day."
         },
         {
-         "big": "1 tap",
-         "rest": "to approve the reel.",
-         "product": "review_nl_en"
+         "big": "1 report",
+         "rest": "at 07:35, every morning.",
+         "product": "report_ads"
         }
        ]
       },
       "endcard": {
-       "headline": "Reels, without the filming.",
-       "accent": "without the filming.",
-       "sub": "Made from your own website.",
-       "fine": "Try it free for 7 days, no card needed.",
+       "headline": "Marketing, automated.",
+       "accent": "automated.",
+       "sub": "You run the business. Otto runs the marketing.",
+       "fine": "7 days free, no card. Then €79 a month.",
        "products": [
-        "review_nl_en"
+        "month"
        ],
-       "logo": "logo"
+       "logo": "logo",
+       "legal": "Monthly plan, no contract, cancel anytime. Prices excl. VAT."
       }
      },
-     "brief": "Faceless big video (motion version of the number card): no filming, no editing, one tap.",
+     "brief": "Faceless big video: the whole department in three hits — posts every week, ads every day, the morning report.",
      "added": "2026-10-03"
     },
     {
@@ -189,18 +194,37 @@
       "square"
      ],
      "data": {
-      "headline": "Your website, *as a reel*",
-      "photo": "otto-phone-review-nl-en-cutout.png",
+      "headline": "Automate your *marketing*",
+      "photo": "otto-phone-month-cutout.png",
       "callouts": [
-       "Made from your own site",
-       "Ready for your approval",
-       "Free for 7 days"
+       "Posts, reels and stories",
+       "Ads planned and run",
+       "A report at 07:35"
       ],
-      "kicker": "Reels by Otto",
+      "kicker": "Marketing by Otto",
       "theme": "light",
       "callout_style": "line"
      },
-     "brief": "The phone with a café post in Otto's Review screen, three callouts.",
+     "brief": "The month phone (the planned month, Sample), three callouts: organic, paid, the report.",
+     "added": "2026-10-03"
+    },
+    {
+     "id": "nl-a1-before",
+     "style": "before_after",
+     "slot": "comparison",
+     "format": "image",
+     "size": [
+      "feed",
+      "square"
+     ],
+     "data": {
+      "before": "Posting when you remember",
+      "after": "A plan that runs every day",
+      "before_label": "Before",
+      "after_label": "With Otto",
+      "kicker": "Next level"
+     },
+     "brief": "Before / after (pillar 6): the routine, not a result.",
      "added": "2026-10-03"
     },
     {
@@ -214,123 +238,160 @@
       "square"
      ],
      "data": {
-      "query": "how to make reels without",
+      "query": "how to automate social media",
       "mode": "autocomplete",
       "suggestions": [
-       "how to make reels without filming",
-       "how to make reels without showing your face",
-       "how to make reels without editing",
-       "how to make reels without experience"
+       "how to automate social media posts",
+       "how to automate social media for small business",
+       "how to automate social media marketing",
+       "how to automate social media and ads"
       ],
-      "headline": "Sound familiar? *Otto makes them for you.*",
+      "headline": "Looking for this? *Meet Otto.*",
       "theme": "light"
      },
-     "brief": "A generic search bar with what owners actually type.",
+     "brief": "A generic search bar with what owners type when they want it off their plate.",
      "added": "2026-10-03"
     },
     {
-     "id": "nl-a1-number",
-     "style": "big_number",
-     "slot": "proof_humor",
+     "id": "nl-a1-premium",
+     "style": "editorial",
+     "slot": "extra",
      "format": "image",
      "size": [
-      "feed",
+      "square",
       "story"
      ],
-     "data": {
-      "number": "24",
-      "suffix": "hours",
-      "label": "and your first posts and reels are ready, made from what's already on your website",
-      "kicker": "Free week",
-      "source": "Otto: 7 days free, no card needed",
-      "theme": "dark"
+     "premium": {
+      "1x1": "premium/automate-1x1.jpg",
+      "9x16": "premium/automate-9x16.jpg"
      },
-     "brief": "One proven number from the offer (pr3: first posts within 24 hours).",
+     "data": {
+      "headline": "Automate your marketing.",
+      "kicker": "Marketing by Otto",
+      "sub": "Posts, reels, stories and ads, made for you. You approve with one tap.",
+      "cta": "Try 7 days free",
+      "fine": "7 days free, no card. Then €79 a month."
+     },
+     "brief": "Premium top layer: an owner's hands (no face) hold a phone in a bakery-café; the phone shows Otto's real Review screen (a sample carousel). Condensed headline, cobalt CTA. Every word set by hand in the final composite (never by the image model); 1:1 + 9:16 (text inside the Stories safe zone).",
      "added": "2026-10-03"
     }
    ],
-   "ad_set": "NL · a1 · Reels without the filming"
+   "ad_set": "NL · a1 · Automate your marketing"
   },
   {
    "id": "a2",
-   "name": "The 07:35 message",
-   "family": "experience",
+   "name": "Stop paying agency prices",
+   "family": "enemy",
    "source": "competitor-research",
-   "angle": "The 07:35 message: one message every morning with what yesterday cost and what came in, and what waits for your tap; the report language is the owner's choice (COMPETITORS §6 concept 1)",
+   "angle": "Pillar 2: agency prices against Otto. Only the sourced ranges (research/EU-LAUNCH-AND-PRICING-2026-09.md §3.4, public 2026 price lists): agencies €500–1,500 a month just for posts, €1,000+ for posts and ads; Otto €79 a month excl. VAT, ad spend paid to Meta. Never an agency's name. The word agency and a euro figure never share a sentence or a field (brands/otto/compliance.json still blocks that pattern; see launch/2026-10/README.md §8).",
    "persona": "p-nl-shop",
-   "stage": "warm",
+   "stage": "cold",
    "kinds": [
-    "benefit",
-    "proof",
+    "competitor",
+    "offer",
     "objection"
    ],
    "headlines": [
-    "One message at 07:35",
-    "Know by 07:35 every morning"
+    "Stop paying agency prices",
+    "Your marketing team for €79 a month"
    ],
    "primaries": [
-    "Every morning at 07:35, Otto tells you what your ads cost yesterday, what they brought in and which posts are waiting.",
-    "A monthly PDF tells you too late. Otto sends one short message every morning at 07:35. Read it with your coffee.",
-    "Your 07:35 report comes in English, Dutch or German: your choice. If something drops, you know the next morning."
+    "€500–1,500 a month, just for posts. That's what a social media agency charges. Otto does posts and ads for €79 a month.",
+    "Paying an agency to post for you? Otto plans, writes, designs and posts, and runs your ads too. All for €79 a month.",
+    "Posts, reels, stories and ads, without the agency invoice. €79 a month, no contract, cancel anytime."
    ],
-   "description": "Your marketing, in one message",
+   "description": "€79 a month, excl. VAT",
    "cta": "LEARN_MORE",
    "ads": [
     {
-     "id": "nl-a2-texts-v",
-     "style": "text_message",
+     "id": "nl-a2-versus-v",
+     "style": "us_vs_them",
      "slot": "faceless",
      "format": "video",
-     "size": [
-      "story",
-      "feed"
-     ],
+     "size": "story",
      "video": {
-      "kit": "texts",
-      "data": "video/2026-10-nl/nl-a2-texts-v.json"
+      "kit": "versus",
+      "data": "video/2026-10-nl/nl-a2-versus-v.json"
      },
      "data": {
-      "thread": {
-       "name": "Otto",
-       "initial": "O",
-       "avatar": "brand",
-       "stamp": "Sample · Today 07:35",
-       "placeholder": "Message",
-       "messages": [
-        {
-         "from": "them",
-         "text": "Good morning. Yesterday: €18 on ads, 4 enquiries."
-        },
-        {
-         "from": "them",
-         "text": "Best ad: the reel about your new collection."
-        },
-        {
-         "from": "them",
-         "text": "3 posts for this week are ready. Want a look?"
-        },
-        {
-         "from": "me",
-         "text": "Yes, show me"
-        },
-        {
-         "from": "them",
-         "text": "Here they are. Tap approve or ask for a change."
-        }
-       ]
+      "versus": {
+       "vs": "vs",
+       "left": {
+        "label": "Agency",
+        "rows": [
+         "€500–1,500 a month",
+         "Posts only",
+         "A briefing first"
+        ]
+       },
+       "right": {
+        "label": "Otto",
+        "image": "campaign",
+        "rows": [
+         "€79 a month",
+         "Posts and ads",
+         "Ready in minutes"
+        ]
+       },
+       "footer": "You approve every post."
       },
       "endcard": {
-       "headline": "Know by 07:35.",
-       "accent": "07:35",
-       "sub": "What it cost, what came in, what's waiting.",
-       "fine": "Sample message. You pay Meta directly for your ads.",
+       "headline": "Stop paying agency prices.",
+       "accent": "agency prices.",
+       "sub": "Posts and ads for €79 a month.",
+       "fine": "Agency prices: public 2026 price lists.",
        "products": [
-        "pack"
+        "campaign"
+       ],
+       "logo": "logo_white",
+       "legal": "Monthly plan, no contract, cancel anytime. Prices excl. VAT."
+      }
+     },
+     "brief": "Faceless versus video: a social media agency against Otto, sourced price range only, no agency named.",
+     "added": "2026-10-03"
+    },
+    {
+     "id": "nl-a2-search-v",
+     "style": "search",
+     "slot": "native",
+     "format": "video",
+     "size": "story",
+     "video": {
+      "kit": "search",
+      "data": "video/2026-10-nl/nl-a2-search-v.json"
+     },
+     "data": {
+      "search": {
+       "placeholder": "Search",
+       "query": "social media agency price",
+       "suggestions": [
+        "social media agency price per month",
+        "social media agency price netherlands",
+        "social media agency price per post",
+        "social media agency price list"
+       ],
+       "pick": 3,
+       "result": {
+        "site": "Otto",
+        "url": "Marketing for small businesses",
+        "favicon": "o",
+        "title": "Posts and ads for €79 a month",
+        "snippet": "Otto plans, writes, designs and posts your social media and runs your ads. 7 days free, no card.",
+        "image": "campaign"
+       }
+      },
+      "endcard": {
+       "headline": "Your marketing team for €79 a month.",
+       "accent": "€79 a month.",
+       "sub": "Posts, reels, stories and ads, done for you.",
+       "fine": "7 days free, no card.",
+       "products": [
+        "campaign"
        ],
        "logo": "logo_white"
       }
      },
-     "brief": "Faceless chat video: Otto (brand avatar) sends the morning message, the owner replies. Figures marked as a sample.",
+     "brief": "Faceless search video: an owner looks up agency prices, Otto's listing is the answer.",
      "added": "2026-10-03"
     },
     {
@@ -345,73 +406,36 @@
      },
      "data": {
       "big": {
-       "hero": "hero",
+       "hero": "campaign",
        "phrases": [
         {
-         "big": "07:35",
-         "rest": "every morning."
+         "big": "€500–1,500",
+         "rest": "a month at an agency. Just for posts."
         },
         {
-         "big": "1 message",
-         "rest": "what it cost, what came in."
+         "big": "€79",
+         "rest": "a month with Otto. Posts and ads."
         },
         {
          "big": "1 tap",
-         "rest": "to approve.",
-         "product": "hero"
+         "rest": "to approve each post.",
+         "product": "post_carousel"
         }
        ]
       },
       "endcard": {
-       "headline": "One message. Every morning.",
-       "accent": "Every morning.",
-       "sub": "Posts, reels and ads, made by Otto.",
-       "fine": "Try it free for 7 days, no card needed.",
+       "headline": "Without the agency invoice.",
+       "accent": "agency invoice.",
+       "sub": "Posts and ads for €79 a month.",
+       "fine": "Ad spend is paid to Meta directly.",
        "products": [
-        "pack"
+        "campaign"
        ],
-       "logo": "logo"
+       "logo": "logo",
+       "legal": "Monthly plan, no contract, cancel anytime. Prices excl. VAT."
       }
      },
-     "brief": "Faceless big video: the report phone, three short lines on the beat.",
-     "added": "2026-10-03"
-    },
-    {
-     "id": "nl-a2-notes-v",
-     "style": "notes_app",
-     "slot": "faceless",
-     "format": "video",
-     "size": [
-      "story",
-      "feed"
-     ],
-     "video": {
-      "kit": "notes",
-      "data": "video/2026-10-nl/nl-a2-notes-v.json"
-     },
-     "data": {
-      "note": {
-       "meta": "Monday, 07:41",
-       "title": "Marketing jobs I've dropped",
-       "struck": [
-        "posting at 23:00",
-        "guessing what the ads did",
-        "reading a monthly PDF"
-       ],
-       "keep": "reading Otto's 07:35 message"
-      },
-      "endcard": {
-       "headline": "Know by 07:35.",
-       "accent": "07:35.",
-       "sub": "In English, Dutch or German: your choice.",
-       "fine": "Try it free for 7 days, no card needed.",
-       "products": [
-        "pack"
-       ],
-       "logo": "logo"
-      }
-     },
-     "brief": "Faceless notes video (motion version of the morning note): three chores struck, the 07:35 message kept.",
+     "brief": "Faceless big video: the sourced agency range, then Otto's price, then the approve tap.",
      "added": "2026-10-03"
     },
     {
@@ -424,56 +448,56 @@
       "square"
      ],
      "data": {
-      "title": "Monthly report or *morning message*?",
-      "kicker": "Reporting",
+      "title": "Agency or *Otto*?",
+      "kicker": "Your social media, per month",
       "columns": [
        {
-        "name": "Monthly report"
+        "name": "Agency"
        },
        {
-        "name": "Otto at 07:35",
+        "name": "Otto",
         "highlight": true
        }
       ],
       "rows": [
        {
-        "label": "How often",
+        "label": "Price a month",
         "values": [
-         "Once a month",
-         "Every morning"
+         "€500–1,500",
+         "€79"
         ]
        },
        {
         "label": "What you get",
         "values": [
-         "A long PDF",
-         "One short message"
+         "Posts",
+         "Posts, reels, stories, ads"
         ]
        },
        {
-        "label": "When something drops",
+        "label": "First week",
         "values": [
-         "Often next month",
-         "The next morning"
+         "After a briefing",
+         "Ready in minutes"
         ]
        },
        {
-        "label": "Who decides",
+        "label": "Who approves",
         "values": [
-         "You, later",
-         "You, now"
+         "You",
+         "You, with one tap"
         ]
        }
       ],
-      "footnote": "Otto: a report at 07:35, every morning.",
+      "footnote": "Agency prices: public 2026 price lists of social media agencies in the Netherlands and Ireland. Otto: excl. VAT, monthly, cancel anytime; ad spend is paid to Meta directly.",
       "theme": "light"
      },
-     "brief": "Table: the usual monthly report against the morning message. Fair, no prices.",
+     "brief": "Table: a social media agency against Otto per month, the sourced ranges and their source line.",
      "added": "2026-10-03"
     },
     {
-     "id": "nl-a2-macro",
-     "style": "macro_hero",
+     "id": "nl-a2-product",
+     "style": "product_hero",
      "slot": "product",
      "format": "image",
      "size": [
@@ -482,74 +506,97 @@
       "square"
      ],
      "data": {
-      "photo": "otto-phone-report-cutout.png",
-      "word": "*07:35*",
-      "sub": "What it cost, what came in.",
-      "kicker": "Morning report",
-      "crop": "bottom",
-      "theme": "light"
+      "headline": "Your marketing team for *€79 a month*",
+      "photo": "otto-phone-campaign-cutout.png",
+      "callouts": [
+       "Ads run per angle",
+       "Reported at 07:35",
+       "Posts, reels and stories"
+      ],
+      "kicker": "Instead of an agency",
+      "theme": "brand"
      },
-     "brief": "The report phone, huge, rising under one word: the time.",
+     "brief": "The campaign phone (one campaign, an ad set per angle, Sample), three callouts.",
      "added": "2026-10-03"
     },
     {
-     "id": "nl-a2-notes",
-     "style": "notes_app",
-     "slot": "native",
+     "id": "nl-a2-number",
+     "style": "big_number",
+     "slot": "proof_humor",
      "format": "image",
      "size": [
       "feed",
-      "story",
-      "square"
+      "story"
      ],
      "data": {
-      "title": "My morning",
-      "items": [
-       "07:30 coffee",
-       "07:35 read Otto's message",
-       "07:36 approve three posts",
-       "07:40 open the shop"
-      ],
-      "mode": "bullets",
-      "date_label": "Today at 07:41",
-      "footer": "Marketing: *done before eight*",
-      "headline": "This is what *07:35* looks like",
-      "theme": "light"
+      "number": "€79",
+      "suffix": "a month",
+      "kicker": "Monthly plan",
+      "label": "for your posts, reels, stories and ads. Planned, made and posted for you.",
+      "source": "Excl. VAT. Monthly, cancel anytime. Ad spend is paid to Meta directly.",
+      "theme": "dark"
      },
-     "brief": "A note in the owner's voice: the morning in four lines.",
+     "brief": "The price, set huge (one public plan: €79 a month, excl. VAT, monthly).",
+     "added": "2026-10-03"
+    },
+    {
+     "id": "nl-a2-premium",
+     "style": "editorial",
+     "slot": "extra",
+     "format": "image",
+     "size": [
+      "square",
+      "story"
+     ],
+     "premium": {
+      "1x1": "premium/agency-1x1.jpg",
+      "9x16": "premium/agency-9x16.jpg"
+     },
+     "data": {
+      "headline": "Stop paying agency prices.",
+      "sub": "Otto does your posts and ads for €79 a month.",
+      "cta": "Try 7 days free",
+      "tag": "€79 a month",
+      "tag_note": "posts, reels, stories and ads",
+      "left_label": "Social media agency",
+      "left_figure": "€500–1,500 a month",
+      "left_note": "just for posts",
+      "fine": "Agency prices: public 2026 price lists, NL/IE. Prices excl. VAT."
+     },
+     "brief": "Premium top layer: a towering stack of paperwork (the agency) vs one small paper tag reading €79 a month (Otto) on a cobalt backdrop; the sourced agency range as a callout, source line on the image. Every word set by hand in the final composite (never by the image model); 1:1 + 9:16 (text inside the Stories safe zone).",
      "added": "2026-10-03"
     }
    ],
-   "ad_set": "NL · a2 · The 07:35 message"
+   "ad_set": "NL · a2 · Stop paying agency prices"
   },
   {
    "id": "a3",
-   "name": "Local, not translated",
-   "family": "enemy",
+   "name": "Your ads, reported at 07:35",
+   "family": "experience",
    "source": "competitor-research",
-   "angle": "Local, not translated: Otto writes the owner's posts in natural Dutch (or English) for their town, against translated, generic copy (COMPETITORS §4 gap 2, §6 concept 3). The ad itself is English (owner's rule); the product claim is the client content language (landing FAQ).",
-   "persona": "p-nl-salon",
-   "stage": "cold",
+   "angle": "Pillar 4 + Max's 2 Oct update: the campaign Otto runs (one campaign, one ad set per angle, shown on the campaign phone; the copy says 'ads for every angle' because the engine treats 'ad set' as internal jargon) and the daily ads report: every morning at 07:35 one message with yesterday's spend, clicks and enquiries, today's schedule and what waits for approval; by e-mail, in Telegram or in the app. Every figure on a screen is labelled Sample.",
+   "persona": "p-nl-shop",
+   "stage": "warm",
    "kinds": [
-    "competitor",
-    "objection",
-    "audience"
+    "benefit",
+    "proof",
+    "objection"
    ],
    "headlines": [
-    "Dutch posts. Not translated.",
-    "Sounds like your business"
+    "Your ads report, every day at 07:35",
+    "Know what your ads did by 07:35"
    ],
    "primaries": [
-    "Your customers read Dutch, so your posts should sound Dutch, not like translated English. Otto writes them for your town.",
-    "‘We are super excited to share…’ Sound familiar? That's translated marketing. Otto writes the way you talk.",
-    "Otto reads your website, your prices and your reviews, then writes posts that sound like you, in Dutch or English."
+    "Every morning at 07:35: what your ads cost yesterday and what they brought in. Spend, clicks, enquiries. One message.",
+    "One campaign, ads for every angle, and one message at 07:35 that says which one works. Approve, pause, done.",
+    "Your 07:35 report comes by e-mail, in Telegram or in the app. In English, Dutch or German: your choice."
    ],
-   "description": "For shops, cafés and salons",
+   "description": "One report, every morning",
    "cta": "LEARN_MORE",
    "ads": [
     {
-     "id": "nl-a3-notes-v",
-     "style": "notes_app",
+     "id": "nl-a3-texts-v",
+     "style": "text_message",
      "slot": "faceless",
      "format": "video",
      "size": [
@@ -557,78 +604,51 @@
       "feed"
      ],
      "video": {
-      "kit": "notes",
-      "data": "video/2026-10-nl/nl-a3-notes-v.json"
+      "kit": "texts",
+      "data": "video/2026-10-nl/nl-a3-texts-v.json"
      },
      "data": {
-      "note": {
-       "meta": "Tuesday, 22:15",
-       "title": "Words my customers never use",
-       "struck": [
-        "super excited",
-        "next level",
-        "awesome deals"
-       ],
-       "keep": "just: new in, from Saturday"
+      "thread": {
+       "name": "Otto",
+       "initial": "O",
+       "avatar": "brand",
+       "stamp": "Sample · Today 07:35",
+       "placeholder": "Message",
+       "messages": [
+        {
+         "from": "them",
+         "text": "Morning. €18 spent yesterday, 31 clicks, 4 enquiries."
+        },
+        {
+         "from": "them",
+         "text": "Best ad: the lunch deal, with 2 enquiries."
+        },
+        {
+         "from": "them",
+         "text": "Want me to pause the weakest one?"
+        },
+        {
+         "from": "me",
+         "text": "Yes, pause it"
+        },
+        {
+         "from": "them",
+         "text": "Done. 3 posts are waiting for your tap too."
+        }
+       ]
       },
       "endcard": {
-       "headline": "Dutch. Not translated.",
-       "accent": "Not translated.",
-       "sub": "Posts, reels and ads that sound like your business.",
-       "fine": "Otto writes in Dutch or English, for your customers.",
+       "headline": "Know by 07:35.",
+       "accent": "07:35.",
+       "sub": "Spend, clicks, enquiries. One message.",
+       "fine": "Sample message. Ad spend is paid to Meta directly.",
        "products": [
-        "review_nl"
-       ],
-       "logo": "logo"
-      }
-     },
-     "brief": "Faceless notes video: words no Dutch customer uses, struck; the plain line stays.",
-     "added": "2026-10-03"
-    },
-    {
-     "id": "nl-a3-versus-v",
-     "style": "us_vs_them",
-     "slot": "comparison",
-     "format": "video",
-     "size": "story",
-     "video": {
-      "kit": "versus",
-      "data": "video/2026-10-nl/nl-a3-versus-v.json"
-     },
-     "data": {
-      "versus": {
-       "vs": "vs",
-       "left": {
-        "label": "Translated",
-        "rows": [
-         "‘Super excited!’",
-         "Thanksgiving post",
-         "Prices in dollars"
-        ]
-       },
-       "right": {
-        "label": "Otto",
-        "image": "review_nl",
-        "rows": [
-         "‘New in this week’",
-         "Sinterklaas",
-         "Prices in euro"
-        ]
-       },
-       "footer": "For your customers, in their language."
-      },
-      "endcard": {
-       "headline": "Sounds like your business.",
-       "accent": "your business.",
-       "sub": "Otto reads your website and writes the way you talk.",
-       "fine": "Try it free for 7 days, no card needed.",
-       "products": [
-        "review_nl"
+        "report_ads"
        ],
        "logo": "logo_white"
       }
      },
-     "brief": "Faceless versus video: translated copy against Otto, three rows.",
+     "brief": "Faceless chat video: the 07:35 report arrives, the owner pauses the weakest ad set. Figures marked as a sample.",
      "added": "2026-10-03"
     },
     {
@@ -643,40 +663,80 @@
      },
      "data": {
       "big": {
-       "hero": "review_nl",
+       "hero": "campaign",
        "phrases": [
         {
-         "big": "Dutch.",
-         "rest": "Not translated."
+         "big": "1 campaign",
+         "rest": "Ads for every angle."
         },
         {
-         "big": "Your town.",
-         "rest": "Your customers."
+         "big": "07:35",
+         "rest": "Spend, clicks, enquiries."
         },
         {
-         "big": "Your call.",
-         "rest": "Before anything goes live.",
-         "product": "review_nl"
+         "big": "1 tap",
+         "rest": "to approve or pause.",
+         "product": "report_ads"
         }
        ]
       },
       "endcard": {
-       "headline": "Dutch. Not translated.",
-       "accent": "Not translated.",
-       "sub": "Posts, reels and ads that sound like your business.",
-       "fine": "Try it free for 7 days, no card needed.",
+       "headline": "Your ads, reported daily.",
+       "accent": "reported daily.",
+       "sub": "Every morning at 07:35.",
+       "fine": "7 days free, no card. Then €79 a month.",
        "products": [
-        "review_nl"
+        "campaign"
        ],
-       "logo": "logo"
+       "logo": "logo",
+       "legal": "Monthly plan, no contract, cancel anytime. Prices excl. VAT."
       }
      },
-     "brief": "Faceless big video: Dutch, your town, your call.",
+     "brief": "Faceless big video: the campaign phone, then the report: one campaign, the time, the tap.",
      "added": "2026-10-03"
     },
     {
-     "id": "nl-a3-product",
-     "style": "product_hero",
+     "id": "nl-a3-notes-v",
+     "style": "notes_app",
+     "slot": "native",
+     "format": "video",
+     "size": [
+      "story",
+      "feed"
+     ],
+     "video": {
+      "kit": "notes",
+      "data": "video/2026-10-nl/nl-a3-notes-v.json"
+     },
+     "data": {
+      "note": {
+       "meta": "Monday, 07:41",
+       "title": "Things I stopped checking",
+       "struck": [
+        "the dashboard at midnight",
+        "three different apps",
+        "a monthly PDF"
+       ],
+       "keep": "Otto's 07:35 report"
+      },
+      "endcard": {
+       "headline": "Know by 07:35.",
+       "accent": "07:35.",
+       "sub": "In English, Dutch or German: your choice.",
+       "fine": "7 days free, no card. Then €79 a month.",
+       "products": [
+        "report_ads"
+       ],
+       "logo": "logo",
+       "legal": "Monthly plan, no contract, cancel anytime. Prices excl. VAT."
+      }
+     },
+     "brief": "Faceless notes video: three reporting chores struck, the morning report kept.",
+     "added": "2026-10-03"
+    },
+    {
+     "id": "nl-a3-macro",
+     "style": "macro_hero",
      "slot": "product",
      "format": "image",
      "size": [
@@ -685,22 +745,76 @@
       "square"
      ],
      "data": {
-      "headline": "Sounds like *your business*",
-      "photo": "otto-phone-review-nl-cutout.png",
-      "callouts": [
-       "Sample post, written in Dutch",
-       "Built on your own website",
-       "You approve every post"
-      ],
-      "kicker": "Posts by Otto",
-      "theme": "brand"
+      "photo": "otto-phone-report-ads-cutout.png",
+      "word": "*07:35*",
+      "sub": "Spend, clicks, enquiries. Every morning.",
+      "kicker": "Your daily ads report",
+      "crop": "bottom",
+      "theme": "light"
      },
-     "brief": "The phone with a Dutch café post (the proof of the claim), three English callouts.",
+     "brief": "The report phone (spent, clicks, enquiries, Sample), huge, rising under the time.",
      "added": "2026-10-03"
     },
     {
-     "id": "nl-a3-post",
-     "style": "social_post",
+     "id": "nl-a3-compare",
+     "style": "comparison",
+     "slot": "comparison",
+     "format": "image",
+     "size": [
+      "feed",
+      "square"
+     ],
+     "data": {
+      "title": "Ads dashboard or *07:35 report*?",
+      "kicker": "Reporting",
+      "columns": [
+       {
+        "name": "Ads dashboard"
+       },
+       {
+        "name": "Otto at 07:35",
+        "highlight": true
+       }
+      ],
+      "rows": [
+       {
+        "label": "Where",
+        "values": [
+         "An app you open",
+         "Your inbox or chat"
+        ]
+       },
+       {
+        "label": "What you see",
+        "values": [
+         "Every metric there is",
+         "Spend, clicks, enquiries"
+        ]
+       },
+       {
+        "label": "When",
+        "values": [
+         "When you remember",
+         "Every morning"
+        ]
+       },
+       {
+        "label": "What next",
+        "values": [
+         "You work it out",
+         "Approve or pause"
+        ]
+       }
+      ],
+      "footnote": "Otto: one report at 07:35 every morning, by e-mail, in Telegram or in the app.",
+      "theme": "light"
+     },
+     "brief": "Table: the usual ads dashboard against the morning report. Fair, no figures.",
+     "added": "2026-10-03"
+    },
+    {
+     "id": "nl-a3-notes",
+     "style": "notes_app",
      "slot": "native",
      "format": "image",
      "size": [
@@ -709,172 +823,74 @@
       "square"
      ],
      "data": {
-      "name": "Otto",
-      "handle": "For small businesses",
-      "avatar_logo": true,
-      "text": "A post about your lunch menu should sound like your café in Haarlem, not like a translation from English. That's why Otto writes in Dutch, from your own website.",
-      "headline": "*Local*, not translated",
-      "theme": "light",
-      "ui": "light"
+      "title": "My morning",
+      "items": [
+       "07:30 coffee",
+       "07:35 read Otto's report",
+       "07:36 pause one ad, approve three posts",
+       "07:40 open the shop"
+      ],
+      "mode": "bullets",
+      "date_label": "Today at 07:41",
+      "footer": "Marketing: *done before eight*",
+      "headline": "This is what *07:35* looks like",
+      "theme": "light"
      },
-     "brief": "Otto's own text post, plain.",
+     "brief": "A note in the owner's voice: the morning in four lines.",
      "added": "2026-10-03"
     },
     {
-     "id": "nl-a3-carousel",
-     "style": "carousel",
-     "slot": "proof_humor",
+     "id": "nl-a3-premium",
+     "style": "editorial",
+     "slot": "extra",
      "format": "image",
      "size": [
-      "feed",
-      "square"
+      "square",
+      "story"
      ],
-     "data": {
-      "cover": {
-       "headline": "3 lines that give away a *translated* post",
-       "kicker": "For owners",
-       "swipe": "Swipe"
-      },
-      "slides": [
-       {
-        "title": "‘We are super excited to share’",
-        "body": "Nobody in Haarlem talks about a new menu like that. Just say what's new."
-       },
-       {
-        "title": "‘Happy Thanksgiving!’",
-        "body": "Mark what your customers celebrate: Sinterklaas, King's Day, the first terrace day."
-       },
-       {
-        "title": "‘Awesome deals, guys!’",
-        "body": "Your customers want to know what's new and when you're open. Say it plainly."
-       }
-      ],
-      "end": {
-       "headline": "Otto writes the way you talk",
-       "cta": "Scan your website",
-       "sub": "Free, no signup"
-      }
+     "premium": {
+      "1x1": "premium/report-1x1.jpg",
+      "9x16": "premium/report-9x16.jpg"
      },
-     "brief": "Useful carousel: three tells of translated copy, then the ask.",
+     "data": {
+      "headline": "07:35. Your ads, reported.",
+      "kicker": "Your daily ads report",
+      "sub": "Spend, clicks, enquiries. Every morning.",
+      "cta": "Try 7 days free",
+      "tag": "Sample report",
+      "fine": "7 days free, no card. Then €79 a month."
+     },
+     "brief": "Premium top layer: golden-hour coffee table, a phone lying next to the cup shows Otto's real 07:35 ads report (Sample figures, chip 'Sample report'). Every word set by hand in the final composite (never by the image model); 1:1 + 9:16 (text inside the Stories safe zone).",
      "added": "2026-10-03"
     }
    ],
-   "ad_set": "NL · a3 · Local, not translated"
+   "ad_set": "NL · a3 · Your ads, reported at 07:35"
   },
   {
    "id": "a4",
-   "name": "You run it, Otto posts",
-   "family": "identity",
+   "name": "The ads Otto makes",
+   "family": "pain",
    "source": "profile",
-   "angle": "Owners, not marketers: you run the business, Otto plans, writes, designs and posts; you approve (COMPETITORS §6 concept 4)",
+   "angle": "Pillar 5 as Max updated it on 2 Oct: show the paid ads Otto makes (product ads, offers, comparisons, story ads) and that each angle is tested; organic posts only as a minor line. Shown on sample ads for fictional demo brands (brands/otto/assets/showcase/), always captioned as samples for demo brands.",
    "persona": "p-nl-shop",
    "stage": "cold",
    "kinds": [
-    "audience",
+    "proof",
     "benefit",
     "objection"
    ],
    "headlines": [
-    "You run the business. Otto posts.",
-    "For owners with no marketing team"
+    "The ads Otto makes for you",
+    "Your ads, designed and run by Otto"
    ],
    "primaries": [
-    "Otto plans your month, writes your posts, makes your reels and runs your ads. You tap approve. About 30 minutes a week.",
-    "For the webshop posting at 11pm, the café that closes at six, the salon with a full diary: Otto does the marketing.",
-    "Sign in, give Otto your website address, answer four questions at most, and your first posts are ready within 24 hours."
+    "Product ads, offers, comparisons, story ads. Otto designs your ads in your brand and runs them. You approve each one.",
+    "Boosting a random post isn't an ad campaign. Otto makes proper ads for every angle and tests them side by side.",
+    "Ads for your feed and your stories, made from your own website. Plus your posts and reels, for €79 a month."
    ],
-   "description": "Posts, reels and ads by Otto",
+   "description": "Designed, run and reported",
    "cta": "LEARN_MORE",
    "ads": [
-    {
-     "id": "nl-a4-big-v",
-     "style": "big_number",
-     "slot": "faceless",
-     "format": "video",
-     "size": "story",
-     "video": {
-      "kit": "big",
-      "data": "video/2026-10-nl/nl-a4-big-v.json"
-     },
-     "data": {
-      "big": {
-       "hero": "hero",
-       "phrases": [
-        {
-         "big": "30 min",
-         "rest": "a week, roughly."
-        },
-        {
-         "big": "4 questions",
-         "rest": "at the start, max."
-        },
-        {
-         "big": "1 tap",
-         "rest": "per post.",
-         "product": "review_nl_en"
-        }
-       ]
-      },
-      "endcard": {
-       "headline": "You run it. Otto posts.",
-       "accent": "Otto posts.",
-       "sub": "Posts, reels and ads, ready for your approval.",
-       "fine": "Try it free for 7 days, no card needed.",
-       "products": [
-        "month"
-       ],
-       "logo": "logo"
-      }
-     },
-     "brief": "Faceless big video: the owner's time, in three numbers from the landing (pr5, pr6).",
-     "added": "2026-10-03"
-    },
-    {
-     "id": "nl-a4-versus-v",
-     "style": "us_vs_them",
-     "slot": "comparison",
-     "format": "video",
-     "size": "story",
-     "video": {
-      "kit": "versus",
-      "data": "video/2026-10-nl/nl-a4-versus-v.json"
-     },
-     "data": {
-      "versus": {
-       "vs": "vs",
-       "left": {
-        "label": "On your own",
-        "rows": [
-         "Posting at 23:00",
-         "Guessing on ads",
-         "No time for reels"
-        ]
-       },
-       "right": {
-        "label": "With Otto",
-        "image": "month",
-        "rows": [
-         "Month planned",
-         "Report at 07:35",
-         "Reels, ready"
-        ]
-       },
-       "footer": "You tap approve."
-      },
-      "endcard": {
-       "headline": "Your month, ready.",
-       "accent": "ready.",
-       "sub": "Posts, stories and reels, planned ahead.",
-       "fine": "Try it free for 7 days, no card needed.",
-       "products": [
-        "month"
-       ],
-       "logo": "logo_white"
-      }
-     },
-     "brief": "Faceless versus video: doing it yourself against Otto.",
-     "added": "2026-10-03"
-    },
     {
      "id": "nl-a4-texts-v",
      "style": "text_message",
@@ -893,43 +909,133 @@
        "name": "Otto",
        "initial": "O",
        "avatar": "brand",
-       "stamp": "Sample · Today 08:14",
+       "stamp": "Sample · Monday 08:00",
        "placeholder": "Message",
        "messages": [
         {
          "from": "them",
-         "text": "Good morning. This week's posts are ready: 3 posts and a reel."
-        },
-        {
-         "from": "me",
-         "text": "Busy in the shop till 6"
+         "text": "Good morning. Your new ads are ready: four images, two videos."
         },
         {
          "from": "them",
-         "text": "No rush. I'll remind you before the first one is due."
+         "photo": "ad_1"
         },
         {
          "from": "me",
-         "text": "All approved"
+         "text": "That one first"
         },
         {
          "from": "them",
-         "text": "Thanks. The first one goes out Thursday at 12:00."
+         "text": "It runs from today. You'll see what it did at 07:35 tomorrow."
         }
        ]
       },
       "endcard": {
-       "headline": "You run it. Otto posts.",
-       "accent": "Otto posts.",
-       "sub": "Approve from your phone, when it suits you.",
-       "fine": "Try it free for 7 days, no card needed.",
+       "headline": "Ads, made for you.",
+       "accent": "made for you.",
+       "sub": "Designed, run and reported at 07:35.",
+       "fine": "Sample ad for a demo brand. 7 days free, no card.",
        "products": [
-        "review_nl_en"
+        "ads_phone",
+        "story_ad"
        ],
        "logo": "logo_white"
       }
      },
-     "brief": "Faceless chat video: Otto has the week ready, the owner approves after work (landing FAQ: reminders before a post is due).",
+     "brief": "Faceless chat video: Otto sends the new ads (a sample ad for a demo brand), the owner picks one.",
+     "added": "2026-10-03"
+    },
+    {
+     "id": "nl-a4-big-v",
+     "style": "big_number",
+     "slot": "faceless",
+     "format": "video",
+     "size": "story",
+     "video": {
+      "kit": "big",
+      "data": "video/2026-10-nl/nl-a4-big-v.json"
+     },
+     "data": {
+      "big": {
+       "hero": "ads_phone",
+       "phrases": [
+        {
+         "big": "Feed ads.",
+         "rest": "Offers. Comparisons."
+        },
+        {
+         "big": "Story ads.",
+         "rest": "Every angle, tested."
+        },
+        {
+         "big": "1 tap",
+         "rest": "to approve each one.",
+         "product": "story_ad"
+        }
+       ]
+      },
+      "endcard": {
+       "headline": "The ads Otto makes.",
+       "accent": "Otto makes.",
+       "sub": "Designed, run and reported for you.",
+       "fine": "Sample ads for demo brands.",
+       "products": [
+        "ads_phone",
+        "story_ad"
+       ],
+       "logo": "logo",
+       "legal": "7 days free, then €79 a month. Monthly plan, no contract. Excl. VAT."
+      }
+     },
+     "brief": "Faceless big video: the ads phone (sample ads for demo brands), then a story ad (a demo brand's 9:16 ad, labelled Sample).",
+     "added": "2026-10-03"
+    },
+    {
+     "id": "nl-a4-versus-v",
+     "style": "us_vs_them",
+     "slot": "comparison",
+     "format": "video",
+     "size": "story",
+     "video": {
+      "kit": "versus",
+      "data": "video/2026-10-nl/nl-a4-versus-v.json"
+     },
+     "data": {
+      "versus": {
+       "vs": "vs",
+       "left": {
+        "label": "Boosted post",
+        "rows": [
+         "One photo",
+         "One angle",
+         "Hope for the best"
+        ]
+       },
+       "right": {
+        "label": "Otto's ads",
+        "image": "story_ad",
+        "rows": [
+         "Designed ads",
+         "Angles tested",
+         "Report at 07:35"
+        ]
+       },
+       "footer": "You approve each one."
+      },
+      "endcard": {
+       "headline": "Proper ads, not boosted posts.",
+       "accent": "Proper ads,",
+       "sub": "Designed, tested and reported by Otto.",
+       "fine": "Sample ads for demo brands.",
+       "products": [
+        "ads_phone",
+        "story_ad"
+       ],
+       "logo": "logo_white",
+       "legal": "7 days free, then €79 a month. Monthly plan, no contract. Excl. VAT."
+      }
+     },
+     "brief": "Faceless versus video: boosting one post against a planned set of ads, three rows.",
      "added": "2026-10-03"
     },
     {
@@ -943,17 +1049,18 @@
       "square"
      ],
      "data": {
-      "headline": "You run the business. *Otto posts.*",
-      "photo": "otto-phone-month-cutout.png",
+      "headline": "The ads *Otto makes*",
+      "photo": "otto-phones-ads-duo-cutout.png",
       "callouts": [
-       "Posts, stories and reels",
-       "Timed for your customers",
-       "You approve everything"
+       "Feed ads and offers",
+       "Story ads, full screen",
+       "Sample ads, demo brands"
       ],
-      "kicker": "Your month, ready",
-      "theme": "light"
+      "kicker": "Made by Otto",
+      "theme": "light",
+      "callout_style": "line"
      },
-     "brief": "The month phone, three callouts.",
+     "brief": "The ads phone (four sample ads for demo brands) and a story-ad phone (a demo brand's 9:16 ad), three callouts.",
      "added": "2026-10-03"
     },
     {
@@ -967,18 +1074,18 @@
       "square"
      ],
      "data": {
-      "query": "no time for social media",
+      "query": "how to make facebook ads",
       "mode": "autocomplete",
       "suggestions": [
-       "no time for social media as a business owner",
-       "no time for social media webshop",
-       "no time for social media café",
-       "no time for social media salon"
+       "how to make facebook ads for my business",
+       "how to make facebook ads look professional",
+       "how to make facebook ads step by step",
+       "how to make facebook ads for a small business"
       ],
-      "headline": "Sound familiar? *Otto takes it on.*",
+      "headline": "Or let *Otto make them.*",
       "theme": "light"
      },
-     "brief": "A generic search bar: what owners type at 11pm.",
+     "brief": "A generic search bar: what owners type before their first ad.",
      "added": "2026-10-03"
     },
     {
@@ -991,60 +1098,87 @@
       "square"
      ],
      "data": {
-      "title": "What you still do",
-      "kicker": "With Otto",
+      "title": "Every ad Otto makes",
+      "kicker": "Made by Otto",
       "items": [
        {
-        "text": "Send your website address",
-        "note": "Once"
+        "text": "Designed in your brand",
+        "note": "Colours, fonts, products"
        },
        {
-        "text": "Answer four questions at most",
-        "note": "At the start"
+        "text": "Every angle tested",
+        "note": "Side by side"
        },
        {
-        "text": "Tap approve",
-        "note": "About half an hour a week"
+        "text": "Checked before it runs",
+        "note": "Claims and ad rules"
+       },
+       {
+        "text": "Reported at 07:35",
+        "note": "Spend, clicks, enquiries"
        }
       ],
-      "footnote": "Otto does the rest: planning, writing, design, posting and the morning report.",
+      "footnote": "Plus posts, reels and stories. You approve it all.",
       "theme": "light"
      },
-     "brief": "What the owner still does, three lines.",
+     "brief": "What goes into every ad, five lines the product really does (otto_creative, otto_compliance, the report).",
+     "added": "2026-10-03"
+    },
+    {
+     "id": "nl-a4-premium",
+     "style": "editorial",
+     "slot": "extra",
+     "format": "image",
+     "size": [
+      "square",
+      "story"
+     ],
+     "premium": {
+      "1x1": "premium/ads-1x1.jpg",
+      "9x16": "premium/ads-9x16.jpg"
+     },
+     "data": {
+      "headline": "Ads that stop the scroll. Made for you.",
+      "sub": "Feed and story ads in your brand. You approve every one before it runs.",
+      "cta": "Try 7 days free",
+      "tag": "Sample ads for demo brands",
+      "fine": "7 days free, no card. Then €79 a month."
+     },
+     "brief": "Premium top layer: five sample ads for fictional demo brands (assets/showcase/) laid out as printed cards on a sunlit cobalt surface, captioned 'Sample ads for demo brands'. Every word set by hand in the final composite (never by the image model); 1:1 + 9:16 (text inside the Stories safe zone).",
      "added": "2026-10-03"
     }
    ],
-   "ad_set": "NL · a4 · You run it, Otto posts"
+   "ad_set": "NL · a4 · The ads Otto makes"
   },
   {
    "id": "a5",
-   "name": "7 days free",
-   "family": "offer",
+   "name": "You run it, Otto posts",
+   "family": "identity",
    "source": "profile",
-   "angle": "The free week: 7 days free, Google sign-in, no card, first posts within 24 hours, nothing charged automatically (pr3, pr11)",
-   "persona": "p-nl-salon",
-   "stage": "hot",
+   "angle": "Pillar 5, the organic half (Max's correction of 2 Oct: the set sells the whole marketing department, about half organic and half paid): the posts, reels and stories Otto makes every week from the client's own website, in its brand; the owner runs the business and taps approve. Reuses the earlier kit's 'You run it, Otto posts'. Every post shown is labelled Sample post.",
+   "persona": "p-nl-horeca",
+   "stage": "cold",
    "kinds": [
-    "offer",
-    "objection",
-    "benefit"
+    "audience",
+    "benefit",
+    "objection"
    ],
    "headlines": [
-    "Try Otto free for 7 days",
-    "No card needed"
+    "You run the business. Otto posts.",
+    "Posts, reels and stories, every week"
    ],
    "primaries": [
-    "Try Otto free for 7 days. Sign in with Google, give it your website, and your first posts are ready within 24 hours.",
-    "After 7 days you decide. Nothing is charged automatically, and if you pick a plan, everything Otto made carries on.",
-    "Your first week of posts, stories and reels, in Dutch or English, plus the 07:35 report. Free for 7 days, no card."
+    "Otto plans your month, writes your posts, makes your reels and stories, and posts them on time. You tap approve.",
+    "Every week: carousels, reels, stories, offers and how-tos, made from your own website, in your brand.",
+    "For the webshop posting at 11pm, the café that closes at six, the salon with a full diary: Otto does the posts."
    ],
-   "description": "7 days free, no card",
-   "cta": "SIGN_UP",
+   "description": "Posts, reels and stories",
+   "cta": "LEARN_MORE",
    "ads": [
     {
      "id": "nl-a5-big-v",
      "style": "big_number",
-     "slot": "proof_humor",
+     "slot": "faceless",
      "format": "video",
      "size": "story",
      "video": {
@@ -1053,35 +1187,36 @@
      },
      "data": {
       "big": {
-       "hero": "month",
+       "hero": "week",
        "phrases": [
         {
-         "big": "7 days",
-         "rest": "free."
+         "big": "Carousels.",
+         "rest": "Reels. Stories."
         },
         {
-         "big": "0 cards",
-         "rest": "needed."
+         "big": "Every week.",
+         "rest": "Made from your own website."
         },
         {
-         "big": "24 hours",
-         "rest": "to your first posts.",
-         "product": "review_nl_en"
+         "big": "1 tap",
+         "rest": "to approve each one.",
+         "product": "post_carousel"
         }
        ]
       },
       "endcard": {
-       "headline": "Try Otto for 7 days.",
-       "accent": "7 days.",
-       "sub": "Free, no card needed.",
-       "fine": "Nothing is charged automatically.",
+       "headline": "You run it. Otto posts.",
+       "accent": "Otto posts.",
+       "sub": "Posts, reels and stories, every week.",
+       "fine": "7 days free, no card. Then €79 a month.",
        "products": [
-        "month"
+        "week"
        ],
-       "logo": "logo"
+       "logo": "logo",
+       "legal": "Monthly plan, no contract, cancel anytime. Prices excl. VAT."
       }
      },
-     "brief": "Faceless big video: the offer in three numbers.",
+     "brief": "Faceless big video: the week phone (six sample posts ready), the post types, the approve tap.",
      "added": "2026-10-03"
     },
     {
@@ -1102,39 +1237,43 @@
        "name": "Otto",
        "initial": "O",
        "avatar": "brand",
-       "stamp": "Today 10:12",
+       "stamp": "Sample · Monday 08:00",
        "placeholder": "Message",
        "messages": [
         {
-         "from": "me",
-         "text": "What happens after the 7 days?"
+         "from": "them",
+         "photo": "photo_carousel"
         },
         {
          "from": "them",
-         "text": "You get an e-mail two days before the end. Pick a plan and everything carries on."
+         "text": "Good morning. This week's carousel is ready, plus a reel and 3 stories."
         },
         {
          "from": "me",
-         "text": "And if I do nothing?"
+         "text": "Busy in the shop till 6"
         },
         {
          "from": "them",
-         "text": "Then it stops. Nothing is charged."
+         "text": "No rush. I'll remind you before the first one is due."
+        },
+        {
+         "from": "me",
+         "text": "All approved"
         }
        ]
       },
       "endcard": {
-       "headline": "7 days free.",
-       "accent": "free.",
-       "sub": "First posts within 24 hours.",
-       "fine": "No card needed. One trial per business.",
+       "headline": "Your week of posts, ready.",
+       "accent": "ready.",
+       "sub": "Approve from your phone, when it suits you.",
+       "fine": "Sample message. 7 days free, no card.",
        "products": [
-        "month"
+        "week"
        ],
        "logo": "logo_white"
       }
      },
-     "brief": "Faceless chat video: the trial's terms as a support chat (landing 'What happens next').",
+     "brief": "Faceless chat video: Otto has the week ready (a sample carousel attached), the owner approves after work (landing FAQ: reminders before a post is due).",
      "added": "2026-10-03"
     },
     {
@@ -1151,65 +1290,37 @@
       "versus": {
        "vs": "vs",
        "left": {
-        "label": "DIY",
+        "label": "Posting by hand",
         "rows": [
-         "Your evenings",
-         "Filming reels",
-         "Guessing"
+         "Same photo again",
+         "No time for reels",
+         "Posting at 23:00"
         ]
        },
        "right": {
-        "label": "Otto",
-        "image": "month",
+        "label": "With Otto",
+        "image": "post_reel",
         "rows": [
-         "Posts ready",
-         "Reels included",
-         "Report at 07:35"
+         "A planned mix",
+         "Reels every month",
+         "Posted on time"
         ]
        },
-       "footer": "7 days free, no card."
+       "footer": "You tap approve."
       },
       "endcard": {
-       "headline": "Try Otto free.",
-       "accent": "free.",
-       "sub": "7 days, no card.",
-       "fine": "Nothing is charged automatically.",
+       "headline": "Every week, planned.",
+       "accent": "planned.",
+       "sub": "Carousels, reels, stories, offers and how-tos.",
+       "fine": "7 days free, no card. Then €79 a month.",
        "products": [
-        "month"
+        "week"
        ],
-       "logo": "logo_white"
+       "logo": "logo_white",
+       "legal": "Monthly plan, no contract, cancel anytime. Prices excl. VAT."
       }
      },
-     "brief": "Faceless versus video: the free week against doing it yourself.",
-     "added": "2026-10-03"
-    },
-    {
-     "id": "nl-a5-offer",
-     "style": "offer",
-     "slot": "price",
-     "format": "image",
-     "size": [
-      "feed",
-      "story",
-      "square"
-     ],
-     "data": {
-      "name": "Free trial",
-      "price": "Free",
-      "price_note": "7 days, no card",
-      "features": [
-       "Your first week of posts, stories and reels",
-       "Approve by e-mail, in Telegram or in the app",
-       "Your report at 07:35",
-       "Your ads planned for you to see"
-      ],
-      "cta": "Sign up",
-      "terms": "Sign in with Google. One trial per business. Nothing is charged automatically when it ends.",
-      "kicker": "Free week",
-      "photo": "otto-phone-month-cutout.png",
-      "theme": "accent"
-     },
-     "brief": "The offer card: the free week, what is in it, no price.",
+     "brief": "Faceless versus video: posting by hand against a planned week, three rows.",
      "added": "2026-10-03"
     },
     {
@@ -1223,17 +1334,18 @@
       "square"
      ],
      "data": {
-      "headline": "7 days *free*",
-      "photo": "otto-phone-review-nl-en-cutout.png",
+      "headline": "You run the business. *Otto posts.*",
+      "photo": "otto-phones-post-types-cutout.png",
       "callouts": [
-       "No card needed",
-       "Posts in Dutch or English",
-       "First posts within 24 hours"
+       "Posts, reels and stories",
+       "Every week, planned",
+       "You approve each one"
       ],
-      "kicker": "Free week",
-      "theme": "brand"
+      "kicker": "Sample posts",
+      "theme": "light",
+      "callout_style": "line"
      },
-     "brief": "The Review phone with the free week.",
+     "brief": "Three sample posts in Otto's Review screen (reel, carousel, story), fanned; three callouts.",
      "added": "2026-10-03"
     },
     {
@@ -1247,69 +1359,168 @@
       "square"
      ],
      "data": {
-      "title": "What you get in the free week",
+      "title": "This week's posts",
       "mode": "checklist",
       "items": [
        {
-        "text": "Your first week of posts and stories",
+        "text": "Mon: carousel, 3 ways with sourdough",
         "checked": true
        },
        {
-        "text": "Reels from your own website",
+        "text": "Tue: reel, Saturday prep",
         "checked": true
        },
        {
-        "text": "Approve by e-mail or in the app",
+        "text": "Wed: story, open late Friday",
         "checked": true
        },
        {
-        "text": "Your report every morning at 07:35",
+        "text": "Thu: offer, lunch and coffee",
         "checked": true
        },
        {
-        "text": "Your ads planned for you to see",
+        "text": "Fri: how-to, keep bread fresh",
         "checked": true
        }
       ],
-      "date_label": "Today at 09:12",
-      "footer": "*7 days free*, no card",
-      "headline": "Try it first, *then decide*",
+      "date_label": "Sample week",
+      "footer": "*Made by Otto*, approved by me",
+      "headline": "A week of posts, *done*",
       "theme": "light"
      },
-     "brief": "A checklist note: what the free week includes (landing pricing).",
+     "brief": "A note in the owner's voice: a sample week of posts, all made by Otto.",
+     "added": "2026-10-03"
+    },
+    {
+     "id": "nl-a5-checklist",
+     "style": "checklist",
+     "slot": "proof_humor",
+     "format": "image",
+     "size": [
+      "feed",
+      "square"
+     ],
+     "data": {
+      "title": "What's in your month",
+      "kicker": "Made by Otto",
+      "items": [
+       {
+        "text": "Feed posts and carousels",
+        "note": "Products, tips, behind the scenes"
+       },
+       {
+        "text": "Reels",
+        "note": "Made from your website"
+       },
+       {
+        "text": "Stories",
+        "note": "Opening hours, news, offers"
+       },
+       {
+        "text": "Offers, how-tos, reviews",
+        "note": "Planned around your calendar"
+       }
+      ],
+      "footnote": "You approve every post before it goes out.",
+      "theme": "light"
+     },
+     "brief": "The organic month, four lines (post types from the message house facts).",
+     "added": "2026-10-03"
+    },
+    {
+     "id": "nl-a5-premium",
+     "style": "editorial",
+     "slot": "extra",
+     "format": "image",
+     "size": [
+      "square",
+      "story"
+     ],
+     "premium": {
+      "1x1": "premium/posts-1x1.jpg",
+      "9x16": "premium/posts-9x16.jpg"
+     },
+     "data": {
+      "headline": "You run the business. Otto posts.",
+      "kicker": "Posts, reels and stories",
+      "sub": "Every week, planned and made for you. One tap to approve.",
+      "cta": "Try 7 days free",
+      "fine": "7 days free, no card. Then €79 a month."
+     },
+     "brief": "Premium top layer: a busy coffee shop, the owner (from behind, no face) at the counter; a phone on a stand shows Otto's real Review screen with a sample reel 'Approved · posted'. Every word set by hand in the final composite (never by the image model); 1:1 + 9:16 (text inside the Stories safe zone).",
      "added": "2026-10-03"
     }
    ],
-   "ad_set": "NL · a5 · 7 days free"
+   "ad_set": "NL · a5 · You run it, Otto posts"
   },
   {
    "id": "a6",
-   "name": "The busy season, planned",
-   "family": "moment",
+   "name": "Launching? 7 days free",
+   "family": "offer",
    "source": "profile",
-   "angle": "The busy season planned ahead: start in October and Sinterklaas, Christmas and New Year's Eve (gift cards, opening hours, the Christmas menu) are planned and approved in advance",
+   "angle": "Pillars 3 + 7: launch a business without worrying about marketing (the first week of posts written and designed within minutes of sign-up, reels within 24 hours, the ads planned) and the offer: 7 days free, sign in with Google, no card, nothing charged unless a plan is chosen; then €79 a month, a monthly plan, no contract, cancel anytime on the Billing page, excl. VAT. Reuses the earlier kit's 7-days-free lines.",
    "persona": "p-nl-horeca",
-   "stage": "warm",
+   "stage": "hot",
    "kinds": [
-    "benefit",
-    "audience"
+    "offer",
+    "objection",
+    "benefit"
    ],
    "headlines": [
-    "Your busy season, planned ahead",
-    "Sinterklaas to New Year, sorted"
+    "Launching? Try Otto free for 7 days",
+    "7 days free. Then €79 a month."
    ],
    "primaries": [
-    "Sinterklaas, Christmas, New Year's Eve. Otto plans the run-up ahead, so you can just work. You approve it all first.",
-    "December is your busiest month and your least free one. Let Otto line up your posts, reels and ads before the rush.",
-    "Gift cards, holiday opening hours, your Christmas menu: Otto plans them for the hours your customers are online."
+    "Launching a business? Marketing is handled from day one: posts, stories, reels and ads. Try Otto free for 7 days.",
+    "7 days free, no card. Then €79 a month (excl. VAT), monthly, cancel anytime. Nothing is charged automatically.",
+    "You open the doors. Otto does the posts and the ads. Your first week is written and designed within minutes."
    ],
-   "description": "Your busy season, planned",
-   "cta": "LEARN_MORE",
+   "description": "7 days free, no card",
+   "cta": "SIGN_UP",
    "ads": [
+    {
+     "id": "nl-a6-notes-v",
+     "style": "notes_app",
+     "slot": "faceless",
+     "format": "video",
+     "size": [
+      "story",
+      "feed"
+     ],
+     "video": {
+      "kit": "notes",
+      "data": "video/2026-10-nl/nl-a6-notes-v.json"
+     },
+     "data": {
+      "note": {
+       "meta": "Thursday, 23:10",
+       "title": "Opening week to-do",
+       "struck": [
+        "sign the lease",
+        "order the coffee",
+        "paint the front"
+       ],
+       "keep": "marketing: Otto has it"
+      },
+      "endcard": {
+       "headline": "You open. Otto does the marketing.",
+       "accent": "Otto does the marketing.",
+       "sub": "Your first week of posts, ready in minutes.",
+       "fine": "7 days free, no card. Then €79 a month.",
+       "products": [
+        "post_opening"
+       ],
+       "logo": "logo",
+       "legal": "Monthly plan, no contract, cancel anytime. Prices excl. VAT."
+      }
+     },
+     "brief": "Faceless notes video: the opening to-do ticked off, marketing handed to Otto.",
+     "added": "2026-10-03"
+    },
     {
      "id": "nl-a6-texts-v",
      "style": "text_message",
-     "slot": "faceless",
+     "slot": "native",
      "format": "video",
      "size": [
       "story",
@@ -1324,139 +1535,116 @@
        "name": "Otto",
        "initial": "O",
        "avatar": "brand",
-       "stamp": "Sample · 26 October",
+       "stamp": "Today 10:12",
        "placeholder": "Message",
        "messages": [
         {
-         "from": "them",
-         "text": "Your November is ready to review."
+         "from": "me",
+         "text": "What happens after the 7 days?"
         },
         {
          "from": "them",
-         "text": "Sinterklaas gift ideas, gift cards and your late opening hours are in."
+         "text": "Carry on for €79 a month and keep it all. Or stop, and nothing is charged."
         },
         {
          "from": "me",
-         "text": "Show me"
+         "text": "Is there a contract?"
         },
         {
          "from": "them",
-         "text": "Here's the plan. Tap approve or ask for a change."
+         "text": "No. It's monthly. Cancel anytime on your Billing page."
         }
        ]
       },
       "endcard": {
-       "headline": "Your busy season, planned.",
-       "accent": "planned.",
-       "sub": "You approve it all in advance.",
-       "fine": "Try it free for 7 days, no card needed.",
+       "headline": "7 days free.",
+       "accent": "free.",
+       "sub": "Then €79 a month. Cancel anytime.",
+       "fine": "No card needed.",
        "products": [
         "month"
        ],
-       "logo": "logo_white"
+       "logo": "logo_white",
+       "legal": "Monthly plan, no contract, cancel anytime. Prices excl. VAT."
       }
      },
-     "brief": "Faceless chat video: the next month's plan arrives with the season's posts in it.",
+     "brief": "Faceless chat video: the trial's terms as a support chat (landing 'What happens next', the Billing page, monthly plan).",
      "added": "2026-10-03"
     },
     {
-     "id": "nl-a6-big-v",
-     "style": "big_number",
-     "slot": "proof_humor",
+     "id": "nl-a6-versus-v",
+     "style": "us_vs_them",
+     "slot": "comparison",
      "format": "video",
      "size": "story",
      "video": {
-      "kit": "big",
-      "data": "video/2026-10-nl/nl-a6-big-v.json"
+      "kit": "versus",
+      "data": "video/2026-10-nl/nl-a6-versus-v.json"
      },
      "data": {
-      "big": {
-       "hero": "month",
-       "phrases": [
-        {
-         "big": "Sinterklaas.",
-         "rest": "Planned."
-        },
-        {
-         "big": "Christmas.",
-         "rest": "Planned."
-        },
-        {
-         "big": "You?",
-         "rest": "Working.",
-         "product": "month"
-        }
-       ]
+      "versus": {
+       "vs": "vs",
+       "left": {
+        "label": "On your own",
+        "rows": [
+         "Posts at midnight",
+         "No time for reels",
+         "Ads? Later."
+        ]
+       },
+       "right": {
+        "label": "With Otto",
+        "image": "post_opening",
+        "rows": [
+         "Week one ready",
+         "Reels in 24 hours",
+         "Ads planned"
+        ]
+       },
+       "footer": "7 days free, no card."
       },
       "endcard": {
-       "headline": "Your December, already planned.",
-       "accent": "already planned.",
-       "sub": "Posts, reels and ads, made by Otto.",
-       "fine": "Try it free for 7 days, no card needed.",
+       "headline": "Launching? Marketing's handled.",
+       "accent": "handled.",
+       "sub": "Try Otto free for 7 days. No card.",
+       "fine": "Then €79 a month.",
        "products": [
-        "month"
+        "post_opening"
        ],
-       "logo": "logo"
+       "logo": "logo_white",
+       "legal": "Monthly plan, no contract, cancel anytime. Prices excl. VAT."
       }
      },
-     "brief": "Faceless big video: the season, planned; the owner, working.",
+     "brief": "Faceless versus video: opening week on your own against opening week with Otto, the free week as the footer.",
      "added": "2026-10-03"
     },
     {
-     "id": "nl-a6-notes-v",
-     "style": "notes_app",
-     "slot": "native",
-     "format": "video",
-     "size": [
-      "story",
-      "feed"
-     ],
-     "video": {
-      "kit": "notes",
-      "data": "video/2026-10-nl/nl-a6-notes-v.json"
-     },
-     "data": {
-      "note": {
-       "meta": "Sunday, 21:10",
-       "title": "Holiday marketing to-do",
-       "struck": [
-        "Sinterklaas post",
-        "gift card reel",
-        "Christmas menu ad"
-       ],
-       "keep": "approve the plan"
-      },
-      "endcard": {
-       "headline": "Your busy season, planned.",
-       "accent": "planned.",
-       "sub": "Otto plans the busy weeks. You approve.",
-       "fine": "Try it free for 7 days, no card needed.",
-       "products": [
-        "month"
-       ],
-       "logo": "logo"
-      }
-     },
-     "brief": "Faceless notes video: the holiday to-do, done by Otto; the owner's one job kept.",
-     "added": "2026-10-03"
-    },
-    {
-     "id": "nl-a6-before",
-     "style": "before_after",
-     "slot": "comparison",
+     "id": "nl-a6-offer",
+     "style": "offer",
+     "slot": "price",
      "format": "image",
      "size": [
       "feed",
+      "story",
       "square"
      ],
      "data": {
-      "before": "December: posting something quick every evening",
-      "after": "Now: the busy weeks planned, approved in one go",
-      "before_label": "Without Otto",
-      "after_label": "With Otto",
-      "kicker": "The holidays"
+      "name": "Try Otto free",
+      "price": "Free",
+      "price_note": "7 days, no card",
+      "features": [
+       "Your first week of posts, stories and reels",
+       "Your report every morning at 07:35",
+       "Your ads planned, ready to run",
+       "Then €79 a month, excl. VAT"
+      ],
+      "cta": "Start free",
+      "terms": "Sign in with Google. Monthly plan, no contract, cancel anytime. Nothing is charged unless you choose a plan.",
+      "kicker": "Free week",
+      "photo": "otto-phone-month-cutout.png",
+      "theme": "accent"
      },
-     "brief": "Before / after: the routine, not a result.",
+     "brief": "The offer card: the free week, what is in it, the monthly price after it.",
      "added": "2026-10-03"
     },
     {
@@ -1470,46 +1658,80 @@
       "square"
      ],
      "data": {
-      "headline": "December, *already planned*",
-      "photo": "otto-phone-month-cutout.png",
+      "headline": "You open the doors. *Otto does the marketing.*",
+      "photo": "otto-phone-post-opening-cutout.png",
       "callouts": [
-       "Sinterklaas and Christmas",
-       "Gift cards and opening hours",
-       "You approve it all first"
+       "First week ready in minutes",
+       "Reels within 24 hours",
+       "7 days free, no card"
       ],
-      "kicker": "The holidays",
+      "kicker": "New business?",
       "theme": "brand"
      },
-     "brief": "The month phone with the season's posts.",
+     "brief": "The opening post (Sample) in Otto's Review screen, three callouts.",
      "added": "2026-10-03"
     },
     {
-     "id": "nl-a6-search",
-     "style": "search",
-     "slot": "native",
+     "id": "nl-a6-checklist",
+     "style": "checklist",
+     "slot": "proof_humor",
      "format": "image",
      "size": [
       "feed",
-      "story",
       "square"
      ],
      "data": {
-      "query": "christmas social media ideas",
-      "mode": "autocomplete",
-      "suggestions": [
-       "christmas social media ideas for restaurants",
-       "christmas social media ideas for shops",
-       "christmas social media ideas for salons",
-       "christmas social media ideas for small business"
+      "title": "Opening checklist",
+      "kicker": "New business",
+      "items": [
+       {
+        "text": "Keys",
+        "note": "Done"
+       },
+       {
+        "text": "Stock",
+        "note": "Done"
+       },
+       {
+        "text": "Card machine",
+        "note": "Done"
+       },
+       {
+        "text": "Marketing",
+        "note": "Otto: posts, stories, reels and ads"
+       }
       ],
-      "headline": "No plan for December yet? *Otto has one.*",
+      "footnote": "7 days free, no card. Then €79 a month, excl. VAT. Monthly, cancel anytime.",
       "theme": "light"
      },
-     "brief": "A generic search bar: what owners type when December gets close.",
+     "brief": "The owner's opening list: everything ticked, marketing by Otto, the offer as the sign-off.",
+     "added": "2026-10-03"
+    },
+    {
+     "id": "nl-a6-premium",
+     "style": "editorial",
+     "slot": "extra",
+     "format": "image",
+     "size": [
+      "square",
+      "story"
+     ],
+     "premium": {
+      "1x1": "premium/launch-1x1.jpg",
+      "9x16": "premium/launch-9x16.jpg"
+     },
+     "data": {
+      "headline": "Launching? Marketing’s handled.",
+      "kicker": "New business?",
+      "sub": "7 days free. No card. Then €79 a month. Cancel anytime.",
+      "cta": "Try 7 days free",
+      "fine": "Monthly plan, no contract. Prices excl. VAT."
+     },
+     "brief": "Premium top layer: opening day (OPEN sign, cobalt balloons and ribbon); a hand (no face) holds a phone with Otto's real Review screen (the sample opening post). Every word set by hand in the final composite (never by the image model); 1:1 + 9:16 (text inside the Stories safe zone).",
      "added": "2026-10-03"
     }
    ],
-   "ad_set": "NL · a6 · The busy season, planned"
+   "ad_set": "NL · a6 · Launching? 7 days free"
   }
  ]
 }

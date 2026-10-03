@@ -4,21 +4,25 @@
   otto_creative.py variants <campaign-id> [--dry]            # angles × formats → campaign.creatives (statics with copy, carousels, video)
   otto_creative.py overlay <src.jpg> <dst.jpg> "<text>" [--color #2447F0] [--pos bottom|center]
   otto_creative.py angles <brand>                            # print the angle bank Otto would use
-  otto_creative.py matrix <brand> <YYYY-MM> --plan [--preset launch|micro|scale | --budget <daily> [--currency EUR]]
+  otto_creative.py matrix <brand> <YYYY-MM> --plan [--preset launch|micro|scale | --budget <daily> [--currency EUR]] [--no-copy]
                                                              # write the month's ad matrix skeleton (angles × styles) if none;
-                                                             # default preset = the brand's plan (plans.json), micro under ~€36/day
+                                                             # default preset = the brand's plan (plans.json), micro under ~€36/day;
+                                                             # then the copywriter writes its copy (otto_copy ads, background)
   otto_creative.py matrix <brand> <YYYY-MM> --check          # coverage gaps + every cell's status and compliance (exit 1 on a
                                                              # writing gap; scripted / planned / hold are listed, not failures)
   otto_creative.py matrix <brand> <YYYY-MM> --render <dir>   # render every ready image cell into <dir> (nothing is stored)
+  otto_creative.py videos --brand B [--month YYYY-MM] [--dry] # render the month's scripted faceless video cells into mp4s in
+                                                             # the brand's look (otto_advideo.py render — the same thing)
 
 The ad matrix (brands/<id>/ads-<YYYY-MM>.json, format and rules in otto_styles.py) is how paid creative is made: ≥6
 angles × ≥3 styles each (Notes list, search page, text thread, reviews, us-vs-them, product huge, ingredients, …), image
 and video cells. When the month has one with cells ready to run, build() renders every ready image cell with otto_render
-(feed + story versions), takes rendered video cells as they are (otto_motion renders them), groups them per angle
+(feed + story versions), takes rendered video cells as they are (otto_advideo renders them), groups them per angle
 (creatives.concepts → one Meta ad set per angle in otto_ads) and tags every file with its style and angle. Every cell's
 texts pass otto_compliance first: a violating, unwritten or invalid cell is skipped and reported (creatives.matrix.skipped),
-never rendered; a scripted video cell (copy written, kit JSON not generated) waits in creatives.matrix.scripted_videos and a
-cell on hold ("status": "hold", e.g. licence pending) in creatives.matrix.held — neither launches. An image cell without its
+never rendered; a scripted video cell (copy written, not rendered yet — otto_advideo renders it into a 9:16 mp4, plus 4:5 for
+the notes / texts kits) waits in creatives.matrix.scripted_videos and a rendered one runs with its "file" (story) and its
+render.files["4x5"] (feed); a cell on hold ("status": "hold", e.g. licence pending) in creatives.matrix.held — neither launches. An image cell without its
 own "cta" shows the words of the Meta button it runs with (SHOP_NOW → "Shop now" in the brand's language). Without a matrix (or before any cell is written) build() makes today's angle-bank creatives below.
 
 Angle bank, in order of trust: brands/<slug>/angles.json (written by otto_competitors.py from the
@@ -506,10 +510,24 @@ def _poster(ref, cell, dry, bid=None):
     return paths.rel_of(jpg) if jpg.resolve().is_relative_to(paths.ASSETS.resolve()) else str(jpg)
 
 
+def _feed_video(bid, cell, dry):
+    """The 4:5 version of a rendered faceless video cell (otto_advideo: render.files["4x5"], for the kits with a tuned 4:5
+    layout) → its file entry (size "feed"), or None. Only while the render is current (its beats unchanged)."""
+    r = cell.get("render") if isinstance(cell.get("render"), dict) else {}
+    f = (r.get("files") or {}).get("4x5") if isinstance(r.get("files"), dict) else None
+    if not isinstance(f, dict) or otto_styles.video_stale(cell):
+        return None
+    src, pst = otto_styles._media_file(bid, f.get("file")), otto_styles._media_file(bid, f.get("poster"))
+    if not src or not pst:
+        return None
+    ref = _to_assets(src, src.name, dry)
+    return {"file": ref, "size": "feed", "kind": "video", "poster": _to_assets(pst, pst.name, dry)}
+
+
 def build_matrix(d, c, mx, dry=False, out=None, publish=True, jobs=3):
     """The month's matrix → creatives grouped per angle (creatives.concepts[].ads[].files), each file tagged with style +
     angle. Only "ready" cells (otto_styles.check_matrix: written, valid, compliant, template on disk) are rendered: feed and
-    story versions (a carousel = one file per card); a video cell joins once otto_motion has rendered its "file". Every other
+    story versions (a carousel = one file per card); a video cell joins once otto_advideo has rendered its "file". Every other
     cell is listed in creatives.matrix.skipped with the reason; a creator cell waits in creatives.matrix.planned_creators
     until the real creator's footage (with name + consent) is its "file". Copy = the angle's headlines / primaries rotated
     over its cells (otto_styles.ad_copy) unless a cell overrides. dry = plan the file names, render nothing."""
@@ -580,6 +598,9 @@ def build_matrix(d, c, mx, dry=False, out=None, publish=True, jobs=3):
                     safe = re.sub(r"[^A-Za-z0-9_-]", "", str(cell.get("id")))
                     ref = _to_assets(src, nm(f"{c['id']}-{safe}", src.suffix), dry)
                     ad["files"] = [{"file": ref, "size": "story", "kind": "video", "poster": _poster(ref, cell, dry, bid)}]
+                    feed = _feed_video(bid, cell, dry)        # otto_advideo's 4:5 render: the feed placements' version
+                    if feed:
+                        ad["files"].append(feed)
                     ad["kit"] = kit
                     con["ads"].append(ad)
                     cr["videos"].append({"file": ref, "style": style, "angle": a.get("id"), "cell": cell.get("id"), "kit": kit})
@@ -753,6 +774,9 @@ def main():
         print(f"images {len(cr['images'])} · carousels {len(cr['carousels'])} · videos {len(cr['videos'])}{' (dry)' if cr['dry'] else ''}")
     elif a[0] == "matrix" and len(a) >= 3:
         sys.exit(matrix_cli(a[1], a[2], a[3:]))
+    elif a[0] == "videos":                                # the faceless video cells of a month → mp4s (otto_advideo)
+        import otto_advideo
+        sys.exit(otto_advideo.main(["render"] + a[1:]))
     else:
         print(__doc__)
 
@@ -787,8 +811,16 @@ def matrix_cli(bid, ym, opts):
                 print(f"{bid}: no angles to plan from (strategy.json angles, angles.json, pains) — run otto_strategy init / "
                       "the competitor research first")
                 return 1
+            mx["skeleton"] = otto_styles.fingerprint(mx)   # untouched until someone edits it (otto_copy may re-plan it)
             otto_styles.save_matrix(bid, ym, mx)
             print(f"wrote {f} · {preset} · {otto_styles.size_text(mx)}")
+            if "--no-copy" not in opts:                    # the copywriter fills it (Claude API; queued / background)
+                try:
+                    import otto_copy
+                    if otto_copy.spawn_ads(bid, ym):
+                        print(f"  the copywriter is writing its copy in the background (otto_copy.py ads --brand {bid} --month {ym})")
+                except Exception as e:                    # noqa: BLE001 — the daily copy job fills the gaps
+                    print(f"  ad copywriter not started: {type(e).__name__}: {str(e)[:120]}")
             for a in mx["angles"]:
                 print(f"  {a['family']:10} {a['id']:8} {a['name'][:40]:40} " + ", ".join(
                     c["style"] + {"video": " (video)", "creator": " (creator)"}.get(c["format"], "") for c in a["ads"]))
@@ -820,8 +852,8 @@ def matrix_cli(bid, ym, opts):
         writing = sum(1 for r in rep["cells"] if r["status"] in ("unwritten", "invalid", "violation"))
         production = sum(1 for r in rep["cells"] if r["status"] in ("scripted", "planned", "pending"))
         held = sum(1 for r in rep["cells"] if r["status"] == "hold")
-        print(f"  writing gaps: {writing} · production gaps: {production} (scripted videos wait for motion's kit JSON, "
-              f"creator cells for footage) · on hold: {held} (never launched)")
+        print(f"  writing gaps: {writing} · production gaps: {production} (scripted videos wait for their render — "
+              f"otto_advideo, nightly or right after the copy —, creator cells for footage) · on hold: {held} (never launched)")
         # planned / scripted (production: footage, motion's kit JSON) and hold (parked on purpose) are not writing failures;
         # refresh is advice for the weekly batch
         ok = ("ready", "planned", "scripted", "hold")
@@ -839,11 +871,11 @@ def matrix_cli(bid, ym, opts):
         for s in cr["matrix"]["skipped"]:
             print(f"  skipped {s['id']}: {s['status']} — {s['reason'][:140]}")
         for v in cr["matrix"]["planned_videos"]:
-            print(f"  video to render (otto_motion): {v['id']} kit {v['kit']} data {v['data']}")
+            print(f"  video to render (hand-made kit JSON, motion/ad-kit): {v['id']} kit {v['kit']} data {v['data']}")
         for v in cr["matrix"]["planned_creators"]:
             print(f"  creator video, waiting for footage: {v['id']} — {v['reason']}")
         for v in cr["matrix"]["scripted_videos"]:
-            print(f"  video scripted, waiting for motion's kit JSON: {v['id']} kit {v['kit']} → {v['data']}")
+            print(f"  video scripted, waiting for its render (otto_advideo.py render --brand {bid} --month {ym}): {v['id']} kit {v['kit']}")
         for v in cr["matrix"]["held"]:
             print(f"  on hold (never launched): {v['id']} — {v['reason']}")
         return 0

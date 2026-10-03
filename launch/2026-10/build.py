@@ -17,7 +17,7 @@ rendered files, written by render.py). Writes import/:
                                       manual steps (carousels, placement customisation)
 Why two parts per market: the import dialog takes at most 10 videos (≤ 10 MB each) per import (Meta help 261309361378237);
 each market has 18. Images and videos are attached in the import dialog under the exact file names in the sheet
-(creatives/<market>/static/*-4x5.jpg, creatives/<market>/video/*-9x16.mp4).
+(creatives/<market>/static/*-4x5.jpg, creatives/<market>/premium/*-1x1.jpg, creatives/<market>/video/*-9x16.mp4).
 
 Without --page-id / --instagram-id / --pixel-id the cells carry {PAGE_ID} / {INSTAGRAM_ID} / {PIXEL_ID} so nothing is
 imported with a wrong identity. Python 3.9 stdlib + openpyxl (optional: without it only the .csv files are written).
@@ -90,8 +90,12 @@ def rows_for(mk, spec, a):
                                "files": ", ".join(Path(f["file"]).name for f in cards if f["ratio"] == "4x5"),
                                "headline": cp["headline"], "primary": cp["primary"], "cta": cp["cta"]})
                 continue
-            if fmt == "image" and "4x5" not in by:
-                warn.append(f"{cid}: no rendered 4:5 image in the manifest — run render.py statics")
+            # the import row's image: the 4:5 render; a premium cell (a finished 1:1 + 9:16 ad, render.py premium) imports
+            # its 1:1 (Meta's feed placements take 1:1; the 9:16 is in the media list for placement customisation)
+            img = by.get("4x5") or (by.get("1x1") if (st or {}).get("premium") else None)
+            if fmt == "image" and not img:
+                warn.append(f"{cid}: no rendered {'1:1' if (st or {}).get('premium') else '4:5'} image in the manifest — "
+                            f"run render.py {'premium' if (st or {}).get('premium') else 'statics'}")
                 continue
             if fmt == "video" and "9x16" not in by:
                 warn.append(f"{cid}: no rendered 9:16 video in the manifest — run render.py videos (left out of the import)")
@@ -119,7 +123,7 @@ def rows_for(mk, spec, a):
             if fmt == "video":
                 r.update({"Video File Name": Path(by["9x16"]["file"]).name, "Creative Type": "Video Page Post Ad"})
             else:
-                r.update({"Image File Name": Path(by["4x5"]["file"]).name, "Creative Type": "Link Page Post Ad"})
+                r.update({"Image File Name": Path(img["file"]).name, "Creative Type": "Link Page Post Ad"})
             rows[part].append(r)
     return rows, manual, media, warn
 
@@ -132,9 +136,10 @@ def media_dir(mk, part, rows):
         shutil.rmtree(d)
     d.mkdir(parents=True)
     for r in rows:
-        for col, sub in (("Image File Name", "static"), ("Video File Name", "video")):
+        for col, subs in (("Image File Name", ("static", "premium")), ("Video File Name", ("video",))):
             if r[col]:
-                src = HERE / "creatives" / mk / sub / r[col]
+                src = next((HERE / "creatives" / mk / sub / r[col] for sub in subs
+                            if (HERE / "creatives" / mk / sub / r[col]).is_file()), HERE / "creatives" / mk / subs[0] / r[col])
                 try:
                     os.link(src, d / r[col])
                 except OSError:

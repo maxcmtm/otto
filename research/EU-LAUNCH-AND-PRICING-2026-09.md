@@ -15,10 +15,13 @@ Conventions
 
 ## 1. The answer on one page
 
+> **Note (2 Oct 2026): Starter set to €79 by Max on 2 Oct 2026**, a monthly subscription (no yearly price, cancel anytime).
+> The €99 / €990 figures below are the September proposal, kept as history; `platform/plans.json` is the source of truth.
+
 | Question | Recommendation |
 |---|---|
 | Organic-only cheap tier, or most things in the first tier? | **Most things in the first tier.** Every plan runs organic content and Meta ads. Plans differ by how much ad money Otto manages, how many creatives it makes each month and how much human time is included. There is no organic-only plan on the pricing page. |
-| Prices (monthly, excl. VAT) | **Starter €99 · Growth €249 · Scale €499 · Agency from €499** (5 client workspaces). UK, when it opens: £85 · £215 · £425. |
+| Prices (monthly, excl. VAT) | **Starter €99 · Growth €249 · Scale €499 · Agency from €499** (5 client workspaces). UK, when it opens: £85 · £215 · £425. **Update: Starter set to €79 by Max on 2 Oct 2026**, a monthly subscription with no yearly price (`platform/plans.json`, `docs/MESSAGE-2026-10.md`); the other prices are still drafts. |
 | Ad-spend logic | A flat price. Managed ad spend is capped per plan at €1,000, €5,000 and €15,000 a month. There is no percentage below €15,000 a month, and 2% of spend above it. Meta and Google bill the client directly, so Otto never holds ad money. |
 | Yearly | Two months free: €990, €2,490 or €4,990 a year. |
 | Founding seats (€197 once) | Keep selling until monthly plans go live, capped at 50 seats, then close. Each founder then gets Growth at €179 a month (or Starter at €79), locked for 12 months. Their setup, history and taste log carry over. |

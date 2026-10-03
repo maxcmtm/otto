@@ -1,6 +1,9 @@
 # Otto pricing for the European market — research + recommendation
 Date: 2026-09-28 · Author: Claude Code (local) · Decision owner: Max · Status: **proposal, numbers editable in `platform/landing.html` → `PRICING`**
 
+> **Superseded.** Starter set to €79 by Max on 2 Oct 2026, a monthly subscription (`platform/plans.json`, `docs/MESSAGE-2026-10.md`).
+> The tiers below are the 28 Sep proposal, kept as history.
+
 ## 1. What the market charges (Sept 2026)
 
 **The direct anchor — Native.no (read live from native.no, 28.09):**

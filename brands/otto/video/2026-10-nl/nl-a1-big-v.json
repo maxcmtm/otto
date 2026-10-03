@@ -13,32 +13,33 @@
     "ground": "primary"
   },
   "big": {
-    "hero": "review_nl_en",
+    "hero": "month",
     "phrases": [
       {
-        "big": "0 evenings",
-        "rest": "spent filming."
+        "big": "Posts.",
+        "rest": "Every week."
       },
       {
-        "big": "0 hours",
-        "rest": "spent editing."
+        "big": "Ads.",
+        "rest": "Every day."
       },
       {
-        "big": "1 tap",
-        "rest": "to approve the reel.",
-        "product": "review_nl_en"
+        "big": "1 report",
+        "rest": "at 07:35, every morning.",
+        "product": "report_ads"
       }
     ]
   },
   "endcard": {
-    "headline": "Reels, without the filming.",
-    "accent": "without the filming.",
-    "sub": "Made from your own website.",
-    "fine": "Try it free for 7 days, no card needed.",
+    "headline": "Marketing, automated.",
+    "accent": "automated.",
+    "sub": "You run the business. Otto runs the marketing.",
+    "fine": "7 days free, no card. Then €79 a month.",
     "products": [
-      "review_nl_en"
+      "month"
     ],
     "logo": "logo",
+    "legal": "Monthly plan, no contract, cancel anytime. Prices excl. VAT.",
     "ground": "bg"
   }
 }

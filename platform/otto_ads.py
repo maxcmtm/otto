@@ -3,6 +3,8 @@
 
   otto_ads.py report  [--brand <id>] [--days 7] [--dry] [--no-send]   # daily paid numbers → data.json (+ Telegram block unless --no-send); cron 07:15, read by the 07:35 morning report
   otto_ads.py plan    <brand> <YYYY-MM> [--budget 20] [--dry]          # month of campaign flights (the paid Gantt) → campaigns[] drafts + ads-plan md + one rec
+                                                                       # + the month's ad matrix skeleton, whose copy the copywriter
+                                                                       # writes right away (otto_copy.spawn_ads: Claude API, queued)
   otto_ads.py approve <brand> <YYYY-MM>                                # owner said yes → drafts become approved
   otto_ads.py launch  [--brand <id>] [--dry]                           # approved flights that start today → created on Meta / Google (cron 06:00)
   otto_ads.py guard   [--dry]                                          # CPL rules, ended flights → pause + P0 recommendation (cron daily);
@@ -40,14 +42,20 @@ no longer covers — a downgrade, an expiry or an ended membership — with a ca
 nothing: paid work is refused until it is fixed, and the owner gets one P0 card.
 Meta launch is resumable: every created object id is saved into campaign.remote the moment it exists, and a re-run
 continues from there (no duplicate campaigns / ad sets). Reporting counts Meta results per campaign objective (leads,
-purchases, engagements, landing-page views) and reports link clicks separately — clicks are never "results".
-Meta Marketing API v25 + Google Ads REST v21 (GAQL searchStream / googleAds:mutate). Pure stdlib. --dry never calls out.
+purchases, engagements, landing-page views) and reports link clicks separately — clicks are never "results". Leads are
+Meta's `lead` action (the total; forms / website kept as a split, never added), cost per lead = spend / leads of the same
+rows, messaging conversations started (onsite_conversion.messaging_conversation_started_7d) per campaign and per ad, at
+Ads Manager's attribution (use_unified_attribution_setting: Meta's default 7-day click + 1-day view). The metric map and the
+parsing live in otto_metrics; report() also files yesterday's numbers per ad (meta.ads, kept 14 days).
+Meta Marketing API v26.0 (otto_publish.GRAPH_VERSION) + Google Ads REST v21 (GAQL searchStream / googleAds:mutate).
+Pure stdlib. --dry never calls out.
 """
 import base64, calendar, json, math, re, sys, time, urllib.error, urllib.parse, urllib.request
 from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 
 import ap
+import otto_metrics
 import otto_paths as paths
 import otto_publish as pub
 
@@ -60,20 +68,11 @@ RESTRICTED = re.compile(r"cbd|hemp|cannab|weight loss|crypto|bitcoin|forex|gambl
                         r"therap|mental health|psychotherap|psycholog|counsel+ing|employment|job (ad|opening|offer)s?|"
                         r"recruit|hiring|vacanc|housing|rental|mortgage|\bcredit\b|\bloans?\b|lending|"
                         r"טיפול רגשי|בריאות נפשית|פסיכותרפ|תרפי", re.I)
-# Meta results by campaign objective, first match wins (the lists overlap, never sum them)
-OBJECTIVE_RESULTS = {
-    "OUTCOME_LEADS": ["lead", "onsite_conversion.lead_grouped", "offsite_conversion.fb_pixel_lead", "complete_registration"],
-    "OUTCOME_SALES": ["omni_purchase", "purchase", "offsite_conversion.fb_pixel_purchase"],
-    "OUTCOME_ENGAGEMENT": ["post_engagement", "onsite_conversion.messaging_conversation_started_7d"],
-    "OUTCOME_TRAFFIC": ["landing_page_view", "link_click"],
-    "OUTCOME_AWARENESS": [],
-}
-LEGACY_OBJECTIVE = {"LEAD_GENERATION": "OUTCOME_LEADS", "CONVERSIONS": "OUTCOME_SALES", "LINK_CLICKS": "OUTCOME_TRAFFIC",
-                    "POST_ENGAGEMENT": "OUTCOME_ENGAGEMENT", "MESSAGES": "OUTCOME_ENGAGEMENT", "REACH": "OUTCOME_AWARENESS",
-                    "BRAND_AWARENESS": "OUTCOME_AWARENESS", "PRODUCT_CATALOG_SALES": "OUTCOME_SALES"}
-CONVERSION_OBJECTIVES = {"OUTCOME_LEADS", "OUTCOME_SALES"}
-RESULT_LABEL = {"OUTCOME_LEADS": "leads", "OUTCOME_SALES": "purchases", "OUTCOME_ENGAGEMENT": "engagements",
-                "OUTCOME_TRAFFIC": "landing-page views", "OUTCOME_AWARENESS": "reach"}
+# Meta results by campaign objective (first match wins — the lists overlap, never sum them), legacy objectives, labels:
+# the paid metric map lives in otto_metrics (shared with the 07:35 report and the owner console)
+OBJECTIVE_RESULTS, LEGACY_OBJECTIVE = otto_metrics.OBJECTIVE_RESULTS, otto_metrics.LEGACY_OBJECTIVE
+CONVERSION_OBJECTIVES, RESULT_LABEL = otto_metrics.CONVERSION_OBJECTIVES, otto_metrics.RESULT_LABEL
+AD_ROWS_KEEP_DAYS = 14                                 # ads.daily[].meta.ads (per ad) is kept this long; campaigns 90 days
 # Meta budgets are in the account currency's minor units ("offset" 100) except these (offset 1). The HUF entry
 # follows Meta's currency table as we understand it — verify against act?fields=currency on the first HUF account.
 ZERO_DECIMAL = {"CLP", "COP", "CRC", "HUF", "ISK", "IDR", "JPY", "KRW", "PYG", "TWD", "VND"}
@@ -201,36 +200,38 @@ def minor_units(amount, currency):
 # ---------------- reporting ----------------
 
 def _objective(o):
-    o = (o or "").upper()
-    return LEGACY_OBJECTIVE.get(o, o)
+    return otto_metrics.objective(o)
 
 
-def meta_insights(c, preset):
-    r = pub.graph("GET", f"{c['ad_account_id']}/insights", c["access_token"], level="campaign", date_preset=preset,
-                  fields="campaign_id,campaign_name,objective,spend,impressions,reach,clicks,inline_link_clicks,ctr,cpc,actions,purchase_roas",
-                  limit="100")
-    rows = []
-    for x in r.get("data", []):
-        acts = {}
-        for a in x.get("actions", []) or []:
-            v = ap.num(a.get("value"))
-            if v is not None:
-                acts[a["action_type"]] = float(v)
-        obj = _objective(x.get("objective"))
-        rtype = next((k for k in OBJECTIVE_RESULTS.get(obj, []) if k in acts), None)
-        results = acts.get(rtype, 0.0) if rtype else 0.0
-        spend = float(ap.num(x.get("spend")) or 0)
-        link_clicks = int(ap.num(x.get("inline_link_clicks")) or acts.get("link_click", 0))
-        conv = obj in CONVERSION_OBJECTIVES
-        roas = x.get("purchase_roas")
-        rows.append({"id": x["campaign_id"], "name": x["campaign_name"], "objective": obj, "result_type": RESULT_LABEL.get(obj),
-                     "conversion": conv, "spend": spend, "impressions": int(ap.num(x.get("impressions")) or 0),
-                     "reach": int(ap.num(x.get("reach")) or 0), "clicks": int(ap.num(x.get("clicks")) or 0),
-                     "link_clicks": link_clicks, "ctr": float(ap.num(x.get("ctr")) or 0), "results": results,
-                     "cost_per_result": round(spend / results, 2) if results else None,
-                     "cpl": round(spend / results, 2) if (conv and results) else None,
-                     "roas": float(ap.num(roas[0].get("value")) or 0) if roas else None})
-    return rows
+def meta_insights(c, preset, level="campaign"):
+    """Meta's numbers for `preset` (yesterday | last_7d) per campaign — or per ad (level="ad") — as Otto's rows
+    (otto_metrics.paid_row: results by objective, leads = `lead`, cost per lead, messaging conversations, frequency, cpm).
+    Ads Manager's attribution (use_unified_attribution_setting). Should Meta refuse a field or that parameter (error 100),
+    the core fields are asked once more without it. Pages through every row."""
+    def ask(core, after=None):
+        params = dict(level=level, date_preset=preset, fields=otto_metrics.ad_fields(level, core=core), limit="500")
+        if not core:
+            params["use_unified_attribution_setting"] = "true"
+        if after:
+            params["after"] = after
+        return pub.graph("GET", f"{c['ad_account_id']}/insights", c["access_token"], **params)
+    core = False
+    try:
+        r = ask(core)
+    except pub.GraphError as e:
+        if otto_metrics.code_of(e) != 100:
+            raise
+        print(f"meta insights ({level}): Meta refused a field — asking for the core fields ({str(e)[:120]})")
+        core = True
+        r = ask(core)
+    data = list(r.get("data") or [])
+    for _ in range(20):                                # 500 rows a page: a Starter account never gets here
+        nxt = ((r.get("paging") or {}).get("cursors") or {}).get("after") if (r.get("paging") or {}).get("next") else None
+        if not nxt:
+            break
+        r = ask(core, nxt)
+        data += list(r.get("data") or [])
+    return [otto_metrics.paid_row(x, level) for x in data if isinstance(x, dict)]
 
 
 def google_insights(g, during):
@@ -260,21 +261,9 @@ def google_terms(g):
 
 def totals(rows):
     """results = conversions only (leads / purchases on Meta, conversions on Google); clicks separate;
-    results_by_type keeps every objective's own result count, labelled."""
-    spend = sum(r["spend"] for r in rows)
-    conv_rows = [r for r in rows if r.get("conversion")]
-    res = sum(r["results"] for r in conv_rows)
-    conv_spend = sum(r["spend"] for r in conv_rows)
-    clicks = sum(r["clicks"] for r in rows)
-    link = sum(r.get("link_clicks", 0) for r in rows)
-    imps = sum(r["impressions"] for r in rows)
-    by_type = {}
-    for r in rows:
-        if r.get("result_type") and r["results"]:
-            by_type[r["result_type"]] = by_type.get(r["result_type"], 0) + r["results"]
-    return {"spend": round(spend, 2), "results": res, "results_by_type": by_type, "clicks": clicks, "link_clicks": link,
-            "impressions": imps, "cpl": round(conv_spend / res, 2) if res else None,
-            "ctr": round(100 * clicks / imps, 2) if imps else 0}
+    results_by_type keeps every objective's own result count, labelled; + cost_by_type, leads, cost_per_lead, messages
+    (otto_metrics.paid_totals)."""
+    return otto_metrics.paid_totals(rows)
 
 
 def report(bid=None, days=7, dry=False, send=True):
@@ -298,14 +287,20 @@ def report(bid=None, days=7, dry=False, send=True):
                 mcur = meta_account_currency(m) or cur
                 y, w = meta_insights(m, "yesterday"), meta_insights(m, "last_7d")
                 ty, tw = totals(y), totals(w)
-                day["meta"] = {"yesterday": ty, "week": tw, "campaigns": y, "currency": mcur}
+                day["meta"] = {"yesterday": ty, "week": tw, "campaigns": y, "currency": mcur,
+                               "attribution": otto_metrics.ATTRIBUTION}
+                try:                                       # per ad (the 20-ad matrix): its own call, never the day's numbers
+                    day["meta"]["ads"] = [r for r in meta_insights(m, "yesterday", level="ad") if r["spend"] or r["impressions"]]
+                except Exception as e:                     # noqa: BLE001
+                    day["meta"]["ads_error"] = str(e)[:200]
                 conv = [r for r in y if r["cpl"]]
                 best = min(conv, key=lambda r: r["cpl"], default=None)
                 worst = max(conv, key=lambda r: r["cpl"], default=None)
                 other = " · ".join(f"{v:.0f} {k}" for k, v in ty["results_by_type"].items() if k not in ("leads", "purchases"))
                 block.append(f"Meta: spent {ap.money(ty['spend'], mcur)} yesterday (7d {ap.money(tw['spend'], mcur)}) · "
                              f"{ty['results']:.0f} leads/purchases · CPL {ap.money(ty['cpl'], mcur)} (7d {ap.money(tw['cpl'], mcur)}) · "
-                             f"{ty['link_clicks']} link clicks · CTR {ty['ctr']}%" + (f" · {other}" if other else ""))
+                             f"{ty['link_clicks']} link clicks · CTR {ty['ctr']}%" + (f" · {other}" if other else "")
+                             + (f" · {ty['messages']:.0f} conversations started" if ty.get("messages") else ""))
                 if best:
                     block.append(f"  ▲ best: “{best['name'][:40]}” CPL {ap.money(best['cpl'], mcur)}")
                 if worst and worst is not best:
@@ -343,6 +338,8 @@ def report(bid=None, days=7, dry=False, send=True):
             adsb["daily"][today()] = v["day"]
             for k in sorted(adsb["daily"])[:-90]:           # keep 90 days
                 adsb["daily"].pop(k, None)
+            for k in sorted(adsb["daily"])[:-AD_ROWS_KEEP_DAYS]:   # per-ad rows: 14 days (the 20-ad matrix is big)
+                ((adsb["daily"][k] or {}).get("meta") or {}).pop("ads", None)
             v["block"].append(suggest(d, b_id, adsb, (v["day"].get("meta") or {}).get("currency") or v["cur"]))
             for msg in v["issues"]:
                 ap.add_rec_once(d, "P0", f"Reconnect Google Ads for {(ap.brand(d, b_id) or {}).get('name', b_id)}", msg[:300],
@@ -529,6 +526,9 @@ def plan_flights(d, b, ym, budget, bits):
     # descriptions cut at a sentence to 90 — each line checked against the brand's rules, like the hooks
     search_heads, search_descs = [], []
     for ad in angle_ads(b["id"]):
+        # Google lines the copywriter wrote for Search (otto_copy: ≤30 / ≤90 characters) come first
+        search_heads += [t for t in ad.get("rsa_headlines") or [] if isinstance(t, str) and 0 < len(t.strip()) <= 30]
+        search_descs += [t for t in ad.get("rsa_descriptions") or [] if isinstance(t, str) and 0 < len(t.strip()) <= 90]
         for k in ("headline", "proof", "description"):
             t = _sentences_fit(ad.get(k) or "", 30).rstrip(".")      # "6 grams of fiber. One snack pack." → "6 grams of fiber"
             if t:
@@ -644,7 +644,8 @@ def plan(bid, ym, budget=20.0, dry=False):
     import otto_creative as cre
     import otto_styles as sty
     if mx_new:
-        sty.save_matrix(bid, ym, mx)                   # the skeleton the copywriter fills (otto-creative-engine skill)
+        mx["skeleton"] = sty.fingerprint(mx)           # untouched until someone edits it (otto_copy may re-plan it then)
+        sty.save_matrix(bid, ym, mx)                   # the skeleton the copywriter fills (otto_copy.write_ads)
     created = []
     with ap.transaction() as d:
         if any(c["brand"] == bid and c.get("plan") == ym for c in d.get("campaigns", [])):
@@ -676,7 +677,20 @@ def plan(bid, ym, budget=20.0, dry=False):
         ap.record_band(d, bid, ym, band)
     write_plan_md(b, ym, created, sym, total, mx, gaps)
     print(f"planned {len(created)} campaigns for {bid} · {ym} (≈{sym}{total:,.0f}) → drafts + recommendation · Meta ad matrix: {mx_line}")
+    spawn_ad_copy(bid, ym)
     return created
+
+
+def spawn_ad_copy(bid, ym):
+    """The month's ads are planned: the copywriter (otto_copy, Claude API) writes their copy in the background — angles,
+    every cell of the matrix, Google RSA lines — queued on the server (OTTO_COPY_QUEUE), spawned elsewhere. Without an
+    Anthropic key nothing starts and the matrix waits for a person (the daily copy job fills gaps later). Never raises."""
+    try:
+        import otto_copy
+        if otto_copy.spawn_ads(bid, ym):
+            print(f"the copywriter is writing the {ym} ad copy in the background (copy.log)")
+    except Exception as e:                              # noqa: BLE001 — the daily copy job fills the gaps
+        print(f"note: ad copywriter not started ({type(e).__name__}: {str(e)[:120]}) — the daily copy job fills the gaps")
 
 
 def band_text(pl, band, sym):
@@ -930,7 +944,10 @@ def _ad_media(ad, m, base, hashes, vids, save):
             if f["file"] not in vids:
                 vids[f["file"]] = upload_video(f["file"], m, base)
                 save()
-            out.update(video=vids[f["file"]], poster=h(f["poster"]))
+            if out.get("video") and f.get("size") == "feed":      # a faceless video's 4:5 version (otto_advideo): feed placements
+                out.update(video_feed=vids[f["file"]], poster_feed=h(f["poster"]))
+            else:
+                out.update(video=vids[f["file"]], poster=h(f["poster"]))
         elif f.get("cards"):
             if "cards" not in out or f.get("size") == "feed":
                 out["cards"] = [h(k["file"]) for k in f["cards"]]
@@ -943,8 +960,9 @@ def _ad_media(ad, m, base, hashes, vids, save):
 
 
 def _concept_creative(act, tok, page, c, ad, media, link, lead_form, cta_default):
-    """One style = one creative: a video (video_data), a carousel (child_attachments) or a single image — with the 9:16
-    render placed on Stories / Reels when the cell has one (not with an instant form: unverified there)."""
+    """One style = one creative: a video (video_data; with its 4:5 version: the 9:16 on Stories / Reels and the 4:5 elsewhere),
+    a carousel (child_attachments) or a single image — with the 9:16 render placed on Stories / Reels when the cell has one
+    (not with an instant form: unverified there)."""
     cta_type = ad.get("cta") if META_CTA.match(str(ad.get("cta") or "")) else cta_default
     cta = {"type": "SIGN_UP", "value": {"lead_gen_form_id": lead_form}} if lead_form else {"type": cta_type, "value": {"link": link}}
     msg, title, desc = (ad.get("primary") or "")[:1000], (ad.get("headline") or "")[:255], (ad.get("description") or "").strip()
@@ -957,6 +975,19 @@ def _concept_creative(act, tok, page, c, ad, media, link, lead_form, cta_default
         vd = {"video_id": media["video"], "message": msg, "title": title, "call_to_action": cta, "image_hash": media["poster"]}
         if desc:
             vd["link_description"] = desc
+        if media.get("video_feed") and not lead_form:      # 9:16 on Stories / Reels, 4:5 everywhere else (as the statics)
+            vs = {"story": (media["video"], media["poster"]), "feed": (media["video_feed"], media["poster_feed"])}
+            spec = {"videos": [{"video_id": v, "thumbnail_hash": th, "adlabels": [{"name": f"{ad['id']}-{k}"}]} for k, (v, th) in vs.items()],
+                    "bodies": [{"text": msg}], "titles": [{"text": title}], "link_urls": [{"website_url": link}],
+                    "call_to_action_types": [cta_type], "ad_formats": ["SINGLE_VIDEO"],
+                    "asset_customization_rules": [{"customization_spec": cs, "video_label": {"name": f"{ad['id']}-{k}"}, "priority": i}
+                                                  for i, (cs, k) in enumerate(PLACEMENT_RULES, 1)]}
+            if desc:
+                spec["descriptions"] = [{"text": desc}]
+            try:
+                return post({"object_story_spec": {"page_id": page}, "asset_feed_spec": spec})
+            except pub.GraphError as e:
+                print(f"  {ad['id']}: placement customisation refused, the 9:16 video everywhere — {str(e)[:120]}")
         return post({"object_story_spec": {"page_id": page, "video_data": vd}})
     if media.get("cards"):
         kids = [{"link": link, "image_hash": hh, "name": (t or title)[:255]} for hh, t in zip(media["cards"], media["card_texts"])]

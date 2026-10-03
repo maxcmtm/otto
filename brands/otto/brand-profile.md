@@ -14,7 +14,9 @@ Generated: 2026-09-30 by Claude Code (head of growth pass) · Sources: `platform
   business; the first week of posts, stories and reels, approvals by e-mail, in Telegram or in the app, the 07:35 report,
   paid ads planned for preview (they launch once a plan is chosen); e-mail two days before the end, nothing charged
   automatically. **Pay-once alternative:** the founding pilot, €197 once (excl. VAT), capped at 50 seats.
-- **Next (not live yet, do not advertise until Whop has the plans):** Starter €99 · Growth €249 · Scale €499 a month.
+- **Price (approved by Max, 2 Oct 2026):** after the trial, **€79 a month** (Starter, excl. VAT), a monthly subscription:
+  no yearly plan, no contract, cancel anytime. Only this price is public: other plans and their prices are not advertised
+  (docs/MESSAGE-2026-10.md).
 
 ## What Otto sells (outcome, not features)
 The month is handled and you stay in control. Otto reads your website, plans the month, writes and designs posts, reels and

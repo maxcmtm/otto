@@ -13,32 +13,33 @@
     "ground": "primary"
   },
   "big": {
-    "hero": "review_nl",
+    "hero": "campaign",
     "phrases": [
       {
-        "big": "Dutch.",
-        "rest": "Not translated."
+        "big": "1 campaign",
+        "rest": "Ads for every angle."
       },
       {
-        "big": "Your town.",
-        "rest": "Your customers."
+        "big": "07:35",
+        "rest": "Spend, clicks, enquiries."
       },
       {
-        "big": "Your call.",
-        "rest": "Before anything goes live.",
-        "product": "review_nl"
+        "big": "1 tap",
+        "rest": "to approve or pause.",
+        "product": "report_ads"
       }
     ]
   },
   "endcard": {
-    "headline": "Dutch. Not translated.",
-    "accent": "Not translated.",
-    "sub": "Posts, reels and ads that sound like your business.",
-    "fine": "Try it free for 7 days, no card needed.",
+    "headline": "Your ads, reported daily.",
+    "accent": "reported daily.",
+    "sub": "Every morning at 07:35.",
+    "fine": "7 days free, no card. Then €79 a month.",
     "products": [
-      "review_nl"
+      "campaign"
     ],
     "logo": "logo",
+    "legal": "Monthly plan, no contract, cancel anytime. Prices excl. VAT.",
     "ground": "bg"
   }
 }

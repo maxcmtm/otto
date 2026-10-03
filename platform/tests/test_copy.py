@@ -6,7 +6,12 @@ names, published), pending_approval for what passes, the JSON repair, compliance
 with an owner card, banned words, the no-invention guard (numbers, prices, quotes, attributions, personas, claims), a person's
 edit never overwritten, the trial (spawn on kickoff, copy_done + the owner card resolved, the hourly catch-up), no key → no-op,
 the caps and the usage ledger, retries, the auth error, refusals, cut-off answers, the daily job and its timer, disclaimers,
-English twins, cards deferred from a process without Chrome. Every OTTO_* path points into a temp workspace.
+English twins, cards deferred from a process without Chrome. The ad copywriter (write_ads): angles.json built when missing,
+the month's matrix filled within Meta's limits (concepts, image cells, faceless video beats; creator cells left alone on
+Starter, briefs without testimonials on Growth), compliance rejection → one rewrite → held with an owner card, a person's copy
+never overwritten (also mid-run), an untouched skeleton re-planned, the Google RSA lines into the month's draft campaign, the
+triggers (otto_ads plan and matrix --plan spawn / queue it, the trial after its first week, the daily job filling gaps), the
+caps and the ledger. Every OTTO_* path points into a temp workspace.
 
   cd platform && python3 tests/test_copy.py
   OTTO_TEST_RENDER=1 python3 tests/test_copy.py        # also one real render through headless Chrome (fonts may be fetched)
@@ -29,9 +34,11 @@ ENV = {"OTTO_DATA": str(TMP / "data.json"), "OTTO_HTML": str(TMP / "index.html")
        "OTTO_HEARTBEATS": str(TMP / "heartbeats.json"), "OTTO_BILLING": str(TMP / "billing.json"), "OTTO_EVENTS": str(TMP / "events.jsonl"),
        "OTTO_SESSIONS": str(TMP / "sessions.json"), "OTTO_APP_URL": "https://app.otto.example/"}
 CLEAR = ("ANTHROPIC_API_KEY", "OTTO_COPY_MODEL", "OTTO_COPY", "OTTO_COPY_RENDER", "OTTO_ANTHROPIC_API_BASE", "OTTO_TZ", "OTTO_DOMAIN")
-MODS = ("ap", "otto_copy", "otto_trial", "otto_plan", "otto_paths", "otto_render", "otto_cron", "otto_admin", "otto_compliance")
+MODS = ("ap", "otto_copy", "otto_trial", "otto_plan", "otto_paths", "otto_render", "otto_cron", "otto_admin", "otto_compliance",
+        "otto_ads", "otto_creative", "otto_styles", "otto_competitors", "otto_advideo")
 PINS = [("ap", "DATA", "data.json"), ("ap", "HTML", "index.html"), ("ap", "BRANDS", "brands"), ("otto_paths", "ASSETS", "assets"),
-        ("otto_plan", "BRANDS", "brands"), ("otto_render", "BRANDS", "brands")]
+        ("otto_plan", "BRANDS", "brands"), ("otto_render", "BRANDS", "brands"), ("otto_ads", "BRANDS", "brands"),
+        ("otto_creative", "BRANDS", "brands"), ("otto_competitors", "BRANDS", "brands")]
 TZ = ZoneInfo("Europe/Amsterdam")
 _SAVED, S = {}, {}
 
@@ -138,6 +145,8 @@ def setUpModule():
     os.environ["OTTO_ANTHROPIC_API_BASE"] = S["fake"].base
     _SAVED["fns"] = (otto_copy.render_card, otto_copy.tokens, otto_copy.SPAWN, otto_copy.SLEEP, otto_copy.fetch_og,
                      otto_copy.can_render)
+    _SAVED["video"] = (otto_advideo.SPAWN, otto_advideo.toolchain, otto_advideo.run_queued)
+    otto_advideo.SPAWN = lambda args, log: S.setdefault("video_spawned", []).append(args)   # never a real background render
     otto_copy.tokens = lambda bid: {"lang": "en", "name": bid}
     otto_copy.fetch_og = lambda bid, scan: None
     otto_copy.can_render = lambda: True
@@ -149,6 +158,8 @@ def tearDownModule():
     if "fns" in _SAVED:
         (otto_copy.render_card, otto_copy.tokens, otto_copy.SPAWN, otto_copy.SLEEP, otto_copy.fetch_og,
          otto_copy.can_render) = _SAVED["fns"]
+    if "video" in _SAVED:
+        otto_advideo.SPAWN, otto_advideo.toolchain, otto_advideo.run_queued = _SAVED["video"]
     g = globals()
     for m, a, v in _SAVED.get("pins", []):
         setattr(g[m], a, v)
@@ -177,6 +188,10 @@ class Base(unittest.TestCase):
         S["renders"] = []
         S["sleeps"] = []
         S["spawned"] = []
+        S["video_spawned"], S["video_jobs"] = [], []
+        otto_advideo.SPAWN = lambda args, log: S["video_spawned"].append(args)
+        otto_advideo.toolchain = lambda: None
+        otto_advideo.run_queued = lambda job, **kw: S["video_jobs"].append(job) or "done"   # tests/test_advideo.py renders
         otto_copy.render_card = fake_render
         otto_copy.SLEEP = lambda s: S["sleeps"].append(s)
         otto_copy.SPAWN = lambda args, log: S["spawned"].append(args)
@@ -907,6 +922,661 @@ class Queue(Base):
     def test_without_a_queue_dir_nothing_runs(self):
         os.environ.pop("OTTO_COPY_QUEUE", None)
         self.assertEqual(otto_copy.run_queue(), 0)
+
+
+class AdsBase(Base):
+    """The ad copywriter: brands/<id>/angles.json and the month's ad matrix (brands/<id>/ads-<YYYY-MM>.json)."""
+
+    def setUp(self):
+        super().setUp()
+        self.ym = otto_copy.month_of(ap.brand(data(), "beans"))
+
+    def plan(self, preset="micro", stamp=True, bid="beans"):
+        mx = otto_styles.plan_matrix(bid, ym=self.ym, preset=preset)
+        if stamp:
+            mx["skeleton"] = otto_styles.fingerprint(mx)
+        otto_styles.save_matrix(bid, self.ym, mx)
+        return mx
+
+    def matrix(self, bid="beans"):
+        return otto_styles.load_matrix(bid, self.ym)
+
+    def write_angles(self, angles, bid="beans"):
+        (TMP / "brands" / bid / "angles.json").write_text(json.dumps({"angles": angles, "formats": {}}, indent=1))
+
+    def angles(self, bid="beans"):
+        return json.loads((TMP / "brands" / bid / "angles.json").read_text())
+
+    def set_plan(self, plan, bid="beans"):
+        d = data()
+        ap.brand(d, bid)["plan"] = plan
+        (TMP / "data.json").write_text(json.dumps(d))
+
+    def run_ads(self, bid="beans", **kw):
+        lines = []
+        r = otto_copy.write_ads(bid, out=lines.append, **kw)
+        return r, lines
+
+    def ad_reqs(self, kind=None):
+        return [x for x in S["fake"].requests() if FA.ad_kind(x["body"]) and (kind is None or FA.ad_kind(x["body"]) == kind)]
+
+    def human_angles(self, bid="beans"):
+        """A research file a person wrote: four concepts, one per micro family, with their ad copy."""
+        self.write_angles(bid=bid, angles=[
+            {"rank": 1, "angle": "Coffee tastes flat at home because the beans are old", "family": "pain", "source": "competitor-research",
+             "ad": {"headline": "Your coffee is not the problem", "primary": "Old beans taste flat. Ours show their roast date.",
+                    "description": "Roasted in Utrecht", "proof": "Roasted in Utrecht since 2014"}},
+            {"rank": 2, "angle": "For home baristas who brew every morning", "family": "identity", "source": "profile",
+             "ad": {"headline": "For the morning brewer", "primary": "Beans for people who brew every single morning.",
+                    "description": "", "proof": ""}},
+            {"rank": 3, "angle": "Supermarket bags without a roast date versus dated bags", "family": "enemy", "source": "competitor",
+             "ad": {"headline": "Know when it was roasted", "primary": "Most bags hide the roast date. Ours print it.",
+                    "description": "", "proof": ""}},
+            {"rank": 4, "angle": "The yearly subscription: € 79", "family": "offer", "stage": "hot", "source": "profile",
+             "ad": {"headline": "A year of fresh beans", "primary": "The yearly subscription: € 79.", "description": "", "proof": ""}}])
+
+
+class AdsAngles(AdsBase):
+    def test_angles_built_when_missing(self):
+        r, lines = self.run_ads()
+        self.assertEqual(r["angles_file"], "built", lines)
+        self.assertIsNone(r["matrix"], "no matrix this month: the daily path never plans one")
+        reqs = self.ad_reqs("angles")
+        self.assertEqual(len(reqs), 1, "one request builds every concept")
+        body = reqs[0]["body"]
+        fmt = body["output_config"]["format"]
+        self.assertEqual(fmt["type"], "json_schema")
+        for obj in walk_objects(fmt["schema"]):
+            self.assertIs(obj.get("additionalProperties"), False, obj)
+            self.assertEqual(sorted(obj["required"]), sorted(obj["properties"]), "structured outputs: every field required")
+        self.assertEqual(body["model"], "claude-opus-5-5")
+        self.assertEqual(body["thinking"], {"type": "adaptive"})
+        sysb = body["system"]
+        self.assertEqual(sysb[1]["cache_control"], {"type": "ephemeral"})
+        for t in ("You are Quill", "STYLE GUIDE", "VIDEO KITS", "SHOP_NOW", "never write lines as if a customer said them".lower()):
+            self.assertIn(t.lower(), sysb[0]["text"].lower())
+        for t in ("Bean Bros", "# PAID ADS", "Roasted in Utrecht since 2014", "CONTENT LANGUAGE: English (en)", "miracle"):
+            self.assertIn(t, sysb[1]["text"])
+        msg = body["messages"][0]["content"]
+        self.assertIn("n1: pain, n2: identity, n3: enemy, n4: offer", msg, "the micro families, the offer only with a real offer")
+        self.assertIn("[] (no Google Search", msg, "Starter has no Google")
+        aj = self.angles()
+        self.assertEqual([a["family"] for a in aj["angles"]], ["pain", "identity", "enemy", "offer"])
+        for a in aj["angles"]:
+            self.assertEqual(a["by"], "otto_copy")
+            self.assertTrue(a["angle"] and a["id"].startswith("r"))
+            ad = a["ad"]
+            self.assertEqual(ad["by"], "otto_copy")
+            self.assertTrue(0 < len(ad["headline"]) <= 40)
+            self.assertLessEqual(len(ad["primary"].split("\n")[0]), 125)
+            self.assertLessEqual(len(ad["description"]), 30)
+            self.assertNotIn("rsa_headlines", ad)
+        self.assertEqual(aj["angles"][1]["persona"], "p1")
+        self.assertEqual(aj["angles"][2]["source"], "profile", "no competitors.json: never labelled as competitor research")
+        # what reads it: the angle-bank creatives and the next plan's concepts
+        self.assertEqual(otto_ads.angle_ads("beans")[0]["headline"], aj["angles"][0]["ad"]["headline"])
+        pool = otto_styles.angle_pool("beans", json.loads((TMP / "brands" / "beans" / "strategy.json").read_text()), aj)
+        self.assertTrue(any(x["id"] == "r1" for x in pool))
+        led = json.loads((TMP / "copy-usage.json").read_text())
+        self.assertEqual(led["ads"]["beans"]["month"], self.ym)
+        self.assertEqual(next(iter(led["days"].values()))["calls"], 1)
+        # a second run has nothing left to build
+        r2, _ = self.run_ads()
+        self.assertIsNone(r2["angles_file"])
+        self.assertEqual(len(self.ad_reqs()), 1)
+
+    def test_existing_angles_get_ad_copy_and_a_persons_ad_is_kept(self):
+        self.write_angles([{"rank": 1, "angle": "Freshness you can read on the bag", "source": "competitor-research"},
+                           {"rank": 2, "angle": "Small batches from Utrecht", "source": "competitor-research",
+                            "ad": {"nl": {"headline": "Kleine batches"}, "ie": {"headline": "Small batches"}}}])
+        r, lines = self.run_ads()
+        self.assertEqual(r["angles_file"], "filled", lines)
+        msg = self.ad_reqs("angles")[0]["body"]["messages"][0]["content"]
+        self.assertIn("<existing>", msg)
+        self.assertIn("Freshness you can read on the bag", msg)
+        self.assertNotIn("Small batches from Utrecht", msg, "an angle with a person's ad (any shape) is never sent")
+        self.assertNotIn("new concepts", msg, "a research file is not extended")
+        aj = self.angles()
+        self.assertEqual(aj["angles"][0]["ad"]["by"], "otto_copy")
+        self.assertEqual(aj["angles"][1]["ad"], {"nl": {"headline": "Kleine batches"}, "ie": {"headline": "Small batches"}})
+        self.assertEqual(len(aj["angles"]), 2)
+
+    def test_competitor_sweep_keeps_the_ad_copy(self):
+        self.run_ads()
+        before = self.angles()
+        lines = []
+        with contextlib.redirect_stdout(io.StringIO()):
+            otto_competitors.angles("beans")                    # no competitor-research.md: the file is kept
+        self.assertEqual(self.angles()["angles"], before["angles"])
+        (TMP / "brands" / "beans" / "competitor-research.md").write_text(
+            "# Research\n\n## Longevity winners\n- " + before["angles"][0]["angle"] + "\n- A brand-new research angle about grinders\n")
+        with contextlib.redirect_stdout(io.StringIO()):
+            otto_competitors.angles("beans")
+        after = self.angles()["angles"]
+        self.assertEqual(after[0]["ad"], before["angles"][0]["ad"], "the same angle keeps its written ad copy")
+        self.assertEqual(after[0]["source"], "competitor-research")
+        self.assertIn("A brand-new research angle about grinders", [a["angle"] for a in after])
+        self.assertTrue(any(a.get("by") == "otto_copy" for a in after[2:]), "the copywriter's other concepts stay")
+
+    def test_plan_without_paid_ads_gets_nothing(self):
+        self.set_plan("content")
+        r, _ = self.run_ads()
+        self.assertIn("no paid ads", r["skipped"])
+        self.assertFalse(otto_copy.spawn_ads("beans", self.ym))
+        self.assertEqual(S["fake"].requests(), [])
+        self.assertFalse((TMP / "brands" / "beans" / "angles.json").exists())
+
+    def test_no_key_and_dry(self):
+        (TMP / "secrets" / "anthropic.json").unlink()
+        self.assertEqual(self.run_ads()[0]["skipped"], "no_key")
+        self.assertFalse(otto_copy.spawn_ads("beans", self.ym))
+        set_key()
+        self.plan()
+        r, lines = self.run_ads(dry=True)
+        self.assertEqual(r["skipped"], "dry")
+        self.assertEqual(S["fake"].requests(), [])
+        out = "\n".join(lines)
+        self.assertIn("WOULD BUILD angles.json", out)
+        self.assertIn("WOULD WRITE", out)
+        self.assertFalse((TMP / "brands" / "beans" / "angles.json").exists())
+
+
+class AdsMatrix(AdsBase):
+    def test_matrix_filled_within_limits(self):
+        self.human_angles()
+        mx0 = self.plan()
+        r, lines = self.run_ads()
+        self.assertIsNone(r["angles_file"], "every angle already has its ad copy")
+        self.assertEqual(r["matrix"], "exists")
+        reqs = self.ad_reqs("ad")
+        self.assertEqual(len(reqs), len(otto_styles.live_angles(mx0)), "one request per concept")
+        self.assertIn("<cells>", reqs[0]["body"]["messages"][0]["content"])
+        self.assertNotIn("Write the kit data JSON", reqs[0]["body"]["messages"][0]["content"], "the planner's note to a person is left out")
+        self.assertEqual(reqs[0]["body"]["system"], reqs[1]["body"]["system"], "the cached prefix is reused byte for byte")
+        for obj in walk_objects(reqs[0]["body"]["output_config"]["format"]["schema"]):
+            self.assertIs(obj.get("additionalProperties"), False, obj)
+            self.assertEqual(sorted(obj["required"]), sorted(obj["properties"]))
+        mx = self.matrix()
+        self.assertFalse(otto_styles.untouched_skeleton(mx), "a written matrix is no longer a skeleton")
+        rep = otto_styles.check_matrix("beans", self.ym, mx)
+        self.assertEqual(rep["copy"], [], "1-2 headlines and 2-3 primaries per concept")
+        for a in otto_styles.live_angles(mx):
+            self.assertTrue(1 <= len(a["headlines"]) <= 2 and all(len(h) <= 40 for h in a["headlines"]), a["headlines"])
+            self.assertTrue(2 <= len(a["primaries"]) <= 3, a["primaries"])
+            self.assertTrue(all(len(p.split("\n")[0]) <= 125 for p in a["primaries"]))
+            self.assertLessEqual(len(a["description"]), 30)
+            self.assertIn(a["cta"], otto_styles.META_CTAS)
+            self.assertNotIn("rsa", a, "no Google on Starter")
+            self.assertEqual(a["copy"]["by"], "otto_copy")
+            self.assertEqual(a["copy"]["state"], "written")
+        by_status = {}
+        for row in rep["cells"]:
+            by_status.setdefault(row["status"], []).append(row)
+            self.assertNotIn(row["status"], ("invalid", "violation"), row)
+        unwritten = [x for x in by_status.get("unwritten", [])]
+        self.assertTrue(all(x["format"] == "creator" for x in unwritten), unwritten)
+        self.assertTrue(by_status.get("scripted"), "faceless video beats are written (motion renders them)")
+        for a in otto_styles.live_angles(mx):
+            for c in otto_styles.live_cells(a):
+                if c["format"] == "creator":
+                    self.assertEqual(c["creator"]["hook"], "", "Starter has no creator briefs: the slot keeps its old behaviour")
+                    self.assertNotIn("copy", c)
+                    continue
+                self.assertEqual(c["copy"]["by"], "otto_copy")
+                self.assertEqual(c["copy"]["state"], "written")
+                self.assertNotIn("theme", c["data"], "layout switches are never the model's")
+                self.assertFalse(any(otto_styles.ASSET_KEY.search(k) for k in c["data"]), "pictures are never the model's")
+                if c["format"] == "video":
+                    kit = c["video"]["kit"]
+                    self.assertTrue(c["data"]["endcard"]["headline"])
+                    if kit == "big":
+                        self.assertNotIn("hero", c["data"]["big"], "asset roles are the presentation's")
+                    if kit == "versus":
+                        self.assertNotIn("illo", c["data"]["versus"]["left"])
+        # nothing left: a second run makes no call
+        S["fake"].reset()
+        r2, _ = self.run_ads()
+        self.assertEqual(S["fake"].requests(), [], r2)
+
+    def test_never_overwrites_a_persons_copy(self):
+        self.human_angles()
+        self.plan()
+        mx = self.matrix()
+        a0 = otto_styles.live_angles(mx)[0]
+        a0["headlines"], a0["primaries"] = ["A person's headline"], ["A person's first primary.", "A person's second primary."]
+        cell = next(c for a in otto_styles.live_angles(mx) for c in a["ads"] if c["format"] == "image" and c["style"] in (
+            "notes_app", "search", "text_message", "social_post", "before_after", "us_vs_them", "comparison", "checklist", "offer",
+            "big_number", "myth_fact"))
+        first = otto_styles.STYLES[cell["style"]]["fields"]["required"][0]
+        cell["data"][first] = "A person's words"
+        otto_styles.save_matrix("beans", self.ym, mx)
+        other = otto_styles.live_angles(mx)[1]
+
+        def meddle(body, slots, n):                            # a person edits another concept while Otto is writing
+            ans = FA.make_ad(body)
+            m = otto_styles.load_matrix("beans", self.ym)
+            a1 = next(x for x in m["angles"] if x["id"] == other["id"])
+            a1["headlines"] = ["Written by a person meanwhile"]
+            otto_styles.save_matrix("beans", self.ym, m)
+            return ans
+        S["fake"].replies = [lambda b, s, n: FA.make_ad(b), meddle]
+        set_key(parallel=1)
+        r, lines = self.run_ads()
+        mx2 = self.matrix()
+        a0b = next(x for x in mx2["angles"] if x["id"] == a0["id"])
+        self.assertEqual(a0b["headlines"], ["A person's headline"])
+        self.assertEqual(a0b["primaries"], ["A person's first primary.", "A person's second primary."])
+        self.assertTrue(a0b["description"], "an empty field next to a person's copy is filled")
+        c2 = next(c for x in mx2["angles"] for c in x["ads"] if c["id"] == cell["id"])
+        self.assertEqual(c2["data"][first], "A person's words", "a person's cell field is kept")
+        self.assertNotIn(first, c2["copy"]["wrote"])
+        self.assertTrue(c2["copy"]["wrote"], "the fields it lacked are filled")
+        self.assertEqual([k for k in otto_styles.missing_fields(c2["style"], c2["data"]) if not otto_copy._asset_field(k)], [])
+        a1b = next(x for x in mx2["angles"] if x["id"] == other["id"])
+        self.assertEqual(a1b["headlines"], ["Written by a person meanwhile"], "an edit made during the run wins")
+        msg = self.ad_reqs("ad")[0]["body"]["messages"][0]["content"]
+        self.assertIn("A person's headline", msg, "the model sees the existing copy")
+        self.assertIn('"existing"', msg)
+
+    def test_compliance_rejection_is_rewritten_once(self):
+        self.human_angles()
+        self.plan()
+
+        def bad(body, slots, n):
+            ans = FA.make_ad(body)
+            ans["angle"]["primaries"][0] = "A little miracle in every bag: the roast date on the front."
+            return ans
+        S["fake"].replies = [bad]
+        set_key(parallel=1)
+        r, lines = self.run_ads()
+        reqs = self.ad_reqs("ad")
+        self.assertIn("<rejected>", reqs[1]["body"]["messages"][0]["content"])
+        self.assertIn("miracle", reqs[1]["body"]["messages"][0]["content"])
+        self.assertNotIn("<cells>", reqs[1]["body"]["messages"][0]["content"], "only the failing part is asked again")
+        a = otto_styles.live_angles(self.matrix())[0]
+        self.assertNotIn("miracle", json.dumps(a))
+        self.assertEqual(a["copy"]["state"], "written")
+        self.assertEqual(a["copy"]["attempts"], 2)
+        self.assertEqual(len(reqs), len(otto_styles.live_angles(self.matrix())) + 1)
+
+    def test_still_failing_is_held_for_the_owner(self):
+        self.human_angles()
+        self.plan()
+
+        def bad(body, slots, n):
+            ans = FA.make_ad(body)
+            if "<rejected>" not in FA.user_text(body) and FA.block(body, "concept")["id"] != first:
+                return ans
+            ans["angle"]["primaries"] = ["Cheap coffee, a miracle every morning. Order in the webshop."]
+            bad_line = "Loved by 12,000 coffee fans"
+            for c in ans["cells"]:
+                d = json.loads(c["data_json"])
+                if "endcard" in d:
+                    d["endcard"] = dict(d["endcard"], sub=bad_line)
+                else:
+                    d.update({k: bad_line for k in ("headline", "title", "before", "myth", "name", "text", "contact", "label")})
+                    d.update(query="loved by 12,000 fans", number="12,000")
+                c["data_json"] = json.dumps(d)
+            return ans
+        first = otto_styles.live_angles(self.matrix())[0]["id"]
+        S["fake"].replies = [bad, bad]
+        set_key(parallel=1)
+        r, lines = self.run_ads()
+        mx = self.matrix()
+        a = next(x for x in mx["angles"] if x["id"] == first)
+        self.assertEqual(a["copy"]["state"], "held")
+        self.assertIn("miracle", json.dumps(a["copy"]["draft"]), "the draft is kept for a person")
+        self.assertNotIn("miracle", json.dumps({k: v for k, v in a.items() if k != "copy"}), "nothing held runs")
+        held_cells = [c for c in a["ads"] if (c.get("copy") or {}).get("state") == "held"]
+        self.assertTrue(held_cells, "a cell with an invented number is held")
+        for c in held_cells:
+            self.assertNotIn("12,000", json.dumps(c.get("data") or {}))
+            self.assertIn("12,000", json.dumps(c["copy"]["draft"]))
+        self.assertIn(first, r["held"])
+        recs = [x for x in data()["recommendations"] if x["title"] == "Ad copy held for review: Bean Bros"]
+        self.assertEqual(len(recs), 1)
+        self.assertEqual(recs[0]["audience"], "owner")
+        self.assertIn("miracle", recs[0]["why"])
+        import otto_api
+        self.assertNotIn(recs[0]["id"], [x["id"] for x in otto_api.client_view(data(), {"beans"})["recommendations"]])
+        S["fake"].reset()
+        self.run_ads()
+        asked = [FA.block(x["body"], "concept")["id"] for x in self.ad_reqs("ad")]
+        self.assertNotIn(first, asked, "a held concept waits for a person")
+
+    def test_untouched_skeleton_is_replanned_from_the_new_angles(self):
+        self.plan()
+        before = [a["id"] for a in self.matrix()["angles"]]
+        r, lines = self.run_ads()
+        self.assertEqual(r["angles_file"], "built", lines)
+        self.assertEqual(r["matrix"], "replanned")
+        after = [a["id"] for a in self.matrix()["angles"]]
+        self.assertNotEqual(before, after)
+        self.assertTrue(any(x.startswith("r") for x in after), "the concepts come from angles.json")
+        self.assertEqual(sorted(a["family"] for a in self.matrix()["angles"]), ["enemy", "identity", "offer", "pain"])
+        self.assertEqual([g for g in otto_styles.coverage(self.matrix()) if "angle per family" in g], [])
+        # a skeleton someone edited is never re-planned
+        shutil.rmtree(TMP / "brands" / "beans")
+        write_brand_files()
+        mx = self.plan()
+        mx["angles"][0]["name"] = "Renamed by a person"
+        otto_styles.save_matrix("beans", self.ym, mx)
+        S["fake"].reset()
+        r2, _ = self.run_ads()
+        self.assertEqual(r2["matrix"], "exists")
+        self.assertEqual(self.matrix()["angles"][0]["name"], "Renamed by a person")
+
+    def test_creator_briefs_on_growth_never_testimonials(self):
+        self.set_plan("growth")
+        self.human_angles()
+        mx = self.plan(preset="launch")
+
+        def first_person(body, slots, n):
+            ans = FA.make_ad(body)
+            for c in ans["cells"]:
+                d = json.loads(c["data_json"])
+                if "script" in d:
+                    d["script"] = ["I've been using these beans for a month and my mornings changed"]
+                    c["data_json"] = json.dumps(d)
+            return ans
+        S["fake"].replies = [first_person] * 40
+        set_key(parallel=1, max_calls_per_brand_day=100)
+        r, lines = self.run_ads()
+        creators = [c for a in otto_styles.live_angles(self.matrix()) for c in otto_styles.live_cells(a) if c["format"] == "creator"]
+        self.assertTrue(creators)
+        for c in creators:
+            self.assertEqual(c["copy"]["state"], "held", c)
+            self.assertEqual(c["creator"]["script"], [], "a testimonial-style script never lands in the brief")
+            self.assertIn("first-person", " ".join(c["copy"]["problems"]))
+        # the clean answer: the brief is written, the cell waits for the real creator's footage
+        S["fake"].reset()
+        self.plan(preset="launch")
+        r, lines = self.run_ads()
+        rep = otto_styles.check_matrix("beans", self.ym, self.matrix())
+        crows = [x for x in rep["cells"] if x["format"] == "creator"]
+        self.assertTrue(crows and all(x["status"] == "planned" for x in crows), crows)
+        c = next(c for a in otto_styles.live_angles(self.matrix()) for c in otto_styles.live_cells(a) if c["format"] == "creator")
+        self.assertTrue(c["creator"]["hook"] and c["creator"]["script"] and c["creator"]["shot_list"])
+        self.assertEqual(c["creator"]["disclosure"], "Paid partnership label + #ad; real footage by a real creator")
+        self.assertNotIn("file", c)
+
+    def test_google_lines_reach_the_draft_search_campaign(self):
+        self.set_plan("growth")
+        d = data()
+        d["campaigns"].append({"id": "cp-001", "brand": "beans", "network": "google", "plan": self.ym, "status": "draft",
+                               "objective": "sales", "remote": {}, "audience": {"countries": ["NL"], "languages": ["en"]},
+                               "creative": {"headlines": ["Bean Bros", "A person's line"], "descriptions": ["Shop fresh beans."],
+                                            "keywords": {"brand": ["bean bros"], "generic": []}}})
+        d["campaigns"].append({"id": "cp-002", "brand": "beans", "network": "google", "plan": self.ym, "status": "live",
+                               "objective": "sales", "remote": {"campaign_id": "123"}, "creative": {"headlines": ["Live one"]}})
+        (TMP / "data.json").write_text(json.dumps(d))
+        self.human_angles()
+        self.plan(preset="launch")
+        set_key(max_calls_per_brand_day=100)
+        r, lines = self.run_ads()
+        self.assertEqual(r["google"], 1, lines)
+        for a in otto_styles.live_angles(self.matrix()):
+            self.assertTrue(a["rsa"]["headlines"] and all(len(h) <= 30 for h in a["rsa"]["headlines"]))
+            self.assertTrue(a["rsa"]["descriptions"] and all(len(x) <= 90 for x in a["rsa"]["descriptions"]))
+        c = ap.campaign(data(), "cp-001")
+        self.assertEqual(c["creative"]["headlines"][0], "Bean Bros", "the brand name stays first")
+        self.assertIn("Roasted in Utrecht", c["creative"]["headlines"])
+        self.assertIn("A person's line", c["creative"]["headlines"], "a person's line stays")
+        self.assertIn("Shop fresh beans.", c["creative"]["descriptions"])
+        heads, descs = otto_ads.rsa_assets(c, ap.brand(data(), "beans"), "en")
+        self.assertIn("Roasted in Utrecht", heads)
+        self.assertEqual(ap.campaign(data(), "cp-002")["creative"]["headlines"], ["Live one"], "a launched campaign is never touched")
+
+
+class AdsEdges(AdsBase):
+    def test_dshea_and_disclaimer_by_code(self):
+        d = data()
+        d["brands"].append(brand("greens", countries=["US"], currency="USD"))
+        (TMP / "data.json").write_text(json.dumps(d))
+        write_brand_files("greens", scan=dict(SCAN, industry="Supplements & nutrition"),
+                          compliance={"banned": [], "required_disclaimer": None, "countries": ["US"], "industries": ["supplements"]})
+        self.human_angles("greens")
+        self.plan(bid="greens")
+        r, lines = self.run_ads("greens")
+        self.assertTrue(r["written"], lines)
+        humans = {x["ad"]["primary"] for x in self.angles("greens")["angles"]}
+        for a in otto_styles.live_angles(self.matrix("greens")):
+            new = [p for p in a["primaries"] if p not in humans]
+            self.assertTrue(new and all("Food and Drug Administration" in p for p in new), a["primaries"])
+            self.assertTrue(all(p.count("Food and Drug Administration") == 1 for p in new))
+            self.assertLessEqual(len(new[0].split("\n")[0]), 125, "the disclaimer never lands in the first line")
+        # a brand disclaimer that compliance.json requires in ads
+        write_brand_files(compliance={"banned": [], "required_disclaimer": "Prices include VAT.", "disclaimer_on": ["posts", "ads"]})
+        self.human_angles()
+        self.plan()
+        self.run_ads()
+        humans = {x["ad"]["primary"] for x in self.angles()["angles"]}
+        for a in otto_styles.live_angles(self.matrix()):
+            new = [p for p in a["primaries"] if p not in humans]
+            self.assertTrue(new and all(p.endswith("\n\nPrices include VAT.") for p in new), a["primaries"])
+        self.assertEqual(otto_compliance.check_texts("beans", [new[0]], "ads"), [], "the disclosure the ads rule requires is there")
+
+    def test_cut_off_answer_is_split_and_errors_retry_later(self):
+        self.human_angles()
+        self.plan()
+        S["fake"].replies = [("max_tokens",)]
+        set_key(parallel=1)
+        r, lines = self.run_ads()
+        first = otto_styles.live_angles(self.matrix())[0]
+        self.assertEqual(first["copy"]["state"], "written", lines)
+        n_cells = len([c for c in otto_styles.live_cells(first) if c["format"] != "creator"])
+        reqs = self.ad_reqs("ad")
+        self.assertGreater(len(reqs), len(otto_styles.live_angles(self.matrix())), "the cut-off concept was asked in halves")
+        self.assertTrue(all((c.get("copy") or {}).get("state") == "written" for c in otto_styles.live_cells(first)
+                            if c["format"] != "creator"), n_cells)
+        # an API error: the parts are stamped failed, retried only after a pause
+        self.plan()
+        S["fake"].reset()
+        S["fake"].replies = [("error", 500, "api_error", "Internal server error")] * 40
+        r2, _ = self.run_ads()
+        self.assertTrue(r2["failed"])
+        self.assertTrue(all((a.get("copy") or {}).get("state") == "failed" for a in otto_styles.live_angles(self.matrix())))
+        S["fake"].reset()
+        r3, _ = self.run_ads()
+        self.assertEqual(self.ad_reqs(), [], "not again within 50 minutes")
+        mx = self.matrix()
+        for a in mx["angles"]:
+            a["copy"]["at"] = otto_copy.iso(datetime.now(timezone.utc) - timedelta(hours=2))
+            for c in a["ads"]:
+                if c.get("copy"):
+                    c["copy"]["at"] = a["copy"]["at"]
+        otto_styles.save_matrix("beans", self.ym, mx)
+        r4, _ = self.run_ads()
+        self.assertTrue(r4["written"], "retried after the pause")
+
+    def test_refusal_fails_only_that_concept(self):
+        self.human_angles()
+        self.plan()
+        S["fake"].replies = [("refusal", "cyber")]
+        set_key(parallel=1)
+        r, _ = self.run_ads()
+        angles = otto_styles.live_angles(self.matrix())
+        self.assertEqual(angles[0]["copy"]["state"], "failed")
+        self.assertIn("declined", angles[0]["copy"]["error"])
+        self.assertTrue(all(a["copy"]["state"] == "written" for a in angles[1:]))
+        day = next(iter(json.loads((TMP / "copy-usage.json").read_text())["days"].values()))
+        self.assertEqual(day["refused"], 1)
+
+
+class AdsTriggers(AdsBase):
+    def test_otto_ads_plan_spawns_the_copywriter(self):
+        buf = io.StringIO()
+        with contextlib.redirect_stdout(buf):
+            otto_ads.plan("beans", self.ym, 20.0)
+        self.assertTrue(otto_styles.untouched_skeleton(self.matrix()), "the planner stamps its skeleton")
+        self.assertEqual(len(S["spawned"]), 1, buf.getvalue())
+        args = S["spawned"][0]
+        self.assertEqual(Path(args[1]).name, "otto_copy.py")
+        self.assertEqual(args[2:], ["ads", "--brand", "beans", "--month", self.ym])
+        self.assertIn(f"ads --brand beans --month {self.ym}", (TMP / "copy.log").read_text())
+        # without a key the plan is the same, nothing is started
+        (TMP / "secrets" / "anthropic.json").unlink()
+        S["spawned"].clear()
+        d = data()
+        d["campaigns"] = []
+        (TMP / "data.json").write_text(json.dumps(d))
+        with contextlib.redirect_stdout(io.StringIO()):
+            otto_ads.plan("beans", self.ym, 20.0)
+        self.assertEqual(S["spawned"], [])
+
+    def test_matrix_cli_plan_spawns_too(self):
+        with contextlib.redirect_stdout(io.StringIO()):
+            self.assertEqual(otto_creative.matrix_cli("beans", self.ym, ["--plan"]), 0)
+        self.assertEqual(S["spawned"][0][2:], ["ads", "--brand", "beans", "--month", self.ym])
+        self.assertTrue(otto_styles.untouched_skeleton(self.matrix()))
+
+    def test_queued_on_the_server_then_written(self):
+        q = TMP / "queue" / "copy"
+        shutil.rmtree(TMP / "queue", ignore_errors=True)
+        os.environ["OTTO_COPY_QUEUE"] = str(q)
+        try:
+            self.plan()
+            self.assertTrue(otto_copy.spawn_ads("beans", self.ym))
+            self.assertEqual(S["spawned"], [])
+            self.assertEqual([f.name for f in q.iterdir()], [f"beans.{self.ym}.ads"])
+            self.assertFalse(otto_copy.spawn_ads("beans", "2026-13"))
+            self.assertFalse(otto_copy.spawn_ads("../etc", self.ym))
+            lines = []
+            self.assertEqual(otto_copy.run_queue(out=lines.append), 2, "the ad copy, then the video ads it queued")
+            self.assertEqual([j["kind"] for j in S["video_jobs"]], ["videos"])
+            self.assertEqual(list(q.iterdir()), [])
+            self.assertTrue(self.ad_reqs("ad"), lines)
+            st = otto_copy.ad_state(data(), ap.brand(data(), "beans"))["months"][0]
+            self.assertEqual(st["cells_need"], 0, "nothing left for the copywriter (Starter's creator cells are not its job)")
+            self.assertEqual(st["concepts_need"], 0)
+        finally:
+            os.environ.pop("OTTO_COPY_QUEUE", None)
+
+    def test_written_video_beats_start_their_render(self):
+        """write_ads ends by starting the month's video ads (otto_advideo.spawn): a background render locally, the
+        <id>.<month>.videos queue file on the server — which the queue service renders after any kickoff / ad copy."""
+        self.human_angles()
+        self.plan()
+        r, lines = self.run_ads()
+        self.assertEqual(r.get("videos"), "started", lines)
+        self.assertEqual(len(S["video_spawned"]), 1)
+        self.assertEqual(Path(S["video_spawned"][0][1]).name, "otto_advideo.py")
+        self.assertEqual(S["video_spawned"][0][2:], ["render", "--brand", "beans", "--month", self.ym])
+        self.assertEqual(S["spawned"], [], "the copywriter's own spawn is not used for renders")
+        # on the server: queued (and the queue runs it with the jobs' renderer)
+        q = TMP / "queue" / "copy"
+        shutil.rmtree(TMP / "queue", ignore_errors=True)
+        os.environ["OTTO_COPY_QUEUE"] = str(q)
+        rendered = S["video_jobs"]
+        try:
+            S["video_spawned"].clear()
+            r, lines = self.run_ads()
+            self.assertEqual(r.get("videos"), "queued", lines)
+            self.assertEqual([f.name for f in q.iterdir()], [f"beans.{self.ym}.videos"])
+            self.assertEqual(S["video_spawned"], [])
+            self.assertEqual(otto_copy.run_queue(out=lines.append), 1)
+            self.assertEqual(rendered[0]["brand"], "beans")
+            self.assertEqual(list(q.iterdir()), [])
+        finally:
+            os.environ.pop("OTTO_COPY_QUEUE", None)
+        # a plan without video ads starts nothing
+        self.set_plan("content")
+        S["video_spawned"].clear()
+        self.run_ads()
+        self.assertEqual(S["video_spawned"], [])
+
+    def test_trial_writes_its_ads_after_the_first_week(self):
+        d = data()
+        b = ap.brand(d, "beans")
+        b.update(plan="trial", trial={"user": "u1", "started_at": "2026-10-02T08:00:00Z", "ends_at": "2026-10-09T08:00:00Z"},
+                 kickoff={"done": True, "at": otto_copy.iso(datetime.now(timezone.utc) - timedelta(minutes=30)),
+                          "months": [self.ym], "planned": [self.ym], "copy_needed": True})
+        (TMP / "data.json").write_text(json.dumps(d))
+        r, lines = self.run_week()
+        self.assertEqual(len(r["written"]), 6)
+        kinds = [FA.ad_kind(x["body"]) for x in S["fake"].requests()]
+        first_ad = next(i for i, k in enumerate(kinds) if k)
+        self.assertTrue(all(k is None for k in kinds[:first_ad]) and all(kinds[first_ad:]), "the posts first, then the ads")
+        self.assertEqual(kinds.count("angles"), 1)
+        mx = self.matrix()
+        self.assertIsNotNone(mx, "the trial's month gets its matrix to preview")
+        self.assertEqual(mx["preset"], "micro")
+        self.assertTrue(all(a.get("headlines") and a.get("primaries") for a in otto_styles.live_angles(mx)))
+        self.assertTrue(self.angles()["angles"])
+        self.assertFalse(ap.brand(data(), "beans")["kickoff"]["copy_needed"])
+        led = json.loads((TMP / "copy-usage.json").read_text())
+        self.assertEqual(led["ads"]["beans"]["job"], "trial kickoff")
+        # nothing launches on a trial
+        self.assertIn("launches none", ap.no_launch_why(data(), "beans"))
+
+    def test_daily_fills_gaps_then_nothing(self):
+        self.human_angles()
+        self.plan()
+        lines = []
+        rs = otto_copy.daily("beans", out=lines.append)
+        ads = rs[0]["ads"]
+        self.assertEqual(len(ads), 1)
+        self.assertTrue(ads[0]["written"], lines)
+        n = len(S["fake"].requests())
+        rs2 = otto_copy.daily("beans", out=lines.append)
+        self.assertEqual(len(S["fake"].requests()), n, "a written month asks for nothing (optional fields are asked once)")
+        self.assertEqual(rs2[0]["ads"][0]["written"], [])
+        # next month's matrix (the 25th planned it) is filled too
+        nxt = otto_copy.next_month(self.ym)
+        mx = otto_styles.plan_matrix("beans", ym=nxt, preset="micro")
+        otto_styles.save_matrix("beans", nxt, mx)
+        rs3 = otto_copy.daily("beans", out=lines.append)
+        self.assertEqual([x["month"] for x in rs3[0]["ads"]], [self.ym, nxt])
+        self.assertTrue(rs3[0]["ads"][1]["written"])
+        self.assertEqual(otto_copy.main(["daily", "--brand", "beans"]), 0)
+
+    def test_caps_stop_the_ads_too(self):
+        self.human_angles()
+        self.plan()
+        set_key(max_calls_per_brand_day=1)
+        r, lines = self.run_ads()
+        self.assertEqual(len(S["fake"].requests()), 1)
+        self.assertIn("daily cap of 1", r["stop"])
+        self.assertTrue(r["failed"])
+        note = next(x for x in data()["recommendations"] if x["title"] == "Ad copy not written yet: Bean Bros")
+        self.assertIn("cap", note["why"])
+        self.assertEqual(note["audience"], "owner")
+        mx = self.matrix()
+        failed = [a for a in otto_styles.live_angles(mx) if (a.get("copy") or {}).get("state") == "failed"]
+        self.assertTrue(failed and all(len(a["primaries"]) < 2 for a in failed), "nothing written for a concept the cap stopped")
+        led = json.loads((TMP / "copy-usage.json").read_text())
+        self.assertEqual(next(iter(led["days"].values()))["brands"]["beans"]["calls"], 1)
+        # the global cap is shared with the posts: the week's first call takes the day's only call
+        (TMP / "copy-usage.json").unlink()
+        self.plan()
+        set_key(max_calls_day=1)
+        S["fake"].reset()
+        self.run_week()
+        self.assertEqual(len(S["fake"].requests()), 1)
+        r2, _ = self.run_ads()
+        self.assertEqual(len(S["fake"].requests()), 1, "no ad request past the global cap")
+        self.assertIn("daily cap", r2["stop"])
+
+    def test_cli_and_status(self):
+        self.plan()
+        buf = io.StringIO()
+        with contextlib.redirect_stdout(buf):
+            self.assertEqual(otto_copy.main(["ads", "--brand", "beans", "--dry"]), 0)
+            self.assertEqual(otto_copy.main(["ads", "--brand", "beans", "--month", "2026-13"]), 1)
+            self.assertEqual(otto_copy.main(["ads", "--brand", "nobody"]), 1)
+            self.assertEqual(otto_copy.main(["status"]), 0)
+        out = buf.getvalue()
+        self.assertIn("WOULD BUILD angles.json", out)
+        self.assertIn("ads: angles.json missing", out)
+        self.assertIn(f"{self.ym} micro", out)
+        self.assertEqual(S["fake"].requests(), [])
+        with contextlib.redirect_stdout(io.StringIO()):
+            self.assertEqual(otto_copy.main(["ads", "--brand", "beans", "--month", self.ym]), 0)
+        info = otto_copy.status(out=lambda *a: None)
+        row = next(x for x in info["brands"] if x["brand"] == "beans")
+        self.assertEqual(row["ads"]["angles_json"], "ok")
+        self.assertEqual(row["last_ads_run"]["month"], self.ym)
+        self.assertNotIn(FA.KEY, json.dumps(info))
 
 
 class SelfServeFlag(unittest.TestCase):
