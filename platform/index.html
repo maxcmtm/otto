@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <!-- CSP: script-src lists the sha256 of every inline script element in this page. After editing one, the browser refuses it and its console prints the new hash: replace the old one here (or recompute all of them). -->
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-4lFFNOdeMK1RtMhO3hfo1+foKB78v77V2d8vAZHYue0='; style-src 'self' 'unsafe-inline'; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-src 'none'; worker-src 'none'; manifest-src 'self'; img-src 'self' data: blob: https:; media-src 'self' blob: https:">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-QlAsumq2HLp/1ou8PB9sCRzpaTqVsF4yzbGfjOJqQA8='; style-src 'self' 'unsafe-inline'; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-src 'none'; worker-src 'none'; manifest-src 'self'; img-src 'self' data: blob: https:; media-src 'self' blob: https:">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="color-scheme" content="light dark">
 <meta name="theme-color" content="#F5F7FB" media="(prefers-color-scheme: light)">
@@ -1515,7 +1515,7 @@ function renderToday(first){
     s1 = `${numw(n)} ${plural(n, "post")} ${n === 1 ? "needs" : "need"} you.`;
     if(late === n) s2 = n === 1 ? "Its slot has passed." : n === 2 ? "Both are past their slot." : `All ${numw(n).toLowerCase()} are past their slot.`;
     else if(late) s2 = `${numw(late)} ${late === 1 ? "is" : "are"} past ${late === 1 ? "its" : "their"} slot.`;
-    else s2 = `The first is due ${when(P[0].slot)}.`;
+    else s2 = `The first is due ${when(P[0].slot).replace(/^(Today|Tomorrow|Yesterday)\b/, w => w.toLowerCase())}.`;   /* mid-sentence: "due tomorrow 09:00" */
   } else if(making && !nextUp().length){
     s1 = "Nothing needs you yet."; s2 = "Posts appear here as they're ready.";
   } else {
